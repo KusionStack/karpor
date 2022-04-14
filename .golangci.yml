@@ -1,0 +1,54 @@
+# This file contains all available configuration options
+# with their default values.
+# For complete .golangci.yml configuration, reference: https://golangci-lint.run/usage/configuration/#config-file
+
+# options for analysis running
+run:
+  timeout: 10m
+
+linters:
+  disable-all: true
+  enable: # please keep this alphabetized
+  # Don't use soon to deprecated[1] linters that lead to false
+  # https://github.com/golangci/golangci-lint/issues/1841
+  # - deadcode
+  # - structcheck
+  # - varcheck
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosimple
+    - errcheck
+    - govet
+    - gofumpt
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - exportloopref
+    - exhaustive
+    - goconst
+    - gocritic
+    - gomnd
+    - gosec
+    - misspell
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - stylecheck
+    - thelper
+    - tparallel
+    - typecheck
+    - unconvert
+    - unparam
+    - whitespace
+    - wsl
+
+linters-settings:
+  gofumpt:
+    # Select the Go version to target. The default is `1.15`.
+    lang-version: "1.16"
+    # Choose whether or not to use the extra rules that are disabled
+    # by default
+    extra-rules: false
