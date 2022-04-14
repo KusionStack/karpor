@@ -3,7 +3,6 @@ aciTags: DOCKER
 stages: # 定义了一条pipeline
   - 前置任务 # 定义了stage
   - 交付物
-  - 自动更新
   
 Go 代码扫描:
   stage: 前置任务
@@ -89,11 +88,49 @@ Go 代码扫描:
 #       displayName: 覆盖率报告  #(html链接的展示名称 默认是 链接名称)
 
 
-Build-Binary:
+构建预发布镜像:
   stage: 交付物 # 本阶段执行两个步骤，一是执行项目源代码编译，二是进行镜像的构建
   only:
     triggerType:
       - push 
+    triggerBranch:
+      pushOriginalBranch:
+        - ^master$
+  plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
+  pluginConfig:
+    image: reg.docker.alibaba-inc.com/kusion/kclvm-builder:latest # 指定使用哪个image
+    beforeScript:
+      - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
+    script:
+      - cd ${LINKB_WORKSPACE}
+      - make build-all
+    inputs: # 这一步指定镜像构建的输入参数，需要一个context目录和一个Dockerfile的路径
+      params:
+        - name: DIRECTORY
+          value: . # docker build指令执行时使用的context目录
+        - name: DOCKERFILE
+          value: Dockerfile # Dockerfile的路径，相对于源代码项目的根目录
+    outputs: # 纳入构建物列表
+      - name: "iactestpolicy-linux"
+        desc: "iactestpolicy for linux/amd64"
+        paths: [ "./build/linux/iactestpolicy" ]
+      - name: "iactestpolicy-darwin"
+        desc: "iactestpolicy for darwin"
+        paths: [ "./build/darwin/iactestpolicy" ]
+      - name: "iactestpolicy-windows"
+        desc: "iactestpolicy for windows"
+        paths: [ "./build/windows/iactestpolicy.exe" ]
+      - name: iactestpolicy # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
+        type: image
+        repository: reg.docker.alibaba-inc.com
+        namespace: kusion
+        tag: ${ACI_COMMIT_TAG}-${ACI_COMMIT_SHORT_SHA}
+        desc: "iactestpolicy"
+
+构建正式镜像:
+  stage: 交付物 # 本阶段执行两个步骤，一是执行项目源代码编译，二是进行镜像的构建
+  only:
+    triggerType:
       - tagPush
     triggerBranch:
       pushOriginalBranch:
