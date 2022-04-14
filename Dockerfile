@@ -1,6 +1,6 @@
 FROM reg.docker.alibaba-inc.com/alipay/7u2-common:202107.0T
 
-COPY build/darwin/ /app/
+COPY build/linux/ /app/
 RUN chmod +x /app/iactestpolicy
 
 ENV PATH="/app/:${PATH}"

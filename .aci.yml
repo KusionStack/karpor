@@ -115,22 +115,16 @@ Build-Binary:
     outputs: # 纳入构建物列表
       - name: "iactestpolicy-linux"
         desc: "iactestpolicy for linux/amd64"
-        paths: [ "./build/linux/bin/iactestpolicy" ]
+        paths: [ "./build/linux/iactestpolicy" ]
       - name: "iactestpolicy-darwin"
         desc: "iactestpolicy for darwin"
-        paths: [ "./build/darwin/bin/iactestpolicy" ]
-      - name: "iactestpolicy-darwin-arm64"
-        desc: "iactestpolicy for darwin arm64"
-        paths: [ "./build/darwin-arm64/bin/iactestpolicy" ]
+        paths: [ "./build/darwin/iactestpolicy" ]
       - name: "iactestpolicy-windows"
         desc: "iactestpolicy for windows"
-        paths: [ "./build/windows/bin/iactestpolicy.exe" ]
-      - name: "iactestpolicy-install-script"
-        desc: "iactestpolicy install script"
-        paths: [ "./scripts/install_iactestpolicy.sh" ]
+        paths: [ "./build/windows/iactestpolicy.exe" ]
       - name: iactestpolicy # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
         type: image
         repository: reg.docker.alibaba-inc.com
         namespace: kusion
-        tag: ${KUSION_VERSION}
+        tag: ${ACI_COMMIT_TAG}
         desc: "iactestpolicy"
