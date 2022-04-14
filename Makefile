@@ -2,6 +2,8 @@ GOSOURCE_PATHS ?= ./cmd/...
 
 include go.mk
 
+APPROOT=iactestpolicy
+
 
 .PHONY: clean
 clean:  ## Clean build bundles
