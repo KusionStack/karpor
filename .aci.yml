@@ -1,0 +1,136 @@
+aciTags: DOCKER
+
+stages: # 定义了一条pipeline
+  - 前置任务 # 定义了stage
+  - 交付物
+  - 自动更新
+  
+Go 代码扫描:
+  stage: 前置任务
+  only:
+    change:
+      - pkg/*
+      - cmd/*
+  plugin: CMD
+  parameters:
+    ACI_TIMEOUT: '10' # 特殊参数, 定义Job超时时间，单位是min
+  # # 暂不开启强制扫描结果卡点
+  # allowFailure: true
+  pluginConfig:
+    encoding: UTF-8 # 编码设置
+    excludes: # 排除哪些项不进行代码扫描, 匹配相对于项目根目录的相对路径
+      - "scripts/**"
+      - "vendor/**"
+    # 设置CMD进行扫描的语言，目前可用 CMD_CPP_SCAN、CMD_GO_SCAN、CMD_GOLANGCI_LINT、CMD_PYTHON_FLAKE8
+    # CMD_GOLANGCI_LINT 符合 golangci-lint 的社区规范，golangci-lint 配置见：.golangci.yml
+    taskKind: CMD_GOLANGCI_LINT
+  checkRule:
+    - blocker = 0 && critical = 0
+
+# ref:
+# https://code.alipay.com/ant-cas/KCLVM/blob/master/.aci.yml
+# https://code.alipay.com/sigma/alipay-extensions/blob/master/.aci.yml
+# https://yuque.antfin-inc.com/computing_ai_quality/ci_solution/skgvar
+# Go 单元测试:
+#   stage: 前置任务
+#   only:
+#     change:
+#       - pkg/*
+#       - cmd/*
+#   aciTags: DOCKER
+#   steps:
+#     - plugin: clone
+#     - plugin: shell
+#       resources:
+#         cpu: 2
+#         mem: 4
+#         disk: 10
+#       inputs:
+#         image: reg.docker.alibaba-inc.com/kusion/kclvm-builder
+#         command:
+#           - |
+#             chmod 700 ${WORKSPACE}/scripts/set_aci_env.sh && ${WORKSPACE}/scripts/set_aci_env.sh
+#             cd ${WORKSPACE}
+#             mkdir -p result
+
+#             # generate cover.out & coverage.log
+#             TEST_FLAGS=-count=1 make test-cover | tee coverage.log
+
+#             # generate TEST-all.xml by coverate.log
+#             cat coverage.log | /go/bin/go-junit-report > $WORKSPACE/result/TEST-all.xml
+
+#             # generate coverage report of html format by cover.out
+#             go tool cover -html=cover.out -o $WORKSPACE/result/coverage.html
+
+#             # compute func-coverage by cover.out
+#             go tool cover -func=cover.out -o $WORKSPACE/result/func.out
+#             echo test func-coverage $(tail -1 $WORKSPACE/result/func.out | awk '{print $3}')
+
+#             # generate cover.xml by cover.out
+#             cat cover.out | /go/bin/gocover-cobertura > $WORKSPACE/result/cover.xml
+#     - plugin: coverage-client-upload-compass
+#       inputs:
+#         filePath: result/cover.xml
+#         timeout: "300"
+#   checkRule:
+#     # 代码测试通过率
+#     - passRate = 100
+#     # 代码总体覆盖率
+#     - coverage > 20
+#     # # 代码变更覆盖率
+#     # - diffLineCoverage > 20
+#   publisher:
+#     archiveArtifacts:
+#       artifacts: "result/"
+#       allowEmptyArchive: true
+#     junit: "**/TEST-*.xml"
+#     html:
+#       index: result/coverage.html  #(html的入口)
+#       displayName: 覆盖率报告  #(html链接的展示名称 默认是 链接名称)
+
+
+Build-Binary:
+  stage: 交付物 # 本阶段执行两个步骤，一是执行项目源代码编译，二是进行镜像的构建
+  only:
+    triggerType:
+      - push 
+      - tagPush
+    triggerBranch:
+      pushOriginalBranch:
+        - ^master$
+  plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
+  pluginConfig:
+    image: reg.docker.alibaba-inc.com/kusion/kclvm-builder:latest # 指定使用哪个image
+    beforeScript:
+      - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
+    script:
+      - cd ${LINKB_WORKSPACE}
+      - make build-all
+    inputs: # 这一步指定镜像构建的输入参数，需要一个context目录和一个Dockerfile的路径
+      params:
+        - name: DIRECTORY
+          value: . # docker build指令执行时使用的context目录
+        - name: DOCKERFILE
+          value: Dockerfile # Dockerfile的路径，相对于源代码项目的根目录
+    outputs: # 纳入构建物列表
+      - name: "iactestpolicy-linux"
+        desc: "iactestpolicy for linux/amd64"
+        paths: [ "./build/linux/bin/iactestpolicy" ]
+      - name: "iactestpolicy-darwin"
+        desc: "iactestpolicy for darwin"
+        paths: [ "./build/darwin/bin/iactestpolicy" ]
+      - name: "iactestpolicy-darwin-arm64"
+        desc: "iactestpolicy for darwin arm64"
+        paths: [ "./build/darwin-arm64/bin/iactestpolicy" ]
+      - name: "iactestpolicy-windows"
+        desc: "iactestpolicy for windows"
+        paths: [ "./build/windows/bin/iactestpolicy.exe" ]
+      - name: "iactestpolicy-install-script"
+        desc: "iactestpolicy install script"
+        paths: [ "./scripts/install_iactestpolicy.sh" ]
+      - name: iactestpolicy # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
+        type: image
+        repository: reg.docker.alibaba-inc.com
+        namespace: kusion
+        tag: ${KUSION_VERSION}
+        desc: "iactestpolicy"
