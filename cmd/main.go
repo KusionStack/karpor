@@ -16,6 +16,9 @@ func setupRouter() *gin.Engine {
 	// Get user value
 	r.GET("/user/:name", handler.GetUserHandler)
 
+	// Get pod in some namespace.
+	r.GET("/ns/:ns/pods", handler.GetPods)
+
 	// Authorized group (uses gin.BasicAuth() middleware)
 	// Same than:
 	// authorized := r.Group("/")
