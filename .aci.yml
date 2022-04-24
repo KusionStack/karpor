@@ -98,7 +98,7 @@ Go 代码扫描:
         - ^master$
   plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
   pluginConfig:
-    image: reg.docker.alibaba-inc.com/kusion/kclvm-builder:latest # 指定使用哪个image
+    image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
     beforeScript:
       - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
     script:
@@ -137,7 +137,7 @@ Go 代码扫描:
         - ^master$
   plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
   pluginConfig:
-    image: reg.docker.alibaba-inc.com/kusion/kclvm-builder:latest # 指定使用哪个image
+    image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
     beforeScript:
       - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
     script:
