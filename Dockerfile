@@ -1,4 +1,4 @@
-FROM reg.docker.alibaba-inc.com/alipay/7u2-common:202107.0T
+FROM reg.docker.alibaba-inc.com/alipay/7u2-common:202202.0T
 
 COPY build/linux/ /app/
 RUN chmod +x /app/iactestpolicy
