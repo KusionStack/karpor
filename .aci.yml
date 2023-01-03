@@ -123,7 +123,7 @@ Go 代码扫描:
       - name: karbour # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
         type: image
         repository: reg.docker.alibaba-inc.com
-        namespace: kusion
+        namespace: ant-iac
         tag: ${ACI_COMMIT_TAG}-${ACI_COMMIT_SHORT_SHA}
         desc: "karbour"
 
@@ -162,6 +162,6 @@ Go 代码扫描:
       - name: karbour # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
         type: image
         repository: reg.docker.alibaba-inc.com
-        namespace: kusion
+        namespace: ant-iac
         tag: ${ACI_COMMIT_TAG}
         desc: "karbour"
