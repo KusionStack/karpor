@@ -111,21 +111,21 @@ Go 代码扫描:
         - name: DOCKERFILE
           value: Dockerfile # Dockerfile的路径，相对于源代码项目的根目录
     outputs: # 纳入构建物列表
-      - name: "iactestpolicy-linux"
-        desc: "iactestpolicy for linux/amd64"
-        paths: [ "./build/linux/iactestpolicy" ]
-      - name: "iactestpolicy-darwin"
-        desc: "iactestpolicy for darwin"
-        paths: [ "./build/darwin/iactestpolicy" ]
-      - name: "iactestpolicy-windows"
-        desc: "iactestpolicy for windows"
-        paths: [ "./build/windows/iactestpolicy.exe" ]
-      - name: iactestpolicy # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
+      - name: "karbour-linux"
+        desc: "karbour for linux/amd64"
+        paths: [ "./build/linux/karbour" ]
+      - name: "karbour-darwin"
+        desc: "karbour for darwin"
+        paths: [ "./build/darwin/karbour" ]
+      - name: "karbour-windows"
+        desc: "karbour for windows"
+        paths: [ "./build/windows/karbour.exe" ]
+      - name: karbour # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
         type: image
         repository: reg.docker.alibaba-inc.com
         namespace: kusion
         tag: ${ACI_COMMIT_TAG}-${ACI_COMMIT_SHORT_SHA}
-        desc: "iactestpolicy"
+        desc: "karbour"
 
 构建正式镜像:
   stage: 交付物 # 本阶段执行两个步骤，一是执行项目源代码编译，二是进行镜像的构建
@@ -150,18 +150,18 @@ Go 代码扫描:
         - name: DOCKERFILE
           value: Dockerfile # Dockerfile的路径，相对于源代码项目的根目录
     outputs: # 纳入构建物列表
-      - name: "iactestpolicy-linux"
-        desc: "iactestpolicy for linux/amd64"
-        paths: [ "./build/linux/iactestpolicy" ]
-      - name: "iactestpolicy-darwin"
-        desc: "iactestpolicy for darwin"
-        paths: [ "./build/darwin/iactestpolicy" ]
-      - name: "iactestpolicy-windows"
-        desc: "iactestpolicy for windows"
-        paths: [ "./build/windows/iactestpolicy.exe" ]
-      - name: iactestpolicy # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
+      - name: "karbour-linux"
+        desc: "karbour for linux/amd64"
+        paths: [ "./build/linux/karbour" ]
+      - name: "karbour-darwin"
+        desc: "karbour for darwin"
+        paths: [ "./build/darwin/karbour" ]
+      - name: "karbour-windows"
+        desc: "karbour for windows"
+        paths: [ "./build/windows/karbour.exe" ]
+      - name: karbour # 产出的镜像名称 参考：https://yuque.antfin-inc.com/linke/help/exwqd4#Ws5IS
         type: image
         repository: reg.docker.alibaba-inc.com
         namespace: kusion
         tag: ${ACI_COMMIT_TAG}
-        desc: "iactestpolicy"
+        desc: "karbour"

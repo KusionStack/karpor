@@ -1,4 +1,4 @@
-module code.alipay.com/ant-iac/iactestpolicy
+module code.alipay.com/ant-iac/karbour
 
 go 1.16
 

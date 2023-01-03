@@ -2,7 +2,7 @@ GOSOURCE_PATHS ?= ./cmd/...
 
 include go.mk
 
-APPROOT=iactestpolicy
+APPROOT=karbour
 
 
 .PHONY: clean

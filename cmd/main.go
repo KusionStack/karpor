@@ -1,7 +1,7 @@
 package main
 
 import (
-	"code.alipay.com/ant-iac/iactestpolicy/pkg/handler"
+	"code.alipay.com/ant-iac/karbour/pkg/handler"
 	"github.com/gin-gonic/gin"
 )
 
