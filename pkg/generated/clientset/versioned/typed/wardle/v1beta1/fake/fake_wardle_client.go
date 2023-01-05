@@ -21,7 +21,7 @@ package fake
 import (
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
-	v1beta1 "k8s.io/sample-apiserver/pkg/generated/clientset/versioned/typed/wardle/v1beta1"
+	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1beta1"
 )
 
 type FakeWardleV1beta1 struct {

@@ -22,8 +22,8 @@ import (
 	"net/http"
 
 	rest "k8s.io/client-go/rest"
-	v1beta1 "k8s.io/sample-apiserver/pkg/apis/wardle/v1beta1"
-	"k8s.io/sample-apiserver/pkg/generated/clientset/versioned/scheme"
+	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1beta1"
+	"code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/scheme"
 )
 
 type WardleV1beta1Interface interface {

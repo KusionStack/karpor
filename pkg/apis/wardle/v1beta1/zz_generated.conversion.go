@@ -26,7 +26,7 @@ import (
 
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
-	wardle "k8s.io/sample-apiserver/pkg/apis/wardle"
+	wardle "code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
 )
 
 func init() {

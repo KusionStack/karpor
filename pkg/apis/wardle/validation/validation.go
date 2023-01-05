@@ -18,7 +18,7 @@ package validation
 
 import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
 )
 
 // ValidateFlunder validates a Flunder.

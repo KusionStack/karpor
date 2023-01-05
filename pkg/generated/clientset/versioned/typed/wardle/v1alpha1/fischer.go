@@ -26,8 +26,8 @@ import (
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
-	v1alpha1 "k8s.io/sample-apiserver/pkg/apis/wardle/v1alpha1"
-	scheme "k8s.io/sample-apiserver/pkg/generated/clientset/versioned/scheme"
+	v1alpha1 "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1alpha1"
+	scheme "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/scheme"
 )
 
 // FischersGetter has a method to return a FischerInterface.

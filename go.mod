@@ -5,13 +5,15 @@ go 1.19
 require (
 	github.com/google/gofuzz v1.2.0
 	github.com/spf13/cobra v1.6.1
+	github.com/spf13/pflag v1.0.5
 	k8s.io/apimachinery v0.26.0
 	k8s.io/apiserver v0.26.0
 	k8s.io/client-go v0.26.0
 	k8s.io/code-generator v0.26.0
 	k8s.io/component-base v0.26.0
+	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d
+	k8s.io/klog/v2 v2.80.1
 	k8s.io/kube-openapi v0.0.0-20221207184640-f3cff1453715
-	k8s.io/sample-apiserver v0.26.0
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 )
 
@@ -57,7 +59,6 @@ require (
 	github.com/prometheus/client_model v0.3.0 // indirect
 	github.com/prometheus/common v0.37.0 // indirect
 	github.com/prometheus/procfs v0.8.0 // indirect
-	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
@@ -94,8 +95,6 @@ require (
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.26.0 // indirect
-	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d // indirect
-	k8s.io/klog/v2 v2.80.1 // indirect
 	k8s.io/kms v0.26.0 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.33 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect

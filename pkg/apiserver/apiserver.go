@@ -25,11 +25,11 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
-	"k8s.io/sample-apiserver/pkg/apis/wardle/install"
-	wardleregistry "k8s.io/sample-apiserver/pkg/registry"
-	fischerstorage "k8s.io/sample-apiserver/pkg/registry/wardle/fischer"
-	flunderstorage "k8s.io/sample-apiserver/pkg/registry/wardle/flunder"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle/install"
+	wardleregistry "code.alipay.com/ant-iac/karbour/pkg/registry"
+	fischerstorage "code.alipay.com/ant-iac/karbour/pkg/registry/wardle/fischer"
+	flunderstorage "code.alipay.com/ant-iac/karbour/pkg/registry/wardle/flunder"
 )
 
 var (

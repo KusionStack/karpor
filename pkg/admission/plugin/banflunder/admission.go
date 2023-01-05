@@ -25,10 +25,10 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apiserver/pkg/admission"
-	"k8s.io/sample-apiserver/pkg/admission/wardleinitializer"
-	"k8s.io/sample-apiserver/pkg/apis/wardle"
-	informers "k8s.io/sample-apiserver/pkg/generated/informers/externalversions"
-	listers "k8s.io/sample-apiserver/pkg/generated/listers/wardle/v1alpha1"
+	"code.alipay.com/ant-iac/karbour/pkg/admission/wardleinitializer"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
+	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
+	listers "code.alipay.com/ant-iac/karbour/pkg/generated/listers/wardle/v1alpha1"
 )
 
 // Register registers a plugin

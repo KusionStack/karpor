@@ -21,7 +21,7 @@ import (
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
-	"k8s.io/sample-apiserver/pkg/cmd/server"
+	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
 )
 
 func main() {

@@ -27,9 +27,9 @@ import (
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
-	versioned "k8s.io/sample-apiserver/pkg/generated/clientset/versioned"
-	internalinterfaces "k8s.io/sample-apiserver/pkg/generated/informers/externalversions/internalinterfaces"
-	wardle "k8s.io/sample-apiserver/pkg/generated/informers/externalversions/wardle"
+	versioned "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned"
+	internalinterfaces "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/internalinterfaces"
+	wardle "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/wardle"
 )
 
 // SharedInformerOption defines the functional option type for SharedInformerFactory.

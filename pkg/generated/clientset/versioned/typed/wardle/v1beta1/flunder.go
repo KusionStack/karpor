@@ -26,8 +26,8 @@ import (
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"
 	rest "k8s.io/client-go/rest"
-	v1beta1 "k8s.io/sample-apiserver/pkg/apis/wardle/v1beta1"
-	scheme "k8s.io/sample-apiserver/pkg/generated/clientset/versioned/scheme"
+	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1beta1"
+	scheme "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/scheme"
 )
 
 // FlundersGetter has a method to return a FlunderInterface.
