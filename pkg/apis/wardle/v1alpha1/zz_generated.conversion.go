@@ -219,14 +219,14 @@ func Convert_wardle_FlunderList_To_v1alpha1_FlunderList(in *wardle.FlunderList, 
 
 func autoConvert_v1alpha1_FlunderSpec_To_wardle_FlunderSpec(in *FlunderSpec, out *wardle.FlunderSpec, s conversion.Scope) error {
 	// WARNING: in.Reference requires manual conversion: does not exist in peer-type
-	// WARNING: in.ReferenceType requires manual conversion: inconvertible types (*k8s.io/sample-apiserver/pkg/apis/wardle/v1alpha1.ReferenceType vs k8s.io/sample-apiserver/pkg/apis/wardle.ReferenceType)
+	// WARNING: in.ReferenceType requires manual conversion: inconvertible types (*code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1alpha1.ReferenceType vs code.alipay.com/ant-iac/karbour/pkg/apis/wardle.ReferenceType)
 	return nil
 }
 
 func autoConvert_wardle_FlunderSpec_To_v1alpha1_FlunderSpec(in *wardle.FlunderSpec, out *FlunderSpec, s conversion.Scope) error {
 	// WARNING: in.FlunderReference requires manual conversion: does not exist in peer-type
 	// WARNING: in.FischerReference requires manual conversion: does not exist in peer-type
-	// WARNING: in.ReferenceType requires manual conversion: inconvertible types (k8s.io/sample-apiserver/pkg/apis/wardle.ReferenceType vs *k8s.io/sample-apiserver/pkg/apis/wardle/v1alpha1.ReferenceType)
+	// WARNING: in.ReferenceType requires manual conversion: inconvertible types (code.alipay.com/ant-iac/karbour/pkg/apis/wardle.ReferenceType vs *code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1alpha1.ReferenceType)
 	return nil
 }
 
