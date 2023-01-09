@@ -1,3 +1,5 @@
+version: 1.5
+
 aciTags: DOCKER
 
 stages: # 定义了一条pipeline
@@ -18,7 +20,7 @@ Go 代码扫描:
   pluginConfig:
     encoding: UTF-8 # 编码设置
     excludes: # 排除哪些项不进行代码扫描, 匹配相对于项目根目录的相对路径
-      - "scripts/**"
+      - "hack/**"
       - "vendor/**"
     # 设置CMD进行扫描的语言，目前可用 CMD_CPP_SCAN、CMD_GO_SCAN、CMD_GOLANGCI_LINT、CMD_PYTHON_FLAKE8
     # CMD_GOLANGCI_LINT 符合 golangci-lint 的社区规范，golangci-lint 配置见：.golangci.yml
@@ -27,65 +29,71 @@ Go 代码扫描:
     - blocker = 0 && critical = 0
 
 # ref:
-# https://code.alipay.com/ant-cas/KCLVM/blob/master/.aci.yml
 # https://code.alipay.com/sigma/alipay-extensions/blob/master/.aci.yml
 # https://yuque.antfin-inc.com/computing_ai_quality/ci_solution/skgvar
-# Go 单元测试:
-#   stage: 前置任务
-#   only:
-#     change:
-#       - pkg/*
-#       - cmd/*
-#   aciTags: DOCKER
-#   steps:
-#     - plugin: clone
-#     - plugin: shell
-#       resources:
-#         cpu: 2
-#         mem: 4
-#         disk: 10
-#       inputs:
-#         image: reg.docker.alibaba-inc.com/kusion/kclvm-builder
-#         command:
-#           - |
-#             chmod 700 ${WORKSPACE}/hack/set_aci_env.sh && ${WORKSPACE}/hack/set_aci_env.sh
-#             cd ${WORKSPACE}
-#             mkdir -p result
+Go 单元测试:
+  stage: 前置任务
+  only:
+    change:
+      - pkg/*
+      - cmd/*
+  aciTags: DOCKER
+  steps:
+    - plugin: clone
+    - plugin: shell
+      resources:
+        cpu: 2
+        mem: 4
+        disk: 10
+      inputs:
+        image: reg.docker.alibaba-inc.com/ant-iac/golang:1.19.4
+        command:
+          - |
+            chmod 700 ${WORKSPACE}/hack/set_aci_env.sh && ${WORKSPACE}/hack/set_aci_env.sh
+            cd ${WORKSPACE}
+            mkdir -p result
 
-#             # generate cover.out & coverage.log
-#             TEST_FLAGS=-count=1 make test-cover | tee coverage.log
+            # install dependency
+            go env
+            go install github.com/jstemmer/go-junit-report@v1.0.0
+            go install github.com/t-yuki/gocover-cobertura@latest
+            chmod +x ${GOPATH}/bin/go-junit-report
+            chmod +x ${GOPATH}/bin/gocover-cobertura
 
-#             # generate TEST-all.xml by coverate.log
-#             cat coverage.log | /go/bin/go-junit-report > $WORKSPACE/result/TEST-all.xml
+            # generate coverage.out & coverage.log
+            TEST_FLAGS='-count=1 -v' make cover | tee coverage.log
 
-#             # generate coverage report of html format by cover.out
-#             go tool cover -html=cover.out -o $WORKSPACE/result/coverage.html
+            # generate TEST-all.xml by coverate.log
+            cat coverage.log | ${GOPATH}/bin/go-junit-report > $WORKSPACE/result/TEST-all.xml
 
-#             # compute func-coverage by cover.out
-#             go tool cover -func=cover.out -o $WORKSPACE/result/func.out
-#             echo test func-coverage $(tail -1 $WORKSPACE/result/func.out | awk '{print $3}')
+            # generate coverage report of html format by coverage.out
+            go tool cover -html=coverage.out -o $WORKSPACE/result/coverage.html
 
-#             # generate cover.xml by cover.out
-#             cat cover.out | /go/bin/gocover-cobertura > $WORKSPACE/result/cover.xml
-#     - plugin: coverage-client-upload-compass
-#       inputs:
-#         filePath: result/cover.xml
-#         timeout: "300"
-#   checkRule:
-#     # 代码测试通过率
-#     - passRate = 100
-#     # 代码总体覆盖率
-#     - coverage > 20
-#     # # 代码变更覆盖率
-#     # - diffLineCoverage > 20
-#   publisher:
-#     archiveArtifacts:
-#       artifacts: "result/"
-#       allowEmptyArchive: true
-#     junit: "**/TEST-*.xml"
-#     html:
-#       index: result/coverage.html  #(html的入口)
-#       displayName: 覆盖率报告  #(html链接的展示名称 默认是 链接名称)
+            # compute func-coverage by coverage.out
+            go tool cover -func=coverage.out -o $WORKSPACE/result/func.out
+            echo test func-coverage $(tail -1 $WORKSPACE/result/func.out | awk '{print $3}')
+
+            # generate cover.xml by coverage.out
+            cat coverage.out | ${GOPATH}/bin/gocover-cobertura > $WORKSPACE/result/cover.xml
+    - plugin: coverage-client-upload-compass
+      inputs:
+        filePath: result/cover.xml
+        timeout: "300"
+  checkRule:
+    # 代码测试通过率
+    - passRate = 100
+    # 代码总体覆盖率
+    #    - coverage > 0
+    # # 代码变更覆盖率
+    # - diffLineCoverage > 20
+  publisher:
+    archiveArtifacts:
+      artifacts: "result/"
+      allowEmptyArchive: true
+    junit: "**/TEST-*.xml"
+    html:
+      index: result/coverage.html  #(html的入口)
+      displayName: 覆盖率报告  #(html链接的展示名称 默认是 链接名称)
 
 
 构建预发布镜像:
@@ -96,9 +104,10 @@ Go 代码扫描:
     triggerBranch:
       pushOriginalBranch:
         - ^master$
+        - ^sprint-\d*$
   plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
   pluginConfig:
-    image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
+    image: reg.docker.alibaba-inc.com/ant-iac/golang:1.19.4 # 指定使用哪个image
     beforeScript:
       - chmod 700 ${LINKB_WORKSPACE}/hack/set_aci_env.sh && ${LINKB_WORKSPACE}/hack/set_aci_env.sh
     script:
@@ -137,7 +146,7 @@ Go 代码扫描:
         - ^master$
   plugin: ANT-BUILD # 选用ANT-BUILD插件来驱动镜像构建
   pluginConfig:
-    image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
+    image: reg.docker.alibaba-inc.com/ant-iac/golang:1.19.4 # 指定使用哪个image
     beforeScript:
       - chmod 700 ${LINKB_WORKSPACE}/hack/set_aci_env.sh && ${LINKB_WORKSPACE}/hack/set_aci_env.sh
     script:
