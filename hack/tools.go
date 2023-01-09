@@ -1,3 +1,6 @@
+//go:build tools
+// +build tools
+
 /*
 Copyright The Alipay Authors.
 
@@ -14,20 +17,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+// This package imports things required by build scripts, to force `go mod` to see them as dependencies
+package tools
 
-import (
-	"os"
-
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
-)
-
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
-}
+import _ "k8s.io/code-generator"

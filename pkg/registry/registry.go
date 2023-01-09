@@ -14,20 +14,26 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package registry
 
 import (
-	"os"
+	"fmt"
 
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
+	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+// REST implements a RESTStorage for API services against etcd
+type REST struct {
+	*genericregistry.Store
+}
+
+// RESTInPeace is just a simple function that panics on error.
+// Otherwise returns the given storage object. It is meant to be
+// a wrapper for wardle registries.
+func RESTInPeace(storage *REST, err error) *REST {
+	if err != nil {
+		err = fmt.Errorf("unable to create REST storage for a resource due to %v, will die", err)
+		panic(err)
+	}
+	return storage
 }

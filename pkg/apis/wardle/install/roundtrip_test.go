@@ -14,20 +14,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package install
 
 import (
-	"os"
+	"testing"
 
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
+	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
+	wardlefuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/fuzzer"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+func TestRoundTripTypes(t *testing.T) {
+	roundtrip.RoundTripTestForAPIGroup(t, Install, wardlefuzzer.Funcs)
+	// TODO: enable protobuf generation for the sample-apiserver
+	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, wardlefuzzer.Funcs)
 }

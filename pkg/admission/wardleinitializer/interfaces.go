@@ -14,20 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package wardleinitializer
 
 import (
-	"os"
-
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
+	"k8s.io/apiserver/pkg/admission"
+	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+// WantsInternalWardleInformerFactory defines a function which sets InformerFactory for admission plugins that need it
+type WantsInternalWardleInformerFactory interface {
+	SetInternalWardleInformerFactory(informers.SharedInformerFactory)
+	admission.InitializationValidator
 }
