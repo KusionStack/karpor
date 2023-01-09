@@ -14,20 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen=package
+// +k8s:conversion-gen=code.alipay.com/ant-iac/karbour/pkg/apis/wardle
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=wardle.example.com
 
-import (
-	"os"
-
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
-)
-
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
-}
+// Package v1beta1 is the v1beta1 version of the API.
+package v1beta1 // import "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1beta1"
