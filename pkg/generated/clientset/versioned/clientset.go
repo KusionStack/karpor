@@ -22,11 +22,11 @@ import (
 	"fmt"
 	"net/http"
 
+	wardlev1alpha1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1alpha1"
+	wardlev1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
-	wardlev1alpha1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1alpha1"
-	wardlev1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1beta1"
 )
 
 type Interface interface {

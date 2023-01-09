@@ -24,9 +24,9 @@ package v1beta1
 import (
 	unsafe "unsafe"
 
+	wardle "code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
-	wardle "code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
 )
 
 func init() {
