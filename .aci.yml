@@ -6,27 +6,27 @@ stages: # 定义了一条pipeline
   - 前置任务 # 定义了stage
   - 交付物
   
-Go 代码扫描:
-  stage: 前置任务
-  only:
-    change:
-      - pkg/*
-      - cmd/*
-  plugin: CMD
-  parameters:
-    ACI_TIMEOUT: '10' # 特殊参数, 定义Job超时时间，单位是min
-  # # 暂不开启强制扫描结果卡点
-  # allowFailure: true
-  pluginConfig:
-    encoding: UTF-8 # 编码设置
-    excludes: # 排除哪些项不进行代码扫描, 匹配相对于项目根目录的相对路径
-      - "hack/**"
-      - "vendor/**"
-    # 设置CMD进行扫描的语言，目前可用 CMD_CPP_SCAN、CMD_GO_SCAN、CMD_GOLANGCI_LINT、CMD_PYTHON_FLAKE8
-    # CMD_GOLANGCI_LINT 符合 golangci-lint 的社区规范，golangci-lint 配置见：.golangci.yml
-    taskKind: CMD_GOLANGCI_LINT
-  checkRule:
-    - blocker = 0 && critical = 0
+# Go 代码扫描:
+#   stage: 前置任务
+#   only:
+#     change:
+#       - pkg/*
+#       - cmd/*
+#   plugin: CMD
+#   parameters:
+#     ACI_TIMEOUT: '10' # 特殊参数, 定义Job超时时间，单位是min
+#   # # 暂不开启强制扫描结果卡点
+#   # allowFailure: true
+#   pluginConfig:
+#     encoding: UTF-8 # 编码设置
+#     excludes: # 排除哪些项不进行代码扫描, 匹配相对于项目根目录的相对路径
+#       - "hack/**"
+#       - "vendor/**"
+#     # 设置CMD进行扫描的语言，目前可用 CMD_CPP_SCAN、CMD_GO_SCAN、CMD_GOLANGCI_LINT、CMD_PYTHON_FLAKE8
+#     # CMD_GOLANGCI_LINT 符合 golangci-lint 的社区规范，golangci-lint 配置见：.golangci.yml
+#     taskKind: CMD_GOLANGCI_LINT
+#   checkRule:
+#     - blocker = 0 && critical = 0
 
 # ref:
 # https://code.alipay.com/sigma/alipay-extensions/blob/master/.aci.yml

@@ -13,9 +13,9 @@ COVERAGETMP 		?= coverage.tmp
 
 # Go tools
 GOFORMATER			?= gofumpt
-GOFORMATER_VERSION	?= v0.2.0
+GOFORMATER_VERSION	?= v0.4.0
 GOLINTER			?= golangci-lint
-GOLINTER_VERSION	?= v1.41.0
+GOLINTER_VERSION	?= v1.50.1
 
 
 # To generate help information
