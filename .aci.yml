@@ -48,7 +48,7 @@ Go 代码扫描:
 #         image: reg.docker.alibaba-inc.com/kusion/kclvm-builder
 #         command:
 #           - |
-#             chmod 700 ${WORKSPACE}/scripts/set_aci_env.sh && ${WORKSPACE}/scripts/set_aci_env.sh
+#             chmod 700 ${WORKSPACE}/hack/set_aci_env.sh && ${WORKSPACE}/hack/set_aci_env.sh
 #             cd ${WORKSPACE}
 #             mkdir -p result
 
@@ -100,7 +100,7 @@ Go 代码扫描:
   pluginConfig:
     image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
     beforeScript:
-      - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
+      - chmod 700 ${LINKB_WORKSPACE}/hack/set_aci_env.sh && ${LINKB_WORKSPACE}/hack/set_aci_env.sh
     script:
       - cd ${LINKB_WORKSPACE}
       - make build-all
@@ -139,7 +139,7 @@ Go 代码扫描:
   pluginConfig:
     image: reg.docker.alibaba-inc.com/kusion/golang:1.17.9 # 指定使用哪个image
     beforeScript:
-      - chmod 700 ${LINKB_WORKSPACE}/scripts/set_aci_env.sh && ${LINKB_WORKSPACE}/scripts/set_aci_env.sh
+      - chmod 700 ${LINKB_WORKSPACE}/hack/set_aci_env.sh && ${LINKB_WORKSPACE}/hack/set_aci_env.sh
     script:
       - cd ${LINKB_WORKSPACE}
       - make build-all
