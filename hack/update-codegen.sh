@@ -19,15 +19,13 @@ set -o nounset
 set -o pipefail
 
 REPO_ROOT=$(git rev-parse --show-toplevel)
-CODEGEN_PKG=${CODEGEN_PKG:-$(cd "${REPO_ROOT}"; ls -d -1 ./vendor/k8s.io/code-generator 2>/dev/null || echo ../code-generator)}
-
+CODEGEN_PKG="${REPO_ROOT}/hack"
 tmp_go_path="${REPO_ROOT}/_go"
 
 cleanup() {
   rm -rf "${tmp_go_path}"
 }
 trap "cleanup" EXIT SIGINT
-
 cleanup
 
 source "${REPO_ROOT}"/hack/util.sh

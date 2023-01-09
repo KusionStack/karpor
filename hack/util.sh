@@ -3,7 +3,6 @@
 set -o errexit
 set -o nounset
 set -o pipefail
-set -x
 
 KARBOUR_GO_PACKAGE="code.alipay.com/ant-iac/karbour"
 
