@@ -111,9 +111,9 @@ func (c completedConfig) New() (*APIServer, error) {
 
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, Scheme, metav1.ParameterCodec, Codecs)
 
-	v1 := map[string]rest.Storage{}
-	v1["clusterextensions"] = registry.RESTInPeace(clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	apiGroupInfo.VersionedResourcesStorageMap["v1"] = v1
+	v1beta1 := map[string]rest.Storage{}
+	v1beta1["clusterextensions"] = registry.RESTInPeace(clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
+	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err

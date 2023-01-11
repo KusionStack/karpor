@@ -20,5 +20,5 @@ limitations under the License.
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=cluster.karbour.com
 
-// Package v1 is the v1 version of the API.
-package v1 // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1"
+// Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
+package v1beta1 // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"

@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"net/http"
 
-	clusterv1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1"
+	clusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"
@@ -30,18 +30,18 @@ import (
 
 type Interface interface {
 	Discovery() discovery.DiscoveryInterface
-	ClusterV1() clusterv1.ClusterV1Interface
+	ClusterV1beta1() clusterv1beta1.ClusterV1beta1Interface
 }
 
 // Clientset contains the clients for groups.
 type Clientset struct {
 	*discovery.DiscoveryClient
-	clusterV1 *clusterv1.ClusterV1Client
+	clusterV1beta1 *clusterv1beta1.ClusterV1beta1Client
 }
 
-// ClusterV1 retrieves the ClusterV1Client
-func (c *Clientset) ClusterV1() clusterv1.ClusterV1Interface {
-	return c.clusterV1
+// ClusterV1beta1 retrieves the ClusterV1beta1Client
+func (c *Clientset) ClusterV1beta1() clusterv1beta1.ClusterV1beta1Interface {
+	return c.clusterV1beta1
 }
 
 // Discovery retrieves the DiscoveryClient
@@ -88,7 +88,7 @@ func NewForConfigAndClient(c *rest.Config, httpClient *http.Client) (*Clientset,
 
 	var cs Clientset
 	var err error
-	cs.clusterV1, err = clusterv1.NewForConfigAndClient(&configShallowCopy, httpClient)
+	cs.clusterV1beta1, err = clusterv1beta1.NewForConfigAndClient(&configShallowCopy, httpClient)
 	if err != nil {
 		return nil, err
 	}
@@ -113,7 +113,7 @@ func NewForConfigOrDie(c *rest.Config) *Clientset {
 // New creates a new Clientset for the given RESTClient.
 func New(c rest.Interface) *Clientset {
 	var cs Clientset
-	cs.clusterV1 = clusterv1.New(c)
+	cs.clusterV1beta1 = clusterv1beta1.New(c)
 
 	cs.DiscoveryClient = discovery.NewDiscoveryClient(c)
 	return &cs

@@ -21,7 +21,7 @@ package externalversions
 import (
 	"fmt"
 
-	v1 "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1"
+	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -52,9 +52,9 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=cluster.karbour.com, Version=v1
-	case v1.SchemeGroupVersion.WithResource("clusterextensions"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1().ClusterExtensions().Informer()}, nil
+	// Group=cluster.karbour.com, Version=v1beta1
+	case v1beta1.SchemeGroupVersion.WithResource("clusterextensions"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1beta1().ClusterExtensions().Informer()}, nil
 
 	}
 

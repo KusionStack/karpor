@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package v1
+package v1beta1
 
 import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -35,7 +35,7 @@ type ClusterExtension struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ClusterExtensionSpec   `json:"spec"`
+	Spec ClusterExtensionSpec `json:"spec"`
 	// +optional
 	Status ClusterExtensionStatus `json:"status,omitempty"`
 }
@@ -51,10 +51,10 @@ type ClusterExtensionList struct {
 }
 
 type ClusterExtensionSpec struct {
-	Provider  string        `json:"provider"`
-	Access    ClusterAccess `json:"access"`
+	Provider string        `json:"provider"`
+	Access   ClusterAccess `json:"access"`
 	// +optional
-	Finalized *bool         `json:"finalized,omitempty"`
+	Finalized *bool `json:"finalized,omitempty"`
 }
 
 type ClusterExtensionStatus struct {
@@ -63,21 +63,21 @@ type ClusterExtensionStatus struct {
 }
 
 type ClusterAccess struct {
-	Endpoint   string                   `json:"endpoint"`
+	Endpoint string `json:"endpoint"`
 	// +optional
-	CABundle   []byte                   `json:"caBundle,omitempty"`
+	CABundle []byte `json:"caBundle,omitempty"`
 	// +optional
-	Insecure   *bool                    `json:"insecure,omitempty"`
+	Insecure *bool `json:"insecure,omitempty"`
 	// +optional
 	Credential *ClusterAccessCredential `json:"credential,omitempty"`
 }
 
 type ClusterAccessCredential struct {
-	Type                CredentialType `json:"type"`
+	Type CredentialType `json:"type"`
 	// +optional
-	ServiceAccountToken string         `json:"serviceAccountToken,omitempty"`
+	ServiceAccountToken string `json:"serviceAccountToken,omitempty"`
 	// +optional
-	X509                *X509          `json:"x509,omitempty"`
+	X509 *X509 `json:"x509,omitempty"`
 }
 
 type X509 struct {

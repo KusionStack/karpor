@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned"
-	clusterv1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1"
-	fakeclusterv1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1/fake"
+	clusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
+	fakeclusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -79,7 +79,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// ClusterV1 retrieves the ClusterV1Client
-func (c *Clientset) ClusterV1() clusterv1.ClusterV1Interface {
-	return &fakeclusterv1.FakeClusterV1{Fake: &c.Fake}
+// ClusterV1beta1 retrieves the ClusterV1beta1Client
+func (c *Clientset) ClusterV1beta1() clusterv1beta1.ClusterV1beta1Interface {
+	return &fakeclusterv1beta1.FakeClusterV1beta1{Fake: &c.Fake}
 }

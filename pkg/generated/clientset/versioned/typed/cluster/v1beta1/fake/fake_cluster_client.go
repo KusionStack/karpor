@@ -19,22 +19,22 @@ limitations under the License.
 package fake
 
 import (
-	v1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1"
+	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeClusterV1 struct {
+type FakeClusterV1beta1 struct {
 	*testing.Fake
 }
 
-func (c *FakeClusterV1) ClusterExtensions() v1.ClusterExtensionInterface {
+func (c *FakeClusterV1beta1) ClusterExtensions() v1beta1.ClusterExtensionInterface {
 	return &FakeClusterExtensions{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeClusterV1) RESTClient() rest.Interface {
+func (c *FakeClusterV1beta1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

@@ -31,7 +31,7 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
 	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
 	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
 	sampleopenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
@@ -56,13 +56,13 @@ func NewOptions(out, errOut io.Writer) *Options {
 	o := &Options{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
-			apiserver.Codecs.LegacyCodec(v1.SchemeGroupVersion),
+			apiserver.Codecs.LegacyCodec(v1beta1.SchemeGroupVersion),
 		),
 
 		StdOut: out,
 		StdErr: errOut,
 	}
-	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = runtime.NewMultiGroupVersioner(v1.SchemeGroupVersion, schema.GroupKind{Group: v1.GroupName})
+	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = runtime.NewMultiGroupVersioner(v1beta1.SchemeGroupVersion, schema.GroupKind{Group: v1beta1.GroupName})
 	return o
 }
 
