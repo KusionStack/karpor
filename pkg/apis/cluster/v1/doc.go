@@ -14,15 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiserver
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen=package
+// +k8s:conversion-gen=code.alipay.com/ant-iac/karbour/pkg/apis/cluster
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=cluster.karbour.com
 
-import (
-	"testing"
-
-	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
-	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
-)
-
-func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForScheme(t, Scheme, clusterfuzzer.Funcs)
-}
+// Package v1 is the v1 version of the API.
+package v1 // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1"

@@ -21,13 +21,13 @@ import (
 
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/pkg/cmd/server"
+	"code.alipay.com/ant-iac/karbour/cmd/app"
 )
 
 func main() {
 	stopCh := genericapiserver.SetupSignalHandler()
-	options := server.NewWardleServerOptions(os.Stdout, os.Stderr)
-	cmd := server.NewCommandStartWardleServer(options, stopCh)
+	options := app.NewOptions(os.Stdout, os.Stderr)
+	cmd := app.NewApiserverCommand(options, stopCh)
 	code := cli.Run(cmd)
 	os.Exit(code)
 }

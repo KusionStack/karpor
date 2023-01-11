@@ -14,15 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiserver
+package fuzzer
 
 import (
-	"testing"
+	fuzz "github.com/google/gofuzz"
 
-	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
-	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
+	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
 )
 
-func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForScheme(t, Scheme, clusterfuzzer.Funcs)
+// Funcs returns the fuzzer functions for the apps api group.
+var Funcs = func(codecs runtimeserializer.CodecFactory) []interface{} {
+	return []interface{}{
+		func(s *cluster.ClusterExtensionSpec, c fuzz.Continue) {
+			c.FuzzNoCustom(s) // fuzz self without calling this function again
+		},
+	}
 }

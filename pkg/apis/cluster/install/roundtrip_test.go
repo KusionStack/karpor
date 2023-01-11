@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiserver
+package install
 
 import (
 	"testing"
@@ -24,5 +24,7 @@ import (
 )
 
 func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForScheme(t, Scheme, clusterfuzzer.Funcs)
+	roundtrip.RoundTripTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
+	// TODO: enable protobuf generation for the sample-apiserver
+	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
 }

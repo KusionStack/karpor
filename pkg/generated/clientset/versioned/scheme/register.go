@@ -19,8 +19,7 @@ limitations under the License.
 package scheme
 
 import (
-	wardlev1alpha1 "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1alpha1"
-	wardlev1beta1 "code.alipay.com/ant-iac/karbour/pkg/apis/wardle/v1beta1"
+	clusterv1 "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -32,8 +31,7 @@ var Scheme = runtime.NewScheme()
 var Codecs = serializer.NewCodecFactory(Scheme)
 var ParameterCodec = runtime.NewParameterCodec(Scheme)
 var localSchemeBuilder = runtime.SchemeBuilder{
-	wardlev1alpha1.AddToScheme,
-	wardlev1beta1.AddToScheme,
+	clusterv1.AddToScheme,
 }
 
 // AddToScheme adds all types of this clientset into the given scheme. This allows composition
