@@ -25,11 +25,9 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/wardle/install"
-	wardleregistry "code.alipay.com/ant-iac/karbour/pkg/registry"
-	fischerstorage "code.alipay.com/ant-iac/karbour/pkg/registry/wardle/fischer"
-	flunderstorage "code.alipay.com/ant-iac/karbour/pkg/registry/wardle/flunder"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/install"
+	clusterextensionstorage "code.alipay.com/ant-iac/karbour/pkg/registry/cluster/clusterextension"
 )
 
 var (
@@ -38,6 +36,8 @@ var (
 	// Codecs provides methods for retrieving codecs and serializers for specific
 	// versions and content types.
 	Codecs = serializer.NewCodecFactory(Scheme)
+	// ParameterCodec handles versioning of objects that are converted to query parameters.
+	ParameterCodec = runtime.NewParameterCodec(Scheme)
 )
 
 func init() {
@@ -69,8 +69,8 @@ type Config struct {
 	ExtraConfig   ExtraConfig
 }
 
-// WardleServer contains state for a Kubernetes cluster master/api server.
-type WardleServer struct {
+// APIServer contains state for a Kubernetes cluster master/api server.
+type APIServer struct {
 	GenericAPIServer *genericapiserver.GenericAPIServer
 }
 
@@ -99,27 +99,30 @@ func (cfg *Config) Complete() CompletedConfig {
 	return CompletedConfig{&c}
 }
 
-// New returns a new instance of WardleServer from the given config.
-func (c completedConfig) New() (*WardleServer, error) {
+// New returns a new instance of APIServer from the given config.
+func (c completedConfig) New() (*APIServer, error) {
 	genericServer, err := c.GenericConfig.New("sample-apiserver", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
 
-	s := &WardleServer{
+	s := &APIServer{
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(wardle.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, Scheme, ParameterCodec, Codecs)
 
-	v1alpha1storage := map[string]rest.Storage{}
-	v1alpha1storage["flunders"] = wardleregistry.RESTInPeace(flunderstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	v1alpha1storage["fischers"] = wardleregistry.RESTInPeace(fischerstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	apiGroupInfo.VersionedResourcesStorageMap["v1alpha1"] = v1alpha1storage
+	v1beta1 := map[string]rest.Storage{}
+	clusterStorage, err := clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+	if err != nil {
+		return nil, err
+	}
 
-	v1beta1storage := map[string]rest.Storage{}
-	v1beta1storage["flunders"] = wardleregistry.RESTInPeace(flunderstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
-	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1storage
+	v1beta1["clusterextensions"] = clusterStorage.Cluster
+	v1beta1["clusterextensions/status"] = clusterStorage.Status
+	v1beta1["clusterextensions/proxy"] = clusterStorage.Proxy
+
+	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 		return nil, err

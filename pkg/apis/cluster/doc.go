@@ -14,15 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package apiserver
+// +k8s:deepcopy-gen=package
+// +groupName=cluster.karbour.com
 
-import (
-	"testing"
-
-	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
-	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
-)
-
-func TestRoundTripTypes(t *testing.T) {
-	roundtrip.RoundTripTestForScheme(t, Scheme, clusterfuzzer.Funcs)
-}
+// Package cluster is the internal version of the API.
+package cluster // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster"

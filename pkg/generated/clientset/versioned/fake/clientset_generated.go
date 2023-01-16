@@ -20,10 +20,8 @@ package fake
 
 import (
 	clientset "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned"
-	wardlev1alpha1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1alpha1"
-	fakewardlev1alpha1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1alpha1/fake"
-	wardlev1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1beta1"
-	fakewardlev1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/wardle/v1beta1/fake"
+	clusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
+	fakeclusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -81,12 +79,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// WardleV1alpha1 retrieves the WardleV1alpha1Client
-func (c *Clientset) WardleV1alpha1() wardlev1alpha1.WardleV1alpha1Interface {
-	return &fakewardlev1alpha1.FakeWardleV1alpha1{Fake: &c.Fake}
-}
-
-// WardleV1beta1 retrieves the WardleV1beta1Client
-func (c *Clientset) WardleV1beta1() wardlev1beta1.WardleV1beta1Interface {
-	return &fakewardlev1beta1.FakeWardleV1beta1{Fake: &c.Fake}
+// ClusterV1beta1 retrieves the ClusterV1beta1Client
+func (c *Clientset) ClusterV1beta1() clusterv1beta1.ClusterV1beta1Interface {
+	return &fakeclusterv1beta1.FakeClusterV1beta1{Fake: &c.Fake}
 }

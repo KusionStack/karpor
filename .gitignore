@@ -1,5 +1,6 @@
 dist/
 build/
+apiserver.local.config/
 coverage.out
 tmp/
 .vscode/
