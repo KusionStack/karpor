@@ -35,8 +35,7 @@ type ClusterExtension struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
 
-	Spec ClusterExtensionSpec
-	// +optional
+	Spec   ClusterExtensionSpec
 	Status ClusterExtensionStatus
 }
 
@@ -51,36 +50,39 @@ type ClusterExtensionList struct {
 }
 
 type ClusterExtensionSpec struct {
-	Provider string
-	Access   ClusterAccess
-	// +optional
+	Provider  string
+	Access    ClusterAccess
 	Finalized *bool
 }
 
 type ClusterExtensionStatus struct {
-	// +optional
 	Healthy bool
 }
 
 type ClusterAccess struct {
-	Endpoint string
-	// +optional
-	CABundle []byte
-	// +optional
-	Insecure *bool
-	// +optional
+	Endpoint   string
+	CABundle   []byte
+	Insecure   *bool
 	Credential *ClusterAccessCredential
 }
 
 type ClusterAccessCredential struct {
-	Type CredentialType
-	// +optional
+	Type                CredentialType
 	ServiceAccountToken string
-	// +optional
-	X509 *X509
+	X509                *X509
 }
 
 type X509 struct {
 	Certificate []byte
 	PrivateKey  []byte
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type ClusterExtensionProxyOptions struct {
+	metav1.TypeMeta
+
+	// Path is the target api path of the proxy request.
+	// e.g. "/healthz", "/api/v1"
+	Path string
 }

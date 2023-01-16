@@ -49,6 +49,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
 		&ClusterExtension{},
 		&ClusterExtensionList{},
+		&ClusterExtensionProxyOptions{},
 	)
 	return nil
 }

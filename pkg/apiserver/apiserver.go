@@ -25,10 +25,9 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/install"
-	"code.alipay.com/ant-iac/karbour/pkg/registry"
-	clusterextensionstorage "code.alipay.com/ant-iac/karbour/pkg/registry/cluster/clusterextension"
 	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/install"
+	clusterextensionstorage "code.alipay.com/ant-iac/karbour/pkg/registry/cluster/clusterextension"
 )
 
 var (
@@ -37,6 +36,8 @@ var (
 	// Codecs provides methods for retrieving codecs and serializers for specific
 	// versions and content types.
 	Codecs = serializer.NewCodecFactory(Scheme)
+	// ParameterCodec handles versioning of objects that are converted to query parameters.
+	ParameterCodec = runtime.NewParameterCodec(Scheme)
 )
 
 func init() {
@@ -109,10 +110,18 @@ func (c completedConfig) New() (*APIServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, Scheme, metav1.ParameterCodec, Codecs)
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, Scheme, ParameterCodec, Codecs)
 
 	v1beta1 := map[string]rest.Storage{}
-	v1beta1["clusterextensions"] = registry.RESTInPeace(clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter))
+	clusterStorage, err := clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	v1beta1["clusterextensions"] = clusterStorage.Cluster
+	v1beta1["clusterextensions/status"] = clusterStorage.Status
+	v1beta1["clusterextensions/proxy"] = clusterStorage.Proxy
+
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 
 	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {

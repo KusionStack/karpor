@@ -84,3 +84,15 @@ type X509 struct {
 	Certificate []byte `json:"certificate"`
 	PrivateKey  []byte `json:"privateKey"`
 }
+
+// +k8s:conversion-gen:explicit-from=net/url.Values
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type ClusterExtensionProxyOptions struct {
+	metav1.TypeMeta `json:",inline"`
+
+	// Path is the target api path of the proxy request.
+	// e.g. "/healthz", "/api/v1"
+	// +optional
+	Path string `json:"path,omitempty"`
+}
