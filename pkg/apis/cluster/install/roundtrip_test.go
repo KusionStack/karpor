@@ -19,12 +19,12 @@ package install
 import (
 	"testing"
 
-	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
+	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 
 func TestRoundTripTypes(t *testing.T) {
 	roundtrip.RoundTripTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
-	// TODO: enable protobuf generation for the sample-apiserver
+	// TODO: enable protobuf generation for the karbour-apiserver
 	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
 }

@@ -101,7 +101,7 @@ func (cfg *Config) Complete() CompletedConfig {
 
 // New returns a new instance of APIServer from the given config.
 func (c completedConfig) New() (*APIServer, error) {
-	genericServer, err := c.GenericConfig.New("sample-apiserver", genericapiserver.NewEmptyDelegate())
+	genericServer, err := c.GenericConfig.New("karbour-apiserver", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
 	}
