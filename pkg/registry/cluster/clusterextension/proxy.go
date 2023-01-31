@@ -13,7 +13,6 @@ import (
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	utilnet "k8s.io/apimachinery/pkg/util/net"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/endpoints/handlers/responsewriters"
 	"k8s.io/apiserver/pkg/endpoints/request"
@@ -25,7 +24,6 @@ import (
 	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
 	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/util/proxy"
-	"k8s.io/client-go/transport"
 )
 
 var proxyMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
@@ -100,14 +98,6 @@ type proxyHandler struct {
 	clusterExtension *cluster.ClusterExtension
 }
 
-func GetEndpointURL(c *cluster.ClusterExtension) (*url.URL, error) {
-	urlAddr, err := url.Parse(c.Spec.Access.Endpoint)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed parsing url from cluster %s invalid value %s", c.Name, c.Spec.Access.Endpoint)
-	}
-	return urlAddr, nil
-}
-
 func (p *proxyHandler) ServeHTTP(writer http.ResponseWriter, request *http.Request) {
 	setErr := func(err error) {
 		klog.ErrorS(err, "request failed", "clusterName", p.clusterName, "verb", p.verb, "resource", p.resource, "userAgent", request.UserAgent())
@@ -115,33 +105,6 @@ func (p *proxyHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 
 	cluster := p.clusterExtension
-	if cluster.Spec.Access.Credential == nil {
-		setErr(fmt.Errorf("proxying cluster %s not support due to lacking credentials", cluster.Name))
-		return
-	}
-
-	// WithContext creates a shallow clone of the request with the same context.
-	newReq := request.WithContext(request.Context())
-	newReq.Header = utilnet.CloneHeader(request.Header)
-
-	urlAddr, err := GetEndpointURL(cluster)
-	if err != nil {
-		setErr(errors.Wrapf(err, "failed parsing endpoint for cluster %s", cluster.Name))
-		return
-	}
-
-	host, _, _ := net.SplitHostPort(urlAddr.Host)
-	newReq.Host = host
-	newReq.Header.Add("Host", host)
-	// 支持将上线网关的请求代理到下线网关
-	// e.g.
-	// host = ocmpaas.stable.alipay.com:8443
-	// urlAddr.Path = /apis/cluster.alipay-addon.open-cluster-management.io/v1/clusterextensions/sigma-xxx/proxy/
-	// p.path = /apis/cluster.alipay-addon.open-cluster-management.io/v1/clusterextensions/sigma-xxx/proxy/api/v1/namespaces
-	newReq.URL.Path = filepath.Join(urlAddr.Path, p.path)
-	newReq.URL.RawQuery = request.URL.RawQuery
-	newReq.RequestURI = newReq.URL.RequestURI()
-
 	cfg, err := NewConfigFromCluster(cluster)
 	if err != nil {
 		setErr(errors.Wrapf(err, "failed to create cluster proxy client config %s", cluster.Name))
@@ -154,70 +117,28 @@ func (p *proxyHandler) ServeHTTP(writer http.ResponseWriter, request *http.Reque
 	}
 	impersonateUser(cfg, request)
 
-	location := &url.URL{
-		Scheme:   urlAddr.Scheme,
-		Path:     newReq.URL.Path,
-		Host:     urlAddr.Host,
-		RawQuery: request.URL.RawQuery,
-	}
-	handler, err := generateUpgradeAwareHandler(cfg, location, p.responder.Error)
+	urlAddr, err := GetEndpointURL(cluster)
 	if err != nil {
-		setErr(errors.Wrapf(err, "failed to create upgrade aware handle for cluster %s", cluster.Name))
+		setErr(errors.Wrapf(err, "failed to parsing endpoint for cluster %s", cluster.Name))
 		return
 	}
 
-	handler = proxyutil.WithLogs(handler)
-	handler.ServeHTTP(writer, newReq)
-}
-
-func generateUpgradeAwareHandler(cfg *restclient.Config, location *url.URL, errFunc func(error)) (http.Handler, error) {
-	transportCfg, err := cfg.TransportConfig()
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create transport config")
+	location := &url.URL{
+		Scheme:   urlAddr.Scheme,
+		Path:     filepath.Join(urlAddr.Path, p.path),
+		Host:     urlAddr.Host,
+		RawQuery: request.URL.RawQuery,
 	}
-
-	tlsConfig, err := transport.TLSConfigFor(transportCfg)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create tls config")
-	}
-
-	upgrader, err := transport.HTTPWrappersForConfig(transportCfg, proxy.MirrorRequest)
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create upgrader client")
-	}
-
-	upgrading := utilnet.SetOldTransportDefaults(&http.Transport{
-		TLSClientConfig: tlsConfig,
-		DialContext: (&net.Dialer{
-			Timeout:   30 * time.Second,
-			KeepAlive: 0,
-		}).DialContext,
-	})
 
 	rt, err := restclient.TransportFor(cfg)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to create round tripper from rest config")
+		setErr(errors.Wrapf(err, "failed to create round tripper from rest config"))
+		return
 	}
 
-	handler := proxy.NewUpgradeAwareHandler(
-		location,
-		rt,
-		false,
-		false,
-		nil)
-
-	handler.UpgradeTransport = proxy.NewUpgradeRequestRoundTripper(
-		upgrading,
-		RoundTripperFunc(func(req *http.Request) (*http.Response, error) {
-			newReq := utilnet.CloneRequest(req)
-			return upgrader.RoundTrip(newReq)
-		}))
-
-	handler.Responder = ErrorResponderFunc(func(w http.ResponseWriter, req *http.Request, err error) {
-		errFunc(err)
-	})
-
-	return handler, nil
+	handler := proxy.NewUpgradeAwareHandler(location, rt, false, false, proxy.NewErrorResponder(p.responder))
+	handler.UseLocationHost = true
+	proxyutil.WithLogs(handler).ServeHTTP(writer, request)
 }
 
 func impersonateUser(cfg *restclient.Config, req *http.Request) {
@@ -236,6 +157,18 @@ func impersonateUser(cfg *restclient.Config, req *http.Request) {
 			Extra:    user.GetExtra(),
 		}
 	}
+}
+
+func GetEndpointURL(c *cluster.ClusterExtension) (*url.URL, error) {
+	if c.Spec.Access.Credential == nil {
+		return nil, fmt.Errorf("proxying cluster %s not support due to lacking credentials", c.Name)
+	}
+
+	urlAddr, err := url.Parse(c.Spec.Access.Endpoint)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to parsing url from cluster %s invalid value %s", c.Name, c.Spec.Access.Endpoint)
+	}
+	return urlAddr, nil
 }
 
 func NewConfigFromCluster(c *cluster.ClusterExtension) (*restclient.Config, error) {
@@ -266,18 +199,4 @@ func NewConfigFromCluster(c *cluster.ClusterExtension) (*restclient.Config, erro
 	}
 	cfg.ServerName = host // apiserver may listen on SNI cert
 	return cfg, nil
-}
-
-type RoundTripperFunc func(req *http.Request) (*http.Response, error)
-
-func (fn RoundTripperFunc) RoundTrip(req *http.Request) (*http.Response, error) {
-	return fn(req)
-}
-
-var _ proxy.ErrorResponder = ErrorResponderFunc(nil)
-
-type ErrorResponderFunc func(w http.ResponseWriter, req *http.Request, err error)
-
-func (e ErrorResponderFunc) Error(w http.ResponseWriter, req *http.Request, err error) {
-	e(w, req, err)
 }

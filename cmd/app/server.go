@@ -20,9 +20,15 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 
 	"github.com/spf13/cobra"
 
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
+	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
+	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
+	karbouropenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
+	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -31,10 +37,6 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
-	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
-	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
-	sampleopenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
 	netutils "k8s.io/utils/net"
 )
 
@@ -117,12 +119,16 @@ func (o *Options) Config() (*apiserver.Config, error) {
 
 	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(sampleopenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
+		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
+	}
+
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
 	serverConfig.OpenAPIConfig.Info.Version = "0.1"
 
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(sampleopenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
 		serverConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
