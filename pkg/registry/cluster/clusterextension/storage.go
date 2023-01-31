@@ -17,14 +17,16 @@ limitations under the License.
 package clusterextension
 
 import (
+	"context"
+
+	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"context"
 )
 
 type REST struct {
@@ -67,7 +69,7 @@ func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*Clu
 }
 
 type StatusREST struct {
-	store *genericregistry.Store
+	Store *genericregistry.Store
 }
 
 // New returns empty Cluster object.
@@ -83,21 +85,21 @@ func (r *StatusREST) Destroy() {
 
 // Get retrieves the object from the storage. It is required to support Patch.
 func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	return r.store.Get(ctx, name, options)
+	return r.Store.Get(ctx, name, options)
 }
 
 // Update alters the status subset of an object.
 func (r *StatusREST) Update(ctx context.Context, name string, objInfo rest.UpdatedObjectInfo, createValidation rest.ValidateObjectFunc, updateValidation rest.ValidateObjectUpdateFunc, forceAllowCreate bool, options *metav1.UpdateOptions) (runtime.Object, bool, error) {
 	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage because
 	// subresources should never allow create on update.
-	return r.store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
+	return r.Store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
 }
 
 // GetResetFields implements rest.ResetFieldsStrategy
 func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
-	return r.store.GetResetFields()
+	return r.Store.GetResetFields()
 }
 
 func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
-	return r.store.ConvertToTable(ctx, object, tableOptions)
+	return r.Store.ConvertToTable(ctx, object, tableOptions)
 }
