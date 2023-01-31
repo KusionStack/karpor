@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 
 	"github.com/spf13/cobra"
 
@@ -27,6 +28,7 @@ import (
 	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
 	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
 	karbouropenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
+	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -116,6 +118,10 @@ func (o *Options) Config() (*apiserver.Config, error) {
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
 
 	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
+
+	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
+		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
+	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
