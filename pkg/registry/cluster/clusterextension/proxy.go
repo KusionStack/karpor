@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+	"code.alipay.com/ant-iac/karbour/pkg/identity"
 	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
 
 	"github.com/pkg/errors"
@@ -58,7 +59,7 @@ func (r *ProxyREST) Connect(ctx context.Context, id string, options runtime.Obje
 	clusterExtension := obj.(*cluster.ClusterExtension)
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		location, transport, err := ResourceLocation(clusterExtension, proxyOpts.Path, r)
+		location, transport, err := resourceLocation(clusterExtension, proxyOpts.Path, r)
 		if err != nil {
 			responsewriters.InternalError(w, r, err)
 			return
@@ -71,7 +72,7 @@ func (r *ProxyREST) Connect(ctx context.Context, id string, options runtime.Obje
 	}), nil
 }
 
-func ResourceLocation(clusterExtension *cluster.ClusterExtension, path string, request *http.Request) (location *url.URL, transport http.RoundTripper, err error) {
+func resourceLocation(clusterExtension *cluster.ClusterExtension, path string, request *http.Request) (location *url.URL, transport http.RoundTripper, err error) {
 	location, err = getEndpointURL(clusterExtension)
 	if err != nil {
 		return nil, nil, errors.Wrapf(err, "failed to parsing endpoint for cluster %s", clusterExtension.Name)
@@ -113,8 +114,8 @@ func NewConfigFromCluster(c *cluster.ClusterExtension) (*restclient.Config, erro
 		cfg.KeyData = c.Spec.Access.Credential.X509.PrivateKey
 	case cluster.CredentialTypeUnifiedIdentity:
 		cfg.CAData = c.Spec.Access.CABundle
-		cfg.CertFile = "/var/run/secrets/kubernetes.io/serviceaccount/app.crt"
-		cfg.KeyFile = "/var/run/secrets/kubernetes.io/serviceaccount/app.key"
+		cfg.CertFile = identity.GetCertFile()
+		cfg.KeyFile = identity.GetKeyFile()
 	}
 	u, err := url.Parse(c.Spec.Access.Endpoint)
 	if err != nil {

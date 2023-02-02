@@ -28,6 +28,7 @@ import (
 	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
 	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
 	karbouropenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
+	"code.alipay.com/ant-iac/karbour/pkg/identity"
 	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -91,6 +92,7 @@ func NewApiserverCommand(defaults *Options, stopCh <-chan struct{}) *cobra.Comma
 
 	flags := cmd.Flags()
 	o.RecommendedOptions.AddFlags(flags)
+	identity.AddFlags(flags)
 	utilfeature.DefaultMutableFeatureGate.AddFlag(flags)
 
 	return cmd
@@ -100,6 +102,7 @@ func NewApiserverCommand(defaults *Options, stopCh <-chan struct{}) *cobra.Comma
 func (o *Options) Validate(args []string) error {
 	errors := []error{}
 	errors = append(errors, o.RecommendedOptions.Validate()...)
+	errors = append(errors, identity.Validate())
 	return utilerrors.NewAggregate(errors)
 }
 
