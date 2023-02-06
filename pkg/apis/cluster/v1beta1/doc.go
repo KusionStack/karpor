@@ -16,9 +16,9 @@ limitations under the License.
 
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package
-// +k8s:conversion-gen=code.alipay.com/ant-iac/karbour/pkg/apis/cluster
+// +k8s:conversion-gen=code.alipay.com/multi-cluster/karbour/pkg/apis/cluster
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=cluster.karbour.com
 
 // Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
-package v1beta1 // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
+package v1beta1 // import "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"

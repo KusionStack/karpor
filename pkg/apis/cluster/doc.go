@@ -18,4 +18,4 @@ limitations under the License.
 // +groupName=cluster.karbour.com
 
 // Package cluster is the internal version of the API.
-package cluster // import "code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+package cluster // import "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"

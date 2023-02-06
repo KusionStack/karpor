@@ -36,13 +36,13 @@ util:create_gopath_tree "${REPO_ROOT}" "${tmp_go_path}"
 #                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
 bash "${CODEGEN_PKG}/generate-groups.sh" all \
-  code.alipay.com/ant-iac/karbour/pkg/generated code.alipay.com/ant-iac/karbour/pkg/apis \
+  code.alipay.com/multi-cluster/karbour/pkg/generated code.alipay.com/multi-cluster/karbour/pkg/apis \
   "cluster:v1beta1" \
   --output-base "${tmp_go_path}" \
   --go-header-file "${REPO_ROOT}"/hack/boilerplate.go.txt
 
 bash "${CODEGEN_PKG}/generate-internal-groups.sh" "deepcopy,defaulter,conversion,openapi" \
-  code.alipay.com/ant-iac/karbour/pkg/generated code.alipay.com/ant-iac/karbour/pkg/apis code.alipay.com/ant-iac/karbour/pkg/apis \
+  code.alipay.com/multi-cluster/karbour/pkg/generated code.alipay.com/multi-cluster/karbour/pkg/apis code.alipay.com/multi-cluster/karbour/pkg/apis \
   "cluster:v1beta1" \
   --output-base "${tmp_go_path}" \
   --go-header-file "${REPO_ROOT}/hack/boilerplate.go.txt"

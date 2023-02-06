@@ -33,10 +33,10 @@ echo ${goPath}
 
 export GOPATH=${goPath}
 
-mkdir -p ${goPath}/src/code.alipay.com/ant-iac/karbour
-cp -R . ${goPath}/src/code.alipay.com/ant-iac/karbour
+mkdir -p ${goPath}/src/code.alipay.com/multi-cluster/karbour
+cp -R . ${goPath}/src/code.alipay.com/multi-cluster/karbour
 
-pushd ${goPath}/src/code.alipay.com/ant-iac/karbour
+pushd ${goPath}/src/code.alipay.com/multi-cluster/karbour
 rm -rf vendor || true
 
 # restore what we have in our new manifest that we've sync
@@ -57,8 +57,8 @@ rm -rf vendor || true
 rm -rf Godeps || true
 git rm -rf vendor || true
 git rm -rf Godeps || true
-mv ${goPath}/src/code.alipay.com/ant-iac/karbour/vendor .
-mv ${goPath}/src/code.alipay.com/ant-iac/karbour/Godeps .
+mv ${goPath}/src/code.alipay.com/multi-cluster/karbour/vendor .
+mv ${goPath}/src/code.alipay.com/multi-cluster/karbour/Godeps .
 git add vendor
 git add Godeps
 git commit -m "sync: resync vendor folder"

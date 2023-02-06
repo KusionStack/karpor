@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-KARBOUR_GO_PACKAGE="code.alipay.com/ant-iac/karbour"
+KARBOUR_GO_PACKAGE="code.alipay.com/multi-cluster/karbour"
 
 # util::create_gopath_tree create the GOPATH tree
 # Parameters:

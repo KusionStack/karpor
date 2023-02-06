@@ -18,7 +18,7 @@
 # overall flow
 # 1. fetch the current level of k8s.io/kubernetes
 # 2. check out the k8s.io/kubernetes HEAD into a separate branch
-# 3. rewrite the history on that branch to *only* include staging/src/code.alipay.com/ant-iac/karbour
+# 3. rewrite the history on that branch to *only* include staging/src/code.alipay.com/multi-cluster/karbour
 # 4. locate all commits between the last time we sync'ed and now
 # 5. switch back to the starting branch
 # 6. for each commit, cherry-pick it (which will keep authorship) into current branch
@@ -41,8 +41,8 @@ git checkout upstream-kube/master -b kube-sync
 git reset --hard upstream-kube/master
 newKubeSHA=$(git log --oneline --format='%H' kube-sync -1)
 
-# this command rewrite git history to *only* include staging/src/code.alipay.com/ant-iac/karbour
-git filter-branch -f --subdirectory-filter staging/src/code.alipay.com/ant-iac/karbour HEAD
+# this command rewrite git history to *only* include staging/src/code.alipay.com/multi-cluster/karbour
+git filter-branch -f --subdirectory-filter staging/src/code.alipay.com/multi-cluster/karbour HEAD
 
 newBranchSHA=$(git log --oneline --format='%H' kube-sync -1)
 git log --no-merges --format='%H' --reverse ${previousBranchSHA}..HEAD > ${dir}/commits
