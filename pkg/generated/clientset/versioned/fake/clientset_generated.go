@@ -19,9 +19,9 @@ limitations under the License.
 package fake
 
 import (
-	clientset "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned"
-	clusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
-	fakeclusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1/fake"
+	clientset "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned"
+	clusterv1beta1 "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
+	fakeclusterv1beta1 "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

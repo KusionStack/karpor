@@ -19,9 +19,9 @@ package main
 import (
 	"os"
 
+	"code.alipay.com/multi-cluster/karbour/cmd/app"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
-	"code.alipay.com/ant-iac/karbour/cmd/app"
 )
 
 func main() {

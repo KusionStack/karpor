@@ -19,8 +19,8 @@ limitations under the License.
 package cluster
 
 import (
-	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/cluster/v1beta1"
-	internalinterfaces "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/cluster/v1beta1"
+	internalinterfaces "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.

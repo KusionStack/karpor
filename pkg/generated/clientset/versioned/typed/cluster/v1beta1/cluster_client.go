@@ -21,8 +21,8 @@ package v1beta1
 import (
 	"net/http"
 
-	v1beta1 "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
-	"code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/scheme"
+	v1beta1 "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"
+	"code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

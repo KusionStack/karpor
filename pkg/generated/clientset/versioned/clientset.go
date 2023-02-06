@@ -22,7 +22,7 @@ import (
 	"fmt"
 	"net/http"
 
-	clusterv1beta1 "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
+	clusterv1beta1 "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
 	discovery "k8s.io/client-go/discovery"
 	rest "k8s.io/client-go/rest"
 	flowcontrol "k8s.io/client-go/util/flowcontrol"

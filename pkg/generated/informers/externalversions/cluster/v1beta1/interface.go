@@ -19,7 +19,7 @@ limitations under the License.
 package v1beta1
 
 import (
-	internalinterfaces "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/internalinterfaces"
+	internalinterfaces "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to all the informers in this group version.

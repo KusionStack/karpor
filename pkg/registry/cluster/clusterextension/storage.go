@@ -19,7 +19,7 @@ package clusterextension
 import (
 	"context"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"

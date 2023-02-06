@@ -19,8 +19,8 @@ package fuzzer
 import (
 	fuzz "github.com/google/gofuzz"
 
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
 	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
 )
 
 // Funcs returns the fuzzer functions for the apps api group.

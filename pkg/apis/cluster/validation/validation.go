@@ -1,8 +1,8 @@
 package validation
 
 import (
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
 	"k8s.io/apimachinery/pkg/util/validation/field"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
 )
 
 func ValidateClusterExtension(f *cluster.ClusterExtension) field.ErrorList {

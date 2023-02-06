@@ -24,12 +24,12 @@ import (
 
 	"github.com/spf13/cobra"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
-	"code.alipay.com/ant-iac/karbour/pkg/apiserver"
-	informers "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions"
-	karbouropenapi "code.alipay.com/ant-iac/karbour/pkg/generated/openapi"
-	"code.alipay.com/ant-iac/karbour/pkg/identity"
-	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"
+	"code.alipay.com/multi-cluster/karbour/pkg/apiserver"
+	informers "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions"
+	karbouropenapi "code.alipay.com/multi-cluster/karbour/pkg/generated/openapi"
+	"code.alipay.com/multi-cluster/karbour/pkg/identity"
+	proxyutil "code.alipay.com/multi-cluster/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"

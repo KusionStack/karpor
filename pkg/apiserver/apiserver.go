@@ -25,9 +25,9 @@ import (
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/install"
-	clusterextensionstorage "code.alipay.com/ant-iac/karbour/pkg/registry/cluster/clusterextension"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/install"
+	clusterextensionstorage "code.alipay.com/multi-cluster/karbour/pkg/registry/cluster/clusterextension"
 )
 
 var (

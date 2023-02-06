@@ -23,9 +23,9 @@ import (
 	sync "sync"
 	time "time"
 
-	versioned "code.alipay.com/ant-iac/karbour/pkg/generated/clientset/versioned"
-	cluster "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/cluster"
-	internalinterfaces "code.alipay.com/ant-iac/karbour/pkg/generated/informers/externalversions/internalinterfaces"
+	versioned "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned"
+	cluster "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/cluster"
+	internalinterfaces "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/internalinterfaces"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"

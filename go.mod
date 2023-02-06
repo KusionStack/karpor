@@ -1,4 +1,4 @@
-module code.alipay.com/ant-iac/karbour
+module code.alipay.com/multi-cluster/karbour
 
 go 1.19
 

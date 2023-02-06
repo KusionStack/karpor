@@ -28,7 +28,7 @@ import (
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/names"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
 )
 
 // NewStrategy creates and returns a ClusterStrategy instance

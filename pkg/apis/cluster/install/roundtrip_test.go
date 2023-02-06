@@ -19,7 +19,7 @@ package install
 import (
 	"testing"
 
-	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
+	clusterfuzzer "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/fuzzer"
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 

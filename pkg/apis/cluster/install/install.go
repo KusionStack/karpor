@@ -17,10 +17,10 @@ limitations under the License.
 package install
 
 import (
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster/v1beta1"
 )
 
 // Install registers the API group and adds types to a scheme

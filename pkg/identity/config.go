@@ -18,8 +18,8 @@ var (
 )
 
 func AddFlags(flags *pflag.FlagSet) {
-	flags.StringVar(&unifiedIdentityCertFile, "unified-identity-cert-file", "", "the filepath of unified-identity certificate")
-	flags.StringVar(&unifiedIdentityKeyFile, "unified-identity-key-file", "", "the filepath of unified-identity private key")
+	flags.StringVar(&unifiedIdentityCertFile, "unified-identity-cert-file", unifiedIdentityCertFile, "the filepath of unified-identity certificate")
+	flags.StringVar(&unifiedIdentityKeyFile, "unified-identity-key-file", unifiedIdentityKeyFile, "the filepath of unified-identity private key")
 }
 
 func Validate() error {

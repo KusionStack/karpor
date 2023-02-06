@@ -19,8 +19,8 @@ package apiserver
 import (
 	"testing"
 
+	clusterfuzzer "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/fuzzer"
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
-	clusterfuzzer "code.alipay.com/ant-iac/karbour/pkg/apis/cluster/fuzzer"
 )
 
 func TestRoundTripTypes(t *testing.T) {

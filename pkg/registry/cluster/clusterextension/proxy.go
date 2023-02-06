@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"net/url"
 
-	"code.alipay.com/ant-iac/karbour/pkg/apis/cluster"
-	"code.alipay.com/ant-iac/karbour/pkg/identity"
-	proxyutil "code.alipay.com/ant-iac/karbour/pkg/util/proxy"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/identity"
+	proxyutil "code.alipay.com/multi-cluster/karbour/pkg/util/proxy"
 
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
