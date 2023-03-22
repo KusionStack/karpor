@@ -21,18 +21,20 @@ import (
 	"io"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/spf13/cobra"
 
-	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"
 	"code.alipay.com/multi-cluster/karbour/pkg/apiserver"
+	clientset "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned"
 	informers "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions"
 	karbouropenapi "code.alipay.com/multi-cluster/karbour/pkg/generated/openapi"
 	"code.alipay.com/multi-cluster/karbour/pkg/identity"
+	"code.alipay.com/multi-cluster/karbour/pkg/scheme"
 	proxyutil "code.alipay.com/multi-cluster/karbour/pkg/util/proxy"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -59,20 +61,20 @@ func NewOptions(out, errOut io.Writer) *Options {
 	o := &Options{
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
-			apiserver.Codecs.LegacyCodec(v1beta1.SchemeGroupVersion),
+			scheme.Codecs.LegacyCodec(scheme.Versions...),
 		),
 
 		StdOut: out,
 		StdErr: errOut,
 	}
-	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = runtime.NewMultiGroupVersioner(v1beta1.SchemeGroupVersion, schema.GroupKind{Group: v1beta1.GroupName})
+	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
 	return o
 }
 
 // NewApiserverCommand provides a CLI handler for 'start master' command
 // with a default Options.
-func NewApiserverCommand(defaults *Options, stopCh <-chan struct{}) *cobra.Command {
-	o := *defaults
+func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
+	o := NewOptions(os.Stdout, os.Stderr)
 	cmd := &cobra.Command{
 		Short: "Launch an API server",
 		Long:  "Launch an API server",
@@ -120,18 +122,28 @@ func (o *Options) Config() (*apiserver.Config, error) {
 
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
 
-	serverConfig := genericapiserver.NewRecommendedConfig(apiserver.Codecs)
+	o.RecommendedOptions.ExtraAdmissionInitializers = func(c *genericapiserver.RecommendedConfig) ([]admission.PluginInitializer, error) {
+		client, err := clientset.NewForConfig(c.LoopbackClientConfig)
+		if err != nil {
+			return nil, err
+		}
+		informerFactory := informers.NewSharedInformerFactory(client, c.LoopbackClientConfig.Timeout)
+		o.SharedInformerFactory = informerFactory
+		return []admission.PluginInitializer{}, nil
+	}
+
+	serverConfig := genericapiserver.NewRecommendedConfig(scheme.Codecs)
 
 	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
 	}
 
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
 	serverConfig.OpenAPIConfig.Info.Version = "0.1"
 
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(apiserver.Scheme))
+		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 		serverConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
@@ -159,11 +171,11 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 		return err
 	}
 
-	// server.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
-	// 	config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
-	// 	o.SharedInformerFactory.Start(context.StopCh)
-	// 	return nil
-	// })
+	server.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
+		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
+		o.SharedInformerFactory.Start(context.StopCh)
+		return nil
+	})
 
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
 }

@@ -14,19 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+// +k8s:openapi-gen=true
+// +k8s:deepcopy-gen=package
+// +k8s:conversion-gen=code.alipay.com/multi-cluster/karbour/pkg/apis/search
+// +k8s:defaulter-gen=TypeMeta
+// +groupName=search.karbour.com
 
-import (
-	"os"
-
-	"code.alipay.com/multi-cluster/karbour/cmd/app"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-)
-
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	cmd := app.NewApiserverCommand(stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
-}
+// Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
+package v1beta1 // import "code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1"

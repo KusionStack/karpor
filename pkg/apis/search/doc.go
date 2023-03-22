@@ -14,19 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+// +k8s:deepcopy-gen=package
+// +groupName=search.karbour.com
 
-import (
-	"os"
-
-	"code.alipay.com/multi-cluster/karbour/cmd/app"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
-)
-
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	cmd := app.NewApiserverCommand(stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
-}
+// Package search is the internal version of the API.
+package search // import "code.alipay.com/multi-cluster/karbour/pkg/apis/search"

@@ -14,19 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package fuzzer
 
 import (
-	"os"
+	fuzz "github.com/google/gofuzz"
 
-	"code.alipay.com/multi-cluster/karbour/cmd/app"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/search"
+	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	cmd := app.NewApiserverCommand(stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+// Funcs returns the fuzzer functions for the apps api group.
+var Funcs = func(codecs runtimeserializer.CodecFactory) []interface{} {
+	return []interface{}{
+		func(s *search.SearchExtensionSpec, c fuzz.Continue) {
+			c.FuzzNoCustom(s) // fuzz self without calling this function again
+		},
+	}
 }

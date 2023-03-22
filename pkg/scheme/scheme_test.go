@@ -14,19 +14,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package scheme
 
 import (
-	"os"
+	"testing"
 
-	"code.alipay.com/multi-cluster/karbour/cmd/app"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
+	clusterfuzzer "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/fuzzer"
+	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	cmd := app.NewApiserverCommand(stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+func TestRoundTripTypes(t *testing.T) {
+	roundtrip.RoundTripTestForScheme(t, Scheme, clusterfuzzer.Funcs)
 }

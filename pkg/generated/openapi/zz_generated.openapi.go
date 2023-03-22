@@ -39,6 +39,14 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1.ClusterExtensionSpec":         schema_pkg_apis_cluster_v1beta1_ClusterExtensionSpec(ref),
 		"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1.ClusterExtensionStatus":       schema_pkg_apis_cluster_v1beta1_ClusterExtensionStatus(ref),
 		"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1.X509":                         schema_pkg_apis_cluster_v1beta1_X509(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccess":                  schema_pkg_apis_search_v1beta1_SearchAccess(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccessCredential":        schema_pkg_apis_search_v1beta1_SearchAccessCredential(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtension":               schema_pkg_apis_search_v1beta1_SearchExtension(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionList":           schema_pkg_apis_search_v1beta1_SearchExtensionList(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionProxyOptions":   schema_pkg_apis_search_v1beta1_SearchExtensionProxyOptions(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionSpec":           schema_pkg_apis_search_v1beta1_SearchExtensionSpec(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionStatus":         schema_pkg_apis_search_v1beta1_SearchExtensionStatus(ref),
+		"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.X509":                          schema_pkg_apis_search_v1beta1_X509(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                               schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                                           schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                            schema_pkg_apis_meta_v1_APIResource(ref),
@@ -349,6 +357,285 @@ func schema_pkg_apis_cluster_v1beta1_ClusterExtensionStatus(ref common.Reference
 }
 
 func schema_pkg_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"certificate": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "byte",
+						},
+					},
+					"privateKey": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "byte",
+						},
+					},
+				},
+				Required: []string{"certificate", "privateKey"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchAccess(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"endpoint": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"caBundle": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "byte",
+						},
+					},
+					"insecure": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+					"credential": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccessCredential"),
+						},
+					},
+				},
+				Required: []string{"endpoint"},
+			},
+		},
+		Dependencies: []string{
+			"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccessCredential"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchAccessCredential(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"type": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"serviceAccountToken": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"x509": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.X509"),
+						},
+					},
+				},
+				Required: []string{"type"},
+			},
+		},
+		Dependencies: []string{
+			"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.X509"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchExtension(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SearchExtension is an extension type to access a search",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionSpec"),
+						},
+					},
+					"status": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionStatus"),
+						},
+					},
+				},
+				Required: []string{"spec"},
+			},
+		},
+		Dependencies: []string{
+			"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionSpec", "code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtensionStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchExtensionList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "SearchExtensionList is a list of SearchExtension objects.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtension"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchExtension", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchExtensionProxyOptions(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path is the target api path of the proxy request. e.g. \"/healthz\", \"/api/v1\"",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchExtensionSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"provider": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"access": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccess"),
+						},
+					},
+					"finalized": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"provider", "access"},
+			},
+		},
+		Dependencies: []string{
+			"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1.SearchAccess"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_SearchExtensionStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"healthy": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"boolean"},
+							Format: "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_X509(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{

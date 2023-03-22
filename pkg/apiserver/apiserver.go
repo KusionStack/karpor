@@ -17,46 +17,16 @@ limitations under the License.
 package apiserver
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
+	"fmt"
+
+	"code.alipay.com/multi-cluster/karbour/pkg/registry"
+	clusterstorage "code.alipay.com/multi-cluster/karbour/pkg/registry/cluster/clusterextension"
+	searchstorage "code.alipay.com/multi-cluster/karbour/pkg/registry/search/clusterextension"
+
 	"k8s.io/apimachinery/pkg/version"
-	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-
-	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
-	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/install"
-	clusterextensionstorage "code.alipay.com/multi-cluster/karbour/pkg/registry/cluster/clusterextension"
+	"k8s.io/klog/v2"
 )
-
-var (
-	// Scheme defines methods for serializing and deserializing API objects.
-	Scheme = runtime.NewScheme()
-	// Codecs provides methods for retrieving codecs and serializers for specific
-	// versions and content types.
-	Codecs = serializer.NewCodecFactory(Scheme)
-	// ParameterCodec handles versioning of objects that are converted to query parameters.
-	ParameterCodec = runtime.NewParameterCodec(Scheme)
-)
-
-func init() {
-	install.Install(Scheme)
-
-	// we need to add the options to empty v1
-	// TODO fix the server code to avoid this
-	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Version: "v1"})
-
-	// TODO: keep the generic API server from wanting this
-	unversioned := schema.GroupVersion{Group: "", Version: "v1"}
-	Scheme.AddUnversionedTypes(unversioned,
-		&metav1.Status{},
-		&metav1.APIVersions{},
-		&metav1.APIGroupList{},
-		&metav1.APIGroup{},
-		&metav1.APIResourceList{},
-	)
-}
 
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
@@ -110,22 +80,30 @@ func (c completedConfig) New() (*APIServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, Scheme, ParameterCodec, Codecs)
-
-	v1beta1 := map[string]rest.Storage{}
-	clusterStorage, err := clusterextensionstorage.NewREST(Scheme, c.GenericConfig.RESTOptionsGetter)
-	if err != nil {
-		return nil, err
+	restStorageProviders := []registry.RESTStorageProvider{
+		clusterstorage.RESTStorageProvider{},
+		searchstorage.RESTStorageProvider{},
 	}
 
-	v1beta1["clusterextensions"] = clusterStorage.Cluster
-	v1beta1["clusterextensions/status"] = clusterStorage.Status
-	v1beta1["clusterextensions/proxy"] = clusterStorage.Proxy
+	for _, restStorageProvider := range restStorageProviders {
+		groupName := restStorageProvider.GroupName()
+		apiGroupInfo, err := restStorageProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
+		if err != nil {
+			return nil, fmt.Errorf("problem initializing API group %q : %v", groupName, err)
+		}
 
-	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
+		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
+			// If we have no storage for any resource configured, this API group is effectively disabled.
+			// This can happen when an entire API group, version, or development-stage (alpha, beta, GA) is disabled.
+			klog.Infof("API group %q is not enabled, skipping.", groupName)
+			continue
+		}
 
-	if err := s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-		return nil, err
+		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			return nil, fmt.Errorf("problem install API group %q: %v", groupName, err)
+		}
+
+		klog.Infof("Enabling API group %q.", groupName)
 	}
 
 	return s, nil

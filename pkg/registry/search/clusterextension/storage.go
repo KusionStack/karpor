@@ -14,12 +14,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package clusterextension
+package searchextension
 
 import (
 	"context"
 
-	"code.alipay.com/multi-cluster/karbour/pkg/apis/cluster"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/search"
 
 	"code.alipay.com/multi-cluster/karbour/pkg/registry"
 	"code.alipay.com/multi-cluster/karbour/pkg/scheme"
@@ -36,38 +36,38 @@ type REST struct {
 	*genericregistry.Store
 }
 
-type ClusterStorage struct {
-	Cluster *REST
-	Status  *StatusREST
-	Proxy   *ProxyREST
+type SearchStorage struct {
+	Search *REST
+	Status *StatusREST
+	Proxy  *ProxyREST
 }
 
 // NewREST returns a RESTStorage object that will work against API services.
-func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*ClusterStorage, error) {
+func NewREST(scheme *runtime.Scheme, optsGetter generic.RESTOptionsGetter) (*SearchStorage, error) {
 	strategy := NewStrategy(scheme)
 
 	store := &genericregistry.Store{
-		NewFunc:                  func() runtime.Object { return &cluster.ClusterExtension{} },
-		NewListFunc:              func() runtime.Object { return &cluster.ClusterExtensionList{} },
+		NewFunc:                  func() runtime.Object { return &search.SearchExtension{} },
+		NewListFunc:              func() runtime.Object { return &search.SearchExtensionList{} },
 		PredicateFunc:            MatchFischer,
-		DefaultQualifiedResource: cluster.Resource("clusterextensions"),
-		// SingularQualifiedResource: cluster.Resource("clusterextension"),
+		DefaultQualifiedResource: search.Resource("searchextensions"),
+		// SingularQualifiedResource: search.Resource("searchextension"),
 
 		CreateStrategy: strategy,
 		UpdateStrategy: strategy,
 		DeleteStrategy: strategy,
 
 		// TODO: define table converter that exposes more than name/creation timestamp
-		TableConvertor: rest.NewDefaultTableConvertor(cluster.Resource("clusterextensions")),
+		TableConvertor: rest.NewDefaultTableConvertor(search.Resource("searchextensions")),
 	}
 	options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
 	if err := store.CompleteWithOptions(options); err != nil {
 		return nil, err
 	}
-	return &ClusterStorage{
-		Cluster: &REST{store},
-		Status:  &StatusREST{store},
-		Proxy:   &ProxyREST{store},
+	return &SearchStorage{
+		Search: &REST{store},
+		Status: &StatusREST{store},
+		Proxy:  &ProxyREST{store},
 	}, nil
 }
 
@@ -75,9 +75,9 @@ type StatusREST struct {
 	Store *genericregistry.Store
 }
 
-// New returns empty Cluster object.
+// New returns empty Search object.
 func (r *StatusREST) New() runtime.Object {
-	return &cluster.ClusterExtension{}
+	return &search.SearchExtension{}
 }
 
 // Destroy cleans up resources on shutdown.
@@ -112,21 +112,21 @@ var _ registry.RESTStorageProvider = &RESTStorageProvider{}
 type RESTStorageProvider struct{}
 
 func (p RESTStorageProvider) GroupName() string {
-	return cluster.GroupName
+	return search.GroupName
 }
 
 func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
 
 	v1beta1 := map[string]rest.Storage{}
-	clusterStorage, err := NewREST(scheme.Scheme, restOptionsGetter)
+	searchStorage, err := NewREST(scheme.Scheme, restOptionsGetter)
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}
 
-	v1beta1["clusterextensions"] = clusterStorage.Cluster
-	v1beta1["clusterextensions/status"] = clusterStorage.Status
-	v1beta1["clusterextensions/proxy"] = clusterStorage.Proxy
+	v1beta1["searchextensions"] = searchStorage.Search
+	v1beta1["searchextensions/status"] = searchStorage.Status
+	v1beta1["searchextensions/proxy"] = searchStorage.Proxy
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 	return apiGroupInfo, nil

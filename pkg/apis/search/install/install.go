@@ -14,19 +14,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package main
+package install
 
 import (
-	"os"
-
-	"code.alipay.com/multi-cluster/karbour/cmd/app"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/search"
+	"code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1"
+	"k8s.io/apimachinery/pkg/runtime"
+	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )
 
-func main() {
-	stopCh := genericapiserver.SetupSignalHandler()
-	cmd := app.NewApiserverCommand(stopCh)
-	code := cli.Run(cmd)
-	os.Exit(code)
+// Install registers the API group and adds types to a scheme
+func Install(scheme *runtime.Scheme) {
+	utilruntime.Must(search.AddToScheme(scheme))
+	utilruntime.Must(v1beta1.AddToScheme(scheme))
+	utilruntime.Must(scheme.SetVersionPriority(v1beta1.SchemeGroupVersion))
 }

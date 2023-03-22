@@ -26,6 +26,7 @@ import (
 	versioned "code.alipay.com/multi-cluster/karbour/pkg/generated/clientset/versioned"
 	cluster "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/cluster"
 	internalinterfaces "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/internalinterfaces"
+	search "code.alipay.com/multi-cluster/karbour/pkg/generated/informers/externalversions/search"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -244,8 +245,13 @@ type SharedInformerFactory interface {
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
 	Cluster() cluster.Interface
+	Search() search.Interface
 }
 
 func (f *sharedInformerFactory) Cluster() cluster.Interface {
 	return cluster.New(f, f.namespace, f.tweakListOptions)
+}
+
+func (f *sharedInformerFactory) Search() search.Interface {
+	return search.New(f, f.namespace, f.tweakListOptions)
 }

@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	v1beta1 "code.alipay.com/multi-cluster/karbour/pkg/apis/cluster/v1beta1"
+	searchv1beta1 "code.alipay.com/multi-cluster/karbour/pkg/apis/search/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -55,6 +56,10 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=cluster.karbour.com, Version=v1beta1
 	case v1beta1.SchemeGroupVersion.WithResource("clusterextensions"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1beta1().ClusterExtensions().Informer()}, nil
+
+		// Group=search.karbour.com, Version=v1beta1
+	case searchv1beta1.SchemeGroupVersion.WithResource("searchextensions"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SearchExtensions().Informer()}, nil
 
 	}
 
