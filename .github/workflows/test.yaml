@@ -29,10 +29,10 @@ jobs:
         env:
           GO111MODULE: on
         run: make cover
-      - name: Send coverage
-        uses: shogo82148/actions-goveralls@v1
-        with:
-          path-to-profile: coverage.out
+      # - name: Send coverage
+      #   uses: shogo82148/actions-goveralls@v1
+      #   with:
+      #     path-to-profile: coverage.out
   Lint:
     name: Lint checks
     runs-on: ubuntu-latest
@@ -49,4 +49,4 @@ jobs:
         uses: golangci/golangci-lint-action@v3
         with:
           # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-          version: v1.50.1
+          version: v1.52.2
