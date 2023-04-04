@@ -20,19 +20,25 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os"
 
 	"github.com/spf13/cobra"
 
 	"github.com/KusionStack/karbour/pkg/apiserver"
+	clientset "github.com/KusionStack/karbour/pkg/generated/clientset/versioned"
+	informers "github.com/KusionStack/karbour/pkg/generated/informers/externalversions"
+	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
+	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apiserver/pkg/admission"
+	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
-	"k8s.io/client-go/informers"
 	netutils "k8s.io/utils/net"
 )
 
@@ -113,7 +119,31 @@ func (o *Options) Config() (*apiserver.Config, error) {
 
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
 
+	o.RecommendedOptions.ExtraAdmissionInitializers = func(c *genericapiserver.RecommendedConfig) ([]admission.PluginInitializer, error) {
+		client, err := clientset.NewForConfig(c.LoopbackClientConfig)
+		if err != nil {
+			return nil, err
+		}
+		informerFactory := informers.NewSharedInformerFactory(client, c.LoopbackClientConfig.Timeout)
+		o.SharedInformerFactory = informerFactory
+		return []admission.PluginInitializer{}, nil
+	}
+
 	serverConfig := genericapiserver.NewRecommendedConfig(scheme.Codecs)
+
+	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
+		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
+	}
+
+	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
+	serverConfig.OpenAPIConfig.Info.Version = "0.1"
+
+	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
+		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		serverConfig.OpenAPIV3Config.Info.Title = "Karbour"
+		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
+	}
 
 	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
 		return nil, err
@@ -137,6 +167,12 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 	if err != nil {
 		return err
 	}
+
+	server.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
+		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
+		o.SharedInformerFactory.Start(context.StopCh)
+		return nil
+	})
 
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
 }

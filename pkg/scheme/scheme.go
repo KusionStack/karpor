@@ -5,6 +5,9 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
+
+	clusterinstall "github.com/KusionStack/karbour/pkg/apis/cluster/install"
+	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 )
 
 var (
@@ -16,10 +19,14 @@ var (
 	// ParameterCodec handles versioning of objects that are converted to query parameters.
 	ParameterCodec = runtime.NewParameterCodec(Scheme)
 
-	Versions = []schema.GroupVersion{}
+	Versions = []schema.GroupVersion{
+		clusterv1beta1.SchemeGroupVersion,
+	}
 )
 
 func init() {
+	clusterinstall.Install(Scheme)
+
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this
 	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Version: "v1"})

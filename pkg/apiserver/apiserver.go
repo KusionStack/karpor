@@ -20,6 +20,8 @@ import (
 	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/registry"
+	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
+
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
@@ -77,7 +79,9 @@ func (c completedConfig) New() (*APIServer, error) {
 		GenericAPIServer: genericServer,
 	}
 
-	restStorageProviders := []registry.RESTStorageProvider{}
+	restStorageProviders := []registry.RESTStorageProvider{
+		clusterstorage.RESTStorageProvider{},
+	}
 
 	for _, restStorageProvider := range restStorageProviders {
 		groupName := restStorageProvider.GroupName()
