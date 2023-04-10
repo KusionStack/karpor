@@ -24,7 +24,7 @@
 # explicit write access to the repository. In this example,
 # the octocats team in the octo-org organization owns all .txt files.
 # *.txt @octo-org/octocats
-*.go @elliotxx @panshuai-ps @adohe @KusionStack/go-reviewer
+*.go @elliotxx @panshuai-ps @adohe
 
 # In this example, @doctocat owns any files in the build/logs
 # directory at the root of the repository and any of its
