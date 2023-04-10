@@ -74,4 +74,4 @@ docker pull kusionstack/karbour:latest
 
 # 🎖︎ Contribution Guide
 
-Karbour is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](docs/contributing.md) to understand how to participate in the contribution Karbour project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karbour/issues).
+Karbour is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karbour project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karbour/issues).
