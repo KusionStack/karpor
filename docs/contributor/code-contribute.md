@@ -107,7 +107,7 @@ We know you're excited to create your first pull request. Before we get started,
 
 Before you submit a PR, run this command to ensure it is ready:
 ```
-make reviewable
+make lint
 ```
 
 If this is your first time contributing to an open-source project on GitHub, make sure you read about [Creating a pull request](https://help.github.com/en/articles/creating-a-pull-request).
