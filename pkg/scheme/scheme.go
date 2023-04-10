@@ -8,6 +8,8 @@ import (
 
 	clusterinstall "github.com/KusionStack/karbour/pkg/apis/cluster/install"
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
+	searchinstall "github.com/KusionStack/karbour/pkg/apis/search/install"
+	searchv1beta1 "github.com/KusionStack/karbour/pkg/apis/search/v1beta1"
 )
 
 var (
@@ -21,11 +23,13 @@ var (
 
 	Versions = []schema.GroupVersion{
 		clusterv1beta1.SchemeGroupVersion,
+		searchv1beta1.SchemeGroupVersion,
 	}
 )
 
 func init() {
 	clusterinstall.Install(Scheme)
+	searchinstall.Install(Scheme)
 
 	// we need to add the options to empty v1
 	// TODO fix the server code to avoid this

@@ -39,6 +39,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterSpec":             schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterStatus":           schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.X509":                    schema_pkg_apis_cluster_v1beta1_X509(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Search":                   schema_pkg_apis_search_v1beta1_Search(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                   schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                               schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                schema_pkg_apis_meta_v1_APIResource(ref),
@@ -368,6 +369,39 @@ func schema_pkg_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.O
 					},
 				},
 				Required: []string{"certificate", "privateKey"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_Search(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"path": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Path is the target api path of the proxy request. e.g. \"/healthz\", \"/api/v1\"",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
 			},
 		},
 	}
