@@ -54,6 +54,7 @@ func (in *Search) DeepCopyObject() runtime.Object {
 func (in *UniResource) DeepCopyInto(out *UniResource) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
+	in.Object.DeepCopyInto(&out.Object)
 	return
 }
 
@@ -79,11 +80,12 @@ func (in *UniResource) DeepCopyObject() runtime.Object {
 func (in *UniResourceList) DeepCopyInto(out *UniResourceList) {
 	*out = *in
 	out.TypeMeta = in.TypeMeta
-	in.ListMeta.DeepCopyInto(&out.ListMeta)
 	if in.Items != nil {
 		in, out := &in.Items, &out.Items
 		*out = make([]UniResource, len(*in))
-		copy(*out, *in)
+		for i := range *in {
+			(*in)[i].DeepCopyInto(&(*out)[i])
+		}
 	}
 	return
 }

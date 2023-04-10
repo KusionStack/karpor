@@ -23,7 +23,6 @@ package v1beta1
 
 import (
 	url "net/url"
-	unsafe "unsafe"
 
 	search "github.com/KusionStack/karbour/pkg/apis/search"
 	conversion "k8s.io/apimachinery/pkg/conversion"
@@ -114,6 +113,10 @@ func Convert_url_Values_To_v1beta1_Search(in *url.Values, out *Search, s convers
 }
 
 func autoConvert_v1beta1_UniResource_To_search_UniResource(in *UniResource, out *search.UniResource, s conversion.Scope) error {
+	out.Data = in.Data
+	if err := runtime.Convert_runtime_RawExtension_To_runtime_Object(&in.Object, &out.Object, s); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -123,6 +126,10 @@ func Convert_v1beta1_UniResource_To_search_UniResource(in *UniResource, out *sea
 }
 
 func autoConvert_search_UniResource_To_v1beta1_UniResource(in *search.UniResource, out *UniResource, s conversion.Scope) error {
+	out.Data = in.Data
+	if err := runtime.Convert_runtime_Object_To_runtime_RawExtension(&in.Object, &out.Object, s); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -132,8 +139,17 @@ func Convert_search_UniResource_To_v1beta1_UniResource(in *search.UniResource, o
 }
 
 func autoConvert_v1beta1_UniResourceList_To_search_UniResourceList(in *UniResourceList, out *search.UniResourceList, s conversion.Scope) error {
-	out.ListMeta = in.ListMeta
-	out.Items = *(*[]search.UniResource)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]search.UniResource, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta1_UniResource_To_search_UniResource(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -143,8 +159,17 @@ func Convert_v1beta1_UniResourceList_To_search_UniResourceList(in *UniResourceLi
 }
 
 func autoConvert_search_UniResourceList_To_v1beta1_UniResourceList(in *search.UniResourceList, out *UniResourceList, s conversion.Scope) error {
-	out.ListMeta = in.ListMeta
-	out.Items = *(*[]UniResource)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]UniResource, len(*in))
+		for i := range *in {
+			if err := Convert_search_UniResource_To_v1beta1_UniResource(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 

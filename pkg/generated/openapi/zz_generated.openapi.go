@@ -429,9 +429,23 @@ func schema_pkg_apis_search_v1beta1_UniResource(ref common.ReferenceCallback) co
 							Format:      "",
 						},
 					},
+					"data": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"object": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/runtime.RawExtension"),
+						},
+					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
@@ -455,12 +469,6 @@ func schema_pkg_apis_search_v1beta1_UniResourceList(ref common.ReferenceCallback
 							Format:      "",
 						},
 					},
-					"metadata": {
-						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
-						},
-					},
 					"items": {
 						SchemaProps: spec.SchemaProps{
 							Type: []string{"array"},
@@ -479,7 +487,7 @@ func schema_pkg_apis_search_v1beta1_UniResourceList(ref common.ReferenceCallback
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource"},
 	}
 }
 
