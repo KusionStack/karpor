@@ -220,17 +220,17 @@ func (b *BoolExpression) ToMap() map[string]interface{} {
 			klog.Warning("unknown logictype %d", b.expressions[i].LogicType())
 		}
 	}
-	bool := map[string]interface{}{}
+	boolean := map[string]interface{}{}
 	if len(mustFilter) > 0 {
-		bool["must"] = mustFilter
+		boolean["must"] = mustFilter
 	}
 	if len(mustNotFilter) > 0 {
-		bool["must_not"] = mustNotFilter
+		boolean["must_not"] = mustNotFilter
 	}
 	if len(shouldFilter) > 0 {
-		bool["should"] = shouldFilter
+		boolean["should"] = shouldFilter
 	}
 	return map[string]interface{}{
-		"bool": bool,
+		"bool": boolean,
 	}
 }
