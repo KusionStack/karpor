@@ -32,7 +32,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/scheme"
 )
 
-var Strategy = ClusterStrategy{scheme.Scheme, names.SimpleNameGenerator}
+var Strategy = clusterStrategy{scheme.Scheme, names.SimpleNameGenerator}
 
 // GetAttrs returns labels.Set, fields.Set, and error in case the given runtime.Object is not a Fischer
 func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
@@ -43,9 +43,9 @@ func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
 	return labels.Set(apiserver.ObjectMeta.Labels), SelectableFields(apiserver), nil
 }
 
-// MatchFischer is the filter used by the generic etcd backend to watch events
+// MatchCluster is the filter used by the generic etcd backend to watch events
 // from etcd to clients of the apiserver only interested in specific labels/fields.
-func MatchFischer(label labels.Selector, field fields.Selector) storage.SelectionPredicate {
+func MatchCluster(label labels.Selector, field fields.Selector) storage.SelectionPredicate {
 	return storage.SelectionPredicate{
 		Label:    label,
 		Field:    field,
@@ -55,47 +55,70 @@ func MatchFischer(label labels.Selector, field fields.Selector) storage.Selectio
 
 // SelectableFields returns a field set that represents the object.
 func SelectableFields(obj *cluster.Cluster) fields.Set {
-	return generic.ObjectMetaFieldsSet(&obj.ObjectMeta, true)
+	return generic.ObjectMetaFieldsSet(&obj.ObjectMeta, false)
 }
 
-type ClusterStrategy struct {
+type clusterStrategy struct {
 	runtime.ObjectTyper
 	names.NameGenerator
 }
 
-func (ClusterStrategy) NamespaceScoped() bool {
+func (clusterStrategy) NamespaceScoped() bool {
 	return false
 }
 
-func (ClusterStrategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
+func (clusterStrategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
+	obj.(*cluster.Cluster).Status = cluster.ClusterStatus{}
 }
 
-func (ClusterStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
+func (clusterStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
+	obj.(*cluster.Cluster).Status = old.(*cluster.Cluster).Status
 }
 
-func (ClusterStrategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorList {
+func (clusterStrategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorList {
 	return field.ErrorList{}
 }
 
 // WarningsOnCreate returns warnings for the creation of the given object.
-func (ClusterStrategy) WarningsOnCreate(ctx context.Context, obj runtime.Object) []string { return nil }
+func (clusterStrategy) WarningsOnCreate(ctx context.Context, obj runtime.Object) []string { return nil }
 
-func (ClusterStrategy) AllowCreateOnUpdate() bool {
+func (clusterStrategy) AllowCreateOnUpdate() bool {
 	return false
 }
 
-func (ClusterStrategy) AllowUnconditionalUpdate() bool {
+func (clusterStrategy) AllowUnconditionalUpdate() bool {
 	return false
 }
 
-func (ClusterStrategy) Canonicalize(obj runtime.Object) {
+func (clusterStrategy) Canonicalize(obj runtime.Object) {
 }
 
-func (ClusterStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
+func (clusterStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
 	return field.ErrorList{}
 }
 
 // WarningsOnUpdate returns warnings for the given update.
-func (ClusterStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
+func (clusterStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
+	return nil
+}
+
+type clusterStatusStrategy struct {
+	clusterStrategy
+}
+
+var StatusStartegy = clusterStatusStrategy{Strategy}
+
+// PrepareForUpdate clears fields that are not allowed to be set by end users on update of status
+func (clusterStatusStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
+	obj.(*cluster.Cluster).Spec = old.(*cluster.Cluster).Spec
+}
+
+// ValidateUpdate is the default update validation for an end user updating status
+func (clusterStatusStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
+	return field.ErrorList{}
+}
+
+// WarningsOnUpdate returns warnings for the given update.
+func (clusterStatusStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
 	return nil
 }
