@@ -1,4 +1,4 @@
-<!-- Thank you for contributing to KusionStack!
+<!-- Thank you for contributing to Karbour!
 
 Note: 
 
