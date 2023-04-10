@@ -41,3 +41,4 @@ tmp/
 result/
 
 vendor/
+apiserver.local.config/
