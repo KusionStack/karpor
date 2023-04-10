@@ -21,14 +21,11 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/apis/cluster"
 
-	"github.com/KusionStack/karbour/pkg/registry"
-	"github.com/KusionStack/karbour/pkg/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
-	genericapiserver "k8s.io/apiserver/pkg/server"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
 
@@ -112,29 +109,4 @@ func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
 
 func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	return r.Store.ConvertToTable(ctx, object, tableOptions)
-}
-
-var _ registry.RESTStorageProvider = &RESTStorageProvider{}
-
-type RESTStorageProvider struct{}
-
-func (p RESTStorageProvider) GroupName() string {
-	return cluster.GroupName
-}
-
-func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
-
-	v1beta1 := map[string]rest.Storage{}
-	clusterStorage, err := NewREST(restOptionsGetter)
-	if err != nil {
-		return genericapiserver.APIGroupInfo{}, err
-	}
-
-	v1beta1["clusters"] = clusterStorage.Cluster
-	v1beta1["clusters/status"] = clusterStorage.Status
-	v1beta1["clusters/proxy"] = clusterStorage.Proxy
-
-	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
-	return apiGroupInfo, nil
 }

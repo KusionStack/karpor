@@ -40,6 +40,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterStatus":           schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.X509":                    schema_pkg_apis_cluster_v1beta1_X509(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Search":                   schema_pkg_apis_search_v1beta1_Search(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource":              schema_pkg_apis_search_v1beta1_UniResource(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResourceList":          schema_pkg_apis_search_v1beta1_UniResourceList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                   schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                               schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                schema_pkg_apis_meta_v1_APIResource(ref),
@@ -396,7 +398,7 @@ func schema_pkg_apis_search_v1beta1_Search(ref common.ReferenceCallback) common.
 					},
 					"path": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Path is the target api path of the proxy request. e.g. \"/healthz\", \"/api/v1\"",
+							Description: "Path is the target api path of the proxy request.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -404,6 +406,80 @@ func schema_pkg_apis_search_v1beta1_Search(ref common.ReferenceCallback) common.
 				},
 			},
 		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniResource(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniResourceList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
-	"github.com/KusionStack/karbour/pkg/registry/search/esserver"
+	"github.com/KusionStack/karbour/pkg/esserver"
 	"github.com/elastic/go-elasticsearch/v8"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -21,6 +21,11 @@ var (
 )
 
 type ProxyREST struct{}
+
+// NewREST returns a RESTStorage object that will work against API services.
+func NewREST() *ProxyREST {
+	return &ProxyREST{}
+}
 
 // NamespaceScoped returns false because Resources is not namespaced
 func (r *ProxyREST) NamespaceScoped() bool {

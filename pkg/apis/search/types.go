@@ -26,3 +26,18 @@ type Search struct {
 	// Path is the target api path of the proxy request.
 	Path string
 }
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniResource struct {
+	metav1.TypeMeta
+	metav1.ObjectMeta
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniResourceList struct {
+	metav1.TypeMeta
+	metav1.ListMeta
+	Items []UniResource
+}

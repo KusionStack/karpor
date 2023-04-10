@@ -18,18 +18,14 @@ package search
 
 import (
 	"github.com/KusionStack/karbour/pkg/apis/search"
-
 	"github.com/KusionStack/karbour/pkg/registry"
+	searchregistry "github.com/KusionStack/karbour/pkg/registry/search/search"
+	uniresourceregistry "github.com/KusionStack/karbour/pkg/registry/search/uniresource"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
-
-// NewREST returns a RESTStorage object that will work against API services.
-func NewREST() *ProxyREST {
-	return &ProxyREST{}
-}
 
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
 
@@ -42,7 +38,8 @@ func (p RESTStorageProvider) GroupName() string {
 func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
 	v1beta1 := map[string]rest.Storage{}
-	v1beta1["search"] = NewREST()
+	v1beta1["search"] = searchregistry.NewREST()
+	v1beta1["uniresource"] = uniresourceregistry.NewREST()
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 	return apiGroupInfo, nil
 }

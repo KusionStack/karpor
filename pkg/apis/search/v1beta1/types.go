@@ -27,7 +27,20 @@ type Search struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// Path is the target api path of the proxy request.
-	// e.g. "/healthz", "/api/v1"
-	// +optional
 	Path string `json:"path,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniResource struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniResourceList struct {
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
+	Items           []UniResource `json:"items"`
 }
