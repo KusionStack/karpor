@@ -1,0 +1,63 @@
+# This file contains all available configuration options
+# with their default values.
+# For complete .golangci.yml configuration, reference: https://golangci-lint.run/usage/configuration/#config-file
+
+# options for analysis running
+run:
+  timeout: 10m
+
+linters:
+  disable-all: true
+  enable: # please keep this alphabetized
+  # Don't use soon to deprecated[1] linters that lead to false
+  # https://github.com/golangci/golangci-lint/issues/1841
+  # - deadcode
+  # - structcheck
+  # - varcheck
+    - ineffassign
+    - staticcheck
+    - unused
+    - gosimple
+    - govet
+    - gofumpt
+    - bodyclose
+    - depguard
+    - dogsled
+    - dupl
+    - exportloopref
+    - gocritic
+#    - misspell
+    - nolintlint
+    - prealloc
+    - predeclared
+    - stylecheck
+    - tparallel
+    - typecheck
+    - unconvert
+    - whitespace
+    # - wsl
+    # - revive
+    # - unparam
+    # - gomnd
+    # - gosec
+    # - exhaustive
+    # - thelper
+    # - goconst
+    # - errcheck
+
+linters-settings:
+  gofumpt:
+    # Select the Go version to target. The default is `1.15`.
+    lang-version: "1.19"
+    # Choose whether or not to use the extra rules that are disabled
+    # by default
+    extra-rules: false
+
+issues:
+  exclude:
+    - "G306: Expect WriteFile permissions to be 0600 or less"
+    - "ST1018: string literal contains Unicode control characters, consider using escape sequences instead"
+    - "ifElseChain: rewrite if-else to switch statement"
+    - "S1000: should use for range instead of for { select {} }"
+    - "SA4004: the surrounding loop is unconditionally terminated"
+    - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
