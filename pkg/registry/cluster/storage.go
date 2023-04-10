@@ -32,10 +32,6 @@ import (
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
 
-type REST struct {
-	*genericregistry.Store
-}
-
 type Storage struct {
 	Cluster *REST
 	Status  *StatusREST
@@ -47,8 +43,8 @@ func NewREST(optsGetter generic.RESTOptionsGetter) (*Storage, error) {
 	store := &genericregistry.Store{
 		NewFunc:                  func() runtime.Object { return &cluster.Cluster{} },
 		NewListFunc:              func() runtime.Object { return &cluster.ClusterList{} },
-		PredicateFunc:            MatchFischer,
 		DefaultQualifiedResource: cluster.Resource("clusters"),
+		PredicateFunc:            MatchCluster,
 		// SingularQualifiedResource: cluster.Resource("cluster"),
 
 		CreateStrategy: Strategy,
@@ -62,11 +58,24 @@ func NewREST(optsGetter generic.RESTOptionsGetter) (*Storage, error) {
 	if err := store.CompleteWithOptions(options); err != nil {
 		return nil, err
 	}
+
+	statusStore := *store
+	statusStore.UpdateStrategy = StatusStartegy
+
 	return &Storage{
 		Cluster: &REST{store},
-		Status:  &StatusREST{store},
+		Status:  &StatusREST{&statusStore},
 		Proxy:   &ProxyREST{store},
 	}, nil
+}
+
+type REST struct {
+	*genericregistry.Store
+}
+
+// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a resource.
+func (r *REST) ShortNames() []string {
+	return []string{"cl"}
 }
 
 type StatusREST struct {
