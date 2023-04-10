@@ -7,12 +7,19 @@
 
 [简体中文](https://github.com/KusionStack/karbour/blob/main/README-zh.md) | [English](https://github.com/KusionStack/karbour/blob/main/README.md) 
 
-[![Karbour](https://github.com/KarbourStack/karbour/actions/workflows/release.yaml/badge.svg)](https://github.com/KarbourStack/karbour/actions/workflows/release.yaml)
-[![GitHub release](https://img.shields.io/github/release/KusionStack/karbour.svg)](https://github.com/KusionStack/karbour/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karbour)](https://goreportcard.com/report/github.com/KusionStack/karbour)
-[![Coverage Status](https://coveralls.io/repos/github/KusionStack/karbour/badge.svg)](https://coveralls.io/github/KusionStack/karbour)
-[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karbour.svg)](https://pkg.go.dev/github.com/KusionStack/karbour)
-[![license](https://img.shields.io/github/license/KusionStack/karbour.svg)](https://github.com/KusionStack/karbour/blob/main/LICENSE)
+[![Kusion](https://github.com/KusionStack/kusion/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/kusion/actions/workflows/release.yaml)
+[![GitHub release](https://img.shields.io/github/release/KusionStack/kusion.svg)](https://github.com/KusionStack/kusion/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/kusion)](https://goreportcard.com/report/github.com/KusionStack/kusion)
+[![Coverage Status](https://coveralls.io/repos/github/KusionStack/kusion/badge.svg)](https://coveralls.io/github/KusionStack/kusion)
+[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/kusion.svg)](https://pkg.go.dev/github.com/KusionStack/kusion)
+[![license](https://img.shields.io/github/license/KusionStack/kusion.svg)](https://github.com/KusionStack/kusion/blob/main/LICENSE)
+<!-- TODO: Uncomment when the repository is publicly. -->
+<!-- [![Karbour](https://github.com/KarbourStack/karbour/actions/workflows/release.yaml/badge.svg)](https://github.com/KarbourStack/karbour/actions/workflows/release.yaml) -->
+<!-- [![GitHub release](https://img.shields.io/github/release/KusionStack/karbour.svg)](https://github.com/KusionStack/karbour/releases) -->
+<!-- [![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karbour)](https://goreportcard.com/report/github.com/KusionStack/karbour) -->
+<!-- [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karbour/badge.svg)](https://coveralls.io/github/KusionStack/karbour) -->
+<!-- [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karbour.svg)](https://pkg.go.dev/github.com/KusionStack/karbour) -->
+<!-- [![license](https://img.shields.io/github/license/KusionStack/karbour.svg)](https://github.com/KusionStack/karbour/blob/main/LICENSE) -->
 </div>
 
 # Karbour
