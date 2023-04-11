@@ -14,7 +14,7 @@ builds:
     goos:
       - linux
       - windows
-      # - darwin
+      - darwin
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
     #
