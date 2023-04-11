@@ -19,31 +19,31 @@ This guide helps you get started developing Karbour.
   <summary>Install Golang</summary>
 
 1. Install go1.19 from [official site](https://go.dev/dl/). Unpack the binary and place it somewhere, assume it's in the home path `~/go/`, below is an example command, you should choose the right binary according to your system.
-  ```
-  wget https://go.dev/dl/go1.20.2.linux-amd64.tar.gz
-  tar xzf go1.20.2.linux-amd64.tar.gz
-  ```
+
+```
+wget https://go.dev/dl/go1.20.2.linux-amd64.tar.gz
+tar xzf go1.20.2.linux-amd64.tar.gz
+```
 
 If you want to keep multiple golang version in your local develop environment, you can download the package and unfold it into some place, like `~/go/go1.19.1`, then the following commands should also change according to the path.
 
 1. Set environment variables for Golang
 
-  ```
-  export PATH=~/go/bin/:$PATH
-  export GOROOT=~/go/
-  export GOPATH=~/gopath/
-  ```
+```
+export PATH=~/go/bin/:$PATH
+export GOROOT=~/go/
+export GOPATH=~/gopath/
+```
 
-  Create a gopath folder if not exist `mkdir ~/gopath`. These commands will add the go binary folder to the `PATH` environment (let it to be the primary choice for go), and set the `GOROOT` environment to this go folder. Please add these lines to your `~/.bashrc` or `~/.zshrc` file, so that you don't need to set these environment variables every time you open a new terminal.
+Create a gopath folder if not exist `mkdir ~/gopath`. These commands will add the go binary folder to the `PATH` environment (let it to be the primary choice for go), and set the `GOROOT` environment to this go folder. Please add these lines to your `~/.bashrc` or `~/.zshrc` file, so that you don't need to set these environment variables every time you open a new terminal.
 
-1. (Optional) Some area like China may be too slow to connect to the default go registry, you can configure GOPROXY to speed up the download process. 
-  ```
-  go env -w GOPROXY=https://goproxy.cn,direct
-  ```
+1. (Optional) Some area like China may be too slow to connect to the default go registry, you can configure GOPROXY to speed up the download process.
 
+```
+go env -w GOPROXY=https://goproxy.cn,direct
+```
 
 </details>
-
 
 * golangci-lint 1.49.0+, it will install automatically if you run `make`, you can install it manually if the installation broken.
 
@@ -106,6 +106,7 @@ We know you're excited to create your first pull request. Before we get started,
 ### Your first pull request
 
 Before you submit a PR, run this command to ensure it is ready:
+
 ```
 make lint
 ```
@@ -189,7 +190,7 @@ Type is required to better capture the area of the commit, based on the [Angular
 * **feat**: A new feature
 * **fix**: A bug fix
 * **docs**: Documentation only changes
-* **build**: Changes that affect the build system or external dependencies 
+* **build**: Changes that affect the build system or external dependencies
 * **style**: Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc)
 * **refactor**: A code change that neither fixes a bug nor adds a feature
 * **perf**: A code change that improves performance
@@ -225,6 +226,7 @@ Make sure that the title for your pull request uses the same format as the subje
 ### Pass all the CI checks
 
 Before merge, All test CI should pass green.
+
 - [Unit test](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L12)
 - [Golang Lint](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L37)
 - [Commit Lint](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L55)
