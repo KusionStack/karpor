@@ -1,0 +1,136 @@
+# This is an example .goreleaser.yml file with some sane defaults.
+# Make sure to check the documentation at http://goreleaser.com
+before:
+  hooks:
+    # You may remove this if you don't use go modules.
+    - go mod tidy
+builds:
+  - env:
+      - CGO_ENABLED=0
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ 'darwin', 'linux', 'windows' ]
+    goos:
+      - linux
+      - windows
+      - darwin
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ '386', 'amd64', 'arm64' ]
+    goarch:
+      - amd64
+      - arm64
+    # 使用 ldflags="-s -w" 去掉符号表和调试信息，以减少发布包的大小
+    ldflags:
+      - -s -w
+    main: ./cmd/
+archives:
+  - id: release
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    builds_info:
+      mode: 0644
+      # format is `time.RFC3339Nano`
+      mtime: 2008-01-02T15:04:05Z
+    format_overrides:
+      - goos: windows
+        format: zip
+    files:
+      - LICENSE
+      - README.md
+      - docs/*
+      - src: dist/CHANGELOG.md
+        strip_parent: true
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: desc
+  # Changelog generation implementation to use.
+  #
+  # Valid options are:
+  # - `git`: uses `git log`;
+  # - `github`: uses the compare GitHub API, appending the author login to the changelog.
+  # - `gitlab`: uses the compare GitLab API, appending the author name and email to the changelog.
+  # - `github-native`: uses the GitHub release notes generation API, disables the groups feature.
+  #
+  # Default: 'git'
+  use: github
+  # Group commits messages by given regex and title.
+  # Order value defines the order of the groups.
+  # Providing no regex means all commits will be grouped under the default group.
+  # Groups are disabled when using github-native, as it already groups things by itself.
+  # Matches are performed against strings of the form: "<abbrev-commit>[:] <title-commit>".
+  # Regex use RE2 syntax as defined here: https://github.com/google/re2/wiki/Syntax.
+  groups:
+    - title: Features
+      regexp: '^.*?feat(\([[:word:]]+\))??!?:.+$'
+      order: 0
+    - title: 'Bug fixes'
+      regexp: '^.*?fix(\([[:word:]]+\))??!?:.+$'
+      order: 1
+    - title: 'Performance improvements'
+      regexp: '^.*?perf(\([[:word:]]+\))??!?:.+$'
+      order: 2
+    - title: 'Refactors'
+      regexp: '^.*?refactor(\([[:word:]]+\))??!?:.+$'
+      order: 3
+    - title: 'Tests'
+      regexp: '^.*?test(\([[:word:]]+\))??!?:.+$'
+      order: 4
+    - title: 'Documents'
+      regexp: '^.*?docs(\([[:word:]]+\))??!?:.+$'
+      order: 5
+    - title: 'Chores'
+      regexp: '^.*?chore(\([[:word:]]+\))??!?:.+$'
+      order: 6
+    - title: 'CI'
+      regexp: '^.*?ci(\([[:word:]]+\))??!?:.+$'
+      order: 7
+    - title: Others
+      order: 999
+  filters:
+    exclude:
+      - '^style:'
+
+release:
+  github:
+    owner: KusionStack
+    name: karbour
+  draft: false
+  footer: |
+    ## Docker Images
+    * `kusionstack/karbour:{{ .Tag }}`
+    * `kusionstack/karbour:{{ .Tag }}-arm64`
+
+    ## Thanks!
+
+dockers:
+- image_templates:
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}'
+  - 'kusionstack/{{ .ProjectName }}:latest'
+  dockerfile: Dockerfile
+  use: docker
+  build_flag_templates:
+  - "--pull"
+  - "--label=org.opencontainers.image.created={{.Date}}"
+  - "--label=org.opencontainers.image.name={{.ProjectName}}"
+  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+  - "--label=org.opencontainers.image.version={{.Version}}"
+  - "--label=org.opencontainers.image.source={{.GitURL}}"
+  - "--platform=linux/amd64"
+- image_templates:
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  dockerfile: Dockerfile
+  use: docker
+  build_flag_templates:
+  - "--pull"
+  - "--label=org.opencontainers.image.created={{.Date}}"
+  - "--label=org.opencontainers.image.name={{.ProjectName}}"
+  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+  - "--label=org.opencontainers.image.version={{.Version}}"
+  - "--label=org.opencontainers.image.source={{.GitURL}}"
+  - "--platform=linux/arm64"
+  goarch: arm64

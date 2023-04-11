@@ -16,7 +16,7 @@ Note:
     For more info, check https://kusionstack.io/docs/governance/contribute/
 -->
 
-#### What type of PR is this?
+## What type of PR is this?
 
 <!--
 Add one of the following kinds:
@@ -24,11 +24,12 @@ Add one of the following kinds:
 /kind cleanup
 /kind documentation
 /kind feature
+/kind chore
 -->
 
-#### What this PR does / why we need it:
+## What this PR does / why we need it:
 
-#### Which issue(s) this PR fixes:
+## Which issue(s) this PR fixes:
 
 <!--
 *Automatically closes linked issue when PR is merged.
@@ -38,9 +39,9 @@ _If PR is about `failing-tests or flakes`, please post the related issues/tests 
 
 Fixes #
 
-#### Special notes for your reviewer:
+## Special notes for your reviewer:
 
-#### Does this PR introduce a user-facing change?
+### Does this PR introduce a user-facing change?
 
 <!--
 If no, just write "NONE" in the release-note block below.
@@ -53,7 +54,7 @@ Enter your extended release note in the block below. If the PR requires addition
 
 ```
 
-#### Additional documentation e.g., design docs, usage docs, etc.:
+### Additional documentation e.g., design docs, usage docs, etc.:
 
 <!--
 Please use the following format for linking documentation:
