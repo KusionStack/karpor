@@ -4,6 +4,9 @@ include go.mk
 APPROOT=karbour
 GOSOURCE_PATHS = ./pkg/...
 
+.PHONY: update-codegen
+update-codegen: ## Update generated code
+	hack/update-codegen.sh
 
 ## Build-related targets
 .PHONY: build-all

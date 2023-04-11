@@ -22,6 +22,8 @@ import (
 	clientset "github.com/KusionStack/karbour/pkg/generated/clientset/versioned"
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1"
 	fakeclusterv1beta1 "github.com/KusionStack/karbour/pkg/generated/clientset/versioned/typed/cluster/v1beta1/fake"
+	searchv1beta1 "github.com/KusionStack/karbour/pkg/generated/clientset/versioned/typed/search/v1beta1"
+	fakesearchv1beta1 "github.com/KusionStack/karbour/pkg/generated/clientset/versioned/typed/search/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -82,4 +84,9 @@ var (
 // ClusterV1beta1 retrieves the ClusterV1beta1Client
 func (c *Clientset) ClusterV1beta1() clusterv1beta1.ClusterV1beta1Interface {
 	return &fakeclusterv1beta1.FakeClusterV1beta1{Fake: &c.Fake}
+}
+
+// SearchV1beta1 retrieves the SearchV1beta1Client
+func (c *Clientset) SearchV1beta1() searchv1beta1.SearchV1beta1Interface {
+	return &fakesearchv1beta1.FakeSearchV1beta1{Fake: &c.Fake}
 }

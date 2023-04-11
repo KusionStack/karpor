@@ -21,6 +21,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
+	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
 
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -81,6 +82,7 @@ func (c completedConfig) New() (*APIServer, error) {
 
 	restStorageProviders := []registry.RESTStorageProvider{
 		clusterstorage.RESTStorageProvider{},
+		searchstorage.RESTStorageProvider{},
 	}
 
 	for _, restStorageProvider := range restStorageProviders {
