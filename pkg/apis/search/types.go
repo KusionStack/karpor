@@ -18,29 +18,11 @@ package search
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type Search struct {
+type Example struct {
 	metav1.TypeMeta
-
-	// Path is the target api path of the proxy request.
-	Path string
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type UniResource struct {
-	metav1.TypeMeta
-	Data   string
-	Object runtime.Object
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type UniResourceList struct {
-	metav1.TypeMeta
-	Items []UniResource
+	metav1.ObjectMeta
 }

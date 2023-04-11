@@ -1,5 +1,5 @@
 /*
-Copyright The Alipay Authors.
+Copyright The Karbour Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,6 @@ package search
 import (
 	"github.com/KusionStack/karbour/pkg/apis/search"
 	"github.com/KusionStack/karbour/pkg/registry"
-	searchregistry "github.com/KusionStack/karbour/pkg/registry/search/search"
-	uniresourceregistry "github.com/KusionStack/karbour/pkg/registry/search/uniresource"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -38,8 +36,6 @@ func (p RESTStorageProvider) GroupName() string {
 func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
 	v1beta1 := map[string]rest.Storage{}
-	v1beta1["search"] = searchregistry.NewREST()
-	v1beta1["uniresource"] = uniresourceregistry.NewREST()
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 	return apiGroupInfo, nil
 }
