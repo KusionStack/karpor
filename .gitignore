@@ -36,6 +36,11 @@ _build/
 logs/
 *.log
 
+# frontend
+package.json
+package-lock.json
+node_modules/
+
 # other
 tmp/
 result/
