@@ -28,11 +28,26 @@ import (
 
 type SearchV1beta1Interface interface {
 	RESTClient() rest.Interface
+	SyncClustersResourcesesGetter
+	SyncResourcesesGetter
+	TransformRulesGetter
 }
 
 // SearchV1beta1Client is used to interact with features provided by the search.karbour.com group.
 type SearchV1beta1Client struct {
 	restClient rest.Interface
+}
+
+func (c *SearchV1beta1Client) SyncClustersResourceses() SyncClustersResourcesInterface {
+	return newSyncClustersResourceses(c)
+}
+
+func (c *SearchV1beta1Client) SyncResourceses() SyncResourcesInterface {
+	return newSyncResourceses(c)
+}
+
+func (c *SearchV1beta1Client) TransformRules() TransformRuleInterface {
+	return newTransformRules(c)
 }
 
 // NewForConfig creates a new SearchV1beta1Client for the given config.

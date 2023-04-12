@@ -19,12 +19,25 @@ limitations under the License.
 package fake
 
 import (
+	v1beta1 "github.com/KusionStack/karbour/pkg/generated/clientset/versioned/typed/search/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )
 
 type FakeSearchV1beta1 struct {
 	*testing.Fake
+}
+
+func (c *FakeSearchV1beta1) SyncClustersResourceses() v1beta1.SyncClustersResourcesInterface {
+	return &FakeSyncClustersResourceses{c}
+}
+
+func (c *FakeSearchV1beta1) SyncResourceses() v1beta1.SyncResourcesInterface {
+	return &FakeSyncResourceses{c}
+}
+
+func (c *FakeSearchV1beta1) TransformRules() v1beta1.TransformRuleInterface {
+	return &FakeTransformRules{c}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
