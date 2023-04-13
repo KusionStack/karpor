@@ -23,9 +23,10 @@ import (
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type SyncClustersResources struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +optional
 	Spec SyncClustersResourcesSpec `json:"spec,omitempty"`
@@ -51,6 +52,7 @@ type SyncClustersResourcesSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type SyncClustersResourcesList struct {
 	metav1.TypeMeta `json:",inline"`
 
@@ -63,14 +65,16 @@ type SyncClustersResourcesList struct {
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type SyncResources struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	Spec SyncResourcesSpec `json:"spec,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type SyncResourcesList struct {
 	metav1.TypeMeta `json:",inline"`
 
@@ -115,10 +119,11 @@ type ResourceSyncRule struct {
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 // TransformRule is used to define the rule to transform the original resource into the desired target resource.
 type TransformRule struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +optional
 	Spec TransformRuleSpec `json:"spec,omitempty"`
@@ -135,6 +140,7 @@ type TransformRuleSpec struct {
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
 type TransformRuleList struct {
 	metav1.TypeMeta `json:",inline"`
 
@@ -180,13 +186,13 @@ type ClusterSyncResourcesCondition struct {
 	// +required
 	Status string `json:"status"`
 
-	// optional
+	// +optional
 	Resources []ResourceSyncCondition `json:"resources"`
 }
 
 type ResourceSyncCondition struct {
 	// +required
-	APIVersion string
+	APIVersion string `json:"apiVersion"`
 
 	// +required
 	Kind string `json:"kind"`

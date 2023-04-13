@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	v1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karbour/pkg/apis/search/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -55,6 +56,14 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 	// Group=cluster.karbour.com, Version=v1beta1
 	case v1beta1.SchemeGroupVersion.WithResource("clusters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1beta1().Clusters().Informer()}, nil
+
+		// Group=search.karbour.com, Version=v1beta1
+	case searchv1beta1.SchemeGroupVersion.WithResource("syncclustersresourceses"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncClustersResourceses().Informer()}, nil
+	case searchv1beta1.SchemeGroupVersion.WithResource("syncresourceses"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncResourceses().Informer()}, nil
+	case searchv1beta1.SchemeGroupVersion.WithResource("transformrules"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().TransformRules().Informer()}, nil
 
 	}
 

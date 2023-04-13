@@ -410,8 +410,7 @@ func schema_pkg_apis_search_v1beta1_ClusterSyncResourcesCondition(ref common.Ref
 					},
 					"resources": {
 						SchemaProps: spec.SchemaProps{
-							Description: "optional",
-							Type:        []string{"array"},
+							Type: []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
@@ -423,7 +422,7 @@ func schema_pkg_apis_search_v1beta1_ClusterSyncResourcesCondition(ref common.Ref
 						},
 					},
 				},
-				Required: []string{"cluster", "status", "resources"},
+				Required: []string{"cluster", "status"},
 			},
 		},
 		Dependencies: []string{
@@ -466,7 +465,7 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref common.ReferenceCa
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"APIVersion": {
+					"apiVersion": {
 						SchemaProps: spec.SchemaProps{
 							Default: "",
 							Type:    []string{"string"},
@@ -506,7 +505,7 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref common.ReferenceCa
 						},
 					},
 				},
-				Required: []string{"APIVersion", "kind", "status", "lastTransitionTime"},
+				Required: []string{"apiVersion", "kind", "status", "lastTransitionTime"},
 			},
 		},
 		Dependencies: []string{
@@ -614,13 +613,21 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResources(ref common.ReferenceCa
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"TypeMeta": {
+					"kind": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
-					"ObjectMeta": {
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
@@ -639,11 +646,10 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResources(ref common.ReferenceCa
 						},
 					},
 				},
-				Required: []string{"TypeMeta", "ObjectMeta"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesSpec", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesSpec", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -790,13 +796,21 @@ func schema_pkg_apis_search_v1beta1_SyncResources(ref common.ReferenceCallback) 
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"TypeMeta": {
+					"kind": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
-					"ObjectMeta": {
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
@@ -809,11 +823,10 @@ func schema_pkg_apis_search_v1beta1_SyncResources(ref common.ReferenceCallback) 
 						},
 					},
 				},
-				Required: []string{"TypeMeta", "ObjectMeta"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncResourcesSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncResourcesSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -899,13 +912,21 @@ func schema_pkg_apis_search_v1beta1_TransformRule(ref common.ReferenceCallback) 
 				Description: "TransformRule is used to define the rule to transform the original resource into the desired target resource.",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"TypeMeta": {
+					"kind": {
 						SchemaProps: spec.SchemaProps{
-							Default: map[string]interface{}{},
-							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
 						},
 					},
-					"ObjectMeta": {
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
 							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
@@ -918,11 +939,10 @@ func schema_pkg_apis_search_v1beta1_TransformRule(ref common.ReferenceCallback) 
 						},
 					},
 				},
-				Required: []string{"TypeMeta", "ObjectMeta"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 

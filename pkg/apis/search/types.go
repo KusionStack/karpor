@@ -27,39 +27,30 @@ import (
 type SyncClustersResources struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-
-	// +optional
-	Spec SyncClustersResourcesSpec `json:"spec,omitempty"`
-
-	// +optional
-	Status SyncClustersResourcesStatus `json:"status,omitempty"`
+	Spec   SyncClustersResourcesSpec
+	Status SyncClustersResourcesStatus
 }
 
 type SyncClustersResourcesSpec struct {
 	// ClusterSelector is used to filter the target clusters that need to be synced from.
-	// +optional
-	ClusterSelector Selector `json:"clusterSelector,omitempty"`
+	ClusterSelector Selector
 
 	// ClusterNames is the list of the target clusters to be be synced from.
-	// +optional
-	ClusterNames []string `json:"clusterNames,omitempty"`
+	ClusterNames []string
 
-	// +optional
-	SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
+	SyncResources []ResourceSyncRule
 
-	// +optional
-	SyncResourcesRefName string `json:"SyncResourcesRefName,omitempty"`
+	SyncResourcesRefName string
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncClustersResourcesList struct {
-	metav1.TypeMeta `json:",inline"`
+	metav1.TypeMeta
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta
 
-	Items []SyncClustersResources `json:"items"`
+	Items []SyncClustersResources
 }
 
 // +genclient
@@ -70,50 +61,42 @@ type SyncResources struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
 
-	Spec SyncResourcesSpec `json:"spec,omitempty"`
+	Spec SyncResourcesSpec
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncResourcesList struct {
-	metav1.TypeMeta `json:",inline"`
+	metav1.TypeMeta
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta
 
-	Items []SyncResources `json:"items"`
+	Items []SyncResources
 }
 
 type SyncResourcesSpec struct {
-	// +optional
-	SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
+	SyncResources []ResourceSyncRule
 }
 
 // ResourceSyncRule is used to specify the way to sync the specified resource
 type ResourceSyncRule struct {
 	// APIVersion represents the group version of the target resource.
-	// +required
-	APIVersion string `json:"apiVersion"`
+	APIVersion string
 
 	// Kind represents the kind of the target resource.
-	// +required
-	Kind string `json:"kind"`
+	Kind string
 
 	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
+	Namespace string
 
 	// selectors are used to filter the target resources to sync. Multiple selectors are ORed.
-	// +optional
-	Selectors []Selector `json:"selectors,omitempty"`
+	Selectors []Selector
 
 	// Transform is the rule applied to the original resource to transform it to the desired target resource.
-	// +optional
-	Transform TransformRuleSpec `json:"transform,omitempty"`
+	Transform TransformRuleSpec
 
 	// TransformRefName is the name of the TransformRule
-	// +optional
-	TransformRefName string `json:"transformRefName,omitempty"`
+	TransformRefName string
 }
 
 // +genclient
@@ -125,87 +108,69 @@ type TransformRule struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
 
-	// +optional
-	Spec TransformRuleSpec `json:"spec,omitempty"`
+	Spec TransformRuleSpec
 }
 
 type TransformRuleSpec struct {
 	// Type is the type of transformer.
-	// +required
-	Type string `json:"type"`
+	Type string
 
 	// ValueTemplate is the template of the input data to be paased to the transformer
-	// +required
-	ValueTemplate string `json:"valueTemplate"`
+	ValueTemplate string
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type TransformRuleList struct {
-	metav1.TypeMeta `json:",inline"`
+	metav1.TypeMeta
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta
 
-	Items []TransformRule `json:"items"`
+	Items []TransformRule
 }
 
 // Selector represents a resource filter
 type Selector struct {
 	// LabelSelector is a filter to select resources by labels.
 	// If non-nil and non-empty, only the resource match this filter will be selected.
-	// +optional
-	LabelSelector *metav1.LabelSelector `json:"labelSelector,omitempty"`
+	LabelSelector *metav1.LabelSelector
 
 	// FieldSelector is a filter to select resources by fields.
 	// If non-nil and non-empty, only the resource match this filter will be selected.
-	// +optional
-	FieldSelector *FieldSelector `json:"fieldSelector,omitempty"`
+	FieldSelector *FieldSelector
 }
 
 // FieldSelector is a field filter.
 type FieldSelector struct {
 	// matchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
-	// +optional
-	MatchFields map[string]string `json:"matchFields,omitempty"`
+	MatchFields map[string]string
 }
 
 type SyncClustersResourcesStatus struct {
-	// +optional
-	Clusters []ClusterSyncResourcesCondition `json:"clusters"`
+	Clusters []ClusterSyncResourcesCondition
 
-	// +required
-	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
+	LastTransitionTime metav1.Time
 }
 
 type ClusterSyncResourcesCondition struct {
-	// +required
-	Cluster string `json:"cluster"`
+	Cluster string
 
-	// +required
-	Status string `json:"status"`
+	Status string
 
-	// optional
-	Resources []ResourceSyncCondition `json:"resources"`
+	Resources []ResourceSyncCondition
 }
 
 type ResourceSyncCondition struct {
-	// +required
 	APIVersion string
 
-	// +required
-	Kind string `json:"kind"`
+	Kind string
 
-	// +required
-	Status string `json:"status"`
+	Status string
 
-	// +optional
-	Reason string `json:"reason,omitempty"`
+	Reason string
 
-	// +optional
-	Message string `json:"message,omitempty"`
+	Message string
 
-	// +required
-	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
+	LastTransitionTime metav1.Time
 }
