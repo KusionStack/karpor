@@ -1,0 +1,7 @@
+/dist
+/mock
+/public
+/src/.umi
+/src/.umi-production
+/src/.umi-test
+/test/fixtures
