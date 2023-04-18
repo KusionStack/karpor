@@ -165,10 +165,14 @@ type Selector struct {
 
 // FieldSelector is a field filter.
 type FieldSelector struct {
-	// matchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
+	// MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
 	// +optional
 	MatchFields map[string]string `json:"matchFields,omitempty"`
+	// SeverSupported indicates whether the matchFields is supported by the API server.
+	// If not supported, the client-side filtering will be utilized instead."
+	// +optional
+	SeverSupported bool `json:"serverSupported,omitempty"`
 }
 
 type SyncClustersResourcesStatus struct {

@@ -439,7 +439,7 @@ func schema_pkg_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) 
 				Properties: map[string]spec.Schema{
 					"matchFields": {
 						SchemaProps: spec.SchemaProps{
-							Description: "matchFields is a map of {field,value} pairs. A single {field,value} in the matchFields map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.",
+							Description: "MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.",
 							Type:        []string{"object"},
 							AdditionalProperties: &spec.SchemaOrBool{
 								Allows: true,
@@ -451,6 +451,13 @@ func schema_pkg_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) 
 									},
 								},
 							},
+						},
+					},
+					"serverSupported": {
+						SchemaProps: spec.SchemaProps{
+							Description: "SeverSupported specifies whether the matchFields is supported by apiserver",
+							Type:        []string{"boolean"},
+							Format:      "",
 						},
 					},
 				},

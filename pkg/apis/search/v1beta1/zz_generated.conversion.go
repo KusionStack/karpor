@@ -216,6 +216,7 @@ func Convert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResource
 
 func autoConvert_v1beta1_FieldSelector_To_search_FieldSelector(in *FieldSelector, out *search.FieldSelector, s conversion.Scope) error {
 	out.MatchFields = *(*map[string]string)(unsafe.Pointer(&in.MatchFields))
+	out.SeverSupported = in.SeverSupported
 	return nil
 }
 
@@ -226,6 +227,7 @@ func Convert_v1beta1_FieldSelector_To_search_FieldSelector(in *FieldSelector, ou
 
 func autoConvert_search_FieldSelector_To_v1beta1_FieldSelector(in *search.FieldSelector, out *FieldSelector, s conversion.Scope) error {
 	out.MatchFields = *(*map[string]string)(unsafe.Pointer(&in.MatchFields))
+	out.SeverSupported = in.SeverSupported
 	return nil
 }
 
