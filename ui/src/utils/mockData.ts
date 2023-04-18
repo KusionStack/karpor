@@ -5728,53 +5728,57 @@ export const clusterList = {
   }
 }
 
-export const searchList = [
-  {
-    "apiVersion": "v1",
-    "kind": "Namespace",
-    "metadata": {
-      "name": "test1",
-      "namespace": ""
+export const searchData = {
+  "kind": "UniResource",
+  "apiVersion": "search.karbour.com/v1beta1",
+  "objects": [
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "metadata": {
+        "name": "test1",
+        "namespace": ""
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Namespace",
+      "metadata": {
+        "name": "test2",
+        "namespace": ""
+      }
+    },
+    {
+      "apiVersion": "apps.cafe.cloud.alipay.com/v1alpha1",
+      "kind": "CafeDeployment",
+      "metadata": {
+        "name": "test1",
+        "namespace": "test1"
+      }
+    },
+    {
+      "apiVersion": "apps.cafe.cloud.alipay.com/v1alpha1",
+      "kind": "CafeDeployment",
+      "metadata": {
+        "name": "test2",
+        "namespace": "test2"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "test1",
+        "namespace": "test1"
+      }
+    },
+    {
+      "apiVersion": "v1",
+      "kind": "Pod",
+      "metadata": {
+        "name": "test2",
+        "namespace": "test2"
+      }
     }
-  },
-  {
-    "apiVersion": "v1",
-    "kind": "Namespace",
-    "metadata": {
-      "name": "test2",
-      "namespace": ""
-    }
-  },
-  {
-    "apiVersion": "apps.cafe.cloud.alipay.com/v1alpha1",
-    "kind": "CafeDeployment",
-    "metadata": {
-      "name": "test1",
-      "namespace": "test1"
-    }
-  },
-  {
-    "apiVersion": "apps.cafe.cloud.alipay.com/v1alpha1",
-    "kind": "CafeDeployment",
-    "metadata": {
-      "name": "test2",
-      "namespace": "test2"
-    }
-  },
-  {
-    "apiVersion": "v1",
-    "kind": "Pod",
-    "metadata": {
-      "name": "test1",
-      "namespace": "test1"
-    }
-  },
-  {
-    "apiVersion": "v1",
-    "kind": "Pod",
-    "metadata": {
-      "name": "test2",
-      "namespace": "test2"
-    }
-  }
-]
+  ]
+}

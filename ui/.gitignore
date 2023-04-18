@@ -7,4 +7,3 @@
 /config/config.local.ts
 /yarn.lock
 /.nyc_output
-package-lock.json

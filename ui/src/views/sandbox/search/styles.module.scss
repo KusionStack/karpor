@@ -1,0 +1,158 @@
+
+.conatiner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  
+}
+
+.logoBox {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 50px;
+  font-size: 32px;
+  font-weight: bold;
+  .title {
+    margin-left: 10px;
+  }
+}
+
+.content {
+  margin-top: 30px;
+  // background: #fff;
+  width: 650px;
+  padding: 20px 0;
+}
+
+
+
+.inputWrapper {
+  width: 80%;
+  display: flex;
+  align-items: center;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 4px;
+  .sele {
+    border: none;
+    :global(.ant-select-selector) {
+      border: none !important;
+      border-right: 1px solid #d9d9d9 !important;
+      border-radius: 4px 0 0 4px !important;
+    }
+    // :global(.ant-select-selector:focus) {
+    //   border: none !important;
+    // }
+  }
+}
+
+.divInput {
+  // width: 70%;
+  flex: 1;
+  height: 32px;
+  line-height: 32px;
+  padding: 0 11px;
+  border-right: transparent;
+  display: flex;
+  // justify-content: center;
+  align-items: center;
+  
+  outline: none;
+  font-size: 14px;
+}
+.divInput:hover {
+  border-color: #1890ff;
+}
+.divInput:focus {
+  border-color: #1890ff;
+}
+.divInput:empty::before {
+  content: attr(placeholder);
+  color: #d9d9d9;
+}
+
+.iconFont {
+  padding-right: 10px;
+  color: #1890ff;
+  cursor: pointer;
+}
+
+
+.box {
+  display: flex;
+  padding: 20px;
+  justify-content: space-around;
+  align-items: center;
+}
+.basicSyntax {
+  flex: 1;
+  padding: 10px;
+  .itemBox {
+    margin-bottom: 20px;
+    height: 100px;
+    .title {
+      margin-bottom: 20px;
+      color: #5e6e8c;
+      font-size: 16px;
+      font-weight: 400;
+    }
+    .childrenItemBox {
+      margin-bottom: 15px;
+      cursor: pointer;
+      .childrenItem {
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+        border-radius: 3px;
+        padding: 4px 8px;
+        font-size: 12px;
+        text-align: left;
+        margin-bottom: 10px;
+        &:hover {
+          border: 1px solid #d9d9d9;
+        }
+      }
+    }
+    
+  }
+}
+
+.searchFilterKeyword {
+  color: #1890ff;
+}
+.search-filter-separator {
+  
+}
+
+@keyframes cursor-blinks {
+  0% {
+      opacity: 1;
+      display: block;
+  }
+  50% {
+      opacity: 0;
+      display: none;
+  }
+  100% {
+      opacity: 1;
+      display: block;
+  }
+}
+
+.cursor {
+  width: 0;
+  overflow: visible;
+  position: relative;
+}
+
+.line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: black;
+  left: 0;
+  top: 50%;
+  transform: translate(0, -50%);
+  animation: cursor-blinks 1.5s infinite steps(1, start);
+}
