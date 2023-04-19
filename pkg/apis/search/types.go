@@ -89,7 +89,7 @@ type ResourceSyncRule struct {
 	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
 	Namespace string
 
-	// selectors are used to filter the target resources to sync. Multiple selectors are ORed.
+	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	Selectors []Selector
 
 	// Transform is the rule applied to the original resource to transform it to the desired target resource.
@@ -142,7 +142,7 @@ type Selector struct {
 
 // FieldSelector is a field filter.
 type FieldSelector struct {
-	// matchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
+	// MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
 	MatchFields map[string]string
 	// ServerSupported specifies whether the field selection is supported in api server side

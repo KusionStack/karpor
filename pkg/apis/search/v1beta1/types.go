@@ -103,7 +103,7 @@ type ResourceSyncRule struct {
 	// +optional
 	Namespace string `json:"namespace,omitempty"`
 
-	// selectors are used to filter the target resources to sync. Multiple selectors are ORed.
+	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	// +optional
 	Selectors []Selector `json:"selectors,omitempty"`
 
