@@ -22,7 +22,10 @@ limitations under the License.
 package v1beta1
 
 import (
+	unsafe "unsafe"
+
 	search "github.com/KusionStack/karbour/pkg/apis/search"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -34,35 +37,531 @@ func init() {
 // RegisterConversions adds conversion functions to the given scheme.
 // Public to allow building arbitrary schemes.
 func RegisterConversions(s *runtime.Scheme) error {
-	if err := s.AddGeneratedConversionFunc((*Example)(nil), (*search.Example)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1beta1_Example_To_search_Example(a.(*Example), b.(*search.Example), scope)
+	if err := s.AddGeneratedConversionFunc((*ClusterSyncResourcesCondition)(nil), (*search.ClusterSyncResourcesCondition)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_ClusterSyncResourcesCondition_To_search_ClusterSyncResourcesCondition(a.(*ClusterSyncResourcesCondition), b.(*search.ClusterSyncResourcesCondition), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*search.Example)(nil), (*Example)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_search_Example_To_v1beta1_Example(a.(*search.Example), b.(*Example), scope)
+	if err := s.AddGeneratedConversionFunc((*search.ClusterSyncResourcesCondition)(nil), (*ClusterSyncResourcesCondition)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResourcesCondition(a.(*search.ClusterSyncResourcesCondition), b.(*ClusterSyncResourcesCondition), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*FieldSelector)(nil), (*search.FieldSelector)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_FieldSelector_To_search_FieldSelector(a.(*FieldSelector), b.(*search.FieldSelector), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.FieldSelector)(nil), (*FieldSelector)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_FieldSelector_To_v1beta1_FieldSelector(a.(*search.FieldSelector), b.(*FieldSelector), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*ResourceSyncCondition)(nil), (*search.ResourceSyncCondition)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_ResourceSyncCondition_To_search_ResourceSyncCondition(a.(*ResourceSyncCondition), b.(*search.ResourceSyncCondition), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.ResourceSyncCondition)(nil), (*ResourceSyncCondition)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_ResourceSyncCondition_To_v1beta1_ResourceSyncCondition(a.(*search.ResourceSyncCondition), b.(*ResourceSyncCondition), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*ResourceSyncRule)(nil), (*search.ResourceSyncRule)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(a.(*ResourceSyncRule), b.(*search.ResourceSyncRule), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.ResourceSyncRule)(nil), (*ResourceSyncRule)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(a.(*search.ResourceSyncRule), b.(*ResourceSyncRule), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*Selector)(nil), (*search.Selector)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_Selector_To_search_Selector(a.(*Selector), b.(*search.Selector), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.Selector)(nil), (*Selector)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_Selector_To_v1beta1_Selector(a.(*search.Selector), b.(*Selector), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncClustersResources)(nil), (*search.SyncClustersResources)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncClustersResources_To_search_SyncClustersResources(a.(*SyncClustersResources), b.(*search.SyncClustersResources), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncClustersResources)(nil), (*SyncClustersResources)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncClustersResources_To_v1beta1_SyncClustersResources(a.(*search.SyncClustersResources), b.(*SyncClustersResources), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncClustersResourcesList)(nil), (*search.SyncClustersResourcesList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncClustersResourcesList_To_search_SyncClustersResourcesList(a.(*SyncClustersResourcesList), b.(*search.SyncClustersResourcesList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncClustersResourcesList)(nil), (*SyncClustersResourcesList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncClustersResourcesList_To_v1beta1_SyncClustersResourcesList(a.(*search.SyncClustersResourcesList), b.(*SyncClustersResourcesList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncClustersResourcesSpec)(nil), (*search.SyncClustersResourcesSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec(a.(*SyncClustersResourcesSpec), b.(*search.SyncClustersResourcesSpec), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncClustersResourcesSpec)(nil), (*SyncClustersResourcesSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec(a.(*search.SyncClustersResourcesSpec), b.(*SyncClustersResourcesSpec), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncClustersResourcesStatus)(nil), (*search.SyncClustersResourcesStatus)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus(a.(*SyncClustersResourcesStatus), b.(*search.SyncClustersResourcesStatus), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncClustersResourcesStatus)(nil), (*SyncClustersResourcesStatus)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus(a.(*search.SyncClustersResourcesStatus), b.(*SyncClustersResourcesStatus), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncResources)(nil), (*search.SyncResources)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncResources_To_search_SyncResources(a.(*SyncResources), b.(*search.SyncResources), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncResources)(nil), (*SyncResources)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncResources_To_v1beta1_SyncResources(a.(*search.SyncResources), b.(*SyncResources), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncResourcesList)(nil), (*search.SyncResourcesList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncResourcesList_To_search_SyncResourcesList(a.(*SyncResourcesList), b.(*search.SyncResourcesList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncResourcesList)(nil), (*SyncResourcesList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncResourcesList_To_v1beta1_SyncResourcesList(a.(*search.SyncResourcesList), b.(*SyncResourcesList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*SyncResourcesSpec)(nil), (*search.SyncResourcesSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec(a.(*SyncResourcesSpec), b.(*search.SyncResourcesSpec), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.SyncResourcesSpec)(nil), (*SyncResourcesSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec(a.(*search.SyncResourcesSpec), b.(*SyncResourcesSpec), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*TransformRule)(nil), (*search.TransformRule)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_TransformRule_To_search_TransformRule(a.(*TransformRule), b.(*search.TransformRule), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.TransformRule)(nil), (*TransformRule)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_TransformRule_To_v1beta1_TransformRule(a.(*search.TransformRule), b.(*TransformRule), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*TransformRuleList)(nil), (*search.TransformRuleList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_TransformRuleList_To_search_TransformRuleList(a.(*TransformRuleList), b.(*search.TransformRuleList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.TransformRuleList)(nil), (*TransformRuleList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_TransformRuleList_To_v1beta1_TransformRuleList(a.(*search.TransformRuleList), b.(*TransformRuleList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*TransformRuleSpec)(nil), (*search.TransformRuleSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(a.(*TransformRuleSpec), b.(*search.TransformRuleSpec), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.TransformRuleSpec)(nil), (*TransformRuleSpec)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(a.(*search.TransformRuleSpec), b.(*TransformRuleSpec), scope)
 	}); err != nil {
 		return err
 	}
 	return nil
 }
 
-func autoConvert_v1beta1_Example_To_search_Example(in *Example, out *search.Example, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+func autoConvert_v1beta1_ClusterSyncResourcesCondition_To_search_ClusterSyncResourcesCondition(in *ClusterSyncResourcesCondition, out *search.ClusterSyncResourcesCondition, s conversion.Scope) error {
+	out.Cluster = in.Cluster
+	out.Status = in.Status
+	out.Resources = *(*[]search.ResourceSyncCondition)(unsafe.Pointer(&in.Resources))
 	return nil
 }
 
-// Convert_v1beta1_Example_To_search_Example is an autogenerated conversion function.
-func Convert_v1beta1_Example_To_search_Example(in *Example, out *search.Example, s conversion.Scope) error {
-	return autoConvert_v1beta1_Example_To_search_Example(in, out, s)
+// Convert_v1beta1_ClusterSyncResourcesCondition_To_search_ClusterSyncResourcesCondition is an autogenerated conversion function.
+func Convert_v1beta1_ClusterSyncResourcesCondition_To_search_ClusterSyncResourcesCondition(in *ClusterSyncResourcesCondition, out *search.ClusterSyncResourcesCondition, s conversion.Scope) error {
+	return autoConvert_v1beta1_ClusterSyncResourcesCondition_To_search_ClusterSyncResourcesCondition(in, out, s)
 }
 
-func autoConvert_search_Example_To_v1beta1_Example(in *search.Example, out *Example, s conversion.Scope) error {
-	out.ObjectMeta = in.ObjectMeta
+func autoConvert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResourcesCondition(in *search.ClusterSyncResourcesCondition, out *ClusterSyncResourcesCondition, s conversion.Scope) error {
+	out.Cluster = in.Cluster
+	out.Status = in.Status
+	out.Resources = *(*[]ResourceSyncCondition)(unsafe.Pointer(&in.Resources))
 	return nil
 }
 
-// Convert_search_Example_To_v1beta1_Example is an autogenerated conversion function.
-func Convert_search_Example_To_v1beta1_Example(in *search.Example, out *Example, s conversion.Scope) error {
-	return autoConvert_search_Example_To_v1beta1_Example(in, out, s)
+// Convert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResourcesCondition is an autogenerated conversion function.
+func Convert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResourcesCondition(in *search.ClusterSyncResourcesCondition, out *ClusterSyncResourcesCondition, s conversion.Scope) error {
+	return autoConvert_search_ClusterSyncResourcesCondition_To_v1beta1_ClusterSyncResourcesCondition(in, out, s)
+}
+
+func autoConvert_v1beta1_FieldSelector_To_search_FieldSelector(in *FieldSelector, out *search.FieldSelector, s conversion.Scope) error {
+	out.MatchFields = *(*map[string]string)(unsafe.Pointer(&in.MatchFields))
+	out.SeverSupported = in.SeverSupported
+	return nil
+}
+
+// Convert_v1beta1_FieldSelector_To_search_FieldSelector is an autogenerated conversion function.
+func Convert_v1beta1_FieldSelector_To_search_FieldSelector(in *FieldSelector, out *search.FieldSelector, s conversion.Scope) error {
+	return autoConvert_v1beta1_FieldSelector_To_search_FieldSelector(in, out, s)
+}
+
+func autoConvert_search_FieldSelector_To_v1beta1_FieldSelector(in *search.FieldSelector, out *FieldSelector, s conversion.Scope) error {
+	out.MatchFields = *(*map[string]string)(unsafe.Pointer(&in.MatchFields))
+	out.SeverSupported = in.SeverSupported
+	return nil
+}
+
+// Convert_search_FieldSelector_To_v1beta1_FieldSelector is an autogenerated conversion function.
+func Convert_search_FieldSelector_To_v1beta1_FieldSelector(in *search.FieldSelector, out *FieldSelector, s conversion.Scope) error {
+	return autoConvert_search_FieldSelector_To_v1beta1_FieldSelector(in, out, s)
+}
+
+func autoConvert_v1beta1_ResourceSyncCondition_To_search_ResourceSyncCondition(in *ResourceSyncCondition, out *search.ResourceSyncCondition, s conversion.Scope) error {
+	out.APIVersion = in.APIVersion
+	out.Kind = in.Kind
+	out.Status = in.Status
+	out.Reason = in.Reason
+	out.Message = in.Message
+	out.LastTransitionTime = in.LastTransitionTime
+	return nil
+}
+
+// Convert_v1beta1_ResourceSyncCondition_To_search_ResourceSyncCondition is an autogenerated conversion function.
+func Convert_v1beta1_ResourceSyncCondition_To_search_ResourceSyncCondition(in *ResourceSyncCondition, out *search.ResourceSyncCondition, s conversion.Scope) error {
+	return autoConvert_v1beta1_ResourceSyncCondition_To_search_ResourceSyncCondition(in, out, s)
+}
+
+func autoConvert_search_ResourceSyncCondition_To_v1beta1_ResourceSyncCondition(in *search.ResourceSyncCondition, out *ResourceSyncCondition, s conversion.Scope) error {
+	out.APIVersion = in.APIVersion
+	out.Kind = in.Kind
+	out.Status = in.Status
+	out.Reason = in.Reason
+	out.Message = in.Message
+	out.LastTransitionTime = in.LastTransitionTime
+	return nil
+}
+
+// Convert_search_ResourceSyncCondition_To_v1beta1_ResourceSyncCondition is an autogenerated conversion function.
+func Convert_search_ResourceSyncCondition_To_v1beta1_ResourceSyncCondition(in *search.ResourceSyncCondition, out *ResourceSyncCondition, s conversion.Scope) error {
+	return autoConvert_search_ResourceSyncCondition_To_v1beta1_ResourceSyncCondition(in, out, s)
+}
+
+func autoConvert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(in *ResourceSyncRule, out *search.ResourceSyncRule, s conversion.Scope) error {
+	out.APIVersion = in.APIVersion
+	out.Kind = in.Kind
+	out.Namespace = in.Namespace
+	out.Selectors = *(*[]search.Selector)(unsafe.Pointer(&in.Selectors))
+	if err := Convert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(&in.Transform, &out.Transform, s); err != nil {
+		return err
+	}
+	out.TransformRefName = in.TransformRefName
+	return nil
+}
+
+// Convert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule is an autogenerated conversion function.
+func Convert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(in *ResourceSyncRule, out *search.ResourceSyncRule, s conversion.Scope) error {
+	return autoConvert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(in, out, s)
+}
+
+func autoConvert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(in *search.ResourceSyncRule, out *ResourceSyncRule, s conversion.Scope) error {
+	out.APIVersion = in.APIVersion
+	out.Kind = in.Kind
+	out.Namespace = in.Namespace
+	out.Selectors = *(*[]Selector)(unsafe.Pointer(&in.Selectors))
+	if err := Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(&in.Transform, &out.Transform, s); err != nil {
+		return err
+	}
+	out.TransformRefName = in.TransformRefName
+	return nil
+}
+
+// Convert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule is an autogenerated conversion function.
+func Convert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(in *search.ResourceSyncRule, out *ResourceSyncRule, s conversion.Scope) error {
+	return autoConvert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(in, out, s)
+}
+
+func autoConvert_v1beta1_Selector_To_search_Selector(in *Selector, out *search.Selector, s conversion.Scope) error {
+	out.LabelSelector = (*v1.LabelSelector)(unsafe.Pointer(in.LabelSelector))
+	out.FieldSelector = (*search.FieldSelector)(unsafe.Pointer(in.FieldSelector))
+	return nil
+}
+
+// Convert_v1beta1_Selector_To_search_Selector is an autogenerated conversion function.
+func Convert_v1beta1_Selector_To_search_Selector(in *Selector, out *search.Selector, s conversion.Scope) error {
+	return autoConvert_v1beta1_Selector_To_search_Selector(in, out, s)
+}
+
+func autoConvert_search_Selector_To_v1beta1_Selector(in *search.Selector, out *Selector, s conversion.Scope) error {
+	out.LabelSelector = (*v1.LabelSelector)(unsafe.Pointer(in.LabelSelector))
+	out.FieldSelector = (*FieldSelector)(unsafe.Pointer(in.FieldSelector))
+	return nil
+}
+
+// Convert_search_Selector_To_v1beta1_Selector is an autogenerated conversion function.
+func Convert_search_Selector_To_v1beta1_Selector(in *search.Selector, out *Selector, s conversion.Scope) error {
+	return autoConvert_search_Selector_To_v1beta1_Selector(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncClustersResources_To_search_SyncClustersResources(in *SyncClustersResources, out *search.SyncClustersResources, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	if err := Convert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus(&in.Status, &out.Status, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_v1beta1_SyncClustersResources_To_search_SyncClustersResources is an autogenerated conversion function.
+func Convert_v1beta1_SyncClustersResources_To_search_SyncClustersResources(in *SyncClustersResources, out *search.SyncClustersResources, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncClustersResources_To_search_SyncClustersResources(in, out, s)
+}
+
+func autoConvert_search_SyncClustersResources_To_v1beta1_SyncClustersResources(in *search.SyncClustersResources, out *SyncClustersResources, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	if err := Convert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus(&in.Status, &out.Status, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_search_SyncClustersResources_To_v1beta1_SyncClustersResources is an autogenerated conversion function.
+func Convert_search_SyncClustersResources_To_v1beta1_SyncClustersResources(in *search.SyncClustersResources, out *SyncClustersResources, s conversion.Scope) error {
+	return autoConvert_search_SyncClustersResources_To_v1beta1_SyncClustersResources(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncClustersResourcesList_To_search_SyncClustersResourcesList(in *SyncClustersResourcesList, out *search.SyncClustersResourcesList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]search.SyncClustersResources)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_v1beta1_SyncClustersResourcesList_To_search_SyncClustersResourcesList is an autogenerated conversion function.
+func Convert_v1beta1_SyncClustersResourcesList_To_search_SyncClustersResourcesList(in *SyncClustersResourcesList, out *search.SyncClustersResourcesList, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncClustersResourcesList_To_search_SyncClustersResourcesList(in, out, s)
+}
+
+func autoConvert_search_SyncClustersResourcesList_To_v1beta1_SyncClustersResourcesList(in *search.SyncClustersResourcesList, out *SyncClustersResourcesList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]SyncClustersResources)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_search_SyncClustersResourcesList_To_v1beta1_SyncClustersResourcesList is an autogenerated conversion function.
+func Convert_search_SyncClustersResourcesList_To_v1beta1_SyncClustersResourcesList(in *search.SyncClustersResourcesList, out *SyncClustersResourcesList, s conversion.Scope) error {
+	return autoConvert_search_SyncClustersResourcesList_To_v1beta1_SyncClustersResourcesList(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec(in *SyncClustersResourcesSpec, out *search.SyncClustersResourcesSpec, s conversion.Scope) error {
+	if err := Convert_v1beta1_Selector_To_search_Selector(&in.ClusterSelector, &out.ClusterSelector, s); err != nil {
+		return err
+	}
+	out.ClusterNames = *(*[]string)(unsafe.Pointer(&in.ClusterNames))
+	out.SyncResources = *(*[]search.ResourceSyncRule)(unsafe.Pointer(&in.SyncResources))
+	out.SyncResourcesRefName = in.SyncResourcesRefName
+	return nil
+}
+
+// Convert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec is an autogenerated conversion function.
+func Convert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec(in *SyncClustersResourcesSpec, out *search.SyncClustersResourcesSpec, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncClustersResourcesSpec_To_search_SyncClustersResourcesSpec(in, out, s)
+}
+
+func autoConvert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec(in *search.SyncClustersResourcesSpec, out *SyncClustersResourcesSpec, s conversion.Scope) error {
+	if err := Convert_search_Selector_To_v1beta1_Selector(&in.ClusterSelector, &out.ClusterSelector, s); err != nil {
+		return err
+	}
+	out.ClusterNames = *(*[]string)(unsafe.Pointer(&in.ClusterNames))
+	out.SyncResources = *(*[]ResourceSyncRule)(unsafe.Pointer(&in.SyncResources))
+	out.SyncResourcesRefName = in.SyncResourcesRefName
+	return nil
+}
+
+// Convert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec is an autogenerated conversion function.
+func Convert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec(in *search.SyncClustersResourcesSpec, out *SyncClustersResourcesSpec, s conversion.Scope) error {
+	return autoConvert_search_SyncClustersResourcesSpec_To_v1beta1_SyncClustersResourcesSpec(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus(in *SyncClustersResourcesStatus, out *search.SyncClustersResourcesStatus, s conversion.Scope) error {
+	out.Clusters = *(*[]search.ClusterSyncResourcesCondition)(unsafe.Pointer(&in.Clusters))
+	out.LastTransitionTime = in.LastTransitionTime
+	return nil
+}
+
+// Convert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus is an autogenerated conversion function.
+func Convert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus(in *SyncClustersResourcesStatus, out *search.SyncClustersResourcesStatus, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncClustersResourcesStatus_To_search_SyncClustersResourcesStatus(in, out, s)
+}
+
+func autoConvert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus(in *search.SyncClustersResourcesStatus, out *SyncClustersResourcesStatus, s conversion.Scope) error {
+	out.Clusters = *(*[]ClusterSyncResourcesCondition)(unsafe.Pointer(&in.Clusters))
+	out.LastTransitionTime = in.LastTransitionTime
+	return nil
+}
+
+// Convert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus is an autogenerated conversion function.
+func Convert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus(in *search.SyncClustersResourcesStatus, out *SyncClustersResourcesStatus, s conversion.Scope) error {
+	return autoConvert_search_SyncClustersResourcesStatus_To_v1beta1_SyncClustersResourcesStatus(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncResources_To_search_SyncResources(in *SyncResources, out *search.SyncResources, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_v1beta1_SyncResources_To_search_SyncResources is an autogenerated conversion function.
+func Convert_v1beta1_SyncResources_To_search_SyncResources(in *SyncResources, out *search.SyncResources, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncResources_To_search_SyncResources(in, out, s)
+}
+
+func autoConvert_search_SyncResources_To_v1beta1_SyncResources(in *search.SyncResources, out *SyncResources, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_search_SyncResources_To_v1beta1_SyncResources is an autogenerated conversion function.
+func Convert_search_SyncResources_To_v1beta1_SyncResources(in *search.SyncResources, out *SyncResources, s conversion.Scope) error {
+	return autoConvert_search_SyncResources_To_v1beta1_SyncResources(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncResourcesList_To_search_SyncResourcesList(in *SyncResourcesList, out *search.SyncResourcesList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]search.SyncResources)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_v1beta1_SyncResourcesList_To_search_SyncResourcesList is an autogenerated conversion function.
+func Convert_v1beta1_SyncResourcesList_To_search_SyncResourcesList(in *SyncResourcesList, out *search.SyncResourcesList, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncResourcesList_To_search_SyncResourcesList(in, out, s)
+}
+
+func autoConvert_search_SyncResourcesList_To_v1beta1_SyncResourcesList(in *search.SyncResourcesList, out *SyncResourcesList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]SyncResources)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_search_SyncResourcesList_To_v1beta1_SyncResourcesList is an autogenerated conversion function.
+func Convert_search_SyncResourcesList_To_v1beta1_SyncResourcesList(in *search.SyncResourcesList, out *SyncResourcesList, s conversion.Scope) error {
+	return autoConvert_search_SyncResourcesList_To_v1beta1_SyncResourcesList(in, out, s)
+}
+
+func autoConvert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec(in *SyncResourcesSpec, out *search.SyncResourcesSpec, s conversion.Scope) error {
+	out.SyncResources = *(*[]search.ResourceSyncRule)(unsafe.Pointer(&in.SyncResources))
+	return nil
+}
+
+// Convert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec is an autogenerated conversion function.
+func Convert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec(in *SyncResourcesSpec, out *search.SyncResourcesSpec, s conversion.Scope) error {
+	return autoConvert_v1beta1_SyncResourcesSpec_To_search_SyncResourcesSpec(in, out, s)
+}
+
+func autoConvert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec(in *search.SyncResourcesSpec, out *SyncResourcesSpec, s conversion.Scope) error {
+	out.SyncResources = *(*[]ResourceSyncRule)(unsafe.Pointer(&in.SyncResources))
+	return nil
+}
+
+// Convert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec is an autogenerated conversion function.
+func Convert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec(in *search.SyncResourcesSpec, out *SyncResourcesSpec, s conversion.Scope) error {
+	return autoConvert_search_SyncResourcesSpec_To_v1beta1_SyncResourcesSpec(in, out, s)
+}
+
+func autoConvert_v1beta1_TransformRule_To_search_TransformRule(in *TransformRule, out *search.TransformRule, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_v1beta1_TransformRule_To_search_TransformRule is an autogenerated conversion function.
+func Convert_v1beta1_TransformRule_To_search_TransformRule(in *TransformRule, out *search.TransformRule, s conversion.Scope) error {
+	return autoConvert_v1beta1_TransformRule_To_search_TransformRule(in, out, s)
+}
+
+func autoConvert_search_TransformRule_To_v1beta1_TransformRule(in *search.TransformRule, out *TransformRule, s conversion.Scope) error {
+	out.ObjectMeta = in.ObjectMeta
+	if err := Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(&in.Spec, &out.Spec, s); err != nil {
+		return err
+	}
+	return nil
+}
+
+// Convert_search_TransformRule_To_v1beta1_TransformRule is an autogenerated conversion function.
+func Convert_search_TransformRule_To_v1beta1_TransformRule(in *search.TransformRule, out *TransformRule, s conversion.Scope) error {
+	return autoConvert_search_TransformRule_To_v1beta1_TransformRule(in, out, s)
+}
+
+func autoConvert_v1beta1_TransformRuleList_To_search_TransformRuleList(in *TransformRuleList, out *search.TransformRuleList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]search.TransformRule)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_v1beta1_TransformRuleList_To_search_TransformRuleList is an autogenerated conversion function.
+func Convert_v1beta1_TransformRuleList_To_search_TransformRuleList(in *TransformRuleList, out *search.TransformRuleList, s conversion.Scope) error {
+	return autoConvert_v1beta1_TransformRuleList_To_search_TransformRuleList(in, out, s)
+}
+
+func autoConvert_search_TransformRuleList_To_v1beta1_TransformRuleList(in *search.TransformRuleList, out *TransformRuleList, s conversion.Scope) error {
+	out.ListMeta = in.ListMeta
+	out.Items = *(*[]TransformRule)(unsafe.Pointer(&in.Items))
+	return nil
+}
+
+// Convert_search_TransformRuleList_To_v1beta1_TransformRuleList is an autogenerated conversion function.
+func Convert_search_TransformRuleList_To_v1beta1_TransformRuleList(in *search.TransformRuleList, out *TransformRuleList, s conversion.Scope) error {
+	return autoConvert_search_TransformRuleList_To_v1beta1_TransformRuleList(in, out, s)
+}
+
+func autoConvert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(in *TransformRuleSpec, out *search.TransformRuleSpec, s conversion.Scope) error {
+	out.Type = in.Type
+	out.ValueTemplate = in.ValueTemplate
+	return nil
+}
+
+// Convert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec is an autogenerated conversion function.
+func Convert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(in *TransformRuleSpec, out *search.TransformRuleSpec, s conversion.Scope) error {
+	return autoConvert_v1beta1_TransformRuleSpec_To_search_TransformRuleSpec(in, out, s)
+}
+
+func autoConvert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(in *search.TransformRuleSpec, out *TransformRuleSpec, s conversion.Scope) error {
+	out.Type = in.Type
+	out.ValueTemplate = in.ValueTemplate
+	return nil
+}
+
+// Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec is an autogenerated conversion function.
+func Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(in *search.TransformRuleSpec, out *TransformRuleSpec, s conversion.Scope) error {
+	return autoConvert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(in, out, s)
 }

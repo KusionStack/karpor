@@ -49,7 +49,12 @@ func init() {
 // Adds the list of known types to the given scheme.
 func addKnownTypes(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(SchemeGroupVersion,
-		&Example{},
+		&SyncClustersResources{},
+		&SyncClustersResourcesList{},
+		&SyncResources{},
+		&SyncResourcesList{},
+		&TransformRule{},
+		&TransformRuleList{},
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil
