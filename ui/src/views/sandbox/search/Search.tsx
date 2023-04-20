@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Select, Space } from "antd";
 import {useNavigate} from "react-router-dom";
 import { HeatMapOutlined } from "@ant-design/icons";
@@ -51,7 +51,6 @@ const SearchPage = () => {
   };
 
   const renderFilter = () => {
-    console.log(currentTab, "===currentTab===")
     return (
       <>
         <KarbourTabs
@@ -100,7 +99,6 @@ const SearchPage = () => {
   function renderHight(str: string) {
     if (!str) return;
     const strList = str.split("\n").join(" ").split(" ");
-    console.log(strList, "===strList===");
     let list = strList?.map((item, index) => {
       let tmp;
       let itemTmp = item.trim();

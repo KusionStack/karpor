@@ -11,7 +11,6 @@ const KarbourTabs = ({ current, list, onChange }: Props) => {
   return (
     <div className={styles.tabContainer}>
       {list?.map((item) => {
-        console.log(item, "====irem====");
         return (
           <div
             className={styles.item}

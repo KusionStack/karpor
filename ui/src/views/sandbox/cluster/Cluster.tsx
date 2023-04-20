@@ -1,36 +1,30 @@
 import { useState } from "react";
-import { Pagination, Badge, Tooltip } from "antd";
+import { Pagination, Badge, Tooltip, Empty } from "antd";
 import axios from "axios";
-import { result, clusterList } from "../../../utils/mockData";
 import styles from "./styles.module.scss";
 
 export default function Cluster() {
-  const [pageData, setPageData] = useState([]);
+  const [pageData, setPageData] = useState<any>([]);
   const [searchParams, setSearchParams] = useState({
     pageSize: 10,
     page: 1,
   });
   async function getPageData() {
-    let url = `/apis/search.karbour.com/v1beta1/search/proxy`;
-    setPageData(clusterList?.items as any);
-    const res = await axios(url, {
+    const data = await axios(`/apis/cluster.karbour.com/v1beta1/clusters`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      data: {},
+      params: {},
     });
-    console.log(res, "=====res====");
-    setPageData(res?.data || result);
+    setPageData(data || {});
   }
 
   useState(() => {
     getPageData();
   });
 
-  console.log(pageData, "===pageData===");
   function handleChangePage(page: number, pageSize: number) {
-    console.log(page, pageSize, "handleChangePage");
     setSearchParams({
       ...searchParams,
       page,
@@ -39,13 +33,13 @@ export default function Cluster() {
   }
 
   function handleMore(item: any) {
-    console.log(item, "====item====");
+    console.log(item, "====handleMore====");
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.content}>
-        {pageData?.map((item: any, index: number) => {
+        {pageData?.items?.map((item: any, index: number) => {
           return (
             <div className={styles.card} key={`${item.name}_${index}`}>
               <div className={styles.header}>
@@ -80,9 +74,11 @@ export default function Cluster() {
                   </Tooltip>
                 </div>
                 <div className={styles.stat}>
-                  <div className={styles.node}>Nodes: {item?.status?.node}</div>
+                  <div className={styles.node}>
+                    Nodes: {item?.status?.node || "--"}
+                  </div>
                   <div className={styles.deloy}>
-                    Delay: {item?.status?.delay}
+                    Delay: {item?.status?.delay || "--"}
                   </div>
                 </div>
               </div>
@@ -90,15 +86,21 @@ export default function Cluster() {
           );
         })}
       </div>
-      <div className={styles.footer}>
-        <Pagination
-          total={clusterList?.items?.length}
-          showTotal={(total, range) => `${range[0]}-${range[1]} 共 ${total} 条`}
-          pageSize={searchParams?.pageSize}
-          current={searchParams?.page}
-          onChange={handleChangePage}
-        />
-      </div>
+      {
+        pageData?.items && pageData?.items?.length > 0 &&
+        <div className={styles.footer}>
+          <Pagination
+            total={pageData?.items?.length}
+            showTotal={(total, range) => `${range[0]}-${range[1]} 共 ${total} 条`}
+            pageSize={searchParams?.pageSize}
+            current={searchParams?.page}
+            onChange={handleChangePage}
+          />
+        </div>
+      }
+      {
+        !pageData?.items || !pageData?.items?.length && <Empty />
+      }
     </div>
   );
 }
