@@ -1,0 +1,11 @@
+/dist
+/node_modules
+/src/.umi
+/src/.umi-production
+/test/fixtures
+/config/config.local.js
+/config/config.local.ts
+/yarn.lock
+/.nyc_output
+/build
+

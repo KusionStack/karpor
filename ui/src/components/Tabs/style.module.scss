@@ -1,0 +1,14 @@
+.tabContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  .normal {
+    margin: 20px;
+    padding: 5px 0px;
+    cursor: pointer;
+  }
+  .active {
+    font-weight: bold;
+    border-bottom: 2px solid #a305e1;
+  }
+}
