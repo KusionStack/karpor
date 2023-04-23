@@ -53,6 +53,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&SyncResourcesList{},
 		&TransformRule{},
 		&TransformRuleList{},
+		&UniResource{},
+		&UniResourceList{},
 	)
 	return nil
 }
