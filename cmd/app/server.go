@@ -31,12 +31,15 @@ import (
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
+	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/apiserver/pkg/server/filters"
 	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	netutils "k8s.io/utils/net"
@@ -46,6 +49,7 @@ const defaultEtcdPathPrefix = "/registry/karbour"
 
 // Options contains state for master/api server
 type Options struct {
+	ServerRunOptions   *genericoptions.ServerRunOptions
 	RecommendedOptions *genericoptions.RecommendedOptions
 
 	SharedInformerFactory informers.SharedInformerFactory
@@ -58,6 +62,7 @@ type Options struct {
 // NewOptions returns a new Options
 func NewOptions(out, errOut io.Writer) *Options {
 	o := &Options{
+		ServerRunOptions: genericoptions.NewServerRunOptions(),
 		RecommendedOptions: genericoptions.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
 			scheme.Codecs.LegacyCodec(scheme.Versions...),
@@ -91,16 +96,20 @@ func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
 		},
 	}
 
-	flags := cmd.Flags()
-	o.RecommendedOptions.AddFlags(flags)
-	utilfeature.DefaultMutableFeatureGate.AddFlag(flags)
-
+	o.AddFlags(cmd.Flags())
 	return cmd
+}
+
+// AddFlags add flags to command
+func (o *Options) AddFlags(fs *pflag.FlagSet) {
+	o.ServerRunOptions.AddUniversalFlags(fs)
+	o.RecommendedOptions.AddFlags(fs)
 }
 
 // Validate validates Options
 func (o *Options) Validate(args []string) error {
 	errors := []error{}
+	errors = append(errors, o.ServerRunOptions.Validate()...)
 	errors = append(errors, o.RecommendedOptions.Validate()...)
 	return utilerrors.NewAggregate(errors)
 }
@@ -118,7 +127,6 @@ func (o *Options) Config() (*apiserver.Config, error) {
 	}
 
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
-
 	o.RecommendedOptions.ExtraAdmissionInitializers = func(c *genericapiserver.RecommendedConfig) ([]admission.PluginInitializer, error) {
 		client, err := clientset.NewForConfig(c.LoopbackClientConfig)
 		if err != nil {
@@ -131,22 +139,28 @@ func (o *Options) Config() (*apiserver.Config, error) {
 
 	serverConfig := genericapiserver.NewRecommendedConfig(scheme.Codecs)
 
-	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
-		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
+	if err := o.ServerRunOptions.ApplyTo(&serverConfig.Config); err != nil {
+		return nil, err
+	}
+
+	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
+		return nil, err
 	}
 
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
 	serverConfig.OpenAPIConfig.Info.Version = "0.1"
-
+	serverConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
+		sets.NewString("watch", "proxy"),
+		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
+	)
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
 		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 		serverConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
-
-	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
-		return nil, err
+	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
+		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
 	}
 
 	config := &apiserver.Config{
