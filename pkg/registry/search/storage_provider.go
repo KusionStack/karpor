@@ -19,7 +19,6 @@ package search
 import (
 	"github.com/KusionStack/karbour/pkg/apis/search"
 	"github.com/KusionStack/karbour/pkg/registry"
-	uniresourceregistry "github.com/KusionStack/karbour/pkg/registry/search/uniresource"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -38,6 +37,6 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
 	v1beta1 := map[string]rest.Storage{}
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
-	v1beta1["uniresources"] = uniresourceregistry.NewREST()
+	v1beta1["uniresources"] = NewUniResourceREST()
 	return apiGroupInfo, nil
 }
