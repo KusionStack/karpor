@@ -36,11 +36,11 @@ build-windows: ## Build for Windows
 		./cmd
 
 .PHONY: check-license
-check-license: $(PRE) ## Checks if repo files contain valid license header
+check-license:  ## Checks if repo files contain valid license header
 	@which $(LICENSE_CHECKER) > /dev/null || (echo "Installing $(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) ..."; go install github.com/apache/skywalking-eyes/cmd/$(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) && echo -e "Installation complete!\n")
 	@${GOPATH}/bin/$(LICENSE_CHECKER) header check
 
 .PHONY: fix-license
-fix-license: $(PRE) ## Adds missing license header to repo files
+fix-license:  ## Adds missing license header to repo files
 	@which $(LICENSE_CHECKER) > /dev/null || (echo "Installing $(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) ..."; go install github.com/apache/skywalking-eyes/cmd/$(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) && echo -e "Installation complete!\n")
 	@${GOPATH}/bin/$(LICENSE_CHECKER) header fix
