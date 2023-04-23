@@ -37,5 +37,6 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
 	v1beta1 := map[string]rest.Storage{}
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
+	v1beta1["uniresources"] = NewUniResourceREST()
 	return apiGroupInfo, nil
 }
