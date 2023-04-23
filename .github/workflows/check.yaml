@@ -77,17 +77,18 @@ jobs:
           fetch-depth: 0
       - uses: apache/skywalking-eyes@main
 
-  DependencyReview:
-    permissions:
-      actions: read
-      contents: read
-      security-events: write
-    name: Dependency Review
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: actions/dependency-review-action@v3
-        with:
-          fail-on-severity: critical
+  # TODO: Uncomment when the repository is publicly.
+  # DependencyReview:
+  #   permissions:
+  #     actions: read
+  #     contents: read
+  #     security-events: write
+  #   name: Dependency Review
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: actions/dependency-review-action@v3
+  #       with:
+  #         fail-on-severity: critical
