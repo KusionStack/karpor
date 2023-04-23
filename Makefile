@@ -3,6 +3,8 @@ include go.mk
 # Override the variables in the go.mk
 APPROOT=karbour
 GOSOURCE_PATHS = ./pkg/...
+LICENSE_CHECKER ?= license-eye
+LICENSE_CHECKER_VERSION ?= main
 
 .PHONY: update-codegen
 update-codegen: ## Update generated code
@@ -33,3 +35,12 @@ build-windows: ## Build for Windows
 		go build -o ./_build/windows/$(APPROOT).exe \
 		./cmd
 
+.PHONY: check-license
+check-license:  ## Checks if repo files contain valid license header
+	@which $(LICENSE_CHECKER) > /dev/null || (echo "Installing $(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) ..."; go install github.com/apache/skywalking-eyes/cmd/$(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) && echo -e "Installation complete!\n")
+	@${GOPATH}/bin/$(LICENSE_CHECKER) header check
+
+.PHONY: fix-license
+fix-license:  ## Adds missing license header to repo files
+	@which $(LICENSE_CHECKER) > /dev/null || (echo "Installing $(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) ..."; go install github.com/apache/skywalking-eyes/cmd/$(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) && echo -e "Installation complete!\n")
+	@${GOPATH}/bin/$(LICENSE_CHECKER) header fix

@@ -65,3 +65,30 @@ jobs:
         with:
           fetch-depth: 0
       - uses: wagoid/commitlint-github-action@v5
+
+  LicenseCheck:
+    name: License Check
+    runs-on: ubuntu-latest
+    env:
+      TERM: xterm
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: apache/skywalking-eyes@main
+
+  # TODO: Uncomment when the repository is publicly.
+  # DependencyReview:
+  #   permissions:
+  #     actions: read
+  #     contents: read
+  #     security-events: write
+  #   name: Dependency Review
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with:
+  #         fetch-depth: 0
+  #     - uses: actions/dependency-review-action@v3
+  #       with:
+  #         fail-on-severity: critical
