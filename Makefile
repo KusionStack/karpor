@@ -4,7 +4,7 @@ include go.mk
 APPROOT=karbour
 GOSOURCE_PATHS = ./pkg/...
 LICENSE_CHECKER ?= license-eye
-LICENSE_CHECKER_VERSION ?= latest
+LICENSE_CHECKER_VERSION ?= main
 
 .PHONY: update-codegen
 update-codegen: ## Update generated code

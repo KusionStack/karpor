@@ -17,7 +17,7 @@ header:
     spdx-id: Apache-2.0
     copyright-owner: The Karbour Authors
     content: |
-      Copyright 2017 The Karbour Authors.
+      Copyright The Karbour Authors.
 
       Licensed under the Apache License, Version 2.0 (the "License");
       you may not use this file except in compliance with the License.
@@ -62,8 +62,7 @@ header:
     - '.vscode/**'
     - '.dist/**'
     - '.husky/**'
-    - 'modules/web/.yarn/**'
-    - 'modules/web/src/coverage/**'
+    - 'hack/**'
     - 'LICENSE'
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
