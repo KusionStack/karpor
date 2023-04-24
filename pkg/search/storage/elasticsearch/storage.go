@@ -89,7 +89,7 @@ func (s *Storage) Update(ctx context.Context, cluster string, obj runtime.Object
 
 func (s *Storage) List(ctx context.Context, options *storage.ListOptions) (runtime.Object, error) {
 	query := esquery.Bool().Must(
-		esquery.Term(apiVersionKey, options.ApiVersions),
+		esquery.Term(apiVersionKey, options.APIVersions),
 		esquery.Term(kindKey, options.Kinds),
 		esquery.Term(nameKey, options.Names),
 		esquery.Term(namespaceKey, options.Namespaces),

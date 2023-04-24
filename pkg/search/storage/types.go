@@ -16,7 +16,7 @@ type Storage interface {
 
 type ListOptions struct {
 	Clusters    []string
-	ApiVersions []string
+	APIVersions []string
 	Groups      []string
 	Kinds       []string
 	Namespaces  []string

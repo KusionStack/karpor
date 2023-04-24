@@ -1,7 +1,7 @@
 package elasticsearch
 
 type SearchResponse struct {
-	ScrollId string `json:"_scroll_id"`
+	ScrollID string `json:"_scroll_id"`
 	Took     int    `json:"took"`
 	TimeOut  bool   `json:"time_out"`
 	Hits     *Hits  `json:"hits"`
@@ -20,7 +20,7 @@ type Total struct {
 
 type Hit struct {
 	Index  string    `json:"_index"`
-	Id     string    `json:"_id"`
+	ID     string    `json:"_id"`
 	Score  float32   `json:"_score"`
 	Source *Resource `json:"_source"`
 }
@@ -28,7 +28,7 @@ type Hit struct {
 type Resource struct {
 	Cluster    string                 `json:"cluster"`
 	Namespace  string                 `json:"namespace"`
-	ApiVersion string                 `json:"apiVersion"`
+	APIVersion string                 `json:"apiVersion"`
 	Kind       string                 `json:"kind"`
 	Name       string                 `json:"name"`
 	Object     map[string]interface{} `json:"object"`
