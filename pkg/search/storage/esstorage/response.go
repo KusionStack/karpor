@@ -1,4 +1,4 @@
-package elasticsearch
+package esstorage
 
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`

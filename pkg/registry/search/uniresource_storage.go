@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
+	searchStorage "github.com/KusionStack/karbour/pkg/search/storage"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -31,7 +32,9 @@ var (
 	_ rest.ShortNamesProvider = &UniResourceREST{}
 )
 
-type UniResourceREST struct{}
+type UniResourceREST struct {
+	storage searchStorage.Storage
+}
 
 func NewUniResourceREST() rest.Storage {
 	return &UniResourceREST{}

@@ -1,4 +1,4 @@
-package elasticsearch
+package esstorage
 
 import (
 	"context"
@@ -6,37 +6,50 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/aquasecurity/esquery"
-	"github.com/elastic/go-elasticsearch/v8"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-var _ storage.Storage = &Storage{}
-
-type Storage struct {
-	client    *elasticsearch.Client
-	indexName string
+func (s *ESClient) Create(ctx context.Context, cluster string, obj runtime.Object) error {
+	return s.Insert(ctx, cluster, obj)
 }
 
-func NewStorage(cfg elasticsearch.Config) (*Storage, error) {
-	cl, err := elasticsearch.NewClient(cfg)
-	if err != nil {
-		return nil, err
-	}
-
-	indexName := defaultIndexName
-	err = createIndex(cl, defaultMapping, indexName)
-	if err != nil {
-		return nil, err
-	}
-
-	return &Storage{
-		client:    cl,
-		indexName: indexName,
-	}, nil
+func (s *ESClient) Update(ctx context.Context, cluster string, obj runtime.Object) error {
+	return s.Insert(ctx, cluster, obj)
 }
 
-func (s *Storage) Get(ctx context.Context, cluster, namespace, apiVerson, kind, name string) (runtime.Object, error) {
+func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
+	metaObj, err := meta.Accessor(obj)
+	if err != nil {
+		return err
+	}
+
+	uid := string(metaObj.GetUID())
+	if len(uid) == 0 {
+		return nil
+	}
+
+	req := esapi.DeleteRequest{
+		Index:      s.indexName,
+		DocumentID: uid,
+	}
+	res, err := req.Do(ctx, s.client)
+	if err != nil {
+		return err
+	}
+
+	if res.IsError() {
+		return &ESError{
+			StatusCode: res.StatusCode,
+			Message:    res.String(),
+		}
+	}
+	return nil
+}
+
+func (s *ESClient) Get(ctx context.Context, cluster, namespace, apiVerson, kind, name string) (runtime.Object, error) {
 	query := esquery.Bool().Must(
 		esquery.Term(apiVersionKey, apiVerson),
 		esquery.Term(kindKey, kind),
@@ -45,7 +58,7 @@ func (s *Storage) Get(ctx context.Context, cluster, namespace, apiVerson, kind, 
 		esquery.Term(clusterKey, cluster),
 	).Map()
 
-	sr, err := s.search(ctx, query)
+	sr, err := s.Search(ctx, query)
 	if err != nil {
 		return nil, err
 	}
@@ -64,30 +77,7 @@ func (s *Storage) Get(ctx context.Context, cluster, namespace, apiVerson, kind, 
 	return unObj, nil
 }
 
-func (s *Storage) Delete(ctx context.Context, cluster, namespace, apiVerson, kind, name string) error {
-	query := esquery.Bool().Must(
-		esquery.Term(apiVersionKey, apiVerson),
-		esquery.Term(kindKey, kind),
-		esquery.Term(nameKey, name),
-		esquery.Term(namespaceKey, namespace),
-		esquery.Term(clusterKey, cluster),
-	).Map()
-
-	if err := s.deleteByQuery(ctx, query); err != nil {
-		return err
-	}
-	return nil
-}
-
-func (s *Storage) Create(ctx context.Context, cluster string, obj runtime.Object) error {
-	return s.insert(ctx, cluster, obj)
-}
-
-func (s *Storage) Update(ctx context.Context, cluster string, obj runtime.Object) error {
-	return s.insert(ctx, cluster, obj)
-}
-
-func (s *Storage) List(ctx context.Context, options *storage.ListOptions) (runtime.Object, error) {
+func (s *ESClient) List(ctx context.Context, options *storage.ListOptions) (runtime.Object, error) {
 	query := esquery.Bool().Must(
 		esquery.Term(apiVersionKey, options.APIVersions),
 		esquery.Term(kindKey, options.Kinds),
@@ -96,7 +86,7 @@ func (s *Storage) List(ctx context.Context, options *storage.ListOptions) (runti
 		esquery.Term(clusterKey, options.Clusters),
 	).Map()
 
-	sr, err := s.search(ctx, query)
+	sr, err := s.Search(ctx, query)
 	if err != nil {
 		return nil, err
 	}

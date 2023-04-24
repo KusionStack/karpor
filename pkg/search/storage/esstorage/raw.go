@@ -1,4 +1,4 @@
-package elasticsearch
+package esstorage
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-func (s *Storage) search(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
+func (s *ESClient) Search(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (s *Storage) search(ctx context.Context, query map[string]interface{}) (*Se
 	return sr, nil
 }
 
-func (s *Storage) insert(ctx context.Context, cluster string, obj runtime.Object) error {
+func (s *ESClient) Insert(ctx context.Context, cluster string, obj runtime.Object) error {
 	metaObj, err := meta.Accessor(obj)
 	if err != nil {
 		return err
@@ -74,7 +74,7 @@ func (s *Storage) insert(ctx context.Context, cluster string, obj runtime.Object
 	return nil
 }
 
-func (s *Storage) deleteByQuery(ctx context.Context, query map[string]interface{}) error {
+func (s *ESClient) DeleteByQuery(ctx context.Context, query map[string]interface{}) error {
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(query); err != nil {
 		return err
@@ -83,35 +83,6 @@ func (s *Storage) deleteByQuery(ctx context.Context, query map[string]interface{
 	req := esapi.DeleteByQueryRequest{
 		Index: []string{s.indexName},
 		Body:  &buf,
-	}
-	res, err := req.Do(ctx, s.client)
-	if err != nil {
-		return err
-	}
-
-	if res.IsError() {
-		return &ESError{
-			StatusCode: res.StatusCode,
-			Message:    res.String(),
-		}
-	}
-	return nil
-}
-
-func (s *Storage) deleteByObj(ctx context.Context, obj runtime.Object) error {
-	metaObj, err := meta.Accessor(obj)
-	if err != nil {
-		return err
-	}
-
-	uid := string(metaObj.GetUID())
-	if len(uid) == 0 {
-		return nil
-	}
-
-	req := esapi.DeleteRequest{
-		Index:      s.indexName,
-		DocumentID: uid,
 	}
 	res, err := req.Do(ctx, s.client)
 	if err != nil {
