@@ -55,7 +55,6 @@ node_modules/
 
 # other
 tmp/
-result/
 
 vendor/
 apiserver.local.config/
