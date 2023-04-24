@@ -4,6 +4,8 @@ go 1.19
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.1
+	github.com/aquasecurity/esquery v0.2.0
+	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
 	github.com/google/gofuzz v1.1.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
@@ -34,7 +36,10 @@ require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
+	github.com/elastic/go-elasticsearch/v7 v7.6.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
+	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-logr/logr v1.2.3 // indirect
