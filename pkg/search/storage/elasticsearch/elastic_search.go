@@ -11,13 +11,15 @@ import (
 )
 
 func (s *Storage) search(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
-	var buf bytes.Buffer
-	if err := json.NewEncoder(&buf).Encode(query); err != nil {
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
 	}
 
 	res, err := s.client.Search(
 		s.client.Search.WithContext(ctx),
+		s.client.Search.WithIndex(s.indexName),
+		s.client.Search.WithBody(buf),
 	)
 	if err != nil {
 		return nil, err

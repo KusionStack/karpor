@@ -86,3 +86,30 @@ func (s *Storage) Create(ctx context.Context, cluster string, obj runtime.Object
 func (s *Storage) Update(ctx context.Context, cluster string, obj runtime.Object) error {
 	return s.insert(ctx, cluster, obj)
 }
+
+func (s *Storage) List(ctx context.Context, options *storage.ListOptions) (runtime.Object, error) {
+	query := esquery.Bool().Must(
+		esquery.Term(apiVersionKey, options.ApiVersions),
+		esquery.Term(kindKey, options.Kinds),
+		esquery.Term(nameKey, options.Names),
+		esquery.Term(namespaceKey, options.Namespaces),
+		esquery.Term(clusterKey, options.Clusters),
+	).Map()
+
+	sr, err := s.search(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+
+	unObjs := &unstructured.UnstructuredList{}
+	for _, resource := range sr.GetResources() {
+		unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resource)
+		if err != nil {
+			return nil, err
+		}
+		unObj := &unstructured.Unstructured{}
+		unObj.SetUnstructuredContent(unStructContent)
+		unObjs.Items = append(unObjs.Items, *unObj)
+	}
+	return unObjs, nil
+}
