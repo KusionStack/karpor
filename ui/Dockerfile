@@ -12,25 +12,43 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# 前端构建层，构建前端代码，生成静态文件
-FROM node:10 AS build-ui
+# Front-end build layer, builds front-end code and generates static files.
+FROM node:20 AS ui-builder
 
-# 拷贝项目代码
+# Create a nonroot user for final image
+RUN useradd -u 10001 nonroot
+
+# Copy front-end code
 ADD . /root/ui
-# 设置工作目录
 WORKDIR /root/ui
 
-# 安装依赖
+# Install dependencies
 RUN npm install
-# 构建，生成静态文件
+
+# Build, generate static files
 RUN npm run build
 
+# Golang build layer, builds golang code and generates entrypoint binary.
+FROM golang:1.19 AS go-builder
 
-# 运行层
-FROM nginx AS run
-# 拷贝上一层构建后的静态文件目录到当前层
-COPY --from=build-ui /root/ui/build /usr/share/nginx/html
-EXPOSE 80
+ADD . /root
+WORKDIR /root
+RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+    go build -o /karbour-dashboard \
+    ./main.go
 
-# 容器入口，启动容器时运行该命令，且不会被 docker run 提供的命令覆盖
-ENTRYPOINT ["nginx", "-g", "daemon off;"]
+# Production layer
+FROM scratch AS production
+
+# Copy the static file directory built in the previous layer to the current layer
+COPY --from=ui-builder /root/ui/build /dist
+COPY --from=go-builder /karbour-dashboard /karbour-dashboard
+
+# Copy nonroot user
+COPY --from=ui-builder /etc/passwd /etc/passwd
+USER nonroot
+
+# The port that the application listens on.
+EXPOSE 9871 9872
+
+ENTRYPOINT ["/karbour-dashboard", "--insecure-bind-address=0.0.0.0", "--bind-address=0.0.0.0"]
