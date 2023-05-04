@@ -30,7 +30,7 @@ linters:
   # - varcheck
     - ineffassign
     - staticcheck
-#    - unused
+    - unused
     - gosimple
     - govet
     - gofumpt
