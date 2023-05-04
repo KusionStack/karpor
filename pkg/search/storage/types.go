@@ -7,18 +7,26 @@ import (
 )
 
 type Storage interface {
-	Get(ctx context.Context, cluster, namespace, apiVerson, kind, name string) (runtime.Object, error)
-	List(ctx context.Context, options *ListOptions) (runtime.Object, error)
+	Get(ctx context.Context, cluster string, obj runtime.Object) error
 	Create(ctx context.Context, cluster string, obj runtime.Object) error
 	Update(ctx context.Context, cluster string, obj runtime.Object) error
 	Delete(ctx context.Context, cluster string, obj runtime.Object) error
 }
 
-type ListOptions struct {
-	Clusters    []string
-	APIVersions []string
-	Groups      []string
-	Kinds       []string
-	Namespaces  []string
-	Names       []string
+type Searcher interface {
+	Search(ctx context.Context, queries []Query) (*SearchResult, error)
+}
+
+type Resource struct {
+	Cluster    string                 `json:"cluster"`
+	Namespace  string                 `json:"namespace"`
+	APIVersion string                 `json:"apiVersion"`
+	Kind       string                 `json:"kind"`
+	Name       string                 `json:"name"`
+	Object     map[string]interface{} `json:"object"`
+}
+
+type SearchResult struct {
+	Total     int
+	Resources []*Resource
 }

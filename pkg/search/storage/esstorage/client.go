@@ -14,7 +14,10 @@ const (
 	objectKey     = "object"
 )
 
-var _ storage.Storage = &ESClient{}
+var (
+	_ storage.Storage  = &ESClient{}
+	_ storage.Searcher = &ESClient{}
+)
 
 type ESClient struct {
 	client    *elasticsearch.Client

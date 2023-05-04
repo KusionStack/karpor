@@ -41,7 +41,7 @@ const (
       },
       "kind":{
         "type":"keyword",
-        "normalizer":"lowercase_normalizer"
+        "normalizer":"lowercase"
       },
       "name":{
         "type":"keyword"

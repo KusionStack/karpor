@@ -1,5 +1,7 @@
 package esstorage
 
+import "github.com/KusionStack/karbour/pkg/search/storage"
+
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
 	Took     int    `json:"took"`
@@ -19,26 +21,19 @@ type Total struct {
 }
 
 type Hit struct {
-	Index  string    `json:"_index"`
-	ID     string    `json:"_id"`
-	Score  float32   `json:"_score"`
-	Source *Resource `json:"_source"`
+	Index  string            `json:"_index"`
+	ID     string            `json:"_id"`
+	Score  float32           `json:"_score"`
+	Source *storage.Resource `json:"_source"`
 }
 
-type Resource struct {
-	Cluster    string                 `json:"cluster"`
-	Namespace  string                 `json:"namespace"`
-	APIVersion string                 `json:"apiVersion"`
-	Kind       string                 `json:"kind"`
-	Name       string                 `json:"name"`
-	Object     map[string]interface{} `json:"object"`
-}
-
-func (r *SearchResponse) GetResources() []*Resource {
-	hits := r.Hits.Hits
-	resources := make([]*Resource, len(hits))
-	for i := range hits {
-		resources[i] = hits[i].Source
+func (s *SearchResponse) GetResources() []*storage.Resource {
+	if s == nil || s.Hits == nil {
+		return nil
 	}
-	return resources
+	rt := make([]*storage.Resource, len(s.Hits.Hits))
+	for i, hit := range s.Hits.Hits {
+		rt[i] = hit.Source
+	}
+	return rt
 }
