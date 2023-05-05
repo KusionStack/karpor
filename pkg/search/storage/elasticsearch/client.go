@@ -29,8 +29,8 @@ const (
 )
 
 var (
-	_ storage.Storage  = &ESClient{}
-	_ storage.Searcher = &ESClient{}
+	_ storage.Storage       = &ESClient{}
+	_ storage.SearchStorage = &ESClient{}
 )
 
 type ESClient struct {

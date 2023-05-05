@@ -25,11 +25,13 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
 	clientset "github.com/KusionStack/karbour/pkg/generated/clientset/versioned"
 	informers "github.com/KusionStack/karbour/pkg/generated/informers/externalversions"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
+	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -49,8 +51,9 @@ const defaultEtcdPathPrefix = "/registry/karbour"
 
 // Options contains state for master/api server
 type Options struct {
-	ServerRunOptions   *genericoptions.ServerRunOptions
-	RecommendedOptions *genericoptions.RecommendedOptions
+	ServerRunOptions     *genericoptions.ServerRunOptions
+	RecommendedOptions   *genericoptions.RecommendedOptions
+	SearchStorageOptions *options.SearchStorageOptions
 
 	SharedInformerFactory informers.SharedInformerFactory
 	StdOut                io.Writer
@@ -67,9 +70,9 @@ func NewOptions(out, errOut io.Writer) *Options {
 			defaultEtcdPathPrefix,
 			scheme.Codecs.LegacyCodec(scheme.Versions...),
 		),
-
-		StdOut: out,
-		StdErr: errOut,
+		SearchStorageOptions: options.NewSearchStorageOptions(),
+		StdOut:               out,
+		StdErr:               errOut,
 	}
 	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
 	return o
@@ -104,6 +107,7 @@ func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
 func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	o.ServerRunOptions.AddUniversalFlags(fs)
 	o.RecommendedOptions.AddFlags(fs)
+	o.SearchStorageOptions.AddFlags(fs)
 }
 
 // Validate validates Options
@@ -111,6 +115,7 @@ func (o *Options) Validate(args []string) error {
 	errors := []error{}
 	errors = append(errors, o.ServerRunOptions.Validate()...)
 	errors = append(errors, o.RecommendedOptions.Validate()...)
+	errors = append(errors, o.SearchStorageOptions.Validate()...)
 	return utilerrors.NewAggregate(errors)
 }
 
@@ -147,6 +152,11 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		return nil, err
 	}
 
+	extraConfig := &apiserver.ExtraConfig{}
+	if err := o.SearchStorageOptions.ApplyTo(extraConfig); err != nil {
+		return nil, err
+	}
+
 	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
 	serverConfig.OpenAPIConfig.Info.Version = "0.1"
@@ -160,12 +170,15 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
 	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
-		return proxyutil.WithProxyByCluster(genericapiserver.DefaultBuildHandlerChain(handler, c))
+		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
+		handler = proxyutil.WithProxyByCluster(handler)
+		handler = filtersutil.SearchFilter(handler)
+		return handler
 	}
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,
-		ExtraConfig:   apiserver.ExtraConfig{},
+		ExtraConfig:   extraConfig,
 	}
 	return config, nil
 }

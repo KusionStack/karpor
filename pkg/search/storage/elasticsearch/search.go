@@ -18,23 +18,14 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/search/storage"
-	"github.com/aquasecurity/esquery"
 )
 
 func (s *ESClient) Search(ctx context.Context, queries []storage.Query) (*storage.SearchResult, error) {
-	boolQuery := esquery.Bool()
-	for _, query := range queries {
-		var values []interface{}
-		for _, v := range query.Values {
-			values = append(values, v)
-		}
-		// TODO: support other operators
-		if query.Operator == storage.Equals {
-			boolQuery.Must(esquery.Terms(query.Key, values...))
-		}
+	esQuery, err := ParseQueries(queries)
+	if err != nil {
+		return nil, err
 	}
-	esQuery := make(map[string]interface{})
-	esQuery["query"] = boolQuery.Map()
+
 	res, err := s.searchByQuery(ctx, esQuery)
 	if err != nil {
 		return nil, err
@@ -49,4 +40,12 @@ func (s *ESClient) Search(ctx context.Context, queries []storage.Query) (*storag
 	}
 	rt.Resources = resources
 	return rt, nil
+}
+
+func (s *ESClient) SearchByString(ctx context.Context, queryString string) (*storage.SearchResult, error) {
+	queries, err := Parse(queryString)
+	if err != nil {
+		return nil, err
+	}
+	return s.Search(ctx, queries)
 }

@@ -16,10 +16,14 @@ package search
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
+	"github.com/KusionStack/karbour/pkg/search/storage"
+	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
 )
@@ -31,10 +35,19 @@ var (
 	_ rest.ShortNamesProvider = &UniResourceREST{}
 )
 
-type UniResourceREST struct{}
+type UniResourceREST struct {
+	SearchStorage storage.SearchStorage
+}
 
-func NewUniResourceREST() rest.Storage {
-	return &UniResourceREST{}
+func NewUniResourceREST(searchStorageGetter storage.SearchStorageGetter) (rest.Storage, error) {
+	searchStorage, err := searchStorageGetter.GetSearchStorage()
+	if err != nil {
+		return nil, err
+	}
+
+	return &UniResourceREST{
+		SearchStorage: searchStorage,
+	}, nil
 }
 
 func (r *UniResourceREST) New() runtime.Object {
@@ -53,8 +66,23 @@ func (r *UniResourceREST) NewList() runtime.Object {
 }
 
 func (r *UniResourceREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	// TODO: add real logic of list when the storage layer is implemented
-	return &search.UniResourceList{}, nil
+	queryString, ok := filtersutil.SearchQueryFrom(ctx)
+	if !ok {
+		return nil, fmt.Errorf("query can't be empty")
+	}
+
+	res, err := r.SearchStorage.SearchByString(ctx, queryString)
+	if err != nil {
+		return nil, err
+	}
+
+	rt := &search.UniResourceList{}
+	for _, resource := range res.Resources {
+		unObj := &unstructured.Unstructured{}
+		unObj.SetUnstructuredContent(resource.Object)
+		rt.Items = append(rt.Items, unObj)
+	}
+	return rt, nil
 }
 
 func (r *UniResourceREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

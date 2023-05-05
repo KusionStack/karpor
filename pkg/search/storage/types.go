@@ -20,6 +20,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+const (
+	Equals string = "="
+)
+
 type Storage interface {
 	Get(ctx context.Context, cluster string, obj runtime.Object) error
 	Create(ctx context.Context, cluster string, obj runtime.Object) error
@@ -27,8 +31,19 @@ type Storage interface {
 	Delete(ctx context.Context, cluster string, obj runtime.Object) error
 }
 
-type Searcher interface {
+type Query struct {
+	Key      string
+	Values   []string
+	Operator string
+}
+
+type SearchStorage interface {
 	Search(ctx context.Context, queries []Query) (*SearchResult, error)
+	SearchByString(ctx context.Context, queryString string) (*SearchResult, error)
+}
+
+type SearchStorageGetter interface {
+	GetSearchStorage() (SearchStorage, error)
 }
 
 type Resource struct {
