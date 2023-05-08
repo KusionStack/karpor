@@ -66,5 +66,5 @@ header:
     - 'LICENSE'
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
-  comment: on-failure
+  comment: never
   license-location-threshold: 80
