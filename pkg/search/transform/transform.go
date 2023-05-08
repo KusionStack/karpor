@@ -66,7 +66,7 @@ func NewTemplate(tmpl string) (*template.Template, error) {
 	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Parse(tmpl)
 }
 
-var defaultRegistry TransformFuncRegistry
+var defaultRegistry = NewRegistry()
 
 func Register(tType string, transFunc TransformFunc) {
 	defaultRegistry.Register(tType, transFunc)
@@ -78,6 +78,10 @@ func GetTransformFunc(transformerType string) (TransformFunc, bool) {
 
 type TransformFuncRegistry struct {
 	transformers map[string]TransformFunc
+}
+
+func NewRegistry() *TransformFuncRegistry {
+	return &TransformFuncRegistry{transformers: make(map[string]TransformFunc)}
 }
 
 func (r *TransformFuncRegistry) Register(tType string, transFunc TransformFunc) {
