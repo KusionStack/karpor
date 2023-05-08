@@ -18,9 +18,9 @@ limitations under the License.
 
 package v1beta1
 
-// SyncClustersResourcesListerExpansion allows custom methods to be added to
-// SyncClustersResourcesLister.
-type SyncClustersResourcesListerExpansion interface{}
+// SyncRegistryListerExpansion allows custom methods to be added to
+// SyncRegistryLister.
+type SyncRegistryListerExpansion interface{}
 
 // SyncResourcesListerExpansion allows custom methods to be added to
 // SyncResourcesLister.
