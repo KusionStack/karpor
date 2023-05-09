@@ -30,13 +30,16 @@ import (
 
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
-	// Place you custom config here.
+	SearchStorageType      string
+	ElasticSearchAddresses []string
+	ElasticSearchName      string
+	ElasticSearchPassword  string
 }
 
 // Config defines the config for the apiserver
 type Config struct {
 	GenericConfig *genericapiserver.RecommendedConfig
-	ExtraConfig   ExtraConfig
+	ExtraConfig   *ExtraConfig
 }
 
 // APIServer contains state for a Kubernetes cluster master/api server.
@@ -58,7 +61,7 @@ type CompletedConfig struct {
 func (cfg *Config) Complete() CompletedConfig {
 	c := completedConfig{
 		cfg.GenericConfig.Complete(),
-		&cfg.ExtraConfig,
+		cfg.ExtraConfig,
 	}
 
 	c.GenericConfig.Version = &version.Info{
@@ -82,7 +85,12 @@ func (c completedConfig) New() (*APIServer, error) {
 
 	restStorageProviders := []registry.RESTStorageProvider{
 		clusterstorage.RESTStorageProvider{},
-		searchstorage.RESTStorageProvider{},
+		searchstorage.RESTStorageProvider{
+			SearchStorageType:      c.ExtraConfig.SearchStorageType,
+			ElasticSearchAddresses: c.ExtraConfig.ElasticSearchAddresses,
+			ElasticSearchName:      c.ExtraConfig.ElasticSearchName,
+			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
+		},
 	}
 
 	for _, restStorageProvider := range restStorageProviders {

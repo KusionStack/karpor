@@ -19,39 +19,38 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-const (
-	apiVersionKey = "apiVersion"
-	kindKey       = "kind"
-	nameKey       = "name"
-	namespaceKey  = "namespace"
-	clusterKey    = "cluster"
-	objectKey     = "object"
-)
+var _ storage.SearchStorageGetter = &SearchStorageGetter{}
 
-var (
-	_ storage.Storage       = &ESClient{}
-	_ storage.SearchStorage = &ESClient{}
-)
-
-type ESClient struct {
-	client    *elasticsearch.Client
-	indexName string
+type SearchStorageGetter struct {
+	cfg *Config
 }
 
-func NewESClient(cfg elasticsearch.Config) (*ESClient, error) {
-	cl, err := elasticsearch.NewClient(cfg)
+func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) {
+	esClient, err := NewESClient(elasticsearch.Config{
+		Addresses: s.cfg.Addresses,
+		Username:  s.cfg.UserName,
+		Password:  s.cfg.Password,
+	})
 	if err != nil {
 		return nil, err
 	}
+	return esClient, nil
+}
 
-	indexName := defaultIndexName
-	err = createIndex(cl, defaultMapping, indexName)
-	if err != nil {
-		return nil, err
+type Config struct {
+	Addresses []string `env:"ES_ADDRESSES"`
+	UserName  string   `env:"ES_USER"`
+	Password  string   `env:"ES_PASSWORD"`
+}
+
+func NewSearchStorageGetter(addresses []string, userName, password string) *SearchStorageGetter {
+	cfg := &Config{
+		Addresses: addresses,
+		UserName:  userName,
+		Password:  password,
 	}
 
-	return &ESClient{
-		client:    cl,
-		indexName: indexName,
-	}, nil
+	return &SearchStorageGetter{
+		cfg,
+	}
 }

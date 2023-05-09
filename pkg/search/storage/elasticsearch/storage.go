@@ -65,7 +65,7 @@ func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
 		return fmt.Errorf("query result expected 1, got %d", len(resources))
 	}
 
-	unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0])
+	unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0].Object)
 	if err != nil {
 		return err
 	}
