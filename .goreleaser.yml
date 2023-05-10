@@ -118,7 +118,6 @@ release:
     ## Docker Images
     * `kusionstack/karbour:{{ .Tag }}`
     * `kusionstack/karbour:{{ .Tag }}-arm64`
-    * `kusionstack/karbour-dashboard:{{ .Tag }}`
 
     ## Thanks!
 

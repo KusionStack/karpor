@@ -95,13 +95,6 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - 
-        name: Release the karbour-dashboard
-        uses: docker/build-push-action@v4
-        with:
-          push: true
-          tags: kusionstack/karbour-dashboard:${{ steps.get_version.outputs.VERSION }}
-          context: ui
-      - 
         name: Set up Go
         uses: actions/setup-go@v2
         with:
