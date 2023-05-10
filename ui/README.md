@@ -13,3 +13,10 @@ Install dependencies and run the frontend.
 npm install
 npm start
 ```
+
+### Build on local
+
+```shell
+npm install
+npm run build
+```
