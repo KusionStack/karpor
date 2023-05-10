@@ -54,6 +54,7 @@ type Options struct {
 	ServerRunOptions     *genericoptions.ServerRunOptions
 	RecommendedOptions   *genericoptions.RecommendedOptions
 	SearchStorageOptions *options.SearchStorageOptions
+	StaticOptions        *options.StaticOptions
 
 	SharedInformerFactory informers.SharedInformerFactory
 	StdOut                io.Writer
@@ -71,6 +72,7 @@ func NewOptions(out, errOut io.Writer) *Options {
 			scheme.Codecs.LegacyCodec(scheme.Versions...),
 		),
 		SearchStorageOptions: options.NewSearchStorageOptions(),
+		StaticOptions:        options.NewStaticOptions(),
 		StdOut:               out,
 		StdErr:               errOut,
 	}
@@ -108,6 +110,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	o.ServerRunOptions.AddUniversalFlags(fs)
 	o.RecommendedOptions.AddFlags(fs)
 	o.SearchStorageOptions.AddFlags(fs)
+	o.StaticOptions.AddFlags(fs)
 }
 
 // Validate validates Options
@@ -116,6 +119,7 @@ func (o *Options) Validate(args []string) error {
 	errors = append(errors, o.ServerRunOptions.Validate()...)
 	errors = append(errors, o.RecommendedOptions.Validate()...)
 	errors = append(errors, o.SearchStorageOptions.Validate()...)
+	errors = append(errors, o.StaticOptions.Validate()...)
 	return utilerrors.NewAggregate(errors)
 }
 
@@ -142,6 +146,9 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		return []admission.PluginInitializer{}, nil
 	}
 
+	o.RecommendedOptions.Authorization = nil
+	o.RecommendedOptions.Authentication = nil
+
 	serverConfig := genericapiserver.NewRecommendedConfig(scheme.Codecs)
 
 	if err := o.ServerRunOptions.ApplyTo(&serverConfig.Config); err != nil {
@@ -154,6 +161,10 @@ func (o *Options) Config() (*apiserver.Config, error) {
 
 	extraConfig := &apiserver.ExtraConfig{}
 	if err := o.SearchStorageOptions.ApplyTo(extraConfig); err != nil {
+		return nil, err
+	}
+
+	if err := o.StaticOptions.ApplyTo(extraConfig); err != nil {
 		return nil, err
 	}
 

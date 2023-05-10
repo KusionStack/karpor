@@ -58,3 +58,4 @@ tmp/
 
 vendor/
 apiserver.local.config/
+static/

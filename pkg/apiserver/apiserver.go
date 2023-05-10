@@ -18,11 +18,12 @@ package apiserver
 
 import (
 	"fmt"
+	"net/http"
 
+	"github.com/KusionStack/karbour/pkg/apiserver/handler"
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
-
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
@@ -34,6 +35,7 @@ type ExtraConfig struct {
 	ElasticSearchAddresses []string
 	ElasticSearchName      string
 	ElasticSearchPassword  string
+	StaticDirectory        string
 }
 
 // Config defines the config for the apiserver
@@ -113,6 +115,16 @@ func (c completedConfig) New() (*APIServer, error) {
 
 		klog.Infof("Enabling API group %q.", groupName)
 	}
+
+	klog.Infof("static directory:", c.ExtraConfig.StaticDirectory)
+	// fileServer := http.FileServer(http.Dir(c.ExtraConfig.StaticDirectory))
+	// prefix := "/dashboard/"
+	// s.GenericAPIServer.Handler.NonGoRestfulMux.Handle(prefix, http.StripPrefix(prefix, fileServer))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/dashboard/", handler.MakeGzipHandler(handler.NewStaticDirHandler(c.ExtraConfig.StaticDirectory)))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/echo", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		klog.Info("echo")
+		w.WriteHeader(http.StatusOK)
+	}))
 
 	return s, nil
 }
