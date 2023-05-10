@@ -186,6 +186,7 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		handler = filtersutil.SearchFilter(handler)
 		return handler
 	}
+	serverConfig.Config.EnableIndex = false
 
 	config := &apiserver.Config{
 		GenericConfig: serverConfig,

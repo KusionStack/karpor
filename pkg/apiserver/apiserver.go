@@ -120,7 +120,7 @@ func (c completedConfig) New() (*APIServer, error) {
 	// fileServer := http.FileServer(http.Dir(c.ExtraConfig.StaticDirectory))
 	// prefix := "/dashboard/"
 	// s.GenericAPIServer.Handler.NonGoRestfulMux.Handle(prefix, http.StripPrefix(prefix, fileServer))
-	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/dashboard/", handler.MakeGzipHandler(handler.NewStaticDirHandler(c.ExtraConfig.StaticDirectory)))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", handler.NewStaticDirHandler(c.ExtraConfig.StaticDirectory))
 	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/echo", http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		klog.Info("echo")
 		w.WriteHeader(http.StatusOK)
