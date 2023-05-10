@@ -12,9 +12,32 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM alpine:3.17.3
+# Front-end build layer, builds front-end code and generates static files.
+FROM node:20 AS ui-builder
+
+# Create a nonroot user for final image
+RUN useradd -u 10001 nonroot
+
+# Copy front-end code
+ADD ./ui /root/ui
+WORKDIR /root/ui
+
+# Install dependencies
+RUN npm install
+
+# Build, generate static files
+RUN npm run build
+
+FROM alpine:3.17.3 AS production
 
 WORKDIR /
+
+# Copy the static file directory built in the previous layer to the current layer
+COPY --from=ui-builder /root/ui/build /static
 COPY karbour .
+
+# Copy nonroot user
+COPY --from=ui-builder /etc/passwd /etc/passwd
+USER nonroot
 
 ENTRYPOINT ["/karbour"]
