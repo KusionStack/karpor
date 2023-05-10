@@ -116,7 +116,7 @@ func (c completedConfig) New() (*APIServer, error) {
 	}
 
 	klog.Infof("Static directory: %s", c.ExtraConfig.StaticDirectory)
-	s.GenericAPIServer.Handler.NonGoRestfulMux.Handle("/", http.FileServer(http.Dir(c.ExtraConfig.StaticDirectory)))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", http.FileServer(http.Dir(c.ExtraConfig.StaticDirectory)))
 
 	return s, nil
 }
