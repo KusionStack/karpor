@@ -118,6 +118,7 @@ func (c completedConfig) New() (*APIServer, error) {
 		klog.Infof("Enabling API group %q.", groupName)
 	}
 
+	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
 	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", http.FileServer(http.Dir(DefaultStaticDirectory)))
 
 	return s, nil
