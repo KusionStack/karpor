@@ -27,15 +27,15 @@ builds:
     # Default: [ 'darwin', 'linux', 'windows' ]
     goos:
       - linux
-      - windows
-      - darwin
+      # - windows
+      # - darwin
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
     #
     # Default: [ '386', 'amd64', 'arm64' ]
     goarch:
       - amd64
-      - arm64
+      # - arm64
     # 使用 ldflags="-s -w" 去掉符号表和调试信息，以减少发布包的大小
     ldflags:
       - -s -w
@@ -137,18 +137,18 @@ dockers:
   - "--platform=linux/amd64"
   extra_files:
   - ui/
-- image_templates:
-  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  dockerfile: Dockerfile
-  use: docker
-  build_flag_templates:
-  - "--pull"
-  - "--label=org.opencontainers.image.created={{.Date}}"
-  - "--label=org.opencontainers.image.name={{.ProjectName}}"
-  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-  - "--label=org.opencontainers.image.version={{.Version}}"
-  - "--label=org.opencontainers.image.source={{.GitURL}}"
-  - "--platform=linux/arm64"
-  goarch: arm64
-  extra_files:
-  - ui/
+# - image_templates:
+#   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
+#   dockerfile: Dockerfile
+#   use: docker
+#   build_flag_templates:
+#   - "--pull"
+#   - "--label=org.opencontainers.image.created={{.Date}}"
+#   - "--label=org.opencontainers.image.name={{.ProjectName}}"
+#   - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#   - "--label=org.opencontainers.image.version={{.Version}}"
+#   - "--label=org.opencontainers.image.source={{.GitURL}}"
+#   - "--platform=linux/arm64"
+#   goarch: arm64
+#   extra_files:
+#   - ui/
