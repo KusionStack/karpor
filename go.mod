@@ -7,7 +7,6 @@ require (
 	github.com/aquasecurity/esquery v0.2.0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
-	github.com/golang/glog v1.0.0
 	github.com/google/gofuzz v1.1.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/pkg/errors v0.9.1
