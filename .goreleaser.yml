@@ -135,6 +135,8 @@ dockers:
   - "--label=org.opencontainers.image.version={{.Version}}"
   - "--label=org.opencontainers.image.source={{.GitURL}}"
   - "--platform=linux/amd64"
+  extra_files:
+  - ui/
 - image_templates:
   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
   dockerfile: Dockerfile
