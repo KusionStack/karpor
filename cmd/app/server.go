@@ -27,8 +27,6 @@ import (
 
 	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
-	clientset "github.com/KusionStack/karbour/pkg/generated/clientset/versioned"
-	informers "github.com/KusionStack/karbour/pkg/generated/informers/externalversions"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
@@ -37,13 +35,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/apiserver/pkg/server/filters"
-	genericoptions "k8s.io/apiserver/pkg/server/options"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/klog/v2"
 	netutils "k8s.io/utils/net"
 )
 
@@ -51,23 +48,20 @@ const defaultEtcdPathPrefix = "/registry/karbour"
 
 // Options contains state for master/api server
 type Options struct {
-	ServerRunOptions     *genericoptions.ServerRunOptions
-	RecommendedOptions   *genericoptions.RecommendedOptions
+	RecommendedOptions   *options.RecommendedOptions
 	SearchStorageOptions *options.SearchStorageOptions
 	StaticOptions        *options.StaticOptions
 
-	SharedInformerFactory informers.SharedInformerFactory
-	StdOut                io.Writer
-	StdErr                io.Writer
+	StdOut io.Writer
+	StdErr io.Writer
 
 	AlternateDNS []string
 }
 
 // NewOptions returns a new Options
-func NewOptions(out, errOut io.Writer) *Options {
+func NewOptions(out, errOut io.Writer) (*Options, error) {
 	o := &Options{
-		ServerRunOptions: genericoptions.NewServerRunOptions(),
-		RecommendedOptions: genericoptions.NewRecommendedOptions(
+		RecommendedOptions: options.NewRecommendedOptions(
 			defaultEtcdPathPrefix,
 			scheme.Codecs.LegacyCodec(scheme.Versions...),
 		),
@@ -77,13 +71,23 @@ func NewOptions(out, errOut io.Writer) *Options {
 		StdErr:               errOut,
 	}
 	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
-	return o
+	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
+	// TODO have a "real" external address
+	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")}); err != nil {
+		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
+	}
+	return o, nil
 }
 
 // NewApiserverCommand provides a CLI handler for 'start master' command
 // with a default Options.
 func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
-	o := NewOptions(os.Stdout, os.Stderr)
+	o, err := NewOptions(os.Stdout, os.Stderr)
+	if err != nil {
+		klog.Background().Error(err, "Unable to initialize command options")
+		klog.FlushAndExit(klog.ExitFlushTimeout, 1)
+	}
+
 	cmd := &cobra.Command{
 		Short: "Launch an API server",
 		Long:  "Launch an API server",
@@ -107,7 +111,6 @@ func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
 
 // AddFlags add flags to command
 func (o *Options) AddFlags(fs *pflag.FlagSet) {
-	o.ServerRunOptions.AddUniversalFlags(fs)
 	o.RecommendedOptions.AddFlags(fs)
 	o.SearchStorageOptions.AddFlags(fs)
 	o.StaticOptions.AddFlags(fs)
@@ -116,7 +119,6 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 // Validate validates Options
 func (o *Options) Validate(args []string) error {
 	errors := []error{}
-	errors = append(errors, o.ServerRunOptions.Validate()...)
 	errors = append(errors, o.RecommendedOptions.Validate()...)
 	errors = append(errors, o.SearchStorageOptions.Validate()...)
 	errors = append(errors, o.StaticOptions.Validate()...)
@@ -130,68 +132,38 @@ func (o *Options) Complete() error {
 
 // Config returns config for the api server given Options
 func (o *Options) Config() (*apiserver.Config, error) {
-	// TODO have a "real" external address
-	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")}); err != nil {
-		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
+	config := &apiserver.Config{
+		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
+		ExtraConfig:   &apiserver.ExtraConfig{},
 	}
-
-	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
-	o.RecommendedOptions.ExtraAdmissionInitializers = func(c *genericapiserver.RecommendedConfig) ([]admission.PluginInitializer, error) {
-		client, err := clientset.NewForConfig(c.LoopbackClientConfig)
-		if err != nil {
-			return nil, err
-		}
-		informerFactory := informers.NewSharedInformerFactory(client, c.LoopbackClientConfig.Timeout)
-		o.SharedInformerFactory = informerFactory
-		return []admission.PluginInitializer{}, nil
+	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
+		return nil, err
 	}
-
-	o.RecommendedOptions.Authorization = nil
-	o.RecommendedOptions.Authentication = nil
-
-	serverConfig := genericapiserver.NewRecommendedConfig(scheme.Codecs)
-
-	if err := o.ServerRunOptions.ApplyTo(&serverConfig.Config); err != nil {
+	if err := o.SearchStorageOptions.ApplyTo(config.ExtraConfig); err != nil {
 		return nil, err
 	}
 
-	if err := o.RecommendedOptions.ApplyTo(serverConfig); err != nil {
-		return nil, err
-	}
-
-	extraConfig := &apiserver.ExtraConfig{}
-	if err := o.SearchStorageOptions.ApplyTo(extraConfig); err != nil {
-		return nil, err
-	}
-
-	if err := o.StaticOptions.ApplyTo(extraConfig); err != nil {
-		return nil, err
-	}
-
-	serverConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-	serverConfig.OpenAPIConfig.Info.Title = "Karbour"
-	serverConfig.OpenAPIConfig.Info.Version = "0.1"
-	serverConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
+	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
+	config.GenericConfig.OpenAPIConfig.Info.Version = "0.1"
+	config.GenericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
 		sets.NewString("watch", "proxy"),
 		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
 	)
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		serverConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-		serverConfig.OpenAPIV3Config.Info.Title = "Karbour"
-		serverConfig.OpenAPIV3Config.Info.Version = "0.1"
+		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		config.GenericConfig.OpenAPIV3Config.Info.Title = "Karbour"
+		config.GenericConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
-	serverConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
+	config.GenericConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
 		handler = proxyutil.WithProxyByCluster(handler)
 		handler = filtersutil.SearchFilter(handler)
 		return handler
 	}
-	serverConfig.Config.EnableIndex = false
 
-	config := &apiserver.Config{
-		GenericConfig: serverConfig,
-		ExtraConfig:   extraConfig,
-	}
+	config.GenericConfig.Config.EnableIndex = false
+
 	return config, nil
 }
 
@@ -209,7 +181,6 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 
 	server.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
-		o.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})
 
