@@ -28,7 +28,6 @@ import (
 	"k8s.io/apiserver/pkg/util/feature"
 	utilflowcontrol "k8s.io/apiserver/pkg/util/flowcontrol"
 	clientgoinformers "k8s.io/client-go/informers"
-	"k8s.io/client-go/kubernetes"
 	clientgoclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/component-base/featuregate"
 	"k8s.io/klog/v2"
@@ -134,7 +133,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 			}
 			config.FlowControl = utilflowcontrol.New(
 				config.SharedInformerFactory,
-				kubernetes.NewForConfigOrDie(config.ClientConfig).FlowcontrolV1beta3(),
+				clientgoclientset.NewForConfigOrDie(config.ClientConfig).FlowcontrolV1beta3(),
 				config.MaxRequestsInFlight+config.MaxMutatingRequestsInFlight,
 				config.RequestTimeout/4,
 			)
