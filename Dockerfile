@@ -15,9 +15,6 @@
 # Front-end build layer, builds front-end code and generates static files.
 FROM node:20 AS ui-builder
 
-# Create a nonroot user for final image
-RUN useradd -u 10001 nonroot
-
 # Copy front-end code
 ADD ./ui /root/ui
 WORKDIR /root/ui
@@ -38,6 +35,5 @@ COPY karbour .
 
 # Copy nonroot user
 COPY --from=ui-builder /etc/passwd /etc/passwd
-USER nonroot
 
 ENTRYPOINT ["/karbour"]
