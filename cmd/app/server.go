@@ -142,6 +142,9 @@ func (o *Options) Config() (*apiserver.Config, error) {
 	if err := o.SearchStorageOptions.ApplyTo(config.ExtraConfig); err != nil {
 		return nil, err
 	}
+	if err := o.StaticOptions.ApplyTo(config.ExtraConfig); err != nil {
+		return nil, err
+	}
 
 	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
