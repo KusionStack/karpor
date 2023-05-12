@@ -28,13 +28,16 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// DefaultStaticDirectory is the default static directory for
+// dashboard.
+const DefaultStaticDirectory = "./static"
+
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
 	SearchStorageType      string
 	ElasticSearchAddresses []string
 	ElasticSearchName      string
 	ElasticSearchPassword  string
-	StaticDirectory        string
 }
 
 // Config defines the config for the apiserver
@@ -115,8 +118,7 @@ func (c completedConfig) New() (*APIServer, error) {
 		klog.Infof("Enabling API group %q.", groupName)
 	}
 
-	klog.Infof("Static directory: %s", c.ExtraConfig.StaticDirectory)
-	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", http.FileServer(http.Dir(c.ExtraConfig.StaticDirectory)))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", http.FileServer(http.Dir(DefaultStaticDirectory)))
 
 	return s, nil
 }
