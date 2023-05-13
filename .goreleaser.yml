@@ -27,7 +27,7 @@ builds:
     # Default: [ 'darwin', 'linux', 'windows' ]
     goos:
       - linux
-      - windows
+      # - windows
       - darwin
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -47,9 +47,9 @@ archives:
       mode: 0644
       # format is `time.RFC3339Nano`
       mtime: 2008-01-02T15:04:05Z
-    format_overrides:
-      - goos: windows
-        format: zip
+    # format_overrides:
+    #   - goos: windows
+    #     format: zip
     files:
       - LICENSE
       - README.md
