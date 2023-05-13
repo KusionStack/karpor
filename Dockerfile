@@ -33,9 +33,6 @@ WORKDIR /
 COPY --from=ui-builder /root/ui/build /static
 COPY karbour .
 
-# Copy nonroot user
-COPY --from=ui-builder /etc/passwd /etc/passwd
-
 USER root
 
 ENTRYPOINT ["/karbour"]
