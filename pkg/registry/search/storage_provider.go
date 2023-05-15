@@ -21,6 +21,9 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
 	"github.com/KusionStack/karbour/pkg/registry"
+	"github.com/KusionStack/karbour/pkg/registry/search/syncclusterresources"
+	"github.com/KusionStack/karbour/pkg/registry/search/transformrule"
+	"github.com/KusionStack/karbour/pkg/registry/search/uniresource"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/search/storage/elasticsearch"
@@ -60,11 +63,25 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 
 func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOptionsGetter, searchStorageGetter storage.SearchStorageGetter) (map[string]rest.Storage, error) {
 	v1beta1Storage := map[string]rest.Storage{}
-	uniResourceStorage, err := NewUniResourceREST(searchStorageGetter)
+	uniResourceStorage, err := uniresource.NewREST(searchStorageGetter)
 	if err != nil {
-		return v1beta1Storage, err
+		return map[string]rest.Storage{}, err
 	}
 	v1beta1Storage["uniresources"] = uniResourceStorage
+
+	syncClusterResources, syncClusterResourcesStatus, err := syncclusterresources.NewREST(restOptionsGetter)
+	if err != nil {
+		return map[string]rest.Storage{}, err
+	}
+	v1beta1Storage["syncclusterresources"] = syncClusterResources
+	v1beta1Storage["syncclusterresources/status"] = syncClusterResourcesStatus
+
+	transformRule, err := transformrule.NewREST(restOptionsGetter)
+	if err != nil {
+		return map[string]rest.Storage{}, err
+	}
+	v1beta1Storage["transformrules"] = transformRule
+
 	return v1beta1Storage, nil
 }
 
