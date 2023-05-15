@@ -133,7 +133,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0 // indirect
 )
 
-// In order to use k8s.io/kubernetes as a library, replicating the replace directives from the k8s.io/kubernetes go.mod file to point to appropriate tags of the other k8s.io modules is required.
+// To use k8s.io/kubernetes as a library, replicating the replace directives from the k8s.io/kubernetes go.mod file to point to appropriate tags of the other k8s.io modules is required.
 // See https://github.com/kubernetes/kubernetes/issues/79384
 
 replace (
