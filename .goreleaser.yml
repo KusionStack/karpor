@@ -27,7 +27,7 @@ builds:
     # Default: [ 'darwin', 'linux', 'windows' ]
     goos:
       - linux
-      - windows
+      # - windows
       - darwin
     # GOARCH to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -47,9 +47,9 @@ archives:
       mode: 0644
       # format is `time.RFC3339Nano`
       mtime: 2008-01-02T15:04:05Z
-    format_overrides:
-      - goos: windows
-        format: zip
+    # format_overrides:
+    #   - goos: windows
+    #     format: zip
     files:
       - LICENSE
       - README.md
@@ -117,8 +117,6 @@ release:
   footer: |
     ## Docker Images
     * `kusionstack/karbour:{{ .Tag }}`
-    * `kusionstack/karbour:{{ .Tag }}-arm64`
-    * `kusionstack/karbour-dashboard:{{ .Tag }}`
 
     ## Thanks!
 
@@ -136,16 +134,20 @@ dockers:
   - "--label=org.opencontainers.image.version={{.Version}}"
   - "--label=org.opencontainers.image.source={{.GitURL}}"
   - "--platform=linux/amd64"
-- image_templates:
-  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
-  dockerfile: Dockerfile
-  use: docker
-  build_flag_templates:
-  - "--pull"
-  - "--label=org.opencontainers.image.created={{.Date}}"
-  - "--label=org.opencontainers.image.name={{.ProjectName}}"
-  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-  - "--label=org.opencontainers.image.version={{.Version}}"
-  - "--label=org.opencontainers.image.source={{.GitURL}}"
-  - "--platform=linux/arm64"
-  goarch: arm64
+  extra_files:
+  - ui/
+# - image_templates:
+#   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
+#   dockerfile: Dockerfile
+#   use: docker
+#   build_flag_templates:
+#   - "--pull"
+#   - "--label=org.opencontainers.image.created={{.Date}}"
+#   - "--label=org.opencontainers.image.name={{.ProjectName}}"
+#   - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+#   - "--label=org.opencontainers.image.version={{.Version}}"
+#   - "--label=org.opencontainers.image.source={{.GitURL}}"
+#   - "--platform=linux/arm64"
+#   goarch: arm64
+#   extra_files:
+#   - ui/

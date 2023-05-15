@@ -158,6 +158,8 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		return handler
 	}
 
+	config.GenericConfig.Config.EnableIndex = false
+
 	return config, nil
 }
 
