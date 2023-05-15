@@ -27,18 +27,14 @@ import (
 
 	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
-	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
-	"k8s.io/apimachinery/pkg/util/sets"
-	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/apiserver/pkg/server/filters"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/klog/v2"
 	netutils "k8s.io/utils/net"
@@ -139,18 +135,6 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		return nil, err
 	}
 
-	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
-	config.GenericConfig.OpenAPIConfig.Info.Version = "0.1"
-	config.GenericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
-		sets.NewString("watch", "proxy"),
-		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
-	)
-	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-		config.GenericConfig.OpenAPIV3Config.Info.Title = "Karbour"
-		config.GenericConfig.OpenAPIV3Config.Info.Version = "0.1"
-	}
 	config.GenericConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
 		handler = proxyutil.WithProxyByCluster(handler)
