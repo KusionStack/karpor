@@ -21,6 +21,7 @@ import (
 
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/scheme"
+	k8sopenapi "github.com/KusionStack/karbour/pkg/util/openapi"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
@@ -38,6 +39,7 @@ import (
 	clientgoclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/component-base/featuregate"
 	"k8s.io/klog/v2"
+	"k8s.io/kube-openapi/pkg/common"
 	kubeoptions "k8s.io/kubernetes/pkg/kubeapiserver/options"
 )
 
@@ -127,7 +129,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 		return err
 	}
 
-	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	genericConfig.OpenAPIConfig.Info.Title = "Karbour"
 	genericConfig.OpenAPIConfig.Info.Version = "0.1"
 	genericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
@@ -135,7 +137,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
 	)
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		genericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		genericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 		genericConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		genericConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
@@ -149,9 +151,9 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	config.ClientConfig = kubeClientConfig
 	config.SharedInformerFactory = informer
 
-	// if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, config.OpenAPIV3Config, client, informer); err != nil {
-	// 	return err
-	// }
+	if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, config.OpenAPIV3Config, client, informer); err != nil {
+		return err
+	}
 
 	if err := o.Audit.ApplyTo(genericConfig); err != nil {
 		return err
@@ -196,4 +198,12 @@ func (o *RecommendedOptions) Validate() []error {
 	errors = append(errors, o.Traces.Validate()...)
 
 	return errors
+}
+
+func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
+	ret := k8sopenapi.GetOpenAPIDefinitions(ref)
+	for k, v := range karbouropenapi.GetOpenAPIDefinitions(ref) {
+		ret[k] = v
+	}
+	return ret
 }

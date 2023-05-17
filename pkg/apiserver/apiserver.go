@@ -17,7 +17,6 @@ limitations under the License.
 package apiserver
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/registry"
@@ -82,9 +81,12 @@ func (c completedConfig) New() (*APIServer, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	s := &APIServer{
 		GenericAPIServer: genericServer,
+	}
+
+	if err := InstallLegacyAPI(s.GenericAPIServer, c.GenericConfig.RESTOptionsGetter); err != nil {
+		return nil, err
 	}
 
 	restStorageProviders := []registry.RESTStorageProvider{
@@ -96,26 +98,8 @@ func (c completedConfig) New() (*APIServer, error) {
 			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
 		},
 	}
-
-	for _, restStorageProvider := range restStorageProviders {
-		groupName := restStorageProvider.GroupName()
-		apiGroupInfo, err := restStorageProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
-		if err != nil {
-			return nil, fmt.Errorf("problem initializing API group %q : %v", groupName, err)
-		}
-
-		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
-			// If we have no storage for any resource configured, this API group is effectively disabled.
-			// This can happen when an entire API group, version, or development-stage (alpha, beta, GA) is disabled.
-			klog.Infof("API group %q is not enabled, skipping.", groupName)
-			continue
-		}
-
-		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, fmt.Errorf("problem install API group %q: %v", groupName, err)
-		}
-
-		klog.Infof("Enabling API group %q.", groupName)
+	if err := InstallAPIs(s.GenericAPIServer, c.GenericConfig.RESTOptionsGetter, restStorageProviders...); err != nil {
+		return nil, err
 	}
 
 	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
