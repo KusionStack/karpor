@@ -64,6 +64,16 @@ func NewStorage(optsGetter generic.RESTOptionsGetter) (PodStorage, error) {
 	}, nil
 }
 
+// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a resource.
+func (r *REST) ShortNames() []string {
+	return []string{"po"}
+}
+
+// Categories implements the CategoriesProvider interface. Returns a list of categories a resource is part of.
+func (r *REST) Categories() []string {
+	return []string{"all"}
+}
+
 // StatusREST implements the REST endpoint for changing the status of a pod.
 type StatusREST struct {
 	store *genericregistry.Store
