@@ -80,7 +80,7 @@ func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptio
 			WithClientCert().
 			WithOIDC().
 			WithRequestHeader().
-			// WithServiceAccounts().
+			WithServiceAccounts().
 			WithTokenFile().
 			WithWebHook(),
 		Audit:                      options.NewAuditOptions(),
