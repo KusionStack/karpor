@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package search
+package uniresource
 
 import (
 	"context"
@@ -29,49 +29,49 @@ import (
 )
 
 var (
-	_ rest.Storage            = &UniResourceREST{}
-	_ rest.Scoper             = &UniResourceREST{}
-	_ rest.Lister             = &UniResourceREST{}
-	_ rest.ShortNamesProvider = &UniResourceREST{}
+	_ rest.Storage            = &REST{}
+	_ rest.Scoper             = &REST{}
+	_ rest.Lister             = &REST{}
+	_ rest.ShortNamesProvider = &REST{}
 )
 
-type UniResourceREST struct {
-	SearchStorage storage.SearchStorage
+type REST struct {
+	Storage storage.SearchStorage
 }
 
-func NewUniResourceREST(searchStorageGetter storage.SearchStorageGetter) (rest.Storage, error) {
+func NewREST(searchStorageGetter storage.SearchStorageGetter) (rest.Storage, error) {
 	searchStorage, err := searchStorageGetter.GetSearchStorage()
 	if err != nil {
 		return nil, err
 	}
 
-	return &UniResourceREST{
-		SearchStorage: searchStorage,
+	return &REST{
+		Storage: searchStorage,
 	}, nil
 }
 
-func (r *UniResourceREST) New() runtime.Object {
+func (r *REST) New() runtime.Object {
 	return &search.UniResource{}
 }
 
-func (r *UniResourceREST) Destroy() {
+func (r *REST) Destroy() {
 }
 
-func (r *UniResourceREST) NamespaceScoped() bool {
+func (r *REST) NamespaceScoped() bool {
 	return false
 }
 
-func (r *UniResourceREST) NewList() runtime.Object {
+func (r *REST) NewList() runtime.Object {
 	return &search.UniResourceList{}
 }
 
-func (r *UniResourceREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+func (r *REST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
 	queryString, ok := filtersutil.SearchQueryFrom(ctx)
 	if !ok {
 		return nil, fmt.Errorf("query can't be empty")
 	}
 
-	res, err := r.SearchStorage.SearchByString(ctx, queryString)
+	res, err := r.Storage.SearchByString(ctx, queryString)
 	if err != nil {
 		return nil, err
 	}
@@ -85,12 +85,12 @@ func (r *UniResourceREST) List(ctx context.Context, options *internalversion.Lis
 	return rt, nil
 }
 
-func (r *UniResourceREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
+func (r *REST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	// TODO: add real logic of convert to table when the storage layer is implemented
 	return rest.NewDefaultTableConvertor(search.Resource("uniresources")).ConvertToTable(ctx, object, tableOptions)
 }
 
 // ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a resource.
-func (r *UniResourceREST) ShortNames() []string {
+func (r *REST) ShortNames() []string {
 	return []string{"ur"}
 }
