@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/registry"
+	podstore "github.com/KusionStack/karbour/pkg/registry/core/pod"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -73,6 +74,13 @@ func InstallLegacyAPI(genericAPIServer *genericapiserver.GenericAPIServer, restO
 		return err
 	}
 	storage["serviceaccounts"] = serviceAccountStorage
+
+	podStorage, err := podstore.NewStorage(restOptionsGetter)
+	if err != nil {
+		return nil
+	}
+	storage["pods"] = podStorage.Pod
+	storage["pods/status"] = podStorage.Status
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1"] = storage
 
