@@ -15,6 +15,7 @@
  */
 
 import React from "react";
+import classNames from "classnames";
 import styles from "./style.module.scss";
 
 type Props = {
@@ -34,9 +35,7 @@ const KarbourTabs = ({ current, list, onChange }: Props) => {
             onClick={() => onChange(item.value)}
           >
             <div
-              className={`${styles.normal} ${
-                current === item.value ? styles.active : ""
-              }`}
+              className={classNames(styles.normal, { [styles.active]: current === item.value })}
             >
               {item.label}
             </div>

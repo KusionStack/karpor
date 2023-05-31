@@ -15,18 +15,27 @@
  */
 
 import React from "react";
-import ReactDOM from "react-dom/client";
-import "./index.css";
-import App from "./App";
-// import reportWebVitals from "./reportWebVitals";
-import "./utils/request";
+import { Drawer, Button } from "antd";
+import { default as AnsiUp } from "ansi_up";
+import styles from "./styles.module.scss";
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(<App />);
+type IProps = {
+  open: boolean;
+  onClose: () => void;
+  data: string;
+}
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-// reportWebVitals();
+export default function YamlDrawer({ open, onClose, data }: IProps) {
+  const ansi_up = new AnsiUp();
+  const info = ansi_up.ansi_to_html(
+    data?.trim()
+  )
+  return <Drawer width={800} title="Yaml 详情" placement="right" onClose={onClose} open={open}>
+    <div
+      className={styles.yaml}
+      dangerouslySetInnerHTML={{
+        __html: info,
+      }}
+    />
+  </Drawer>
+}

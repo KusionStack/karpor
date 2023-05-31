@@ -15,19 +15,19 @@
  */
 
 import axios from 'axios'
+import { message } from 'antd';
 
-axios.defaults.baseURL = "https://localhost:7443";
-
-axios.interceptors.request.use(function (config) {
+axios.interceptors.request.use((config) => {
   return config;
-}, function (error) {
+}, (error) => {
   return Promise.reject(error);
 });
 
-axios.interceptors.response.use(function (response) {
-  if(response?.status === 200) {
+axios.interceptors.response.use((response) => {
+  if (response?.status === 200) {
     return response?.data;
   }
-}, function (error) {
+}, (error) => {
+  message.error(error?.response?.data?.message || "请求失败，请重试");
   return Promise.reject(error);
 });

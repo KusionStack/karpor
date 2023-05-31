@@ -22,11 +22,12 @@ import {
 } from "@ant-design/icons";
 import { Layout, Menu} from "antd";
 import { useNavigate, useLocation } from "react-router-dom";
+import styles from "./style.module.scss";
 
 const { Header } = Layout;
 
 export default function TopHeader() {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const location = useLocation();
 
   const items = [
@@ -48,17 +49,20 @@ export default function TopHeader() {
   ];
 
   function handleCkick({ key }: {key: string}) {
-    nav(key);
+    navigate(key);
   }
 
+  const selectedKeys = (!location.pathname || location.pathname === '/') ? '/search' : location.pathname;
+
   return (
-    <Header style={{display: 'flex', background: '#fff', padding: '0 20px'}}>
-      <div className="logo">
-        <HeatMapOutlined style={{marginRight: 10}}/>
+    <Header className={styles.container}>
+      <div className={styles.logo}>
+        <HeatMapOutlined/>
       </div>
       <Menu
         mode="horizontal"
-        selectedKeys={[location.pathname]}
+        defaultSelectedKeys={['/search']}
+        selectedKeys={[selectedKeys]}
         onClick={handleCkick}
         items={items}
       />

@@ -15,22 +15,24 @@
  */
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import TopHeader from "../../components/TopHeader";
-import Search from "./search/Search";
-import Insight from "./insight/Insight";
-import Cluster from "./cluster/Cluster";
-import Result from "./result/Result";
-import NotFound from "./notfound/NotFound";
-import styles from "./style.module.scss";
-
 import { Layout } from "antd";
+import TopHeader from "../../components/TopHeader";
+import Search from "../search/Search";
+import Insight from "../insight/Insight";
+import Cluster from "../cluster/Cluster";
+import Result from "../result/Result";
+import Detail from "../detail/Detail";
+import ClusterDetail from "../cluster-detail/ClusterDetail";
+import NotFound from "../notfound/NotFound";
+
+import styles from "./styles.module.scss";
 
 const { Content } = Layout;
 
-export default function SandBox() {
+const SandBox = () => {
   return (
     <BrowserRouter>
-      <Layout className="site-layout">
+      <Layout>
         <TopHeader></TopHeader>
         <Content className={styles.container}>
           <Routes>
@@ -39,6 +41,8 @@ export default function SandBox() {
             <Route path="/insight" element={<Insight />} />
             <Route path="/cluster" element={<Cluster />} />
             <Route path="/result" element={<Result />} />
+            <Route path="/detail" element={<Detail />} />
+            <Route path="/cluster-detail" element={<ClusterDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>
@@ -46,3 +50,5 @@ export default function SandBox() {
     </BrowserRouter>
   );
 }
+export default SandBox
+

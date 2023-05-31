@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input, Select, Space } from "antd";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { HeatMapOutlined } from "@ant-design/icons";
-import { basicSyntaxColumns } from "../../../utils/constants";
-import KarbourTabs from "../../../components/Tabs/index";
+import { basicSyntaxColumns } from "../../utils/constants";
+import KarbourTabs from "../../components/Tabs/index";
 
 import styles from "./styles.module.scss";
 
@@ -55,8 +55,6 @@ const SearchPage = () => {
     setCurrentTab(value);
   };
 
-  // const divInputRef = useRef();
-
   const addItem = (queryExample: string) => {
     const val = inputValue ? `${inputValue} ${queryExample}` : queryExample;
     setInputValue(val);
@@ -77,11 +75,11 @@ const SearchPage = () => {
         <div className={styles.box}>
           {basicSyntaxColumns?.map((item: any, index) => {
             return (
-              <div className={styles.basicSyntax} key={`${index + 1}`}>
+              <div className={styles['basic-syntax']} key={`${index + 1}`}>
                 {item?.map((queryExample: any, inIndex: number) => {
                   return (
                     <div
-                      className={styles.itemBox}
+                      className={styles['item-box']}
                       key={`${queryExample.title}_${inIndex}`}
                     >
                       <div className={styles.title}>{queryExample.title}</div>
@@ -89,14 +87,13 @@ const SearchPage = () => {
                         (example: any, innerIdx: number) => {
                           return (
                             <div
-                              className={styles.childrenItemBox}
+                              className={styles['children-item-box']}
                               key={`${example.id}_${innerIdx}`}
                               onClick={() => addItem(example.query)}
                             >
-                              <span className={styles.childrenItem}>
+                              <span className={styles['children-item']}>
                                 {renderItem(example.query)}
                               </span>
-                              {/* <FilterValueOption option={{ label: example.query, matches: false }} /> */}
                             </div>
                           );
                         }
@@ -148,7 +145,7 @@ const SearchPage = () => {
   }
 
   const handleSearch = (val: string) => {
-    navigate(`/result?keyword=${val}`);
+    navigate(`/result?query=${val}`);
   };
 
   const handleInputChange = (event: any) => {
@@ -156,16 +153,8 @@ const SearchPage = () => {
   };
 
   return (
-    <div
-      style={{
-        paddingTop: "100px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        alignItems: "center",
-      }}
-    >
-      <div className={styles.logoBox}>
+    <div className={styles.search}>
+      <div className={styles['logo-box']}>
         <HeatMapOutlined />
         <div className={styles.title}>Karbour</div>
       </div>
@@ -187,9 +176,6 @@ const SearchPage = () => {
           onSearch={handleSearch}
         />
       </Space.Compact>
-      {/* {
-        renderAI()
-      } */}
       <div className={styles.content}>
         {searchType === "filter" && renderFilter()}
       </div>

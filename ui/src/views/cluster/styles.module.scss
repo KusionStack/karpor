@@ -25,21 +25,22 @@
       height: 150px;
       border: 1px solid #f1f1f1;
       margin: 10px 10px 30px 10px;
+      cursor: pointer;
       .header {
         padding: 10px 20px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        .headerLeft {
+        .header-left {
           font-weight: bold;
           font-size: 18px;
         }
-        .headerRight {
+        .header-right {
           color: #0090fb;
           cursor: pointer;
         }
       }
-      .cardBody {
+      .card-body {
         border-top: 1px solid #f1f1f1;
         padding: 0px 20px 10px 20px;
         .item {
@@ -48,10 +49,10 @@
           align-items: center;
           padding: 20px 0;
           width: 100%;
-          .itemLabel {
+          .item-label {
             margin-right: 5px;
           }
-          .itemValue {
+          .item-value {
             flex: 1;
             white-space: nowrap;
             overflow: hidden;

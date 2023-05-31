@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { Input, Select, Space, Pagination, Empty } from "antd";
 import axios from "axios";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { CaretRightOutlined, RadarChartOutlined } from "@ant-design/icons";
 import queryString from "query-string";
-import Tabs from "../../../components/Tabs";
-import { basicSyntaxColumns } from "../../../utils/constants";
+import Tabs from "../../components/Tabs";
+import { basicSyntaxColumns } from "../../utils/constants";
 import styles from "./styles.module.scss";
 
 const { Search } = Input;
@@ -48,12 +48,11 @@ const tabsList = [
 
 export default function Result() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [showPanel, setShowPanel] = useState<Boolean>(false);
   const [pageData, setPageData] = useState<any>();
   const urlSearchParams = queryString.parse(location.search);
-  const [searchValue, setSearchValue] = useState(
-    urlSearchParams?.keyword || ""
-  );
+  const [searchValue, setSearchValue] = useState(urlSearchParams?.query || "");
 
   const [currentTab, setCurrentTab] = useState<String>(tabsList?.[0].value);
 
@@ -81,28 +80,11 @@ export default function Result() {
         "Content-Type": "application/json",
       },
       params: {
-        keyword: searchValue,
+        query: encodeURI(searchValue as any),
       },
     });
     setPageData(data || {});
   }
-
-  // const getPageData = useCallback(async () => {
-  //   let url = `/apis/search.karbour.com/v1beta1/search/proxy`;
-  //   const res = await axios(url, {
-  //     method: 'GET',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //     },
-  //     data: {
-  //       searchValue
-  //     }
-  //   })
-  //   setPageData(res?.data || {});
-  // }, [])
-  // useEffect(() => {
-  //   getPageData();
-  // }, [getPageData])
 
   useEffect(() => {
     getPageData();
@@ -156,6 +138,16 @@ export default function Result() {
     setSearchValue(val);
   };
 
+  const handleClick = (item) => {
+    let queryStr = "";
+    if (item?.metadata?.namespace) {
+      queryStr = `${item?.apiVersion},${item?.kind},${item?.metadata?.namespace},${item?.metadata?.name}`;
+    } else {
+      queryStr = `${item?.apiVersion},${item?.kind},${item?.metadata?.name}`;
+    }
+    navigate(`/insight?query=${queryStr}`);
+  };
+
   return (
     <div className={styles.container}>
       <div style={{ width: 850, position: "relative" }}>
@@ -183,20 +175,24 @@ export default function Result() {
         } */}
       </div>
       <div className={styles.content}>
-        {pageData?.objects?.map((item: any, index: number) => {
+        {pageData?.items?.map((item: any, index: number) => {
           return (
-            <div className={styles.card} key={`${item.name}_${index}`}>
+            <div
+              className={styles.card}
+              key={`${item.name}_${index}`}
+              onClick={() => handleClick(item)}
+            >
               <div>
                 <RadarChartOutlined style={{ margin: "0 5px" }} />
               </div>
               <div className={styles.item}>
-                <span className={styles.itemLabel}>ApiVersion</span>
-                <span className={styles.itemValue}>{item?.apiVersion}</span>
+                <span className={styles["item-label"]}>ApiVersion</span>
+                <span className={styles["item-value"]}>{item?.apiVersion}</span>
               </div>
               <CaretRightOutlined style={{ margin: "0 3px", fontSize: 14 }} />
               <div className={styles.item}>
-                <span className={styles.itemLabel}>Kind</span>
-                <span className={styles.itemValue}>{item?.kind}</span>
+                <span className={styles["item-label"]}>Kind</span>
+                <span className={styles["item-value"]}>{item?.kind}</span>
               </div>
               {item?.metadata?.namespace && (
                 <>
@@ -204,8 +200,8 @@ export default function Result() {
                     style={{ margin: "0 3px", fontSize: 14 }}
                   />
                   <div className={styles.item}>
-                    <span className={styles.itemLabel}>NameSpace</span>
-                    <span className={styles.itemValue}>
+                    <span className={styles["item-label"]}>NameSpace</span>
+                    <span className={styles["item-value"]}>
                       {item?.metadata?.namespace}
                     </span>
                   </div>
@@ -213,16 +209,18 @@ export default function Result() {
               )}
               <CaretRightOutlined style={{ margin: "0 3px", fontSize: 14 }} />
               <div className={styles.item}>
-                <span className={styles.itemLabel}>Name</span>
-                <span className={styles.itemValue}>{item?.metadata?.name}</span>
+                <span className={styles["item-label"]}>Name</span>
+                <span className={styles["item-value"]}>
+                  {item?.metadata?.name}
+                </span>
               </div>
             </div>
           );
         })}
         {/* <div style={{ width: 600, height: 600 }}>图片占位</div> */}
       </div>
-      {
-        pageData?.objects && pageData?.objects?.length > 0 && <div className={styles.footer}>
+      {pageData?.objects && pageData?.objects?.length > 0 && (
+        <div className={styles.footer}>
           <Pagination
             total={pageData?.objects?.length}
             showTotal={(total: number, range: any[]) =>
@@ -233,10 +231,8 @@ export default function Result() {
             onChange={handleChangePage}
           />
         </div>
-      }
-      {
-        (!pageData?.objects || !pageData?.objects?.length) && <Empty />
-      }
+      )}
+      {(!pageData?.objects || !pageData?.objects?.length) && <Empty />}
     </div>
   );
 }

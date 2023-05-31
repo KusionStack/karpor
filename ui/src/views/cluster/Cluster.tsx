@@ -17,9 +17,11 @@
 import { useState } from "react";
 import { Pagination, Badge, Tooltip, Empty } from "antd";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import styles from "./styles.module.scss";
 
 export default function Cluster() {
+  const navigate = useNavigate();
   const [pageData, setPageData] = useState<any>([]);
   const [searchParams, setSearchParams] = useState({
     pageSize: 10,
@@ -52,14 +54,25 @@ export default function Cluster() {
     console.log(item, "====handleMore====");
   }
 
+  const handleClick = (item) => {
+    console.log(item, "===item===")
+    let queryStr = "";
+    if(item?.metadata?.managedFields?.[0]?.apiVersion) {
+      queryStr = `${item?.metadata?.managedFields?.[0]?.apiVersion},${item.metadata?.name}`;
+    } else {
+      queryStr = `${item.metadata?.name}`;
+    }
+    navigate(`/cluster-detail?query=${queryStr}`);
+  };
+
   return (
     <div className={styles.container}>
       <div className={styles.content}>
         {pageData?.items?.map((item: any, index: number) => {
           return (
-            <div className={styles.card} key={`${item.name}_${index}`}>
+            <div className={styles.card} key={`${item.name}_${index}`} onClick={() => handleClick(item)}>
               <div className={styles.header}>
-                <div className={styles.headerLeft}>
+                <div className={styles['header-left']}>
                   {item.metadata?.name}
                   <Badge
                     style={{
@@ -74,17 +87,17 @@ export default function Cluster() {
                   />
                 </div>
                 <div
-                  className={styles.headerRight}
+                  className={styles['header-right']}
                   onClick={() => handleMore(item)}
                 >
                   More
                 </div>
               </div>
-              <div className={styles.cardBody}>
+              <div className={styles['card-body']}>
                 <div className={styles.item}>
-                  <div className={styles.itemLabel}>Endpoint: </div>
+                  <div className={styles['item-label']}>Endpoint: </div>
                   <Tooltip title={item.spec?.access?.endpoint}>
-                    <div className={styles.itemValue}>
+                    <div className={styles['item-value']}>
                       {item.spec?.access?.endpoint}
                     </div>
                   </Tooltip>

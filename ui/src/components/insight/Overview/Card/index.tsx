@@ -16,10 +16,13 @@
 
 import styles from "./styles.module.scss";
 
-export default function Insight() {
-  return (
-    <div className={styles.container}>
-      <h1>开发中，敬请期待...</h1>
-    </div>
-  );
+type IProps = {
+  data: any
+}
+
+export default function Card({ data }: IProps) {
+  return <div className={styles.card}>
+    <div className={styles.left}>{data?.desc}</div>
+    <div className={styles.right}>{data?.title}</div>
+  </div>
 }
