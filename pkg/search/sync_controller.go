@@ -75,10 +75,18 @@ func NewSyncController(ctx context.Context, informerFactory externalversions.Sha
 	})
 
 	// TODO: syncResources event
-	syncResourcesInformer.Informer().AddEventHandler(clientgocache.ResourceEventHandlerFuncs{})
+	syncResourcesInformer.Informer().AddEventHandler(clientgocache.ResourceEventHandlerFuncs{
+		AddFunc:    controller.addSyncResources,
+		UpdateFunc: controller.updateSyncResources,
+		DeleteFunc: controller.deleteSyncResources,
+	})
 
 	// TODO: transformRule event
-	transformRuleInformer.Informer().AddEventHandler(clientgocache.ResourceEventHandlerFuncs{})
+	transformRuleInformer.Informer().AddEventHandler(clientgocache.ResourceEventHandlerFuncs{
+		AddFunc:    controller.addTransformRule,
+		UpdateFunc: controller.updateTransformRule,
+		DeleteFunc: controller.deleteTransformRule,
+	})
 
 	return controller
 }
@@ -139,6 +147,88 @@ func (c *ClusterSyncController) deleteSyncRegistry(obj interface{}) {
 	}
 
 	for _, clusterName := range c.getMatchedClusterNames(registry) {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) addSyncResources(obj interface{}) {
+	resources := obj.(*searchv1beta1.SyncResources)
+	for _, clusterName := range c.getMatchedClusterNamesBySyncResources(resources) {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) updateSyncResources(oldObj interface{}, newObj interface{}) {
+	oldResources := oldObj.(*searchv1beta1.SyncResources)
+	newResources := newObj.(*searchv1beta1.SyncResources)
+	if newResources.ResourceVersion == oldResources.ResourceVersion || reflect.DeepEqual(newResources.Spec, oldResources.Spec) {
+		return
+	}
+
+	clusters := make(map[string]struct{})
+	for _, clusterName := range c.getMatchedClusterNamesBySyncResources(newResources) {
+		clusters[clusterName] = struct{}{}
+	}
+	for _, clusterName := range c.getMatchedClusterNamesBySyncResources(oldResources) {
+		clusters[clusterName] = struct{}{}
+	}
+	for clusterName := range clusters {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) deleteSyncResources(obj interface{}) {
+	resources, ok := obj.(*searchv1beta1.SyncResources)
+	if !ok {
+		if tombstone, ok := obj.(clientgocache.DeletedFinalStateUnknown); ok {
+			resources = tombstone.Obj.(*searchv1beta1.SyncResources)
+		} else {
+			utilruntime.HandleError(fmt.Errorf("error decoding object, invalid type"))
+			return
+		}
+	}
+	for _, clusterName := range c.getMatchedClusterNamesBySyncResources(resources) {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) addTransformRule(obj interface{}) {
+	tr := obj.(*searchv1beta1.TransformRule)
+	for _, clusterName := range c.getMatchedClusterNamesByTransFormRule(tr) {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) updateTransformRule(oldObj interface{}, newObj interface{}) {
+	oldTr := oldObj.(*searchv1beta1.TransformRule)
+	newTr := newObj.(*searchv1beta1.TransformRule)
+	if newTr.ResourceVersion == oldTr.ResourceVersion || reflect.DeepEqual(newTr.Spec, oldTr.Spec) {
+		return
+	}
+
+	clusters := make(map[string]struct{})
+	for _, clusterName := range c.getMatchedClusterNamesByTransFormRule(newTr) {
+		clusters[clusterName] = struct{}{}
+	}
+	for _, clusterName := range c.getMatchedClusterNamesByTransFormRule(oldTr) {
+		clusters[clusterName] = struct{}{}
+	}
+	for clusterName := range clusters {
+		c.queue.Add(clusterName)
+	}
+}
+
+func (c *ClusterSyncController) deleteTransformRule(obj interface{}) {
+	tr, ok := obj.(*searchv1beta1.TransformRule)
+	if !ok {
+		if tombstone, ok := obj.(clientgocache.DeletedFinalStateUnknown); ok {
+			tr = tombstone.Obj.(*searchv1beta1.TransformRule)
+		} else {
+			utilruntime.HandleError(fmt.Errorf("error decoding object, invalid type"))
+			return
+		}
+	}
+	for _, clusterName := range c.getMatchedClusterNamesByTransFormRule(tr) {
 		c.queue.Add(clusterName)
 	}
 }
@@ -397,6 +487,67 @@ func (c *ClusterSyncController) getMatchedClusterNames(registry *searchv1beta1.S
 	return ret
 }
 
+func (c *ClusterSyncController) getMatchedSyncRegistries(resource *searchv1beta1.SyncResources) []*searchv1beta1.SyncRegistry {
+	var ret []*searchv1beta1.SyncRegistry
+	syncRegistries, _ := c.syncRegistryLister.List(labels.Everything())
+	for _, sr := range syncRegistries {
+		if sr.Spec.SyncResourcesRefName == resource.Name {
+			ret = append(ret, sr)
+		}
+	}
+	return ret
+}
+
+func (c *ClusterSyncController) getMatchedClusterNamesBySyncResources(resources *searchv1beta1.SyncResources) []string {
+	var ret []string
+	clusters := make(map[string]struct{})
+	registries := c.getMatchedSyncRegistries(resources)
+	for _, registry := range registries {
+		if !registry.DeletionTimestamp.IsZero() {
+			continue
+		}
+
+		for _, name := range c.getMatchedClusterNames(registry) {
+			clusters[name] = struct{}{}
+		}
+	}
+	for name := range clusters {
+		ret = append(ret, name)
+	}
+	return ret
+}
+
+func (c *ClusterSyncController) getMatchedSyncResources(tr *searchv1beta1.TransformRule) []*searchv1beta1.SyncResources {
+	var ret []*searchv1beta1.SyncResources
+	syncResources, _ := c.syncResourcesLister.List(labels.Everything())
+	for _, sr := range syncResources {
+		for _, rsr := range sr.Spec.SyncResources {
+			if rsr.TransformRefName == tr.Name {
+				ret = append(ret, sr)
+			}
+		}
+	}
+	return ret
+}
+func (c *ClusterSyncController) getMatchedClusterNamesByTransFormRule(tr *searchv1beta1.TransformRule) []string {
+	var ret []string
+	clusters := make(map[string]struct{})
+	resources := c.getMatchedSyncResources(tr)
+	for _, resource := range resources {
+		if !resource.DeletionTimestamp.IsZero() {
+			continue
+		}
+
+		for _, name := range c.getMatchedClusterNamesBySyncResources(resource) {
+			clusters[name] = struct{}{}
+		}
+	}
+	for name := range clusters {
+		ret = append(ret, name)
+	}
+	return ret
+}
+
 func (c *ClusterSyncController) getNormalizedSyncResources(registry *searchv1beta1.SyncRegistry) (map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule, error) {
 	var resources []searchv1beta1.ResourceSyncRule
 	if registry.Spec.SyncResourcesRefName != "" {
@@ -420,6 +571,7 @@ func (c *ClusterSyncController) getNormalizedSyncResources(registry *searchv1bet
 			return nil, err
 		}
 
+		nr = nr.DeepCopy()
 		ret[gvr] = nr
 	}
 	return ret, nil
