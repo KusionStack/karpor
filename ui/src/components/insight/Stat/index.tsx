@@ -15,7 +15,6 @@
  */
 
 import type { FC } from "react";
-import { useEffect, useRef } from "react";
 import Progress from "./Progress";
 import { InfoCircleOutlined } from "@ant-design/icons";
 import styles from "./styles.module.scss";

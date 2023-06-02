@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-import React from "react";
-import { Drawer, Button } from "antd";
+import { Drawer } from "antd";
 import { default as AnsiUp } from "ansi_up";
 import styles from "./styles.module.scss";
 

@@ -57,7 +57,7 @@ export default function Cluster() {
   const handleClick = (item) => {
     console.log(item, "===item===")
     let queryStr = "";
-    if(item?.metadata?.managedFields?.[0]?.apiVersion) {
+    if (item?.metadata?.managedFields?.[0]?.apiVersion) {
       queryStr = `${item?.metadata?.managedFields?.[0]?.apiVersion},${item.metadata?.name}`;
     } else {
       queryStr = `${item.metadata?.name}`;
@@ -116,7 +116,7 @@ export default function Cluster() {
         })}
       </div>
       {
-        pageData?.items && pageData?.items?.length > 0 &&
+        (pageData?.items && pageData?.items?.length > 0) &&
         <div className={styles.footer}>
           <Pagination
             total={pageData?.items?.length}
@@ -128,7 +128,7 @@ export default function Cluster() {
         </div>
       }
       {
-        !pageData?.items || !pageData?.items?.length && <Empty />
+        (!pageData?.items || !pageData?.items?.length) && <Empty />
       }
     </div>
   );

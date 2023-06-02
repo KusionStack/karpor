@@ -20,8 +20,6 @@ import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
 import { CaretRightOutlined, RadarChartOutlined } from "@ant-design/icons";
 import queryString from "query-string";
-import Tabs from "../../components/Tabs";
-import { basicSyntaxColumns } from "../../utils/constants";
 import styles from "./styles.module.scss";
 
 const { Search } = Input;
@@ -41,24 +39,24 @@ const options = [
   },
 ];
 
-const tabsList = [
-  { label: "Code search basics", value: "code" },
-  { label: "Search query examples", value: "examples" },
-];
+// const tabsList = [
+//   { label: "Code search basics", value: "code" },
+//   { label: "Search query examples", value: "examples" },
+// ];
 
 export default function Result() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showPanel, setShowPanel] = useState<Boolean>(false);
+  // const [showPanel, setShowPanel] = useState<Boolean>(false);
   const [pageData, setPageData] = useState<any>();
   const urlSearchParams = queryString.parse(location.search);
   const [searchValue, setSearchValue] = useState(urlSearchParams?.query || "");
 
-  const [currentTab, setCurrentTab] = useState<String>(tabsList?.[0].value);
+  // const [currentTab, setCurrentTab] = useState<String>(tabsList?.[0].value);
 
-  const handleTabChange = (value: String) => {
-    setCurrentTab(value);
-  };
+  // const handleTabChange = (value: String) => {
+  //   setCurrentTab(value);
+  // };
 
   const [searchParams, setSearchParams] = useState({
     pageSize: 10,
@@ -98,45 +96,45 @@ export default function Result() {
     getPageData();
   };
 
-  function renderHight(str: string) {
-    if (!str) return;
-    const strList = str.split("\n").join(" ").split(" ");
-    let list = strList?.map((item, index) => {
-      let tmp;
-      let itemTmp = item.trim();
-      if (itemTmp.indexOf(":") > -1) {
-        const tmp1 = itemTmp.split(":");
-        tmp = (
-          <span key={index} className={styles.txtSpan}>
-            <span style={{ color: "#1890ff" }}>{tmp1[0]}</span>:{tmp1[1]}
-          </span>
-        );
-      } else if (itemTmp === "OR" || itemTmp === "AND" || itemTmp === "NOT") {
-        tmp = (
-          <span
-            key={index}
-            className={styles.txtSpan}
-            style={{ color: "#a305e1", margin: "0 5px" }}
-          >
-            {itemTmp}
-          </span>
-        );
-      } else {
-        tmp = (
-          <span key={index} className={styles.txtSpan}>
-            {itemTmp}
-          </span>
-        );
-      }
-      return tmp;
-    });
-    return list;
-  }
+  // function renderHight(str: string) {
+  //   if (!str) return;
+  //   const strList = str.split("\n").join(" ").split(" ");
+  //   let list = strList?.map((item, index) => {
+  //     let tmp;
+  //     let itemTmp = item.trim();
+  //     if (itemTmp.indexOf(":") > -1) {
+  //       const tmp1 = itemTmp.split(":");
+  //       tmp = (
+  //         <span key={index} className={styles.txtSpan}>
+  //           <span style={{ color: "#1890ff" }}>{tmp1[0]}</span>:{tmp1[1]}
+  //         </span>
+  //       );
+  //     } else if (itemTmp === "OR" || itemTmp === "AND" || itemTmp === "NOT") {
+  //       tmp = (
+  //         <span
+  //           key={index}
+  //           className={styles.txtSpan}
+  //           style={{ color: "#a305e1", margin: "0 5px" }}
+  //         >
+  //           {itemTmp}
+  //         </span>
+  //       );
+  //     } else {
+  //       tmp = (
+  //         <span key={index} className={styles.txtSpan}>
+  //           {itemTmp}
+  //         </span>
+  //       );
+  //     }
+  //     return tmp;
+  //   });
+  //   return list;
+  // }
 
-  const addItem = (queryExample: string) => {
-    const val = searchValue ? `${searchValue} ${queryExample}` : queryExample;
-    setSearchValue(val);
-  };
+  // const addItem = (queryExample: string) => {
+  //   const val = searchValue ? `${searchValue} ${queryExample}` : queryExample;
+  //   setSearchValue(val);
+  // };
 
   const handleClick = (item) => {
     let queryStr = "";
@@ -147,6 +145,8 @@ export default function Result() {
     }
     navigate(`/insight?query=${queryStr}`);
   };
+
+  console.log(pageData, "===pageData===")
 
   return (
     <div className={styles.container}>
@@ -161,8 +161,8 @@ export default function Result() {
             placeholder="input search text"
             allowClear
             style={{ width: 700 }}
-            onFocus={() => setShowPanel(true)}
-            onBlur={() => setShowPanel(false)}
+            // onFocus={() => setShowPanel(true)}
+            // onBlur={() => setShowPanel(false)}
             value={searchValue as any}
             onChange={handleChange}
             onSearch={handleSearch}
@@ -219,10 +219,10 @@ export default function Result() {
         })}
         {/* <div style={{ width: 600, height: 600 }}>图片占位</div> */}
       </div>
-      {pageData?.objects && pageData?.objects?.length > 0 && (
+      {pageData?.items && pageData?.items?.length > 0 && (
         <div className={styles.footer}>
           <Pagination
-            total={pageData?.objects?.length}
+            total={pageData?.items?.length}
             showTotal={(total: number, range: any[]) =>
               `${range[0]}-${range[1]} 共 ${total} 条`
             }
@@ -232,7 +232,7 @@ export default function Result() {
           />
         </div>
       )}
-      {(!pageData?.objects || !pageData?.objects?.length) && <Empty />}
+      {(!pageData?.items || !pageData?.items?.length) && <Empty />}
     </div>
   );
 }

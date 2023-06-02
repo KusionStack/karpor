@@ -14,19 +14,12 @@
  * limitations under the License.
  */
 
-import React, { useEffect } from "react";
-import { register } from "@antv/x6-react-shape";
-import { Graph, Node, Path, Cell, Edge, Platform, StringExt } from "@antv/x6";
-import { Selection } from "@antv/x6-plugin-selection";
-import classnames from "classnames";
-import insertCss from "insert-css";
-import { Tooltip, Dropdown, Space } from "antd";
+import { useEffect } from "react";
+import { Space } from "antd";
 import kubernetes from "../../../assets/kubernetes.png";
 import G6 from "@antv/g6";
 
 import styles from "./styles.module.scss";
-
-import "./style.css";
 
 export default function Relationship() {
   function draw() {
@@ -262,9 +255,6 @@ export default function Relationship() {
 
   useEffect(() => {
     draw();
-    return () => {
-      // graph.dispose()
-    };
   }, []);
 
   return (

@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-import { useEffect, useRef } from "react";
-import Card from "./Card";
 import { Descriptions } from "antd";
 import styles from "./styles.module.scss";
 import { FileTextTwoTone } from "@ant-design/icons";
@@ -31,8 +29,8 @@ type IProps = {
 const Overview = ({ data, handleClick }: IProps) => {
   return (
     <div className={styles.overview}>
-      <div className={styles.yamlBtn} onClick={handleClick}>
-        <FileTextTwoTone style={{fontSize: 20}}/>
+      <div className={styles['yaml-btn']} onClick={handleClick}>
+        <FileTextTwoTone style={{ fontSize: 20 }} />
       </div>
       {/* <div className={styles.title}>{data?.title}</div> */}
       <div className={styles.content}>

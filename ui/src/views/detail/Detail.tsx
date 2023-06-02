@@ -15,38 +15,16 @@
  */
 
 import { useState, useEffect } from "react";
-import { Input, Select, Space, Pagination, Empty, Tag } from "antd";
+import { Tag } from "antd";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
-import { CaretRightOutlined, RadarChartOutlined } from "@ant-design/icons";
 import queryString from "query-string";
 import styles from "./styles.module.scss";
 
-const { Search } = Input;
 
-const options = [
-  {
-    value: "filter",
-    label: "Filter(s)",
-  },
-  {
-    value: "AI Suggestion",
-    label: "AI Suggestion",
-  },
-  {
-    value: "SQL",
-    label: "SQL",
-  },
-];
-
-const tabsList = [
-  { label: "Code search basics", value: "code" },
-  { label: "Search query examples", value: "examples" },
-];
-
-export default function Result() {
+export default function Detail() {
   const location = useLocation();
-  const [pageData, setPageData] = useState<any>();
+  // const [pageData, setPageData] = useState<any>();
   const urlSearchParams = queryString.parse(location.search);
   const query = urlSearchParams?.query;
 
@@ -55,13 +33,13 @@ export default function Result() {
     page: 1,
   });
 
-  function handleChangePage(page: number, pageSize: number) {
-    setSearchParams({
-      ...searchParams,
-      page,
-      pageSize,
-    });
-  }
+  // function handleChangePage(page: number, pageSize: number) {
+  //   setSearchParams({
+  //     ...searchParams,
+  //     page,
+  //     pageSize,
+  //   });
+  // }
 
   async function getPageData() {
     const data = await axios(`/apis/search.karbour.com/v1beta1/uniresources`, {
@@ -73,7 +51,7 @@ export default function Result() {
         query: encodeURI(query as any),
       },
     });
-    setPageData(data || {});
+    // setPageData(data || {});
   }
 
   useEffect(() => {
