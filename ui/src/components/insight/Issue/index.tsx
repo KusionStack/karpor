@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { Table, Tag, Input, Button, Divider, Tooltip, Badge } from "antd";
+import { Table, Tag, Input, Button, Tooltip, Badge } from "antd";
 import { useState } from "react";
 import styles from "./styles.module.scss";
 
@@ -22,8 +22,6 @@ type IProps = {
   data: any[];
   handleSearch: (val: string) => void;
 };
-
-const { Search } = Input;
 
 const EnhancerTable = (props: IProps) => {
   const [searchValue, setSearchValue] = useState("");

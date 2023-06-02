@@ -26,7 +26,7 @@ type Props = {
 
 const KarbourTabs = ({ current, list, onChange }: Props) => {
   return (
-    <div className={styles.tabContainer}>
+    <div className={styles['tab-container']}>
       {list?.map((item) => {
         return (
           <div

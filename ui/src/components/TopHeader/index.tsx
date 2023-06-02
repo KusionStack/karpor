@@ -55,7 +55,7 @@ export default function TopHeader() {
   const selectedKeys = (!location.pathname || location.pathname === '/') ? '/search' : location.pathname;
 
   return (
-    <Header className={styles.container}>
+    <Header className={styles['top-container']}>
       <div className={styles.logo}>
         <HeatMapOutlined/>
       </div>
