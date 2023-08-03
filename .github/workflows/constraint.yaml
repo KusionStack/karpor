@@ -1,0 +1,41 @@
+# Reference from:
+# https://github.com/c-bata/go-prompt/blob/master/.github/workflows/test.yml
+name: Constraints
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+jobs:
+  # Lints Pull Request commits with commitlint.
+  #
+  # Rules can be referenced:
+  # https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
+  CommitLint:
+    name: Commit Lint
+    runs-on: ubuntu-latest
+    if: contains(fromJSON('["pull_request"]'), github.event_name)
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - uses: wagoid/commitlint-github-action@v5
+
+  # Lints Pull Request title, because the title will be used as the
+  # commit message in branch main.
+  #
+  # Configuration detail can be referenced:
+  # https://github.com/marketplace/actions/pull-request-title-rules
+  PullRequestTitleLint:
+    name: Pull Request Title Lint
+    runs-on: ubuntu-latest
+    if: contains(fromJSON('["pull_request"]'), github.event_name)
+    steps:
+      - uses: deepakputhraya/action-pr-title@master
+        with:
+          allowed_prefixes: 'build,chore,ci,docs,feat,fix,perf,refactor,revert,style,test' # title should start with the given prefix
+          disallowed_prefixes: 'WIP,[WIP]' # title should not start with the given prefix
+          prefix_case_sensitive: false # title prefix are case insensitive
+          min_length: 5 # Min length of the title
+          max_length: 80 # Max length of the title
+          github_token: ${{ github.token }} # Default: ${{ github.token }}
+
