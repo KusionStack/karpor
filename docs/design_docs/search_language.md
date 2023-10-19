@@ -88,7 +88,15 @@ Multiple expressions can be connected using boolean operators.
 
 ### Solution 2: Using DSL for Search
 
-#### Synopsis
+#### Mapping concepts across SQL and Elasticsearch
+
+| SQL    | Elasticsearch | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
+|--------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| column | field         | In both cases, at the lowest level, data is stored in named entries, of a variety of data types, containing one value. SQL calls such an entry a column while Elasticsearch a field. Notice that in Elasticsearch a field can contain multiple values of the same type (essentially a list) while in SQL, a column can contain exactly one value of said type. Elasticsearch SQL will do its best to preserve the SQL semantic and, depending on the query, reject those that return fields with more than one value. |
+| row    | document      | Columns and fields do not exist by themselves; they are part of a row or a document. The two have slightly different semantics: a row tends to be strict (and have more enforcements) while a document tends to be a bit more flexible or loose (while still having a structure).                                                                                                                                                                                                                                     |
+| table  | index         | The target against which queries, whether in SQL or Elasticsearch get executed against.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+
+#### Synopsis of SQL
 
 ```sql
 SELECT [TOP [ count ] ] select_expr [, ...]
@@ -101,22 +109,21 @@ SELECT [TOP [ count ] ] select_expr [, ...]
 [ PIVOT ( aggregation_expr FOR column IN ( value [ [ AS ] alias ] [, ...] ) ) ]
 ```
 
-#### Mapping concepts across SQL and Elasticsearch
+Support table: `resources`
 
-| SQL    | Elasticsearch | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           |
-|--------|---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| column | field         | In both cases, at the lowest level, data is stored in named entries, of a variety of data types, containing one value. SQL calls such an entry a column while Elasticsearch a field. Notice that in Elasticsearch a field can contain multiple values of the same type (essentially a list) while in SQL, a column can contain exactly one value of said type. Elasticsearch SQL will do its best to preserve the SQL semantic and, depending on the query, reject those that return fields with more than one value. |
-| row    | document      | Columns and fields do not exist by themselves; they are part of a row or a document. The two have slightly different semantics: a row tends to be strict (and have more enforcements) while a document tends to be a bit more flexible or loose (while still having a structure).                                                                                                                                                                                                                                     |
-| table  | index         | The target against which queries, whether in SQL or Elasticsearch get executed against.                                                                                                                                                                                                                                                                                                                                                                                                                               |
+Support column: `content`,`cluster`,`apiVersion`,`group`,`namespace`,`name`,`label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
 
-support table: `resources`
+Example:
 
-support column: `content`,`cluster`,`apiVersion`,`group`,`namespace`,`name`,`label`,`annotation`
-
-example:
+Match exactly:
 
 ```sql
 SELECT * from resources WHERE cluster=tes1
+```
+
+Full text query:
+
+```sql
 SELECT * from resources WHERE content CONTAINS 'test1'
 ```
 
@@ -124,8 +131,8 @@ SELECT * from resources WHERE content CONTAINS 'test1'
 
 | Solution | Advantages                                     | Disadvantages                                         |
 |----------|------------------------------------------------|-------------------------------------------------------|
-| DSL      | simple searches are easier to get started with | complex searches require learning the relevant syntax |
-| SQL      | no need to learn an additional search language | writing simple searches can sometimes be more verbose |
+| DSL      | Simple searches are easier to get started with | Complex searches require learning the relevant syntax |
+| SQL      | No need to learn an additional search language | Writing simple searches can sometimes be more verbose |
 
 # Reference
 * [Search query syntax - Sourcegraph docs](https://docs.sourcegraph.com/code_search/reference/queries)
@@ -133,3 +140,4 @@ SELECT * from resources WHERE content CONTAINS 'test1'
 * [Query DSL | Elasticsearch Guide [8.10] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
 * [Basic Editing in Visual Studio Code](https://code.visualstudio.com/docs/editor/codebasics#_advanced-search-options)
 * [SQL | Elasticsearch Guide [8.10] | Elastic](https://www.elastic.co/guide/en/elasticsearch/reference/current/xpack-sql.html)
+* [Pulumi Insights: Resource search | Pulumi Docs](https://www.pulumi.com/docs/pulumi-cloud/insights/search/)
