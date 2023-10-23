@@ -24,9 +24,9 @@ Enabling the retrieval of resources from multiple clusters is a crucial function
 ## Overall Process
 
 The overall process is as shown in the following diagram: 
-1. The user enters the Search DSL on the search interface
-2. The search interface calls the Search API
-3. The backend converts the Search API into an internal query format
+1. The user enters the Search DSL on the search interface.
+2. The search interface calls the Search API.
+3. The backend converts the Search API into an internal query format.
 4. The storage layer converts it into a specific query statement (e.g., Elasticsearch query).
 
 ```mermaid
@@ -57,11 +57,11 @@ This section describes the syntax and description of the search patterns that Ka
 
 Content search is used to match against the content of resources. It uses `"..."` for exact matching and `/.../` for regular expression matching.
 
-| Syntax        | Description                                    |
-|---------------|------------------------------------------------|
-| `foo`         | Match the string `foo` exactly                 |
-| `"foo bar"`   | Match the string `foo bar` exactly             |
-| `/foo.*bar/`  | Match regular expression `foo.*bar`            |
+| Syntax        | Description                                     |
+|---------------|-------------------------------------------------|
+| `foo`         | Match the string `foo` exactly                  |
+| `"foo bar"`   | Match the string `foo bar` exactly              |
+| `/foo.*bar/`  | Match regular expression `foo.*bar`             |
 | `foo AND bar` | Match resources containing both `foo` and `bar` |
 
 #### Keyword search
@@ -73,7 +73,10 @@ Keyword search is used to match against keywords.
 | `key:"pattern"`        | Matching resources with `key` as `pattern`.                                            | `cluster:"foo"` is used to match resources with `cluster` equals to `foo` using exact matching.           |
 | `key:/regexp-pattern/` | Matching resources with `key` matching the regular expression pattern `regexp-pattern` | `cluster:"foo*"` is used to match resources with `cluster` matching the regular expression pattern `foo*` |
 
-Supporting keywords: `cluster`, `apiVersion`, `kind`, `namespace`, `name`, `label`, `annotation`, `content`.
+Supporting keywords:
+
+* Match query: `cluster`,`apiVersion`,`group`,`namespace`,`name`.
+* Full text query: `content`, `label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
 
 #### Boolean operators
 
@@ -86,7 +89,7 @@ Multiple expressions can be connected using boolean operators.
 | `exp1 OR exp2`  | Selecting resources that match either `exp1` or `exp2`.           | `cluster:"cluster1" OR cluster:"cluster2"`              |
 | `(` `)`         | Modifying the association order of expressions using parentheses. | `(name:"name1" OR name:"name2") AND cluster:"cluster1"` |
 
-### Solution 2: Using DSL for Search
+### Solution 2: Using SQL for Search
 
 #### Mapping concepts across SQL and Elasticsearch
 
@@ -109,9 +112,8 @@ SELECT [TOP [ count ] ] select_expr [, ...]
 [ PIVOT ( aggregation_expr FOR column IN ( value [ [ AS ] alias ] [, ...] ) ) ]
 ```
 
-Support table: `resources`
-
-Support column: `content`,`cluster`,`apiVersion`,`group`,`namespace`,`name`,`label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
+* Supporting table: `resources`.
+* Supporting columns: `content`,`cluster`,`apiVersion`,`group`,`namespace`,`name`,`label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
 
 Example:
 
