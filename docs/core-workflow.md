@@ -1,0 +1,78 @@
+# Product Workflow
+
+## Core workflow
+Configure (Admin) -> Search (User) -> Insight (User)
+
+## User workflow:
+- Login
+- Configure (Admin)
+    - Cluster Management
+        - Cluster Registration
+            - Cluster Registration (manual)
+                - If Cluster not registered:
+                    - Click "register new cluster"
+                    - Fill in cluster name (in the scope of Karbour)
+                    - Fill in cluster metadata: Display Name, Description, Tags
+                    - Fill in cluster credential
+                        - Paste the KubeConfig content in the text box
+                        - Or upload the KubeConfig file
+                    - Click "submit" (auto-validate)
+                - If Cluster already registered (Optional):
+                    - Update cluster metadata only: Display Name, Description, Tags
+                    - Rotate certificates
+                        - Paste the new KubeConfig content in the text box
+                        - Or upload the new KubeConfig file
+                    - Delete cluster (if not needed)
+            - Cluster Registration (automatic using third-party extension)
+        - Check Cluster Status
+            - Click into Cluster Insight (-> Cluster Insight)
+        - Resource Data Customization
+            - Manage data storage customization
+- Search (User)
+    - Resource Search
+        - Choose search syntax: DSL-based, SQL, Natural Language
+        - Fill in search criteria (with tips, prompts and auto-completes)
+        - Click "Search"
+        - Click any search results (-> Resource Insight) or search again
+- Insight (User)
+    - Click into Insight (By default -> Aggregated Insight)
+    - Aggregated Insight
+        - Change aggregation criteria (Clusters, nodes, pods, services, etc)
+        - Customize highlighted stats (Total count, Healthy count, etc)
+        - Filter results by status
+    - Cluster Insight
+        - Cluster Info
+            - Hover on certain fields to display more information
+            - Customize highlighted stats (CPU, Memory, etc)
+            - Click into Node Details (-> Resource Insight for nodes)
+        - Cluster Overview
+            - Click "view Event"
+            - Click "view Logs" for control plane logs
+        - Cluster Topology
+            - Click on resource kind to show resource list
+            - Click on individual resource (-> Resource Insight)
+        - Cluster Score
+            - Hover on the time-series chart to show historical score by date
+        - Cluster Issue
+            - Filter issue by keyword, severity or labels
+            - Sort by columns (By severity by default)
+            - Click into any issue to display more information (-> Issue Details)
+            - Trigger re-scan to refresh the results and score
+    - Resource Insight
+        - Resource Topology
+            - Hover on any resource to display more information
+            - Zoom in or out
+            - Click any resource (-> Resource Insight)
+        - Resource Overview
+            - Click "view YAML" to show full YAML
+            - Click "view Event" to show event
+            - Click "view Logs" for workloads
+        - Resource Issues
+            - Filter issue by keyword, severity or labels
+            - Sort by columns (By severity by default)
+            - Click into any issue to display more information (-> Issue Details)
+        - Resource Score
+            - Hover on the time-series chart to show historical score by date
+    - Issue Details (User)
+        - Check Issue Details
+        - Click QuickFix if present
