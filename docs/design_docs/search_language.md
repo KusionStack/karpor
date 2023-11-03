@@ -75,7 +75,7 @@ Keyword search is used to match against keywords.
 
 Supporting keywords:
 
-* Match query: `cluster`,`apiVersion`,`group`,`namespace`,`name`.
+* Match query: `cluster`,`apiVersion`, `group`, `version`, `kind`, `group`,`namespace`,`name`.
 * Full text query: `content`, `label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
 
 #### Boolean operators
@@ -85,7 +85,7 @@ Multiple expressions can be connected using boolean operators.
 | Operator        | Description                                                       | Example                                                 |
 |-----------------|-------------------------------------------------------------------|---------------------------------------------------------|
 | `NOT exp1`      | Excluding resources matched by `exp`.                             | `NOT cluster:"cluster1"`                                |
-| `exp1 AND exp2` | Selecting resources that simultaneously match `exp1` and `exp2`.  | `cluster:"cluster1" AND apiVersion:"v1"`                |
+| `exp1 AND exp2` | Selecting resources that simultaneously match `exp1` and `exp2`.  | `cluster:"cluster1" AND version:"v1"`                   |
 | `exp1 OR exp2`  | Selecting resources that match either `exp1` or `exp2`.           | `cluster:"cluster1" OR cluster:"cluster2"`              |
 | `(` `)`         | Modifying the association order of expressions using parentheses. | `(name:"name1" OR name:"name2") AND cluster:"cluster1"` |
 
@@ -113,7 +113,7 @@ SELECT [TOP [ count ] ] select_expr [, ...]
 ```
 
 * Supporting table: `resources`.
-* Supporting columns: `content`,`cluster`,`apiVersion`,`group`,`namespace`,`name`,`label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
+* Supporting columns: `content`,`cluster`,`apiVersion`, `group`, `version`, `kind`, `namespace`,`name`,`label`,`label.key`,`label.val`,`annotation`,`annotation.key`,`annotation.val`.
 
 Example:
 
