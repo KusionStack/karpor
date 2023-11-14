@@ -17,37 +17,52 @@ package filters
 import (
 	"context"
 	"net/http"
-)
 
-type searchType int
+	"github.com/KusionStack/karbour/pkg/search/storage"
+)
 
 const (
-	searchContextKey searchType = iota
-	searchQueryKey              = "query"
+	searchQueryKey = "query"
+	patternTypeKey = "patternType"
 )
 
-func WithSearchQuery(parent context.Context, query string) context.Context {
-	return context.WithValue(parent, searchContextKey, query)
-}
-
 func SearchQueryFrom(ctx context.Context) (string, bool) {
-	query, ok := ctx.Value(searchContextKey).(string)
+	query, ok := ctx.Value(searchQueryKey).(string)
 	if !ok {
 		return "", false
 	}
 	return query, true
 }
 
+func PatternTypeFrom(ctx context.Context) (string, bool) {
+	patternType, ok := ctx.Value(patternTypeKey).(string)
+	if !ok {
+		return "", false
+	}
+	return patternType, true
+}
+
 func SearchFilter(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
-		query := req.URL.Query()
-		searchQuery, ok := query[searchQueryKey]
-		ctx := req.Context()
-		if ok {
-			ctx = WithSearchQuery(ctx, searchQuery[0])
-			req = req.WithContext(ctx)
-			query.Del(searchQueryKey)
-		}
+		req = FromQueryToContext(req, searchQueryKey, "")
+		req = FromQueryToContext(req, patternTypeKey, storage.DSLPatternType)
 		handler.ServeHTTP(w, req)
 	})
+}
+
+func FromQueryToContext(req *http.Request, key string, defaultVal string) *http.Request {
+	query := req.URL.Query()
+	queryVal, ok := query[key]
+	var val string
+	if !ok {
+		if defaultVal == "" {
+			return req
+		}
+		val = defaultVal
+	} else {
+		query.Del(key)
+		val = queryVal[0]
+	}
+
+	return req.WithContext(context.WithValue(req.Context(), key, val))
 }

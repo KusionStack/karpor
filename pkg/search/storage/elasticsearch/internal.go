@@ -18,9 +18,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"io"
 
 	"github.com/aquasecurity/esquery"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -83,40 +85,19 @@ func (s *ESClient) insertObj(ctx context.Context, cluster string, obj runtime.Ob
 	return nil
 }
 
-func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-
-	res, err := s.client.Search(
-		s.client.Search.WithContext(ctx),
-		s.client.Search.WithIndex(s.indexName),
-		s.client.Search.WithBody(buf),
-	)
-	defer res.Body.Close()
-	if err != nil {
-		return nil, err
-	}
-	if res.IsError() {
-		return nil, &ESError{
-			StatusCode: res.StatusCode,
-			Message:    res.String(),
-		}
-	}
-	sr := &SearchResponse{}
-	if err := json.NewDecoder(res.Body).Decode(sr); err != nil {
-		return nil, err
-	}
-	return sr, nil
-}
-
 func (s *ESClient) deleteByQuery(ctx context.Context, query map[string]interface{}) error {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return err
 	}
+	return s.delete(ctx, buf)
+}
 
+func (s *ESClient) delete(ctx context.Context, body io.Reader) error {
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(body); err != nil {
+		return err
+	}
 	req := esapi.DeleteByQueryRequest{
 		Index: []string{s.indexName},
 		Body:  buf,

@@ -15,20 +15,33 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"io"
+	"strings"
 
 	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/cch123/elasticsql"
 )
 
-func (s *ESClient) Search(ctx context.Context, queries []storage.Query) (*storage.SearchResult, error) {
-	esQuery, err := ParseQueries(queries)
-	if err != nil {
-		return nil, err
-	}
-
-	res, err := s.searchByQuery(ctx, esQuery)
-	if err != nil {
-		return nil, err
+func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string) (*storage.SearchResult, error) {
+	var res *SearchResponse
+	var err error
+	switch patternType {
+	case storage.DSLPatternType:
+		res, err = s.searchByDSL(ctx, queryStr)
+		if err != nil {
+			return nil, err
+		}
+	case storage.SQLPatternType:
+		res, err = s.searchBySQL(ctx, queryStr)
+		if err != nil {
+			return nil, err
+		}
+	default:
+		return nil, fmt.Errorf("invalid type %s", patternType)
 	}
 
 	rt := &storage.SearchResult{}
@@ -42,10 +55,58 @@ func (s *ESClient) Search(ctx context.Context, queries []storage.Query) (*storag
 	return rt, nil
 }
 
-func (s *ESClient) SearchByString(ctx context.Context, queryString string) (*storage.SearchResult, error) {
-	queries, err := Parse(queryString)
+func (s *ESClient) searchByDSL(ctx context.Context, dslStr string) (*SearchResponse, error) {
+	queries, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
 	}
-	return s.Search(ctx, queries)
+	esQuery, err := ParseQueries(queries)
+	if err != nil {
+		return nil, err
+	}
+	res, err := s.searchByQuery(ctx, esQuery)
+	if err != nil {
+		return nil, err
+	}
+	return res, nil
+}
+
+func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string) (*SearchResponse, error) {
+	dsl, _, err := elasticsql.Convert(sqlStr)
+	if err != nil {
+		return nil, err
+	}
+	return s.search(ctx, strings.NewReader(dsl))
+}
+
+func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return nil, err
+	}
+	return s.search(ctx, buf)
+}
+
+func (s *ESClient) search(ctx context.Context, body io.Reader) (*SearchResponse, error) {
+	res, err := s.client.Search(
+		s.client.Search.WithContext(ctx),
+		s.client.Search.WithIndex(s.indexName),
+		s.client.Search.WithBody(body),
+		s.client.Search.WithSize(10),
+	)
+	defer res.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+	if res.IsError() {
+		return nil, &ESError{
+			StatusCode: res.StatusCode,
+			Message:    res.String(),
+		}
+	}
+	sr := &SearchResponse{}
+	if err := json.NewDecoder(res.Body).Decode(sr); err != nil {
+		return nil, err
+	}
+	return sr, nil
 }
