@@ -15,48 +15,48 @@
 package storage
 
 import (
-    "context"
+	"context"
 
-    "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
 const (
-    Equals         string = "="
-    DSLPatternType        = "dsl"
-    SQLPatternType        = "sql"
+	Equals         string = "="
+	DSLPatternType        = "dsl"
+	SQLPatternType        = "sql"
 )
 
 type Storage interface {
-    Get(ctx context.Context, cluster string, obj runtime.Object) error
-    Create(ctx context.Context, cluster string, obj runtime.Object) error
-    Update(ctx context.Context, cluster string, obj runtime.Object) error
-    Delete(ctx context.Context, cluster string, obj runtime.Object) error
+	Get(ctx context.Context, cluster string, obj runtime.Object) error
+	Create(ctx context.Context, cluster string, obj runtime.Object) error
+	Update(ctx context.Context, cluster string, obj runtime.Object) error
+	Delete(ctx context.Context, cluster string, obj runtime.Object) error
 }
 
 type Query struct {
-    Key      string
-    Values   []string
-    Operator string
+	Key      string
+	Values   []string
+	Operator string
 }
 
 type SearchStorage interface {
-    Search(ctx context.Context, queryString, patternType string) (*SearchResult, error)
+	Search(ctx context.Context, queryString, patternType string) (*SearchResult, error)
 }
 
 type SearchStorageGetter interface {
-    GetSearchStorage() (SearchStorage, error)
+	GetSearchStorage() (SearchStorage, error)
 }
 
 type Resource struct {
-    Cluster    string                 `json:"cluster"`
-    Namespace  string                 `json:"namespace"`
-    APIVersion string                 `json:"apiVersion"`
-    Kind       string                 `json:"kind"`
-    Name       string                 `json:"name"`
-    Object     map[string]interface{} `json:"object"`
+	Cluster    string                 `json:"cluster"`
+	Namespace  string                 `json:"namespace"`
+	APIVersion string                 `json:"apiVersion"`
+	Kind       string                 `json:"kind"`
+	Name       string                 `json:"name"`
+	Object     map[string]interface{} `json:"object"`
 }
 
 type SearchResult struct {
-    Total     int
-    Resources []*Resource
+	Total     int
+	Resources []*Resource
 }
