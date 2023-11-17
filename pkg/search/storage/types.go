@@ -21,9 +21,9 @@ import (
 )
 
 const (
-	Equals         string = "="
-	DSLPatternType        = "dsl"
-	SQLPatternType        = "sql"
+	Equals         = "="
+	DSLPatternType = "dsl"
+	SQLPatternType = "sql"
 )
 
 type Storage interface {
