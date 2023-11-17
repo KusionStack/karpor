@@ -1,32 +1,17 @@
-/*
- * Copyright The Karbour Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import {
   SearchOutlined,
   MacCommandOutlined,
   ApartmentOutlined,
-  HeatMapOutlined
+  HeatMapOutlined,
 } from "@ant-design/icons";
-import { Layout, Menu} from "antd";
+import { Layout, Menu } from "antd";
+import { memo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import styles from "./style.module.scss";
+import styles from "./style.module.less";
 
 const { Header } = Layout;
 
-export default function TopHeader() {
+const TopHeader = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,24 +33,29 @@ export default function TopHeader() {
     },
   ];
 
-  function handleCkick({ key }: {key: string}) {
+  function handleCkick({ key }: { key: string }) {
     navigate(key);
   }
 
-  const selectedKeys = (!location.pathname || location.pathname === '/') ? '/search' : location.pathname;
+  const selectedKeys =
+    !location.pathname || location.pathname === "/"
+      ? "/search"
+      : location.pathname;
 
   return (
-    <Header className={styles['top-container']}>
+    <Header className={styles["top-container"]}>
       <div className={styles.logo}>
-        <HeatMapOutlined/>
+        <HeatMapOutlined />
       </div>
       <Menu
         mode="horizontal"
-        defaultSelectedKeys={['/search']}
+        defaultSelectedKeys={["/search"]}
         selectedKeys={[selectedKeys]}
         onClick={handleCkick}
         items={items}
       />
     </Header>
   );
-}
+};
+
+export default memo(TopHeader);

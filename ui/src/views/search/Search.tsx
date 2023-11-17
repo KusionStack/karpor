@@ -21,7 +21,7 @@ import { HeatMapOutlined } from "@ant-design/icons";
 import { basicSyntaxColumns } from "../../utils/constants";
 import KarbourTabs from "../../components/Tabs/index";
 
-import styles from "./styles.module.scss";
+import styles from "./styles.module.less";
 
 const { Search } = Input;
 
@@ -145,7 +145,12 @@ const SearchPage = () => {
   }
 
   const handleSearch = (val: string) => {
-    navigate(`/result?query=${val}`);
+    if (searchType === 'SQL') {
+      navigate(`/result?query=${val}&patternType=SQL`);
+    } else {
+      navigate(`/result?query=${val}`);
+    }
+
   };
 
   const handleInputChange = (event: any) => {
@@ -184,3 +189,4 @@ const SearchPage = () => {
 };
 
 export default SearchPage;
+
