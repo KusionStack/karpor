@@ -21,6 +21,8 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
+type ctxTyp string
+
 const (
 	searchQueryKey = "query"
 	patternTypeKey = "patternType"
@@ -63,6 +65,5 @@ func FromQueryToContext(req *http.Request, key string, defaultVal string) *http.
 		query.Del(key)
 		val = queryVal[0]
 	}
-
-	return req.WithContext(context.WithValue(req.Context(), key, val))
+	return req.WithContext(context.WithValue(req.Context(), ctxTyp(key), val))
 }

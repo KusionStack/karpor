@@ -57,6 +57,7 @@ header:
     - '**/lcov.info'
     - '**/Makefile'
     - '**/OWNERS'
+    - 'ui/**'
     - '.github/**'
     - '.idea/**'
     - '.vscode/**'

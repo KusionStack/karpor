@@ -1,32 +1,38 @@
-/*
- * Copyright The Karbour Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { useState } from "react";
-import { Pagination, Badge, Tooltip, Empty } from "antd";
+import {
+  Pagination,
+  Badge,
+  Tooltip,
+  Empty,
+  Button,
+  Drawer,
+  Input,
+  Space,
+  message,
+  Form,
+} from "antd";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import styles from "./styles.module.scss";
+import styles from "./styles.module.less";
 
-export default function Cluster() {
+const layout = {
+  labelCol: { span: 4 },
+  wrapperCol: { span: 20 },
+};
+
+const Cluster = () => {
+  const [form] = Form.useForm();
+
   const navigate = useNavigate();
   const [pageData, setPageData] = useState<any>([]);
   const [searchParams, setSearchParams] = useState({
     pageSize: 10,
     page: 1,
   });
+
+  const [visible, setVisible] = useState<boolean>(false);
+  const [yamlValue, setYamlValue] = useState<string>(undefined);
+
   async function getPageData() {
     const data = await axios(`/apis/cluster.karbour.com/v1beta1/clusters`, {
       method: "GET",
@@ -55,7 +61,7 @@ export default function Cluster() {
   }
 
   const handleClick = (item) => {
-    console.log(item, "===item===")
+    console.log(item, "===item===");
     let queryStr = "";
     if (item?.metadata?.managedFields?.[0]?.apiVersion) {
       queryStr = `${item?.metadata?.managedFields?.[0]?.apiVersion},${item.metadata?.name}`;
@@ -65,14 +71,45 @@ export default function Cluster() {
     navigate(`/cluster-detail?query=${queryStr}`);
   };
 
+  const join = () => {
+    setVisible(true);
+  };
+
+  function onClose() {
+    setVisible(false);
+  }
+
+  function handleSubmit() {
+    form
+      .validateFields()
+      .then((values) => {
+        console.log(values, "=====sada====");
+        message.success("添加成功");
+        form.resetFields();
+        setVisible(false);
+      })
+      .catch((info) => {
+        console.log("Validate Failed:", info);
+      });
+  }
+
   return (
     <div className={styles.container}>
+      <div className={styles["action-container"]}>
+        <Button type="primary" onClick={join}>
+          入驻
+        </Button>
+      </div>
       <div className={styles.content}>
         {pageData?.items?.map((item: any, index: number) => {
           return (
-            <div className={styles.card} key={`${item.name}_${index}`} onClick={() => handleClick(item)}>
+            <div
+              className={styles.card}
+              key={`${item.name}_${index}`}
+              onClick={() => handleClick(item)}
+            >
               <div className={styles.header}>
-                <div className={styles['header-left']}>
+                <div className={styles["header-left"]}>
                   {item.metadata?.name}
                   <Badge
                     style={{
@@ -87,17 +124,17 @@ export default function Cluster() {
                   />
                 </div>
                 <div
-                  className={styles['header-right']}
+                  className={styles["header-right"]}
                   onClick={() => handleMore(item)}
                 >
                   More
                 </div>
               </div>
-              <div className={styles['card-body']}>
+              <div className={styles["card-body"]}>
                 <div className={styles.item}>
-                  <div className={styles['item-label']}>Endpoint: </div>
+                  <div className={styles["item-label"]}>Endpoint: </div>
                   <Tooltip title={item.spec?.access?.endpoint}>
-                    <div className={styles['item-value']}>
+                    <div className={styles["item-value"]}>
                       {item.spec?.access?.endpoint}
                     </div>
                   </Tooltip>
@@ -115,21 +152,56 @@ export default function Cluster() {
           );
         })}
       </div>
-      {
-        (pageData?.items && pageData?.items?.length > 0) &&
+      {pageData?.items && pageData?.items?.length > 0 && (
         <div className={styles.footer}>
           <Pagination
             total={pageData?.items?.length}
-            showTotal={(total, range) => `${range[0]}-${range[1]} 共 ${total} 条`}
+            showTotal={(total, range) =>
+              `${range[0]}-${range[1]} 共 ${total} 条`
+            }
             pageSize={searchParams?.pageSize}
             current={searchParams?.page}
             onChange={handleChangePage}
           />
         </div>
-      }
-      {
-        (!pageData?.items || !pageData?.items?.length) && <Empty />
-      }
+      )}
+      {(!pageData?.items || !pageData?.items?.length) && (
+        <Empty style={{ marginTop: 30 }} />
+      )}
+      <Drawer
+        width={750}
+        title="证书内容"
+        placement="right"
+        onClose={onClose}
+        open={visible}
+        extra={
+          <Space>
+            <Button onClick={onClose}>取消</Button>
+            <Button type="primary" onClick={handleSubmit}>
+              提交
+            </Button>
+          </Space>
+        }
+      >
+        <Form {...layout} form={form} name="kubeconfigForm">
+          <Form.Item
+            name={"name"}
+            label="集群名称"
+            rules={[{ required: true, message: "集群名称不能为空！" }]}
+          >
+            <Input style={{ width: 300 }} />
+          </Form.Item>
+          <Form.Item
+            name={"kubeconfig"}
+            label="kubeconfig"
+            rules={[{ required: true, message: "kubeconfig不能为空！" }]}
+          >
+            <Input.TextArea autoSize={{ minRows: 7 }} />
+          </Form.Item>
+        </Form>
+      </Drawer>
     </div>
   );
-}
+};
+
+export default Cluster;

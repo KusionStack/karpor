@@ -1,26 +1,14 @@
-/*
- * Copyright The Karbour Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { useState, useEffect } from "react";
-import { Input, Select, Space, Pagination, Empty } from "antd";
+import { Input, Select, Pagination, Empty } from "antd";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import { CaretRightOutlined, RadarChartOutlined } from "@ant-design/icons";
+import {
+  CaretRightOutlined,
+  RadarChartOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
 import queryString from "query-string";
-import styles from "./styles.module.scss";
+import styles from "./styles.module.less";
 
 const { Search } = Input;
 
@@ -44,13 +32,14 @@ const options = [
 //   { label: "Search query examples", value: "examples" },
 // ];
 
-export default function Result() {
+const Result = () => {
   const location = useLocation();
   const navigate = useNavigate();
   // const [showPanel, setShowPanel] = useState<Boolean>(false);
   const [pageData, setPageData] = useState<any>();
   const urlSearchParams = queryString.parse(location.search);
   const [searchValue, setSearchValue] = useState(urlSearchParams?.query || "");
+  const [searchType, setSearchType] = useState<string>(urlSearchParams?.patternType === 'SQL' ? "SQL" : "filter");
 
   // const [currentTab, setCurrentTab] = useState<String>(tabsList?.[0].value);
 
@@ -72,13 +61,14 @@ export default function Result() {
   }
 
   async function getPageData() {
-    const data = await axios(`/apis/search.karbour.com/v1beta1/uniresources`, {
+    const data = await axios("/apis/search.karbour.com/v1beta1/uniresources", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
       params: {
-        query: encodeURI(searchValue as any),
+        query: searchValue, // encodeURIComponent(searchValue as any),
+        ...(searchType === 'SQL' ? { patternType: "sql", } : {})
       },
     });
     setPageData(data || {});
@@ -146,12 +136,22 @@ export default function Result() {
     navigate(`/insight?query=${queryStr}`);
   };
 
-  console.log(pageData, "===pageData===")
+  console.log(pageData, "===pageData===");
+
+  const selectBefore = (
+    <Select
+      defaultValue="filter"
+      options={options}
+      style={{ width: 150 }}
+      onChange={(val) => setSearchType(val)}
+      value={searchType}
+    ></Select>
+  );
 
   return (
     <div className={styles.container}>
       <div style={{ width: 850, position: "relative" }}>
-        <Space.Compact>
+        {/* <Space.Compact>
           <Select
             defaultValue="filter"
             options={options}
@@ -167,7 +167,17 @@ export default function Result() {
             onChange={handleChange}
             onSearch={handleSearch}
           />
-        </Space.Compact>
+        </Space.Compact> */}
+        <div>
+          <Input
+            style={{ width: 750 }}
+            addonBefore={selectBefore}
+            value={searchValue}
+            onChange={handleChange}
+            addonAfter={<SearchOutlined onClick={handleSearch} />}
+            onPressEnter={handleSearch}
+          />
+        </div>
         {/* {
           showPanel &&  <div className={styles.panel} onMouseMove={() => setShowPanel(true)}>
             {renderFilter()}
@@ -232,7 +242,15 @@ export default function Result() {
           />
         </div>
       )}
-      {(!pageData?.items || !pageData?.items?.length) && <Empty />}
+      {(!pageData?.items || !pageData?.items?.length) && (
+        <Empty
+          style={{
+            marginTop: 50,
+          }}
+        />
+      )}
     </div>
   );
-}
+};
+
+export default Result;

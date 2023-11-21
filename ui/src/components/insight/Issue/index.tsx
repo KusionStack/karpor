@@ -1,27 +1,15 @@
-/*
- * Copyright The Karbour Authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import { Table, Tag, Input, Button, Tooltip, Badge } from "antd";
 import { useState } from "react";
-import styles from "./styles.module.scss";
+import styles from "./styles.module.less";
+
+const SOLUTION = "SOLUTION";
 
 type IProps = {
   data: any[];
   handleSearch: (val: string) => void;
 };
+type TYPE_LEVEL =  "low" | "medium" | "high"
+type TYPE_LABEL =   "CVE" | "CIS" | "KUBEAUDIT";
 
 const EnhancerTable = (props: IProps) => {
   const [searchValue, setSearchValue] = useState("");
@@ -37,17 +25,17 @@ const EnhancerTable = (props: IProps) => {
       dataIndex: "severity",
       key: "severity",
       defaultSortOrder: "descend",
-      sorter: (a: any, b: any) => a.severity.length - b.severity.length,
+      sorter: (a: any, b: any) => a.severity?.length - b.severity?.length,
       render: (text: string) => {
         const levelMap = {
           low: "#3b5999",
           medium: "#F4A460",
           high: "#cd201f",
         };
-        let color = levelMap[text.toLowerCase() as "low" | "medium" | "high"];
+        let color = levelMap[text?.toLowerCase() as TYPE_LEVEL];
         return (
           <Tag color={color} key={text}>
-            {text.toUpperCase()}
+            {text?.toUpperCase()}
           </Tag>
         );
       },
@@ -57,7 +45,7 @@ const EnhancerTable = (props: IProps) => {
       dataIndex: "labels",
       key: "labels",
       render: (text: string) => {
-        const levelMap = {
+        const labelMap = {
           CVE: "#2db7f5",
           CIS: "#87d068",
           KUBEAUDIT: "#108ee9",
@@ -65,16 +53,16 @@ const EnhancerTable = (props: IProps) => {
         const list = text?.split(",");
         return list?.map((item, index) => {
           let color =
-            levelMap[item.toUpperCase() as "CVE" | "CIS" | "KUBEAUDIT"];
-          if (item.toUpperCase() === "SOLUTION") {
+            labelMap[item?.toUpperCase() as TYPE_LABEL];
+          if (item?.toUpperCase() === SOLUTION) {
             return (
               <Tooltip
                 placement="topLeft"
-                title={"SOLUTION"}
+                title={SOLUTION}
                 key={`${item}_${index}`}
               >
                 <Tag color={color} key={item} style={{ fontSize: 12 }}>
-                  {item.toUpperCase()}
+                  {item?.toUpperCase()}
                 </Tag>
               </Tooltip>
             );
@@ -85,7 +73,7 @@ const EnhancerTable = (props: IProps) => {
               key={`${item}_${index}`}
               style={{ fontSize: 12 }}
             >
-              {item.toUpperCase()}
+              {item?.toUpperCase() || ''}
             </Tag>
           );
         });
