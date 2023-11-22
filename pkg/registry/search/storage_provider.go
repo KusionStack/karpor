@@ -27,6 +27,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/scheme"
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/search/storage/elasticsearch"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -63,7 +64,9 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 
 func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOptionsGetter, searchStorageGetter storage.SearchStorageGetter) (map[string]rest.Storage, error) {
 	v1beta1Storage := map[string]rest.Storage{}
-	uniResourceStorage, err := uniresource.NewREST(searchStorageGetter)
+	restOptions, _ := restOptionsGetter.GetRESTOptions(schema.GroupResource{Group: "cluster.karbour.com", Resource: "clusters"})
+
+	uniResourceStorage, err := uniresource.NewREST(searchStorageGetter, restOptions)
 	if err != nil {
 		return map[string]rest.Storage{}, err
 	}

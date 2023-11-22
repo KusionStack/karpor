@@ -23,13 +23,26 @@ import (
 
 type ctxTyp string
 
+type Resource struct {
+	Name       string
+	Namespace  string
+	APIVersion string
+	Kind       string
+	Cluster    string
+}
+
 const (
-	searchQueryKey = "query"
-	patternTypeKey = "patternType"
+	searchQueryKey             = "query"
+	patternTypeKey             = "patternType"
+	resourceNameQueryKey       = "name"
+	resourceNamespaceQueryKey  = "namespace"
+	resourceClusterQueryKey    = "cluster"
+	resourceAPIVersionQueryKey = "apiVersion"
+	resourceKindQueryKey       = "kind"
 )
 
 func SearchQueryFrom(ctx context.Context) (string, bool) {
-	query, ok := ctx.Value(searchQueryKey).(string)
+	query, ok := ctx.Value(ctxTyp(searchQueryKey)).(string)
 	if !ok {
 		return "", false
 	}
@@ -37,17 +50,53 @@ func SearchQueryFrom(ctx context.Context) (string, bool) {
 }
 
 func PatternTypeFrom(ctx context.Context) (string, bool) {
-	patternType, ok := ctx.Value(patternTypeKey).(string)
+	patternType, ok := ctx.Value(ctxTyp(patternTypeKey)).(string)
 	if !ok {
 		return "", false
 	}
 	return patternType, true
 }
 
+func ResourceDetailFrom(ctx context.Context) (Resource, bool) {
+	res := Resource{}
+	resourceName, ok := ctx.Value(ctxTyp(resourceNameQueryKey)).(string)
+	if !ok {
+		return res, false
+	}
+	namespace, ok := ctx.Value(ctxTyp(resourceNamespaceQueryKey)).(string)
+	if !ok {
+		return res, false
+	}
+	cluster, ok := ctx.Value(ctxTyp(resourceClusterQueryKey)).(string)
+	if !ok {
+		return res, false
+	}
+	apiVersion, ok := ctx.Value(ctxTyp(resourceAPIVersionQueryKey)).(string)
+	if !ok {
+		return res, false
+	}
+	kind, ok := ctx.Value(ctxTyp(resourceKindQueryKey)).(string)
+	if !ok {
+		return res, false
+	}
+	return Resource{
+		Name:       resourceName,
+		Namespace:  namespace,
+		Cluster:    cluster,
+		APIVersion: apiVersion,
+		Kind:       kind,
+	}, true
+}
+
 func SearchFilter(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		req = FromQueryToContext(req, searchQueryKey, "")
 		req = FromQueryToContext(req, patternTypeKey, storage.DSLPatternType)
+		req = FromQueryToContext(req, resourceNameQueryKey, "")
+		req = FromQueryToContext(req, resourceNamespaceQueryKey, "")
+		req = FromQueryToContext(req, resourceClusterQueryKey, "")
+		req = FromQueryToContext(req, resourceAPIVersionQueryKey, "")
+		req = FromQueryToContext(req, resourceKindQueryKey, "")
 		handler.ServeHTTP(w, req)
 	})
 }
