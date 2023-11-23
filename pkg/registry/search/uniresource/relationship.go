@@ -23,6 +23,7 @@ import (
 	"reflect"
 	"strings"
 
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
@@ -389,4 +390,18 @@ func InsertIfNotExist(relationList []*Relationship, relation Relationship, relat
 // RelationshipEquals returns true if two relationships are equal
 func RelationshipEquals(r, relation *Relationship) bool {
 	return r.Group == relation.Group && r.Version == relation.Version && r.Kind == relation.Kind && r.Type == relation.Type && reflect.DeepEqual(r.JSONPath, relation.JSONPath)
+}
+
+func GetGVRFromGVK(APIVersion, Kind string) (schema.GroupVersionResource, error) {
+	gv, _ := schema.ParseGroupVersion(APIVersion)
+	gvk := gv.WithKind(Kind)
+	mapper := meta.NewDefaultRESTMapper([]schema.GroupVersion{})
+	scope := Scope{"namespace"}
+	mapper.Add(gvk, scope)
+	mapping, err := mapper.RESTMapping(schema.GroupKind{Group: gv.Group, Kind: Kind}, gv.Version)
+	if err != nil {
+		return schema.GroupVersionResource{}, err
+	}
+	gvr := mapping.Resource
+	return gvr, nil
 }

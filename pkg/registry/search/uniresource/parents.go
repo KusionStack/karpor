@@ -24,7 +24,6 @@ import (
 	"k8s.io/klog/v2"
 
 	"github.com/dominikbraun/graph"
-	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
@@ -32,16 +31,11 @@ import (
 
 // GetParentResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the parent GVK in the current namespace
 func GetParentResourcesList(ctx context.Context, client *dynamic.DynamicClient, parentRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
-	gv, _ := schema.ParseGroupVersion(parentRelation.Group + "/" + parentRelation.Version)
-	gvk := gv.WithKind(parentRelation.Kind)
-	mapper := meta.NewDefaultRESTMapper([]schema.GroupVersion{})
-	scope := Scope{meta.RESTScopeNameNamespace}
-	mapper.Add(gvk, scope)
-	mapping, err := mapper.RESTMapping(schema.GroupKind{Group: gv.Group, Kind: parentRelation.Kind}, gv.Version)
+	parentAPIVersion := parentRelation.Group + "/" + parentRelation.Version
+	parentRes, err := GetGVRFromGVK(parentAPIVersion, parentRelation.Kind)
 	if err != nil {
 		return nil, err
 	}
-	parentRes := mapping.Resource
 	klog.Infof("Listing parent resource %s in namespace %s: \n", parentRelation.Kind, namespace)
 	var parentResList *unstructured.UnstructuredList
 	// Depends on whether parent object is namespaced or not
@@ -204,17 +198,10 @@ func GetParentsByOwnerReference(ctx context.Context, client *dynamic.DynamicClie
 		return resourceGraph, nil
 	}
 
-	gv, _ := schema.ParseGroupVersion(objOwner.APIVersion)
-	gvk := gv.WithKind(objOwner.Kind)
-
-	mapper := meta.NewDefaultRESTMapper([]schema.GroupVersion{})
-	scope := Scope{"namespace"}
-	mapper.Add(gvk, scope)
-	mapping, err := mapper.RESTMapping(schema.GroupKind{Group: gv.Group, Kind: objOwner.Kind}, gv.Version)
+	parentRes, err := GetGVRFromGVK(objOwner.APIVersion, objOwner.Kind)
 	if err != nil {
 		return nil, err
 	}
-	parentRes := mapping.Resource
 
 	klog.Infof("Listing parent resource %s in namespace %s: \n", objOwner.Kind, namespace)
 	parentResList, err := client.Resource(parentRes).Namespace(namespace).List(ctx, metav1.ListOptions{})

@@ -25,6 +25,7 @@ import (
 	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
+	yaml "gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -93,25 +94,23 @@ func (r *REST) NewList() runtime.Object {
 
 // Get retrieves the uniresource information from storage. Current supports topology calculation for a single uniresource.
 func (r *REST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	_, err := r.BuildDynamicClient(ctx)
+	client, err := r.BuildDynamicClient(ctx)
 	if err != nil {
 		panic(err.Error())
 	}
 	rt := &search.UniResourceList{}
+	resource, ok := filtersutil.ResourceDetailFrom(ctx)
+	if !ok {
+		return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
+	}
+	queryString := fmt.Sprintf("%s where name = '%s' AND namespace = '%s' AND cluster = '%s' AND apiVersion = '%s' AND kind = '%s'", SQLQueryDefault, resource.Name, resource.Namespace, resource.Cluster, resource.APIVersion, resource.Kind)
+	// TODO: Should we enforce all fields to be present? Or do we allow topology graph for multiple (fuzzy search) resources at a time?
+	// if resource.Namespace != "" {
+	// 	queryString += fmt.Sprintf(" AND namespace = '%s'", resource.Namespace)
+	// }
+	// ...
+	klog.Infof("Query string: %s", queryString)
 	if name == "topology" {
-		resource, ok := filtersutil.ResourceDetailFrom(ctx)
-		if !ok {
-			return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
-		}
-		queryString := fmt.Sprintf("%s where name = '%s' AND namespace = '%s' AND cluster = '%s' AND apiVersion = '%s' AND kind = '%s'", SQLQueryDefault, resource.Name, resource.Namespace, resource.Cluster, resource.APIVersion, resource.Kind)
-		// TODO: Should we enforce all fields to be present? Or do we allow topology graph for multiple (fuzzy search) resources at a time?
-		// if resource.Namespace != "" {
-		// 	queryString += fmt.Sprintf(" AND namespace = '%s'", resource.Namespace)
-		// }
-		// ...
-
-		klog.Infof("Query string: %s", queryString)
-
 		rg, _ := BuildResourceRelationshipGraph()
 		res, err := r.Storage.Search(ctx, queryString, storage.SQLPatternType)
 		if err != nil {
@@ -139,8 +138,25 @@ func (r *REST) Get(ctx context.Context, name string, options *metav1.GetOptions)
 		// spew.Dump(am)
 
 		return rt, nil
+	} else if name == "yaml" {
+		// Get object from Cluster
+		gvr, err := GetGVRFromGVK(resource.APIVersion, resource.Kind)
+		if err != nil {
+			return nil, err
+		}
+		res, err := client.Resource(gvr).Namespace(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		objYAML, err := yaml.Marshal(res.Object)
+		if err != nil {
+			panic(err.Error())
+		}
+		fmt.Printf("---\n%s\n", string(objYAML))
+		rt.Items = append(rt.Items, res)
+		return rt, nil
 	} else {
-		return nil, fmt.Errorf("only support getting topology for uniresource at the moment")
+		return nil, fmt.Errorf("only support getting topology or yaml for uniresource at the moment")
 	}
 }
 
