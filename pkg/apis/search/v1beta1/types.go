@@ -25,42 +25,42 @@ import (
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SyncClustersResources struct {
+type SyncRegistry struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
 	// +optional
-	Spec SyncClustersResourcesSpec `json:"spec,omitempty"`
+	Spec SyncRegistrySpec `json:"spec,omitempty"`
 
 	// +optional
-	Status SyncClustersResourcesStatus `json:"status,omitempty"`
+	Status SyncRegistryStatus `json:"status,omitempty"`
 }
 
-type SyncClustersResourcesSpec struct {
-	// ClusterSelector is used to filter the target clusters that need to be synced from.
+type SyncRegistrySpec struct {
+	// Clusters is the list of the target clusters to be be synced from.
 	// +optional
-	ClusterSelector Selector `json:"clusterSelector,omitempty"`
+	Clusters []string `json:"clusters,omitempty"`
 
-	// ClusterNames is the list of the target clusters to be be synced from.
+	// ClusterLabelSelector is used to filter the target clusters that need to be synced from.
 	// +optional
-	ClusterNames []string `json:"clusterNames,omitempty"`
+	ClusterLabelSelector *metav1.LabelSelector `json:"clusterLabelSelector,omitempty"`
 
 	// +optional
 	SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
 
 	// +optional
-	SyncResourcesRefName string `json:"SyncResourcesRefName,omitempty"`
+	SyncResourcesRefName string `json:"syncResourcesRefName,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SyncClustersResourcesList struct {
+type SyncRegistryList struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// +optional
 	metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []SyncClustersResources `json:"items"`
+	Items []SyncRegistry `json:"items"`
 }
 
 // +genclient
@@ -96,13 +96,16 @@ type ResourceSyncRule struct {
 	// +required
 	APIVersion string `json:"apiVersion"`
 
-	// Kind represents the kind of the target resource.
+	// Resource is the the target resource.
 	// +required
-	Kind string `json:"kind"`
+	Resource string `json:"resource"`
 
 	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
 	// +optional
 	Namespace string `json:"namespace,omitempty"`
+
+	// ResynPeriod is the period to resync
+	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
 
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	// +optional
@@ -110,7 +113,7 @@ type ResourceSyncRule struct {
 
 	// Transform is the rule applied to the original resource to transform it to the desired target resource.
 	// +optional
-	Transform TransformRuleSpec `json:"transform,omitempty"`
+	Transform *TransformRuleSpec `json:"transform,omitempty"`
 
 	// TransformRefName is the name of the TransformRule
 	// +optional
@@ -176,15 +179,15 @@ type FieldSelector struct {
 	SeverSupported bool `json:"serverSupported,omitempty"`
 }
 
-type SyncClustersResourcesStatus struct {
+type SyncRegistryStatus struct {
 	// +optional
-	Clusters []ClusterSyncResourcesCondition `json:"clusters"`
+	Clusters []ClusterResourcesSyncCondition `json:"clusters"`
 
 	// +required
 	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
 }
 
-type ClusterSyncResourcesCondition struct {
+type ClusterResourcesSyncCondition struct {
 	// +required
 	Cluster string `json:"cluster"`
 

@@ -35,7 +35,7 @@ var Strategy = strategy{scheme.Scheme, names.SimpleNameGenerator}
 
 // GetAttrs returns labels.Set, fields.Set, and error in case the given runtime.Object is not a Fischer
 func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
-	apiserver, ok := obj.(*search.SyncClustersResources)
+	apiserver, ok := obj.(*search.SyncRegistry)
 	if !ok {
 		return nil, nil, fmt.Errorf("given object is not a Fischer")
 	}
@@ -43,7 +43,7 @@ func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
 }
 
 // SelectableFields returns a field set that represents the object.
-func SelectableFields(obj *search.SyncClustersResources) fields.Set {
+func SelectableFields(obj *search.SyncRegistry) fields.Set {
 	return generic.ObjectMetaFieldsSet(&obj.ObjectMeta, false)
 }
 
@@ -57,11 +57,11 @@ func (strategy) NamespaceScoped() bool {
 }
 
 func (strategy) PrepareForCreate(ctx context.Context, obj runtime.Object) {
-	obj.(*search.SyncClustersResources).Status = search.SyncClustersResourcesStatus{}
+	obj.(*search.SyncRegistry).Status = search.SyncRegistryStatus{}
 }
 
 func (strategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
-	obj.(*search.SyncClustersResources).Status = old.(*search.SyncClustersResources).Status
+	obj.(*search.SyncRegistry).Status = old.(*search.SyncRegistry).Status
 }
 
 func (strategy) Validate(ctx context.Context, obj runtime.Object) field.ErrorList {
@@ -101,7 +101,7 @@ var StatusStartegy = statusStrategy{Strategy}
 
 // PrepareForUpdate clears fields that are not allowed to be set by end users on update of status
 func (statusStrategy) PrepareForUpdate(ctx context.Context, obj, old runtime.Object) {
-	obj.(*search.SyncClustersResources).Spec = old.(*search.SyncClustersResources).Spec
+	obj.(*search.SyncRegistry).Spec = old.(*search.SyncRegistry).Spec
 }
 
 // ValidateUpdate is the default update validation for an end user updating status
