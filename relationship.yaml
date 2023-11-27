@@ -97,13 +97,31 @@ relationship:
     kind: Pod
     type: Selector
     selector_path: spec.selector
-  # used to test empty parent list
+  # Not needed. Only used to test empty child list
+  # - group: ""
+  #   version: v1
+  #   kind: ConfigMap
+  #   type: OwnerReference
+  # Not needed. Only used to test empty parent list
   # parent:
   # - group: ""
   #   version: v1
   #   kind: Node
   #   type: OwnerReference
   
+- group: ""
+  version: v1
+  kind: Node
+  children:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: JSONPath
+    # for the two-way relationship
+    cluster_scoped: true
+    json_path:
+    - name: $.spec.nodeName
+
 - group: ""
   version: v1
   kind: Secret
@@ -146,7 +164,7 @@ relationship:
     # This is for the two-way relationship
     # Technically PVC is not cluster scoped but for PVC to find PV, it needs to be cluster-scoped
     # Alternative is to explicitly declare two-way relationship
-    # cluster_scoped: true
+    cluster_scoped: true
     type: JSONPath
     json_path:
     - name: $.spec.volumeName

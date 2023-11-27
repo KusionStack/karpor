@@ -70,7 +70,6 @@ func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOption
 	if err != nil {
 		return map[string]rest.Storage{}, err
 	}
-	v1beta1Storage["uniresources"] = uniResourceStorage
 
 	syncClusterResources, syncClusterResourcesStatus, err := syncclusterresources.NewREST(restOptionsGetter)
 	if err != nil {
@@ -78,6 +77,10 @@ func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOption
 	}
 	v1beta1Storage["syncclusterresources"] = syncClusterResources
 	v1beta1Storage["syncclusterresources/status"] = syncClusterResourcesStatus
+
+	v1beta1Storage["uniresources"] = uniResourceStorage.Uniresource
+	v1beta1Storage["uniresources/topology"] = uniResourceStorage.Topology
+	v1beta1Storage["uniresources/yaml"] = uniResourceStorage.YAML
 
 	transformRule, err := transformrule.NewREST(restOptionsGetter)
 	if err != nil {

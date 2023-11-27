@@ -56,6 +56,10 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec":             schema_pkg_apis_search_v1beta1_TransformRuleSpec(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResource":                   schema_pkg_apis_search_v1beta1_UniResource(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniResourceList":               schema_pkg_apis_search_v1beta1_UniResourceList(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopology":           schema_pkg_apis_search_v1beta1_UniresourceTopology(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopologyList":       schema_pkg_apis_search_v1beta1_UniresourceTopologyList(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAML":               schema_pkg_apis_search_v1beta1_UniresourceYAML(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAMLList":           schema_pkg_apis_search_v1beta1_UniresourceYAMLList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                        schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                                    schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                     schema_pkg_apis_meta_v1_APIResource(ref),
@@ -1052,9 +1056,24 @@ func schema_pkg_apis_search_v1beta1_UniResource(ref common.ReferenceCallback) co
 							Format:      "",
 						},
 					},
+					"Topology": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopology"),
+						},
+					},
+					"YAML": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAML"),
+						},
+					},
 				},
+				Required: []string{"Topology", "YAML"},
 			},
 		},
+		Dependencies: []string{
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopology", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAML"},
 	}
 }
 
@@ -1097,6 +1116,116 @@ func schema_pkg_apis_search_v1beta1_UniResourceList(ref common.ReferenceCallback
 		},
 		Dependencies: []string{
 			"k8s.io/apimachinery/pkg/runtime.RawExtension"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniresourceTopology(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"TypeMeta": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+						},
+					},
+				},
+				Required: []string{"TypeMeta"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniresourceTopologyList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"TypeMeta": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+						},
+					},
+					"Items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopology"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"TypeMeta", "Items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceTopology", "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniresourceYAML(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"TypeMeta": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+						},
+					},
+				},
+				Required: []string{"TypeMeta"},
+			},
+		},
+		Dependencies: []string{
+			"k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
+	}
+}
+
+func schema_pkg_apis_search_v1beta1_UniresourceYAMLList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"TypeMeta": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"),
+						},
+					},
+					"Items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAML"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"TypeMeta", "Items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.UniresourceYAML", "k8s.io/apimachinery/pkg/apis/meta/v1.TypeMeta"},
 	}
 }
 

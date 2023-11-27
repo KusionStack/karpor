@@ -17,23 +17,24 @@ package uniresource
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
-	"github.com/KusionStack/karbour/pkg/registry/cluster"
+	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
-	"github.com/dominikbraun/graph"
-	"github.com/dominikbraun/graph/draw"
-	yaml "gopkg.in/yaml.v3"
-	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
+
 	"k8s.io/apiserver/pkg/registry/rest"
+
+	"github.com/pkg/errors"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/klog/v2"
+
+	cluster "github.com/KusionStack/karbour/pkg/apis/cluster"
 )
 
 var (
@@ -47,33 +48,41 @@ const (
 	SQLQueryDefault = "select * from resources"
 )
 
+type Storage struct {
+	Uniresource *REST
+	Topology    *TopologyREST
+	YAML        *YAMLREST
+}
+
 type REST struct {
 	Storage storage.SearchStorage
-	Cluster *cluster.Storage
+	Cluster *clusterstorage.Storage
 }
 
-type Scope struct {
-	Scope meta.RESTScopeName
-}
-
-func (s Scope) Name() meta.RESTScopeName {
-	return s.Scope
-}
-
-func NewREST(searchStorageGetter storage.SearchStorageGetter, clusterOptsGetter generic.RESTOptionsGetter) (rest.Storage, error) {
+func NewREST(searchStorageGetter storage.SearchStorageGetter, clusterOptsGetter generic.RESTOptionsGetter) (*Storage, error) {
 	searchStorage, err := searchStorageGetter.GetSearchStorage()
 	if err != nil {
 		return nil, err
 	}
 
-	clusterStorage, err := cluster.NewREST(clusterOptsGetter)
+	clusterStorage, err := clusterstorage.NewREST(clusterOptsGetter)
 	if err != nil {
 		return nil, err
 	}
 
-	return &REST{
-		Storage: searchStorage,
-		Cluster: clusterStorage,
+	return &Storage{
+		Uniresource: &REST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
+		Topology: &TopologyREST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
+		YAML: &YAMLREST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
 	}, nil
 }
 
@@ -90,74 +99,6 @@ func (r *REST) NamespaceScoped() bool {
 
 func (r *REST) NewList() runtime.Object {
 	return &search.UniResourceList{}
-}
-
-// Get retrieves the uniresource information from storage. Current supports topology calculation for a single uniresource.
-func (r *REST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	client, err := r.BuildDynamicClient(ctx)
-	if err != nil {
-		panic(err.Error())
-	}
-	rt := &search.UniResourceList{}
-	resource, ok := filtersutil.ResourceDetailFrom(ctx)
-	if !ok {
-		return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
-	}
-	queryString := fmt.Sprintf("%s where name = '%s' AND namespace = '%s' AND cluster = '%s' AND apiVersion = '%s' AND kind = '%s'", SQLQueryDefault, resource.Name, resource.Namespace, resource.Cluster, resource.APIVersion, resource.Kind)
-	// TODO: Should we enforce all fields to be present? Or do we allow topology graph for multiple (fuzzy search) resources at a time?
-	// if resource.Namespace != "" {
-	// 	queryString += fmt.Sprintf(" AND namespace = '%s'", resource.Namespace)
-	// }
-	// ...
-	klog.Infof("Query string: %s", queryString)
-	if name == "topology" {
-		rg, _ := BuildResourceRelationshipGraph()
-		res, err := r.Storage.Search(ctx, queryString, storage.SQLPatternType)
-		if err != nil {
-			return nil, err
-		}
-
-		ResourceGraphNodeHash := func(rgn ResourceGraphNode) string {
-			return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
-		}
-		g := graph.New(ResourceGraphNodeHash, graph.Directed(), graph.PreventCycles())
-		for _, resource := range res.Resources {
-			unObj := &unstructured.Unstructured{}
-			unObj.SetUnstructuredContent(resource.Object)
-			g, err = r.GetResourceRelationship(ctx, *unObj, rg, g)
-			if err != nil {
-				return rt, err
-			}
-			rt.Items = append(rt.Items, unObj)
-		}
-		// Draw graph
-		file, _ := os.Create("./resource.gv")
-		_ = draw.DOT(g, file)
-
-		// am, _ := g.AdjacencyMap()
-		// spew.Dump(am)
-
-		return rt, nil
-	} else if name == "yaml" {
-		// Get object from Cluster
-		gvr, err := GetGVRFromGVK(resource.APIVersion, resource.Kind)
-		if err != nil {
-			return nil, err
-		}
-		res, err := client.Resource(gvr).Namespace(resource.Namespace).Get(ctx, resource.Name, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-		objYAML, err := yaml.Marshal(res.Object)
-		if err != nil {
-			panic(err.Error())
-		}
-		fmt.Printf("---\n%s\n", string(objYAML))
-		rt.Items = append(rt.Items, res)
-		return rt, nil
-	} else {
-		return nil, fmt.Errorf("only support getting topology or yaml for uniresource at the moment")
-	}
 }
 
 func (r *REST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
@@ -183,6 +124,35 @@ func (r *REST) List(ctx context.Context, options *internalversion.ListOptions) (
 		rt.Items = append(rt.Items, unObj)
 	}
 	return rt, nil
+}
+
+// BuildDynamicClient returns a dynamic client based on the cluster name in the request
+func (r *REST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicClient, error) {
+	// Extract the cluster name from context
+	resourceDetail, ok := filtersutil.ResourceDetailFrom(ctx)
+	if !ok {
+		return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
+	}
+
+	// Locate the cluster resource and build config with it
+	obj, err := r.Cluster.Status.Store.Get(ctx, resourceDetail.Cluster, &metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	clusterFromContext := obj.(*cluster.Cluster)
+	klog.Infof("Cluster found: %s", clusterFromContext.Name)
+	config, err := clusterstorage.NewConfigFromCluster(clusterFromContext)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create cluster client config %s", clusterFromContext.Name)
+	}
+
+	// Create the dynamic client
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func (r *REST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

@@ -23,6 +23,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
+	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -32,7 +33,7 @@ import (
 // GetChildResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the child GVK in the current namespace
 func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, childRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
 	childAPIVersion := childRelation.Group + "/" + childRelation.Version
-	childRes, err := GetGVRFromGVK(childAPIVersion, childRelation.Kind)
+	childRes, err := topologyutil.GetGVRFromGVK(childAPIVersion, childRelation.Kind)
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +73,7 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 		gv, _ := schema.ParseGroupVersion(childRelation.Group + "/" + childRelation.Version)
 		gvk := gv.WithKind(childRelation.Kind)
 		childAPIVersion := childRelation.Group + "/" + childRelation.Version
-		childRes, err := GetGVRFromGVK(childAPIVersion, childRelation.Kind)
+		childRes, err := topologyutil.GetGVRFromGVK(childAPIVersion, childRelation.Kind)
 		if err != nil {
 			return nil, err
 		}
@@ -126,7 +127,7 @@ func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ct
 	}
 
 	for _, childRes := range childResList.Items {
-		if orMatch, err := OwnerReferencesMatch(obj, childRes); orMatch && err == nil {
+		if orMatch, err := topologyutil.OwnerReferencesMatch(obj, childRes); orMatch && err == nil {
 			klog.Infof("Child resource found for kind %s, name %s based on OwnerReference.\n", obj.GetKind(), obj.GetName())
 			klog.Infof("Child resource is: kind %s, name %s.\n", childRes.GetKind(), childRes.GetName())
 			klog.Infof("---------------------------------------------------------------------------\n")

@@ -219,6 +219,8 @@ type ResourceSyncCondition struct {
 
 type UniResource struct {
 	metav1.TypeMeta `json:",inline"`
+	Topology        UniresourceTopology
+	YAML            UniresourceYAML
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -226,4 +228,29 @@ type UniResource struct {
 type UniResourceList struct {
 	metav1.TypeMeta `json:",inline"`
 	Items           []runtime.RawExtension `json:"items"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniresourceTopology struct {
+	metav1.TypeMeta
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+type UniresourceTopologyList struct {
+	metav1.TypeMeta
+	Items []UniresourceTopology
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniresourceYAML struct {
+	metav1.TypeMeta
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type UniresourceYAMLList struct {
+	metav1.TypeMeta
+	Items []UniresourceYAML
 }
