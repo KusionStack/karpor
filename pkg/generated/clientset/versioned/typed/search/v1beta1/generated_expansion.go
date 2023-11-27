@@ -18,7 +18,7 @@ limitations under the License.
 
 package v1beta1
 
-type SyncClustersResourcesExpansion interface{}
+type SyncRegistryExpansion interface{}
 
 type SyncResourcesExpansion interface{}
 

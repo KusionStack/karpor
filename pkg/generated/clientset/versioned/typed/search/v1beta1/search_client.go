@@ -28,7 +28,7 @@ import (
 
 type SearchV1beta1Interface interface {
 	RESTClient() rest.Interface
-	SyncClustersResourcesesGetter
+	SyncRegistriesGetter
 	SyncResourcesesGetter
 	TransformRulesGetter
 }
@@ -38,8 +38,8 @@ type SearchV1beta1Client struct {
 	restClient rest.Interface
 }
 
-func (c *SearchV1beta1Client) SyncClustersResourceses() SyncClustersResourcesInterface {
-	return newSyncClustersResourceses(c)
+func (c *SearchV1beta1Client) SyncRegistries() SyncRegistryInterface {
+	return newSyncRegistries(c)
 }
 
 func (c *SearchV1beta1Client) SyncResourceses() SyncResourcesInterface {

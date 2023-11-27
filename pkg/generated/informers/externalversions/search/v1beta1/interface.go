@@ -24,8 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// SyncClustersResourceses returns a SyncClustersResourcesInformer.
-	SyncClustersResourceses() SyncClustersResourcesInformer
+	// SyncRegistries returns a SyncRegistryInformer.
+	SyncRegistries() SyncRegistryInformer
 	// SyncResourceses returns a SyncResourcesInformer.
 	SyncResourceses() SyncResourcesInformer
 	// TransformRules returns a TransformRuleInformer.
@@ -43,9 +43,9 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// SyncClustersResourceses returns a SyncClustersResourcesInformer.
-func (v *version) SyncClustersResourceses() SyncClustersResourcesInformer {
-	return &syncClustersResourcesInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+// SyncRegistries returns a SyncRegistryInformer.
+func (v *version) SyncRegistries() SyncRegistryInformer {
+	return &syncRegistryInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }
 
 // SyncResourceses returns a SyncResourcesInformer.

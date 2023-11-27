@@ -32,58 +32,58 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// SyncClustersResourcesInformer provides access to a shared informer and lister for
-// SyncClustersResourceses.
-type SyncClustersResourcesInformer interface {
+// SyncRegistryInformer provides access to a shared informer and lister for
+// SyncRegistries.
+type SyncRegistryInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1beta1.SyncClustersResourcesLister
+	Lister() v1beta1.SyncRegistryLister
 }
 
-type syncClustersResourcesInformer struct {
+type syncRegistryInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 }
 
-// NewSyncClustersResourcesInformer constructs a new informer for SyncClustersResources type.
+// NewSyncRegistryInformer constructs a new informer for SyncRegistry type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewSyncClustersResourcesInformer(client versioned.Interface, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredSyncClustersResourcesInformer(client, resyncPeriod, indexers, nil)
+func NewSyncRegistryInformer(client versioned.Interface, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredSyncRegistryInformer(client, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredSyncClustersResourcesInformer constructs a new informer for SyncClustersResources type.
+// NewFilteredSyncRegistryInformer constructs a new informer for SyncRegistry type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredSyncClustersResourcesInformer(client versioned.Interface, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredSyncRegistryInformer(client versioned.Interface, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SearchV1beta1().SyncClustersResourceses().List(context.TODO(), options)
+				return client.SearchV1beta1().SyncRegistries().List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.SearchV1beta1().SyncClustersResourceses().Watch(context.TODO(), options)
+				return client.SearchV1beta1().SyncRegistries().Watch(context.TODO(), options)
 			},
 		},
-		&searchv1beta1.SyncClustersResources{},
+		&searchv1beta1.SyncRegistry{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *syncClustersResourcesInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredSyncClustersResourcesInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *syncRegistryInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredSyncRegistryInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *syncClustersResourcesInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&searchv1beta1.SyncClustersResources{}, f.defaultInformer)
+func (f *syncRegistryInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&searchv1beta1.SyncRegistry{}, f.defaultInformer)
 }
 
-func (f *syncClustersResourcesInformer) Lister() v1beta1.SyncClustersResourcesLister {
-	return v1beta1.NewSyncClustersResourcesLister(f.Informer().GetIndexer())
+func (f *syncRegistryInformer) Lister() v1beta1.SyncRegistryLister {
+	return v1beta1.NewSyncRegistryLister(f.Informer().GetIndexer())
 }

@@ -28,8 +28,8 @@ type FakeSearchV1beta1 struct {
 	*testing.Fake
 }
 
-func (c *FakeSearchV1beta1) SyncClustersResourceses() v1beta1.SyncClustersResourcesInterface {
-	return &FakeSyncClustersResourceses{c}
+func (c *FakeSearchV1beta1) SyncRegistries() v1beta1.SyncRegistryInterface {
+	return &FakeSyncRegistries{c}
 }
 
 func (c *FakeSearchV1beta1) SyncResourceses() v1beta1.SyncResourcesInterface {
