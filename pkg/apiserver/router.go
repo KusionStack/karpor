@@ -24,11 +24,11 @@ func NewCoreAPIs() http.Handler {
 	r.Use(appmiddleware.APILogger)
 	r.Use(middleware.Recoverer)
 
-	// Set up frontend router
+	// Set up the frontend router
 	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
 	r.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
 
-	// Set up core api router
+	// Set up the core api router
 	configCtrl := config.NewController(&config.Config{
 		Verbose: false,
 	})
