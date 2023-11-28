@@ -46,11 +46,11 @@ type TopologyREST struct {
 
 // New returns an empty cluster proxy subresource.
 func (r *TopologyREST) New() runtime.Object {
-	return &search.UniresourceTopology{}
+	return &search.UniResourceTopology{}
 }
 
 func (r *TopologyREST) NewList() runtime.Object {
-	return &search.UniresourceTopologyList{}
+	return &search.UniResourceTopologyList{}
 }
 
 // Destroy cleans up resources on shutdown.
@@ -65,7 +65,7 @@ func (r *TopologyREST) ConvertToTable(ctx context.Context, object runtime.Object
 }
 
 func (r *TopologyREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	rt := &search.UniResourceList{}
+	rt := &search.UniResourceTopology{}
 	resource, ok := filtersutil.ResourceDetailFrom(ctx)
 	if !ok {
 		return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
@@ -101,15 +101,14 @@ func (r *TopologyREST) List(ctx context.Context, options *internalversion.ListOp
 		if err != nil {
 			return rt, err
 		}
-		rt.Items = append(rt.Items, unObj)
 	}
 	// Draw graph
+	// TODO: This is drawn on the server side, probably not needed eventually
 	file, _ := os.Create("./resource.gv")
 	_ = draw.DOT(g, file)
 
-	// am, _ := g.AdjacencyMap()
-	// spew.Dump(am)
-
+	// Convert graph to a UniResourceTopology object and return
+	rt = r.ConvertToMap(g)
 	return rt, nil
 }
 
@@ -164,7 +163,7 @@ func (r *TopologyREST) GetResourceRelationship(ctx context.Context, obj unstruct
 	// TODO: process error
 	// Recursively find parents
 	for _, objParent := range objGVKOnGraph.Parent {
-		resourceGraph, err = GetParents(ctx, client, obj, objParent, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
+		resourceGraph, err = relationship.GetParents(ctx, client, obj, objParent, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
 		if err != nil {
 			return nil, err
 		}
@@ -172,11 +171,41 @@ func (r *TopologyREST) GetResourceRelationship(ctx context.Context, obj unstruct
 
 	// Recursively find children
 	for _, objChild := range objGVKOnGraph.Children {
-		resourceGraph, err = GetChildren(ctx, client, obj, objChild, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
+		resourceGraph, err = relationship.GetChildren(ctx, client, obj, objChild, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	return resourceGraph, nil
+}
+
+func (r *TopologyREST) ConvertToMap(g graph.Graph[string, relationship.ResourceGraphNode]) *search.UniResourceTopology {
+	rt := &search.UniResourceTopology{}
+
+	am, _ := g.AdjacencyMap()
+	rt.Graph = make(map[string]search.UniresourceNode)
+	for key, edgeMap := range am {
+		childList := make([]string, 0)
+		for edgeTarget := range edgeMap {
+			childList = append(childList, edgeTarget)
+		}
+		rt.Graph[key] = search.UniresourceNode{
+			Identifier: key,
+			Children:   childList,
+		}
+	}
+
+	pm, _ := g.PredecessorMap()
+	for key, edgeMap := range pm {
+		parentList := make([]string, 0)
+		for edgeSource := range edgeMap {
+			parentList = append(parentList, edgeSource)
+		}
+		if node, ok := rt.Graph[key]; ok {
+			node.Parents = parentList
+			rt.Graph[key] = node
+		}
+	}
+	return rt
 }

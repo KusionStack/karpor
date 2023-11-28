@@ -71,11 +71,11 @@ func (r *YAMLREST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicClie
 
 // New returns an empty cluster proxy subresource.
 func (r *YAMLREST) New() runtime.Object {
-	return &search.UniresourceYAML{}
+	return &search.UniResourceYAML{}
 }
 
 func (r *YAMLREST) NewList() runtime.Object {
-	return &search.UniresourceYAMLList{}
+	return &search.UniResourceYAMLList{}
 }
 
 // Destroy cleans up resources on shutdown.
@@ -90,10 +90,10 @@ func (r *YAMLREST) ConvertToTable(ctx context.Context, object runtime.Object, ta
 }
 
 func (r *YAMLREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
-	rt := &search.UniResourceList{}
+	ry := &search.UniResourceYAML{}
 	client, err := r.BuildDynamicClient(ctx)
 	if err != nil {
-		return rt, err
+		return ry, err
 	}
 	resource, ok := filtersutil.ResourceDetailFrom(ctx)
 	if !ok {
@@ -119,6 +119,6 @@ func (r *YAMLREST) List(ctx context.Context, options *internalversion.ListOption
 		panic(err.Error())
 	}
 	klog.Infof("---\n%s\n", string(objYAML))
-	rt.Items = append(rt.Items, res)
-	return rt, nil
+	ry.YAMLString = string(objYAML)
+	return ry, nil
 }

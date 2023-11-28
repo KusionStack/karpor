@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package uniresource
+package relationship
 
 import (
 	"context"
@@ -23,7 +23,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/klog/v2"
 
-	"github.com/KusionStack/karbour/pkg/registry/search/relationship"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -32,7 +31,7 @@ import (
 )
 
 // GetChildResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the child GVK in the current namespace
-func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, childRelation *relationship.Relationship, namespace string) (*unstructured.UnstructuredList, error) {
+func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, childRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
 	childAPIVersion := childRelation.Group + "/" + childRelation.Version
 	childRes, err := topologyutil.GetGVRFromGVK(childAPIVersion, childRelation.Kind)
 	if err != nil {
@@ -56,7 +55,7 @@ func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, c
 }
 
 // GetChildren returns a graph that includes all of the child resources for the current obj that are described by the childRelation
-func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childRelation *relationship.Relationship, namespace, objName string, objResourceNode relationship.ResourceGraphNode, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childRelation *Relationship, namespace, objName string, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
 	if childRelation.Type == "OwnerReference" {
 		// If relationship type is ownerreference, honor that instead of relationship graph
 		gv, _ := schema.ParseGroupVersion(childRelation.Group + "/" + childRelation.Version)
@@ -115,11 +114,11 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 }
 
 // GetChildrenByOwnerReference returns a graph that includes all of the child resources for the current obj described by their children's OwnerReferences field
-func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childGVK schema.GroupVersionKind, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childGVK schema.GroupVersionKind, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
 	// For ownerreference-identified children, look up all instances of the child GVK and filter by ownerreference
 	klog.Infof("Using OwnerReferences to find children...\n")
 	gv, _ := schema.ParseGroupVersion(obj.GetAPIVersion())
-	objResourceNode := relationship.ResourceGraphNode{
+	objResourceNode := ResourceGraphNode{
 		Group:     gv.Group,
 		Version:   gv.Version,
 		Kind:      obj.GetKind(),
@@ -133,7 +132,7 @@ func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ct
 			klog.Infof("Child resource is: kind %s, name %s.\n", childRes.GetKind(), childRes.GetName())
 			klog.Infof("---------------------------------------------------------------------------\n")
 			cgv, _ := schema.ParseGroupVersion(childRes.GetAPIVersion())
-			childResourceNode := relationship.ResourceGraphNode{
+			childResourceNode := ResourceGraphNode{
 				Group:     cgv.Group,
 				Version:   cgv.Version,
 				Kind:      childRes.GetKind(),
@@ -142,7 +141,7 @@ func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ct
 			}
 			resourceGraph.AddVertex(childResourceNode)
 			resourceGraph.AddEdge(objResourceNode.GetHash(), childResourceNode.GetHash())
-			childGVKOnGraph, _ := relationship.FindNodeOnGraph(relationshipGraph, childGVK.Group, childGVK.Version, childRes.GetKind())
+			childGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, childGVK.Group, childGVK.Version, childRes.GetKind())
 			if len(childGVKOnGraph.Children) > 0 {
 				// repeat for child resources
 				// shorten call stack

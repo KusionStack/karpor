@@ -207,43 +207,53 @@ func RegisterConversions(s *runtime.Scheme) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*UniresourceTopology)(nil), (*search.UniresourceTopology)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1beta1_UniresourceTopology_To_search_UniresourceTopology(a.(*UniresourceTopology), b.(*search.UniresourceTopology), scope)
+	if err := s.AddGeneratedConversionFunc((*UniResourceTopology)(nil), (*search.UniResourceTopology)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_UniResourceTopology_To_search_UniResourceTopology(a.(*UniResourceTopology), b.(*search.UniResourceTopology), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*search.UniresourceTopology)(nil), (*UniresourceTopology)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_search_UniresourceTopology_To_v1beta1_UniresourceTopology(a.(*search.UniresourceTopology), b.(*UniresourceTopology), scope)
+	if err := s.AddGeneratedConversionFunc((*search.UniResourceTopology)(nil), (*UniResourceTopology)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_UniResourceTopology_To_v1beta1_UniResourceTopology(a.(*search.UniResourceTopology), b.(*UniResourceTopology), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*UniresourceTopologyList)(nil), (*search.UniresourceTopologyList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1beta1_UniresourceTopologyList_To_search_UniresourceTopologyList(a.(*UniresourceTopologyList), b.(*search.UniresourceTopologyList), scope)
+	if err := s.AddGeneratedConversionFunc((*UniResourceTopologyList)(nil), (*search.UniResourceTopologyList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_UniResourceTopologyList_To_search_UniResourceTopologyList(a.(*UniResourceTopologyList), b.(*search.UniResourceTopologyList), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*search.UniresourceTopologyList)(nil), (*UniresourceTopologyList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_search_UniresourceTopologyList_To_v1beta1_UniresourceTopologyList(a.(*search.UniresourceTopologyList), b.(*UniresourceTopologyList), scope)
+	if err := s.AddGeneratedConversionFunc((*search.UniResourceTopologyList)(nil), (*UniResourceTopologyList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_UniResourceTopologyList_To_v1beta1_UniResourceTopologyList(a.(*search.UniResourceTopologyList), b.(*UniResourceTopologyList), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*UniresourceYAML)(nil), (*search.UniresourceYAML)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1beta1_UniresourceYAML_To_search_UniresourceYAML(a.(*UniresourceYAML), b.(*search.UniresourceYAML), scope)
+	if err := s.AddGeneratedConversionFunc((*UniResourceYAML)(nil), (*search.UniResourceYAML)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_UniResourceYAML_To_search_UniResourceYAML(a.(*UniResourceYAML), b.(*search.UniResourceYAML), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*search.UniresourceYAML)(nil), (*UniresourceYAML)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_search_UniresourceYAML_To_v1beta1_UniresourceYAML(a.(*search.UniresourceYAML), b.(*UniresourceYAML), scope)
+	if err := s.AddGeneratedConversionFunc((*search.UniResourceYAML)(nil), (*UniResourceYAML)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_UniResourceYAML_To_v1beta1_UniResourceYAML(a.(*search.UniResourceYAML), b.(*UniResourceYAML), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*UniresourceYAMLList)(nil), (*search.UniresourceYAMLList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_v1beta1_UniresourceYAMLList_To_search_UniresourceYAMLList(a.(*UniresourceYAMLList), b.(*search.UniresourceYAMLList), scope)
+	if err := s.AddGeneratedConversionFunc((*UniResourceYAMLList)(nil), (*search.UniResourceYAMLList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_UniResourceYAMLList_To_search_UniResourceYAMLList(a.(*UniResourceYAMLList), b.(*search.UniResourceYAMLList), scope)
 	}); err != nil {
 		return err
 	}
-	if err := s.AddGeneratedConversionFunc((*search.UniresourceYAMLList)(nil), (*UniresourceYAMLList)(nil), func(a, b interface{}, scope conversion.Scope) error {
-		return Convert_search_UniresourceYAMLList_To_v1beta1_UniresourceYAMLList(a.(*search.UniresourceYAMLList), b.(*UniresourceYAMLList), scope)
+	if err := s.AddGeneratedConversionFunc((*search.UniResourceYAMLList)(nil), (*UniResourceYAMLList)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_UniResourceYAMLList_To_v1beta1_UniResourceYAMLList(a.(*search.UniResourceYAMLList), b.(*UniResourceYAMLList), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*UniresourceNode)(nil), (*search.UniresourceNode)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_v1beta1_UniresourceNode_To_search_UniresourceNode(a.(*UniresourceNode), b.(*search.UniresourceNode), scope)
+	}); err != nil {
+		return err
+	}
+	if err := s.AddGeneratedConversionFunc((*search.UniresourceNode)(nil), (*UniresourceNode)(nil), func(a, b interface{}, scope conversion.Scope) error {
+		return Convert_search_UniresourceNode_To_v1beta1_UniresourceNode(a.(*search.UniresourceNode), b.(*UniresourceNode), scope)
 	}); err != nil {
 		return err
 	}
@@ -627,10 +637,10 @@ func Convert_search_TransformRuleSpec_To_v1beta1_TransformRuleSpec(in *search.Tr
 }
 
 func autoConvert_v1beta1_UniResource_To_search_UniResource(in *UniResource, out *search.UniResource, s conversion.Scope) error {
-	if err := Convert_v1beta1_UniresourceTopology_To_search_UniresourceTopology(&in.Topology, &out.Topology, s); err != nil {
+	if err := Convert_v1beta1_UniResourceTopology_To_search_UniResourceTopology(&in.Topology, &out.Topology, s); err != nil {
 		return err
 	}
-	if err := Convert_v1beta1_UniresourceYAML_To_search_UniresourceYAML(&in.YAML, &out.YAML, s); err != nil {
+	if err := Convert_v1beta1_UniResourceYAML_To_search_UniResourceYAML(&in.YAML, &out.YAML, s); err != nil {
 		return err
 	}
 	return nil
@@ -642,10 +652,10 @@ func Convert_v1beta1_UniResource_To_search_UniResource(in *UniResource, out *sea
 }
 
 func autoConvert_search_UniResource_To_v1beta1_UniResource(in *search.UniResource, out *UniResource, s conversion.Scope) error {
-	if err := Convert_search_UniresourceTopology_To_v1beta1_UniresourceTopology(&in.Topology, &out.Topology, s); err != nil {
+	if err := Convert_search_UniResourceTopology_To_v1beta1_UniResourceTopology(&in.Topology, &out.Topology, s); err != nil {
 		return err
 	}
-	if err := Convert_search_UniresourceYAML_To_v1beta1_UniresourceYAML(&in.YAML, &out.YAML, s); err != nil {
+	if err := Convert_search_UniResourceYAML_To_v1beta1_UniResourceYAML(&in.YAML, &out.YAML, s); err != nil {
 		return err
 	}
 	return nil
@@ -696,78 +706,106 @@ func Convert_search_UniResourceList_To_v1beta1_UniResourceList(in *search.UniRes
 	return autoConvert_search_UniResourceList_To_v1beta1_UniResourceList(in, out, s)
 }
 
-func autoConvert_v1beta1_UniresourceTopology_To_search_UniresourceTopology(in *UniresourceTopology, out *search.UniresourceTopology, s conversion.Scope) error {
+func autoConvert_v1beta1_UniResourceTopology_To_search_UniResourceTopology(in *UniResourceTopology, out *search.UniResourceTopology, s conversion.Scope) error {
+	out.Graph = *(*map[string]search.UniresourceNode)(unsafe.Pointer(&in.Graph))
 	return nil
 }
 
-// Convert_v1beta1_UniresourceTopology_To_search_UniresourceTopology is an autogenerated conversion function.
-func Convert_v1beta1_UniresourceTopology_To_search_UniresourceTopology(in *UniresourceTopology, out *search.UniresourceTopology, s conversion.Scope) error {
-	return autoConvert_v1beta1_UniresourceTopology_To_search_UniresourceTopology(in, out, s)
+// Convert_v1beta1_UniResourceTopology_To_search_UniResourceTopology is an autogenerated conversion function.
+func Convert_v1beta1_UniResourceTopology_To_search_UniResourceTopology(in *UniResourceTopology, out *search.UniResourceTopology, s conversion.Scope) error {
+	return autoConvert_v1beta1_UniResourceTopology_To_search_UniResourceTopology(in, out, s)
 }
 
-func autoConvert_search_UniresourceTopology_To_v1beta1_UniresourceTopology(in *search.UniresourceTopology, out *UniresourceTopology, s conversion.Scope) error {
+func autoConvert_search_UniResourceTopology_To_v1beta1_UniResourceTopology(in *search.UniResourceTopology, out *UniResourceTopology, s conversion.Scope) error {
+	out.Graph = *(*map[string]UniresourceNode)(unsafe.Pointer(&in.Graph))
 	return nil
 }
 
-// Convert_search_UniresourceTopology_To_v1beta1_UniresourceTopology is an autogenerated conversion function.
-func Convert_search_UniresourceTopology_To_v1beta1_UniresourceTopology(in *search.UniresourceTopology, out *UniresourceTopology, s conversion.Scope) error {
-	return autoConvert_search_UniresourceTopology_To_v1beta1_UniresourceTopology(in, out, s)
+// Convert_search_UniResourceTopology_To_v1beta1_UniResourceTopology is an autogenerated conversion function.
+func Convert_search_UniResourceTopology_To_v1beta1_UniResourceTopology(in *search.UniResourceTopology, out *UniResourceTopology, s conversion.Scope) error {
+	return autoConvert_search_UniResourceTopology_To_v1beta1_UniResourceTopology(in, out, s)
 }
 
-func autoConvert_v1beta1_UniresourceTopologyList_To_search_UniresourceTopologyList(in *UniresourceTopologyList, out *search.UniresourceTopologyList, s conversion.Scope) error {
-	out.Items = *(*[]search.UniresourceTopology)(unsafe.Pointer(&in.Items))
+func autoConvert_v1beta1_UniResourceTopologyList_To_search_UniResourceTopologyList(in *UniResourceTopologyList, out *search.UniResourceTopologyList, s conversion.Scope) error {
+	out.Items = *(*[]search.UniResourceTopology)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_v1beta1_UniresourceTopologyList_To_search_UniresourceTopologyList is an autogenerated conversion function.
-func Convert_v1beta1_UniresourceTopologyList_To_search_UniresourceTopologyList(in *UniresourceTopologyList, out *search.UniresourceTopologyList, s conversion.Scope) error {
-	return autoConvert_v1beta1_UniresourceTopologyList_To_search_UniresourceTopologyList(in, out, s)
+// Convert_v1beta1_UniResourceTopologyList_To_search_UniResourceTopologyList is an autogenerated conversion function.
+func Convert_v1beta1_UniResourceTopologyList_To_search_UniResourceTopologyList(in *UniResourceTopologyList, out *search.UniResourceTopologyList, s conversion.Scope) error {
+	return autoConvert_v1beta1_UniResourceTopologyList_To_search_UniResourceTopologyList(in, out, s)
 }
 
-func autoConvert_search_UniresourceTopologyList_To_v1beta1_UniresourceTopologyList(in *search.UniresourceTopologyList, out *UniresourceTopologyList, s conversion.Scope) error {
-	out.Items = *(*[]UniresourceTopology)(unsafe.Pointer(&in.Items))
+func autoConvert_search_UniResourceTopologyList_To_v1beta1_UniResourceTopologyList(in *search.UniResourceTopologyList, out *UniResourceTopologyList, s conversion.Scope) error {
+	out.Items = *(*[]UniResourceTopology)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_search_UniresourceTopologyList_To_v1beta1_UniresourceTopologyList is an autogenerated conversion function.
-func Convert_search_UniresourceTopologyList_To_v1beta1_UniresourceTopologyList(in *search.UniresourceTopologyList, out *UniresourceTopologyList, s conversion.Scope) error {
-	return autoConvert_search_UniresourceTopologyList_To_v1beta1_UniresourceTopologyList(in, out, s)
+// Convert_search_UniResourceTopologyList_To_v1beta1_UniResourceTopologyList is an autogenerated conversion function.
+func Convert_search_UniResourceTopologyList_To_v1beta1_UniResourceTopologyList(in *search.UniResourceTopologyList, out *UniResourceTopologyList, s conversion.Scope) error {
+	return autoConvert_search_UniResourceTopologyList_To_v1beta1_UniResourceTopologyList(in, out, s)
 }
 
-func autoConvert_v1beta1_UniresourceYAML_To_search_UniresourceYAML(in *UniresourceYAML, out *search.UniresourceYAML, s conversion.Scope) error {
+func autoConvert_v1beta1_UniResourceYAML_To_search_UniResourceYAML(in *UniResourceYAML, out *search.UniResourceYAML, s conversion.Scope) error {
+	out.YAMLString = in.YAMLString
 	return nil
 }
 
-// Convert_v1beta1_UniresourceYAML_To_search_UniresourceYAML is an autogenerated conversion function.
-func Convert_v1beta1_UniresourceYAML_To_search_UniresourceYAML(in *UniresourceYAML, out *search.UniresourceYAML, s conversion.Scope) error {
-	return autoConvert_v1beta1_UniresourceYAML_To_search_UniresourceYAML(in, out, s)
+// Convert_v1beta1_UniResourceYAML_To_search_UniResourceYAML is an autogenerated conversion function.
+func Convert_v1beta1_UniResourceYAML_To_search_UniResourceYAML(in *UniResourceYAML, out *search.UniResourceYAML, s conversion.Scope) error {
+	return autoConvert_v1beta1_UniResourceYAML_To_search_UniResourceYAML(in, out, s)
 }
 
-func autoConvert_search_UniresourceYAML_To_v1beta1_UniresourceYAML(in *search.UniresourceYAML, out *UniresourceYAML, s conversion.Scope) error {
+func autoConvert_search_UniResourceYAML_To_v1beta1_UniResourceYAML(in *search.UniResourceYAML, out *UniResourceYAML, s conversion.Scope) error {
+	out.YAMLString = in.YAMLString
 	return nil
 }
 
-// Convert_search_UniresourceYAML_To_v1beta1_UniresourceYAML is an autogenerated conversion function.
-func Convert_search_UniresourceYAML_To_v1beta1_UniresourceYAML(in *search.UniresourceYAML, out *UniresourceYAML, s conversion.Scope) error {
-	return autoConvert_search_UniresourceYAML_To_v1beta1_UniresourceYAML(in, out, s)
+// Convert_search_UniResourceYAML_To_v1beta1_UniResourceYAML is an autogenerated conversion function.
+func Convert_search_UniResourceYAML_To_v1beta1_UniResourceYAML(in *search.UniResourceYAML, out *UniResourceYAML, s conversion.Scope) error {
+	return autoConvert_search_UniResourceYAML_To_v1beta1_UniResourceYAML(in, out, s)
 }
 
-func autoConvert_v1beta1_UniresourceYAMLList_To_search_UniresourceYAMLList(in *UniresourceYAMLList, out *search.UniresourceYAMLList, s conversion.Scope) error {
-	out.Items = *(*[]search.UniresourceYAML)(unsafe.Pointer(&in.Items))
+func autoConvert_v1beta1_UniResourceYAMLList_To_search_UniResourceYAMLList(in *UniResourceYAMLList, out *search.UniResourceYAMLList, s conversion.Scope) error {
+	out.Items = *(*[]search.UniResourceYAML)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_v1beta1_UniresourceYAMLList_To_search_UniresourceYAMLList is an autogenerated conversion function.
-func Convert_v1beta1_UniresourceYAMLList_To_search_UniresourceYAMLList(in *UniresourceYAMLList, out *search.UniresourceYAMLList, s conversion.Scope) error {
-	return autoConvert_v1beta1_UniresourceYAMLList_To_search_UniresourceYAMLList(in, out, s)
+// Convert_v1beta1_UniResourceYAMLList_To_search_UniResourceYAMLList is an autogenerated conversion function.
+func Convert_v1beta1_UniResourceYAMLList_To_search_UniResourceYAMLList(in *UniResourceYAMLList, out *search.UniResourceYAMLList, s conversion.Scope) error {
+	return autoConvert_v1beta1_UniResourceYAMLList_To_search_UniResourceYAMLList(in, out, s)
 }
 
-func autoConvert_search_UniresourceYAMLList_To_v1beta1_UniresourceYAMLList(in *search.UniresourceYAMLList, out *UniresourceYAMLList, s conversion.Scope) error {
-	out.Items = *(*[]UniresourceYAML)(unsafe.Pointer(&in.Items))
+func autoConvert_search_UniResourceYAMLList_To_v1beta1_UniResourceYAMLList(in *search.UniResourceYAMLList, out *UniResourceYAMLList, s conversion.Scope) error {
+	out.Items = *(*[]UniResourceYAML)(unsafe.Pointer(&in.Items))
 	return nil
 }
 
-// Convert_search_UniresourceYAMLList_To_v1beta1_UniresourceYAMLList is an autogenerated conversion function.
-func Convert_search_UniresourceYAMLList_To_v1beta1_UniresourceYAMLList(in *search.UniresourceYAMLList, out *UniresourceYAMLList, s conversion.Scope) error {
-	return autoConvert_search_UniresourceYAMLList_To_v1beta1_UniresourceYAMLList(in, out, s)
+// Convert_search_UniResourceYAMLList_To_v1beta1_UniResourceYAMLList is an autogenerated conversion function.
+func Convert_search_UniResourceYAMLList_To_v1beta1_UniResourceYAMLList(in *search.UniResourceYAMLList, out *UniResourceYAMLList, s conversion.Scope) error {
+	return autoConvert_search_UniResourceYAMLList_To_v1beta1_UniResourceYAMLList(in, out, s)
+}
+
+func autoConvert_v1beta1_UniresourceNode_To_search_UniresourceNode(in *UniresourceNode, out *search.UniresourceNode, s conversion.Scope) error {
+	out.Identifier = in.Identifier
+	out.Parents = *(*[]string)(unsafe.Pointer(&in.Parents))
+	out.Children = *(*[]string)(unsafe.Pointer(&in.Children))
+	return nil
+}
+
+// Convert_v1beta1_UniresourceNode_To_search_UniresourceNode is an autogenerated conversion function.
+func Convert_v1beta1_UniresourceNode_To_search_UniresourceNode(in *UniresourceNode, out *search.UniresourceNode, s conversion.Scope) error {
+	return autoConvert_v1beta1_UniresourceNode_To_search_UniresourceNode(in, out, s)
+}
+
+func autoConvert_search_UniresourceNode_To_v1beta1_UniresourceNode(in *search.UniresourceNode, out *UniresourceNode, s conversion.Scope) error {
+	out.Identifier = in.Identifier
+	out.Parents = *(*[]string)(unsafe.Pointer(&in.Parents))
+	out.Children = *(*[]string)(unsafe.Pointer(&in.Children))
+	return nil
+}
+
+// Convert_search_UniresourceNode_To_v1beta1_UniresourceNode is an autogenerated conversion function.
+func Convert_search_UniresourceNode_To_v1beta1_UniresourceNode(in *search.UniresourceNode, out *UniresourceNode, s conversion.Scope) error {
+	return autoConvert_search_UniresourceNode_To_v1beta1_UniresourceNode(in, out, s)
 }

@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package uniresource
+package relationship
 
 import (
 	"context"
@@ -26,11 +26,10 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
 
-	"github.com/KusionStack/karbour/pkg/registry/search/relationship"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 )
 
-func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *relationship.Relationship, relatedGVK schema.GroupVersionKind, objResourceNode relationship.ResourceGraphNode, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
 	klog.Infof("Using direct references to find related resources...\n")
 	var jpMatch bool
 	var err error
@@ -45,7 +44,7 @@ func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipTy
 			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
 			klog.Infof("---------------------------------------------------------------------------\n")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
-			relatedResourceNode := relationship.ResourceGraphNode{
+			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,
 				Version:   rgv.Version,
 				Kind:      relatedRes.GetKind(),
@@ -58,7 +57,7 @@ func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipTy
 			} else {
 				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
 			}
-			relatedGVKOnGraph, _ := relationship.FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
+			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
 			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
 				// repeat for parent resources
 				for _, parentRelation := range relatedGVKOnGraph.Parent {
@@ -75,7 +74,7 @@ func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipTy
 	return resourceGraph, nil
 }
 
-func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *relationship.Relationship, relatedGVK schema.GroupVersionKind, objResourceNode relationship.ResourceGraphNode, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
 	klog.Infof("Using label selectors to find related resources...\n")
 	var labelsMatch bool
 	var err error
@@ -90,7 +89,7 @@ func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relations
 			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
 			klog.Infof("---------------------------------------------------------------------------\n")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
-			relatedResourceNode := relationship.ResourceGraphNode{
+			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,
 				Version:   rgv.Version,
 				Kind:      relatedRes.GetKind(),
@@ -103,7 +102,7 @@ func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relations
 			} else {
 				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
 			}
-			relatedGVKOnGraph, _ := relationship.FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
+			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
 			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
 				for _, parentRelation := range relatedGVKOnGraph.Parent {
 					resourceGraph, _ = GetParents(ctx, client, relatedRes, parentRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
