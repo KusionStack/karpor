@@ -38,6 +38,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterProxyOptions":          schema_pkg_apis_cluster_v1beta1_ClusterProxyOptions(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterSpec":                  schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterStatus":                schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref),
+		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterTopology":              schema_pkg_apis_cluster_v1beta1_ClusterTopology(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.X509":                         schema_pkg_apis_cluster_v1beta1_X509(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterSyncResourcesCondition": schema_pkg_apis_search_v1beta1_ClusterSyncResourcesCondition(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.FieldSelector":                 schema_pkg_apis_search_v1beta1_FieldSelector(ref),
@@ -363,7 +364,65 @@ func schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref common.ReferenceCallback)
 							Format: "",
 						},
 					},
+					"graph": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterTopology"),
+									},
+								},
+							},
+						},
+					},
 				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterTopology"},
+	}
+}
+
+func schema_pkg_apis_cluster_v1beta1_ClusterTopology(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"GroupVersionKind": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"Count": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"Relationship": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"object"},
+							AdditionalProperties: &spec.SchemaOrBool{
+								Allows: true,
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"GroupVersionKind", "Count", "Relationship"},
 			},
 		},
 	}

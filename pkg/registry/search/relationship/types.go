@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package uniresource
+package relationship
 
 type RelationshipGraph struct {
 	RelationshipNodes []*RelationshipGraphNode `json:"relationship,omitempty" yaml:"relationship,omitempty"`
 }
 
 type RelationshipGraphNode struct {
-	Group    string          `json:"group,omitempty" yaml:"group,omitempty"`
-	Version  string          `json:"version,omitempty" yaml:"version,omitempty"`
-	Kind     string          `json:"kind,omitempty" yaml:"kind,omitempty"`
-	Parent   []*Relationship `json:"parent,omitempty" yaml:"parent,omitempty"`
-	Children []*Relationship `json:"children,omitempty" yaml:"children,omitempty"`
+	Group         string          `json:"group,omitempty" yaml:"group,omitempty"`
+	Version       string          `json:"version,omitempty" yaml:"version,omitempty"`
+	Kind          string          `json:"kind,omitempty" yaml:"kind,omitempty"`
+	Parent        []*Relationship `json:"parent,omitempty" yaml:"parent,omitempty"`
+	Children      []*Relationship `json:"children,omitempty" yaml:"children,omitempty"`
+	ResourceCount int             `json:"resourceCount,omitempty" yaml:"resource_count,omitempty"`
 }
 
 type Relationship struct {

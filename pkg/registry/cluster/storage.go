@@ -18,14 +18,23 @@ package cluster
 
 import (
 	"context"
+	"fmt"
+	"os"
 
 	"github.com/KusionStack/karbour/pkg/apis/cluster"
+	"github.com/KusionStack/karbour/pkg/registry/search/relationship"
+	"github.com/dominikbraun/graph/draw"
+	"github.com/pkg/errors"
 
+	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/endpoints/request"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
 
@@ -84,6 +93,10 @@ func (r *StatusREST) New() runtime.Object {
 	return &cluster.Cluster{}
 }
 
+func (r *StatusREST) NewList() runtime.Object {
+	return &cluster.ClusterList{}
+}
+
 // Destroy cleans up resources on shutdown.
 func (r *StatusREST) Destroy() {
 	// Given that underlying store is shared with REST,
@@ -93,6 +106,31 @@ func (r *StatusREST) Destroy() {
 // Get retrieves the object from the storage. It is required to support Patch.
 func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
 	return r.Store.Get(ctx, name, options)
+}
+
+func (r *StatusREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+	rt := &cluster.Cluster{}
+	client, err := r.BuildDynamicClient(ctx)
+	if err != nil {
+		return rt, err
+	}
+	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client, true)
+
+	// Draw graph
+	file, _ := os.Create("./relationship.gv")
+	_ = draw.DOT(graph, file)
+
+	m := make(map[string]cluster.ClusterTopology)
+	for _, rgn := range rg.RelationshipNodes {
+		rgnMap := rgn.ConvertToMap()
+		m[rgn.GetHash()] = cluster.ClusterTopology{
+			GroupVersionKind: rgn.GetHash(),
+			Count:            rgn.ResourceCount,
+			Relationship:     rgnMap,
+		}
+	}
+	rt.Status.Graph = m
+	return rt, nil
 }
 
 // Update alters the status subset of an object.
@@ -109,4 +147,34 @@ func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
 
 func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
 	return r.Store.ConvertToTable(ctx, object, tableOptions)
+}
+
+// BuildDynamicClient returns a dynamic client based on the cluster name in the request
+func (r *StatusREST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicClient, error) {
+	// Extract the cluster name from context
+	info, ok := request.RequestInfoFrom(ctx)
+	if !ok {
+		return nil, fmt.Errorf("could not retrieve request info from context")
+	}
+	klog.Infof("Getting topology for cluster %s...", info.Name)
+
+	// Locate the cluster resource and build config with it
+	obj, err := r.Store.Get(ctx, info.Name, &metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	clusterFromContext := obj.(*cluster.Cluster)
+	klog.Infof("Cluster found: %s", clusterFromContext.Name)
+	config, err := NewConfigFromCluster(clusterFromContext)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create cluster client config %s", clusterFromContext.Name)
+	}
+
+	// Create the dynamic client
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }

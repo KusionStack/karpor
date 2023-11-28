@@ -31,6 +31,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 
+	"github.com/KusionStack/karbour/pkg/registry/search/relationship"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -76,13 +77,20 @@ func (r *TopologyREST) List(ctx context.Context, options *internalversion.ListOp
 	// }
 	// ...
 	klog.Infof("Query string: %s", queryString)
-	rg, _ := BuildResourceRelationshipGraph()
+	client, err := r.BuildDynamicClient(ctx)
+	if err != nil {
+		return nil, err
+	}
+	rg, _, err := relationship.BuildRelationshipGraph(ctx, client, false)
+	if err != nil {
+		return nil, err
+	}
 	res, err := r.Storage.Search(ctx, queryString, storage.SQLPatternType)
 	if err != nil {
 		return nil, err
 	}
 
-	ResourceGraphNodeHash := func(rgn ResourceGraphNode) string {
+	ResourceGraphNodeHash := func(rgn relationship.ResourceGraphNode) string {
 		return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
 	}
 	g := graph.New(ResourceGraphNodeHash, graph.Directed(), graph.PreventCycles())
@@ -135,11 +143,11 @@ func (r *TopologyREST) BuildDynamicClient(ctx context.Context) (*dynamic.Dynamic
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
-func (r *TopologyREST) GetResourceRelationship(ctx context.Context, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
+func (r *TopologyREST) GetResourceRelationship(ctx context.Context, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
 	namespace := obj.GetNamespace()
 	objName := obj.GetName()
 	gv, _ := schema.ParseGroupVersion(obj.GetAPIVersion())
-	objResourceNode := ResourceGraphNode{
+	objResourceNode := relationship.ResourceGraphNode{
 		Group:     gv.Group,
 		Version:   gv.Version,
 		Kind:      obj.GetKind(),
@@ -152,7 +160,7 @@ func (r *TopologyREST) GetResourceRelationship(ctx context.Context, obj unstruct
 		return resourceGraph, err
 	}
 
-	objGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, gv.Group, gv.Version, obj.GetKind())
+	objGVKOnGraph, _ := relationship.FindNodeOnGraph(relationshipGraph, gv.Group, gv.Version, obj.GetKind())
 	// TODO: process error
 	// Recursively find parents
 	for _, objParent := range objGVKOnGraph.Parent {

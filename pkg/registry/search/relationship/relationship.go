@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package uniresource
+package relationship
 
 import (
 	"context"
@@ -23,23 +23,43 @@ import (
 	"reflect"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/klog/v2"
 
+	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/client-go/dynamic"
-
-	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func (r ResourceGraphNode) GetHash() string {
-	return r.Group + "/" + r.Version + "." + r.Kind + ":" + r.Namespace + "." + r.Name
+func (rgn ResourceGraphNode) GetHash() string {
+	return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
 }
 
-func (r RelationshipGraphNode) GetHash() string {
+func (rgn RelationshipGraphNode) GetHash() string {
+	return rgn.Group + "." + rgn.Version + "." + rgn.Kind
+}
+
+func (r Relationship) GetHash() string {
 	return r.Group + "." + r.Version + "." + r.Kind
+}
+
+func (rgn RelationshipGraphNode) ConvertToMap() map[string]string {
+	m := make(map[string]string, 0)
+	for _, p := range rgn.Parent {
+		parentHash := p.GetHash()
+		if _, ok := m[parentHash]; !ok {
+			m[parentHash] = "parent"
+		}
+	}
+	for _, c := range rgn.Children {
+		childHash := c.GetHash()
+		if _, ok := m[childHash]; !ok {
+			m[childHash] = "child"
+		}
+	}
+	return m
 }
 
 // FindNodeByGVK locates the Node by GVK on a RelationshipGraph. Used to locate parent and child nodes when building the relationship graph
@@ -73,7 +93,7 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 }
 
 // BuildBuiltinRelationshipGraph returns the relationship graph built from the YAML describing resource relationships
-func BuildBuiltinRelationshipGraph() (graph.Graph[string, RelationshipGraphNode], error) {
+func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient, countResouces bool) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	r := RelationshipGraph{}
 	yamlFile, err := os.ReadFile("relationship.yaml")
 	if err != nil {
@@ -97,7 +117,7 @@ func BuildBuiltinRelationshipGraph() (graph.Graph[string, RelationshipGraphNode]
 			// Append the same parent-child relationship to child's parent node if it does not exist already
 			c.ChildNode.Parent, err = InsertIfNotExist(c.ChildNode.Parent, *c, "parent")
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 		for _, p := range ri.Parent {
@@ -109,7 +129,7 @@ func BuildBuiltinRelationshipGraph() (graph.Graph[string, RelationshipGraphNode]
 			// Append the same parent-child relationship to parent's child node if it does not exist already
 			p.ParentNode.Children, err = InsertIfNotExist(p.ParentNode.Children, *p, "child")
 			if err != nil {
-				return nil, err
+				return nil, nil, err
 			}
 		}
 	}
@@ -122,7 +142,19 @@ func BuildBuiltinRelationshipGraph() (graph.Graph[string, RelationshipGraphNode]
 	// Add Vertices
 	for _, node := range r.RelationshipNodes {
 		klog.Infof("Adding Vertex: %s\n", node.GetHash())
-		_ = g.AddVertex(*node)
+		if countResouces {
+			resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
+			if err != nil {
+				return nil, nil, err
+			}
+			resList, _ := client.Resource(resGVR).List(ctx, metav1.ListOptions{})
+			resCount := len(resList.Items)
+			klog.Infof("Counted resources for Vertex %s: %d\n", node.GetHash(), resCount)
+			node.ResourceCount = resCount
+			_ = g.AddVertex(*node, graph.VertexWeight(resCount))
+		} else {
+			_ = g.AddVertex(*node)
+		}
 	}
 	// Add Edges, requires all vertices to be present
 	for _, node := range r.RelationshipNodes {
@@ -147,102 +179,14 @@ func BuildBuiltinRelationshipGraph() (graph.Graph[string, RelationshipGraphNode]
 	file, _ := os.Create("./relationship.gv")
 	_ = draw.DOT(g, file)
 
-	return g, nil
+	return g, &r, nil
 }
 
-// BuildResourceRelationshipGraph builds the complete relationship graph including the built-in one and customer-specified one
-func BuildResourceRelationshipGraph() (graph.Graph[string, RelationshipGraphNode], error) {
-	res, _ := BuildBuiltinRelationshipGraph()
+// BuildRelationshipGraph builds the complete relationship graph including the built-in one and customer-specified one
+func BuildRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient, countResouces bool) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+	res, rg, _ := BuildBuiltinRelationshipGraph(ctx, client, countResouces)
 	// TODO: Also include customized relationship graph
-	return res, nil
-}
-
-func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
-	klog.Infof("Using direct references to find related resources...\n")
-	var jpMatch bool
-	var err error
-	for _, relatedRes := range relatedResList.Items {
-		if relation.AutoGenerated {
-			jpMatch, err = topologyutil.JSONPathMatch(relatedRes, obj, relation.JSONPath)
-		} else {
-			jpMatch, err = topologyutil.JSONPathMatch(obj, relatedRes, relation.JSONPath)
-		}
-		if jpMatch && err == nil {
-			klog.Infof("%s resource found for kind %s, name %s based on JSONPath.\n", relationshipType, obj.GetKind(), obj.GetName())
-			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
-			klog.Infof("---------------------------------------------------------------------------\n")
-			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
-			relatedResourceNode := ResourceGraphNode{
-				Group:     rgv.Group,
-				Version:   rgv.Version,
-				Kind:      relatedRes.GetKind(),
-				Name:      relatedRes.GetName(),
-				Namespace: relatedRes.GetNamespace(),
-			}
-			resourceGraph.AddVertex(relatedResourceNode)
-			if relationshipType == "parent" {
-				resourceGraph.AddEdge(relatedResourceNode.GetHash(), objResourceNode.GetHash())
-			} else {
-				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
-			}
-			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
-			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
-				// repeat for parent resources
-				for _, parentRelation := range relatedGVKOnGraph.Parent {
-					resourceGraph, _ = GetParents(ctx, client, relatedRes, parentRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
-				}
-			} else if relationshipType == "child" && len(relatedGVKOnGraph.Children) > 0 {
-				// repeat for child resources
-				for _, childRelation := range relatedGVKOnGraph.Children {
-					resourceGraph, _ = GetChildren(ctx, client, relatedRes, childRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
-				}
-			}
-		}
-	}
-	return resourceGraph, nil
-}
-
-func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
-	klog.Infof("Using label selectors to find related resources...\n")
-	var labelsMatch bool
-	var err error
-	for _, relatedRes := range relatedResList.Items {
-		if relationshipType == "parent" {
-			labelsMatch, err = topologyutil.LabelSelectorsMatch(relatedRes, obj, relation.SelectorPath)
-		} else {
-			labelsMatch, err = topologyutil.LabelSelectorsMatch(obj, relatedRes, relation.SelectorPath)
-		}
-		if labelsMatch && err == nil {
-			klog.Infof("%s resource found for kind %s, name %s based on %s.\n", relationshipType, obj.GetKind(), obj.GetName(), relation.SelectorPath)
-			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
-			klog.Infof("---------------------------------------------------------------------------\n")
-			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
-			relatedResourceNode := ResourceGraphNode{
-				Group:     rgv.Group,
-				Version:   rgv.Version,
-				Kind:      relatedRes.GetKind(),
-				Name:      relatedRes.GetName(),
-				Namespace: relatedRes.GetNamespace(),
-			}
-			resourceGraph.AddVertex(relatedResourceNode)
-			if relationshipType == "parent" {
-				resourceGraph.AddEdge(relatedResourceNode.GetHash(), objResourceNode.GetHash())
-			} else {
-				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
-			}
-			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
-			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
-				for _, parentRelation := range relatedGVKOnGraph.Parent {
-					resourceGraph, _ = GetParents(ctx, client, relatedRes, parentRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
-				}
-			} else if relationshipType == "child" && len(relatedGVKOnGraph.Children) > 0 {
-				for _, childRelation := range relatedGVKOnGraph.Children {
-					resourceGraph, _ = GetChildren(ctx, client, relatedRes, childRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
-				}
-			}
-		}
-	}
-	return resourceGraph, nil
+	return res, rg, nil
 }
 
 // InsertIfNotExist inserts relation into relationList only if it does not exist already
