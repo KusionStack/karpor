@@ -43,5 +43,15 @@ func NewCoreAPIs() http.Handler {
 func setupApiV1(r chi.Router, configCtrl *config.Controller) {
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/", confighandler.Get(configCtrl))
+		// r.Delete("/", confighandler.Delete(configCtrl))
+		// r.Post("/", confighandler.Post(configCtrl))
+		// r.Put("/", confighandler.Put(configCtrl))
 	})
+
+	// r.Route("/topology", func(r chi.Router) {
+	// 	r.Get("/", topologyhandler.Get(topologyCtrl))
+	// 	r.Delete("/", topologyhandler.Delete(topologyCtrl))
+	// 	r.Post("/", topologyhandler.Post(topologyCtrl))
+	// 	r.Put("/", topologyhandler.Put(topologyCtrl))
+	// })
 }
