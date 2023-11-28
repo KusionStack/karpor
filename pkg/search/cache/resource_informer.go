@@ -15,19 +15,16 @@
 package cache
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/search/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/watch"
-	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 )
 
 type ResourceHandler interface {
@@ -54,62 +51,90 @@ func (r ResourceHandlerFuncs) OnDelete(obj interface{}) error {
 	return r.DeleteFunc(obj)
 }
 
-type ResourceSyncConfig struct {
-	ClusterName    string
-	DynamicClient  dynamic.Interface
-	GVR            schema.GroupVersionResource
-	Namespace      string
-	Selectors      []utils.Selector
-	JSONPathParser *utils.JSONPathParser
-	TransformFunc  cache.TransformFunc
-	ResyncPeriod   time.Duration
-	Handler        ResourceHandler
+type ResourceSelector interface {
+	ApplyToList(*metav1.ListOptions)
+	Predicate(interface{}) bool
 }
 
-func NewResourceInformer(config ResourceSyncConfig) cache.Controller {
+func NewResourceInformer(lw cache.ListerWatcher,
+	selector ResourceSelector,
+	transform cache.TransformFunc,
+	resyncPeriod time.Duration,
+	handler ResourceHandler,
+) cache.Controller {
 	informerCache := NewResourceCache()
 	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
 		KnownObjects:          informerCache,
 		EmitDeltaTypeReplaced: true,
 	})
 
-	selectors := utils.MultiSelectors(config.Selectors)
-	var listWatchSelector *utils.Selector
-	if len(selectors) == 1 {
-		selector := selectors[0]
-		if selector.ServerSupported() {
-			listWatchSelector = &selector
-			selectors = nil
+	doProcess := func(obj interface{}, dType cache.DeltaType) error {
+		// transform
+		if transform != nil {
+			if _, ok := obj.(cache.DeletedFinalStateUnknown); !ok {
+				transformed, err := transform(obj)
+				if err != nil {
+					return fmt.Errorf("error transforming object: %v, delta type: %s", err, dType)
+				}
+				obj = transformed
+			}
 		}
-	}
 
-	applyToList := func(options *metav1.ListOptions) {
-		if listWatchSelector != nil {
-			if listWatchSelector.Label != nil {
-				options.LabelSelector = listWatchSelector.Label.String()
+		switch dType {
+		case cache.Sync, cache.Replaced, cache.Added, cache.Updated:
+			if _, exists, err := informerCache.Get(obj); err == nil && exists {
+				if newer, err := informerCache.IsNewer(obj); err != nil {
+					return err
+				} else if !newer {
+					return nil
+				}
+
+				if err := informerCache.Update(obj); err != nil {
+					return err
+				}
+				return handler.OnUpdate(obj)
+			} else {
+				if err := informerCache.Add(obj); err != nil {
+					return err
+				}
+				return handler.OnAdd(obj)
 			}
-			if listWatchSelector.Field != nil {
-				options.FieldSelector = listWatchSelector.Field.String()
+		case cache.Deleted:
+			if err := informerCache.Delete(obj); err != nil {
+				return err
 			}
+			return handler.OnDelete(obj)
 		}
+		return nil
 	}
 
 	cfg := &cache.Config{
-		Queue: fifo,
+		Queue:            fifo,
+		ObjectType:       &unstructured.Unstructured{},
+		FullResyncPeriod: resyncPeriod,
+		RetryOnError:     true,
 		ListerWatcher: &cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-				applyToList(&options)
-				return config.DynamicClient.Resource(config.GVR).Namespace(config.Namespace).List(context.TODO(), options)
+				if selector != nil {
+					selector.ApplyToList(&options)
+				}
+				return lw.List(options)
 			},
 			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-				applyToList(&options)
-				return config.DynamicClient.Resource(config.GVR).Namespace(config.Namespace).Watch(context.TODO(), options)
+				if selector != nil {
+					selector.ApplyToList(&options)
+				}
+				return lw.Watch(options)
 			},
 		},
-		ObjectType:       &unstructured.Unstructured{},
-		FullResyncPeriod: config.ResyncPeriod,
-		RetryOnError:     true,
-		Process: func(d interface{}) error {
+
+		Process: func(d interface{}) (err error) {
+			defer func() {
+				if err != nil {
+					klog.Errorf("resource informer: error processing item: %v", err)
+				}
+			}()
+
 			deltas, ok := d.(cache.Deltas)
 			if !ok {
 				return errors.New("object given as Process argument is not Deltas")
@@ -120,56 +145,11 @@ func NewResourceInformer(config ResourceSyncConfig) cache.Controller {
 			obj := newest.Object
 
 			// filter
-			if selectors != nil {
-				u, ok := obj.(*unstructured.Unstructured)
-				if !ok {
-					return fmt.Errorf("unexpected type '%T', should be *unstructured.Unstructured", obj)
-				}
-				matched, err := selectors.Matches(utils.SelectableUnstructured(u, config.JSONPathParser))
-				if err != nil {
-					return err
-				}
-				if !matched {
-					return nil
-				}
+			if selector != nil && !selector.Predicate(obj) {
+				return
 			}
-
-			// transform
-			if config.TransformFunc != nil {
-				transformed, err := config.TransformFunc(obj)
-				if err != nil {
-					return fmt.Errorf("error transforming object: %v", err)
-				}
-				obj = transformed
-			}
-
-			h := config.Handler
-			switch newest.Type {
-			case cache.Sync, cache.Replaced, cache.Added, cache.Updated:
-				if _, exists, err := informerCache.Get(obj); err == nil && exists {
-					if newer, err := informerCache.IsNewer(obj); err != nil {
-						return err
-					} else if !newer {
-						return nil
-					}
-
-					if err := informerCache.Update(obj); err != nil {
-						return err
-					}
-					return h.OnUpdate(obj)
-				} else {
-					if err := informerCache.Add(obj); err != nil {
-						return err
-					}
-					return h.OnAdd(obj)
-				}
-			case cache.Deleted:
-				if err := informerCache.Delete(obj); err != nil {
-					return err
-				}
-				return h.OnDelete(obj)
-			}
-			return nil
+			err = doProcess(obj, newest.Type)
+			return
 		},
 	}
 

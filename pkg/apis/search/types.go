@@ -33,7 +33,7 @@ type SyncRegistry struct {
 }
 
 type SyncRegistrySpec struct {
-	// ClusterSelector is used to filter the target clusters that need to be synced from.
+	// ClusterLabelSelector is used to filter the target clusters that need to be synced from.
 	ClusterLabelSelector *metav1.LabelSelector
 
 	// Clusters is the list of the target clusters to be be synced from.
@@ -92,6 +92,9 @@ type ResourceSyncRule struct {
 
 	// ResynPeriod is the period to resync
 	ResyncPeriod *metav1.Duration
+
+	// MaxConcurrent is the maximum number of workers (default: 10)
+	MaxConcurrent int
 
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	Selectors []Selector

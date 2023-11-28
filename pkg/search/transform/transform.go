@@ -15,58 +15,22 @@
 package transform
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"text/template"
 
-	"github.com/Masterminds/sprig/v3"
 	jsonpatch "github.com/evanphx/json-patch"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
+var defaultRegistry = NewRegistry()
+
 func init() {
 	Register("patch", Patch)
-	Register("repalce", Replace)
+	Register("replace", Replace)
 }
 
-type Transformer struct {
-	fn      TransformFunc
-	t       *template.Template
-	cluster string
-}
-
-func NewTransformer(tType string, tmpl string, cluster string) (*Transformer, error) {
-	fn, found := GetTransformFunc(tType)
-	if !found {
-		return nil, fmt.Errorf("unsupported transform type %q", tType)
-	}
-	t, err := NewTemplate(tmpl)
-	if err != nil {
-		return nil, err
-	}
-	return &Transformer{fn: fn, t: t, cluster: cluster}, nil
-}
-
-func (t *Transformer) Transform(original interface{}) (interface{}, error) {
-	var buf bytes.Buffer
-	if err := t.t.Execute(&buf, templateData{Obj: original, Cluster: t.cluster}); err != nil {
-		return nil, fmt.Errorf("error rendering template: %v", err)
-	}
-	return t.fn(original, buf.String())
-}
-
-type templateData struct {
-	Obj     interface{} `json:"obj"`
-	Cluster string      `json:"cluster"`
-}
-
-func NewTemplate(tmpl string) (*template.Template, error) {
-	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Parse(tmpl)
-}
-
-var defaultRegistry TransformFuncRegistry
+type TransformFunc func(original interface{}, transformText string) (target interface{}, err error)
 
 func Register(tType string, transFunc TransformFunc) {
 	defaultRegistry.Register(tType, transFunc)
@@ -80,6 +44,10 @@ type TransformFuncRegistry struct {
 	transformers map[string]TransformFunc
 }
 
+func NewRegistry() *TransformFuncRegistry {
+	return &TransformFuncRegistry{transformers: make(map[string]TransformFunc)}
+}
+
 func (r *TransformFuncRegistry) Register(tType string, transFunc TransformFunc) {
 	r.transformers[tType] = transFunc
 }
@@ -88,8 +56,6 @@ func (r *TransformFuncRegistry) Get(transformerType string) (transFunc Transform
 	transFunc, found = r.transformers[transformerType]
 	return
 }
-
-type TransformFunc func(original interface{}, data string) (target interface{}, err error)
 
 func Patch(original interface{}, patchText string) (interface{}, error) {
 	patch, err := jsonpatch.DecodePatch([]byte(patchText))

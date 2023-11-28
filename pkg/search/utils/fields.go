@@ -28,6 +28,8 @@ type JSONPathParser struct {
 	cache map[string]*jsonpath.JSONPath
 }
 
+var DefaultJSONPathParser = NewJSONPathParser()
+
 func NewJSONPathParser() *JSONPathParser {
 	return &JSONPathParser{
 		cache: make(map[string]*jsonpath.JSONPath),

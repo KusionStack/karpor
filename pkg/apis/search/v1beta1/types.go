@@ -107,6 +107,10 @@ type ResourceSyncRule struct {
 	// ResynPeriod is the period to resync
 	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
 
+	// MaxConcurrent is the maximum number of workers (default: 10)
+	// +optional
+	MaxConcurrent int `json:"workers,omitempty"`
+
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	// +optional
 	Selectors []Selector `json:"selectors,omitempty"`
