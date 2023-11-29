@@ -81,7 +81,7 @@ func (r *TopologyREST) List(ctx context.Context, options *internalversion.ListOp
 	if err != nil {
 		return nil, err
 	}
-	rg, _, err := relationship.BuildRelationshipGraph(ctx, client, false)
+	rg, _, err := relationship.BuildRelationshipGraph(ctx, client)
 	if err != nil {
 		return nil, err
 	}
@@ -103,7 +103,7 @@ func (r *TopologyREST) List(ctx context.Context, options *internalversion.ListOp
 		}
 	}
 	// Draw graph
-	// TODO: This is drawn on the server side, probably not needed eventually
+	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./resource.gv")
 	_ = draw.DOT(g, file)
 

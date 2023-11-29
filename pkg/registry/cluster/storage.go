@@ -23,6 +23,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/apis/cluster"
 	"github.com/KusionStack/karbour/pkg/registry/search/relationship"
+	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/dominikbraun/graph/draw"
 	"github.com/pkg/errors"
 
@@ -33,7 +34,10 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
+	restclient "k8s.io/client-go/rest"
 	"k8s.io/klog/v2"
 	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
 )
@@ -110,13 +114,35 @@ func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOp
 
 func (r *StatusREST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
 	rt := &cluster.Cluster{}
-	client, err := r.BuildDynamicClient(ctx)
+	dynamicClient, err := r.BuildDynamicClient(ctx)
 	if err != nil {
 		return rt, err
 	}
-	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client, true)
+	discoveryClient, err := r.BuildDiscoveryClient(ctx)
+	if err != nil {
+		return rt, err
+	}
+
+	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, dynamicClient)
+	namespace, ok := proxyutil.NamespaceFrom(ctx)
+	if !ok {
+		// Count resources in all namespaces
+		klog.Infof("Retrieving topology for the entire cluster")
+		rg, err = rg.CountRelationshipGraph(ctx, dynamicClient, discoveryClient, "")
+		if err != nil {
+			return rt, err
+		}
+	} else {
+		// Only count resources that belong to a specific namespace
+		klog.Infof("Retrieving topology for namespace: %s", namespace)
+		rg, err = rg.CountRelationshipGraph(ctx, dynamicClient, discoveryClient, namespace)
+		if err != nil {
+			return rt, err
+		}
+	}
 
 	// Draw graph
+	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./relationship.gv")
 	_ = draw.DOT(graph, file)
 
@@ -151,6 +177,31 @@ func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, 
 
 // BuildDynamicClient returns a dynamic client based on the cluster name in the request
 func (r *StatusREST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicClient, error) {
+	config, err := r.GetConfigFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Create the dynamic client
+	dynamicClient, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return dynamicClient, nil
+}
+
+func (r *StatusREST) BuildDiscoveryClient(ctx context.Context) (*discovery.DiscoveryInterface, error) {
+	config, err := r.GetConfigFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+	// Create the discovery client
+	clientset := kubernetes.NewForConfigOrDie(config)
+	discoveryClient := clientset.Discovery()
+	return &discoveryClient, nil
+}
+
+func (r *StatusREST) GetConfigFromContext(ctx context.Context) (*restclient.Config, error) {
 	// Extract the cluster name from context
 	info, ok := request.RequestInfoFrom(ctx)
 	if !ok {
@@ -164,17 +215,10 @@ func (r *StatusREST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicCl
 		return nil, err
 	}
 	clusterFromContext := obj.(*cluster.Cluster)
-	klog.Infof("Cluster found: %s", clusterFromContext.Name)
+	klog.Infof("Cluster found for discovery client: %s", clusterFromContext.Name)
 	config, err := NewConfigFromCluster(clusterFromContext)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to create cluster client config %s", clusterFromContext.Name)
 	}
-
-	// Create the dynamic client
-	client, err := dynamic.NewForConfig(config)
-	if err != nil {
-		return nil, err
-	}
-
-	return client, nil
+	return config, nil
 }

@@ -21,7 +21,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
-type ctxTyp string
+type CtxTyp string
 
 type Resource struct {
 	Name       string
@@ -42,7 +42,7 @@ const (
 )
 
 func SearchQueryFrom(ctx context.Context) (string, bool) {
-	query, ok := ctx.Value(ctxTyp(searchQueryKey)).(string)
+	query, ok := ctx.Value(CtxTyp(searchQueryKey)).(string)
 	if !ok {
 		return "", false
 	}
@@ -50,7 +50,7 @@ func SearchQueryFrom(ctx context.Context) (string, bool) {
 }
 
 func PatternTypeFrom(ctx context.Context) (string, bool) {
-	patternType, ok := ctx.Value(ctxTyp(patternTypeKey)).(string)
+	patternType, ok := ctx.Value(CtxTyp(patternTypeKey)).(string)
 	if !ok {
 		return "", false
 	}
@@ -59,23 +59,23 @@ func PatternTypeFrom(ctx context.Context) (string, bool) {
 
 func ResourceDetailFrom(ctx context.Context) (Resource, bool) {
 	res := Resource{}
-	resourceName, ok := ctx.Value(ctxTyp(resourceNameQueryKey)).(string)
+	resourceName, ok := ctx.Value(CtxTyp(resourceNameQueryKey)).(string)
 	if !ok {
 		return res, false
 	}
-	namespace, ok := ctx.Value(ctxTyp(resourceNamespaceQueryKey)).(string)
+	namespace, ok := ctx.Value(CtxTyp(resourceNamespaceQueryKey)).(string)
 	if !ok {
 		return res, false
 	}
-	cluster, ok := ctx.Value(ctxTyp(resourceClusterQueryKey)).(string)
+	cluster, ok := ctx.Value(CtxTyp(resourceClusterQueryKey)).(string)
 	if !ok {
 		return res, false
 	}
-	apiVersion, ok := ctx.Value(ctxTyp(resourceAPIVersionQueryKey)).(string)
+	apiVersion, ok := ctx.Value(CtxTyp(resourceAPIVersionQueryKey)).(string)
 	if !ok {
 		return res, false
 	}
-	kind, ok := ctx.Value(ctxTyp(resourceKindQueryKey)).(string)
+	kind, ok := ctx.Value(CtxTyp(resourceKindQueryKey)).(string)
 	if !ok {
 		return res, false
 	}
@@ -114,5 +114,5 @@ func FromQueryToContext(req *http.Request, key string, defaultVal string) *http.
 		query.Del(key)
 		val = queryVal[0]
 	}
-	return req.WithContext(context.WithValue(req.Context(), ctxTyp(key), val))
+	return req.WithContext(context.WithValue(req.Context(), CtxTyp(key), val))
 }

@@ -19,14 +19,13 @@ package relationship
 import (
 	"context"
 
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/klog/v2"
-
-	"github.com/dominikbraun/graph"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/client-go/dynamic"
-
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
+	"github.com/dominikbraun/graph"
+
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/klog/v2"
 )
 
 func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {

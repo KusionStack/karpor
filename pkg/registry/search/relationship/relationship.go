@@ -22,15 +22,17 @@ import (
 	"os"
 	"reflect"
 
-	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/dynamic"
-	"k8s.io/klog/v2"
-
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
+
 	yaml "gopkg.in/yaml.v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/klog/v2"
 )
 
 func (rgn ResourceGraphNode) GetHash() string {
@@ -93,7 +95,7 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 }
 
 // BuildBuiltinRelationshipGraph returns the relationship graph built from the YAML describing resource relationships
-func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient, countResouces bool) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	r := RelationshipGraph{}
 	yamlFile, err := os.ReadFile("relationship.yaml")
 	if err != nil {
@@ -142,19 +144,7 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	// Add Vertices
 	for _, node := range r.RelationshipNodes {
 		klog.Infof("Adding Vertex: %s\n", node.GetHash())
-		if countResouces {
-			resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
-			if err != nil {
-				return nil, nil, err
-			}
-			resList, _ := client.Resource(resGVR).List(ctx, metav1.ListOptions{})
-			resCount := len(resList.Items)
-			klog.Infof("Counted resources for Vertex %s: %d\n", node.GetHash(), resCount)
-			node.ResourceCount = resCount
-			_ = g.AddVertex(*node, graph.VertexWeight(resCount))
-		} else {
-			_ = g.AddVertex(*node)
-		}
+		_ = g.AddVertex(*node)
 	}
 	// Add Edges, requires all vertices to be present
 	for _, node := range r.RelationshipNodes {
@@ -176,6 +166,7 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	klog.Infof("Built-in graph completed.")
 
 	// Draw graph
+	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./relationship.gv")
 	_ = draw.DOT(g, file)
 
@@ -183,8 +174,8 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 }
 
 // BuildRelationshipGraph builds the complete relationship graph including the built-in one and customer-specified one
-func BuildRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient, countResouces bool) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
-	res, rg, _ := BuildBuiltinRelationshipGraph(ctx, client, countResouces)
+func BuildRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+	res, rg, _ := BuildBuiltinRelationshipGraph(ctx, client)
 	// TODO: Also include customized relationship graph
 	return res, rg, nil
 }
@@ -224,4 +215,48 @@ func InsertIfNotExist(relationList []*Relationship, relation Relationship, relat
 // RelationshipEquals returns true if two relationships are equal
 func RelationshipEquals(r, relation *Relationship) bool {
 	return r.Group == relation.Group && r.Version == relation.Version && r.Kind == relation.Kind && r.Type == relation.Type && reflect.DeepEqual(r.JSONPath, relation.JSONPath)
+}
+
+// CountRelationshipGraph returns the same RelationshipGraph with the count for each resource
+func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryInterface, countNamespace string) (*RelationshipGraph, error) {
+	for _, node := range rg.RelationshipNodes {
+		var resList *unstructured.UnstructuredList
+		resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
+		if err != nil {
+			return rg, err
+		}
+		if countNamespace == "" {
+			resList, err = dynamicClient.Resource(resGVR).List(ctx, metav1.ListOptions{})
+		} else if countNamespace != "" && GVRNamespaced(resGVR, *discoveryClient) {
+			resList, err = dynamicClient.Resource(resGVR).Namespace(countNamespace).List(ctx, metav1.ListOptions{})
+		} else {
+			continue
+		}
+		if err != nil {
+			return rg, err
+		}
+		resCount := len(resList.Items)
+		klog.Infof("Counted resources for Vertex %s: %d\n", node.GetHash(), resCount)
+		node.ResourceCount = resCount
+	}
+	return rg, nil
+}
+
+// GVRNamespaced returns true if a given GVR is namespaced based on the result of discovery client
+func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.DiscoveryInterface) bool {
+	apiResourceList, err := discoveryClient.ServerResourcesForGroupVersion(gvr.GroupVersion().String())
+	if err != nil {
+		return false
+	}
+	// Iterate over the APIResources to find the one that matches the Resource and determine if it is namespaced
+	for _, apiResource := range apiResourceList.APIResources {
+		if apiResource.Name == gvr.Resource {
+			if apiResource.Namespaced {
+				return true
+			} else {
+				return false
+			}
+		}
+	}
+	return false
 }
