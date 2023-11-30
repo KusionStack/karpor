@@ -19,13 +19,22 @@ import (
 	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
+	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apiserver/pkg/registry/generic"
+
 	"k8s.io/apiserver/pkg/registry/rest"
+
+	"github.com/pkg/errors"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/klog/v2"
+
+	cluster "github.com/KusionStack/karbour/pkg/apis/cluster"
 )
 
 var (
@@ -35,18 +44,45 @@ var (
 	_ rest.ShortNamesProvider = &REST{}
 )
 
-type REST struct {
-	Storage storage.SearchStorage
+const (
+	SQLQueryDefault = "select * from resources"
+)
+
+type Storage struct {
+	Uniresource *REST
+	Topology    *TopologyREST
+	YAML        *YAMLREST
 }
 
-func NewREST(searchStorageGetter storage.SearchStorageGetter) (rest.Storage, error) {
+type REST struct {
+	Storage storage.SearchStorage
+	Cluster *clusterstorage.Storage
+}
+
+func NewREST(searchStorageGetter storage.SearchStorageGetter, clusterOptsGetter generic.RESTOptionsGetter) (*Storage, error) {
 	searchStorage, err := searchStorageGetter.GetSearchStorage()
 	if err != nil {
 		return nil, err
 	}
 
-	return &REST{
-		Storage: searchStorage,
+	clusterStorage, err := clusterstorage.NewREST(clusterOptsGetter)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Storage{
+		Uniresource: &REST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
+		Topology: &TopologyREST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
+		YAML: &YAMLREST{
+			Storage: searchStorage,
+			Cluster: clusterStorage,
+		},
 	}, nil
 }
 
@@ -88,6 +124,35 @@ func (r *REST) List(ctx context.Context, options *internalversion.ListOptions) (
 		rt.Items = append(rt.Items, unObj)
 	}
 	return rt, nil
+}
+
+// BuildDynamicClient returns a dynamic client based on the cluster name in the request
+func (r *REST) BuildDynamicClient(ctx context.Context) (*dynamic.DynamicClient, error) {
+	// Extract the cluster name from context
+	resourceDetail, ok := filtersutil.ResourceDetailFrom(ctx)
+	if !ok {
+		return nil, fmt.Errorf("name, namespace, cluster, apiVersion and kind are used to locate a unique resource so they can't be empty")
+	}
+
+	// Locate the cluster resource and build config with it
+	obj, err := r.Cluster.Status.Store.Get(ctx, resourceDetail.Cluster, &metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	clusterFromContext := obj.(*cluster.Cluster)
+	klog.Infof("Cluster found: %s", clusterFromContext.Name)
+	config, err := clusterstorage.NewConfigFromCluster(clusterFromContext)
+	if err != nil {
+		return nil, errors.Wrapf(err, "failed to create cluster client config %s", clusterFromContext.Name)
+	}
+
+	// Create the dynamic client
+	client, err := dynamic.NewForConfig(config)
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
 }
 
 func (r *REST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {

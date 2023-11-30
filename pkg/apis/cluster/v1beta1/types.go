@@ -16,7 +16,9 @@ limitations under the License.
 
 package v1beta1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 type CredentialType string
 
@@ -57,9 +59,18 @@ type ClusterSpec struct {
 	Finalized *bool `json:"finalized,omitempty"`
 }
 
+// +k8s:deepcopy-gen=true
+
+type ClusterTopology struct {
+	GroupVersionKind string
+	Count            int
+	Relationship     map[string]string
+}
+
 type ClusterStatus struct {
 	// +optional
-	Healthy bool `json:"healthy,omitempty"`
+	Healthy bool                       `json:"healthy,omitempty"`
+	Graph   map[string]ClusterTopology `json:"graph,omitempty"`
 }
 
 type ClusterAccess struct {

@@ -55,6 +55,10 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&TransformRuleList{},
 		&UniResource{},
 		&UniResourceList{},
+		&UniResourceTopology{},
+		&UniResourceTopologyList{},
+		&UniResourceYAML{},
+		&UniResourceYAMLList{},
 	)
 	return nil
 }

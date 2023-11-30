@@ -19,14 +19,17 @@ import (
 	"fmt"
 	"net/http"
 	"path"
+
+	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 )
 
 type clusterKey int
 
 const (
 	// clusterKey is the context key for the request namespace.
-	clusterContextKey clusterKey = iota
-	ClusterProxyURL              = "/apis/cluster.karbour.com/v1beta1/clusters/%s/proxy/"
+	clusterContextKey   clusterKey = iota
+	ClusterProxyURL                = "/apis/cluster.karbour.com/v1beta1/clusters/%s/proxy/"
+	clusterNamespaceKey            = "namespace"
 )
 
 // WithCluster returns a context that describes the nested cluster context
@@ -41,6 +44,14 @@ func ClusterFrom(ctx context.Context) (string, bool) {
 		return "", false
 	}
 	return cluster, true
+}
+
+func NamespaceFrom(ctx context.Context) (string, bool) {
+	namespace, ok := ctx.Value(filtersutil.CtxTyp(clusterNamespaceKey)).(string)
+	if !ok {
+		return "", false
+	}
+	return namespace, true
 }
 
 func WithProxyByCluster(handler http.Handler) http.Handler {
