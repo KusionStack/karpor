@@ -69,8 +69,9 @@ type ClusterTopology struct {
 
 type ClusterStatus struct {
 	// +optional
-	Healthy bool                       `json:"healthy,omitempty"`
-	Graph   map[string]ClusterTopology `json:"graph,omitempty"`
+	Healthy    bool                       `json:"healthy,omitempty"`
+	Graph      map[string]ClusterTopology `json:"graph,omitempty"`
+	YAMLString string                     `json:"yaml,omitempty"`
 }
 
 type ClusterAccess struct {

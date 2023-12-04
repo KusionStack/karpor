@@ -308,6 +308,7 @@ func Convert_cluster_ClusterSpec_To_v1beta1_ClusterSpec(in *cluster.ClusterSpec,
 func autoConvert_v1beta1_ClusterStatus_To_cluster_ClusterStatus(in *ClusterStatus, out *cluster.ClusterStatus, s conversion.Scope) error {
 	out.Healthy = in.Healthy
 	out.Graph = *(*map[string]cluster.ClusterTopology)(unsafe.Pointer(&in.Graph))
+	out.YAMLString = in.YAMLString
 	return nil
 }
 
@@ -319,6 +320,7 @@ func Convert_v1beta1_ClusterStatus_To_cluster_ClusterStatus(in *ClusterStatus, o
 func autoConvert_cluster_ClusterStatus_To_v1beta1_ClusterStatus(in *cluster.ClusterStatus, out *ClusterStatus, s conversion.Scope) error {
 	out.Healthy = in.Healthy
 	out.Graph = *(*map[string]ClusterTopology)(unsafe.Pointer(&in.Graph))
+	out.YAMLString = in.YAMLString
 	return nil
 }
 

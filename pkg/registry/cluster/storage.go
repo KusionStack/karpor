@@ -46,6 +46,7 @@ type Storage struct {
 	Cluster *REST
 	Status  *StatusREST
 	Proxy   *ProxyREST
+	YAML    *YAMLRest
 }
 
 // NewREST returns a RESTStorage object that will work against API services.
@@ -76,6 +77,7 @@ func NewREST(optsGetter generic.RESTOptionsGetter) (*Storage, error) {
 		Cluster: &REST{store},
 		Status:  &StatusREST{&statusStore},
 		Proxy:   &ProxyREST{store},
+		YAML:    &YAMLRest{store},
 	}, nil
 }
 

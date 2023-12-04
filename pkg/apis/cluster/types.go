@@ -33,11 +33,11 @@ const (
 
 // Cluster is an extension type to access a cluster
 type Cluster struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ClusterSpec
-	Status ClusterStatus
+	Spec   ClusterSpec   `json:"spec"`
+	Status ClusterStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -65,13 +65,14 @@ type ClusterTopology struct {
 }
 
 type ClusterStatus struct {
-	Healthy bool
-	Graph   map[string]ClusterTopology
+	Healthy    bool
+	Graph      map[string]ClusterTopology
+	YAMLString string `json:"yaml,omitempty"`
 }
 
 type ClusterAccess struct {
 	Endpoint   string
-	CABundle   []byte
+	CABundle   []byte `json:"caBundle,omitempty"`
 	Insecure   *bool
 	Credential *ClusterAccessCredential
 }

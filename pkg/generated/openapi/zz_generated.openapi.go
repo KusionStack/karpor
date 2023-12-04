@@ -379,6 +379,12 @@ func schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref common.ReferenceCallback)
 							},
 						},
 					},
+					"yaml": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
 				},
 			},
 		},

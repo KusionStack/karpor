@@ -43,6 +43,7 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	v1beta1["clusters"] = clusterStorage.Cluster
 	v1beta1["clusters/status"] = clusterStorage.Status
 	v1beta1["clusters/proxy"] = clusterStorage.Proxy
+	v1beta1["clusters/yaml"] = clusterStorage.YAML
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
 	return apiGroupInfo, nil
