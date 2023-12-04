@@ -25,7 +25,6 @@ type CredentialType string
 const (
 	CredentialTypeServiceAccountToken CredentialType = "ServiceAccountToken"
 	CredentialTypeX509Certificate     CredentialType = "X509Certificate"
-	CredentialTypeUnifiedIdentity     CredentialType = "UnifiedIdentity"
 )
 
 // +genclient
