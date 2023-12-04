@@ -15,7 +15,9 @@
 package apiserver
 
 import (
+	"fmt"
 	"net/http"
+	"strings"
 
 	confighandler "github.com/KusionStack/karbour/pkg/apis/config"
 	"github.com/KusionStack/karbour/pkg/controller/config"
@@ -30,28 +32,34 @@ import (
 const DefaultStaticDirectory = "./static"
 
 func NewCoreAPIs() http.Handler {
-	r := chi.NewRouter()
+	router := chi.NewRouter()
 
 	// Set up middlewares
-	r.Use(middleware.RequestID)
-	r.Use(appmiddleware.DefaultLogger)
-	r.Use(appmiddleware.APILogger)
-	r.Use(middleware.Recoverer)
+	router.Use(middleware.RequestID)
+	router.Use(appmiddleware.AuditLogger)
+	router.Use(appmiddleware.APILogger)
+	router.Use(middleware.Recoverer)
 
 	// Set up the frontend router
 	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
-	r.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
+	router.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
 
 	// Set up the core api router
 	configCtrl := config.NewController(&config.Config{
 		Verbose: false,
 	})
 
-	r.Route("/api/v1", func(r chi.Router) {
+	router.Route("/api/v1", func(r chi.Router) {
 		setupAPIV1(r, configCtrl)
 	})
 
-	return r
+	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
+		endpoints := listEndpoints(router)
+		w.Header().Set("Content-Type", "text/plain")
+		w.Write([]byte(strings.Join(endpoints, "\n")))
+	})
+
+	return router
 }
 
 func setupAPIV1(r chi.Router, configCtrl *config.Controller) {
@@ -68,4 +76,17 @@ func setupAPIV1(r chi.Router, configCtrl *config.Controller) {
 	// 	r.Post("/", topologyhandler.Post(topologyCtrl))
 	// 	r.Put("/", topologyhandler.Put(topologyCtrl))
 	// })
+}
+
+func listEndpoints(r chi.Router) []string {
+	var endpoints []string
+	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+		endpoint := fmt.Sprintf("%s %s", method, route)
+		endpoints = append(endpoints, endpoint)
+		return nil
+	}
+	if err := chi.Walk(r, walkFunc); err != nil {
+		fmt.Printf("Walking routes error: %s\n", err.Error())
+	}
+	return endpoints
 }
