@@ -6,15 +6,18 @@ require (
 	github.com/Masterminds/sprig/v3 v3.2.1
 	github.com/aquasecurity/esquery v0.2.0
 	github.com/cch123/elasticsql v1.0.1
+	github.com/dominikbraun/graph v0.23.0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/google/gofuzz v1.1.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
+	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
 	github.com/spf13/cobra v1.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.2
+	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/apimachinery v0.26.0
 	k8s.io/apiserver v0.26.0
 	k8s.io/client-go v0.26.0
@@ -113,7 +116,6 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.26.0 // indirect
 	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d // indirect
 	k8s.io/kms v0.26.0 // indirect

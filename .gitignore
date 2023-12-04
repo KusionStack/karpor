@@ -54,3 +54,7 @@ tmp/
 vendor/
 apiserver.local.config/
 static/
+
+# graph
+*.gv
+*.gv.svg

@@ -1,0 +1,170 @@
+# Copyright The Karbour Authors.
+
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+
+#     http://www.apache.org/licenses/LICENSE-2.0
+
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+relationship:
+- group: apps.cafe.cloud.alipay.com
+  version: v1alpha1
+  kind: InPlaceSet
+  parent:
+  - group: apps.cafe.cloud.alipay.com
+    version: v1alpha1
+    kind: CafeDeployment
+    type: OwnerReference
+  children:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: OwnerReference
+
+# Not needed. Can be derived bi-directionally
+# - group: apps.cafe.cloud.alipay.com
+#   version: v1alpha1
+#   kind: CafeDeployment
+#   children:
+#   - group: apps.cafe.cloud.alipay.com
+#     version: v1alpha1
+#     kind: InPlaceSet
+#     type: OwnerReference
+
+- group: apps
+  version: v1
+  kind: ReplicaSet
+  parent:
+  - group: apps
+    version: v1
+    kind: Deployment
+    type: OwnerReference
+  children:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: OwnerReference
+
+# Not needed. Can be derived bi-directionally
+# - group: apps
+#   version: v1
+#   kind: Deployment
+#   children:
+#   - group: apps
+#     version: v1
+#     kind: ReplicaSet
+#     type: OwnerReference
+
+- group: ""
+  version: v1
+  kind: Pod
+  parent:
+  # Not needed. Can be derived bi-directionally
+  # - group: apps
+  #   version: v1
+  #   kind: ReplicaSet
+  #   type: OwnerReference
+  # - group: apps.cafe.cloud.alipay.com
+  #   version: v1alpha1
+  #   kind: InPlaceSet
+  #   type: OwnerReference
+  - group: ""
+    version: v1
+    kind: Service
+    type: Selector
+    # if omitted, use spec.selector
+    selector_path: spec.selector
+  - group: policy
+    version: v1beta1
+    kind: PodDisruptionBudget
+    type: Selector
+    # if omitted, use spec.selector
+    selector_path: spec.selector.matchLabels
+
+- group: ""
+  version: v1
+  kind: Service
+  children:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: Selector
+    selector_path: spec.selector
+  # Not needed. Only used to test empty child list
+  # - group: ""
+  #   version: v1
+  #   kind: ConfigMap
+  #   type: OwnerReference
+  # Not needed. Only used to test empty parent list
+  # parent:
+  # - group: ""
+  #   version: v1
+  #   kind: Node
+  #   type: OwnerReference
+  
+- group: ""
+  version: v1
+  kind: Node
+  children:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: JSONPath
+    # for the two-way relationship
+    cluster_scoped: true
+    json_path:
+    - name: $.spec.nodeName
+
+- group: ""
+  version: v1
+  kind: Secret
+  parent:
+  - group: ""
+    version: v1
+    kind: Pod
+    type: JSONPath
+    json_path:
+    - name: $.spec.imagePullSecrets.name
+    - name: $.spec.volumes[:].secret.secretName
+
+- group: ""
+  version: v1
+  kind: PersistentVolumeClaim
+  parent:
+  - group: ""
+    version: v1
+    kind: PersistentVolume
+    type: JSONPath
+    cluster_scoped: true
+    json_path:
+      # TODO: need to make sure keys are valid?
+    - name: $.spec.claimRef.name
+      namespace: $.spec.claimRef.namespace
+  - group: ""
+    version: v1
+    kind: Pod
+    type: JSONPath
+    json_path:
+    - name: $.spec.volumes[:].persistentVolumeClaim.claimName
+
+- group: ""
+  version: v1
+  kind: PersistentVolume
+  children:
+  - group: ""
+    version: v1
+    kind: PersistentVolumeClaim
+    # This is for the two-way relationship
+    # Technically PVC is not cluster scoped but for PVC to find PV, it needs to be cluster-scoped
+    # Alternative is to explicitly declare two-way relationship
+    cluster_scoped: true
+    type: JSONPath
+    json_path:
+    - name: $.spec.volumeName
