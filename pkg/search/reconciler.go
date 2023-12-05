@@ -44,7 +44,7 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 			CreateFunc: func(ce event.CreateEvent, queue workqueue.RateLimitingInterface) {
 				registry := ce.Object.(*searchv1beta1.SyncRegistry)
 				for _, clusterName := range r.getMatchedClusters(registry) {
-					queue.Add(clusterName)
+					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
 				}
 			},
 			UpdateFunc: func(ue event.UpdateEvent, queue workqueue.RateLimitingInterface) {
@@ -63,13 +63,13 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 					clusters[clusterName] = struct{}{}
 				}
 				for clusterName := range clusters {
-					queue.Add(clusterName)
+					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
 				}
 			},
 			DeleteFunc: func(de event.DeleteEvent, queue workqueue.RateLimitingInterface) {
 				registry := de.Object.(*searchv1beta1.SyncRegistry)
 				for _, clusterName := range r.getMatchedClusters(registry) {
-					queue.Add(clusterName)
+					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
 				}
 			},
 		}).
@@ -180,7 +180,7 @@ func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1bet
 
 	var allResources []*searchv1beta1.ResourceSyncRule
 	for _, registry := range registries {
-		if registry.DeletionTimestamp.IsZero() {
+		if !registry.DeletionTimestamp.IsZero() {
 			continue
 		}
 
@@ -312,7 +312,9 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 	config := rest.Config{
 		Host: access.Endpoint,
 	}
-	config.TLSClientConfig.Insecure = *access.Insecure
+	if access.Insecure != nil {
+		config.TLSClientConfig.Insecure = *access.Insecure
+	}
 	if len(access.CABundle) > 0 {
 		config.TLSClientConfig.CAData = access.CABundle
 	}
@@ -320,8 +322,6 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 		switch access.Credential.Type {
 		case clusterv1beta1.CredentialTypeServiceAccountToken:
 			// TODO: CredentialTypeServiceAccountToken
-		case clusterv1beta1.CredentialTypeUnifiedIdentity:
-			// TODO: CredentialTypeUnifiedIdentity
 		case clusterv1beta1.CredentialTypeX509Certificate:
 			if access.Credential.X509 == nil {
 				return nil, fmt.Errorf("cert and key is required for x509 credential type")
