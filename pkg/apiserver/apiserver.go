@@ -18,7 +18,6 @@ package apiserver
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
@@ -27,10 +26,6 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
 )
-
-// DefaultStaticDirectory is the default static directory for
-// dashboard.
-const DefaultStaticDirectory = "./static"
 
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
@@ -118,8 +113,7 @@ func (c completedConfig) New() (*APIServer, error) {
 		klog.Infof("Enabling API group %q.", groupName)
 	}
 
-	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
-	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", http.FileServer(http.Dir(DefaultStaticDirectory)))
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", NewCoreAPIs())
 
 	return s, nil
 }

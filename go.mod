@@ -9,6 +9,7 @@ require (
 	github.com/dominikbraun/graph v0.23.0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
+	github.com/go-chi/chi/v5 v5.0.10
 	github.com/google/gofuzz v1.1.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
