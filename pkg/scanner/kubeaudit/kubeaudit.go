@@ -18,6 +18,7 @@ package kubeaudit
 
 import (
 	"bytes"
+	"fmt"
 	"io"
 
 	"github.com/KusionStack/karbour/pkg/scanner"
@@ -81,6 +82,7 @@ func (s *kubeauditScanner) Scan(resources ...runtime.Object) ([]*scanner.Issue, 
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println(manifest)
 
 	return s.ScanManifest(manifest)
 }

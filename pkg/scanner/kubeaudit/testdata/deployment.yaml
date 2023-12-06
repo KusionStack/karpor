@@ -16,8 +16,3 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: foo
-  spec:
-    template:
-      spec:
-        containers:
-        - name: myContainer
