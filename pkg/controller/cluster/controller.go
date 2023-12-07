@@ -20,13 +20,11 @@ import (
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/relationship"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/dominikbraun/graph/draw"
-
 	yaml "gopkg.in/yaml.v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/klog/v2"
-
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 )
@@ -62,10 +60,12 @@ func (c *ClusterController) GetYAMLForCluster(ctx context.Context, hubClient *dy
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
 func (c *ClusterController) GetTopologyForCluster(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, name string) (map[string]ClusterTopology, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	// Build relationship graph based on GVK
 	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, spokeClient)
 	// Count resources in all namespaces
-	klog.Infof("Retrieving topology for cluster: %s", name)
+	log.Info("Retrieving topology for cluster", "clusterName", name)
 	rg, err := rg.CountRelationshipGraph(ctx, spokeClient, discoveryClient, "")
 	if err != nil {
 		return nil, err
@@ -81,10 +81,12 @@ func (c *ClusterController) GetTopologyForCluster(ctx context.Context, spokeClie
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
 func (c *ClusterController) GetTopologyForClusterNamespace(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, cluster, namespace string) (map[string]ClusterTopology, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	// Build relationship graph based on GVK
 	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, spokeClient)
 	// Only count resources that belong to a specific namespace
-	klog.Infof("Retrieving topology for namespace %s in cluster: %s", namespace, cluster)
+	log.Info("Retrieving topology", "namespace", namespace, "cluster", cluster)
 	rg, err := rg.CountRelationshipGraph(ctx, spokeClient, discoveryClient, namespace)
 	if err != nil {
 		return nil, err

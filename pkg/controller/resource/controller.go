@@ -19,16 +19,14 @@ import (
 	"os"
 
 	"github.com/KusionStack/karbour/pkg/relationship"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
-
 	yaml "gopkg.in/yaml.v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/klog/v2"
-
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 )
@@ -72,12 +70,14 @@ func (c *ResourceController) GetYAMLForResource(ctx context.Context, spokeClient
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
 func (c *ResourceController) GetTopologyForResource(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, res *Resource) (map[string]ResourceTopology, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	// Build relationship graph based on GVK
 	rg, _, err := relationship.BuildRelationshipGraph(ctx, spokeClient)
 	if err != nil {
 		return nil, err
 	}
-	klog.Infof("Retrieving topology for resource: %s", res.Name)
+	log.Info("Retrieving topology for resource", "resourceName", res.Name)
 
 	ResourceGraphNodeHash := func(rgn relationship.ResourceGraphNode) string {
 		return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
