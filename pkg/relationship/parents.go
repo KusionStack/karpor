@@ -150,7 +150,7 @@ func GetParentsByOwnerReference(
 			if parentRes.GetUID() == objOwner.UID {
 				log.Info("Parent resource found for specified kind and name based on OwnerReference.", "kind", obj.GetKind(), "objName", objName)
 				log.Info("Parent resource is", "kind", parentRes.GetKind(), "name", parentRes.GetName())
-				log.Info("---------------------------------------------------------------------------\n")
+				log.Info("---------------------------------------------------------------------------")
 				pgv, _ := schema.ParseGroupVersion(parentRes.GetAPIVersion())
 				parentResourceNode := ResourceGraphNode{
 					Group:     pgv.Group,

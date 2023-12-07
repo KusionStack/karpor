@@ -53,7 +53,7 @@ func GetByJSONPath(
 		if jpMatch && err == nil {
 			log.Info("Resource found based on JSONPath.", "relationshipType", relationshipType, "kind", obj.GetKind(), "name", obj.GetName())
 			log.Info("Resource is:", "relationshipType", relationshipType, "kind", relatedRes.GetKind(), "name", relatedRes.GetName())
-			log.Info("---------------------------------------------------------------------------\n")
+			log.Info("---------------------------------------------------------------------------")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
 			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,
@@ -111,7 +111,7 @@ func GetByLabelSelector(
 		if labelsMatch && err == nil {
 			log.Info("Resource found based on selector path.", "relationshipType", relationshipType, "kind", obj.GetKind(), "name", obj.GetName(), "selectorPath", relation.SelectorPath)
 			log.Info("Resource is:", "relationshipType", relationshipType, "kind", relatedRes.GetKind(), "name", relatedRes.GetName())
-			log.Info("---------------------------------------------------------------------------\n")
+			log.Info("---------------------------------------------------------------------------")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
 			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,
