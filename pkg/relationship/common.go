@@ -19,17 +19,29 @@ package relationship
 import (
 	"context"
 
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
-
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/klog/v2"
 )
 
-func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
-	klog.Infof("Using direct references to find related resources...\n")
+func GetByJSONPath(
+	ctx context.Context,
+	relatedResList *unstructured.UnstructuredList,
+	relationshipType string,
+	client *dynamic.DynamicClient,
+	obj unstructured.Unstructured,
+	relation *Relationship,
+	relatedGVK schema.GroupVersionKind,
+	objResourceNode ResourceGraphNode,
+	relationshipGraph graph.Graph[string, RelationshipGraphNode],
+	resourceGraph graph.Graph[string, ResourceGraphNode],
+) (graph.Graph[string, ResourceGraphNode], error) {
+	log := ctxutil.GetLogger(ctx)
+
+	log.Info("Using direct references to find related resources...")
 	var jpMatch bool
 	var err error
 	for _, relatedRes := range relatedResList.Items {
@@ -39,9 +51,9 @@ func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipTy
 			jpMatch, err = topologyutil.JSONPathMatch(obj, relatedRes, relation.JSONPath)
 		}
 		if jpMatch && err == nil {
-			klog.Infof("%s resource found for kind %s, name %s based on JSONPath.\n", relationshipType, obj.GetKind(), obj.GetName())
-			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
-			klog.Infof("---------------------------------------------------------------------------\n")
+			log.Info("Resource found based on JSONPath.", "relationshipType", relationshipType, "kind", obj.GetKind(), "name", obj.GetName())
+			log.Info("Resource is:", "relationshipType", relationshipType, "kind", relatedRes.GetKind(), "name", relatedRes.GetName())
+			log.Info("---------------------------------------------------------------------------\n")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
 			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,
@@ -73,8 +85,21 @@ func GetByJSONPath(relatedResList *unstructured.UnstructuredList, relationshipTy
 	return resourceGraph, nil
 }
 
-func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relationshipType string, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, relation *Relationship, relatedGVK schema.GroupVersionKind, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
-	klog.Infof("Using label selectors to find related resources...\n")
+func GetByLabelSelector(
+	ctx context.Context,
+	relatedResList *unstructured.UnstructuredList,
+	relationshipType string,
+	client *dynamic.DynamicClient,
+	obj unstructured.Unstructured,
+	relation *Relationship,
+	relatedGVK schema.GroupVersionKind,
+	objResourceNode ResourceGraphNode,
+	relationshipGraph graph.Graph[string, RelationshipGraphNode],
+	resourceGraph graph.Graph[string, ResourceGraphNode],
+) (graph.Graph[string, ResourceGraphNode], error) {
+	log := ctxutil.GetLogger(ctx)
+
+	log.Info("Using label selectors to find related resources...")
 	var labelsMatch bool
 	var err error
 	for _, relatedRes := range relatedResList.Items {
@@ -84,9 +109,9 @@ func GetByLabelSelector(relatedResList *unstructured.UnstructuredList, relations
 			labelsMatch, err = topologyutil.LabelSelectorsMatch(obj, relatedRes, relation.SelectorPath)
 		}
 		if labelsMatch && err == nil {
-			klog.Infof("%s resource found for kind %s, name %s based on %s.\n", relationshipType, obj.GetKind(), obj.GetName(), relation.SelectorPath)
-			klog.Infof("%s resource is: kind %s, name %s.\n", relationshipType, relatedRes.GetKind(), relatedRes.GetName())
-			klog.Infof("---------------------------------------------------------------------------\n")
+			log.Info("Resource found based on selector path.", "relationshipType", relationshipType, "kind", obj.GetKind(), "name", obj.GetName(), "selectorPath", relation.SelectorPath)
+			log.Info("Resource is:", "relationshipType", relationshipType, "kind", relatedRes.GetKind(), "name", relatedRes.GetName())
+			log.Info("---------------------------------------------------------------------------\n")
 			rgv, _ := schema.ParseGroupVersion(relatedRes.GetAPIVersion())
 			relatedResourceNode := ResourceGraphNode{
 				Group:     rgv.Group,

@@ -22,10 +22,10 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
-
 	yaml "gopkg.in/yaml.v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -96,14 +96,16 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 
 // BuildBuiltinRelationshipGraph returns the relationship graph built from the YAML describing resource relationships
 func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	r := RelationshipGraph{}
 	yamlFile, err := os.ReadFile("relationship.yaml")
 	if err != nil {
-		klog.Infof("yamlFile.Get err #%v ", err)
+		log.Error(err, "yamlFile.Get err")
 	}
 	err = yaml.Unmarshal(yamlFile, &r)
 	if err != nil {
-		klog.Fatalf("Unmarshal: %v", err)
+		log.Error(err, "Unmarshal error")
 	}
 
 	// Process relationships between parent and child
@@ -143,27 +145,27 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	g := graph.New(relationshipGraphNodeHash, graph.Directed(), graph.PreventCycles())
 	// Add Vertices
 	for _, node := range r.RelationshipNodes {
-		klog.Infof("Adding Vertex: %s\n", node.GetHash())
+		log.Info("Adding Vertex", "nodeHash", node.GetHash())
 		_ = g.AddVertex(*node)
 	}
 	// Add Edges, requires all vertices to be present
 	for _, node := range r.RelationshipNodes {
 		for _, childRelation := range node.Children {
-			klog.Infof("Adding or updating Edge from %s to %s with type %s\n", node.GetHash(), childRelation.ChildNode.GetHash(), childRelation.Type)
+			log.Info("Adding or updating Edge with type", "from", node.GetHash(), "to", childRelation.ChildNode.GetHash(), "type", childRelation.Type)
 			if err := g.AddEdge(node.GetHash(), childRelation.ChildNode.GetHash(), graph.EdgeAttribute("type", childRelation.Type)); err != graph.ErrEdgeAlreadyExists && err != nil {
 				panic(err)
 			}
 		}
 		// Prevent duplicate edge
 		for _, parentRelation := range node.Parent {
-			klog.Infof("Adding or updating Edge from %s to %s with type %s\n", parentRelation.ParentNode.GetHash(), node.GetHash(), parentRelation.Type)
+			log.Info("Adding or updating Edge with type", "from", parentRelation.ParentNode.GetHash(), "to", node.GetHash(), "type", parentRelation.Type)
 			if err := g.AddEdge(parentRelation.ParentNode.GetHash(), node.GetHash(), graph.EdgeAttribute("type", parentRelation.Type)); err != graph.ErrEdgeAlreadyExists && err != nil {
 				panic(err)
 			}
 		}
 	}
 
-	klog.Infof("Built-in graph completed.")
+	log.Info("Built-in graph completed.")
 
 	// Draw graph
 	// TODO: This is drawn on the server side, not needed eventually
@@ -219,6 +221,8 @@ func RelationshipEquals(r, relation *Relationship) bool {
 
 // CountRelationshipGraph returns the same RelationshipGraph with the count for each resource
 func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	for _, node := range rg.RelationshipNodes {
 		var resList *unstructured.UnstructuredList
 		resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
@@ -236,7 +240,7 @@ func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamic
 			return rg, err
 		}
 		resCount := len(resList.Items)
-		klog.Infof("Counted resources for Vertex %s: %d\n", node.GetHash(), resCount)
+		log.Info("Counted resources for Vertex", "node", node.GetHash(), "count", resCount)
 		node.ResourceCount = resCount
 	}
 	return rg, nil

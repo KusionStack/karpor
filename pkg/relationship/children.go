@@ -19,6 +19,7 @@ package relationship
 import (
 	"context"
 
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 
@@ -27,17 +28,18 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/klog/v2"
 )
 
 // GetChildResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the child GVK in the current namespace
 func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, childRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
+	log := ctxutil.GetLogger(ctx)
+
 	childAPIVersion := childRelation.Group + "/" + childRelation.Version
 	childRes, err := topologyutil.GetGVRFromGVK(childAPIVersion, childRelation.Kind)
 	if err != nil {
 		return nil, err
 	}
-	klog.Infof("Listing child resource %s in namespace %s: \n", childRelation.Kind, namespace)
+	log.Info("Listing child resource in namespace", "resource", childRelation.Kind, "namespace", namespace)
 	var childResList *unstructured.UnstructuredList
 	// Depends on whether child object is namespaced or not
 	// TODO-think: Can this be derived from discovery.ServerResourcesForGroupVersion(version)?
@@ -50,12 +52,23 @@ func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, c
 	if err != nil {
 		return nil, err
 	}
-	klog.Infof("List return size: %d\n", len(childResList.Items))
+	log.Info("List return size", "size", len(childResList.Items))
 	return childResList, nil
 }
 
 // GetChildren returns a graph that includes all of the child resources for the current obj that are described by the childRelation
-func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childRelation *Relationship, namespace, objName string, objResourceNode ResourceGraphNode, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
+func GetChildren(
+	ctx context.Context,
+	client *dynamic.DynamicClient,
+	obj unstructured.Unstructured,
+	childRelation *Relationship,
+	namespace, objName string,
+	objResourceNode ResourceGraphNode,
+	relationshipGraph graph.Graph[string, RelationshipGraphNode],
+	resourceGraph graph.Graph[string, ResourceGraphNode],
+) (graph.Graph[string, ResourceGraphNode], error) {
+	log := ctxutil.GetLogger(ctx)
+
 	if childRelation.Type == "OwnerReference" {
 		// If relationship type is ownerreference, honor that instead of relationship graph
 		gv, _ := schema.ParseGroupVersion(childRelation.Group + "/" + childRelation.Version)
@@ -64,7 +77,7 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 		if err != nil {
 			return nil, err
 		}
-		resourceGraph, err = GetChildrenByOwnerReference(childResList, ctx, client, obj, gvk, relationshipGraph, resourceGraph)
+		resourceGraph, err = GetChildrenByOwnerReference(ctx, childResList, client, obj, gvk, relationshipGraph, resourceGraph)
 		if err != nil {
 			return nil, err
 		}
@@ -77,7 +90,7 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 		if err != nil {
 			return nil, err
 		}
-		klog.Infof("Listing child resource %s in namespace %s: \n", childRelation.Kind, namespace)
+		log.Info("Listing child resource in namespace", "resource", childRelation.Kind, "namespace", namespace)
 		var childResList *unstructured.UnstructuredList
 		// Depends on whether child object is namespaced or not
 		// TODO-think: Can this be derived from discovery.ServerResourcesForGroupVersion(version)?
@@ -87,26 +100,26 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 		} else {
 			childResList, err = client.Resource(childRes).Namespace(namespace).List(ctx, metav1.ListOptions{})
 		}
-		klog.Infof("List return size: %d\n", len(childResList.Items))
+		log.Info("List return size", "size", len(childResList.Items))
 		if errors.IsNotFound(err) {
-			klog.Infof("Obj %s in namespace %s not found\n", objName, namespace)
+			log.Info("Obj in namespace not found\n", "obj", objName, "namespace", namespace)
 		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
-			klog.Infof("Error getting obj %s in namespace %s: %v\n", objName, namespace, statusError.ErrStatus.Message)
+			log.Info("Error getting obj in namespace", "obj", objName, "namespace", namespace, "statusError", statusError.ErrStatus.Message)
 		} else if err != nil {
 			return nil, err
 		} else if len(childResList.Items) > 0 {
 			if childRelation.Type == "JSONPath" {
-				resourceGraph, err = GetByJSONPath(childResList, "child", ctx, client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByJSONPath(ctx, childResList, "child", client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}
 			} else if childRelation.Type == "Selector" {
-				resourceGraph, err = GetByLabelSelector(childResList, "child", ctx, client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByLabelSelector(ctx, childResList, "child", client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}
 			} else {
-				klog.Infof("Something went wrong. Type should be either OwnerReference, Selector, or JSONPath")
+				log.Info("Something went wrong. Type should be either OwnerReference, Selector, or JSONPath")
 			}
 		}
 	}
@@ -114,9 +127,19 @@ func GetChildren(ctx context.Context, client *dynamic.DynamicClient, obj unstruc
 }
 
 // GetChildrenByOwnerReference returns a graph that includes all of the child resources for the current obj described by their children's OwnerReferences field
-func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ctx context.Context, client *dynamic.DynamicClient, obj unstructured.Unstructured, childGVK schema.GroupVersionKind, relationshipGraph graph.Graph[string, RelationshipGraphNode], resourceGraph graph.Graph[string, ResourceGraphNode]) (graph.Graph[string, ResourceGraphNode], error) {
+func GetChildrenByOwnerReference(
+	ctx context.Context,
+	childResList *unstructured.UnstructuredList,
+	client *dynamic.DynamicClient,
+	obj unstructured.Unstructured,
+	childGVK schema.GroupVersionKind,
+	relationshipGraph graph.Graph[string, RelationshipGraphNode],
+	resourceGraph graph.Graph[string, ResourceGraphNode],
+) (graph.Graph[string, ResourceGraphNode], error) {
+	log := ctxutil.GetLogger(ctx)
+
 	// For ownerreference-identified children, look up all instances of the child GVK and filter by ownerreference
-	klog.Infof("Using OwnerReferences to find children...\n")
+	log.Info("Using OwnerReferences to find children...")
 	gv, _ := schema.ParseGroupVersion(obj.GetAPIVersion())
 	objResourceNode := ResourceGraphNode{
 		Group:     gv.Group,
@@ -128,9 +151,9 @@ func GetChildrenByOwnerReference(childResList *unstructured.UnstructuredList, ct
 
 	for _, childRes := range childResList.Items {
 		if orMatch, err := topologyutil.OwnerReferencesMatch(obj, childRes); orMatch && err == nil {
-			klog.Infof("Child resource found for kind %s, name %s based on OwnerReference.\n", obj.GetKind(), obj.GetName())
-			klog.Infof("Child resource is: kind %s, name %s.\n", childRes.GetKind(), childRes.GetName())
-			klog.Infof("---------------------------------------------------------------------------\n")
+			log.Info("Child resource found for kind, name based on OwnerReference.", "kind", obj.GetKind(), "name", obj.GetName())
+			log.Info("Child resource is", "kind", childRes.GetKind(), "name", childRes.GetName())
+			log.Info("---------------------------------------------------------------------------\n")
 			cgv, _ := schema.ParseGroupVersion(childRes.GetAPIVersion())
 			childResourceNode := ResourceGraphNode{
 				Group:     cgv.Group,

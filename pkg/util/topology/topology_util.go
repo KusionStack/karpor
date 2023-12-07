@@ -19,13 +19,11 @@ import (
 	"reflect"
 	"strings"
 
-	"k8s.io/klog/v2"
-
+	"github.com/oliveagle/jsonpath"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-
-	"github.com/oliveagle/jsonpath"
+	"k8s.io/klog/v2"
 )
 
 type Scope struct {
