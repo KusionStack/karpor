@@ -18,60 +18,26 @@ package apiserver
 
 import (
 	"fmt"
+	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
-	"k8s.io/apimachinery/pkg/version"
+	"github.com/go-chi/chi/v5"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
 )
 
-// Config defines the config for the apiserver
-type Config struct {
-	GenericConfig *genericapiserver.RecommendedConfig
-	ExtraConfig   *registry.ExtraConfig
+// KarbourServer contains state for a Kubernetes cluster master/api server.
+type KarbourServer struct {
+	*genericapiserver.GenericAPIServer
+	mux *chi.Mux
+	err error
 }
 
-// APIServer contains state for a Kubernetes cluster master/api server.
-type APIServer struct {
-	GenericAPIServer *genericapiserver.GenericAPIServer
-}
-
-type completedConfig struct {
-	GenericConfig genericapiserver.CompletedConfig
-	ExtraConfig   *registry.ExtraConfig
-}
-
-// CompletedConfig embeds a private pointer that cannot be instantiated outside of this package.
-type CompletedConfig struct {
-	*completedConfig
-}
-
-// Complete fills in any fields not set that are required to have valid data. It's mutating the receiver.
-func (cfg *Config) Complete() CompletedConfig {
-	c := completedConfig{
-		cfg.GenericConfig.Complete(),
-		cfg.ExtraConfig,
-	}
-
-	c.GenericConfig.Version = &version.Info{
-		Major: "1",
-		Minor: "0",
-	}
-
-	return CompletedConfig{&c}
-}
-
-// New returns a new instance of APIServer from the given config.
-func (c CompletedConfig) New() (*APIServer, error) {
-	genericServer, err := c.GenericConfig.New("karbour-apiserver", genericapiserver.NewEmptyDelegate())
-	if err != nil {
-		return nil, err
-	}
-
-	s := &APIServer{
-		GenericAPIServer: genericServer,
+func (s *KarbourServer) InstallGatewayServer(c *CompletedConfig) *KarbourServer {
+	if s.err != nil {
+		return s
 	}
 
 	restStorageProviders := []registry.RESTStorageProvider{
@@ -88,7 +54,8 @@ func (c CompletedConfig) New() (*APIServer, error) {
 		groupName := restStorageProvider.GroupName()
 		apiGroupInfo, err := restStorageProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
 		if err != nil {
-			return nil, fmt.Errorf("problem initializing API group %q : %v", groupName, err)
+			s.err = fmt.Errorf("problem initializing API group %q : %v", groupName, err)
+			return s
 		}
 
 		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
@@ -99,13 +66,46 @@ func (c CompletedConfig) New() (*APIServer, error) {
 		}
 
 		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			return nil, fmt.Errorf("problem install API group %q: %v", groupName, err)
+			s.err = fmt.Errorf("problem install API group %q: %v", groupName, err)
+			return s
 		}
 
 		klog.Infof("Enabling API group %q.", groupName)
 	}
 
-	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", NewCoreAPIs(s.GenericAPIServer.Handler, &c))
+	return s
+}
 
-	return s, nil
+func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
+	if s.err != nil {
+		return s
+	}
+
+	// Create the core server.
+	s.mux = NewCoreServer(c)
+
+	// Mount the core mux to NonGoRestfulMux of GenericAPIServer.
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", s.mux)
+
+	return s
+}
+
+func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
+	if s.err != nil {
+		return s
+	}
+
+	// DefaultStaticDirectory is the default static directory for
+	// dashboard.
+	const DefaultStaticDirectory = "./static"
+
+	// Set up the frontend router
+	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
+	s.mux.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
+
+	return s
+}
+
+func (s *KarbourServer) Error() error {
+	return s.err
 }

@@ -33,9 +33,7 @@ func APILogger(next http.Handler) http.Handler {
 		ctx := r.Context()
 
 		if requestID := middleware.GetReqID(r.Context()); len(requestID) > 0 {
-			logger := klog.FromContext(r.Context()).
-				WithValues("requestID", requestID).
-				WithValues("endpoint", r.RequestURI)
+			logger := klog.FromContext(r.Context()).WithValues("requestID", requestID)
 			ctx = context.WithValue(r.Context(), APILoggerKey, logger)
 		}
 

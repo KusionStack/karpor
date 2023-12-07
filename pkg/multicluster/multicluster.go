@@ -21,11 +21,9 @@ import (
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/scheme"
-
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"

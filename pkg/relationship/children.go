@@ -102,7 +102,7 @@ func GetChildren(
 		}
 		log.Info("List return size", "size", len(childResList.Items))
 		if errors.IsNotFound(err) {
-			log.Info("Obj in namespace not found\n", "obj", objName, "namespace", namespace)
+			log.Info("Obj in namespace not found", "obj", objName, "namespace", namespace)
 		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
 			log.Info("Error getting obj in namespace", "obj", objName, "namespace", namespace, "statusError", statusError.ErrStatus.Message)
 		} else if err != nil {
@@ -153,7 +153,7 @@ func GetChildrenByOwnerReference(
 		if orMatch, err := topologyutil.OwnerReferencesMatch(obj, childRes); orMatch && err == nil {
 			log.Info("Child resource found for kind, name based on OwnerReference.", "kind", obj.GetKind(), "name", obj.GetName())
 			log.Info("Child resource is", "kind", childRes.GetKind(), "name", childRes.GetName())
-			log.Info("---------------------------------------------------------------------------\n")
+			log.Info("---------------------------------------------------------------------------")
 			cgv, _ := schema.ParseGroupVersion(childRes.GetAPIVersion())
 			childResourceNode := ResourceGraphNode{
 				Group:     cgv.Group,

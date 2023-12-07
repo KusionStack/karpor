@@ -28,15 +28,9 @@ import (
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	"k8s.io/apiserver/pkg/server"
-	"k8s.io/klog/v2"
 )
 
-// DefaultStaticDirectory is the default static directory for
-// dashboard.
-const DefaultStaticDirectory = "./static"
-
-func NewCoreAPIs(s *server.APIServerHandler, c *CompletedConfig) http.Handler {
+func NewCoreServer(c *CompletedConfig) *chi.Mux {
 	router := chi.NewRouter()
 
 	// Set up middlewares
@@ -44,10 +38,6 @@ func NewCoreAPIs(s *server.APIServerHandler, c *CompletedConfig) http.Handler {
 	router.Use(appmiddleware.AuditLogger)
 	router.Use(appmiddleware.APILogger)
 	router.Use(middleware.Recoverer)
-
-	// Set up the frontend router
-	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
-	router.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
 
 	// Set up the core api router
 	configCtrl := config.NewController(&config.Config{
@@ -61,7 +51,7 @@ func NewCoreAPIs(s *server.APIServerHandler, c *CompletedConfig) http.Handler {
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, s, configCtrl, clusterCtrl, resourceCtrl, c)
+		setupAPIV1(r, configCtrl, clusterCtrl, resourceCtrl, c)
 	})
 
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
@@ -73,7 +63,7 @@ func NewCoreAPIs(s *server.APIServerHandler, c *CompletedConfig) http.Handler {
 	return router
 }
 
-func setupAPIV1(r chi.Router, s *server.APIServerHandler, configCtrl *config.Controller, clusterCtrl *clustercontroller.ClusterController, resourceCtrl *resourcecontroller.ResourceController, c *CompletedConfig) {
+func setupAPIV1(r chi.Router, configCtrl *config.Controller, clusterCtrl *clustercontroller.ClusterController, resourceCtrl *resourcecontroller.ResourceController, c *CompletedConfig) {
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/", confighandler.Get(configCtrl))
 		// r.Delete("/", confighandler.Delete(configCtrl))
