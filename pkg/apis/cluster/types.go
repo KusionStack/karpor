@@ -33,11 +33,11 @@ const (
 
 // Cluster is an extension type to access a cluster
 type Cluster struct {
-	metav1.TypeMeta
-	metav1.ObjectMeta
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   ClusterSpec
-	Status ClusterStatus
+	Spec   ClusterSpec   `json:"spec"`
+	Status ClusterStatus `json:"status,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -56,17 +56,8 @@ type ClusterSpec struct {
 	Finalized *bool
 }
 
-// +k8s:deepcopy-gen=true
-
-type ClusterTopology struct {
-	GroupVersionKind string
-	Count            int
-	Relationship     map[string]string
-}
-
 type ClusterStatus struct {
 	Healthy bool
-	Graph   map[string]ClusterTopology
 }
 
 type ClusterAccess struct {

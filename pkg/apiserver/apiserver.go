@@ -27,18 +27,10 @@ import (
 	"k8s.io/klog/v2"
 )
 
-// ExtraConfig holds custom apiserver config
-type ExtraConfig struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchName      string
-	ElasticSearchPassword  string
-}
-
 // Config defines the config for the apiserver
 type Config struct {
 	GenericConfig *genericapiserver.RecommendedConfig
-	ExtraConfig   *ExtraConfig
+	ExtraConfig   *registry.ExtraConfig
 }
 
 // APIServer contains state for a Kubernetes cluster master/api server.
@@ -48,7 +40,7 @@ type APIServer struct {
 
 type completedConfig struct {
 	GenericConfig genericapiserver.CompletedConfig
-	ExtraConfig   *ExtraConfig
+	ExtraConfig   *registry.ExtraConfig
 }
 
 // CompletedConfig embeds a private pointer that cannot be instantiated outside of this package.
@@ -72,7 +64,7 @@ func (cfg *Config) Complete() CompletedConfig {
 }
 
 // New returns a new instance of APIServer from the given config.
-func (c completedConfig) New() (*APIServer, error) {
+func (c CompletedConfig) New() (*APIServer, error) {
 	genericServer, err := c.GenericConfig.New("karbour-apiserver", genericapiserver.NewEmptyDelegate())
 	if err != nil {
 		return nil, err
@@ -113,7 +105,7 @@ func (c completedConfig) New() (*APIServer, error) {
 		klog.Infof("Enabling API group %q.", groupName)
 	}
 
-	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", NewCoreAPIs())
+	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", NewCoreAPIs(s.GenericAPIServer.Handler, &c))
 
 	return s, nil
 }

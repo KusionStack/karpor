@@ -28,8 +28,8 @@ import (
 	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
+	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/scheme"
-	filtersutil "github.com/KusionStack/karbour/pkg/util/filters"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -130,7 +130,7 @@ func (o *Options) Complete() error {
 func (o *Options) Config() (*apiserver.Config, error) {
 	config := &apiserver.Config{
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
-		ExtraConfig:   &apiserver.ExtraConfig{},
+		ExtraConfig:   &registry.ExtraConfig{},
 	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
 		return nil, err
@@ -154,7 +154,6 @@ func (o *Options) Config() (*apiserver.Config, error) {
 	config.GenericConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
 		handler = proxyutil.WithProxyByCluster(handler)
-		handler = filtersutil.SearchFilter(handler)
 		return handler
 	}
 
