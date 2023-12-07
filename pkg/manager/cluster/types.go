@@ -12,18 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package cluster
 
-type Controller struct {
-	config *Config
+type Config struct {
+	Verbose bool `json:"verbose"`
 }
 
-func NewController(config *Config) *Controller {
-	return &Controller{
-		config: config,
-	}
+type ClusterTopology struct {
+	GroupVersionKind string
+	Count            int
+	Relationship     map[string]string
 }
 
-func (c *Controller) Get() *Config {
-	return c.config
+type ClusterDetail struct {
+	NodeCount      int
+	ServerVersion  string
+	MemoryCapacity int64
+	CPUCapacity    int64
+	PodsCapacity   int64
 }

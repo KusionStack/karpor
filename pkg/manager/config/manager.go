@@ -12,14 +12,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package cluster
+package config
 
-type Config struct {
-	Verbose bool `json:"verbose"`
+type Manager struct {
+	config *Config
 }
 
-type ClusterTopology struct {
-	GroupVersionKind string
-	Count            int
-	Relationship     map[string]string
+func NewManager(config *Config) *Manager {
+	return &Manager{
+		config: config,
+	}
+}
+
+func (c *Manager) Get() *Config {
+	return c.config
 }

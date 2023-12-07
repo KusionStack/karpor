@@ -24,53 +24,66 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
+	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
+	metricsv1beta1 "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
-// BuildDynamicClient returns a dynamic client based on the cluster name in the request
-func BuildDynamicClient(ctx context.Context, hubConfig *restclient.Config, name string) (*dynamic.DynamicClient, error) {
-	// Create the dynamic client using loopback hubConfig for Karbour apiserver
-	hubClient, err := dynamic.NewForConfig(hubConfig)
+type MultiClusterClient struct {
+	ClientSet     *kubernetes.Clientset
+	DynamicClient *dynamic.DynamicClient
+	MetricsClient *metricsv1beta1.MetricsV1beta1Client
+}
+
+// BuildMultiClusterClient returns a MultiClusterClient based on the cluster name in the request
+func BuildMultiClusterClient(ctx context.Context, hubConfig *restclient.Config, name string) (*MultiClusterClient, error) {
+	// Create the hub clients using loopback hubConfig for Karbour apiserver
+	hubClient, err := BuildHubClients(ctx, hubConfig)
 	if err != nil {
 		return nil, err
 	}
-	// If name is empty, return the dynamic client for the hub cluster
+	// If name is empty, return the MultiClusterClient for the hub cluster containing clients for hub cluster
 	if name == "" {
 		return hubClient, nil
 	}
-	// otherwise, return the dynamic client for the spoke cluster
-	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	spokeUnstructured, err := hubClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	// otherwise, return the MultiClusterClient for the spoke cluster
+	client, err := BuildSpokeClients(ctx, hubClient.DynamicClient, name)
 	if err != nil {
 		return nil, err
 	}
-	spokeObj, err := unstructuredToRuntimeObject(spokeUnstructured)
-	if err != nil {
-		return nil, err
-	}
-	spokeConfig, err := NewConfigFromCluster(spokeObj.(*clusterv1beta1.Cluster))
-	if err != nil {
-		return nil, err
-	}
-	spokeClient, err := dynamic.NewForConfig(spokeConfig)
-	if err != nil {
-		return nil, err
-	}
-	return spokeClient, nil
+	return client, nil
 }
 
-// BuildDiscoveryClient returns a discovery client based on the cluster name in the request
-func BuildDiscoveryClient(ctx context.Context, hubConfig *restclient.Config, name string) (*discovery.DiscoveryClient, error) {
-	// Create the dynamic client using loopback hubConfig for Karbour apiserver
-	hubClient, err := dynamic.NewForConfig(hubConfig)
+func BuildHubClients(ctx context.Context, hubConfig *restclient.Config) (*MultiClusterClient, error) {
+	// Create a Kubernetes core client
+	hubClientSet, err := kubernetes.NewForConfig(hubConfig)
 	if err != nil {
 		return nil, err
 	}
+	// Create a Kubernetes dynamic client
+	hubDynamicClient, err := dynamic.NewForConfig(hubConfig)
+	if err != nil {
+		return nil, err
+	}
+	// Create a Kubernetes metrics client
+	hubMetricsClientSet, err := metrics.NewForConfig(hubConfig)
+	if err != nil {
+		return nil, err
+	}
+	hubMetricsClient := hubMetricsClientSet.MetricsV1beta1()
+	return &MultiClusterClient{
+		ClientSet:     hubClientSet,
+		DynamicClient: hubDynamicClient,
+		MetricsClient: hubMetricsClient.(*metricsv1beta1.MetricsV1beta1Client),
+	}, nil
+}
+
+// BuildSpokeClients returns a MultiClusterClient for the spoke cluster based on the cluster name in the request
+func BuildSpokeClients(ctx context.Context, hubDynamicClient *dynamic.DynamicClient, name string) (*MultiClusterClient, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	spokeUnstructured, err := hubClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	spokeUnstructured, err := hubDynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -82,13 +95,30 @@ func BuildDiscoveryClient(ctx context.Context, hubConfig *restclient.Config, nam
 	if err != nil {
 		return nil, err
 	}
+	// Build Dynamic
+	dynamicClient, err := dynamic.NewForConfig(spokeConfig)
 	if err != nil {
 		return nil, err
 	}
-	// Create the discovery client
-	clientset := kubernetes.NewForConfigOrDie(spokeConfig)
-	discoveryClient := clientset.DiscoveryClient
-	return discoveryClient, nil
+
+	// Build Metric
+	clientset, err := metrics.NewForConfig(spokeConfig)
+	metricsClient := clientset.MetricsV1beta1()
+	if err != nil {
+		return nil, err
+	}
+
+	// Build Core
+	spokeClientSet, err := kubernetes.NewForConfig(spokeConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	return &MultiClusterClient{
+		ClientSet:     spokeClientSet,
+		DynamicClient: dynamicClient,
+		MetricsClient: metricsClient.(*metricsv1beta1.MetricsV1beta1Client),
+	}, nil
 }
 
 // unstructuredToRuntimeObject converts an unstructured.Unstructured into a typed runtime.Object
