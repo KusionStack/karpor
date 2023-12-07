@@ -75,7 +75,9 @@ func setupAPIV1(r chi.Router, configCtrl *config.Controller, clusterCtrl *cluste
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterCtrl, &c.GenericConfig))
 			r.Get("/yaml", clusterhandler.GetYAML(clusterCtrl, &c.GenericConfig))
+			r.Get("/detail", clusterhandler.GetDetail(clusterCtrl, &c.GenericConfig))
 			r.Get("/topology", clusterhandler.GetTopology(clusterCtrl, &c.GenericConfig))
+			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterCtrl, &c.GenericConfig))
 			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterCtrl, &c.GenericConfig))
 		})
 	})

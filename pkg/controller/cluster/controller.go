@@ -19,14 +19,14 @@ import (
 	"os"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
+	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/relationship"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
 )
 
 type ClusterController struct {
@@ -39,15 +39,16 @@ func NewClusterController(config *Config) *ClusterController {
 	}
 }
 
-func (c *ClusterController) GetCluster(ctx context.Context, hubClient *dynamic.DynamicClient, name string) (*unstructured.Unstructured, error) {
+// GetCluster returns the unstructured Cluster object for a given cluster
+func (c *ClusterController) GetCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	obj, _ := hubClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	obj, _ := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	return obj, nil
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
-func (c *ClusterController) GetYAMLForCluster(ctx context.Context, hubClient *dynamic.DynamicClient, name string) ([]byte, error) {
-	obj, err := c.GetCluster(ctx, hubClient, name)
+func (c *ClusterController) GetYAMLForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) ([]byte, error) {
+	obj, err := c.GetCluster(ctx, client, name)
 	if err != nil {
 		return nil, err
 	}
@@ -58,15 +59,47 @@ func (c *ClusterController) GetYAMLForCluster(ctx context.Context, hubClient *dy
 	return objYAML, nil
 }
 
+// GetYAMLForCluster returns the yaml byte array for a given cluster
+func (c *ClusterController) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
+	namespaceObj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return namespaceObj, nil
+}
+
+func (c *ClusterController) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
+	// Get the list of nodes
+	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	var memoryCapacity, cpuCapacity, podCapacity int64
+	for _, node := range nodes.Items {
+		memoryCapacity += node.Status.Capacity.Memory().Value()
+		cpuCapacity += cpuCapacity + node.Status.Capacity.Cpu().Value()
+		podCapacity += podCapacity + node.Status.Capacity.Pods().Value()
+	}
+	return &ClusterDetail{
+		NodeCount:      len(nodes.Items),
+		ServerVersion:  serverVersion.String(),
+		MemoryCapacity: memoryCapacity,
+		CPUCapacity:    cpuCapacity,
+		PodsCapacity:   podCapacity,
+	}, nil
+}
+
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (c *ClusterController) GetTopologyForCluster(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, name string) (map[string]ClusterTopology, error) {
+func (c *ClusterController) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
-	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, spokeClient)
+	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
 	log.Info("Retrieving topology for cluster", "clusterName", name)
-	rg, err := rg.CountRelationshipGraph(ctx, spokeClient, discoveryClient, "")
+	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, "")
 	if err != nil {
 		return nil, err
 	}
@@ -80,14 +113,14 @@ func (c *ClusterController) GetTopologyForCluster(ctx context.Context, spokeClie
 }
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
-func (c *ClusterController) GetTopologyForClusterNamespace(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, cluster, namespace string) (map[string]ClusterTopology, error) {
+func (c *ClusterController) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
-	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, spokeClient)
+	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Only count resources that belong to a specific namespace
 	log.Info("Retrieving topology", "namespace", namespace, "cluster", cluster)
-	rg, err := rg.CountRelationshipGraph(ctx, spokeClient, discoveryClient, namespace)
+	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, namespace)
 	if err != nil {
 		return nil, err
 	}

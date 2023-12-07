@@ -18,6 +18,7 @@ import (
 	"context"
 	"os"
 
+	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/relationship"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
@@ -27,8 +28,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
 )
 
 type ResourceController struct {
@@ -43,12 +42,12 @@ func NewResourceController(config *ResourceConfig) *ResourceController {
 }
 
 // GetCluster returns the unstructured cluster object for a given cluster
-func (c *ResourceController) GetResource(ctx context.Context, spokeClient *dynamic.DynamicClient, res *Resource) (*unstructured.Unstructured, error) {
+func (c *ResourceController) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
 	if err != nil {
 		return nil, err
 	}
-	obj, err := spokeClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	obj, err := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -56,8 +55,8 @@ func (c *ResourceController) GetResource(ctx context.Context, spokeClient *dynam
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
-func (c *ResourceController) GetYAMLForResource(ctx context.Context, spokeClient *dynamic.DynamicClient, res *Resource) ([]byte, error) {
-	obj, err := c.GetResource(ctx, spokeClient, res)
+func (c *ResourceController) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
+	obj, err := c.GetResource(ctx, client, res)
 	if err != nil {
 		return nil, err
 	}
@@ -69,11 +68,11 @@ func (c *ResourceController) GetYAMLForResource(ctx context.Context, spokeClient
 }
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (c *ResourceController) GetTopologyForResource(ctx context.Context, spokeClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, res *Resource) (map[string]ResourceTopology, error) {
+func (c *ResourceController) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
-	rg, _, err := relationship.BuildRelationshipGraph(ctx, spokeClient)
+	rg, _, err := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
 	if err != nil {
 		return nil, err
 	}
@@ -89,12 +88,12 @@ func (c *ResourceController) GetTopologyForResource(ctx context.Context, spokeCl
 	if err != nil {
 		return nil, err
 	}
-	resObj, _ := spokeClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	resObj, _ := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
 	unObj := &unstructured.Unstructured{}
 	unObj.SetUnstructuredContent(resObj.Object)
 
 	// Build resource graph for target resource
-	g, err = c.GetResourceRelationship(ctx, spokeClient, *unObj, rg, g)
+	g, err = c.GetResourceRelationship(ctx, client, *unObj, rg, g)
 	if err != nil {
 		return nil, err
 	}
@@ -108,7 +107,7 @@ func (c *ResourceController) GetTopologyForResource(ctx context.Context, spokeCl
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
-func (c *ResourceController) GetResourceRelationship(ctx context.Context, spokeClient *dynamic.DynamicClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func (c *ResourceController) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
 	var err error
 	namespace := obj.GetNamespace()
 	objName := obj.GetName()
@@ -126,7 +125,7 @@ func (c *ResourceController) GetResourceRelationship(ctx context.Context, spokeC
 	// TODO: process error
 	// Recursively find parents
 	for _, objParent := range objGVKOnGraph.Parent {
-		resourceGraph, err = relationship.GetParents(ctx, spokeClient, obj, objParent, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
+		resourceGraph, err = relationship.GetParents(ctx, client.DynamicClient, obj, objParent, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
 		if err != nil {
 			return nil, err
 		}
@@ -134,7 +133,7 @@ func (c *ResourceController) GetResourceRelationship(ctx context.Context, spokeC
 
 	// Recursively find children
 	for _, objChild := range objGVKOnGraph.Children {
-		resourceGraph, err = relationship.GetChildren(ctx, spokeClient, obj, objChild, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
+		resourceGraph, err = relationship.GetChildren(ctx, client.DynamicClient, obj, objChild, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
 		if err != nil {
 			return nil, err
 		}

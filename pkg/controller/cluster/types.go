@@ -23,3 +23,11 @@ type ClusterTopology struct {
 	Count            int
 	Relationship     map[string]string
 }
+
+type ClusterDetail struct {
+	NodeCount      int
+	ServerVersion  string
+	MemoryCapacity int64
+	CPUCapacity    int64
+	PodsCapacity   int64
+}

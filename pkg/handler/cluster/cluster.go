@@ -27,7 +27,7 @@ import (
 func Get(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, "")
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		clusterUnstructured, _ := clusterCtrl.GetCluster(r.Context(), client, cluster)
 		result, _ := json.MarshalIndent(clusterUnstructured, "", "  ")
 		w.Write(result)
@@ -37,7 +37,7 @@ func Get(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http
 func GetYAML(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, "")
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		result, _ := clusterCtrl.GetYAMLForCluster(r.Context(), client, cluster)
 		w.Write(result)
 	}
@@ -46,10 +46,30 @@ func GetYAML(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) 
 func GetTopology(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
-		dynamicClient, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, cluster)
-		discoveryClient, _ := multicluster.BuildDiscoveryClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterCtrl.GetTopologyForCluster(r.Context(), dynamicClient, discoveryClient, cluster)
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		topologyMap, _ := clusterCtrl.GetTopologyForCluster(r.Context(), client, cluster)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
+		w.Write(result)
+	}
+}
+
+func GetDetail(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cluster := chi.URLParam(r, "clusterName")
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		clusterDetail, _ := clusterCtrl.GetDetailsForCluster(r.Context(), client, cluster)
+		result, _ := json.MarshalIndent(clusterDetail, "", "  ")
+		w.Write(result)
+	}
+}
+
+func GetNamespace(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		cluster := chi.URLParam(r, "clusterName")
+		namespace := chi.URLParam(r, "namespaceName")
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		namespaceObj, _ := clusterCtrl.GetNamespaceForCluster(r.Context(), client, cluster, namespace)
+		result, _ := json.MarshalIndent(namespaceObj, "", "  ")
 		w.Write(result)
 	}
 }
@@ -58,9 +78,8 @@ func GetNamespaceTopology(clusterCtrl *cluster.ClusterController, c *server.Comp
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		namespace := chi.URLParam(r, "namespaceName")
-		dynamicClient, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, cluster)
-		discoveryClient, _ := multicluster.BuildDiscoveryClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterCtrl.GetTopologyForClusterNamespace(r.Context(), dynamicClient, discoveryClient, cluster, namespace)
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		topologyMap, _ := clusterCtrl.GetTopologyForClusterNamespace(r.Context(), client, cluster, namespace)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}

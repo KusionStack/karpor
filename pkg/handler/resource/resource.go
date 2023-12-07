@@ -32,8 +32,8 @@ import (
 func Get(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
-		dynamicClient, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		resourceUnstructured, _ := resourceCtrl.GetResource(r.Context(), dynamicClient, res)
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		resourceUnstructured, _ := resourceCtrl.GetResource(r.Context(), client, res)
 		result, _ := json.MarshalIndent(resourceUnstructured, "", "  ")
 		w.Write(result)
 	}
@@ -42,7 +42,7 @@ func Get(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) h
 func GetYAML(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
-		client, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
 		result, _ := resourceCtrl.GetYAMLForResource(r.Context(), client, res)
 		w.Write(result)
 	}
@@ -51,9 +51,8 @@ func GetYAML(resourceCtrl *resource.ResourceController, c *server.CompletedConfi
 func GetTopology(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
-		dynamicClient, _ := multicluster.BuildDynamicClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		discoveryClient, _ := multicluster.BuildDiscoveryClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		topologyMap, _ := resourceCtrl.GetTopologyForResource(r.Context(), dynamicClient, discoveryClient, res)
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		topologyMap, _ := resourceCtrl.GetTopologyForResource(r.Context(), client, res)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}
