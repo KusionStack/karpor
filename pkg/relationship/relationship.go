@@ -218,7 +218,7 @@ func RelationshipEquals(r, relation *Relationship) bool {
 }
 
 // CountRelationshipGraph returns the same RelationshipGraph with the count for each resource
-func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryInterface, countNamespace string) (*RelationshipGraph, error) {
+func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
 	for _, node := range rg.RelationshipNodes {
 		var resList *unstructured.UnstructuredList
 		resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
@@ -243,7 +243,7 @@ func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamic
 }
 
 // GVRNamespaced returns true if a given GVR is namespaced based on the result of discovery client
-func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.DiscoveryInterface) bool {
+func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.DiscoveryClient) bool {
 	apiResourceList, err := discoveryClient.ServerResourcesForGroupVersion(gvr.GroupVersion().String())
 	if err != nil {
 		return false

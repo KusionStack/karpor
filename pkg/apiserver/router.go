@@ -19,11 +19,16 @@ import (
 	"net/http"
 	"strings"
 
-	confighandler "github.com/KusionStack/karbour/pkg/apis/config"
+	clustercontroller "github.com/KusionStack/karbour/pkg/controller/cluster"
 	"github.com/KusionStack/karbour/pkg/controller/config"
+	resourcecontroller "github.com/KusionStack/karbour/pkg/controller/resource"
+	clusterhandler "github.com/KusionStack/karbour/pkg/handler/cluster"
+	confighandler "github.com/KusionStack/karbour/pkg/handler/config"
+	resourcehandler "github.com/KusionStack/karbour/pkg/handler/resource"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	"k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
 )
 
@@ -31,7 +36,7 @@ import (
 // dashboard.
 const DefaultStaticDirectory = "./static"
 
-func NewCoreAPIs() http.Handler {
+func NewCoreAPIs(s *server.APIServerHandler, c *CompletedConfig) http.Handler {
 	router := chi.NewRouter()
 
 	// Set up middlewares
@@ -48,9 +53,15 @@ func NewCoreAPIs() http.Handler {
 	configCtrl := config.NewController(&config.Config{
 		Verbose: false,
 	})
+	clusterCtrl := clustercontroller.NewClusterController(&clustercontroller.Config{
+		Verbose: false,
+	})
+	resourceCtrl := resourcecontroller.NewResourceController(&resourcecontroller.ResourceConfig{
+		Verbose: false,
+	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configCtrl)
+		setupAPIV1(r, s, configCtrl, clusterCtrl, resourceCtrl, c)
 	})
 
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
@@ -62,7 +73,7 @@ func NewCoreAPIs() http.Handler {
 	return router
 }
 
-func setupAPIV1(r chi.Router, configCtrl *config.Controller) {
+func setupAPIV1(r chi.Router, s *server.APIServerHandler, configCtrl *config.Controller, clusterCtrl *clustercontroller.ClusterController, resourceCtrl *resourcecontroller.ResourceController, c *CompletedConfig) {
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/", confighandler.Get(configCtrl))
 		// r.Delete("/", confighandler.Delete(configCtrl))
@@ -70,12 +81,25 @@ func setupAPIV1(r chi.Router, configCtrl *config.Controller) {
 		// r.Put("/", confighandler.Put(configCtrl))
 	})
 
-	// r.Route("/topology", func(r chi.Router) {
-	// 	r.Get("/", topologyhandler.Get(topologyCtrl))
-	// 	r.Delete("/", topologyhandler.Delete(topologyCtrl))
-	// 	r.Post("/", topologyhandler.Post(topologyCtrl))
-	// 	r.Put("/", topologyhandler.Put(topologyCtrl))
-	// })
+	r.Route("/cluster", func(r chi.Router) {
+		r.Route("/{clusterName}", func(r chi.Router) {
+			r.Get("/", clusterhandler.Get(clusterCtrl, &c.GenericConfig))
+			r.Get("/yaml", clusterhandler.GetYAML(clusterCtrl, &c.GenericConfig))
+			r.Get("/topology", clusterhandler.GetTopology(clusterCtrl, &c.GenericConfig))
+			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterCtrl, &c.GenericConfig))
+		})
+	})
+
+	r.Route("/resource", func(r chi.Router) {
+		r.Route("/search", func(r chi.Router) {
+			r.Get("/", resourcehandler.SearchForResource(resourceCtrl, c.ExtraConfig))
+		})
+		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
+			r.Get("/", resourcehandler.Get(resourceCtrl, &c.GenericConfig))
+			r.Get("/yaml", resourcehandler.GetYAML(resourceCtrl, &c.GenericConfig))
+			r.Get("/topology", resourcehandler.GetTopology(resourceCtrl, &c.GenericConfig))
+		})
+	})
 }
 
 func listEndpoints(r chi.Router) []string {

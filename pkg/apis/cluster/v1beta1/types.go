@@ -58,18 +58,9 @@ type ClusterSpec struct {
 	Finalized *bool `json:"finalized,omitempty"`
 }
 
-// +k8s:deepcopy-gen=true
-
-type ClusterTopology struct {
-	GroupVersionKind string
-	Count            int
-	Relationship     map[string]string
-}
-
 type ClusterStatus struct {
 	// +optional
-	Healthy bool                       `json:"healthy,omitempty"`
-	Graph   map[string]ClusterTopology `json:"graph,omitempty"`
+	Healthy bool `json:"healthy,omitempty"`
 }
 
 type ClusterAccess struct {

@@ -12,23 +12,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package registry
+package config
 
 import (
-	"k8s.io/apiserver/pkg/registry/generic"
-	genericapiserver "k8s.io/apiserver/pkg/server"
+	"encoding/json"
+	"net/http"
+
+	"github.com/KusionStack/karbour/pkg/controller/config"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 )
 
-// RESTStorageProvider is a factory type for REST storage.
-type RESTStorageProvider interface {
-	GroupName() string
-	NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error)
-}
+func Get(configCtrl *config.Controller) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		log := ctxutil.GetLogger(r.Context())
 
-// ExtraConfig holds custom apiserver config
-type ExtraConfig struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchName      string
-	ElasticSearchPassword  string
+		log.Info("Starting get config ...")
+
+		b, err := json.MarshalIndent(configCtrl.Get(), "", "  ")
+		if err != nil {
+			log.Error(err, "Failed to marshal json")
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Write(b)
+	}
 }

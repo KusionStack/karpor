@@ -12,29 +12,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package resource
 
-import (
-	"encoding/json"
-	"net/http"
+type ResourceConfig struct {
+	Verbose bool `json:"verbose"`
+}
 
-	"github.com/KusionStack/karbour/pkg/controller/config"
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-)
+type Resource struct {
+	Name       string
+	Namespace  string
+	APIVersion string
+	Kind       string
+	Cluster    string
+}
 
-func Get(configCtrl *config.Controller) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		log := ctxutil.GetLogger(r.Context())
-
-		log.Info("Starting get config ...")
-
-		b, err := json.MarshalIndent(configCtrl.Get(), "", "  ")
-		if err != nil {
-			log.Error(err, "Failed to mashal json")
-			http.Error(w, "Internal server error", http.StatusInternalServerError)
-			return
-		}
-
-		w.Write(b)
-	}
+type ResourceTopology struct {
+	Identifier string
+	Parents    []string
+	Children   []string
 }

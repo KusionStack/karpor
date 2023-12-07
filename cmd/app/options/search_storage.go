@@ -15,7 +15,7 @@
 package options
 
 import (
-	"github.com/KusionStack/karbour/pkg/apiserver"
+	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/spf13/pflag"
 )
 
@@ -40,7 +40,7 @@ func (o *SearchStorageOptions) Validate() []error {
 	return nil
 }
 
-func (o *SearchStorageOptions) ApplyTo(config *apiserver.ExtraConfig) error {
+func (o *SearchStorageOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.SearchStorageType = o.SearchStorageType
 	config.ElasticSearchAddresses = o.ElasticSearchAddresses
 	config.ElasticSearchName = o.ElasticSearchName
