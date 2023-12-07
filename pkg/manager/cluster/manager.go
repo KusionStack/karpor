@@ -29,25 +29,25 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
-type ClusterController struct {
+type ClusterManager struct {
 	config *Config
 }
 
-func NewClusterController(config *Config) *ClusterController {
-	return &ClusterController{
+func NewClusterManager(config *Config) *ClusterManager {
+	return &ClusterManager{
 		config: config,
 	}
 }
 
 // GetCluster returns the unstructured Cluster object for a given cluster
-func (c *ClusterController) GetCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*unstructured.Unstructured, error) {
+func (c *ClusterManager) GetCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	obj, _ := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	return obj, nil
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
-func (c *ClusterController) GetYAMLForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) ([]byte, error) {
+func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) ([]byte, error) {
 	obj, err := c.GetCluster(ctx, client, name)
 	if err != nil {
 		return nil, err
@@ -60,7 +60,7 @@ func (c *ClusterController) GetYAMLForCluster(ctx context.Context, client *multi
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
-func (c *ClusterController) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
+func (c *ClusterManager) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
 	namespaceObj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *ClusterController) GetNamespaceForCluster(ctx context.Context, client *
 	return namespaceObj, nil
 }
 
-func (c *ClusterController) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+func (c *ClusterManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
@@ -79,8 +79,8 @@ func (c *ClusterController) GetDetailsForCluster(ctx context.Context, client *mu
 	var memoryCapacity, cpuCapacity, podCapacity int64
 	for _, node := range nodes.Items {
 		memoryCapacity += node.Status.Capacity.Memory().Value()
-		cpuCapacity += cpuCapacity + node.Status.Capacity.Cpu().Value()
-		podCapacity += podCapacity + node.Status.Capacity.Pods().Value()
+		cpuCapacity += node.Status.Capacity.Cpu().Value()
+		podCapacity += node.Status.Capacity.Pods().Value()
 	}
 	return &ClusterDetail{
 		NodeCount:      len(nodes.Items),
@@ -92,7 +92,7 @@ func (c *ClusterController) GetDetailsForCluster(ctx context.Context, client *mu
 }
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (c *ClusterController) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
+func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
@@ -113,7 +113,7 @@ func (c *ClusterController) GetTopologyForCluster(ctx context.Context, client *m
 }
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
-func (c *ClusterController) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
+func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
@@ -133,7 +133,7 @@ func (c *ClusterController) GetTopologyForClusterNamespace(ctx context.Context, 
 	return c.ConvertGraphToMap(rg), nil
 }
 
-func (c *ClusterController) ConvertGraphToMap(rg *relationship.RelationshipGraph) map[string]ClusterTopology {
+func (c *ClusterManager) ConvertGraphToMap(rg *relationship.RelationshipGraph) map[string]ClusterTopology {
 	m := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {
 		rgnMap := rgn.ConvertToMap()

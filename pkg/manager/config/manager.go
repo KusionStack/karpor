@@ -14,16 +14,16 @@
 
 package config
 
-type Controller struct {
+type Manager struct {
 	config *Config
 }
 
-func NewController(config *Config) *Controller {
-	return &Controller{
+func NewManager(config *Config) *Manager {
+	return &Manager{
 		config: config,
 	}
 }
 
-func (c *Controller) Get() *Config {
+func (c *Manager) Get() *Config {
 	return c.config
 }

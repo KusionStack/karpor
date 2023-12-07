@@ -18,68 +18,68 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/controller/cluster"
+	"github.com/KusionStack/karbour/pkg/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/go-chi/chi/v5"
 	"k8s.io/apiserver/pkg/server"
 )
 
-func Get(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		clusterUnstructured, _ := clusterCtrl.GetCluster(r.Context(), client, cluster)
+		clusterUnstructured, _ := clusterMgr.GetCluster(r.Context(), client, cluster)
 		result, _ := json.MarshalIndent(clusterUnstructured, "", "  ")
 		w.Write(result)
 	}
 }
 
-func GetYAML(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func GetYAML(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		result, _ := clusterCtrl.GetYAMLForCluster(r.Context(), client, cluster)
+		result, _ := clusterMgr.GetYAMLForCluster(r.Context(), client, cluster)
 		w.Write(result)
 	}
 }
 
-func GetTopology(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func GetTopology(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterCtrl.GetTopologyForCluster(r.Context(), client, cluster)
+		topologyMap, _ := clusterMgr.GetTopologyForCluster(r.Context(), client, cluster)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}
 }
 
-func GetDetail(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func GetDetail(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		clusterDetail, _ := clusterCtrl.GetDetailsForCluster(r.Context(), client, cluster)
+		clusterDetail, _ := clusterMgr.GetDetailsForCluster(r.Context(), client, cluster)
 		result, _ := json.MarshalIndent(clusterDetail, "", "  ")
 		w.Write(result)
 	}
 }
 
-func GetNamespace(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func GetNamespace(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		namespace := chi.URLParam(r, "namespaceName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		namespaceObj, _ := clusterCtrl.GetNamespaceForCluster(r.Context(), client, cluster, namespace)
+		namespaceObj, _ := clusterMgr.GetNamespaceForCluster(r.Context(), client, cluster, namespace)
 		result, _ := json.MarshalIndent(namespaceObj, "", "  ")
 		w.Write(result)
 	}
 }
 
-func GetNamespaceTopology(clusterCtrl *cluster.ClusterController, c *server.CompletedConfig) http.HandlerFunc {
+func GetNamespaceTopology(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
 		namespace := chi.URLParam(r, "namespaceName")
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterCtrl.GetTopologyForClusterNamespace(r.Context(), client, cluster, namespace)
+		topologyMap, _ := clusterMgr.GetTopologyForClusterNamespace(r.Context(), client, cluster, namespace)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}

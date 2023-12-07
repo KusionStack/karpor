@@ -30,19 +30,19 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-type ResourceController struct {
+type ResourceManager struct {
 	config *ResourceConfig
 }
 
-// NewResourceController returns a new ResourceController
-func NewResourceController(config *ResourceConfig) *ResourceController {
-	return &ResourceController{
+// NewResourceManager returns a new ResourceManager
+func NewResourceManager(config *ResourceConfig) *ResourceManager {
+	return &ResourceManager{
 		config: config,
 	}
 }
 
 // GetCluster returns the unstructured cluster object for a given cluster
-func (c *ResourceController) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
+func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
 	if err != nil {
 		return nil, err
@@ -55,7 +55,7 @@ func (c *ResourceController) GetResource(ctx context.Context, client *multiclust
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
-func (c *ResourceController) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
+func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
 	obj, err := c.GetResource(ctx, client, res)
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (c *ResourceController) GetYAMLForResource(ctx context.Context, client *mul
 }
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (c *ResourceController) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
+func (c *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
@@ -107,7 +107,7 @@ func (c *ResourceController) GetTopologyForResource(ctx context.Context, client 
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
-func (c *ResourceController) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func (c *ResourceManager) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
 	var err error
 	namespace := obj.GetNamespace()
 	objName := obj.GetName()
@@ -142,7 +142,7 @@ func (c *ResourceController) GetResourceRelationship(ctx context.Context, client
 	return resourceGraph, nil
 }
 
-func (c *ResourceController) ConvertResourceGraphToMap(g graph.Graph[string, relationship.ResourceGraphNode]) map[string]ResourceTopology {
+func (c *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relationship.ResourceGraphNode]) map[string]ResourceTopology {
 	am, _ := g.AdjacencyMap()
 	m := make(map[string]ResourceTopology)
 	for key, edgeMap := range am {

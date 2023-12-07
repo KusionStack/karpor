@@ -16,7 +16,6 @@ package multicluster
 
 import (
 	"context"
-	"log"
 	"net"
 	"net/url"
 
@@ -61,7 +60,6 @@ func BuildHubClients(ctx context.Context, hubConfig *restclient.Config) (*MultiC
 	// Create a Kubernetes core client
 	hubClientSet, err := kubernetes.NewForConfig(hubConfig)
 	if err != nil {
-		log.Fatalf("Error creating Kubernetes client: %s", err.Error())
 		return nil, err
 	}
 	// Create a Kubernetes dynamic client
@@ -107,14 +105,12 @@ func BuildSpokeClients(ctx context.Context, hubDynamicClient *dynamic.DynamicCli
 	clientset, err := metrics.NewForConfig(spokeConfig)
 	metricsClient := clientset.MetricsV1beta1()
 	if err != nil {
-		log.Fatalf("Failed to create metrics clientset: %v", err)
 		return nil, err
 	}
 
 	// Build Core
 	spokeClientSet, err := kubernetes.NewForConfig(spokeConfig)
 	if err != nil {
-		log.Fatalf("Error creating Kubernetes client: %s", err.Error())
 		return nil, err
 	}
 

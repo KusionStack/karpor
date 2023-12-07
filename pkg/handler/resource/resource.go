@@ -19,7 +19,7 @@ import (
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
-	"github.com/KusionStack/karbour/pkg/controller/resource"
+	"github.com/KusionStack/karbour/pkg/manager/resource"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/registry"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
@@ -29,36 +29,36 @@ import (
 	"k8s.io/apiserver/pkg/server"
 )
 
-func Get(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
+func Get(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		resourceUnstructured, _ := resourceCtrl.GetResource(r.Context(), client, res)
+		resourceUnstructured, _ := resourceMgr.GetResource(r.Context(), client, res)
 		result, _ := json.MarshalIndent(resourceUnstructured, "", "  ")
 		w.Write(result)
 	}
 }
 
-func GetYAML(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
+func GetYAML(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		result, _ := resourceCtrl.GetYAMLForResource(r.Context(), client, res)
+		result, _ := resourceMgr.GetYAMLForResource(r.Context(), client, res)
 		w.Write(result)
 	}
 }
 
-func GetTopology(resourceCtrl *resource.ResourceController, c *server.CompletedConfig) http.HandlerFunc {
+func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		res := BuildResourceFromParam(r)
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		topologyMap, _ := resourceCtrl.GetTopologyForResource(r.Context(), client, res)
+		topologyMap, _ := resourceMgr.GetTopologyForResource(r.Context(), client, res)
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}
 }
 
-func SearchForResource(resourceCtrl *resource.ResourceController, c *registry.ExtraConfig) http.HandlerFunc {
+func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		searchQuery := r.URL.Query().Get("query")
 		searchPattern := r.URL.Query().Get("pattern")

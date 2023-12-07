@@ -19,12 +19,12 @@ import (
 	"net/http"
 	"strings"
 
-	clustercontroller "github.com/KusionStack/karbour/pkg/controller/cluster"
-	"github.com/KusionStack/karbour/pkg/controller/config"
-	resourcecontroller "github.com/KusionStack/karbour/pkg/controller/resource"
 	clusterhandler "github.com/KusionStack/karbour/pkg/handler/cluster"
 	confighandler "github.com/KusionStack/karbour/pkg/handler/config"
 	resourcehandler "github.com/KusionStack/karbour/pkg/handler/resource"
+	clustermanager "github.com/KusionStack/karbour/pkg/manager/cluster"
+	"github.com/KusionStack/karbour/pkg/manager/config"
+	resourcemanager "github.com/KusionStack/karbour/pkg/manager/resource"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -40,18 +40,18 @@ func NewCoreServer(c *CompletedConfig) *chi.Mux {
 	router.Use(middleware.Recoverer)
 
 	// Set up the core api router
-	configCtrl := config.NewController(&config.Config{
+	configMgr := config.NewManager(&config.Config{
 		Verbose: false,
 	})
-	clusterCtrl := clustercontroller.NewClusterController(&clustercontroller.Config{
+	clusterMgr := clustermanager.NewClusterManager(&clustermanager.Config{
 		Verbose: false,
 	})
-	resourceCtrl := resourcecontroller.NewResourceController(&resourcecontroller.ResourceConfig{
+	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
 		Verbose: false,
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configCtrl, clusterCtrl, resourceCtrl, c)
+		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, c)
 	})
 
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
@@ -63,33 +63,33 @@ func NewCoreServer(c *CompletedConfig) *chi.Mux {
 	return router
 }
 
-func setupAPIV1(r chi.Router, configCtrl *config.Controller, clusterCtrl *clustercontroller.ClusterController, resourceCtrl *resourcecontroller.ResourceController, c *CompletedConfig) {
+func setupAPIV1(r chi.Router, configMgr *config.Manager, clusterMgr *clustermanager.ClusterManager, resourceMgr *resourcemanager.ResourceManager, c *CompletedConfig) {
 	r.Route("/config", func(r chi.Router) {
-		r.Get("/", confighandler.Get(configCtrl))
-		// r.Delete("/", confighandler.Delete(configCtrl))
-		// r.Post("/", confighandler.Post(configCtrl))
-		// r.Put("/", confighandler.Put(configCtrl))
+		r.Get("/", confighandler.Get(configMgr))
+		// r.Delete("/", confighandler.Delete(configMgr))
+		// r.Post("/", confighandler.Post(configMgr))
+		// r.Put("/", confighandler.Put(configMgr))
 	})
 
 	r.Route("/cluster", func(r chi.Router) {
 		r.Route("/{clusterName}", func(r chi.Router) {
-			r.Get("/", clusterhandler.Get(clusterCtrl, &c.GenericConfig))
-			r.Get("/yaml", clusterhandler.GetYAML(clusterCtrl, &c.GenericConfig))
-			r.Get("/detail", clusterhandler.GetDetail(clusterCtrl, &c.GenericConfig))
-			r.Get("/topology", clusterhandler.GetTopology(clusterCtrl, &c.GenericConfig))
-			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterCtrl, &c.GenericConfig))
-			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterCtrl, &c.GenericConfig))
+			r.Get("/", clusterhandler.Get(clusterMgr, &c.GenericConfig))
+			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, &c.GenericConfig))
+			r.Get("/detail", clusterhandler.GetDetail(clusterMgr, &c.GenericConfig))
+			r.Get("/topology", clusterhandler.GetTopology(clusterMgr, &c.GenericConfig))
+			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterMgr, &c.GenericConfig))
+			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterMgr, &c.GenericConfig))
 		})
 	})
 
 	r.Route("/resource", func(r chi.Router) {
 		r.Route("/search", func(r chi.Router) {
-			r.Get("/", resourcehandler.SearchForResource(resourceCtrl, c.ExtraConfig))
+			r.Get("/", resourcehandler.SearchForResource(resourceMgr, c.ExtraConfig))
 		})
 		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
-			r.Get("/", resourcehandler.Get(resourceCtrl, &c.GenericConfig))
-			r.Get("/yaml", resourcehandler.GetYAML(resourceCtrl, &c.GenericConfig))
-			r.Get("/topology", resourcehandler.GetTopology(resourceCtrl, &c.GenericConfig))
+			r.Get("/", resourcehandler.Get(resourceMgr, &c.GenericConfig))
+			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, &c.GenericConfig))
+			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, &c.GenericConfig))
 		})
 	})
 }
