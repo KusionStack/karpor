@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/KusionStack/karbour/pkg/core/server"
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
@@ -82,7 +83,7 @@ func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
 	}
 
 	// Create the core server.
-	s.mux = NewCoreServer(c)
+	s.mux = server.NewCoreServer(&c.GenericConfig, c.ExtraConfig)
 
 	// Mount the core mux to NonGoRestfulMux of GenericAPIServer.
 	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", s.mux)

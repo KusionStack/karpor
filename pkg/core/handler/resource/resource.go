@@ -19,7 +19,7 @@ import (
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
-	"github.com/KusionStack/karbour/pkg/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/resource"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/registry"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"

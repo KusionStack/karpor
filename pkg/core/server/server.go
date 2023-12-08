@@ -12,25 +12,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package apiserver
+package server
 
 import (
 	"fmt"
 	"net/http"
 	"strings"
 
-	clusterhandler "github.com/KusionStack/karbour/pkg/handler/cluster"
-	confighandler "github.com/KusionStack/karbour/pkg/handler/config"
-	resourcehandler "github.com/KusionStack/karbour/pkg/handler/resource"
-	clustermanager "github.com/KusionStack/karbour/pkg/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/manager/config"
-	resourcemanager "github.com/KusionStack/karbour/pkg/manager/resource"
+	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
+	confighandler "github.com/KusionStack/karbour/pkg/core/handler/config"
+	resourcehandler "github.com/KusionStack/karbour/pkg/core/handler/resource"
+	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
+	"github.com/KusionStack/karbour/pkg/core/manager/config"
+	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
+	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
-func NewCoreServer(c *CompletedConfig) *chi.Mux {
+func NewCoreServer(
+	genericConfig *genericapiserver.CompletedConfig,
+	extraConfig *registry.ExtraConfig,
+) *chi.Mux {
 	router := chi.NewRouter()
 
 	// Set up middlewares
@@ -51,7 +56,7 @@ func NewCoreServer(c *CompletedConfig) *chi.Mux {
 	})
 
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, c)
+		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, genericConfig, extraConfig)
 	})
 
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
@@ -63,7 +68,14 @@ func NewCoreServer(c *CompletedConfig) *chi.Mux {
 	return router
 }
 
-func setupAPIV1(r chi.Router, configMgr *config.Manager, clusterMgr *clustermanager.ClusterManager, resourceMgr *resourcemanager.ResourceManager, c *CompletedConfig) {
+func setupAPIV1(
+	r chi.Router,
+	configMgr *config.Manager,
+	clusterMgr *clustermanager.ClusterManager,
+	resourceMgr *resourcemanager.ResourceManager,
+	genericConfig *genericapiserver.CompletedConfig,
+	extraConfig *registry.ExtraConfig,
+) {
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/", confighandler.Get(configMgr))
 		// r.Delete("/", confighandler.Delete(configMgr))
@@ -73,23 +85,23 @@ func setupAPIV1(r chi.Router, configMgr *config.Manager, clusterMgr *clustermana
 
 	r.Route("/cluster", func(r chi.Router) {
 		r.Route("/{clusterName}", func(r chi.Router) {
-			r.Get("/", clusterhandler.Get(clusterMgr, &c.GenericConfig))
-			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, &c.GenericConfig))
-			r.Get("/detail", clusterhandler.GetDetail(clusterMgr, &c.GenericConfig))
-			r.Get("/topology", clusterhandler.GetTopology(clusterMgr, &c.GenericConfig))
-			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterMgr, &c.GenericConfig))
-			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterMgr, &c.GenericConfig))
+			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
+			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, genericConfig))
+			r.Get("/detail", clusterhandler.GetDetail(clusterMgr, genericConfig))
+			r.Get("/topology", clusterhandler.GetTopology(clusterMgr, genericConfig))
+			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterMgr, genericConfig))
+			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterMgr, genericConfig))
 		})
 	})
 
 	r.Route("/resource", func(r chi.Router) {
 		r.Route("/search", func(r chi.Router) {
-			r.Get("/", resourcehandler.SearchForResource(resourceMgr, c.ExtraConfig))
+			r.Get("/", resourcehandler.SearchForResource(resourceMgr, extraConfig))
 		})
 		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
-			r.Get("/", resourcehandler.Get(resourceMgr, &c.GenericConfig))
-			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, &c.GenericConfig))
-			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, &c.GenericConfig))
+			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))
+			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, genericConfig))
+			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, genericConfig))
 		})
 	})
 }

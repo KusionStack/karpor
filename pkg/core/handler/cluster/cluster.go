@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/manager/cluster"
+	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/go-chi/chi/v5"
 	"k8s.io/apiserver/pkg/server"

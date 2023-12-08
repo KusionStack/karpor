@@ -18,7 +18,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/manager/config"
+	"github.com/KusionStack/karbour/pkg/core/manager/config"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 )
 
