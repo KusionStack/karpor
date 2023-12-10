@@ -34,20 +34,22 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
+// NewCoreServer creates and configures an instance of chi.Mux with the given
+// configuration and extra configuration parameters.
 func NewCoreServer(
 	genericConfig *genericapiserver.CompletedConfig,
 	extraConfig *registry.ExtraConfig,
 ) (*chi.Mux, error) {
 	router := chi.NewRouter()
 
-	// Set up middlewares
+	// Set up middlewares for logging, recovery, and timing, etc.
 	router.Use(middleware.RequestID)
 	router.Use(appmiddleware.AuditLogger)
 	router.Use(appmiddleware.APILogger)
 	router.Use(appmiddleware.Time)
 	router.Use(middleware.Recoverer)
 
-	// Set up the core api router
+	// Initialize managers for the different core components of the API.
 	configMgr := config.NewManager(&config.Config{
 		Verbose: false,
 	})
@@ -62,10 +64,12 @@ func NewCoreServer(
 		return nil, err
 	}
 
+	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
 		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, auditMgr, genericConfig, extraConfig)
 	})
 
+	// Endpoint to list all available endpoints in the router.
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
 		endpoints := listEndpoints(router)
 		w.Header().Set("Content-Type", "text/plain")
@@ -75,6 +79,8 @@ func NewCoreServer(
 	return router, nil
 }
 
+// setupAPIV1 configures routing for the API version 1, grouping routes by
+// resource type and setting up proper handlers.
 func setupAPIV1(
 	r chi.Router,
 	configMgr *config.Manager,
@@ -84,6 +90,7 @@ func setupAPIV1(
 	genericConfig *genericapiserver.CompletedConfig,
 	extraConfig *registry.ExtraConfig,
 ) {
+	// Define API routes for 'config', 'cluster', 'resource', and 'audit', etc.
 	r.Route("/config", func(r chi.Router) {
 		r.Get("/", confighandler.Get(configMgr))
 		// r.Delete("/", confighandler.Delete(configMgr))
@@ -92,6 +99,7 @@ func setupAPIV1(
 	})
 
 	r.Route("/cluster", func(r chi.Router) {
+		// Define cluster specific routes.
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
 			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, genericConfig))
@@ -118,6 +126,7 @@ func setupAPIV1(
 	})
 }
 
+// listEndpoints generates a list of all routes registered in the router.
 func listEndpoints(r chi.Router) []string {
 	var endpoints []string
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
