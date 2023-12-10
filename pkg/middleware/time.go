@@ -9,10 +9,10 @@ import (
 // StartTimeKey is a context key used for storing the start time of a request.
 var StartTimeKey = &contextKey{"startTime"}
 
-// Time is a middleware that captures the current time at the start of a request
+// Timing is a middleware that captures the current time at the start of a request
 // and stores it in the request context. This start time can be used to measure
 // request processing duration.
-func Time(next http.Handler) http.Handler {
+func Timing(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 

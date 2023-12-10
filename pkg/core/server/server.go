@@ -44,9 +44,9 @@ func NewCoreServer(
 
 	// Set up middlewares for logging, recovery, and timing, etc.
 	router.Use(middleware.RequestID)
-	router.Use(appmiddleware.AuditLogger)
+	router.Use(appmiddleware.DefaultLogger)
 	router.Use(appmiddleware.APILogger)
-	router.Use(appmiddleware.Time)
+	router.Use(appmiddleware.Timing)
 	router.Use(middleware.Recoverer)
 
 	// Initialize managers for the different core components of the API.
