@@ -18,6 +18,7 @@ package kubeaudit
 
 import (
 	"bytes"
+	"context"
 	"io"
 
 	"github.com/KusionStack/karbour/pkg/scanner"
@@ -33,7 +34,7 @@ import (
 var _ scanner.KubeScanner = &kubeauditScanner{}
 
 // ScannerName is the name of the scanner.
-const ScannerName = "kubeaudit"
+const ScannerName = "KubeAudit"
 
 // kubeauditScanner is an implementation of scanner.KubeScanner that utilizes
 // the functionality from the kubeaudit package to perform security audits.
@@ -76,18 +77,18 @@ func (s *kubeauditScanner) Name() string {
 // Scan audits the provided Kubernetes resources and returns a list of
 // security issues found, if any. It serializes the runtime.Object to JSON
 // and then uses kubeaudit to perform the auditing.
-func (s *kubeauditScanner) Scan(resources ...runtime.Object) ([]*scanner.Issue, error) {
+func (s *kubeauditScanner) Scan(ctx context.Context, resources ...runtime.Object) ([]*scanner.Issue, error) {
 	manifest, err := s.serializeObjectsToYAML(resources...)
 	if err != nil {
 		return nil, err
 	}
 
-	return s.ScanManifest(manifest)
+	return s.ScanManifest(ctx, manifest)
 }
 
 // Scan audits the provided Kubernetes resources manifest and returns a list of
 // security issues found.
-func (s *kubeauditScanner) ScanManifest(manifest io.Reader) ([]*scanner.Issue, error) {
+func (s *kubeauditScanner) ScanManifest(ctx context.Context, manifest io.Reader) ([]*scanner.Issue, error) {
 	// Audit the specific manifest.
 	report, err := s.kubeAuditor.AuditManifest("", manifest)
 	if err != nil {

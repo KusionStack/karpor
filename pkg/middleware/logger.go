@@ -22,19 +22,15 @@ import (
 	"k8s.io/klog/v2"
 )
 
-type contextKey struct {
-	name string
-}
-
 var APILoggerKey = &contextKey{"logger"}
 
 func APILogger(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := r.Context()
 
-		if requestID := middleware.GetReqID(r.Context()); len(requestID) > 0 {
-			logger := klog.FromContext(r.Context()).WithValues("requestID", requestID)
-			ctx = context.WithValue(r.Context(), APILoggerKey, logger)
+		if requestID := middleware.GetReqID(ctx); len(requestID) > 0 {
+			logger := klog.FromContext(ctx).WithValues("requestID", requestID)
+			ctx = context.WithValue(ctx, APILoggerKey, logger)
 		}
 
 		// continue serving request

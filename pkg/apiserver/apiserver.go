@@ -83,7 +83,12 @@ func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
 	}
 
 	// Create the core server.
-	s.mux = server.NewCoreServer(&c.GenericConfig, c.ExtraConfig)
+	if mux, err := server.NewCoreServer(&c.GenericConfig, c.ExtraConfig); err == nil {
+		s.mux = mux
+	} else {
+		s.err = err
+		return s
+	}
 
 	// Mount the core mux to NonGoRestfulMux of GenericAPIServer.
 	s.GenericAPIServer.Handler.NonGoRestfulMux.HandlePrefix("/", s.mux)

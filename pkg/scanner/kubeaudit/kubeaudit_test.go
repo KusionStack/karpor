@@ -27,6 +27,7 @@
 package kubeaudit
 
 import (
+	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -54,7 +55,7 @@ func TestKubeauditScannerScanManifest(t *testing.T) {
 	ks := createTestScanner(t)
 
 	// Run the ScanManifest method with the loaded YAML file.
-	issues, err := ks.ScanManifest(file)
+	issues, err := ks.ScanManifest(context.Background(), file)
 	if err != nil {
 		t.Errorf("ScanManifest returned an error: %s", err)
 	}
@@ -79,7 +80,7 @@ func TestKubeauditScannerScan(t *testing.T) {
 	ks := createTestScanner(t)
 
 	// Run the Scan method with the Deployment object.
-	issues, err := ks.Scan(deployment)
+	issues, err := ks.Scan(context.Background(), deployment)
 	if err != nil {
 		t.Errorf("Scan returned an error: %s", err)
 	}

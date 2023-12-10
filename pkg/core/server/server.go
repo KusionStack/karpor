@@ -19,9 +19,11 @@ import (
 	"net/http"
 	"strings"
 
+	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	confighandler "github.com/KusionStack/karbour/pkg/core/handler/config"
 	resourcehandler "github.com/KusionStack/karbour/pkg/core/handler/resource"
+	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/core/manager/config"
 	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
@@ -35,13 +37,14 @@ import (
 func NewCoreServer(
 	genericConfig *genericapiserver.CompletedConfig,
 	extraConfig *registry.ExtraConfig,
-) *chi.Mux {
+) (*chi.Mux, error) {
 	router := chi.NewRouter()
 
 	// Set up middlewares
 	router.Use(middleware.RequestID)
 	router.Use(appmiddleware.AuditLogger)
 	router.Use(appmiddleware.APILogger)
+	router.Use(appmiddleware.Time)
 	router.Use(middleware.Recoverer)
 
 	// Set up the core api router
@@ -54,9 +57,13 @@ func NewCoreServer(
 	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
 		Verbose: false,
 	})
+	auditMgr, err := auditmanager.NewAuditManager()
+	if err != nil {
+		return nil, err
+	}
 
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, genericConfig, extraConfig)
+		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, auditMgr, genericConfig, extraConfig)
 	})
 
 	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
@@ -65,7 +72,7 @@ func NewCoreServer(
 		w.Write([]byte(strings.Join(endpoints, "\n")))
 	})
 
-	return router
+	return router, nil
 }
 
 func setupAPIV1(
@@ -73,6 +80,7 @@ func setupAPIV1(
 	configMgr *config.Manager,
 	clusterMgr *clustermanager.ClusterManager,
 	resourceMgr *resourcemanager.ResourceManager,
+	auditMgr *auditmanager.AuditManager,
 	genericConfig *genericapiserver.CompletedConfig,
 	extraConfig *registry.ExtraConfig,
 ) {
@@ -103,6 +111,10 @@ func setupAPIV1(
 			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, genericConfig))
 			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, genericConfig))
 		})
+	})
+
+	r.Route("/audit", func(r chi.Router) {
+		r.Post("/", audithandler.Audit(auditMgr))
 	})
 }
 
