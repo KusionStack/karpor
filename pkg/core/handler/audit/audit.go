@@ -12,6 +12,15 @@ import (
 
 // Audit returns an HTTP handler function that performs auditing of manifest
 // data. It utilizes an AuditManager to execute the audit logic.
+// @Summary AuditHandler audits the provided manifest.
+// @Description This endpoint audits the provided manifest for issues.
+// @Tags audit
+// @Accept plain, json
+// @Produce json
+// @Param manifest body string true "Manifest data to audit (either plain text or JSON format)"
+// @Success 200 {object} AuditResponse "Audit results"
+// @Failure 400 {object} FailureResponse "Error details if manifest cannot be processed"
+// @Router /audit [post]
 func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
