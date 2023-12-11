@@ -19,26 +19,31 @@ import (
 	"net/http"
 
 	"github.com/go-chi/render"
+	"github.com/pkg/errors"
 )
 
 // decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
 func decode(r *http.Request, payload *Payload) error {
 	// Check if the content type is plain text, read it as such.
-	if render.GetRequestContentType(r) == render.ContentTypePlainText {
+	contentType := render.GetRequestContentType(r)
+	switch contentType {
+	case render.ContentTypePlainText:
 		// Read the request body.
 		body, err := io.ReadAll(r.Body)
 		defer r.Body.Close() // Ensure the body is closed after reading.
 		if err != nil {
-			return err
+			return errors.Wrapf(err, "failed to read the request body")
 		}
 		// Set the read content as the manifest payload.
 		payload.Manifest = string(body)
-	} else {
+	case render.ContentTypeJSON:
 		// For non-plain text, decode the JSON body into the payload.
 		if err := render.DecodeJSON(r.Body, payload); err != nil {
 			return err
 		}
+	default:
+		return errors.New("unsupported media type")
 	}
 
 	return nil
