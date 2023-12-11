@@ -58,6 +58,7 @@ header:
     - '**/Makefile'
     - '**/OWNERS'
     - 'ui/**'
+    - 'api/openapispec/**'
     - '.github/**'
     - '.idea/**'
     - '.vscode/**'

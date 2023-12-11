@@ -44,3 +44,12 @@ check-license:  ## Checks if repo files contain valid license header
 fix-license:  ## Adds missing license header to repo files
 	@which $(LICENSE_CHECKER) > /dev/null || (echo "Installing $(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) ..."; go install github.com/apache/skywalking-eyes/cmd/$(LICENSE_CHECKER)@$(LICENSE_CHECKER_VERSION) && echo -e "Installation complete!\n")
 	@${GOPATH}/bin/$(LICENSE_CHECKER) header fix
+
+.PHONY: gen-api-docs
+gen-api-docs: ## Generate API documentation with OpenAPI format
+	@which swag > /dev/null || (echo "Installing swag@v1.7.8 ..."; go install github.com/swaggo/swag/cmd/swag@v1.7.8 && echo "Installation complete!\n")
+	# Generate API documentation with OpenAPI format
+	-swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/main.go -o api/openapispec/
+	# Format swagger comments
+	-swag fmt -g pkg/**/*.go
+	@echo "🎉 Done!"
