@@ -23,16 +23,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// func (s *ESClient) Create(ctx context.Context, cluster string, obj runtime.Object) error {
-// 	// TODO: check if the resource exists
-// 	return s.insertObj(ctx, cluster, obj)
-// }
-
-// func (s *ESClient) Update(ctx context.Context, cluster string, obj runtime.Object) error {
-// 	// TODO: check if the resource exists
-// 	return s.insertObj(ctx, cluster, obj)
-// }
-
 func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
 	return s.insertObj(ctx, cluster, obj)
 }
