@@ -12,6 +12,7 @@ require (
 	github.com/evanphx/json-patch v4.12.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/go-chi/render v1.0.3
+	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
@@ -56,7 +57,6 @@ require (
 	github.com/fatih/structs v1.1.0 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
-	github.com/go-logr/logr v1.2.3 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-openapi/jsonpointer v0.20.0 // indirect
 	github.com/go-openapi/jsonreference v0.20.2 // indirect

@@ -18,6 +18,7 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/middleware"
+	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"
 )
 
@@ -26,8 +27,8 @@ import (
 // Example:
 //
 //	logger := ctxutil.GetLogger(ctx)
-func GetLogger(ctx context.Context) klog.Logger {
-	if logger, ok := ctx.Value(middleware.APILoggerKey).(klog.Logger); ok {
+func GetLogger(ctx context.Context) logr.Logger {
+	if logger, ok := ctx.Value(middleware.APILoggerKey).(logr.Logger); ok {
 		return logger
 	}
 
