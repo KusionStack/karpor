@@ -28,24 +28,24 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )
 
-type ControllerOptions struct {
+type syncerOptions struct {
 	MetricsAddr string
 	ProbeAddr   string
 	ESAddress   string
 }
 
-func NewControllerOptions() *ControllerOptions {
-	return &ControllerOptions{}
+func NewSyncerOptions() *syncerOptions {
+	return &syncerOptions{}
 }
 
-func (o *ControllerOptions) AddFlags(fs *pflag.FlagSet) {
+func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	fs.StringVar(&o.ESAddress, "es-address", "http://100.88.101.58:9200", "The address of Elasticsearch.")
+	fs.StringVar(&o.ESAddress, "es-address", "", "The address of Elasticsearch.")
 }
 
-func NewControllerCommand(ctx context.Context) *cobra.Command {
-	options := NewControllerOptions()
+func NewSyncerCommand(ctx context.Context) *cobra.Command {
+	options := NewSyncerOptions()
 	cmd := &cobra.Command{
 		Use:   "syncer",
 		Short: "start a resource syncer to sync resource from clusters",
@@ -57,7 +57,7 @@ func NewControllerCommand(ctx context.Context) *cobra.Command {
 	return cmd
 }
 
-func run(ctx context.Context, options *ControllerOptions) error {
+func run(ctx context.Context, options *syncerOptions) error {
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme.Scheme,
 		MetricsBindAddress:     options.MetricsAddr,
@@ -68,16 +68,17 @@ func run(ctx context.Context, options *ControllerOptions) error {
 		return err
 	}
 
+	// TODO: add startup parameters to change the type of storage
 	es, err := elasticsearch.NewESClient(esclient.Config{
 		Addresses: []string{options.ESAddress},
 	})
 	if err != nil {
-		klog.ErrorS(err, "unable to init es")
+		klog.ErrorS(err, "unable to init elasticsearch client")
 		return err
 	}
 
 	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
-		klog.ErrorS(err, "unable to create controller", "controller", "search")
+		klog.ErrorS(err, "unable to create syncer")
 		return err
 	}
 

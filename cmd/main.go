@@ -27,7 +27,7 @@ import (
 func main() {
 	ctx := genericapiserver.SetupSignalContext()
 	cmd := app.NewApiserverCommand(ctx)
-	syncCmd := app.NewControllerCommand(ctx)
+	syncCmd := app.NewSyncerCommand(ctx)
 	cmd.AddCommand(syncCmd)
 	code := cli.Run(cmd)
 	os.Exit(code)
