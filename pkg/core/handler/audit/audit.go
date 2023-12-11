@@ -15,7 +15,6 @@
 package audit
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
@@ -44,28 +43,11 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 		// Begin the auditing process, logging the start.
 		log.Info("Starting audit of the specified manifest in handler ...")
 
-		// Initialize an empty payload to hold the manifest data.
+		// Decode the request body into the payload.
 		payload := &Payload{}
-
-		// Check if the content type is plain text, read it as such.
-		if render.GetRequestContentType(r) == render.ContentTypePlainText {
-			// Read the request body.
-			body, err := io.ReadAll(r.Body)
-			defer r.Body.Close() // Ensure the body is closed after reading.
-			if err != nil {
-				// Handle any reading errors by sending a failure response.
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			// Set the read content as the manifest payload.
-			payload.Manifest = string(body)
-		} else {
-			// For non-plain text, decode the JSON body into the payload.
-			if err := render.DecodeJSON(r.Body, payload); err != nil {
-				// Handle JSON decoding errors.
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
+		if err := decode(r, payload); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
 		}
 
 		// Log successful decoding of the request body.
@@ -75,12 +57,61 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 		// Perform the audit using the manager and the provided manifest.
 		issues, err := auditMgr.Audit(ctx, payload.Manifest)
 		if err != nil {
-			// Handle audit errors by sending a failure response.
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		// Send a success response with the audit issues.
 		render.JSON(w, r, handler.SuccessResponse(ctx, issues))
+	}
+}
+
+// Score returns an HTTP handler function that calculates a score for the
+// audited manifest. It utilizes an AuditManager to compute the score based
+// on detected issues.
+// @Summary ScoreHandler calculates a score for the audited manifest.
+// @Description This endpoint calculates a score for the provided manifest based
+// on the number and severity of issues detected during the audit.
+// @Tags audit
+// @Accept plain, json
+// @Produce json
+// @Param manifest body string true "Manifest data to calculate score for (either plain text or JSON format)"
+// @Success 200 {object} ScoreResponse "Score calculation results"
+// @Failure 400 {object} FailureResponse "Error details if manifest cannot be processed or score cannot be calculated"
+// @Router /audit/score [post]
+func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		log := ctxutil.GetLogger(ctx)
+
+		// Begin the auditing process, logging the start.
+		log.Info("Starting calculate score with specified manifest in handler...")
+
+		// Decode the request body into the payload.
+		payload := &Payload{}
+		if err := decode(r, payload); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Log successful decoding of the request body.
+		log.Info("Successfully decoded the request body to payload",
+			"payload", payload)
+
+		// Perform the audit to gather issues for score calculation.
+		issues, err := auditMgr.Audit(ctx, payload.Manifest)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Calculate score using the audit issues.
+		data, err := auditMgr.Score(ctx, issues)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		render.JSON(w, r, handler.SuccessResponse(ctx, data))
 	}
 }

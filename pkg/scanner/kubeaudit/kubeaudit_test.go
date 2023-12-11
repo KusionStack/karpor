@@ -107,7 +107,7 @@ func commonCheck(t *testing.T, issues []*scanner.Issue) {
 }
 
 func createTestScanner(t *testing.T) scanner.KubeScanner {
-	ks, err := New()
+	ks, err := Default()
 	if err != nil {
 		t.Fatalf("Failed to create kubeauditScanner: %s", err)
 	}

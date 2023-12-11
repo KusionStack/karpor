@@ -19,12 +19,39 @@ import (
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 )
 
-// AuditResult2Issue converts a kubeaudit.AuditResult to a scanner.Issue.
+// AuditResult2Issue converts a kubeaudit.AuditResult to a scanner.Issue,
+// which can be used to report security findings in a standardized format.
 func AuditResult2Issue(auditResult *kubeauditpkg.AuditResult) *scanner.Issue {
 	return &scanner.Issue{
-		Scanner:  ScannerName,                                      // The name of the scanner that identified the issue.
-		Severity: scanner.IssueSeverityLevel(auditResult.Severity), // The severity of the issue based on the audit result.
-		Title:    auditResult.Rule,                                 // The rule that was violated, serving as the issue's title.
-		Message:  auditResult.Message,                              // A human-readable message describing the issue.
+		// Scanner is the name of the scanner that identified the issue.
+		Scanner: ScannerName,
+
+		// Severity represents the severity level of the issue as determined by
+		// the audit result.
+		Severity: ConvertSeverity(auditResult.Severity),
+
+		// Title is the rule that was violated, which serves as a concise
+		// description of the issue.
+		Title: auditResult.Rule,
+
+		// Message provides a detailed, human-readable description of the issue.
+		Message: auditResult.Message,
+	}
+}
+
+// ConvertSeverity translates a kubeaudit.SeverityLevel into a
+// scanner.IssueSeverityLevel, which standardizes severity levels across
+// different scanners.
+func ConvertSeverity(level kubeauditpkg.SeverityLevel) scanner.IssueSeverityLevel {
+	switch level {
+	case kubeauditpkg.Warn:
+		// Low severity corresponds to warnings in kubeaudit findings.
+		return scanner.Low
+	case kubeauditpkg.Error:
+		// High severity corresponds to errors in kubeaudit findings.
+		return scanner.High
+	default:
+		// Safe represents no security risk or an informational finding.
+		return scanner.Safe
 	}
 }

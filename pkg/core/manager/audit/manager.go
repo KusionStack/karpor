@@ -32,10 +32,11 @@ type AuditManager struct {
 // NewAuditManager initializes a new instance of AuditManager with a KubeScanner.
 func NewAuditManager() (*AuditManager, error) {
 	// Create a new Kubernetes scanner instance.
-	kubeauditScanner, err := kubeaudit.New()
+	kubeauditScanner, err := kubeaudit.Default()
 	if err != nil {
 		return nil, err
 	}
+
 	return &AuditManager{
 		s: kubeauditScanner, // Set the scanner in the AuditManager.
 	}, nil
@@ -50,4 +51,36 @@ func (m *AuditManager) Audit(ctx context.Context, manifest string) ([]*scanner.I
 
 	// Execute the scan using the scanner's ScanManifest method.
 	return m.s.ScanManifest(ctx, strings.NewReader(manifest))
+}
+
+// Score calculates a score based on the severity and total number of issues
+// identified during the audit. It aggregates statistics on different severity
+// levels and generates a cumulative score.
+func (m *AuditManager) Score(ctx context.Context, issues []*scanner.Issue) (*ScoreData, error) {
+	// Retrieve logger from context and log the start of the audit.
+	log := ctxutil.GetLogger(ctx)
+	log.Info("Starting calculate score with specified issues list in AuditManager ...")
+
+	// Initialize variables to calculate the score.
+	issueTotal, severitySum := len(issues), 0
+	severityStats := map[string]int{}
+
+	// Summarize severity statistics for all issues.
+	for _, issue := range issues {
+		severitySum += int(issue.Severity)
+		severityStats[issue.Severity.String()] += 1
+	}
+
+	// Use the aggregated data to calculate the score.
+	score := CalculateScore(issueTotal, severitySum)
+
+	// Prepare the score data including the total, sum and statistics.
+	data := &ScoreData{
+		Score:             score,
+		IssuesTotal:       issueTotal,
+		SeveritySum:       severitySum,
+		SeverityStatistic: severityStats,
+	}
+
+	return data, nil
 }
