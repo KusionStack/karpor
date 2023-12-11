@@ -57,7 +57,6 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&TransformRuleList{},
 		&UniResource{},
 		&UniResourceList{},
-		
 	)
 	metav1.AddToGroupVersion(scheme, SchemeGroupVersion)
 	return nil

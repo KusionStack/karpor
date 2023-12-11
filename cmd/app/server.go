@@ -17,6 +17,7 @@ limitations under the License.
 package app
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -79,7 +80,7 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 
 // NewApiserverCommand provides a CLI handler for 'start master' command
 // with a default Options.
-func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
+func NewApiserverCommand(ctx context.Context) *cobra.Command {
 	o, err := NewOptions(os.Stdout, os.Stderr)
 	if err != nil {
 		klog.Background().Error(err, "Unable to initialize command options")
@@ -96,7 +97,7 @@ func NewApiserverCommand(stopCh <-chan struct{}) *cobra.Command {
 			if err := o.Validate(args); err != nil {
 				return err
 			}
-			if err := o.RunServer(stopCh); err != nil {
+			if err := o.RunServer(ctx.Done()); err != nil {
 				return err
 			}
 			return nil
