@@ -42,15 +42,12 @@ import (
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
-	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 )
 
 type ControllerOptions struct {
 	MetricsAddr string
 	ProbeAddr   string
 	ESAddress   string
-	Development bool
-	ZapOptions  zap.Options
 }
 
 func NewControllerOptions() *ControllerOptions {
