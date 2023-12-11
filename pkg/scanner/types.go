@@ -25,13 +25,14 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-// IssueSeverityLevel defines the severity level of an issue.
-// It is an enumeration starting from 0 (Low) and increases with severity.
+// IssueSeverityLevel defines the severity levels for issues identified by
+// scanners.
 const (
-	Low      IssueSeverityLevel = iota // Low indicates a minor issue that should be addressed.
-	Medium                             // Medium indicates a potential issue that may have a moderate impact.
-	High                               // High indicates a serious issue that has a significant impact.
-	Critical                           // Critical indicates an extremely serious issue that must be addressed immediately.
+	Safe     IssueSeverityLevel = 0 // Safe indicates the absence of any security risk or an informational finding that does not require action.
+	Low      IssueSeverityLevel = 1 // Low indicates a minor issue that should be addressed.
+	Medium   IssueSeverityLevel = 2 // Medium indicates a potential issue that may have a moderate impact.
+	High     IssueSeverityLevel = 3 // High indicates a serious issue that has a significant impact.
+	Critical IssueSeverityLevel = 5 // Critical indicates an extremely serious issue that must be addressed immediately.
 )
 
 // KubeScanner is an interface for scanners that analyze Kubernetes resources.
@@ -62,16 +63,18 @@ type IssueSeverityLevel int
 // String returns the string representation of the IssueSeverityLevel.
 func (s IssueSeverityLevel) String() string {
 	switch s {
+	case Safe:
+		return "Safe"
 	case Low:
-		return "Low" // Represents low severity level.
+		return "Low"
 	case Medium:
-		return "Medium" // Represents medium severity level.
+		return "Medium"
 	case High:
-		return "High" // Represents high severity level.
+		return "High"
 	case Critical:
-		return "Critical" // Represents critical severity level.
+		return "Critical"
 	default:
-		return "Unknown" // Indicates an unknown severity level.
+		return "Unknown"
 	}
 }
 

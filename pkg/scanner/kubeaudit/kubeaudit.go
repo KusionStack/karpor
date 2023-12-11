@@ -30,21 +30,28 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-// Ensure that kubeauditScanner implements the scanner.KubeScanner interface.
-var _ scanner.KubeScanner = &kubeauditScanner{}
-
 // ScannerName is the name of the scanner.
 const ScannerName = "KubeAudit"
+
+// Ensure that kubeauditScanner implements the scanner.KubeScanner interface.
+var _ scanner.KubeScanner = &kubeauditScanner{}
 
 // kubeauditScanner is an implementation of scanner.KubeScanner that utilizes
 // the functionality from the kubeaudit package to perform security audits.
 type kubeauditScanner struct {
-	kubeAuditor *kubeauditpkg.Kubeaudit
-	serializer  *json.Serializer
+	kubeAuditor    *kubeauditpkg.Kubeaudit
+	attentionLevel scanner.IssueSeverityLevel
+	serializer     *json.Serializer
 }
 
-// New creates a new instance of a kubeaudit-based scanner.
-func New() (scanner.KubeScanner, error) {
+// New creates a new instance of a kubeaudit-based scanner with the specified
+// attention level.
+// The attentionLevel sets a threshold, and only issues that meet or exceed this
+// threshold are included in the audit results.
+// For example, if the attentionLevel is set to "Medium", then only issues
+// classified at the "Medium" level or higher ("Medium", "High", "Critical")
+// will be returned to the caller.
+func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error) {
 	// Initialize auditors with the kubeaudit configuration.
 	auditors, err := all.Auditors(config.KubeauditConfig{})
 	if err != nil {
@@ -63,10 +70,22 @@ func New() (scanner.KubeScanner, error) {
 		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false},
 	)
 
+	// Default attentionLevel to Low if it's invalid (less than zero).
+	if int(attentionLevel) < 0 {
+		attentionLevel = scanner.Low
+	}
+
 	return &kubeauditScanner{
-		kubeAuditor: kubeAuditor,
-		serializer:  serializer,
+		kubeAuditor:    kubeAuditor,
+		attentionLevel: attentionLevel,
+		serializer:     serializer,
 	}, nil
+}
+
+// New creates a default instance of a kubeaudit-based scanner with the default
+// attention level.
+func Default() (scanner.KubeScanner, error) {
+	return New(scanner.Low)
 }
 
 // Name returns the name of the kubeaudit scanner.
@@ -101,7 +120,10 @@ func (s *kubeauditScanner) ScanManifest(ctx context.Context, manifest io.Reader)
 	for _, result := range report.Results() {
 		// Process the audit results and convert them to scanner.Issue.
 		for _, auditResult := range result.GetAuditResults() {
-			issues = append(issues, AuditResult2Issue(auditResult))
+			newIssue := AuditResult2Issue(auditResult)
+			if int(newIssue.Severity) >= int(s.attentionLevel) {
+				issues = append(issues, newIssue)
+			}
 		}
 	}
 
