@@ -19,6 +19,7 @@ import (
 	"net/http"
 	"strings"
 
+	docs "github.com/KusionStack/karbour/api/openapispec"
 	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	confighandler "github.com/KusionStack/karbour/pkg/core/handler/config"
@@ -31,6 +32,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
+	httpswagger "github.com/swaggo/http-swagger"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
@@ -63,6 +65,12 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
+
+	// Set up the root routes.
+	docs.SwaggerInfo.BasePath = "/"
+	router.Route("/", func(r chi.Router) {
+		r.Get("/docs/*", httpswagger.Handler())
+	})
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {

@@ -1,0 +1,197 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "contact": {}
+    },
+    "paths": {
+        "/audit": {
+            "post": {
+                "description": "This endpoint audits the provided manifest for issues.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "AuditHandler audits the provided manifest.",
+                "parameters": [
+                    {
+                        "description": "Manifest data to audit (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/audit.Payload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit results",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/scanner.Issue"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/audit/score": {
+            "post": {
+                "description": "This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "ScoreHandler calculates a score for the audited manifest.",
+                "parameters": [
+                    {
+                        "description": "Manifest data to calculate score for (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/audit.Payload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score calculation result",
+                        "schema": {
+                            "$ref": "#/definitions/audit.ScoreData"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "audit.Payload": {
+            "type": "object",
+            "properties": {
+                "manifest": {
+                    "description": "Manifest is the content to be audited.",
+                    "type": "string"
+                }
+            }
+        },
+        "audit.ScoreData": {
+            "type": "object",
+            "properties": {
+                "issuesTotal": {
+                    "description": "IssuesTotal is the total count of all issues found during the audit.\nThis count can be used to understand the overall number of problems\nthat need to be addressed.",
+                    "type": "integer"
+                },
+                "score": {
+                    "description": "Score represents the calculated score of the audited manifest based on\nthe number and severity of issues. It provides a quantitative measure\nof the security posture of the resources in the manifest.",
+                    "type": "number"
+                },
+                "severityStatistic": {
+                    "description": "SeverityStatistic is a mapping of severity levels to their respective\nnumber of occurrences. It allows for a quick overview of the distribution\nof issues across different severity categories.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "severitySum": {
+                    "description": "SeveritySum is the sum of severity scores of all issues, which can be\nused to gauge the cumulative severity of all problems found.",
+                    "type": "integer"
+                }
+            }
+        },
+        "scanner.Issue": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "Message provides a detailed human-readable description of the issue.",
+                    "type": "string"
+                },
+                "scanner": {
+                    "description": "Scanner is the name of the scanner that discovered the issue.",
+                    "type": "string"
+                },
+                "severity": {
+                    "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "Title is a brief summary of the issue.",
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
