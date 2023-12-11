@@ -18,6 +18,8 @@
 package scanner
 
 import (
+	"context"
+	"encoding/json"
 	"io"
 
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,19 +37,23 @@ const (
 // KubeScanner is an interface for scanners that analyze Kubernetes resources.
 // Each scanner should implement this interface to provide scanning functionality.
 type KubeScanner interface {
-	Name() string                                       // Name returns the name of the scanner.
-	Scan(resources ...runtime.Object) ([]*Issue, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
-	ScanManifest(manifest io.Reader) ([]*Issue, error)  // Scan accepts a Kubernetes manifest and returns a slice of issues found.
+	Name() string                                                            // Name returns the name of the scanner.
+	Scan(ctx context.Context, resources ...runtime.Object) ([]*Issue, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
+	ScanManifest(ctx context.Context, manifest io.Reader) ([]*Issue, error)  // Scan accepts a Kubernetes manifest and returns a slice of issues found.
 }
 
 // Issue represents a particular finding or problem discovered by a scanner.
 // It encapsulates the details of the issue such as the scanner's name, its severity,
 // and a human-readable title and message.
 type Issue struct {
-	Scanner  string             // Scanner is the name of the scanner that discovered the issue.
-	Severity IssueSeverityLevel // Severity indicates how critical the issue is, using the IssueSeverityLevel constants.
-	Title    string             // Title is a brief summary of the issue.
-	Message  string             // Message provides a detailed human-readable description of the issue.
+	// Scanner is the name of the scanner that discovered the issue.
+	Scanner string `json:"scanner" yaml:"scanner"`
+	// Severity indicates how critical the issue is, using the IssueSeverityLevel constants.
+	Severity IssueSeverityLevel `json:"severity" yaml:"severity"`
+	// Title is a brief summary of the issue.
+	Title string `json:"title" yaml:"title"`
+	// Message provides a detailed human-readable description of the issue.
+	Message string `json:"message" yaml:"message"`
 }
 
 // IssueSeverityLevel represents the severity level of an issue.
@@ -67,4 +73,9 @@ func (s IssueSeverityLevel) String() string {
 	default:
 		return "Unknown" // Indicates an unknown severity level.
 	}
+}
+
+// MarshalJSON implements the json.Marshaler interface for IssueSeverityLevel.
+func (s IssueSeverityLevel) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.String())
 }
