@@ -23,7 +23,7 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/audit": {
+        "/api/v1/audit": {
             "post": {
                 "description": "This endpoint audits the provided manifest for issues.",
                 "consumes": [
@@ -91,7 +91,7 @@ var doc = `{
                 }
             }
         },
-        "/audit/score": {
+        "/api/v1/audit/score": {
             "post": {
                 "description": "This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.",
                 "consumes": [
@@ -155,6 +155,50 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/api/v1/cluster/config/file": {
+            "post": {
+                "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is \"\", \".yaml\", \".yml\", \".json\", \".kubeconfig\", \".kubeconf\".",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Upload kubeConfig file for cluster",
+                "parameters": [
+                    {
+                        "type": "file",
+                        "description": "Upload file with field name 'file'",
+                        "name": "file",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Returns the content of the uploaded KubeConfig file.",
+                        "schema": {
+                            "$ref": "#/definitions/cluster.UploadData"
+                        }
+                    },
+                    "400": {
+                        "description": "The uploaded file is too large or the request is invalid.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server error.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -187,6 +231,20 @@ var doc = `{
                 },
                 "severitySum": {
                     "description": "SeveritySum is the sum of severity scores of all issues, which can be\nused to gauge the cumulative severity of all problems found.",
+                    "type": "integer"
+                }
+            }
+        },
+        "cluster.UploadData": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "fileSize": {
                     "type": "integer"
                 }
             }
