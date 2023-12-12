@@ -158,7 +158,7 @@ var doc = `{
         },
         "/api/v1/cluster/config/file": {
             "post": {
-                "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and valid file format is empty extension or JSON or YAML file.",
+                "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is \"\", \".yaml\", \".yml\", \".json\", \".kubeconfig\", \".kubeconf\".",
                 "consumes": [
                     "multipart/form-data"
                 ],
@@ -182,7 +182,7 @@ var doc = `{
                     "200": {
                         "description": "Returns the content of the uploaded KubeConfig file.",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/cluster.UploadData"
                         }
                     },
                     "400": {
@@ -231,6 +231,20 @@ var doc = `{
                 },
                 "severitySum": {
                     "description": "SeveritySum is the sum of severity scores of all issues, which can be\nused to gauge the cumulative severity of all problems found.",
+                    "type": "integer"
+                }
+            }
+        },
+        "cluster.UploadData": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "fileSize": {
                     "type": "integer"
                 }
             }

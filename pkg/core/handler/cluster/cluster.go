@@ -93,14 +93,14 @@ func GetNamespaceTopology(clusterMgr *cluster.ClusterManager, c *server.Complete
 }
 
 // @Summary      Upload kubeConfig file for cluster
-// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and valid file format is empty extension or JSON or YAML file.
+// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
 // @Tags         cluster
 // @Accept       multipart/form-data
 // @Produce      plain
-// @Param        file  formData  file    true  "Upload file with field name 'file'"
-// @Success      200   {string}  string  "Returns the content of the uploaded KubeConfig file."
-// @Failure      400   {string}  string  "The uploaded file is too large or the request is invalid."
-// @Failure      500   {string}  string  "Internal server error."
+// @Param        file  formData  file        true  "Upload file with field name 'file'"
+// @Success      200   {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
+// @Failure      400   {string}  string      "The uploaded file is too large or the request is invalid."
+// @Failure      500   {string}  string      "Internal server error."
 // @Router       /api/v1/cluster/config/file [post]
 func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	// Extract the context and logger from the request.
@@ -127,10 +127,10 @@ func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	defer file.Close()
 
 	// Check the file extension.
-	log.Info("Uploaded file name:", "filename", fileHeader.Filename)
-	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
-	if ext != "" && ext != ".json" && ext != ".yaml" && ext != ".yml" {
-		render.Render(w, r, handler.FailureResponse(ctx, errors.New("invalid file format, only empty extension and JSON and YAML files are allowed.")))
+	log.Info("Uploaded filename", "filename", fileHeader.Filename)
+	if !isAllowedExtension(fileHeader.Filename) {
+		render.Render(w, r, handler.FailureResponse(
+			ctx, errors.New("invalid file format, only '', .yaml, .yml, .json, .kubeconfig, .kubeconf are allowed.")))
 		return
 	}
 
@@ -143,6 +143,22 @@ func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Convert the bytes read to a string and return as response.
-	fileContent := string(buf[:fileSize])
-	render.JSON(w, r, handler.SuccessResponse(ctx, fileContent))
+	data := &UploadData{
+		FileName: fileHeader.Filename,
+		Content:  string(buf[:fileSize]),
+		FileSize: fileSize,
+	}
+	render.JSON(w, r, handler.SuccessResponse(ctx, data))
+}
+
+// isAllowedExtension checks if the provided file name has a permitted extension.
+func isAllowedExtension(filename string) bool {
+	allowedExtensions := []string{"", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf"}
+	ext := strings.ToLower(filepath.Ext(filename))
+	for _, allowedExt := range allowedExtensions {
+		if ext == allowedExt {
+			return true
+		}
+	}
+	return false
 }
