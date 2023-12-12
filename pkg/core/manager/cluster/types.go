@@ -31,3 +31,52 @@ type ClusterDetail struct {
 	CPUCapacity    int64
 	PodsCapacity   int64
 }
+
+// KubeConfig represents the structure of a kubeconfig file
+type KubeConfig struct {
+	APIVersion     string         `yaml:"apiVersion"`
+	Kind           string         `yaml:"kind"`
+	Clusters       []ClusterEntry `yaml:"clusters"`
+	Contexts       []ContextEntry `yaml:"contexts"`
+	CurrentContext string         `yaml:"current-context"`
+	Users          []UserEntry    `yaml:"users"`
+}
+
+// ClusterEntry represents each cluster entry in kubeconfig
+type ClusterEntry struct {
+	Name    string  `yaml:"name"`
+	Cluster Cluster `yaml:"cluster"`
+}
+
+// Cluster contains the cluster information
+type Cluster struct {
+	Server                   string `yaml:"server"`
+	CertificateAuthorityData string `yaml:"certificate-authority-data,omitempty"`
+}
+
+// ContextEntry represents each context entry in kubeconfig
+type ContextEntry struct {
+	Name    string  `yaml:"name"`
+	Context Context `yaml:"context"`
+}
+
+// Context contains the context information
+type Context struct {
+	Cluster string `yaml:"cluster"`
+	User    string `yaml:"user"`
+}
+
+// UserEntry represents each user entry in kubeconfig
+type UserEntry struct {
+	Name string `yaml:"name"`
+	User User   `yaml:"user"`
+}
+
+// User contains the user information
+type User struct {
+	ClientCertificateData string `yaml:"client-certificate-data,omitempty"`
+	ClientKeyData         string `yaml:"client-key-data,omitempty"`
+	Token                 string `yaml:"token,omitempty"`
+	Username              string `yaml:"username,omitempty"`
+	Password              string `yaml:"password,omitempty"`
+}

@@ -145,3 +145,63 @@ func (c *ClusterManager) ConvertGraphToMap(rg *relationship.RelationshipGraph) m
 	}
 	return m
 }
+
+// SanitizeKubeConfigWithYAML takes a plain KubeConfig YAML string and returns
+// a sanitized version with sensitive information masked.
+func (c *ClusterManager) SanitizeKubeConfigWithYAML(ctx context.Context, plain string) (sanitize string, err error) {
+	log := ctxutil.GetLogger(ctx)
+
+	// Inform that the unmarshaling process has started.
+	log.Info("Unmarshal the yaml file into the KubeConfig struct")
+
+	// Prepare KubeConfig structure to hold unmarshaled data.
+	var config KubeConfig
+
+	// Convert YAML to KubeConfig struct.
+	if err = yaml.Unmarshal([]byte(plain), &config); err != nil {
+		return "", err
+	}
+
+	// Perform sanitization of the KubeConfig data.
+	c.SanitizeKubeConfigFor(&config)
+
+	// Convert the sanitized KubeConfig back to YAML.
+	result, err := yaml.Marshal(config)
+	if err != nil {
+		return "", err
+	}
+
+	return string(result), nil
+}
+
+// SanitizeKubeConfigFor masks sensitive information within a KubeConfig object,
+// such as user credentials and certificate data.
+func (c *ClusterManager) SanitizeKubeConfigFor(config *KubeConfig) {
+	// Iterate over each user and sanitize sensitive fields.
+	for i := range config.Users {
+		user := &config.Users[i].User
+		if user.ClientCertificateData != "" {
+			user.ClientCertificateData = maskContent(user.ClientCertificateData)
+		}
+		if user.ClientKeyData != "" {
+			user.ClientKeyData = maskContent(user.ClientKeyData)
+		}
+		if user.Token != "" {
+			user.Token = maskContent(user.Token)
+		}
+		if user.Username != "" {
+			user.Username = maskContent(user.Username)
+		}
+		if user.Password != "" {
+			user.Password = maskContent(user.Password)
+		}
+	}
+
+	// Iterate over each cluster and sanitize certificate authority data.
+	for i := range config.Clusters {
+		cluster := &config.Clusters[i].Cluster
+		if cluster.CertificateAuthorityData != "" {
+			cluster.CertificateAuthorityData = maskContent(cluster.CertificateAuthorityData)
+		}
+	}
+}
