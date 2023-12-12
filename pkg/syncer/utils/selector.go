@@ -15,6 +15,7 @@
 package utils
 
 import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/labels"
@@ -27,11 +28,11 @@ type Selectable interface {
 
 type Selector struct {
 	Label labels.Selector
-	Field *FieldsSelector
+	Field FieldsSelector
 }
 
 func (s Selector) ServerSupported() bool {
-	if s.Field != nil && !s.Field.ServerSupported {
+	if !s.Field.Empty() && !s.Field.ServerSupported {
 		return false
 	}
 	return true
@@ -42,33 +43,71 @@ type FieldsSelector struct {
 	ServerSupported bool
 }
 
-func (s Selector) Matches(obj Selectable) (bool, error) {
-	if s.Label != nil {
-		if !s.Label.Matches(obj.GetLabels()) {
-			return false, nil
-		}
+func (fs FieldsSelector) Empty() bool {
+	if fs.Selector == nil {
+		return true
 	}
-	if s.Field != nil {
-		if !s.Field.Matches(obj.GetFields()) {
-			return false, nil
-		}
+	return fs.Selector.Empty()
+}
+
+func (s Selector) Matches(obj Selectable) bool {
+	if s.Label != nil &&
+		!s.Label.Matches(obj.GetLabels()) {
+		return false
 	}
-	return true, nil
+	if !s.Field.Empty() &&
+		!s.Field.Matches(obj.GetFields()) {
+		return false
+	}
+	return true
 }
 
 type MultiSelectors []Selector
 
-func (m MultiSelectors) Matches(obj Selectable) (bool, error) {
+func (m MultiSelectors) Matches(obj Selectable) bool {
 	for _, s := range m {
-		matches, err := s.Matches(obj)
-		if err != nil {
-			return false, err
-		}
-		if matches {
-			return true, nil
+		if s.Matches(obj) {
+			return true
 		}
 	}
-	return false, nil
+	return false
+}
+
+func (m MultiSelectors) ApplyToList(options *metav1.ListOptions) {
+	if len(m) == 0 || !m.canApplyToListWatch() {
+		return
+	}
+
+	selector := m[0]
+	if selector.Label != nil && !selector.Label.Empty() {
+		options.LabelSelector = selector.Label.String()
+	}
+	if !selector.Field.Empty() {
+		options.FieldSelector = selector.Field.String()
+	}
+}
+
+func (m MultiSelectors) canApplyToListWatch() bool {
+	if len(m) > 1 {
+		return false
+	}
+	if len(m) == 1 {
+		return m[0].ServerSupported()
+	}
+	return true
+}
+
+func (m MultiSelectors) Predicate(obj interface{}) bool {
+	if len(m) == 0 || m.canApplyToListWatch() {
+		// no filtering after list/watch
+		return true
+	}
+
+	u, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		return false
+	}
+	return m.Matches(selectableUnstructured{Unstructured: u, parser: DefaultJSONPathParser})
 }
 
 type selectableUnstructured struct {
@@ -82,8 +121,4 @@ func (w selectableUnstructured) GetLabels() labels.Labels {
 
 func (w selectableUnstructured) GetFields() fields.Fields {
 	return NewJSONPathFields(w.parser, w.UnstructuredContent())
-}
-
-func SelectableUnstructured(u *unstructured.Unstructured, parser *JSONPathParser) Selectable {
-	return selectableUnstructured{Unstructured: u, parser: parser}
 }

@@ -165,7 +165,7 @@ func (c *ResourceCache) IsNewer(obj interface{}) (bool, error) {
 
 	// first, compare the resource version
 	rh := cachedItem.(*ResourcecHash)
-	compare, err := compareResourverVersion(obj, rh.ResourceVersion)
+	compare, err := CompareResourverVersion(obj, rh.ResourceVersion)
 	if err != nil {
 		return false, err
 	}
@@ -181,7 +181,7 @@ func (c *ResourceCache) IsNewer(obj interface{}) (bool, error) {
 	return newItem.Hash != rh.Hash, nil
 }
 
-func compareResourverVersion(obj interface{}, resourceVersion string) (int, error) {
+func CompareResourverVersion(obj interface{}, resourceVersion string) (int, error) {
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
 		return -1, err

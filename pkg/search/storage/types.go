@@ -28,8 +28,7 @@ const (
 
 type Storage interface {
 	Get(ctx context.Context, cluster string, obj runtime.Object) error
-	Create(ctx context.Context, cluster string, obj runtime.Object) error
-	Update(ctx context.Context, cluster string, obj runtime.Object) error
+	Save(ctx context.Context, cluster string, obj runtime.Object) error
 	Delete(ctx context.Context, cluster string, obj runtime.Object) error
 }
 

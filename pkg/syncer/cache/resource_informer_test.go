@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/search/utils"
+	"github.com/KusionStack/karbour/pkg/syncer/utils"
 	"github.com/stretchr/testify/assert"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -30,6 +30,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/dynamic/fake"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/cache"
@@ -114,8 +115,8 @@ func TestInformerWithSelectors(t *testing.T) {
 		return s
 	}
 
-	matchFields := func(fs map[string]string, serverSupported bool) *utils.FieldsSelector {
-		return &utils.FieldsSelector{
+	matchFields := func(fs map[string]string, serverSupported bool) utils.FieldsSelector {
+		return utils.FieldsSelector{
 			Selector:        fields.SelectorFromSet(fields.Set(fs)),
 			ServerSupported: serverSupported,
 		}
@@ -156,16 +157,19 @@ func TestInformerWithSelectors(t *testing.T) {
 
 	for _, tt := range tests {
 		recorder := new(ResourceRecorder)
-		config := ResourceSyncConfig{
-			ClusterName:    "local",
-			DynamicClient:  fake.NewSimpleDynamicClient(scheme(), objs...),
-			GVR:            schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"},
-			Selectors:      tt.selectors,
-			JSONPathParser: utils.NewJSONPathParser(),
-			Handler:        recorder.resourceHandler(),
+		client := fake.NewSimpleDynamicClient(scheme(), objs...)
+		gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
+
+		lw := &cache.ListWatch{
+			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+				return client.Resource(gvr).List(context.TODO(), options)
+			},
+			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				return client.Resource(gvr).Watch(context.TODO(), options)
+			},
 		}
 
-		informer := NewResourceInformer(config)
+		informer := NewResourceInformer(lw, utils.MultiSelectors(tt.selectors), nil, 0, recorder.resourceHandler())
 		stop := make(chan struct{})
 		defer close(stop)
 		go informer.Run(stop)
@@ -259,18 +263,19 @@ func TestInformerWithTransformer(t *testing.T) {
 
 	for _, tt := range tests {
 		recorder := new(ResourceRecorder)
-		dynamicClient := fake.NewSimpleDynamicClient(scheme(), objs...)
+		client := fake.NewSimpleDynamicClient(scheme(), objs...)
 		gvr := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"}
-		config := ResourceSyncConfig{
-			ClusterName:    "local",
-			DynamicClient:  dynamicClient,
-			GVR:            gvr,
-			JSONPathParser: utils.NewJSONPathParser(),
-			TransformFunc:  tt.transFunc,
-			Handler:        recorder.resourceHandler(),
+
+		lw := &cache.ListWatch{
+			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
+				return client.Resource(gvr).List(context.TODO(), options)
+			},
+			WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
+				return client.Resource(gvr).Watch(context.TODO(), options)
+			},
 		}
 
-		informer := NewResourceInformer(config)
+		informer := NewResourceInformer(lw, nil, tt.transFunc, 0, recorder.resourceHandler())
 		stop := make(chan struct{})
 		defer close(stop)
 		go informer.Run(stop)
@@ -284,16 +289,16 @@ func TestInformerWithTransformer(t *testing.T) {
 			switch e.action {
 			case "create":
 				obj := e.data.(*unstructured.Unstructured)
-				dynamicClient.Resource(gvr).Namespace(obj.GetNamespace()).Create(context.TODO(), obj, metav1.CreateOptions{})
+				client.Resource(gvr).Namespace(obj.GetNamespace()).Create(context.TODO(), obj, metav1.CreateOptions{})
 			case "update":
 				obj := e.data.(*unstructured.Unstructured)
-				dynamicClient.Resource(gvr).Namespace(obj.GetNamespace()).Update(context.TODO(), obj, metav1.UpdateOptions{})
+				client.Resource(gvr).Namespace(obj.GetNamespace()).Update(context.TODO(), obj, metav1.UpdateOptions{})
 			case "delete":
 				key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(e.data)
 				assert.NoError(err)
 				parts := strings.Split(key, ",")
 				assert.Equal(len(parts), 2)
-				dynamicClient.Resource(gvr).Namespace(parts[0]).Delete(context.TODO(), parts[1], metav1.DeleteOptions{})
+				client.Resource(gvr).Namespace(parts[0]).Delete(context.TODO(), parts[1], metav1.DeleteOptions{})
 			}
 		}
 		assert.Eventually(

@@ -5,21 +5,6 @@ on:
   pull_request:
     types: [opened, edited, synchronize, reopened]
 jobs:
-  # Lints Pull Request commits with commitlint.
-  #
-  # Rules can be referenced:
-  # https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
-  CommitLint:
-    name: Commit Lint
-    runs-on: ubuntu-latest
-    if: contains(fromJSON('["pull_request"]'), github.event_name)
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-      - uses: wagoid/commitlint-github-action@v5
-
   # Lints Pull Request title, because the title will be used as the
   # commit message in branch main.
   #

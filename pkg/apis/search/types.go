@@ -25,19 +25,19 @@ import (
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SyncClustersResources struct {
+type SyncRegistry struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
-	Spec   SyncClustersResourcesSpec
-	Status SyncClustersResourcesStatus
+	Spec   SyncRegistrySpec
+	Status SyncRegistryStatus
 }
 
-type SyncClustersResourcesSpec struct {
-	// ClusterSelector is used to filter the target clusters that need to be synced from.
-	ClusterSelector Selector
+type SyncRegistrySpec struct {
+	// ClusterLabelSelector is used to filter the target clusters that need to be synced from.
+	ClusterLabelSelector *metav1.LabelSelector
 
-	// ClusterNames is the list of the target clusters to be be synced from.
-	ClusterNames []string
+	// Clusters is the list of the target clusters to be be synced from.
+	Clusters []string
 
 	SyncResources []ResourceSyncRule
 
@@ -46,12 +46,12 @@ type SyncClustersResourcesSpec struct {
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-type SyncClustersResourcesList struct {
+type SyncRegistryList struct {
 	metav1.TypeMeta
 
 	metav1.ListMeta
 
-	Items []SyncClustersResources
+	Items []SyncRegistry
 }
 
 // +genclient
@@ -84,17 +84,23 @@ type ResourceSyncRule struct {
 	// APIVersion represents the group version of the target resource.
 	APIVersion string
 
-	// Kind represents the kind of the target resource.
-	Kind string
+	// Resource is the the target resource.
+	Resource string
 
 	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
 	Namespace string
+
+	// ResynPeriod is the period to resync
+	ResyncPeriod *metav1.Duration
+
+	// MaxConcurrent is the maximum number of workers (default: 10)
+	MaxConcurrent int
 
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	Selectors []Selector
 
 	// Transform is the rule applied to the original resource to transform it to the desired target resource.
-	Transform TransformRuleSpec
+	Transform *TransformRuleSpec
 
 	// TransformRefName is the name of the TransformRule
 	TransformRefName string
@@ -150,13 +156,13 @@ type FieldSelector struct {
 	SeverSupported bool
 }
 
-type SyncClustersResourcesStatus struct {
-	Clusters []ClusterSyncResourcesCondition
+type SyncRegistryStatus struct {
+	Clusters []ClusterResourcesSyncCondition
 
 	LastTransitionTime metav1.Time
 }
 
-type ClusterSyncResourcesCondition struct {
+type ClusterResourcesSyncCondition struct {
 	Cluster string
 
 	Status string

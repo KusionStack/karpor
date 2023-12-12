@@ -58,8 +58,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1beta1().Clusters().Informer()}, nil
 
 		// Group=search.karbour.com, Version=v1beta1
-	case searchv1beta1.SchemeGroupVersion.WithResource("syncclustersresourceses"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncClustersResourceses().Informer()}, nil
+	case searchv1beta1.SchemeGroupVersion.WithResource("syncregistries"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncRegistries().Informer()}, nil
 	case searchv1beta1.SchemeGroupVersion.WithResource("syncresourceses"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncResourceses().Informer()}, nil
 	case searchv1beta1.SchemeGroupVersion.WithResource("transformrules"):

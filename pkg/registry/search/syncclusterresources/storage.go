@@ -31,13 +31,13 @@ import (
 // NewREST returns a RESTStorage object that will work against API services.
 func NewREST(optsGetter generic.RESTOptionsGetter) (*REST, *StatusREST, error) {
 	store := &genericregistry.Store{
-		NewFunc:                  func() runtime.Object { return &search.SyncClustersResources{} },
-		NewListFunc:              func() runtime.Object { return &search.SyncClustersResourcesList{} },
-		DefaultQualifiedResource: search.Resource("syncclusterresources"),
+		NewFunc:                  func() runtime.Object { return &search.SyncRegistry{} },
+		NewListFunc:              func() runtime.Object { return &search.SyncRegistryList{} },
+		DefaultQualifiedResource: search.Resource("syncregistries"),
 		CreateStrategy:           Strategy,
 		UpdateStrategy:           Strategy,
 		DeleteStrategy:           Strategy,
-		TableConvertor:           rest.NewDefaultTableConvertor(search.Resource("syncclusterresources")),
+		TableConvertor:           rest.NewDefaultTableConvertor(search.Resource("syncregistries")),
 	}
 	options := &generic.StoreOptions{RESTOptions: optsGetter, AttrFunc: GetAttrs}
 	if err := store.CompleteWithOptions(options); err != nil {
@@ -65,7 +65,7 @@ type StatusREST struct {
 
 // New returns empty object.
 func (r *StatusREST) New() runtime.Object {
-	return &search.SyncClustersResources{}
+	return &search.SyncRegistry{}
 }
 
 // Destroy cleans up resources on shutdown.

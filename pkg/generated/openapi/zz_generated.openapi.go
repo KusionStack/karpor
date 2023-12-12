@@ -39,15 +39,15 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterSpec":                  schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterStatus":                schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref),
 		"github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.X509":                         schema_pkg_apis_cluster_v1beta1_X509(ref),
-		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterSyncResourcesCondition": schema_pkg_apis_search_v1beta1_ClusterSyncResourcesCondition(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterResourcesSyncCondition": schema_pkg_apis_search_v1beta1_ClusterResourcesSyncCondition(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.FieldSelector":                 schema_pkg_apis_search_v1beta1_FieldSelector(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ResourceSyncCondition":         schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ResourceSyncRule":              schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Selector":                      schema_pkg_apis_search_v1beta1_Selector(ref),
-		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResources":         schema_pkg_apis_search_v1beta1_SyncClustersResources(ref),
-		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesList":     schema_pkg_apis_search_v1beta1_SyncClustersResourcesList(ref),
-		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesSpec":     schema_pkg_apis_search_v1beta1_SyncClustersResourcesSpec(ref),
-		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesStatus":   schema_pkg_apis_search_v1beta1_SyncClustersResourcesStatus(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistry":                  schema_pkg_apis_search_v1beta1_SyncRegistry(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistryList":              schema_pkg_apis_search_v1beta1_SyncRegistryList(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistrySpec":              schema_pkg_apis_search_v1beta1_SyncRegistrySpec(ref),
+		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistryStatus":            schema_pkg_apis_search_v1beta1_SyncRegistryStatus(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncResources":                 schema_pkg_apis_search_v1beta1_SyncResources(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncResourcesList":             schema_pkg_apis_search_v1beta1_SyncResourcesList(ref),
 		"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncResourcesSpec":             schema_pkg_apis_search_v1beta1_SyncResourcesSpec(ref),
@@ -390,7 +390,7 @@ func schema_pkg_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.O
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_ClusterSyncResourcesCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_search_v1beta1_ClusterResourcesSyncCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -537,9 +537,9 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 							Format:      "",
 						},
 					},
-					"kind": {
+					"resource": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Kind represents the kind of the target resource.",
+							Description: "Resource is the the target resource.",
 							Default:     "",
 							Type:        []string{"string"},
 							Format:      "",
@@ -550,6 +550,12 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 							Description: "Namespace specifies the namespace in which the ListWatch of the target resources is limited to.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"resyncPeriod": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ResynPeriod is the period to resync",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
 						},
 					},
 					"selectors": {
@@ -569,7 +575,6 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 					"transform": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Transform is the rule applied to the original resource to transform it to the desired target resource.",
-							Default:     map[string]interface{}{},
 							Ref:         ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec"),
 						},
 					},
@@ -581,11 +586,11 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 						},
 					},
 				},
-				Required: []string{"apiVersion", "kind"},
+				Required: []string{"apiVersion", "resource"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Selector", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Selector", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -616,7 +621,7 @@ func schema_pkg_apis_search_v1beta1_Selector(ref common.ReferenceCallback) commo
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncClustersResources(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_search_v1beta1_SyncRegistry(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -645,24 +650,24 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResources(ref common.ReferenceCa
 					"spec": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
-							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesSpec"),
+							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistrySpec"),
 						},
 					},
 					"status": {
 						SchemaProps: spec.SchemaProps{
 							Default: map[string]interface{}{},
-							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesStatus"),
+							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistryStatus"),
 						},
 					},
 				},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesSpec", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResourcesStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistrySpec", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistryStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncClustersResourcesList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_search_v1beta1_SyncRegistryList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -695,7 +700,7 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesList(ref common.Referen
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResources"),
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistry"),
 									},
 								},
 							},
@@ -706,26 +711,19 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesList(ref common.Referen
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncClustersResources", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.SyncRegistry", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncClustersResourcesSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_search_v1beta1_SyncRegistrySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
 				Type: []string{"object"},
 				Properties: map[string]spec.Schema{
-					"clusterSelector": {
+					"clusters": {
 						SchemaProps: spec.SchemaProps{
-							Description: "ClusterSelector is used to filter the target clusters that need to be synced from.",
-							Default:     map[string]interface{}{},
-							Ref:         ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Selector"),
-						},
-					},
-					"clusterNames": {
-						SchemaProps: spec.SchemaProps{
-							Description: "ClusterNames is the list of the target clusters to be be synced from.",
+							Description: "Clusters is the list of the target clusters to be be synced from.",
 							Type:        []string{"array"},
 							Items: &spec.SchemaOrArray{
 								Schema: &spec.Schema{
@@ -736,6 +734,12 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesSpec(ref common.Referen
 									},
 								},
 							},
+						},
+					},
+					"clusterLabelSelector": {
+						SchemaProps: spec.SchemaProps{
+							Description: "ClusterLabelSelector is used to filter the target clusters that need to be synced from.",
+							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"),
 						},
 					},
 					"syncResources": {
@@ -751,7 +755,7 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesSpec(ref common.Referen
 							},
 						},
 					},
-					"SyncResourcesRefName": {
+					"syncResourcesRefName": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"string"},
 							Format: "",
@@ -761,11 +765,11 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesSpec(ref common.Referen
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ResourceSyncRule", "github.com/KusionStack/karbour/pkg/apis/search/v1beta1.Selector"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ResourceSyncRule", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncClustersResourcesStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_pkg_apis_search_v1beta1_SyncRegistryStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -778,7 +782,7 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesStatus(ref common.Refer
 								Schema: &spec.Schema{
 									SchemaProps: spec.SchemaProps{
 										Default: map[string]interface{}{},
-										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterSyncResourcesCondition"),
+										Ref:     ref("github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterResourcesSyncCondition"),
 									},
 								},
 							},
@@ -795,7 +799,7 @@ func schema_pkg_apis_search_v1beta1_SyncClustersResourcesStatus(ref common.Refer
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterSyncResourcesCondition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
+			"github.com/KusionStack/karbour/pkg/apis/search/v1beta1.ClusterResourcesSyncCondition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
