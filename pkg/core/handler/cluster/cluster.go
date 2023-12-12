@@ -16,11 +16,18 @@ package cluster
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
+	"path/filepath"
+	"strings"
 
+	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/multicluster"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
+	"github.com/pkg/errors"
 	"k8s.io/apiserver/pkg/server"
 )
 
@@ -83,4 +90,59 @@ func GetNamespaceTopology(clusterMgr *cluster.ClusterManager, c *server.Complete
 		result, _ := json.MarshalIndent(topologyMap, "", "  ")
 		w.Write(result)
 	}
+}
+
+// @Summary      Upload kubeConfig file for cluster
+// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and valid file format is empty extension or JSON or YAML file.
+// @Tags         cluster
+// @Accept       multipart/form-data
+// @Produce      plain
+// @Param        file  formData  file    true  "Upload file with field name 'file'"
+// @Success      200   {string}  string  "Returns the content of the uploaded KubeConfig file."
+// @Failure      400   {string}  string  "The uploaded file is too large or the request is invalid."
+// @Failure      500   {string}  string  "Internal server error."
+// @Router       /api/v1/cluster/config/file [post]
+func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
+	// Extract the context and logger from the request.
+	ctx := r.Context()
+	log := ctxutil.GetLogger(ctx)
+
+	// Begin the auditing process, logging the start.
+	log.Info("Starting get uploaded kubeconfig file in handler...")
+
+	// Limit the size of the request body to prevent overflow.
+	const maxUploadSize = 2 << 20
+	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "failed to parse multipart form")))
+		return
+	}
+
+	// Retrieve the file from the parsed multipart form.
+	file, fileHeader, err := r.FormFile("file")
+	if err != nil {
+		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "invalid request")))
+		return
+	}
+	defer file.Close()
+
+	// Check the file extension.
+	log.Info("Uploaded file name:", "filename", fileHeader.Filename)
+	ext := strings.ToLower(filepath.Ext(fileHeader.Filename))
+	if ext != "" && ext != ".json" && ext != ".yaml" && ext != ".yml" {
+		render.Render(w, r, handler.FailureResponse(ctx, errors.New("invalid file format, only empty extension and JSON and YAML files are allowed.")))
+		return
+	}
+
+	// Read the contents of the file.
+	buf := make([]byte, maxUploadSize)
+	fileSize, err := file.Read(buf)
+	if err != nil && err != io.EOF {
+		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error reading file")))
+		return
+	}
+
+	// Convert the bytes read to a string and return as response.
+	fileContent := string(buf[:fileSize])
+	render.JSON(w, r, handler.SuccessResponse(ctx, fileContent))
 }

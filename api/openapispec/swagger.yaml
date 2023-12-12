@@ -53,7 +53,7 @@ definitions:
 info:
   contact: {}
 paths:
-  /audit:
+  /api/v1/audit:
     post:
       consumes:
       - text/plain
@@ -98,7 +98,7 @@ paths:
       summary: AuditHandler audits the provided manifest.
       tags:
       - audit
-  /audit/score:
+  /api/v1/audit/score:
     post:
       consumes:
       - text/plain
@@ -143,4 +143,34 @@ paths:
       summary: ScoreHandler calculates a score for the audited manifest.
       tags:
       - audit
+  /api/v1/cluster/config/file:
+    post:
+      consumes:
+      - multipart/form-data
+      description: Uploads a KubeConfig file for cluster, with a maximum size of 2MB,
+        and valid file format is empty extension or JSON or YAML file.
+      parameters:
+      - description: Upload file with field name 'file'
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Returns the content of the uploaded KubeConfig file.
+          schema:
+            type: string
+        "400":
+          description: The uploaded file is too large or the request is invalid.
+          schema:
+            type: string
+        "500":
+          description: Internal server error.
+          schema:
+            type: string
+      summary: Upload kubeConfig file for cluster
+      tags:
+      - cluster
 swagger: "2.0"

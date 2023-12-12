@@ -39,7 +39,7 @@ import (
 // @Failure      429      {object}  string         "Too Many Requests"
 // @Failure      404      {object}  string         "Not Found"
 // @Failure      500      {object}  string         "Internal Server Error"
-// @Router       /audit [post]
+// @Router       /api/v1/audit [post]
 func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -88,7 +88,7 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 // @Failure      429      {object}  string           "Too Many Requests"
 // @Failure      404      {object}  string           "Not Found"
 // @Failure      500      {object}  string           "Internal Server Error"
-// @Router       /audit/score [post]
+// @Router       /api/v1/audit/score [post]
 func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
