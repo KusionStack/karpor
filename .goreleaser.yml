@@ -136,6 +136,7 @@ dockers:
   - "--platform=linux/amd64"
   extra_files:
   - ui/
+  - relationship.yaml
 # - image_templates:
 #   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
 #   dockerfile: Dockerfile

@@ -24,7 +24,7 @@ import (
 
 // decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func decode(r *http.Request, payload *Payload) error {
+func (payload *AuditPayload) Decode(r *http.Request) error {
 	// Check if the content type is plain text, read it as such.
 	contentType := render.GetRequestContentType(r)
 	switch contentType {

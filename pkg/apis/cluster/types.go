@@ -51,9 +51,11 @@ type ClusterList struct {
 }
 
 type ClusterSpec struct {
-	Provider  string
-	Access    ClusterAccess
-	Finalized *bool
+	Provider    string
+	Description string
+	DisplayName string
+	Access      ClusterAccess
+	Finalized   *bool
 }
 
 type ClusterStatus struct {

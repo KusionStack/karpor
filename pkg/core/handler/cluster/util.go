@@ -24,7 +24,25 @@ import (
 
 // decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func decode(r *http.Request, payload *ValidatePayload) error {
+func (payload *ClusterPayload) Decode(r *http.Request) error {
+	// Check if the content type is plain text, read it as such.
+	contentType := render.GetRequestContentType(r)
+	switch contentType {
+	case render.ContentTypeJSON:
+		// For non-plain text, decode the JSON body into the payload.
+		if err := render.DecodeJSON(r.Body, payload); err != nil {
+			return err
+		}
+	default:
+		return errors.New("unsupported media type")
+	}
+
+	return nil
+}
+
+// decode detects the correct decoder for use on an HTTP request and
+// marshals into a given interface.
+func (payload *ValidatePayload) Decode(r *http.Request) error {
 	// Check if the content type is plain text, read it as such.
 	contentType := render.GetRequestContentType(r)
 	switch contentType {

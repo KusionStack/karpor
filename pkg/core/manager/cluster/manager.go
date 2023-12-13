@@ -17,24 +17,30 @@ package cluster
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"os"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
+	"github.com/KusionStack/karbour/pkg/clusterinstall"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/relationship"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 type ClusterManager struct {
 	config *Config
 }
 
+// NewClusterManager returns a new ClusterManager object
 func NewClusterManager(config *Config) *ClusterManager {
 	return &ClusterManager{
 		config: config,
@@ -46,6 +52,109 @@ func (c *ClusterManager) GetCluster(ctx context.Context, client *multicluster.Mu
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	obj, _ := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	return obj, nil
+}
+
+// CreateCluster creates a new Cluster resource in the hub cluster and returns the created unstructured Cluster object
+func (c *ClusterManager) CreateCluster(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description, kubeconfig string) (*unstructured.Unstructured, error) {
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	// Make sure the cluster does not exist first
+	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	if err != nil && !errors.IsNotFound(err) {
+		return nil, err
+	}
+	if currentObj != nil {
+		return nil, fmt.Errorf("cluster %s already exists. Try updating it instead", name)
+	}
+
+	// Create rest.Config from the incoming KubeConfig
+	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the rest.Config to Cluster object and create it using dynamic client
+	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, description, displayName, restConfig)
+	if err != nil {
+		return nil, err
+	}
+	unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(clusterObj)
+	if err != nil {
+		return nil, err
+	}
+	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
+	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Create(ctx, unstructuredCluster, metav1.CreateOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return unstructuredClusterObj, nil
+}
+
+// UpdateCluster updates cluster by name with a full payload
+func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description string) (*unstructured.Unstructured, error) {
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	// Make sure the cluster exists first
+	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if currentObj == nil {
+		return nil, fmt.Errorf("cluster %s not found. Try creating it instead", name)
+	}
+
+	// Update the display name and description. Updating name and kubeconfig is not allowed here.
+	currentObj.Object["spec"].(map[string]interface{})["displayName"] = displayName
+	currentObj.Object["spec"].(map[string]interface{})["description"] = description
+	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Update(ctx, currentObj, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return unstructuredClusterObj, nil
+}
+
+// UpdateCredential updates cluster credential by name and a new kubeconfig
+func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description, kubeconfig string) (*unstructured.Unstructured, error) {
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	// Make sure the cluster exists first
+	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	if currentObj == nil {
+		return nil, fmt.Errorf("cluster %s not found. Try creating it instead", name)
+	}
+
+	// Create new restConfig from updated kubeconfig
+	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
+	if err != nil {
+		return nil, err
+	}
+
+	// Convert the rest.Config to Cluster object and update it using dynamic client
+	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
+	if err != nil {
+		return nil, err
+	}
+	unstructuredMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(clusterObj)
+	if err != nil {
+		return nil, err
+	}
+	unstructuredMap["metadata"].(map[string]interface{})["resourceVersion"] = currentObj.Object["metadata"].(map[string]interface{})["resourceVersion"]
+	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
+	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Update(ctx, unstructuredCluster, metav1.UpdateOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return unstructuredClusterObj, nil
+}
+
+// DeleteCluster deletes the cluster by name
+func (c *ClusterManager) DeleteCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) error {
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	err := client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
@@ -70,6 +179,7 @@ func (c *ClusterManager) GetNamespaceForCluster(ctx context.Context, client *mul
 	return namespaceObj, nil
 }
 
+// GetDetailsForCluster returns ClusterDetail object for a given cluster
 func (c *ClusterManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
 	// Get the list of nodes
@@ -135,6 +245,7 @@ func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	return c.ConvertGraphToMap(rg), nil
 }
 
+// ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
 func (c *ClusterManager) ConvertGraphToMap(rg *relationship.RelationshipGraph) map[string]ClusterTopology {
 	m := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {

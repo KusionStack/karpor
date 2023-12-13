@@ -332,6 +332,18 @@ func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) c
 							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterAccess"),
 						},
 					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"displayName": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
 					"finalized": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"boolean"},

@@ -50,8 +50,8 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Starting audit of the specified manifest in handler ...")
 
 		// Decode the request body into the payload.
-		payload := &Payload{}
-		if err := decode(r, payload); err != nil {
+		payload := &AuditPayload{}
+		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
@@ -99,8 +99,8 @@ func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Starting calculate score with specified manifest in handler...")
 
 		// Decode the request body into the payload.
-		payload := &Payload{}
-		if err := decode(r, payload); err != nil {
+		payload := &AuditPayload{}
+		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}

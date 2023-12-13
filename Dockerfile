@@ -32,6 +32,7 @@ WORKDIR /
 # Copy the static file directory built in the previous layer to the current layer
 COPY --from=ui-builder /root/ui/build /static
 COPY karbour .
+COPY relationship.yaml .
 
 USER root
 

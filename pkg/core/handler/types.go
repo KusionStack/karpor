@@ -31,6 +31,12 @@ type response struct {
 	CostTime  Duration   `json:"costTime,omitempty" yaml:"costTime,omitempty"`   // Time taken for the request.
 }
 
+// Payload is an interface for incoming requests payloads
+// Each handler should implement this interface to parse payloads
+type Payload interface {
+	Decode(*http.Request) error // Decode returns the payload object with the decoded
+}
+
 // Render is a no-op method that satisfies the render.Renderer interface.
 func (rep *response) Render(w http.ResponseWriter, r *http.Request) error {
 	return nil

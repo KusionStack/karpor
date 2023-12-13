@@ -41,6 +41,73 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 	}
 }
 
+func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Creating cluster...")
+
+		// Decode the request body into the payload.
+		payload := &ClusterPayload{}
+		if err := payload.Decode(r); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		clusterCreated, err := clusterMgr.CreateCluster(r.Context(), client, payload.ClusterName, payload.ClusterDisplayName, payload.ClusterDescription, payload.ClusterKubeConfig)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, clusterCreated))
+	}
+}
+
+func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Updating cluster metadata...")
+		cluster := chi.URLParam(r, "clusterName")
+
+		// Decode the request body into the payload.
+		payload := &ClusterPayload{}
+		if err := payload.Decode(r); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		clusterUpdated, err := clusterMgr.UpdateMetadata(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, clusterUpdated))
+	}
+}
+
+func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		cluster := chi.URLParam(r, "clusterName")
+		logger.Info("Deleting cluster...", "cluster", cluster)
+
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		err := clusterMgr.DeleteCluster(r.Context(), client, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, "Cluster deleted"))
+	}
+}
+
 func GetYAML(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
@@ -178,7 +245,7 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 
 		// Decode the request body into the payload.
 		payload := &ValidatePayload{}
-		if err := decode(r, payload); err != nil {
+		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}

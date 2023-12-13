@@ -25,9 +25,15 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-func ConvertKubeconfigToCluster(name string, cfg *rest.Config) (*clusterv1beta1.Cluster, error) {
+func ConvertKubeconfigToCluster(name, description, displayName string, cfg *rest.Config) (*clusterv1beta1.Cluster, error) {
 	cluster := clusterv1beta1.Cluster{}
 	cluster.Name = name
+	cluster.Spec.Description = description
+	if displayName != "" {
+		cluster.Spec.DisplayName = displayName
+	} else {
+		cluster.Spec.DisplayName = name
+	}
 	access := clusterv1beta1.ClusterAccess{}
 	if cfg.Insecure {
 		access.CABundle = cfg.CAData

@@ -14,6 +14,20 @@
 
 package cluster
 
+import "github.com/KusionStack/karbour/pkg/core/handler"
+
+// Ensure that ClusterPayload implements the handler.Payload interface.
+var _ handler.Payload = &ClusterPayload{}
+
+// ClusterPayload represents the structure for cluster request data. It includes
+// the name, display name, description and kubeconfig of a karbour-managed cluster
+type ClusterPayload struct {
+	ClusterName        string `json:"name"`        // ClusterName is the name of cluster to be created
+	ClusterDisplayName string `json:"displayName"` // ClusterDisplayName is the display name of cluster to be created
+	ClusterDescription string `json:"description"` // ClusterDescription is the description of cluster to be created
+	ClusterKubeConfig  string `json:"kubeconfig"`  // ClusterKubeConfig is the kubeconfig of cluster to be created
+}
+
 type UploadData struct {
 	FileName string `json:"fileName"`
 	FileSize int    `json:"fileSize"`
