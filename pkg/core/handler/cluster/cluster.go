@@ -15,7 +15,6 @@
 package cluster
 
 import (
-	"encoding/json"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -52,7 +51,7 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		logger.Info("Creating cluster...")
+		logger.Info("Getting cluster...")
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		if err != nil {
@@ -64,12 +63,7 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 			render.Render(w, r, handler.FailureResponse(r.Context(), err))
 			return
 		}
-		result, err := json.MarshalIndent(clusterUnstructured, "", "  ")
-		if err != nil {
-			render.Render(w, r, handler.FailureResponse(r.Context(), err))
-			return
-		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, result))
+		render.JSON(w, r, handler.SuccessResponse(ctx, clusterUnstructured))
 	}
 }
 

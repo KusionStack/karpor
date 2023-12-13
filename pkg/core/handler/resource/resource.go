@@ -15,16 +15,19 @@
 package resource
 
 import (
-	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/KusionStack/karbour/pkg/apis/search"
+	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/resource"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/registry"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apiserver/pkg/server"
 )
@@ -46,11 +49,23 @@ import (
 //	@Router			/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/ [get]
 func Get(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Getting resources...")
+
 		res := BuildResourceFromParam(r)
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		resourceUnstructured, _ := resourceMgr.GetResource(r.Context(), client, res)
-		result, _ := json.MarshalIndent(resourceUnstructured, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		resourceUnstructured, err := resourceMgr.GetResource(r.Context(), client, res)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, resourceUnstructured))
 	}
 }
 
@@ -71,10 +86,23 @@ func Get(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.
 //	@Router			/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml [get]
 func GetYAML(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Getting YAML for resources...")
+
 		res := BuildResourceFromParam(r)
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		result, _ := resourceMgr.GetYAMLForResource(r.Context(), client, res)
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		result, err := resourceMgr.GetYAMLForResource(r.Context(), client, res)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, string(result)))
 	}
 }
 
@@ -95,11 +123,23 @@ func GetYAML(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) h
 //	@Router			/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/topology [get]
 func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Getting topology for resources...")
+
 		res := BuildResourceFromParam(r)
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
-		topologyMap, _ := resourceMgr.GetTopologyForResource(r.Context(), client, res)
-		result, _ := json.MarshalIndent(topologyMap, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, res.Cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		topologyMap, err := resourceMgr.GetTopologyForResource(r.Context(), client, res)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, topologyMap))
 	}
 }
 
@@ -121,8 +161,18 @@ func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfi
 //	@Router			/api/v1/resource/search [get]
 func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+
+		// Extract URL query parameters
 		searchQuery := r.URL.Query().Get("query")
 		searchPattern := r.URL.Query().Get("pattern")
+		searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
+		searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
+
+		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
+
 		storage := searchstorage.RESTStorageProvider{
 			SearchStorageType:      c.SearchStorageType,
 			ElasticSearchAddresses: c.ElasticSearchAddresses,
@@ -137,7 +187,7 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 		if err != nil {
 			return
 		}
-		res, err := searchStorage.Search(r.Context(), searchQuery, searchPattern)
+		res, err := searchStorage.Search(r.Context(), searchQuery, searchPattern, searchPageSize, searchPage)
 		if err != nil {
 			return
 		}
@@ -148,8 +198,7 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 			unObj.SetUnstructuredContent(resource.Object)
 			rt.Items = append(rt.Items, unObj)
 		}
-		result, _ := json.MarshalIndent(rt.Items, "", "  ")
-		w.Write(result)
+		render.JSON(w, r, handler.SuccessResponse(ctx, rt.Items))
 	}
 }
 
