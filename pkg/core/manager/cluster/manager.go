@@ -50,8 +50,12 @@ func NewClusterManager(config *Config) *ClusterManager {
 // GetCluster returns the unstructured Cluster object for a given cluster
 func (c *ClusterManager) GetCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	obj, _ := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
-	return obj, nil
+	obj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	if err != nil && !errors.IsNotFound(err) {
+		return nil, err
+	}
+	sanitized, _ := c.SanitizeUnstructuredCluster(ctx, obj)
+	return sanitized, nil
 }
 
 // CreateCluster creates a new Cluster resource in the hub cluster and returns the created unstructured Cluster object
@@ -163,11 +167,12 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 	if err != nil {
 		return nil, err
 	}
-	objYAML, err := yaml.Marshal(obj.Object)
+	sanitized, _ := c.SanitizeUnstructuredCluster(ctx, obj)
+	sanitizedYAML, err := yaml.Marshal(sanitized)
 	if err != nil {
 		return nil, err
 	}
-	return objYAML, nil
+	return sanitizedYAML, nil
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
@@ -401,4 +406,27 @@ func (c *ClusterManager) ValidateKubeConfigFor(ctx context.Context, config *Kube
 		log.Info("KubeConfig is valid and the cluster is reachable.", "serverVersion", info.String())
 		return info.String(), nil
 	}
+// SanitizeUnstructuredCluster masks sensitive information
+// within a Unstructured cluster object, such as user
+// credentials and certificate data.
+func (c *ClusterManager) SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	log := ctxutil.GetLogger(ctx)
+
+	// Inform that the unmarshaling process has started.
+	log.Info("Sanitizing unstructured cluster...")
+	sanitized := cluster
+	if token, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"] = maskContent(token.(string))
+	}
+	if certificate, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = maskContent(certificate.(string))
+	}
+	if privateKey, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = maskContent(privateKey.(string))
+	}
+	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = maskContent(caBundle.(string))
+	}
+	sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
+	return sanitized, nil
 }

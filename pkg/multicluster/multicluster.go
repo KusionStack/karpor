@@ -87,7 +87,7 @@ func BuildSpokeClients(ctx context.Context, hubDynamicClient *dynamic.DynamicCli
 	if err != nil {
 		return nil, err
 	}
-	spokeObj, err := unstructuredToRuntimeObject(spokeUnstructured)
+	spokeObj, err := UnstructuredToRuntimeObject(spokeUnstructured)
 	if err != nil {
 		return nil, err
 	}
@@ -122,7 +122,7 @@ func BuildSpokeClients(ctx context.Context, hubDynamicClient *dynamic.DynamicCli
 }
 
 // unstructuredToRuntimeObject converts an unstructured.Unstructured into a typed runtime.Object
-func unstructuredToRuntimeObject(u *unstructured.Unstructured) (runtime.Object, error) {
+func UnstructuredToRuntimeObject(u *unstructured.Unstructured) (runtime.Object, error) {
 	obj, err := scheme.Scheme.New(u.GroupVersionKind())
 	if err != nil {
 		return nil, err

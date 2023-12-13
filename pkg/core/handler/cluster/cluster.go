@@ -31,16 +31,66 @@ import (
 	"k8s.io/apiserver/pkg/server"
 )
 
+// Get returns an HTTP handler function that reads a cluster
+// detail. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		Get returns a cluster resource by name.
+//	@Description	This endpoint returns a cluster resource by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{object}	unstructured.Unstructured	"Unstructured object"
+//	@Failure		400	{string}	string						"Bad Request"
+//	@Failure		401	{string}	string						"Unauthorized"
+//	@Failure		404	{string}	string						"Not Found"
+//	@Failure		405	{string}	string						"Method Not Allowed"
+//	@Failure		429	{string}	string						"Too Many Requests"
+//	@Failure		500	{string}	string						"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName} [get]
 func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		clusterUnstructured, _ := clusterMgr.GetCluster(r.Context(), client, cluster)
-		result, _ := json.MarshalIndent(clusterUnstructured, "", "  ")
-		w.Write(result)
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Creating cluster...")
+
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(r.Context(), err))
+			return
+		}
+		clusterUnstructured, err := clusterMgr.GetCluster(r.Context(), client, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(r.Context(), err))
+			return
+		}
+		result, err := json.MarshalIndent(clusterUnstructured, "", "  ")
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(r.Context(), err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, result))
 	}
 }
 
+// Create returns an HTTP handler function that creates a cluster
+// resource. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		Create creates a cluster resource.
+//	@Description	This endpoint creates a new cluster resource using the payload.
+//	@Tags			cluster
+//	@Accept			plain
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		ClusterPayload				true	"cluster to create (either plain text or JSON format)"
+//	@Success		200		{object}	unstructured.Unstructured	"Unstructured object"
+//	@Failure		400		{string}	string						"Bad Request"
+//	@Failure		401		{string}	string						"Unauthorized"
+//	@Failure		404		{string}	string						"Not Found"
+//	@Failure		405		{string}	string						"Method Not Allowed"
+//	@Failure		429		{string}	string						"Too Many Requests"
+//	@Failure		500		{string}	string						"Internal Server Error"
+//	@Router			/api/v1/cluster [post]
 func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -65,6 +115,24 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 	}
 }
 
+// Create returns an HTTP handler function that updates a cluster
+// resource. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		UpdateMetadata updates the cluster metadata by name.
+//	@Description	This endpoint updates the display name and description of an existing cluster resource.
+//	@Tags			cluster
+//	@Accept			plain
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		ClusterPayload				true	"cluster to update (either plain text or JSON format)"
+//	@Success		200		{object}	unstructured.Unstructured	"Unstructured object"
+//	@Failure		400		{string}	string						"Bad Request"
+//	@Failure		401		{string}	string						"Unauthorized"
+//	@Failure		404		{string}	string						"Not Found"
+//	@Failure		405		{string}	string						"Method Not Allowed"
+//	@Failure		429		{string}	string						"Too Many Requests"
+//	@Failure		500		{string}	string						"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}  [put]
 func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -90,6 +158,21 @@ func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfi
 	}
 }
 
+// Delete returns an HTTP handler function that deletes a cluster
+// resource. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		Delete removes a cluster resource by name.
+//	@Description	This endpoint deletes the cluster resource by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{string}	string	"Operation status"
+//	@Failure		400	{string}	string	"Bad Request"
+//	@Failure		401	{string}	string	"Unauthorized"
+//	@Failure		404	{string}	string	"Not Found"
+//	@Failure		405	{string}	string	"Method Not Allowed"
+//	@Failure		429	{string}	string	"Too Many Requests"
+//	@Failure		500	{string}	string	"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName} [delete]
 func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -108,73 +191,194 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 	}
 }
 
+// GetYAML returns an HTTP handler function that returns a cluster
+// YAML. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		GetYAML returns a cluster YAML by name.
+//	@Description	This endpoint returns a cluster YAML by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{array}		byte	"Byte array"
+//	@Failure		400	{string}	string	"Bad Request"
+//	@Failure		401	{string}	string	"Unauthorized"
+//	@Failure		404	{string}	string	"Not Found"
+//	@Failure		405	{string}	string	"Method Not Allowed"
+//	@Failure		429	{string}	string	"Too Many Requests"
+//	@Failure		500	{string}	string	"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}/yaml [get]
 func GetYAML(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		result, _ := clusterMgr.GetYAMLForCluster(r.Context(), client, cluster)
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		result, err := clusterMgr.GetYAMLForCluster(r.Context(), client, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, string(result)))
 	}
 }
 
+// GetTopology returns an HTTP handler function that returns a cluster
+// topology. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		GetTopology returns the topology of a cluster by name.
+//	@Description	This endpoint returns the topology of a cluster by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{object}	map[string]cluster.ClusterTopology	"map from string to cluster.ClusterTopology"
+//	@Failure		400	{string}	string								"Bad Request"
+//	@Failure		401	{string}	string								"Unauthorized"
+//	@Failure		404	{string}	string								"Not Found"
+//	@Failure		405	{string}	string								"Method Not Allowed"
+//	@Failure		429	{string}	string								"Too Many Requests"
+//	@Failure		500	{string}	string								"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}/topology [get]
 func GetTopology(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterMgr.GetTopologyForCluster(r.Context(), client, cluster)
-		result, _ := json.MarshalIndent(topologyMap, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		topologyMap, err := clusterMgr.GetTopologyForCluster(r.Context(), client, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, topologyMap))
 	}
 }
 
+// GetDetail returns an HTTP handler function that returns details of a
+// cluster. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		GetDetail returns the details of a cluster by name.
+//	@Description	This endpoint returns the details of a cluster by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{object}	cluster.ClusterDetail	"Cluster detail"
+//	@Failure		400	{string}	string					"Bad Request"
+//	@Failure		401	{string}	string					"Unauthorized"
+//	@Failure		404	{string}	string					"Not Found"
+//	@Failure		405	{string}	string					"Method Not Allowed"
+//	@Failure		429	{string}	string					"Too Many Requests"
+//	@Failure		500	{string}	string					"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}/detail [get]
 func GetDetail(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
 		cluster := chi.URLParam(r, "clusterName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		clusterDetail, _ := clusterMgr.GetDetailsForCluster(r.Context(), client, cluster)
-		result, _ := json.MarshalIndent(clusterDetail, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		clusterDetail, err := clusterMgr.GetDetailsForCluster(r.Context(), client, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, clusterDetail))
 	}
 }
 
+// GetNamespace returns an HTTP handler function that reads a namespace.
+// It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		GetNamespace returns the namespace by name.
+//	@Description	This endpoint returns the namespace by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{object}	v1.Namespace	"v1.Namespace"
+//	@Failure		400	{string}	string			"Bad Request"
+//	@Failure		401	{string}	string			"Unauthorized"
+//	@Failure		404	{string}	string			"Not Found"
+//	@Failure		405	{string}	string			"Method Not Allowed"
+//	@Failure		429	{string}	string			"Too Many Requests"
+//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}/namespace/{namespaceName} [get]
 func GetNamespace(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
 		cluster := chi.URLParam(r, "clusterName")
 		namespace := chi.URLParam(r, "namespaceName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		namespaceObj, _ := clusterMgr.GetNamespaceForCluster(r.Context(), client, cluster, namespace)
-		result, _ := json.MarshalIndent(namespaceObj, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		namespaceObj, err := clusterMgr.GetNamespaceForCluster(r.Context(), client, cluster, namespace)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, namespaceObj))
 	}
 }
 
+// GetNamespaceTopology returns an HTTP handler function that returns the
+// topology of a namespace. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		GetNamespaceTopology returns the topology of a namespace by name.
+//	@Description	This endpoint returns the the topology of a namespace by name.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{object}	map[string]cluster.ClusterTopology	"map from string to cluster.ClusterTopology"
+//	@Failure		400	{string}	string								"Bad Request"
+//	@Failure		401	{string}	string								"Unauthorized"
+//	@Failure		404	{string}	string								"Not Found"
+//	@Failure		405	{string}	string								"Method Not Allowed"
+//	@Failure		429	{string}	string								"Too Many Requests"
+//	@Failure		500	{string}	string								"Internal Server Error"
+//	@Router			/api/v1/cluster/{clusterName}/namespace/{namespaceName}/topology [get]
 func GetNamespaceTopology(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
 		cluster := chi.URLParam(r, "clusterName")
 		namespace := chi.URLParam(r, "namespaceName")
-		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
-		topologyMap, _ := clusterMgr.GetTopologyForClusterNamespace(r.Context(), client, cluster, namespace)
-		result, _ := json.MarshalIndent(topologyMap, "", "  ")
-		w.Write(result)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, cluster)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		topologyMap, err := clusterMgr.GetTopologyForClusterNamespace(r.Context(), client, cluster, namespace)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, topologyMap))
 	}
 }
 
-// @Summary      Upload kubeConfig file for cluster
-// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
-// @Tags         cluster
-// @Accept       multipart/form-data
-// @Produce      plain
-// @Param        file  formData  file        true  "Upload file with field name 'file'"
-// @Success      200   {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
-// @Failure      400   {string}  string      "The uploaded file is too large or the request is invalid."
-// @Failure      500   {string}  string      "Internal server error."
-// @Router       /api/v1/cluster/config/file [post]
+// @Summary		Upload kubeConfig file for cluster
+// @Description	Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
+// @Tags			cluster
+// @Accept			multipart/form-data
+// @Produce		plain
+// @Param			file	formData	file		true	"Upload file with field name 'file'"
+// @Success		200		{object}	UploadData	"Returns the content of the uploaded KubeConfig file."
+// @Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
+// @Failure		500		{string}	string		"Internal server error."
+// @Router			/api/v1/cluster/config/file [post]
 func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	// Extract the context and logger from the request.
 	ctx := r.Context()
 	log := ctxutil.GetLogger(ctx)
 
-	// Begin the auditing process, logging the start.
+	// Begin the update process, logging the start.
 	log.Info("Starting get uploaded kubeconfig file in handler...")
 
 	// Limit the size of the request body to prevent overflow.
