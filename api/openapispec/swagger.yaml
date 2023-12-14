@@ -1,5 +1,18 @@
 definitions:
-  github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData:
+  audit.AuditPayload:
+    properties:
+      apiVersion:
+        type: string
+      cluster:
+        type: string
+      group:
+        type: string
+      name:
+        type: string
+      namespace:
+        type: string
+    type: object
+  audit.ScoreData:
     properties:
       issuesTotal:
         description: |-
@@ -27,7 +40,7 @@ definitions:
           used to gauge the cumulative severity of all problems found.
         type: integer
     type: object
-  github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail:
+  cluster.ClusterDetail:
     properties:
       cpucapacity:
         type: integer
@@ -40,87 +53,7 @@ definitions:
       serverVersion:
         type: string
     type: object
-  github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology:
-    properties:
-      count:
-        type: integer
-      groupVersionKind:
-        type: string
-      relationship:
-        additionalProperties:
-          type: string
-        type: object
-    type: object
-  github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology:
-    properties:
-      children:
-        items:
-          type: string
-        type: array
-      identifier:
-        type: string
-      parents:
-        items:
-          type: string
-        type: array
-    type: object
-  github_com_KusionStack_karbour_pkg_scanner.Issue:
-    properties:
-      message:
-        description: Message provides a detailed human-readable description of the
-          issue.
-        type: string
-      scanner:
-        description: Scanner is the name of the scanner that discovered the issue.
-        type: string
-      severity:
-        allOf:
-        - $ref: '#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel'
-        description: Severity indicates how critical the issue is, using the IssueSeverityLevel
-          constants.
-      title:
-        description: Title is a brief summary of the issue.
-        type: string
-    type: object
-  github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel:
-    enum:
-    - 0
-    - 1
-    - 2
-    - 3
-    - 5
-    type: integer
-    x-enum-comments:
-      Critical: Critical indicates an extremely serious issue that must be addressed
-        immediately.
-      High: High indicates a serious issue that has a significant impact.
-      Low: Low indicates a minor issue that should be addressed.
-      Medium: Medium indicates a potential issue that may have a moderate impact.
-      Safe: Safe indicates the absence of any security risk or an informational finding
-        that does not require action.
-    x-enum-varnames:
-    - Safe
-    - Low
-    - Medium
-    - High
-    - Critical
-  k8s_io_api_core_v1.ConditionStatus:
-    enum:
-    - "True"
-    - "False"
-    - Unknown
-    type: string
-    x-enum-varnames:
-    - ConditionTrue
-    - ConditionFalse
-    - ConditionUnknown
-  pkg_core_handler_audit.AuditPayload:
-    properties:
-      manifest:
-        description: Manifest is the content to be audited.
-        type: string
-    type: object
-  pkg_core_handler_cluster.ClusterPayload:
+  cluster.ClusterPayload:
     properties:
       description:
         description: ClusterDescription is the description of cluster to be created
@@ -135,7 +68,18 @@ definitions:
         description: ClusterName is the name of cluster to be created
         type: string
     type: object
-  pkg_core_handler_cluster.UploadData:
+  cluster.ClusterTopology:
+    properties:
+      count:
+        type: integer
+      groupVersionKind:
+        type: string
+      relationship:
+        additionalProperties:
+          type: string
+        type: object
+    type: object
+  cluster.UploadData:
     properties:
       content:
         type: string
@@ -144,9 +88,39 @@ definitions:
       fileSize:
         type: integer
     type: object
-  pkg_core_handler_cluster.ValidatePayload:
+  cluster.ValidatePayload:
     properties:
       kubeConfig:
+        type: string
+    type: object
+  resource.ResourceTopology:
+    properties:
+      children:
+        items:
+          type: string
+        type: array
+      identifier:
+        type: string
+      parents:
+        items:
+          type: string
+        type: array
+    type: object
+  scanner.Issue:
+    properties:
+      message:
+        description: Message provides a detailed human-readable description of the
+          issue.
+        type: string
+      scanner:
+        description: Scanner is the name of the scanner that discovered the issue.
+        type: string
+      severity:
+        description: Severity indicates how critical the issue is, using the IssueSeverityLevel
+          constants.
+        type: integer
+      title:
+        description: Title is a brief summary of the issue.
         type: string
     type: object
   unstructured.Unstructured:
@@ -161,12 +135,6 @@ definitions:
     type: object
   v1.FieldsV1:
     type: object
-  v1.FinalizerName:
-    enum:
-    - kubernetes
-    type: string
-    x-enum-varnames:
-    - FinalizerKubernetes
   v1.ManagedFieldsEntry:
     properties:
       apiVersion:
@@ -182,8 +150,7 @@ definitions:
           There is currently only one possible value: "FieldsV1"
         type: string
       fieldsV1:
-        allOf:
-        - $ref: '#/definitions/v1.FieldsV1'
+        $ref: '#/definitions/v1.FieldsV1'
         description: |-
           FieldsV1 holds the first JSON version format as described in the "FieldsV1" type.
           +optional
@@ -191,11 +158,10 @@ definitions:
         description: Manager is an identifier of the workflow managing these fields.
         type: string
       operation:
-        allOf:
-        - $ref: '#/definitions/v1.ManagedFieldsOperationType'
         description: |-
           Operation is the type of operation which lead to this ManagedFieldsEntry being created.
           The only valid values for this field are 'Apply' and 'Update'.
+        type: string
       subresource:
         description: |-
           Subresource is the name of the subresource used to update that object, or
@@ -216,128 +182,7 @@ definitions:
           +optional
         type: string
     type: object
-  v1.ManagedFieldsOperationType:
-    enum:
-    - Apply
-    - Update
-    type: string
-    x-enum-varnames:
-    - ManagedFieldsOperationApply
-    - ManagedFieldsOperationUpdate
   v1.Namespace:
-    properties:
-      apiVersion:
-        description: |-
-          APIVersion defines the versioned schema of this representation of an object.
-          Servers should convert recognized schemas to the latest internal value, and
-          may reject unrecognized values.
-          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
-          +optional
-        type: string
-      kind:
-        description: |-
-          Kind is a string value representing the REST resource this object represents.
-          Servers may infer this from the endpoint the client submits requests to.
-          Cannot be updated.
-          In CamelCase.
-          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
-          +optional
-        type: string
-      metadata:
-        allOf:
-        - $ref: '#/definitions/v1.ObjectMeta'
-        description: |-
-          Standard object's metadata.
-          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata
-          +optional
-      spec:
-        allOf:
-        - $ref: '#/definitions/v1.NamespaceSpec'
-        description: |-
-          Spec defines the behavior of the Namespace.
-          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-          +optional
-      status:
-        allOf:
-        - $ref: '#/definitions/v1.NamespaceStatus'
-        description: |-
-          Status describes the current status of a Namespace.
-          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
-          +optional
-    type: object
-  v1.NamespaceCondition:
-    properties:
-      lastTransitionTime:
-        description: +optional
-        type: string
-      message:
-        description: +optional
-        type: string
-      reason:
-        description: +optional
-        type: string
-      status:
-        allOf:
-        - $ref: '#/definitions/k8s_io_api_core_v1.ConditionStatus'
-        description: Status of the condition, one of True, False, Unknown.
-      type:
-        allOf:
-        - $ref: '#/definitions/v1.NamespaceConditionType'
-        description: Type of namespace controller condition.
-    type: object
-  v1.NamespaceConditionType:
-    enum:
-    - NamespaceDeletionDiscoveryFailure
-    - NamespaceDeletionContentFailure
-    - NamespaceDeletionGroupVersionParsingFailure
-    - NamespaceContentRemaining
-    - NamespaceFinalizersRemaining
-    type: string
-    x-enum-varnames:
-    - NamespaceDeletionDiscoveryFailure
-    - NamespaceDeletionContentFailure
-    - NamespaceDeletionGVParsingFailure
-    - NamespaceContentRemaining
-    - NamespaceFinalizersRemaining
-  v1.NamespacePhase:
-    enum:
-    - Active
-    - Terminating
-    type: string
-    x-enum-varnames:
-    - NamespaceActive
-    - NamespaceTerminating
-  v1.NamespaceSpec:
-    properties:
-      finalizers:
-        description: |-
-          Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
-          More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-          +optional
-        items:
-          $ref: '#/definitions/v1.FinalizerName'
-        type: array
-    type: object
-  v1.NamespaceStatus:
-    properties:
-      conditions:
-        description: |-
-          Represents the latest available observations of a namespace's current state.
-          +optional
-          +patchMergeKey=type
-          +patchStrategy=merge
-        items:
-          $ref: '#/definitions/v1.NamespaceCondition'
-        type: array
-      phase:
-        allOf:
-        - $ref: '#/definitions/v1.NamespacePhase'
-        description: |-
-          Phase is the current lifecycle phase of the namespace.
-          More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
-          +optional
-    type: object
-  v1.ObjectMeta:
     properties:
       annotations:
         additionalProperties:
@@ -349,6 +194,14 @@ definitions:
           More info: http://kubernetes.io/docs/user-guide/annotations
           +optional
         type: object
+      apiVersion:
+        description: |-
+          APIVersion defines the versioned schema of this representation of an object.
+          Servers should convert recognized schemas to the latest internal value, and
+          may reject unrecognized values.
+          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+          +optional
+        type: string
       creationTimestamp:
         description: |-
           CreationTimestamp is a timestamp representing the server time when this object was
@@ -433,6 +286,15 @@ definitions:
           Populated by the system. Read-only.
           +optional
         type: integer
+      kind:
+        description: |-
+          Kind is a string value representing the REST resource this object represents.
+          Servers may infer this from the endpoint the client submits requests to.
+          Cannot be updated.
+          In CamelCase.
+          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+          +optional
+        type: string
       labels:
         additionalProperties:
           type: string
@@ -510,6 +372,18 @@ definitions:
           Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.
           +optional
         type: string
+      spec:
+        $ref: '#/definitions/v1.NamespaceSpec'
+        description: |-
+          Spec defines the behavior of the Namespace.
+          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+          +optional
+      status:
+        $ref: '#/definitions/v1.NamespaceStatus'
+        description: |-
+          Status describes the current status of a Namespace.
+          More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status
+          +optional
       uid:
         description: |-
           UID is the unique in time and space value for this object. It is typically generated by
@@ -519,6 +393,53 @@ definitions:
           Populated by the system.
           Read-only.
           More info: http://kubernetes.io/docs/user-guide/identifiers#uids
+          +optional
+        type: string
+    type: object
+  v1.NamespaceCondition:
+    properties:
+      lastTransitionTime:
+        description: +optional
+        type: string
+      message:
+        description: +optional
+        type: string
+      reason:
+        description: +optional
+        type: string
+      status:
+        description: Status of the condition, one of True, False, Unknown.
+        type: string
+      type:
+        description: Type of namespace controller condition.
+        type: string
+    type: object
+  v1.NamespaceSpec:
+    properties:
+      finalizers:
+        description: |-
+          Finalizers is an opaque list of values that must be empty to permanently remove object from storage.
+          More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
+          +optional
+        items:
+          type: string
+        type: array
+    type: object
+  v1.NamespaceStatus:
+    properties:
+      conditions:
+        description: |-
+          Represents the latest available observations of a namespace's current state.
+          +optional
+          +patchMergeKey=type
+          +patchStrategy=merge
+        items:
+          $ref: '#/definitions/v1.NamespaceCondition'
+        type: array
+      phase:
+        description: |-
+          Phase is the current lifecycle phase of the namespace.
+          More info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/
           +optional
         type: string
     type: object
@@ -566,16 +487,15 @@ paths:
   /api/v1/audit:
     post:
       consumes:
-      - text/plain
       - application/json
-      description: This endpoint audits the provided manifest for issues.
+      description: This endpoint audits based on the specified locator.
       parameters:
-      - description: Manifest data to audit (either plain text or JSON format)
+      - description: Locator for perform the audit
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pkg_core_handler_audit.AuditPayload'
+          $ref: '#/definitions/audit.AuditPayload'
       produces:
       - application/json
       responses:
@@ -583,7 +503,7 @@ paths:
           description: Audit results
           schema:
             items:
-              $ref: '#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue'
+              $ref: '#/definitions/scanner.Issue'
             type: array
         "400":
           description: Bad Request
@@ -605,7 +525,52 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: AuditHandler audits the provided manifest.
+      summary: Audit based on locator
+      tags:
+      - audit
+  /api/v1/audit/manifest:
+    post:
+      consumes:
+      - text/plain
+      - application/json
+      description: This endpoint audits the provided manifest for issues.
+      parameters:
+      - description: Manifest data to audit (either plain text or JSON format)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/audit.AuditPayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Audit results
+          schema:
+            items:
+              $ref: '#/definitions/scanner.Issue'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: AuditManifest audits the provided manifest.
       tags:
       - audit
   /api/v1/audit/score:
@@ -622,14 +587,14 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pkg_core_handler_audit.AuditPayload'
+          $ref: '#/definitions/audit.AuditPayload'
       produces:
       - application/json
       responses:
         "200":
           description: Score calculation result
           schema:
-            $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData'
+            $ref: '#/definitions/audit.ScoreData'
         "400":
           description: Bad Request
           schema:
@@ -703,7 +668,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pkg_core_handler_cluster.ClusterPayload'
+          $ref: '#/definitions/cluster.ClusterPayload'
       produces:
       - application/json
       responses:
@@ -823,7 +788,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pkg_core_handler_cluster.ClusterPayload'
+          $ref: '#/definitions/cluster.ClusterPayload'
       produces:
       - application/json
       responses:
@@ -867,7 +832,7 @@ paths:
         "200":
           description: Cluster detail
           schema:
-            $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail'
+            $ref: '#/definitions/cluster.ClusterDetail'
         "400":
           description: Bad Request
           schema:
@@ -942,7 +907,7 @@ paths:
           description: map from string to cluster.ClusterTopology
           schema:
             additionalProperties:
-              $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology'
+              $ref: '#/definitions/cluster.ClusterTopology'
             type: object
         "400":
           description: Bad Request
@@ -981,7 +946,7 @@ paths:
           description: map from string to cluster.ClusterTopology
           schema:
             additionalProperties:
-              $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology'
+              $ref: '#/definitions/cluster.ClusterTopology'
             type: object
         "400":
           description: Bad Request
@@ -1068,7 +1033,7 @@ paths:
         "200":
           description: Returns the content of the uploaded KubeConfig file.
           schema:
-            $ref: '#/definitions/pkg_core_handler_cluster.UploadData'
+            $ref: '#/definitions/cluster.UploadData'
         "400":
           description: The uploaded file is too large or the request is invalid.
           schema:
@@ -1092,7 +1057,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/pkg_core_handler_cluster.ValidatePayload'
+          $ref: '#/definitions/cluster.ValidatePayload'
       produces:
       - application/json
       responses:
@@ -1173,7 +1138,7 @@ paths:
           description: map from string to resource.ResourceTopology
           schema:
             additionalProperties:
-              $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology'
+              $ref: '#/definitions/resource.ResourceTopology'
             type: object
         "400":
           description: Bad Request

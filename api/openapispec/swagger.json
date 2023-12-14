@@ -6,6 +6,73 @@
     "paths": {
         "/api/v1/audit": {
             "post": {
+                "description": "This endpoint audits based on the specified locator.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "audit"
+                ],
+                "summary": "Audit based on locator",
+                "parameters": [
+                    {
+                        "description": "Locator for perform the audit",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/audit.AuditPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit results",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/scanner.Issue"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/audit/manifest": {
+            "post": {
                 "description": "This endpoint audits the provided manifest for issues.",
                 "consumes": [
                     "text/plain",
@@ -17,7 +84,7 @@
                 "tags": [
                     "audit"
                 ],
-                "summary": "AuditHandler audits the provided manifest.",
+                "summary": "AuditManifest audits the provided manifest.",
                 "parameters": [
                     {
                         "description": "Manifest data to audit (either plain text or JSON format)",
@@ -25,7 +92,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_audit.AuditPayload"
+                            "$ref": "#/definitions/audit.AuditPayload"
                         }
                     }
                 ],
@@ -35,7 +102,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue"
+                                "$ref": "#/definitions/scanner.Issue"
                             }
                         }
                     },
@@ -93,7 +160,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_audit.AuditPayload"
+                            "$ref": "#/definitions/audit.AuditPayload"
                         }
                     }
                 ],
@@ -101,7 +168,7 @@
                     "200": {
                         "description": "Score calculation result",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData"
+                            "$ref": "#/definitions/audit.ScoreData"
                         }
                     },
                     "400": {
@@ -215,7 +282,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                            "$ref": "#/definitions/cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -291,7 +358,7 @@
                     "200": {
                         "description": "Returns the content of the uploaded KubeConfig file.",
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.UploadData"
+                            "$ref": "#/definitions/cluster.UploadData"
                         }
                     },
                     "400": {
@@ -330,7 +397,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ValidatePayload"
+                            "$ref": "#/definitions/cluster.ValidatePayload"
                         }
                     }
                 ],
@@ -449,7 +516,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                            "$ref": "#/definitions/cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -567,7 +634,7 @@
                     "200": {
                         "description": "Cluster detail",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail"
+                            "$ref": "#/definitions/cluster.ClusterDetail"
                         }
                     },
                     "400": {
@@ -681,7 +748,7 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology"
+                                "$ref": "#/definitions/cluster.ClusterTopology"
                             }
                         }
                     },
@@ -740,7 +807,7 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology"
+                                "$ref": "#/definitions/cluster.ClusterTopology"
                             }
                         }
                     },
@@ -914,7 +981,7 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology"
+                                "$ref": "#/definitions/resource.ResourceTopology"
                             }
                         }
                     },
@@ -1075,7 +1142,27 @@
         }
     },
     "definitions": {
-        "github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData": {
+        "audit.AuditPayload": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "type": "string"
+                },
+                "cluster": {
+                    "type": "string"
+                },
+                "group": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "namespace": {
+                    "type": "string"
+                }
+            }
+        },
+        "audit.ScoreData": {
             "type": "object",
             "properties": {
                 "issuesTotal": {
@@ -1099,7 +1186,7 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail": {
+        "cluster.ClusterDetail": {
             "type": "object",
             "properties": {
                 "cpucapacity": {
@@ -1119,115 +1206,7 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology": {
-            "type": "object",
-            "properties": {
-                "count": {
-                    "type": "integer"
-                },
-                "groupVersionKind": {
-                    "type": "string"
-                },
-                "relationship": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology": {
-            "type": "object",
-            "properties": {
-                "children": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                },
-                "identifier": {
-                    "type": "string"
-                },
-                "parents": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "github_com_KusionStack_karbour_pkg_scanner.Issue": {
-            "type": "object",
-            "properties": {
-                "message": {
-                    "description": "Message provides a detailed human-readable description of the issue.",
-                    "type": "string"
-                },
-                "scanner": {
-                    "description": "Scanner is the name of the scanner that discovered the issue.",
-                    "type": "string"
-                },
-                "severity": {
-                    "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel"
-                        }
-                    ]
-                },
-                "title": {
-                    "description": "Title is a brief summary of the issue.",
-                    "type": "string"
-                }
-            }
-        },
-        "github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "x-enum-comments": {
-                "Critical": "Critical indicates an extremely serious issue that must be addressed immediately.",
-                "High": "High indicates a serious issue that has a significant impact.",
-                "Low": "Low indicates a minor issue that should be addressed.",
-                "Medium": "Medium indicates a potential issue that may have a moderate impact.",
-                "Safe": "Safe indicates the absence of any security risk or an informational finding that does not require action."
-            },
-            "x-enum-varnames": [
-                "Safe",
-                "Low",
-                "Medium",
-                "High",
-                "Critical"
-            ]
-        },
-        "k8s_io_api_core_v1.ConditionStatus": {
-            "type": "string",
-            "enum": [
-                "True",
-                "False",
-                "Unknown"
-            ],
-            "x-enum-varnames": [
-                "ConditionTrue",
-                "ConditionFalse",
-                "ConditionUnknown"
-            ]
-        },
-        "pkg_core_handler_audit.AuditPayload": {
-            "type": "object",
-            "properties": {
-                "manifest": {
-                    "description": "Manifest is the content to be audited.",
-                    "type": "string"
-                }
-            }
-        },
-        "pkg_core_handler_cluster.ClusterPayload": {
+        "cluster.ClusterPayload": {
             "type": "object",
             "properties": {
                 "description": {
@@ -1248,7 +1227,24 @@
                 }
             }
         },
-        "pkg_core_handler_cluster.UploadData": {
+        "cluster.ClusterTopology": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "groupVersionKind": {
+                    "type": "string"
+                },
+                "relationship": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "cluster.UploadData": {
             "type": "object",
             "properties": {
                 "content": {
@@ -1262,10 +1258,51 @@
                 }
             }
         },
-        "pkg_core_handler_cluster.ValidatePayload": {
+        "cluster.ValidatePayload": {
             "type": "object",
             "properties": {
                 "kubeConfig": {
+                    "type": "string"
+                }
+            }
+        },
+        "resource.ResourceTopology": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "parents": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "scanner.Issue": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "Message provides a detailed human-readable description of the issue.",
+                    "type": "string"
+                },
+                "scanner": {
+                    "description": "Scanner is the name of the scanner that discovered the issue.",
+                    "type": "string"
+                },
+                "severity": {
+                    "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
+                    "type": "integer"
+                },
+                "title": {
+                    "description": "Title is a brief summary of the issue.",
                     "type": "string"
                 }
             }
@@ -1283,15 +1320,6 @@
         "v1.FieldsV1": {
             "type": "object"
         },
-        "v1.FinalizerName": {
-            "type": "string",
-            "enum": [
-                "kubernetes"
-            ],
-            "x-enum-varnames": [
-                "FinalizerKubernetes"
-            ]
-        },
         "v1.ManagedFieldsEntry": {
             "type": "object",
             "properties": {
@@ -1305,11 +1333,7 @@
                 },
                 "fieldsV1": {
                     "description": "FieldsV1 holds the first JSON version format as described in the \"FieldsV1\" type.\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.FieldsV1"
-                        }
-                    ]
+                    "$ref": "#/definitions/v1.FieldsV1"
                 },
                 "manager": {
                     "description": "Manager is an identifier of the workflow managing these fields.",
@@ -1317,11 +1341,7 @@
                 },
                 "operation": {
                     "description": "Operation is the type of operation which lead to this ManagedFieldsEntry being created.\nThe only valid values for this field are 'Apply' and 'Update'.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.ManagedFieldsOperationType"
-                        }
-                    ]
+                    "type": "string"
                 },
                 "subresource": {
                     "description": "Subresource is the name of the subresource used to update that object, or\nempty string if the object was updated through the main resource. The\nvalue of this field is used to distinguish between managers, even if they\nshare the same name. For example, a status update will be distinct from a\nregular update using the same manager name.\nNote that the APIVersion field is not related to the Subresource field and\nit always corresponds to the version of the main resource.",
@@ -1333,148 +1353,7 @@
                 }
             }
         },
-        "v1.ManagedFieldsOperationType": {
-            "type": "string",
-            "enum": [
-                "Apply",
-                "Update"
-            ],
-            "x-enum-varnames": [
-                "ManagedFieldsOperationApply",
-                "ManagedFieldsOperationUpdate"
-            ]
-        },
         "v1.Namespace": {
-            "type": "object",
-            "properties": {
-                "apiVersion": {
-                    "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources\n+optional",
-                    "type": "string"
-                },
-                "kind": {
-                    "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds\n+optional",
-                    "type": "string"
-                },
-                "metadata": {
-                    "description": "Standard object's metadata.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.ObjectMeta"
-                        }
-                    ]
-                },
-                "spec": {
-                    "description": "Spec defines the behavior of the Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.NamespaceSpec"
-                        }
-                    ]
-                },
-                "status": {
-                    "description": "Status describes the current status of a Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.NamespaceStatus"
-                        }
-                    ]
-                }
-            }
-        },
-        "v1.NamespaceCondition": {
-            "type": "object",
-            "properties": {
-                "lastTransitionTime": {
-                    "description": "+optional",
-                    "type": "string"
-                },
-                "message": {
-                    "description": "+optional",
-                    "type": "string"
-                },
-                "reason": {
-                    "description": "+optional",
-                    "type": "string"
-                },
-                "status": {
-                    "description": "Status of the condition, one of True, False, Unknown.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/k8s_io_api_core_v1.ConditionStatus"
-                        }
-                    ]
-                },
-                "type": {
-                    "description": "Type of namespace controller condition.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.NamespaceConditionType"
-                        }
-                    ]
-                }
-            }
-        },
-        "v1.NamespaceConditionType": {
-            "type": "string",
-            "enum": [
-                "NamespaceDeletionDiscoveryFailure",
-                "NamespaceDeletionContentFailure",
-                "NamespaceDeletionGroupVersionParsingFailure",
-                "NamespaceContentRemaining",
-                "NamespaceFinalizersRemaining"
-            ],
-            "x-enum-varnames": [
-                "NamespaceDeletionDiscoveryFailure",
-                "NamespaceDeletionContentFailure",
-                "NamespaceDeletionGVParsingFailure",
-                "NamespaceContentRemaining",
-                "NamespaceFinalizersRemaining"
-            ]
-        },
-        "v1.NamespacePhase": {
-            "type": "string",
-            "enum": [
-                "Active",
-                "Terminating"
-            ],
-            "x-enum-varnames": [
-                "NamespaceActive",
-                "NamespaceTerminating"
-            ]
-        },
-        "v1.NamespaceSpec": {
-            "type": "object",
-            "properties": {
-                "finalizers": {
-                    "description": "Finalizers is an opaque list of values that must be empty to permanently remove object from storage.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.FinalizerName"
-                    }
-                }
-            }
-        },
-        "v1.NamespaceStatus": {
-            "type": "object",
-            "properties": {
-                "conditions": {
-                    "description": "Represents the latest available observations of a namespace's current state.\n+optional\n+patchMergeKey=type\n+patchStrategy=merge",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/v1.NamespaceCondition"
-                    }
-                },
-                "phase": {
-                    "description": "Phase is the current lifecycle phase of the namespace.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/v1.NamespacePhase"
-                        }
-                    ]
-                }
-            }
-        },
-        "v1.ObjectMeta": {
             "type": "object",
             "properties": {
                 "annotations": {
@@ -1483,6 +1362,10 @@
                     "additionalProperties": {
                         "type": "string"
                     }
+                },
+                "apiVersion": {
+                    "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources\n+optional",
+                    "type": "string"
                 },
                 "creationTimestamp": {
                     "description": "CreationTimestamp is a timestamp representing the server time when this object was\ncreated. It is not guaranteed to be set in happens-before order across separate operations.\nClients may not set this value. It is represented in RFC3339 form and is in UTC.\n\nPopulated by the system.\nRead-only.\nNull for lists.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata\n+optional",
@@ -1510,6 +1393,10 @@
                 "generation": {
                     "description": "A sequence number representing a specific generation of the desired state.\nPopulated by the system. Read-only.\n+optional",
                     "type": "integer"
+                },
+                "kind": {
+                    "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds\n+optional",
+                    "type": "string"
                 },
                 "labels": {
                     "description": "Map of string keys and values that can be used to organize and categorize\n(scope and select) objects. May match selectors of replication controllers\nand services.\nMore info: http://kubernetes.io/docs/user-guide/labels\n+optional",
@@ -1548,8 +1435,69 @@
                     "description": "Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.\n+optional",
                     "type": "string"
                 },
+                "spec": {
+                    "description": "Spec defines the behavior of the Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
+                    "$ref": "#/definitions/v1.NamespaceSpec"
+                },
+                "status": {
+                    "description": "Status describes the current status of a Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
+                    "$ref": "#/definitions/v1.NamespaceStatus"
+                },
                 "uid": {
                     "description": "UID is the unique in time and space value for this object. It is typically generated by\nthe server on successful creation of a resource and is not allowed to change on PUT\noperations.\n\nPopulated by the system.\nRead-only.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#uids\n+optional",
+                    "type": "string"
+                }
+            }
+        },
+        "v1.NamespaceCondition": {
+            "type": "object",
+            "properties": {
+                "lastTransitionTime": {
+                    "description": "+optional",
+                    "type": "string"
+                },
+                "message": {
+                    "description": "+optional",
+                    "type": "string"
+                },
+                "reason": {
+                    "description": "+optional",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status of the condition, one of True, False, Unknown.",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Type of namespace controller condition.",
+                    "type": "string"
+                }
+            }
+        },
+        "v1.NamespaceSpec": {
+            "type": "object",
+            "properties": {
+                "finalizers": {
+                    "description": "Finalizers is an opaque list of values that must be empty to permanently remove object from storage.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "v1.NamespaceStatus": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "description": "Represents the latest available observations of a namespace's current state.\n+optional\n+patchMergeKey=type\n+patchStrategy=merge",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.NamespaceCondition"
+                    }
+                },
+                "phase": {
+                    "description": "Phase is the current lifecycle phase of the namespace.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
                     "type": "string"
                 }
             }

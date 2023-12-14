@@ -20,6 +20,12 @@ import (
 	"time"
 )
 
+// Payload is an interface for incoming requests payloads
+// Each handler should implement this interface to parse payloads
+type Payload interface {
+	Decode(*http.Request) error // Decode returns the payload object with the decoded
+}
+
 // response defines the structure for API response payloads.
 type response struct {
 	Success   bool       `json:"success" yaml:"success"`                         // Indicates success status.
@@ -29,12 +35,6 @@ type response struct {
 	StartTime *time.Time `json:"startTime,omitempty" yaml:"startTime,omitempty"` // Request start time.
 	EndTime   *time.Time `json:"endTime,omitempty" yaml:"endTime,omitempty"`     // Request end time.
 	CostTime  Duration   `json:"costTime,omitempty" yaml:"costTime,omitempty"`   // Time taken for the request.
-}
-
-// Payload is an interface for incoming requests payloads
-// Each handler should implement this interface to parse payloads
-type Payload interface {
-	Decode(*http.Request) error // Decode returns the payload object with the decoded
 }
 
 // Render is a no-op method that satisfies the render.Renderer interface.

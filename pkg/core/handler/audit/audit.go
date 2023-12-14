@@ -24,30 +24,29 @@ import (
 	"github.com/go-chi/render"
 )
 
-// Audit returns an HTTP handler function that performs auditing of manifest
-// data. It utilizes an AuditManager to execute the audit logic.
+// Audit handles the auditing process based on the specified condition.
 //
-//	@Summary		AuditHandler audits the provided manifest.
-//	@Description	This endpoint audits the provided manifest for issues.
-//	@Tags			audit
-//	@Accept			plain
-//	@Accept			json
-//	@Produce		json
-//	@Param			request	body		AuditPayload	true	"Manifest data to audit (either plain text or JSON format)"
-//	@Success		200		{array}		scanner.Issue	"Audit results"
-//	@Failure		400		{string}	string			"Bad Request"
-//	@Failure		401		{string}	string			"Unauthorized"
-//	@Failure		429		{string}	string			"Too Many Requests"
-//	@Failure		404		{string}	string			"Not Found"
-//	@Failure		500		{string}	string			"Internal Server Error"
-//	@Router			/api/v1/audit [post]
+// @Summary      Audit based on locator.
+// @Description  This endpoint audits based on the specified locator.
+// @Tags         audit
+// @Accept       json
+// @Produce      json
+// @Param        request  body      AuditPayload   true  "Locator for perform the audit"
+// @Success      200      {array}   scanner.Issue  "Audit results"
+// @Failure      400      {string}  string         "Bad Request"
+// @Failure      401      {string}  string         "Unauthorized"
+// @Failure      429      {string}  string         "Too Many Requests"
+// @Failure      404      {string}  string         "Not Found"
+// @Failure      500      {string}  string         "Internal Server Error"
+// @Router       /api/v1/audit [post]
 func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		log := ctxutil.GetLogger(ctx)
+
 		// Begin the auditing process, logging the start.
-		log.Info("Starting audit of the specified manifest in handler ...")
+		log.Info("Starting audit with specified condition in handler ...")
 
 		// Decode the request body into the payload.
 		payload := &AuditPayload{}
@@ -61,7 +60,54 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 			"payload", payload)
 
 		// Perform the audit using the manager and the provided manifest.
-		issues, err := auditMgr.Audit(ctx, payload.Manifest)
+		issues, err := auditMgr.Audit(ctx, &payload.Locator)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		render.JSON(w, r, handler.SuccessResponse(ctx, issues))
+	}
+}
+
+// AuditManifest returns an HTTP handler function that performs auditing of manifest
+// data. It utilizes an AuditManager to execute the audit logic.
+//
+//	@Summary      AuditManifest audits the provided manifest.
+//	@Description  This endpoint audits the provided manifest for issues.
+//	@Tags         audit
+//	@Accept       plain
+//	@Accept       json
+//	@Produce      json
+//	@Param        request  body      AuditPayload   true  "Manifest data to audit (either plain text or JSON format)"
+//	@Success      200      {array}   scanner.Issue  "Audit results"
+//	@Failure      400      {string}  string         "Bad Request"
+//	@Failure      401      {string}  string         "Unauthorized"
+//	@Failure      429      {string}  string         "Too Many Requests"
+//	@Failure      404      {string}  string         "Not Found"
+//	@Failure      500      {string}  string         "Internal Server Error"
+//	@Router       /api/v1/audit/manifest [post]
+func AuditManifest(auditMgr *audit.AuditManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		log := ctxutil.GetLogger(ctx)
+		// Begin the auditing process, logging the start.
+		log.Info("Starting audit of the specified manifest in handler ...")
+
+		// Decode the request body into the payload.
+		payload := &AuditManifestPayload{}
+		if err := payload.Decode(r); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Log successful decoding of the request body.
+		log.Info("Successfully decoded the request body to payload",
+			"payload", payload)
+
+		// Perform the audit using the manager and the provided manifest.
+		issues, err := auditMgr.AuditManifest(ctx, payload.Manifest)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -75,20 +121,20 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 // audited manifest. It utilizes an AuditManager to compute the score based
 // on detected issues.
 //
-//	@Summary		ScoreHandler calculates a score for the audited manifest.
-//	@Description	This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.
-//	@Tags			audit
-//	@Accept			text/plain
-//	@Accept			application/json
-//	@Produce		json
-//	@Param			request	body		AuditPayload	true	"Manifest data to calculate score for (either plain text or JSON format)"
-//	@Success		200		{object}	audit.ScoreData	"Score calculation result"
-//	@Failure		400		{string}	string			"Bad Request"
-//	@Failure		401		{string}	string			"Unauthorized"
-//	@Failure		429		{string}	string			"Too Many Requests"
-//	@Failure		404		{string}	string			"Not Found"
-//	@Failure		500		{string}	string			"Internal Server Error"
-//	@Router			/api/v1/audit/score [post]
+//	@Summary      ScoreHandler calculates a score for the audited manifest.
+//	@Description  This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.
+//	@Tags         audit
+//	@Accept       text/plain
+//	@Accept       application/json
+//	@Produce      json
+//	@Param        request  body      AuditPayload     true  "Manifest data to calculate score for (either plain text or JSON format)"
+//	@Success      200      {object}  audit.ScoreData  "Score calculation result"
+//	@Failure      400      {string}  string           "Bad Request"
+//	@Failure      401      {string}  string           "Unauthorized"
+//	@Failure      429      {string}  string           "Too Many Requests"
+//	@Failure      404      {string}  string           "Not Found"
+//	@Failure      500      {string}  string           "Internal Server Error"
+//	@Router       /api/v1/audit/score [post]
 func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -99,7 +145,7 @@ func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Starting calculate score with specified manifest in handler...")
 
 		// Decode the request body into the payload.
-		payload := &AuditPayload{}
+		payload := &AuditManifestPayload{}
 		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -110,7 +156,7 @@ func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 			"payload", payload)
 
 		// Perform the audit to gather issues for score calculation.
-		issues, err := auditMgr.Audit(ctx, payload.Manifest)
+		issues, err := auditMgr.AuditManifest(ctx, payload.Manifest)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return

@@ -61,7 +61,7 @@ func NewCoreServer(
 	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
 		Verbose: false,
 	})
-	auditMgr, err := auditmanager.NewAuditManager()
+	auditMgr, err := auditmanager.NewAuditManager(extraConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -139,6 +139,7 @@ func setupAPIV1(
 
 	r.Route("/audit", func(r chi.Router) {
 		r.Post("/", audithandler.Audit(auditMgr))
+		r.Post("/manifest", audithandler.AuditManifest(auditMgr))
 		r.Post("/score", audithandler.Score(auditMgr))
 	})
 }
