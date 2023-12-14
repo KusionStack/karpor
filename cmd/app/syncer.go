@@ -58,13 +58,16 @@ func NewSyncerCommand(ctx context.Context) *cobra.Command {
 }
 
 func run(ctx context.Context, options *syncerOptions) error {
+	ctrl.SetLogger(klog.NewKlogr())
+	log := ctrl.Log.WithName("setup")
+
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme.Scheme,
 		MetricsBindAddress:     options.MetricsAddr,
 		HealthProbeBindAddress: options.ProbeAddr,
 	})
 	if err != nil {
-		klog.ErrorS(err, "unable to start manager")
+		log.Error(err, "unable to start manager")
 		return err
 	}
 
@@ -73,28 +76,28 @@ func run(ctx context.Context, options *syncerOptions) error {
 		Addresses: []string{options.ESAddress},
 	})
 	if err != nil {
-		klog.ErrorS(err, "unable to init elasticsearch client")
+		log.Error(err, "unable to init elasticsearch client")
 		return err
 	}
 
 	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
-		klog.ErrorS(err, "unable to create syncer")
+		log.Error(err, "unable to create resource syncer")
 		return err
 	}
 
 	if err := mgr.AddHealthzCheck("healthz", healthz.Ping); err != nil {
-		klog.ErrorS(err, "unable to set up health check")
+		log.Error(err, "unable to set up health check")
 		return err
 	}
 
 	if err := mgr.AddReadyzCheck("readyz", healthz.Ping); err != nil {
-		klog.ErrorS(err, "unable to set up ready check")
+		log.Error(err, "unable to set up ready check")
 		return err
 	}
 
-	klog.Infof("starting manager")
+	log.Info("starting manager")
 	if err := mgr.Start(ctx); err != nil {
-		klog.ErrorS(err, "problem running manager")
+		log.Error(err, "problem running manager")
 		return err
 	}
 
