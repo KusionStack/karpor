@@ -1,4 +1,17 @@
 definitions:
+  audit.AuditData:
+    properties:
+      aggregated:
+        additionalProperties:
+          type: integer
+        type: object
+      issues:
+        items:
+          $ref: '#/definitions/scanner.Issue'
+        type: array
+      resourcesTotal:
+        type: integer
+    type: object
   audit.AuditPayload:
     properties:
       apiVersion:
@@ -503,7 +516,7 @@ paths:
           description: Audit results
           schema:
             items:
-              $ref: '#/definitions/scanner.Issue'
+              $ref: '#/definitions/audit.AuditData'
             type: array
         "400":
           description: Bad Request
@@ -525,7 +538,7 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: Audit based on locator
+      summary: Audit based on locator.
       tags:
       - audit
   /api/v1/audit/manifest:

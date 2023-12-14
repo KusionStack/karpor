@@ -30,7 +30,7 @@ import (
 // AuditManager manages the auditing process of Kubernetes manifests using
 // a KubeScanner.
 type AuditManager struct {
-	ks scanner.KubeScanner // Interface for a Kubernetes scanner.
+	ks scanner.KubeScanner
 	ss storage.SearchStorage
 }
 
@@ -63,14 +63,17 @@ func NewAuditManager(c *registry.ExtraConfig) (*AuditManager, error) {
 	}, nil
 }
 
-func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) ([]*scanner.Issue, error) {
+// Audit performs the audit on Kubernetes manifests with the specified locator
+// and returns the issues found during the audit.
+func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*AuditData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
 
+	var total int
 	searchQuery := locator.ToSQL()
 	searchPattern := storage.SQLPatternType
-	searchPageSize := 10
+	searchPageSize := 100
 	searchPage := 1
 
 	var allIssues []*scanner.Issue
@@ -82,6 +85,7 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) ([]*sca
 		if err != nil {
 			return nil, err
 		}
+		total = res.Total
 
 		log.Info("Finish current search", "overview", res.Overview())
 
@@ -102,7 +106,7 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) ([]*sca
 		searchPage++
 	}
 
-	return allIssues, nil
+	return NewAuditData(allIssues, total), nil
 }
 
 // Audit performs a security audit on the provided manifest, returning a list

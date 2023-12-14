@@ -35,7 +35,7 @@ var doc = `{
                 "tags": [
                     "audit"
                 ],
-                "summary": "Audit based on locator",
+                "summary": "Audit based on locator.",
                 "parameters": [
                     {
                         "description": "Locator for perform the audit",
@@ -53,7 +53,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/scanner.Issue"
+                                "$ref": "#/definitions/audit.AuditData"
                             }
                         }
                     },
@@ -1161,6 +1161,26 @@ var doc = `{
         }
     },
     "definitions": {
+        "audit.AuditData": {
+            "type": "object",
+            "properties": {
+                "aggregated": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "issues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/scanner.Issue"
+                    }
+                },
+                "resourcesTotal": {
+                    "type": "integer"
+                }
+            }
+        },
         "audit.AuditPayload": {
             "type": "object",
             "properties": {
