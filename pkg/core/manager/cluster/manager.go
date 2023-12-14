@@ -209,12 +209,13 @@ func (c *ClusterManager) SanitizeKubeConfigFor(config *KubeConfig) {
 	}
 }
 
+// ValidateKubeConfigWithYAML unmarshals YAML content into KubeConfig and validates it.
 func (c *ClusterManager) ValidateKubeConfigWithYAML(ctx context.Context, plain string) (string, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 
 	// Inform that the unmarshaling process has started.
-	log.Info("Unmarshal the yaml file into the KubeConfig struct in ValidateKubeConfigWithYAML")
+	log.Info("Unmarshaling the YAML file into the KubeConfig struct in ValidateKubeConfigWithYAML")
 
 	// Prepare KubeConfig structure to hold unmarshaled data.
 	var config KubeConfig
@@ -228,6 +229,7 @@ func (c *ClusterManager) ValidateKubeConfigWithYAML(ctx context.Context, plain s
 	return c.ValidateKubeConfigFor(ctx, &config)
 }
 
+// ValidateKubeConfigFor validates the provided KubeConfig.
 func (c *ClusterManager) ValidateKubeConfigFor(ctx context.Context, config *KubeConfig) (string, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)

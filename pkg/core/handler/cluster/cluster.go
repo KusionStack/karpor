@@ -188,6 +188,7 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		log.Info("Successfully decoded the request body to payload, and sanitize the kubeconfig in payload",
 			"sanitizeKubeConfig", sanitizeConfig)
 
+		// Validate the specified kube config.
 		if info, err := clusterMgr.ValidateKubeConfigWithYAML(ctx, payload.KubeConfig); err == nil {
 			render.JSON(w, r, handler.SuccessResponse(ctx, info))
 		} else {
