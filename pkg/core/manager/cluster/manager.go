@@ -144,6 +144,21 @@ func (c *ClusterManager) DeleteCluster(ctx context.Context, client *multicluster
 	return client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
 }
 
+// DeleteCluster deletes the cluster by name
+func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.MultiClusterClient) (*unstructured.UnstructuredList, error) {
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	clusterList, err := client.DynamicClient.Resource(clusterGVR).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	sanitizedClusterList := &unstructured.UnstructuredList{}
+	for _, cluster := range clusterList.Items {
+		sanitized, _ := c.SanitizeUnstructuredCluster(ctx, &cluster)
+		sanitizedClusterList.Items = append(sanitizedClusterList.Items, *sanitized)
+	}
+	return sanitizedClusterList, nil
+}
+
 // GetYAMLForCluster returns the yaml byte array for a given cluster
 func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) ([]byte, error) {
 	obj, err := c.GetCluster(ctx, client, name)
@@ -395,15 +410,15 @@ func (c *ClusterManager) SanitizeUnstructuredCluster(ctx context.Context, cluste
 	if token, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"]; ok {
 		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"] = maskContent(token.(string))
 	}
-	if certificate, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok {
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = maskContent(certificate.(string))
-	}
-	if privateKey, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok {
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = maskContent(privateKey.(string))
+	if x509, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = maskContent(x509.(map[string]interface{})["certificate"].(string))
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = maskContent(x509.(map[string]interface{})["privateKey"].(string))
 	}
 	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
 		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = maskContent(caBundle.(string))
 	}
-	sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
+	if _, ok := sanitized.Object["metadata"].(map[string]interface{})["annotations"]; ok {
+		sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
+	}
 	return sanitized, nil
 }
