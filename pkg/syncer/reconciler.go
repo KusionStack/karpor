@@ -335,7 +335,7 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 	if access.Credential != nil {
 		switch access.Credential.Type {
 		case clusterv1beta1.CredentialTypeServiceAccountToken:
-			// TODO: CredentialTypeServiceAccountToken
+			config.BearerToken = access.Credential.ServiceAccountToken
 		case clusterv1beta1.CredentialTypeX509Certificate:
 			if access.Credential.X509 == nil {
 				return nil, fmt.Errorf("cert and key is required for x509 credential type")
