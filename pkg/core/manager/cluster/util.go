@@ -54,7 +54,7 @@ func checkEndpointConnectivity(endpoint string) error {
 	}
 
 	// Set timeout duration
-	timeout := time.Duration(5 * time.Second)
+	timeout := 5 * time.Second
 	conn, err := net.DialTimeout("tcp", host, timeout)
 	if err != nil {
 		return err

@@ -236,7 +236,7 @@ func (c *ClusterManager) ValidateKubeConfigFor(ctx context.Context, config *Kube
 
 	// Validate if KubeConfig API version and kind are empty.
 	if config.APIVersion == "" {
-		return "", ErrMissingApiVersion
+		return "", ErrMissingAPIVersion
 	}
 	if config.Kind == "" {
 		return "", ErrMissingKind

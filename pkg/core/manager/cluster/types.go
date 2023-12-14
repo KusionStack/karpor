@@ -17,7 +17,7 @@ package cluster
 import "errors"
 
 var (
-	ErrMissingApiVersion           = errors.New("apiVersion is required")
+	ErrMissingAPIVersion           = errors.New("apiVersion is required")
 	ErrMissingKind                 = errors.New("kind is required")
 	ErrMissingClusterEntry         = errors.New("at least one cluster entry is required")
 	ErrMissingUserEntry            = errors.New("at least one user entry is required")
