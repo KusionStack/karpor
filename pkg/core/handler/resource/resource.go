@@ -24,7 +24,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/registry"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -34,18 +33,18 @@ import (
 // Get returns an HTTP handler function that returns a Kubernetes
 // resource. It utilizes a ResourceManager to execute the logic.
 //
-//  @Summary      Get returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Description  This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Tags         resource
-//  @Produce      json
-//  @Success      200  {object}  unstructured.Unstructured  "Unstructured object"
-//  @Failure      400  {string}  string                     "Bad Request"
-//  @Failure      401  {string}  string                     "Unauthorized"
-//  @Failure      404  {string}  string                     "Not Found"
-//  @Failure      405  {string}  string                     "Method Not Allowed"
-//  @Failure      429  {string}  string                     "Too Many Requests"
-//  @Failure      500  {string}  string                     "Internal Server Error"
-//  @Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/ [get]
+//	@Summary      Get returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+//	@Description  This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+//	@Tags         resource
+//	@Produce      json
+//	@Success      200  {object}  unstructured.Unstructured  "Unstructured object"
+//	@Failure      400  {string}  string                     "Bad Request"
+//	@Failure      401  {string}  string                     "Unauthorized"
+//	@Failure      404  {string}  string                     "Not Found"
+//	@Failure      405  {string}  string                     "Method Not Allowed"
+//	@Failure      429  {string}  string                     "Too Many Requests"
+//	@Failure      500  {string}  string                     "Internal Server Error"
+//	@Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/ [get]
 func Get(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -71,18 +70,18 @@ func Get(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.
 // GetYAML returns an HTTP handler function that returns a Kubernetes
 // resource YAML. It utilizes a ResourceManager to execute the logic.
 //
-//  @Summary      GetYAML returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
-//  @Description  This endpoint returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
-//  @Tags         resource
-//  @Produce      json
-//  @Success      200  {array}   byte    "Byte array"
-//  @Failure      400  {string}  string  "Bad Request"
-//  @Failure      401  {string}  string  "Unauthorized"
-//  @Failure      404  {string}  string  "Not Found"
-//  @Failure      405  {string}  string  "Method Not Allowed"
-//  @Failure      429  {string}  string  "Too Many Requests"
-//  @Failure      500  {string}  string  "Internal Server Error"
-//  @Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml [get]
+//	@Summary      GetYAML returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
+//	@Description  This endpoint returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
+//	@Tags         resource
+//	@Produce      json
+//	@Success      200  {array}   byte    "Byte array"
+//	@Failure      400  {string}  string  "Bad Request"
+//	@Failure      401  {string}  string  "Unauthorized"
+//	@Failure      404  {string}  string  "Not Found"
+//	@Failure      405  {string}  string  "Method Not Allowed"
+//	@Failure      429  {string}  string  "Too Many Requests"
+//	@Failure      500  {string}  string  "Internal Server Error"
+//	@Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml [get]
 func GetYAML(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -108,18 +107,18 @@ func GetYAML(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) h
 // GetTopology returns an HTTP handler function that returns a topology map for
 // a Kubernetes resource. It utilizes a ResourceManager to execute the logic.
 //
-//  @Summary      GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Description  This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Tags         resource
-//  @Produce      json
-//  @Success      200  {object}  map[string]resource.ResourceTopology  "map from string to resource.ResourceTopology"
-//  @Failure      400  {string}  string                                "Bad Request"
-//  @Failure      401  {string}  string                                "Unauthorized"
-//  @Failure      404  {string}  string                                "Not Found"
-//  @Failure      405  {string}  string                                "Method Not Allowed"
-//  @Failure      429  {string}  string                                "Too Many Requests"
-//  @Failure      500  {string}  string                                "Internal Server Error"
-//  @Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/topology [get]
+//	@Summary      GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+//	@Description  This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+//	@Tags         resource
+//	@Produce      json
+//	@Success      200  {object}  map[string]resource.ResourceTopology  "map from string to resource.ResourceTopology"
+//	@Failure      400  {string}  string                                "Bad Request"
+//	@Failure      401  {string}  string                                "Unauthorized"
+//	@Failure      404  {string}  string                                "Not Found"
+//	@Failure      405  {string}  string                                "Method Not Allowed"
+//	@Failure      429  {string}  string                                "Too Many Requests"
+//	@Failure      500  {string}  string                                "Internal Server Error"
+//	@Router       /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/topology [get]
 func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -146,18 +145,18 @@ func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfi
 // array of Kubernetes runtime Object matched using the query from
 // context. It utilizes a ResourceManager to execute the logic.
 //
-//  @Summary      SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.
-//  @Description  This endpoint returns an array of Kubernetes runtime Object matched using the query from context.
-//  @Tags         resource
-//  @Produce      json
-//  @Success      200  {array}   runtime.Object  "Array of runtime.Object"
-//  @Failure      400  {string}  string          "Bad Request"
-//  @Failure      401  {string}  string          "Unauthorized"
-//  @Failure      404  {string}  string          "Not Found"
-//  @Failure      405  {string}  string          "Method Not Allowed"
-//  @Failure      429  {string}  string          "Too Many Requests"
-//  @Failure      500  {string}  string          "Internal Server Error"
-//  @Router       /api/v1/resource/search [get]
+//	@Summary      SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.
+//	@Description  This endpoint returns an array of Kubernetes runtime Object matched using the query from context.
+//	@Tags         resource
+//	@Produce      json
+//	@Success      200  {array}   runtime.Object  "Array of runtime.Object"
+//	@Failure      400  {string}  string          "Bad Request"
+//	@Failure      401  {string}  string          "Unauthorized"
+//	@Failure      404  {string}  string          "Not Found"
+//	@Failure      405  {string}  string          "Method Not Allowed"
+//	@Failure      429  {string}  string          "Too Many Requests"
+//	@Failure      500  {string}  string          "Internal Server Error"
+//	@Router       /api/v1/resource/search [get]
 func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
