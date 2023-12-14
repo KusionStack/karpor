@@ -18,15 +18,23 @@ package cluster
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/apis/cluster"
+	clustermgr "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 
+	"k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
-	"sigs.k8s.io/structured-merge-diff/v4/fieldpath"
+)
+
+var (
+	_ rest.Lister = &REST{}
+	_ rest.Getter = &REST{}
 )
 
 type Storage struct {
@@ -75,38 +83,43 @@ func (r *REST) ShortNames() []string {
 	return []string{"cl"}
 }
 
-type StatusREST struct {
-	Store *genericregistry.Store
-}
-
-// New returns empty Cluster object.
-func (r *StatusREST) New() runtime.Object {
-	return &cluster.Cluster{}
-}
-
-// Destroy cleans up resources on shutdown.
-func (r *StatusREST) Destroy() {
-	// Given that underlying store is shared with REST,
-	// we don't destroy it here explicitly.
+// Get retrieves the object from the storage. It is required to support Patch.
+func (r *REST) List(ctx context.Context, options *internalversion.ListOptions) (runtime.Object, error) {
+	sanitizedClusterList := &cluster.ClusterList{}
+	clusterList, err := r.Store.List(ctx, options)
+	if err != nil {
+		return sanitizedClusterList, err
+	}
+	for _, c := range clusterList.(*cluster.ClusterList).Items {
+		// Convert to unstructured
+		clusterMap, _ := runtime.DefaultUnstructuredConverter.ToUnstructured(&c)
+		clusterUnstructured := &unstructured.Unstructured{}
+		clusterUnstructured.SetUnstructuredContent(clusterMap)
+		// Sanitize credentials
+		sanitized, _ := clustermgr.SanitizeUnstructuredCluster(ctx, clusterUnstructured)
+		clusterObj := &cluster.Cluster{}
+		err = runtime.DefaultUnstructuredConverter.FromUnstructured(sanitized.Object, clusterObj)
+		if err != nil {
+			fmt.Printf("Error converting unstructured item to Cluster: %v\n", err)
+		}
+		sanitizedClusterList.Items = append(sanitizedClusterList.Items, *clusterObj)
+	}
+	return sanitizedClusterList, nil
 }
 
 // Get retrieves the object from the storage. It is required to support Patch.
-func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
-	return r.Store.Get(ctx, name, options)
-}
-
-// Update alters the status subset of an object.
-func (r *StatusREST) Update(ctx context.Context, name string, objInfo rest.UpdatedObjectInfo, createValidation rest.ValidateObjectFunc, updateValidation rest.ValidateObjectUpdateFunc, forceAllowCreate bool, options *metav1.UpdateOptions) (runtime.Object, bool, error) {
-	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage because
-	// subresources should never allow create on update.
-	return r.Store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
-}
-
-// GetResetFields implements rest.ResetFieldsStrategy
-func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
-	return r.Store.GetResetFields()
-}
-
-func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
-	return r.Store.ConvertToTable(ctx, object, tableOptions)
+func (r *REST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+	sanitized := &unstructured.Unstructured{}
+	cluster, err := r.Store.Get(ctx, name, options)
+	if err != nil {
+		return sanitized, nil
+	}
+	clusterMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(cluster)
+	if err != nil {
+		return sanitized, nil
+	}
+	clusterUnstructured := &unstructured.Unstructured{}
+	clusterUnstructured.SetUnstructuredContent(clusterMap)
+	sanitized, _ = clustermgr.SanitizeUnstructuredCluster(ctx, clusterUnstructured)
+	return sanitized, nil
 }

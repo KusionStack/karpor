@@ -15,6 +15,7 @@
 package cluster
 
 import (
+	"context"
 	"crypto/md5"
 	"encoding/base64"
 	"fmt"
@@ -23,6 +24,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
 )
 
@@ -98,4 +101,29 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 	}
 
 	return clientConfig, nil
+}
+
+// SanitizeUnstructuredCluster masks sensitive information
+// within a Unstructured cluster object, such as user
+// credentials and certificate data.
+func SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	log := ctxutil.GetLogger(ctx)
+
+	// Inform that the unmarshaling process has started.
+	log.Info("Sanitizing unstructured cluster...")
+	sanitized := cluster
+	if token, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"] = maskContent(token.(string))
+	}
+	if x509, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok && x509 != nil {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = []byte(maskContent(x509.(map[string]interface{})["certificate"].(string)))
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = []byte(maskContent(x509.(map[string]interface{})["privateKey"].(string)))
+	}
+	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = []byte(maskContent(caBundle.(string)))
+	}
+	if _, ok := sanitized.Object["metadata"].(map[string]interface{})["annotations"]; ok {
+		sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
+	}
+	return sanitized, nil
 }
