@@ -19,6 +19,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/audit"
+	_ "github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 )

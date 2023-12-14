@@ -406,6 +406,8 @@ func (c *ClusterManager) ValidateKubeConfigFor(ctx context.Context, config *Kube
 		log.Info("KubeConfig is valid and the cluster is reachable.", "serverVersion", info.String())
 		return info.String(), nil
 	}
+}
+
 // SanitizeUnstructuredCluster masks sensitive information
 // within a Unstructured cluster object, such as user
 // credentials and certificate data.

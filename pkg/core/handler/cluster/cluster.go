@@ -357,16 +357,16 @@ func GetNamespaceTopology(clusterMgr *cluster.ClusterManager, c *server.Complete
 	}
 }
 
-// @Summary		Upload kubeConfig file for cluster
-// @Description	Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
-// @Tags			cluster
-// @Accept			multipart/form-data
-// @Produce		plain
-// @Param			file	formData	file		true	"Upload file with field name 'file'"
-// @Success		200		{object}	UploadData	"Returns the content of the uploaded KubeConfig file."
-// @Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
-// @Failure		500		{string}	string		"Internal server error."
-// @Router			/api/v1/cluster/config/file [post]
+//	@Summary		Upload kubeConfig file for cluster
+//	@Description	Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
+//	@Tags			cluster
+//	@Accept			multipart/form-data
+//	@Produce		plain
+//	@Param			file	formData	file		true	"Upload file with field name 'file'"
+//	@Success		200		{object}	UploadData	"Returns the content of the uploaded KubeConfig file."
+//	@Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
+//	@Failure		500		{string}	string		"Internal server error."
+//	@Router			/api/v1/cluster/config/file [post]
 func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	// Extract the context and logger from the request.
 	ctx := r.Context()
@@ -418,20 +418,20 @@ func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 
 // ValidateKubeConfig returns an HTTP handler function to validate a KubeConfig.
 //
-// @Summary      Validate KubeConfig
-// @Description  Validates the provided KubeConfig using cluster manager methods.
-// @Tags         cluster
-// @Accept       plain
-// @Accept       json
-// @Produce      json
-// @Param        request  body      ValidatePayload  true  "KubeConfig payload to validate"
-// @Success      200      {string}  string           "Verification passed server version"
-// @Failure      400      {object}  string           "Bad Request"
-// @Failure      401      {object}  string           "Unauthorized"
-// @Failure      429      {object}  string           "Too Many Requests"
-// @Failure      404      {object}  string           "Not Found"
-// @Failure      500      {object}  string           "Internal Server Error"
-// @Router       /api/v1/cluster/config/validate [post]
+//	@Summary		Validate KubeConfig
+//	@Description	Validates the provided KubeConfig using cluster manager methods.
+//	@Tags			cluster
+//	@Accept			plain
+//	@Accept			json
+//	@Produce		json
+//	@Param			request	body		ValidatePayload	true	"KubeConfig payload to validate"
+//	@Success		200		{string}	string			"Verification passed server version"
+//	@Failure		400		{object}	string			"Bad Request"
+//	@Failure		401		{object}	string			"Unauthorized"
+//	@Failure		429		{object}	string			"Too Many Requests"
+//	@Failure		404		{object}	string			"Not Found"
+//	@Failure		500		{object}	string			"Internal Server Error"
+//	@Router			/api/v1/cluster/config/validate [post]
 func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.

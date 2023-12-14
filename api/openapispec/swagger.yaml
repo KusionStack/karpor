@@ -144,6 +144,11 @@ definitions:
       fileSize:
         type: integer
     type: object
+  pkg_core_handler_cluster.ValidatePayload:
+    properties:
+      kubeConfig:
+        type: string
+    type: object
   unstructured.Unstructured:
     properties:
       object:
@@ -1035,6 +1040,49 @@ paths:
           schema:
             type: string
       summary: Upload kubeConfig file for cluster
+      tags:
+      - cluster
+  /api/v1/cluster/config/validate:
+    post:
+      consumes:
+      - text/plain
+      - application/json
+      description: Validates the provided KubeConfig using cluster manager methods.
+      parameters:
+      - description: KubeConfig payload to validate
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/pkg_core_handler_cluster.ValidatePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification passed server version
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Validate KubeConfig
       tags:
       - cluster
   /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/:
