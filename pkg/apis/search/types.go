@@ -18,7 +18,6 @@ package search
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // +genclient
@@ -182,20 +181,4 @@ type ResourceSyncCondition struct {
 	Message string
 
 	LastTransitionTime metav1.Time
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type UniResource struct {
-	metav1.TypeMeta
-}
-
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type UniResourceList struct {
-	metav1.TypeMeta
-	Items       []runtime.Object
-	Total       int
-	CurrentPage int
-	PageSize    int
 }

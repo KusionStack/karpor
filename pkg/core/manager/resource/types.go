@@ -14,6 +14,11 @@
 
 package resource
 
+import (
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
+)
+
 type ResourceConfig struct {
 	Verbose bool `json:"verbose"`
 }
@@ -30,4 +35,17 @@ type ResourceTopology struct {
 	Identifier string
 	Parents    []string
 	Children   []string
+}
+
+type UniResource struct {
+	Cluster string
+	Object  runtime.Object
+}
+
+type UniResourceList struct {
+	metav1.TypeMeta
+	Items       []UniResource
+	Total       int
+	CurrentPage int
+	PageSize    int
 }

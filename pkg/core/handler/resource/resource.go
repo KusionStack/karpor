@@ -18,7 +18,6 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karbour/pkg/apis/search"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/resource"
 	"github.com/KusionStack/karbour/pkg/multicluster"
@@ -198,11 +197,14 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 			return
 		}
 
-		rt := &search.UniResourceList{}
-		for _, resource := range res.Resources {
+		rt := &resource.UniResourceList{}
+		for _, r := range res.Resources {
 			unObj := &unstructured.Unstructured{}
-			unObj.SetUnstructuredContent(resource.Object)
-			rt.Items = append(rt.Items, unObj)
+			unObj.SetUnstructuredContent(r.Object)
+			rt.Items = append(rt.Items, resource.UniResource{
+				Cluster: r.Cluster,
+				Object:  unObj,
+			})
 		}
 		rt.Total = res.Total
 		rt.CurrentPage = searchPage
