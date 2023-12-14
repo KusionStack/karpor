@@ -54,8 +54,7 @@ func (c *ClusterManager) GetCluster(ctx context.Context, client *multicluster.Mu
 	if err != nil && !errors.IsNotFound(err) {
 		return nil, err
 	}
-	sanitized, _ := c.SanitizeUnstructuredCluster(ctx, obj)
-	return sanitized, nil
+	return c.SanitizeUnstructuredCluster(ctx, obj)
 }
 
 // CreateCluster creates a new Cluster resource in the hub cluster and returns the created unstructured Cluster object
@@ -86,11 +85,7 @@ func (c *ClusterManager) CreateCluster(ctx context.Context, client *multicluster
 		return nil, err
 	}
 	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
-	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Create(ctx, unstructuredCluster, metav1.CreateOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return unstructuredClusterObj, nil
+	return client.DynamicClient.Resource(clusterGVR).Create(ctx, unstructuredCluster, metav1.CreateOptions{})
 }
 
 // UpdateCluster updates cluster by name with a full payload
@@ -108,11 +103,7 @@ func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluste
 	// Update the display name and description. Updating name and kubeconfig is not allowed here.
 	currentObj.Object["spec"].(map[string]interface{})["displayName"] = displayName
 	currentObj.Object["spec"].(map[string]interface{})["description"] = description
-	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Update(ctx, currentObj, metav1.UpdateOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return unstructuredClusterObj, nil
+	return client.DynamicClient.Resource(clusterGVR).Update(ctx, currentObj, metav1.UpdateOptions{})
 }
 
 // UpdateCredential updates cluster credential by name and a new kubeconfig
@@ -144,21 +135,13 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 	}
 	unstructuredMap["metadata"].(map[string]interface{})["resourceVersion"] = currentObj.Object["metadata"].(map[string]interface{})["resourceVersion"]
 	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
-	unstructuredClusterObj, err := client.DynamicClient.Resource(clusterGVR).Update(ctx, unstructuredCluster, metav1.UpdateOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return unstructuredClusterObj, nil
+	return client.DynamicClient.Resource(clusterGVR).Update(ctx, unstructuredCluster, metav1.UpdateOptions{})
 }
 
 // DeleteCluster deletes the cluster by name
 func (c *ClusterManager) DeleteCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) error {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	err := client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
-	if err != nil {
-		return err
-	}
-	return nil
+	return client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
@@ -168,20 +151,12 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 		return nil, err
 	}
 	sanitized, _ := c.SanitizeUnstructuredCluster(ctx, obj)
-	sanitizedYAML, err := yaml.Marshal(sanitized)
-	if err != nil {
-		return nil, err
-	}
-	return sanitizedYAML, nil
+	return yaml.Marshal(sanitized)
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
 func (c *ClusterManager) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
-	namespaceObj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return namespaceObj, nil
+	return client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
 }
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
