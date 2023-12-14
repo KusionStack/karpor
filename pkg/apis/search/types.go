@@ -194,5 +194,8 @@ type UniResource struct {
 
 type UniResourceList struct {
 	metav1.TypeMeta
-	Items []runtime.Object
+	Items       []runtime.Object
+	Total       int
+	CurrentPage int
+	PageSize    int
 }

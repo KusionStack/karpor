@@ -88,12 +88,6 @@ func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface
 }
 
 func (s *ESClient) search(ctx context.Context, body io.Reader, pageSize, page int) (*SearchResponse, error) {
-	if pageSize <= 1 {
-		pageSize = 10
-	}
-	if page <= 1 {
-		page = 1
-	}
 	from := (page - 1) * pageSize
 	res, err := s.client.Search(
 		s.client.Search.WithContext(ctx),

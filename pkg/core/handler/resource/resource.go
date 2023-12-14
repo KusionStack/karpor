@@ -165,11 +165,17 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		// Extract URL query parameters
+		// Extract URL query parameters with default value
 		searchQuery := r.URL.Query().Get("query")
 		searchPattern := r.URL.Query().Get("pattern")
 		searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
 		searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		if searchPageSize <= 1 {
+			searchPageSize = 10
+		}
+		if searchPage <= 1 {
+			searchPage = 1
+		}
 
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
@@ -198,7 +204,10 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 			unObj.SetUnstructuredContent(resource.Object)
 			rt.Items = append(rt.Items, unObj)
 		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, rt.Items))
+		rt.Total = res.Total
+		rt.CurrentPage = searchPage
+		rt.PageSize = searchPageSize
+		render.JSON(w, r, handler.SuccessResponse(ctx, rt))
 	}
 }
 
