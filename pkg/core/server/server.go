@@ -117,6 +117,7 @@ func setupAPIV1(
 			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterMgr, genericConfig))
 		})
 		r.Post("/config/file", clusterhandler.UpdateKubeConfig)
+		r.Post("/config/validate", clusterhandler.ValidateKubeConfig(clusterMgr))
 	})
 
 	r.Route("/resource", func(r chi.Router) {

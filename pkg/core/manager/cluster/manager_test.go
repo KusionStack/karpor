@@ -16,75 +16,43 @@ package cluster
 
 import (
 	"context"
-	"strings"
+	"errors"
 	"testing"
-
-	"gopkg.in/yaml.v2"
 )
 
-func TestClusterManager_SanitizeKubeConfigWithYAML(t *testing.T) {
-	// Create a mock context with a logger (use your actual logger initialization)
-	ctx := context.Background()
-
-	// Create a fake KubeConfig in YAML format with sensitive data
-	fakeYAML := `
-apiVersion: v1
-kind: Config
-users:
-- name: test-user
-  user:
-    client-certificate-data: sensitive-cert-data
-    client-key-data: sensitive-key-data
-    token: sensitive-token
-    username: sensitive-username
-    password: sensitive-password
-clusters:
-- name: test-cluster
-  cluster:
-    certificate-authority-data: sensitive-ca-data
-`
-	t.Log("Plain YAML output:")
-	t.Log(fakeYAML)
-
-	// Initialize ClusterManager
-	cm := NewClusterManager(&Config{})
-
-	// Call SanitizeKubeConfigWithYAML method with the fake data
-	sanitizedYAML, err := cm.SanitizeKubeConfigWithYAML(ctx, fakeYAML)
-	if err != nil {
-		t.Fatalf("SanitizeKubeConfigWithYAML returned an unexpected error: %v", err)
+// TestValidateKubeConfigFor tests the ValidateKubeConfigFor method.
+func TestValidateKubeConfigFor(t *testing.T) {
+	tests := []struct {
+		name        string
+		inputConfig *KubeConfig
+		expectedErr error
+	}{
+		{
+			name: "Invalid Configuration",
+			inputConfig: &KubeConfig{
+				APIVersion: "v1",
+				Kind:       "Config",
+				Clusters:   []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "1.2.3.4"}}},
+				Users: []UserEntry{{
+					Name: "user1",
+					User: User{
+						ClientCertificateData: "",
+						ClientKeyData:         "",
+					},
+				}},
+			},
+			expectedErr: ErrMissingCertificateAuthority,
+		},
 	}
 
-	// Verify that the sanitized YAML string does not contain any of the sensitive data
-	var sanitizedConfig KubeConfig
-	err = yaml.Unmarshal([]byte(sanitizedYAML), &sanitizedConfig)
-	if err != nil {
-		t.Fatalf("Error unmarshaling sanitized YAML: %v", err)
-	}
-	t.Log("Sanitized YAML output:")
-	t.Log(sanitizedYAML)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			clusterManager := &ClusterManager{}
+			_, err := clusterManager.ValidateKubeConfigFor(context.Background(), test.inputConfig)
 
-	// Check if the sensitive data has been masked properly
-	for _, user := range sanitizedConfig.Users {
-		if containsSensitiveData(user.User.ClientCertificateData) ||
-			containsSensitiveData(user.User.ClientKeyData) ||
-			containsSensitiveData(user.User.Token) ||
-			containsSensitiveData(user.User.Username) ||
-			containsSensitiveData(user.User.Password) {
-			t.Errorf("Sensitive data was not properly masked")
-		}
+			if !errors.Is(err, test.expectedErr) {
+				t.Errorf("Test case '%s' failed. Expected error: %v, Got error: %v", test.name, test.expectedErr, err)
+			}
+		})
 	}
-	for _, cluster := range sanitizedConfig.Clusters {
-		if containsSensitiveData(cluster.Cluster.CertificateAuthorityData) {
-			t.Errorf("Sensitive data was not properly masked")
-		}
-	}
-}
-
-// containsSensitiveData is a helper function to check if the given data is masked properly.
-// In a real test, you would check if the data is masked according to the maskContent logic.
-func containsSensitiveData(data string) bool {
-	// This is where you check if the data is in masked format (e.g., does not contain sensitive values)
-	// This is a placeholder function and should be replaced with actual logic to verify masked content.
-	return strings.Contains(data, "sensitive")
 }

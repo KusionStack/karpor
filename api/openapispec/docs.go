@@ -199,6 +199,71 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/api/v1/cluster/config/validate": {
+            "post": {
+                "description": "Validates the provided KubeConfig using cluster manager methods.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Validate KubeConfig",
+                "parameters": [
+                    {
+                        "description": "KubeConfig payload to validate",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/cluster.ValidatePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification passed server version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -246,6 +311,14 @@ var doc = `{
                 },
                 "fileSize": {
                     "type": "integer"
+                }
+            }
+        },
+        "cluster.ValidatePayload": {
+            "type": "object",
+            "properties": {
+                "kubeConfig": {
+                    "type": "string"
                 }
             }
         },

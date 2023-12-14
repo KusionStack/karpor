@@ -14,6 +14,23 @@
 
 package cluster
 
+import "errors"
+
+var (
+	ErrMissingApiVersion           = errors.New("apiVersion is required")
+	ErrMissingKind                 = errors.New("kind is required")
+	ErrMissingClusterEntry         = errors.New("at least one cluster entry is required")
+	ErrMissingUserEntry            = errors.New("at least one user entry is required")
+	ErrMissingClusterName          = errors.New("cluster name is required")
+	ErrMissingClusterServer        = errors.New("cluster server is required")
+	ErrMissingCertificateAuthority = errors.New("certificate-authority-data is required")
+	ErrInvalidCertificateAuthority = errors.New("certificate-authority-data is invalid")
+	ErrClusterServerConnectivity   = errors.New("cannot connect to the cluster server")
+	ErrBuildClientConfig           = errors.New("failed to create client config from provided KubeConfig")
+	ErrCreateClientSet             = errors.New("failed to create clientset")
+	ErrGetServerVersion            = errors.New("failed to connect to the cluster")
+)
+
 type Config struct {
 	Verbose bool `json:"verbose"`
 }

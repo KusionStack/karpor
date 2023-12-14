@@ -19,3 +19,7 @@ type UploadData struct {
 	FileSize int    `json:"fileSize"`
 	Content  string `json:"content"`
 }
+
+type ValidatePayload struct {
+	KubeConfig string `json:"kubeConfig"`
+}
