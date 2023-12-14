@@ -152,6 +152,38 @@ func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfi
 	}
 }
 
+// List returns an HTTP handler function that lists all cluster
+// resources. It utilizes a ClusterManager to execute the logic.
+//
+//	@Summary		List lists all cluster resources.
+//	@Description	This endpoint lists all cluster resources.
+//	@Tags			cluster
+//	@Produce		json
+//	@Success		200	{array}		unstructured.Unstructured	"List of cluster objects"
+//	@Failure		400	{string}	string						"Bad Request"
+//	@Failure		401	{string}	string						"Unauthorized"
+//	@Failure		404	{string}	string						"Not Found"
+//	@Failure		405	{string}	string						"Method Not Allowed"
+//	@Failure		429	{string}	string						"Too Many Requests"
+//	@Failure		500	{string}	string						"Internal Server Error"
+//	@Router			/api/v1/cluster [get]
+func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		logger.Info("Listing clusters...")
+
+		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
+		clusterList, err := clusterMgr.ListCluster(r.Context(), client)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, clusterList))
+	}
+}
+
 // Delete returns an HTTP handler function that deletes a cluster
 // resource. It utilizes a ClusterManager to execute the logic.
 //
