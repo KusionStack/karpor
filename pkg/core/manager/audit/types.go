@@ -59,7 +59,8 @@ func NewAuditData(issues []*scanner.Issue, total int) *AuditData {
 
 	// Aggregate counts of each issue's title
 	for _, issue := range data.Issues {
-		data.Aggregated[issue.Title]++
+		key := issue.Scanner + "|" + issue.Severity.String() + "|" + issue.Title
+		data.Aggregated[key]++
 	}
 
 	return data
