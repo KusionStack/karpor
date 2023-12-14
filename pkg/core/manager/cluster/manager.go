@@ -16,6 +16,7 @@ package cluster
 
 import (
 	"context"
+	"encoding/base64"
 	"os"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
@@ -27,6 +28,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/kubernetes"
 )
 
 type ClusterManager struct {
@@ -149,10 +151,11 @@ func (c *ClusterManager) ConvertGraphToMap(rg *relationship.RelationshipGraph) m
 // SanitizeKubeConfigWithYAML takes a plain KubeConfig YAML string and returns
 // a sanitized version with sensitive information masked.
 func (c *ClusterManager) SanitizeKubeConfigWithYAML(ctx context.Context, plain string) (sanitize string, err error) {
+	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 
 	// Inform that the unmarshaling process has started.
-	log.Info("Unmarshal the yaml file into the KubeConfig struct")
+	log.Info("Unmarshal the yaml file into the KubeConfig struct in SanitizeKubeConfigWithYAML")
 
 	// Prepare KubeConfig structure to hold unmarshaled data.
 	var config KubeConfig
@@ -203,5 +206,88 @@ func (c *ClusterManager) SanitizeKubeConfigFor(config *KubeConfig) {
 		if cluster.CertificateAuthorityData != "" {
 			cluster.CertificateAuthorityData = maskContent(cluster.CertificateAuthorityData)
 		}
+	}
+}
+
+// ValidateKubeConfigWithYAML unmarshals YAML content into KubeConfig and validates it.
+func (c *ClusterManager) ValidateKubeConfigWithYAML(ctx context.Context, plain string) (string, error) {
+	// Retrieve logger from context and log the start of the audit.
+	log := ctxutil.GetLogger(ctx)
+
+	// Inform that the unmarshaling process has started.
+	log.Info("Unmarshaling the YAML file into the KubeConfig struct in ValidateKubeConfigWithYAML")
+
+	// Prepare KubeConfig structure to hold unmarshaled data.
+	var config KubeConfig
+
+	// Convert YAML to KubeConfig struct.
+	if err := yaml.Unmarshal([]byte(plain), &config); err != nil {
+		return "", err
+	}
+
+	// Validate the KubeConfig.
+	return c.ValidateKubeConfigFor(ctx, &config)
+}
+
+// ValidateKubeConfigFor validates the provided KubeConfig.
+func (c *ClusterManager) ValidateKubeConfigFor(ctx context.Context, config *KubeConfig) (string, error) {
+	// Retrieve logger from context and log the start of the audit.
+	log := ctxutil.GetLogger(ctx)
+
+	// Validate if KubeConfig API version and kind are empty.
+	if config.APIVersion == "" {
+		return "", ErrMissingAPIVersion
+	}
+	if config.Kind == "" {
+		return "", ErrMissingKind
+	}
+
+	// Check for at least one cluster and user defined.
+	if len(config.Clusters) == 0 {
+		return "", ErrMissingClusterEntry
+	}
+	if len(config.Users) == 0 {
+		return "", ErrMissingUserEntry
+	}
+
+	// Validate cluster information including server address and certificate.
+	for _, clusterEntry := range config.Clusters {
+		if clusterEntry.Name == "" {
+			return "", ErrMissingClusterName
+		}
+		cluster := clusterEntry.Cluster
+		if cluster.Server == "" {
+			return "", ErrMissingClusterServer
+		}
+		if cluster.CertificateAuthorityData == "" {
+			return "", ErrMissingCertificateAuthority
+		}
+		if _, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
+			return "", ErrInvalidCertificateAuthority
+		}
+
+		// Check cluster server address connectivity
+		if err := checkEndpointConnectivity(cluster.Server); err != nil {
+			return "", ErrClusterServerConnectivity
+		}
+	}
+
+	// Use the provided KubeConfig to build the clientConfig.
+	clientConfig, err := buildClientConfigFromKubeConfig(config)
+	if err != nil {
+		return "", ErrBuildClientConfig
+	}
+
+	clientset, err := kubernetes.NewForConfig(clientConfig)
+	if err != nil {
+		return "", ErrCreateClientSet
+	}
+
+	// Try fetching server version information to test connectivity.
+	if info, err := clientset.Discovery().ServerVersion(); err != nil {
+		return "", ErrGetServerVersion
+	} else {
+		log.Info("KubeConfig is valid and the cluster is reachable.", "serverVersion", info.String())
+		return info.String(), nil
 	}
 }

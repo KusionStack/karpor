@@ -151,6 +151,52 @@ func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	render.JSON(w, r, handler.SuccessResponse(ctx, data))
 }
 
+// ValidateKubeConfig returns an HTTP handler function to validate a KubeConfig.
+//
+// @Summary      Validate KubeConfig
+// @Description  Validates the provided KubeConfig using cluster manager methods.
+// @Tags         cluster
+// @Accept       plain
+// @Accept       json
+// @Produce      json
+// @Param        request  body      ValidatePayload  true  "KubeConfig payload to validate"
+// @Success      200      {string}  string           "Verification passed server version"
+// @Failure      400      {object}  string           "Bad Request"
+// @Failure      401      {object}  string           "Unauthorized"
+// @Failure      429      {object}  string           "Too Many Requests"
+// @Failure      404      {object}  string           "Not Found"
+// @Failure      500      {object}  string           "Internal Server Error"
+// @Router       /api/v1/cluster/config/validate [post]
+func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		log := ctxutil.GetLogger(ctx)
+
+		// Begin the auditing process, logging the start.
+		log.Info("Starting validate kubeconfig in handler...")
+
+		// Decode the request body into the payload.
+		payload := &ValidatePayload{}
+		if err := decode(r, payload); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Log successful decoding of the request body.
+		sanitizeConfig, _ := clusterMgr.SanitizeKubeConfigWithYAML(ctx, payload.KubeConfig)
+		log.Info("Successfully decoded the request body to payload, and sanitize the kubeconfig in payload",
+			"sanitizeKubeConfig", sanitizeConfig)
+
+		// Validate the specified kube config.
+		if info, err := clusterMgr.ValidateKubeConfigWithYAML(ctx, payload.KubeConfig); err == nil {
+			render.JSON(w, r, handler.SuccessResponse(ctx, info))
+		} else {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+		}
+	}
+}
+
 // isAllowedExtension checks if the provided file name has a permitted extension.
 func isAllowedExtension(filename string) bool {
 	allowedExtensions := []string{"", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf"}
