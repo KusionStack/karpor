@@ -26,17 +26,17 @@ import (
 	"github.com/cch123/elasticsql"
 )
 
-func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string) (*storage.SearchResult, error) {
+func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string, pageSize, page int) (*storage.SearchResult, error) {
 	var res *SearchResponse
 	var err error
 	switch patternType {
 	case storage.DSLPatternType:
-		res, err = s.searchByDSL(ctx, queryStr)
+		res, err = s.searchByDSL(ctx, queryStr, pageSize, page)
 		if err != nil {
 			return nil, err
 		}
 	case storage.SQLPatternType:
-		res, err = s.searchBySQL(ctx, queryStr)
+		res, err = s.searchBySQL(ctx, queryStr, pageSize, page)
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +55,7 @@ func (s *ESClient) Search(ctx context.Context, queryStr string, patternType stri
 	return rt, nil
 }
 
-func (s *ESClient) searchByDSL(ctx context.Context, dslStr string) (*SearchResponse, error) {
+func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pageSize, page int) (*SearchResponse, error) {
 	queries, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
@@ -64,35 +64,37 @@ func (s *ESClient) searchByDSL(ctx context.Context, dslStr string) (*SearchRespo
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.searchByQuery(ctx, esQuery)
+	res, err := s.searchByQuery(ctx, esQuery, pageSize, page)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string) (*SearchResponse, error) {
+func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string, pageSize, page int) (*SearchResponse, error) {
 	dsl, _, err := elasticsql.Convert(sqlStr)
 	if err != nil {
 		return nil, err
 	}
-	return s.search(ctx, strings.NewReader(dsl))
+	return s.search(ctx, strings.NewReader(dsl), pageSize, page)
 }
 
-func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}) (*SearchResponse, error) {
+func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}, pageSize, page int) (*SearchResponse, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
 	}
-	return s.search(ctx, buf)
+	return s.search(ctx, buf, pageSize, page)
 }
 
-func (s *ESClient) search(ctx context.Context, body io.Reader) (*SearchResponse, error) {
+func (s *ESClient) search(ctx context.Context, body io.Reader, pageSize, page int) (*SearchResponse, error) {
+	from := (page - 1) * pageSize
 	res, err := s.client.Search(
 		s.client.Search.WithContext(ctx),
 		s.client.Search.WithIndex(s.indexName),
 		s.client.Search.WithBody(body),
-		s.client.Search.WithSize(10),
+		s.client.Search.WithSize(pageSize),
+		s.client.Search.WithFrom(from),
 	)
 	defer res.Body.Close()
 	if err != nil {

@@ -332,6 +332,18 @@ func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) c
 							Ref:     ref("github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1.ClusterAccess"),
 						},
 					},
+					"description": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"displayName": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
 					"finalized": {
 						SchemaProps: spec.SchemaProps{
 							Type:   []string{"boolean"},
@@ -556,6 +568,13 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 						SchemaProps: spec.SchemaProps{
 							Description: "ResynPeriod is the period to resync",
 							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
+						},
+					},
+					"workers": {
+						SchemaProps: spec.SchemaProps{
+							Description: "MaxConcurrent is the maximum number of workers (default: 10)",
+							Type:        []string{"integer"},
+							Format:      "int32",
 						},
 					},
 					"selectors": {
@@ -1095,8 +1114,29 @@ func schema_pkg_apis_search_v1beta1_UniResourceList(ref common.ReferenceCallback
 							},
 						},
 					},
+					"count": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"page": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
+					"pageSize": {
+						SchemaProps: spec.SchemaProps{
+							Default: 0,
+							Type:    []string{"integer"},
+							Format:  "int32",
+						},
+					},
 				},
-				Required: []string{"items"},
+				Required: []string{"items", "count", "page", "pageSize"},
 			},
 		},
 		Dependencies: []string{

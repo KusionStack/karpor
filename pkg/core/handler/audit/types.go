@@ -14,9 +14,14 @@
 
 package audit
 
+import "github.com/KusionStack/karbour/pkg/core/handler"
+
+// Ensure that ClusterPayload implements the handler.Payload interface.
+var _ handler.Payload = &AuditPayload{}
+
 // Payload represents the structure for audit request data. It includes the
 // manifest which is typically a string containing declarative configuration
 // data that needs to be audited.
-type Payload struct {
+type AuditPayload struct {
 	Manifest string `json:"manifest"` // Manifest is the content to be audited.
 }

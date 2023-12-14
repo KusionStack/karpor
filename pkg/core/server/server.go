@@ -108,8 +108,13 @@ func setupAPIV1(
 
 	r.Route("/cluster", func(r chi.Router) {
 		// Define cluster specific routes.
+		r.Route("/", func(r chi.Router) {
+			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
+		})
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
+			r.Put("/", clusterhandler.UpdateMetadata(clusterMgr, genericConfig))
+			r.Delete("/", clusterhandler.Delete(clusterMgr, genericConfig))
 			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, genericConfig))
 			r.Get("/detail", clusterhandler.GetDetail(clusterMgr, genericConfig))
 			r.Get("/topology", clusterhandler.GetTopology(clusterMgr, genericConfig))

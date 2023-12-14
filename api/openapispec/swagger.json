@@ -25,7 +25,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/audit.Payload"
+                            "$ref": "#/definitions/pkg_core_handler_audit.AuditPayload"
                         }
                     }
                 ],
@@ -35,7 +35,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/scanner.Issue"
+                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue"
                             }
                         }
                     },
@@ -93,7 +93,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/audit.Payload"
+                            "$ref": "#/definitions/pkg_core_handler_audit.AuditPayload"
                         }
                     }
                 ],
@@ -101,7 +101,7 @@
                     "200": {
                         "description": "Score calculation result",
                         "schema": {
-                            "$ref": "#/definitions/audit.ScoreData"
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData"
                         }
                     },
                     "400": {
@@ -118,6 +118,77 @@
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cluster": {
+            "post": {
+                "description": "This endpoint creates a new cluster resource using the payload.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Create creates a cluster resource.",
+                "parameters": [
+                    {
+                        "description": "cluster to create (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
                         "schema": {
                             "type": "string"
                         }
@@ -163,7 +234,7 @@
                     "200": {
                         "description": "Returns the content of the uploaded KubeConfig file.",
                         "schema": {
-                            "$ref": "#/definitions/cluster.UploadData"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.UploadData"
                         }
                     },
                     "400": {
@@ -202,7 +273,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cluster.ValidatePayload"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ValidatePayload"
                         }
                     }
                 ],
@@ -245,19 +316,709 @@
                     }
                 }
             }
-        }
-    },
-    "definitions": {
-        "audit.Payload": {
-            "type": "object",
-            "properties": {
-                "manifest": {
-                    "description": "Manifest is the content to be audited.",
-                    "type": "string"
+        },
+        "/api/v1/cluster/{clusterName}": {
+            "get": {
+                "description": "This endpoint returns a cluster resource by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get returns a cluster resource by name.",
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "This endpoint updates the display name and description of an existing cluster resource.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "UpdateMetadata updates the cluster metadata by name.",
+                "parameters": [
+                    {
+                        "description": "cluster to update (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "This endpoint deletes the cluster resource by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Delete removes a cluster resource by name.",
+                "responses": {
+                    "200": {
+                        "description": "Operation status",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 }
             }
         },
-        "audit.ScoreData": {
+        "/api/v1/cluster/{clusterName}/detail": {
+            "get": {
+                "description": "This endpoint returns the details of a cluster by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "GetDetail returns the details of a cluster by name.",
+                "responses": {
+                    "200": {
+                        "description": "Cluster detail",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cluster/{clusterName}/namespace/{namespaceName}": {
+            "get": {
+                "description": "This endpoint returns the namespace by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "GetNamespace returns the namespace by name.",
+                "responses": {
+                    "200": {
+                        "description": "v1.Namespace",
+                        "schema": {
+                            "$ref": "#/definitions/v1.Namespace"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cluster/{clusterName}/namespace/{namespaceName}/topology": {
+            "get": {
+                "description": "This endpoint returns the the topology of a namespace by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "GetNamespaceTopology returns the topology of a namespace by name.",
+                "responses": {
+                    "200": {
+                        "description": "map from string to cluster.ClusterTopology",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cluster/{clusterName}/topology": {
+            "get": {
+                "description": "This endpoint returns the topology of a cluster by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "GetTopology returns the topology of a cluster by name.",
+                "responses": {
+                    "200": {
+                        "description": "map from string to cluster.ClusterTopology",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/cluster/{clusterName}/yaml": {
+            "get": {
+                "description": "This endpoint returns a cluster YAML by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "GetYAML returns a cluster YAML by name.",
+                "responses": {
+                    "200": {
+                        "description": "Byte array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/": {
+            "get": {
+                "description": "This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "Get returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/topology": {
+            "get": {
+                "description": "This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "responses": {
+                    "200": {
+                        "description": "map from string to resource.ResourceTopology",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml": {
+            "get": {
+                "description": "This endpoint returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "GetYAML returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
+                "responses": {
+                    "200": {
+                        "description": "Byte array",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/resource/search": {
+            "get": {
+                "description": "This endpoint returns an array of Kubernetes runtime Object matched using the query from context.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.",
+                "responses": {
+                    "200": {
+                        "description": "Array of runtime.Object",
+                        "schema": {
+                            "type": "array",
+                            "items": {}
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData": {
             "type": "object",
             "properties": {
                 "issuesTotal": {
@@ -281,7 +1042,156 @@
                 }
             }
         },
-        "cluster.UploadData": {
+        "github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterDetail": {
+            "type": "object",
+            "properties": {
+                "cpucapacity": {
+                    "type": "integer"
+                },
+                "memoryCapacity": {
+                    "type": "integer"
+                },
+                "nodeCount": {
+                    "type": "integer"
+                },
+                "podsCapacity": {
+                    "type": "integer"
+                },
+                "serverVersion": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_core_manager_cluster.ClusterTopology": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "groupVersionKind": {
+                    "type": "string"
+                },
+                "relationship": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceTopology": {
+            "type": "object",
+            "properties": {
+                "children": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "identifier": {
+                    "type": "string"
+                },
+                "parents": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_scanner.Issue": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "description": "Message provides a detailed human-readable description of the issue.",
+                    "type": "string"
+                },
+                "scanner": {
+                    "description": "Scanner is the name of the scanner that discovered the issue.",
+                    "type": "string"
+                },
+                "severity": {
+                    "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel"
+                        }
+                    ]
+                },
+                "title": {
+                    "description": "Title is a brief summary of the issue.",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "x-enum-comments": {
+                "Critical": "Critical indicates an extremely serious issue that must be addressed immediately.",
+                "High": "High indicates a serious issue that has a significant impact.",
+                "Low": "Low indicates a minor issue that should be addressed.",
+                "Medium": "Medium indicates a potential issue that may have a moderate impact.",
+                "Safe": "Safe indicates the absence of any security risk or an informational finding that does not require action."
+            },
+            "x-enum-varnames": [
+                "Safe",
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ]
+        },
+        "k8s_io_api_core_v1.ConditionStatus": {
+            "type": "string",
+            "enum": [
+                "True",
+                "False",
+                "Unknown"
+            ],
+            "x-enum-varnames": [
+                "ConditionTrue",
+                "ConditionFalse",
+                "ConditionUnknown"
+            ]
+        },
+        "pkg_core_handler_audit.AuditPayload": {
+            "type": "object",
+            "properties": {
+                "manifest": {
+                    "description": "Manifest is the content to be audited.",
+                    "type": "string"
+                }
+            }
+        },
+        "pkg_core_handler_cluster.ClusterPayload": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "ClusterDescription is the description of cluster to be created",
+                    "type": "string"
+                },
+                "displayName": {
+                    "description": "ClusterDisplayName is the display name of cluster to be created",
+                    "type": "string"
+                },
+                "kubeconfig": {
+                    "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "ClusterName is the name of cluster to be created",
+                    "type": "string"
+                }
+            }
+        },
+        "pkg_core_handler_cluster.UploadData": {
             "type": "object",
             "properties": {
                 "content": {
@@ -295,7 +1205,7 @@
                 }
             }
         },
-        "cluster.ValidatePayload": {
+        "pkg_core_handler_cluster.ValidatePayload": {
             "type": "object",
             "properties": {
                 "kubeConfig": {
@@ -303,23 +1213,315 @@
                 }
             }
         },
-        "scanner.Issue": {
+        "unstructured.Unstructured": {
             "type": "object",
             "properties": {
+                "object": {
+                    "description": "Object is a JSON compatible map with string, float, int, bool, []interface{}, or\nmap[string]interface{}\nchildren.",
+                    "type": "object",
+                    "additionalProperties": true
+                }
+            }
+        },
+        "v1.FieldsV1": {
+            "type": "object"
+        },
+        "v1.FinalizerName": {
+            "type": "string",
+            "enum": [
+                "kubernetes"
+            ],
+            "x-enum-varnames": [
+                "FinalizerKubernetes"
+            ]
+        },
+        "v1.ManagedFieldsEntry": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "description": "APIVersion defines the version of this resource that this field set\napplies to. The format is \"group/version\" just like the top-level\nAPIVersion field. It is necessary to track the version of a field\nset because it cannot be automatically converted.",
+                    "type": "string"
+                },
+                "fieldsType": {
+                    "description": "FieldsType is the discriminator for the different fields format and version.\nThere is currently only one possible value: \"FieldsV1\"",
+                    "type": "string"
+                },
+                "fieldsV1": {
+                    "description": "FieldsV1 holds the first JSON version format as described in the \"FieldsV1\" type.\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.FieldsV1"
+                        }
+                    ]
+                },
+                "manager": {
+                    "description": "Manager is an identifier of the workflow managing these fields.",
+                    "type": "string"
+                },
+                "operation": {
+                    "description": "Operation is the type of operation which lead to this ManagedFieldsEntry being created.\nThe only valid values for this field are 'Apply' and 'Update'.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.ManagedFieldsOperationType"
+                        }
+                    ]
+                },
+                "subresource": {
+                    "description": "Subresource is the name of the subresource used to update that object, or\nempty string if the object was updated through the main resource. The\nvalue of this field is used to distinguish between managers, even if they\nshare the same name. For example, a status update will be distinct from a\nregular update using the same manager name.\nNote that the APIVersion field is not related to the Subresource field and\nit always corresponds to the version of the main resource.",
+                    "type": "string"
+                },
+                "time": {
+                    "description": "Time is the timestamp of when the ManagedFields entry was added. The\ntimestamp will also be updated if a field is added, the manager\nchanges any of the owned fields value or removes a field. The\ntimestamp does not update when a field is removed from the entry\nbecause another manager took it over.\n+optional",
+                    "type": "string"
+                }
+            }
+        },
+        "v1.ManagedFieldsOperationType": {
+            "type": "string",
+            "enum": [
+                "Apply",
+                "Update"
+            ],
+            "x-enum-varnames": [
+                "ManagedFieldsOperationApply",
+                "ManagedFieldsOperationUpdate"
+            ]
+        },
+        "v1.Namespace": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "description": "APIVersion defines the versioned schema of this representation of an object.\nServers should convert recognized schemas to the latest internal value, and\nmay reject unrecognized values.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources\n+optional",
+                    "type": "string"
+                },
+                "kind": {
+                    "description": "Kind is a string value representing the REST resource this object represents.\nServers may infer this from the endpoint the client submits requests to.\nCannot be updated.\nIn CamelCase.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds\n+optional",
+                    "type": "string"
+                },
+                "metadata": {
+                    "description": "Standard object's metadata.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.ObjectMeta"
+                        }
+                    ]
+                },
+                "spec": {
+                    "description": "Spec defines the behavior of the Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.NamespaceSpec"
+                        }
+                    ]
+                },
+                "status": {
+                    "description": "Status describes the current status of a Namespace.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#spec-and-status\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.NamespaceStatus"
+                        }
+                    ]
+                }
+            }
+        },
+        "v1.NamespaceCondition": {
+            "type": "object",
+            "properties": {
+                "lastTransitionTime": {
+                    "description": "+optional",
+                    "type": "string"
+                },
                 "message": {
-                    "description": "Message provides a detailed human-readable description of the issue.",
+                    "description": "+optional",
                     "type": "string"
                 },
-                "scanner": {
-                    "description": "Scanner is the name of the scanner that discovered the issue.",
+                "reason": {
+                    "description": "+optional",
                     "type": "string"
                 },
-                "severity": {
-                    "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
+                "status": {
+                    "description": "Status of the condition, one of True, False, Unknown.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/k8s_io_api_core_v1.ConditionStatus"
+                        }
+                    ]
+                },
+                "type": {
+                    "description": "Type of namespace controller condition.",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.NamespaceConditionType"
+                        }
+                    ]
+                }
+            }
+        },
+        "v1.NamespaceConditionType": {
+            "type": "string",
+            "enum": [
+                "NamespaceDeletionDiscoveryFailure",
+                "NamespaceDeletionContentFailure",
+                "NamespaceDeletionGroupVersionParsingFailure",
+                "NamespaceContentRemaining",
+                "NamespaceFinalizersRemaining"
+            ],
+            "x-enum-varnames": [
+                "NamespaceDeletionDiscoveryFailure",
+                "NamespaceDeletionContentFailure",
+                "NamespaceDeletionGVParsingFailure",
+                "NamespaceContentRemaining",
+                "NamespaceFinalizersRemaining"
+            ]
+        },
+        "v1.NamespacePhase": {
+            "type": "string",
+            "enum": [
+                "Active",
+                "Terminating"
+            ],
+            "x-enum-varnames": [
+                "NamespaceActive",
+                "NamespaceTerminating"
+            ]
+        },
+        "v1.NamespaceSpec": {
+            "type": "object",
+            "properties": {
+                "finalizers": {
+                    "description": "Finalizers is an opaque list of values that must be empty to permanently remove object from storage.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.FinalizerName"
+                    }
+                }
+            }
+        },
+        "v1.NamespaceStatus": {
+            "type": "object",
+            "properties": {
+                "conditions": {
+                    "description": "Represents the latest available observations of a namespace's current state.\n+optional\n+patchMergeKey=type\n+patchStrategy=merge",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.NamespaceCondition"
+                    }
+                },
+                "phase": {
+                    "description": "Phase is the current lifecycle phase of the namespace.\nMore info: https://kubernetes.io/docs/tasks/administer-cluster/namespaces/\n+optional",
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/v1.NamespacePhase"
+                        }
+                    ]
+                }
+            }
+        },
+        "v1.ObjectMeta": {
+            "type": "object",
+            "properties": {
+                "annotations": {
+                    "description": "Annotations is an unstructured key value map stored with a resource that may be\nset by external tools to store and retrieve arbitrary metadata. They are not\nqueryable and should be preserved when modifying objects.\nMore info: http://kubernetes.io/docs/user-guide/annotations\n+optional",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "creationTimestamp": {
+                    "description": "CreationTimestamp is a timestamp representing the server time when this object was\ncreated. It is not guaranteed to be set in happens-before order across separate operations.\nClients may not set this value. It is represented in RFC3339 form and is in UTC.\n\nPopulated by the system.\nRead-only.\nNull for lists.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata\n+optional",
+                    "type": "string"
+                },
+                "deletionGracePeriodSeconds": {
+                    "description": "Number of seconds allowed for this object to gracefully terminate before\nit will be removed from the system. Only set when deletionTimestamp is also set.\nMay only be shortened.\nRead-only.\n+optional",
                     "type": "integer"
                 },
-                "title": {
-                    "description": "Title is a brief summary of the issue.",
+                "deletionTimestamp": {
+                    "description": "DeletionTimestamp is RFC 3339 date and time at which this resource will be deleted. This\nfield is set by the server when a graceful deletion is requested by the user, and is not\ndirectly settable by a client. The resource is expected to be deleted (no longer visible\nfrom resource lists, and not reachable by name) after the time in this field, once the\nfinalizers list is empty. As long as the finalizers list contains items, deletion is blocked.\nOnce the deletionTimestamp is set, this value may not be unset or be set further into the\nfuture, although it may be shortened or the resource may be deleted prior to this time.\nFor example, a user may request that a pod is deleted in 30 seconds. The Kubelet will react\nby sending a graceful termination signal to the containers in the pod. After that 30 seconds,\nthe Kubelet will send a hard termination signal (SIGKILL) to the container and after cleanup,\nremove the pod from the API. In the presence of network partitions, this object may still\nexist after this timestamp, until an administrator or automated process can determine the\nresource is fully terminated.\nIf not set, graceful deletion of the object has not been requested.\n\nPopulated by the system when a graceful deletion is requested.\nRead-only.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#metadata\n+optional",
+                    "type": "string"
+                },
+                "finalizers": {
+                    "description": "Must be empty before the object is deleted from the registry. Each entry\nis an identifier for the responsible component that will remove the entry\nfrom the list. If the deletionTimestamp of the object is non-nil, entries\nin this list can only be removed.\nFinalizers may be processed and removed in any order.  Order is NOT enforced\nbecause it introduces significant risk of stuck finalizers.\nfinalizers is a shared field, any actor with permission can reorder it.\nIf the finalizer list is processed in order, then this can lead to a situation\nin which the component responsible for the first finalizer in the list is\nwaiting for a signal (field value, external system, or other) produced by a\ncomponent responsible for a finalizer later in the list, resulting in a deadlock.\nWithout enforced ordering finalizers are free to order amongst themselves and\nare not vulnerable to ordering changes in the list.\n+optional\n+patchStrategy=merge",
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "generateName": {
+                    "description": "GenerateName is an optional prefix, used by the server, to generate a unique\nname ONLY IF the Name field has not been provided.\nIf this field is used, the name returned to the client will be different\nthan the name passed. This value will also be combined with a unique suffix.\nThe provided value has the same validation rules as the Name field,\nand may be truncated by the length of the suffix required to make the value\nunique on the server.\n\nIf this field is specified and the generated name exists, the server will return a 409.\n\nApplied only if Name is not specified.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#idempotency\n+optional",
+                    "type": "string"
+                },
+                "generation": {
+                    "description": "A sequence number representing a specific generation of the desired state.\nPopulated by the system. Read-only.\n+optional",
+                    "type": "integer"
+                },
+                "labels": {
+                    "description": "Map of string keys and values that can be used to organize and categorize\n(scope and select) objects. May match selectors of replication controllers\nand services.\nMore info: http://kubernetes.io/docs/user-guide/labels\n+optional",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
+                "managedFields": {
+                    "description": "ManagedFields maps workflow-id and version to the set of fields\nthat are managed by that workflow. This is mostly for internal\nhousekeeping, and users typically shouldn't need to set or\nunderstand this field. A workflow can be the user's name, a\ncontroller's name, or the name of a specific apply path like\n\"ci-cd\". The set of fields is always in the version that the\nworkflow used when modifying the object.\n\n+optional",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.ManagedFieldsEntry"
+                    }
+                },
+                "name": {
+                    "description": "Name must be unique within a namespace. Is required when creating resources, although\nsome resources may allow a client to request the generation of an appropriate name\nautomatically. Name is primarily intended for creation idempotence and configuration\ndefinition.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names\n+optional",
+                    "type": "string"
+                },
+                "namespace": {
+                    "description": "Namespace defines the space within which each name must be unique. An empty namespace is\nequivalent to the \"default\" namespace, but \"default\" is the canonical representation.\nNot all objects are required to be scoped to a namespace - the value of this field for\nthose objects will be empty.\n\nMust be a DNS_LABEL.\nCannot be updated.\nMore info: http://kubernetes.io/docs/user-guide/namespaces\n+optional",
+                    "type": "string"
+                },
+                "ownerReferences": {
+                    "description": "List of objects depended by this object. If ALL objects in the list have\nbeen deleted, this object will be garbage collected. If this object is managed by a controller,\nthen an entry in this list will point to this controller, with the controller field set to true.\nThere cannot be more than one managing controller.\n+optional\n+patchMergeKey=uid\n+patchStrategy=merge",
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/v1.OwnerReference"
+                    }
+                },
+                "resourceVersion": {
+                    "description": "An opaque value that represents the internal version of this object that can\nbe used by clients to determine when objects have changed. May be used for optimistic\nconcurrency, change detection, and the watch operation on a resource or set of resources.\nClients must treat these values as opaque and passed unmodified back to the server.\nThey may only be valid for a particular resource or set of resources.\n\nPopulated by the system.\nRead-only.\nValue must be treated as opaque by clients and .\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#concurrency-control-and-consistency\n+optional",
+                    "type": "string"
+                },
+                "selfLink": {
+                    "description": "Deprecated: selfLink is a legacy read-only field that is no longer populated by the system.\n+optional",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "UID is the unique in time and space value for this object. It is typically generated by\nthe server on successful creation of a resource and is not allowed to change on PUT\noperations.\n\nPopulated by the system.\nRead-only.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#uids\n+optional",
+                    "type": "string"
+                }
+            }
+        },
+        "v1.OwnerReference": {
+            "type": "object",
+            "properties": {
+                "apiVersion": {
+                    "description": "API version of the referent.",
+                    "type": "string"
+                },
+                "blockOwnerDeletion": {
+                    "description": "If true, AND if the owner has the \"foregroundDeletion\" finalizer, then\nthe owner cannot be deleted from the key-value store until this\nreference is removed.\nSee https://kubernetes.io/docs/concepts/architecture/garbage-collection/#foreground-deletion\nfor how the garbage collector interacts with this field and enforces the foreground deletion.\nDefaults to false.\nTo set this field, a user needs \"delete\" permission of the owner,\notherwise 422 (Unprocessable Entity) will be returned.\n+optional",
+                    "type": "boolean"
+                },
+                "controller": {
+                    "description": "If true, this reference points to the managing controller.\n+optional",
+                    "type": "boolean"
+                },
+                "kind": {
+                    "description": "Kind of the referent.\nMore info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+                    "type": "string"
+                },
+                "name": {
+                    "description": "Name of the referent.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#names",
+                    "type": "string"
+                },
+                "uid": {
+                    "description": "UID of the referent.\nMore info: http://kubernetes.io/docs/user-guide/identifiers#uids",
                     "type": "string"
                 }
             }

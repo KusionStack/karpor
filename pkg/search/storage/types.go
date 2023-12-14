@@ -39,7 +39,7 @@ type Query struct {
 }
 
 type SearchStorage interface {
-	Search(ctx context.Context, queryString, patternType string) (*SearchResult, error)
+	Search(ctx context.Context, queryString, patternType string, pageSize, page int) (*SearchResult, error)
 }
 
 type SearchStorageGetter interface {

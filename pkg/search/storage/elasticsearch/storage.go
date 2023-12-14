@@ -49,7 +49,7 @@ func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
 	}
 
 	query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-	sr, err := s.searchByQuery(ctx, query)
+	sr, err := s.searchByQuery(ctx, query, 10, 0)
 	if err != nil {
 		return err
 	}

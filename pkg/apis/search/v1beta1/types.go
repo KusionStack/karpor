@@ -233,4 +233,7 @@ type UniResource struct {
 type UniResourceList struct {
 	metav1.TypeMeta `json:",inline"`
 	Items           []runtime.RawExtension `json:"items"`
+	Total           int                    `json:"count"`
+	CurrentPage     int                    `json:"page"`
+	PageSize        int                    `json:"pageSize"`
 }

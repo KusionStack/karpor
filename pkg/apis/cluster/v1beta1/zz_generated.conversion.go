@@ -209,7 +209,17 @@ func Convert_cluster_ClusterAccessCredential_To_v1beta1_ClusterAccessCredential(
 
 func autoConvert_v1beta1_ClusterList_To_cluster_ClusterList(in *ClusterList, out *cluster.ClusterList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]cluster.Cluster)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]cluster.Cluster, len(*in))
+		for i := range *in {
+			if err := Convert_v1beta1_Cluster_To_cluster_Cluster(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -220,7 +230,17 @@ func Convert_v1beta1_ClusterList_To_cluster_ClusterList(in *ClusterList, out *cl
 
 func autoConvert_cluster_ClusterList_To_v1beta1_ClusterList(in *cluster.ClusterList, out *ClusterList, s conversion.Scope) error {
 	out.ListMeta = in.ListMeta
-	out.Items = *(*[]Cluster)(unsafe.Pointer(&in.Items))
+	if in.Items != nil {
+		in, out := &in.Items, &out.Items
+		*out = make([]Cluster, len(*in))
+		for i := range *in {
+			if err := Convert_cluster_Cluster_To_v1beta1_Cluster(&(*in)[i], &(*out)[i], s); err != nil {
+				return err
+			}
+		}
+	} else {
+		out.Items = nil
+	}
 	return nil
 }
 
@@ -272,6 +292,8 @@ func autoConvert_v1beta1_ClusterSpec_To_cluster_ClusterSpec(in *ClusterSpec, out
 	if err := Convert_v1beta1_ClusterAccess_To_cluster_ClusterAccess(&in.Access, &out.Access, s); err != nil {
 		return err
 	}
+	out.Description = in.Description
+	out.DisplayName = in.DisplayName
 	out.Finalized = (*bool)(unsafe.Pointer(in.Finalized))
 	return nil
 }
@@ -283,6 +305,8 @@ func Convert_v1beta1_ClusterSpec_To_cluster_ClusterSpec(in *ClusterSpec, out *cl
 
 func autoConvert_cluster_ClusterSpec_To_v1beta1_ClusterSpec(in *cluster.ClusterSpec, out *ClusterSpec, s conversion.Scope) error {
 	out.Provider = in.Provider
+	out.Description = in.Description
+	out.DisplayName = in.DisplayName
 	if err := Convert_cluster_ClusterAccess_To_v1beta1_ClusterAccess(&in.Access, &out.Access, s); err != nil {
 		return err
 	}

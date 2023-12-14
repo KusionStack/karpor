@@ -47,11 +47,7 @@ func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.
 	if err != nil {
 		return nil, err
 	}
-	obj, err := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
-	if err != nil {
-		return nil, err
-	}
-	return obj, nil
+	return client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
@@ -60,11 +56,7 @@ func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 	if err != nil {
 		return nil, err
 	}
-	objYAML, err := yaml.Marshal(obj.Object)
-	if err != nil {
-		return nil, err
-	}
-	return objYAML, nil
+	return yaml.Marshal(obj.Object)
 }
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster

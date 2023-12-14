@@ -291,6 +291,7 @@ func autoConvert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(in *Resourc
 	out.Resource = in.Resource
 	out.Namespace = in.Namespace
 	out.ResyncPeriod = (*v1.Duration)(unsafe.Pointer(in.ResyncPeriod))
+	out.MaxConcurrent = in.MaxConcurrent
 	out.Selectors = *(*[]search.Selector)(unsafe.Pointer(&in.Selectors))
 	out.Transform = (*search.TransformRuleSpec)(unsafe.Pointer(in.Transform))
 	out.TransformRefName = in.TransformRefName
@@ -307,6 +308,7 @@ func autoConvert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(in *search.
 	out.Resource = in.Resource
 	out.Namespace = in.Namespace
 	out.ResyncPeriod = (*v1.Duration)(unsafe.Pointer(in.ResyncPeriod))
+	out.MaxConcurrent = in.MaxConcurrent
 	out.Selectors = *(*[]Selector)(unsafe.Pointer(&in.Selectors))
 	out.Transform = (*TransformRuleSpec)(unsafe.Pointer(in.Transform))
 	out.TransformRefName = in.TransformRefName
@@ -630,6 +632,9 @@ func autoConvert_v1beta1_UniResourceList_To_search_UniResourceList(in *UniResour
 	} else {
 		out.Items = nil
 	}
+	out.Total = in.Total
+	out.CurrentPage = in.CurrentPage
+	out.PageSize = in.PageSize
 	return nil
 }
 
@@ -650,6 +655,9 @@ func autoConvert_search_UniResourceList_To_v1beta1_UniResourceList(in *search.Un
 	} else {
 		out.Items = nil
 	}
+	out.Total = in.Total
+	out.CurrentPage = in.CurrentPage
+	out.PageSize = in.PageSize
 	return nil
 }
 
