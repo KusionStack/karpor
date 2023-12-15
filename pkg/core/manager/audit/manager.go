@@ -65,8 +65,11 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*Audit
 	pageIteration := 1
 
 	if auditData, exist := m.c.Get(*locator); exist {
+		log.Info("Cache hit for locator", "locator", locator)
 		return auditData, nil
 	} else {
+		log.Info("Cache miss for locator", "locator", locator)
+
 		var allIssues []*scanner.Issue
 		for {
 			log.Info("Starting search in AuditManager ...",
@@ -99,6 +102,8 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*Audit
 
 		data := NewAuditData(allIssues, total)
 		m.c.Set(*locator, data)
+		log.Info("Added data to cache for locator", "locator", locator)
+
 		return data, nil
 	}
 }
