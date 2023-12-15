@@ -24,10 +24,10 @@ import (
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
-	yaml "gopkg.in/yaml.v3"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 type ResourceManager struct {
@@ -56,7 +56,7 @@ func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 	if err != nil {
 		return nil, err
 	}
-	return yaml.Marshal(obj.Object)
+	return k8syaml.Marshal(obj.Object)
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
