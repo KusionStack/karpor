@@ -19,8 +19,6 @@ import (
 	"strings"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/registry"
-	"github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/scanner/kubeaudit"
 	"github.com/KusionStack/karbour/pkg/search/storage"
@@ -35,24 +33,9 @@ type AuditManager struct {
 }
 
 // NewAuditManager initializes a new instance of AuditManager with a KubeScanner.
-func NewAuditManager(c *registry.ExtraConfig) (*AuditManager, error) {
+func NewAuditManager(searchStorage storage.SearchStorage) (*AuditManager, error) {
 	// Create a new Kubernetes scanner instance.
 	kubeauditScanner, err := kubeaudit.Default()
-	if err != nil {
-		return nil, err
-	}
-
-	storage := search.RESTStorageProvider{
-		SearchStorageType:      c.SearchStorageType,
-		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchName,
-		ElasticSearchPassword:  c.ElasticSearchPassword,
-	}
-	searchStorageGetter, err := storage.SearchStorageGetter()
-	if err != nil {
-		return nil, err
-	}
-	searchStorage, err := searchStorageGetter.GetSearchStorage()
 	if err != nil {
 		return nil, err
 	}
