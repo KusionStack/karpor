@@ -44,48 +44,51 @@ type Cluster struct {
 
 // ClusterList is a list of Cluster objects.
 type ClusterList struct {
-	metav1.TypeMeta
-	metav1.ListMeta
+	metav1.TypeMeta `json:",inline"`
+	metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []Cluster
+	Items []Cluster `json:"items"`
 }
 
 type ClusterSpec struct {
-	Provider    string
-	Description string
-	DisplayName string
-	Access      ClusterAccess
-	Finalized   *bool
+	Provider string        `json:"provider"`
+	Access   ClusterAccess `json:"access"`
+	// +optional
+	Description string `json:"description,omitempty"`
+	DisplayName string `json:"displayName,omitempty"`
+	Finalized   *bool  `json:"finalized,omitempty"`
 }
 
 type ClusterStatus struct {
-	Healthy bool
+	Healthy bool `json:"healthy,omitempty"`
 }
 
 type ClusterAccess struct {
-	Endpoint   string
-	CABundle   []byte
-	Insecure   *bool
-	Credential *ClusterAccessCredential
+	Endpoint string `json:"endpoint"`
+	// +optional
+	CABundle   []byte                   `json:"caBundle,omitempty"`
+	Insecure   *bool                    `json:"insecure,omitempty"`
+	Credential *ClusterAccessCredential `json:"credential,omitempty"`
 }
 
 type ClusterAccessCredential struct {
-	Type                CredentialType
-	ServiceAccountToken string
-	X509                *X509
+	Type CredentialType `json:"type"`
+	// +optional
+	ServiceAccountToken string `json:"serviceAccountToken,omitempty"`
+	X509                *X509  `json:"x509,omitempty"`
 }
 
 type X509 struct {
-	Certificate []byte
-	PrivateKey  []byte
+	Certificate []byte `json:"certificate"`
+	PrivateKey  []byte `json:"privateKey"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type ClusterProxyOptions struct {
-	metav1.TypeMeta
+	metav1.TypeMeta `json:",inline"`
 
 	// Path is the target api path of the proxy request.
 	// e.g. "/healthz", "/api/v1"
-	Path string
+	Path string `json:"path,omitempty"`
 }
