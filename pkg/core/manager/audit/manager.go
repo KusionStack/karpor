@@ -17,6 +17,7 @@ package audit
 import (
 	"context"
 	"strings"
+	"time"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/scanner"
@@ -30,10 +31,13 @@ import (
 type AuditManager struct {
 	ks scanner.KubeScanner
 	ss storage.SearchStorage
+	c  *Cache
 }
 
 // NewAuditManager initializes a new instance of AuditManager with a KubeScanner.
 func NewAuditManager(searchStorage storage.SearchStorage) (*AuditManager, error) {
+	const defaultExpiration = 30 * time.Minute
+
 	// Create a new Kubernetes scanner instance.
 	kubeauditScanner, err := kubeaudit.Default()
 	if err != nil {
@@ -43,6 +47,7 @@ func NewAuditManager(searchStorage storage.SearchStorage) (*AuditManager, error)
 	return &AuditManager{
 		ks: kubeauditScanner,
 		ss: searchStorage,
+		c:  NewCache(defaultExpiration),
 	}, nil
 }
 
@@ -56,40 +61,46 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*Audit
 	var total int
 	searchQuery := locator.ToSQL()
 	searchPattern := storage.SQLPatternType
-	searchPageSize := 100
-	searchPage := 1
+	pageSizeIteration := 100
+	pageIteration := 1
 
-	var allIssues []*scanner.Issue
-	for {
-		log.Info("Starting search in AuditManager ...",
-			"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", searchPageSize, "searchPage", searchPage)
+	if auditData, exist := m.c.Get(*locator); exist {
+		return auditData, nil
+	} else {
+		var allIssues []*scanner.Issue
+		for {
+			log.Info("Starting search in AuditManager ...",
+				"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
-		res, err := m.ss.Search(ctx, searchQuery, searchPattern, searchPageSize, searchPage)
-		if err != nil {
-			return nil, err
+			res, err := m.ss.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+			if err != nil {
+				return nil, err
+			}
+			total = res.Total
+
+			log.Info("Finish current search", "overview", res.Overview())
+
+			manifests, err := res.ToYAML()
+			if err != nil {
+				return nil, err
+			}
+
+			issues, err := m.ks.ScanManifest(ctx, strings.NewReader(manifests))
+			if err != nil {
+				return nil, err
+			}
+			allIssues = append(allIssues, issues...)
+
+			if len(res.Resources) < pageSizeIteration {
+				break
+			}
+			pageIteration++
 		}
-		total = res.Total
 
-		log.Info("Finish current search", "overview", res.Overview())
-
-		manifests, err := res.ToYAML()
-		if err != nil {
-			return nil, err
-		}
-
-		issues, err := m.ks.ScanManifest(ctx, strings.NewReader(manifests))
-		if err != nil {
-			return nil, err
-		}
-		allIssues = append(allIssues, issues...)
-
-		if len(res.Resources) < searchPageSize {
-			break
-		}
-		searchPage++
+		data := NewAuditData(allIssues, total)
+		m.c.Set(*locator, data)
+		return data, nil
 	}
-
-	return NewAuditData(allIssues, total), nil
 }
 
 // Audit performs a security audit on the provided manifest, returning a list
