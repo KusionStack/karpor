@@ -30,6 +30,8 @@ import (
 	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
+	"github.com/KusionStack/karbour/pkg/registry/search"
+	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpswagger "github.com/swaggo/http-swagger"
@@ -51,7 +53,11 @@ func NewCoreServer(
 	router.Use(appmiddleware.Timing)
 	router.Use(middleware.Recoverer)
 
-	// Initialize managers for the different core components of the API.
+	// Initialize managers, storage for the different core components of the API.
+	searchStorage, err := search.NewSearchStorage(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
 	configMgr := config.NewManager(&config.Config{
 		Verbose: false,
 	})
@@ -61,7 +67,7 @@ func NewCoreServer(
 	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
 		Verbose: false,
 	})
-	auditMgr, err := auditmanager.NewAuditManager(extraConfig)
+	auditMgr, err := auditmanager.NewAuditManager(searchStorage)
 	if err != nil {
 		return nil, err
 	}
@@ -74,7 +80,7 @@ func NewCoreServer(
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, auditMgr, genericConfig, extraConfig)
+		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, auditMgr, searchStorage, genericConfig)
 	})
 
 	// Endpoint to list all available endpoints in the router.
@@ -95,8 +101,8 @@ func setupAPIV1(
 	clusterMgr *clustermanager.ClusterManager,
 	resourceMgr *resourcemanager.ResourceManager,
 	auditMgr *auditmanager.AuditManager,
+	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
-	extraConfig *registry.ExtraConfig,
 ) {
 	// Define API routes for 'config', 'cluster', 'resource', and 'audit', etc.
 	r.Route("/config", func(r chi.Router) {
@@ -128,7 +134,7 @@ func setupAPIV1(
 
 	r.Route("/resource", func(r chi.Router) {
 		r.Route("/search", func(r chi.Router) {
-			r.Get("/", resourcehandler.SearchForResource(resourceMgr, extraConfig))
+			r.Get("/", resourcehandler.SearchForResource(resourceMgr, searchStorage))
 		})
 		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
 			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))

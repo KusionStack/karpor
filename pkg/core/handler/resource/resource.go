@@ -21,8 +21,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/resource"
 	"github.com/KusionStack/karbour/pkg/multicluster"
-	"github.com/KusionStack/karbour/pkg/registry"
-	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
+	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
@@ -157,7 +156,7 @@ func GetTopology(resourceMgr *resource.ResourceManager, c *server.CompletedConfi
 //	@Failure      429  {string}  string          "Too Many Requests"
 //	@Failure      500  {string}  string          "Internal Server Error"
 //	@Router       /api/v1/resource/search [get]
-func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraConfig) http.HandlerFunc {
+func SearchForResource(resourceMgr *resource.ResourceManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -177,20 +176,6 @@ func SearchForResource(resourceMgr *resource.ResourceManager, c *registry.ExtraC
 
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
-		storage := searchstorage.RESTStorageProvider{
-			SearchStorageType:      c.SearchStorageType,
-			ElasticSearchAddresses: c.ElasticSearchAddresses,
-			ElasticSearchName:      c.ElasticSearchName,
-			ElasticSearchPassword:  c.ElasticSearchPassword,
-		}
-		searchStorageGetter, err := storage.SearchStorageGetter()
-		if err != nil {
-			return
-		}
-		searchStorage, err := searchStorageGetter.GetSearchStorage()
-		if err != nil {
-			return
-		}
 		res, err := searchStorage.Search(r.Context(), searchQuery, searchPattern, searchPageSize, searchPage)
 		if err != nil {
 			return
