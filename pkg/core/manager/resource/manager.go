@@ -41,7 +41,7 @@ func NewResourceManager(config *ResourceConfig) *ResourceManager {
 	}
 }
 
-// GetCluster returns the unstructured cluster object for a given cluster
+// GetResource returns the unstructured cluster object for a given cluster
 func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
 	if err != nil {
@@ -50,7 +50,7 @@ func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.
 	return client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
 }
 
-// GetYAMLForCluster returns the yaml byte array for a given cluster
+// GetYAMLForResource returns the yaml byte array for a given cluster
 func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
 	obj, err := c.GetResource(ctx, client, res)
 	if err != nil {
@@ -59,7 +59,7 @@ func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 	return yaml.Marshal(obj.Object)
 }
 
-// GetTopologyForCluster returns a map that describes topology for a given cluster
+// GetTopologyForResource returns a map that describes topology for a given cluster
 func (c *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 

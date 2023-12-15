@@ -165,8 +165,7 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 	if err != nil {
 		return nil, err
 	}
-	sanitized, _ := SanitizeUnstructuredCluster(ctx, obj)
-	return yaml.Marshal(sanitized)
+	return yaml.Marshal(obj)
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
