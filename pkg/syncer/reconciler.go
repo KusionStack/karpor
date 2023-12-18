@@ -299,7 +299,7 @@ func isMatched(registry *searchv1beta1.SyncRegistry, cluster *clusterv1beta1.Clu
 
 func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.ResourceSyncRule, error) {
 	if rsr.TransformRefName == "" {
-		return rsr, nil
+		return rsr.DeepCopy(), nil
 	}
 	if rsr.Transform != nil {
 		return nil, fmt.Errorf("specify both Transform and TransformRefName in ResourceSyncRule is not allowed")
