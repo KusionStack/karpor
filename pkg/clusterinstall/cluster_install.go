@@ -35,11 +35,12 @@ func ConvertKubeconfigToCluster(name, description, displayName string, cfg *rest
 		cluster.Spec.DisplayName = name
 	}
 	access := clusterv1beta1.ClusterAccess{}
-	if cfg.Insecure {
+	if !cfg.Insecure {
 		access.CABundle = cfg.CAData
 	} else {
 		access.Insecure = &cfg.Insecure
 	}
+	access.Endpoint = cfg.Host
 	credential := &clusterv1beta1.ClusterAccessCredential{}
 	if cfg.KeyData != nil && cfg.CertData != nil {
 		credential.Type = clusterv1beta1.CredentialTypeX509Certificate
