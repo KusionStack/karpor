@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"net"
 	"net/url"
+	"sort"
 	"strings"
 	"time"
 
@@ -126,4 +127,27 @@ func SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unst
 		sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
 	}
 	return sanitized, nil
+}
+
+// SortUnstructuredList returns a sorted unstructured.UnstructuredList based on criteria
+func SortUnstructuredList(unList *unstructured.UnstructuredList, criteria SortCriteria, descending bool) (*unstructured.UnstructuredList, error) {
+	switch criteria {
+	case ByTimestamp:
+		sort.Slice(unList.Items, func(i, j int) bool {
+			if descending {
+				return unList.Items[i].GetCreationTimestamp().UTC().After(unList.Items[j].GetCreationTimestamp().UTC())
+			} else {
+				return unList.Items[i].GetCreationTimestamp().UTC().Before(unList.Items[j].GetCreationTimestamp().UTC())
+			}
+		})
+	case ByName:
+		sort.Slice(unList.Items, func(i, j int) bool {
+			if descending {
+				return unList.Items[i].GetName() > unList.Items[j].GetName()
+			} else {
+				return unList.Items[i].GetName() < unList.Items[j].GetName()
+			}
+		})
+	}
+	return unList, nil
 }

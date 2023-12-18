@@ -31,6 +31,13 @@ var (
 	ErrGetServerVersion            = errors.New("failed to connect to the cluster")
 )
 
+type SortCriteria int
+
+const (
+	ByTimestamp SortCriteria = iota
+	ByName
+)
+
 type Config struct {
 	Verbose bool `json:"verbose"`
 }
@@ -47,6 +54,12 @@ type ClusterDetail struct {
 	MemoryCapacity int64
 	CPUCapacity    int64
 	PodsCapacity   int64
+}
+
+type ClusterSummary struct {
+	TotalCount     int
+	HealthyCount   int
+	UnhealthyCount int
 }
 
 // KubeConfig represents the structure of a kubeconfig file

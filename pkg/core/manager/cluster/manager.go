@@ -33,6 +33,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	k8syaml "sigs.k8s.io/yaml"
 )
@@ -52,7 +53,7 @@ func NewClusterManager(config *Config) *ClusterManager {
 func (c *ClusterManager) GetCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	obj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
-	if err != nil && !errors.IsNotFound(err) {
+	if err != nil {
 		return nil, err
 	}
 	return SanitizeUnstructuredCluster(ctx, obj)
@@ -145,8 +146,8 @@ func (c *ClusterManager) DeleteCluster(ctx context.Context, client *multicluster
 	return client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
 }
 
-// DeleteCluster deletes the cluster by name
-func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.MultiClusterClient) (*unstructured.UnstructuredList, error) {
+// List returns the full list of clusters in a specific order
+func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.MultiClusterClient, orderBy SortCriteria, descending bool) (*unstructured.UnstructuredList, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	clusterList, err := client.DynamicClient.Resource(clusterGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -157,7 +158,37 @@ func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.M
 		sanitized, _ := SanitizeUnstructuredCluster(ctx, &cluster)
 		sanitizedClusterList.Items = append(sanitizedClusterList.Items, *sanitized)
 	}
-	return sanitizedClusterList, nil
+	return SortUnstructuredList(sanitizedClusterList, orderBy, descending)
+}
+
+// CountCluster returns the summary of clusters by their health status
+func (c *ClusterManager) CountCluster(ctx context.Context, client *multicluster.MultiClusterClient, config *rest.Config) (*ClusterSummary, error) {
+	clusterSummary := &ClusterSummary{}
+	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
+	clusterList, err := client.DynamicClient.Resource(clusterGVR).List(ctx, metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	clusterSummary.TotalCount = len(clusterList.Items)
+	for _, cluster := range clusterList.Items {
+		spokeClient, err := multicluster.BuildMultiClusterClient(ctx, config, cluster.GetName())
+		if err != nil {
+			return nil, err
+		}
+		// Check the health of the API server by querying the /healthz endpoint
+		var statusCode int
+		if err = spokeClient.ClientSet.RESTClient().
+			Get().
+			AbsPath("/healthz").
+			Do(context.Background()).
+			StatusCode(&statusCode).
+			Error(); err != nil || statusCode != 200 {
+			clusterSummary.UnhealthyCount++
+		} else {
+			clusterSummary.HealthyCount++
+		}
+	}
+	return clusterSummary, nil
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster

@@ -18,6 +18,7 @@ import (
 	"io"
 	"net/http"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
@@ -177,13 +178,31 @@ func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Ha
 		logger := ctxutil.GetLogger(ctx)
 		logger.Info("Listing clusters...")
 
+		orderBy := r.URL.Query().Get("orderBy")
+		descending, _ := strconv.ParseBool(r.URL.Query().Get("descending"))
+		summary, _ := strconv.ParseBool(r.URL.Query().Get("summary"))
+
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		clusterList, err := clusterMgr.ListCluster(r.Context(), client)
-		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
-			return
+
+		if summary {
+			clusterSummary, err := clusterMgr.CountCluster(r.Context(), client, c.LoopbackClientConfig)
+			if err != nil {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
+			render.JSON(w, r, handler.SuccessResponse(ctx, clusterSummary))
+		} else {
+			criteria, ok := sortCriteriaMap[orderBy]
+			if !ok {
+				criteria = cluster.ByName
+			}
+			clusterList, err := clusterMgr.ListCluster(r.Context(), client, criteria, descending)
+			if err != nil {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
+			render.JSON(w, r, handler.SuccessResponse(ctx, clusterList))
 		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, clusterList))
 	}
 }
 
