@@ -203,10 +203,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 			exist = false
 		}
 		if !exist {
-			if err := s.startResource(ctx, gvr, rsr); err != nil {
-				merr = multierr.Append(merr, fmt.Errorf("error starting syncing resource, gvr: %v, err: %v", gvr, err))
-				continue
-			}
+			s.startResource(ctx, gvr, rsr)
 		}
 	}
 
@@ -224,7 +221,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 	return merr
 }
 
-func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) error {
+func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
 
@@ -244,11 +241,11 @@ func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema
 		},
 	})
 
-	err := make(chan error)
 	s.wg.StartWithContext(s.ctx, func(ctx context.Context) {
-		err <- syncer.Run(ctx)
+		if err := syncer.Run(ctx); err != nil {
+			s.logger.Error(err, "failed to start syncer", "gvr", gvr)
+		}
 	})
-	return <-err
 }
 
 func (s *singleClusterSyncManager) stopResource(ctx context.Context, syncer *ResourceSyncer) error {
