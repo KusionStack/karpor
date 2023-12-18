@@ -34,6 +34,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/clientcmd"
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 type ClusterManager struct {
@@ -165,7 +166,7 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 	if err != nil {
 		return nil, err
 	}
-	return yaml.Marshal(obj)
+	return k8syaml.Marshal(obj)
 }
 
 // GetYAMLForCluster returns the yaml byte array for a given cluster
