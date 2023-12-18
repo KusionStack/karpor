@@ -12,63 +12,68 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package audit
+package cache
 
 import (
 	"sync"
 	"time"
-
-	"github.com/KusionStack/karbour/pkg/core"
 )
 
-// Cache manages the caching of AuditData based on core.Locator keys with
+// Cache manages the caching of items based on keys with
 // expiration time for cached items.
-type Cache struct {
-	cache      map[core.Locator]*CacheItem
+type Cache[K comparable, V any] struct {
+	cache      map[K]*CacheItem[V]
 	mu         sync.RWMutex
 	expiration time.Duration
 }
 
-// CacheItem represents an item stored in the cache along with its expiration time.
-type CacheItem struct {
-	Data       *AuditData
+// CacheItem represents an item stored in the cache along with its expiration
+// time.
+type CacheItem[V any] struct {
+	Data       V
 	ExpiryTime time.Time
 }
 
 // NewCache creates a new Cache instance with a specified expiration time.
-func NewCache(expiration time.Duration) *Cache {
-	return &Cache{
-		cache:      make(map[core.Locator]*CacheItem),
+func NewCache[K comparable, V any](expiration time.Duration) *Cache[K, V] {
+	return &Cache[K, V]{
+		cache:      make(map[K]*CacheItem[V]),
 		expiration: expiration,
 	}
 }
 
-// Get retrieves an item from the cache based on the provided locator. It returns
-// the AuditData and a boolean indicating if the data exists and hasn't expired.
-func (c *Cache) Get(locator core.Locator) (*AuditData, bool) {
+// Get retrieves an item from the cache based on the provided key. It returns
+// the data and a boolean indicating if the data exists and hasn't expired.
+func (c *Cache[K, V]) Get(key K) (V, bool) {
 	c.mu.RLock()
 	defer c.mu.RUnlock()
 
-	item, exist := c.cache[locator]
+	item, exist := c.cache[key]
 	if !exist {
-		return nil, false
+		return zeroValue[V](), false
 	}
 
 	if time.Now().After(item.ExpiryTime) {
-		delete(c.cache, locator)
-		return nil, false
+		delete(c.cache, key)
+		return zeroValue[V](), false
 	}
 
 	return item.Data, true
 }
 
-// Set adds or updates an item in the cache with the provided locator and AuditData.
-func (c *Cache) Set(locator core.Locator, data *AuditData) {
+// Set adds or updates an item in the cache with the provided key and data.
+func (c *Cache[K, V]) Set(key K, data V) {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
-	c.cache[locator] = &CacheItem{
+	c.cache[key] = &CacheItem[V]{
 		Data:       data,
 		ExpiryTime: time.Now().Add(c.expiration),
 	}
+}
+
+// zeroValue returns the zero value of type V.
+func zeroValue[V any]() V {
+	var zero V
+	return zero
 }

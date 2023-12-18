@@ -23,6 +23,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/scanner/kubeaudit"
 	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 )
 
@@ -31,7 +32,7 @@ import (
 type AuditManager struct {
 	ks scanner.KubeScanner
 	ss storage.SearchStorage
-	c  *Cache
+	c  *cache.Cache[core.Locator, *AuditData]
 }
 
 // NewAuditManager initializes a new instance of AuditManager with a KubeScanner.
@@ -47,7 +48,7 @@ func NewAuditManager(searchStorage storage.SearchStorage) (*AuditManager, error)
 	return &AuditManager{
 		ks: kubeauditScanner,
 		ss: searchStorage,
-		c:  NewCache(defaultExpiration),
+		c:  cache.NewCache[core.Locator, *AuditData](defaultExpiration),
 	}, nil
 }
 
