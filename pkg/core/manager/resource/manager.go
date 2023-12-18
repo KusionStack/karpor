@@ -42,7 +42,7 @@ func NewResourceManager(config *ResourceConfig) *ResourceManager {
 }
 
 // GetResource returns the unstructured cluster object for a given cluster
-func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
+func (r *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
 	if err != nil {
 		return nil, err
@@ -50,9 +50,30 @@ func (c *ResourceManager) GetResource(ctx context.Context, client *multicluster.
 	return client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
 }
 
+// GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
+func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*ResourceSummary, error) {
+	obj, err := r.GetResource(ctx, client, res)
+	if err != nil {
+		return nil, err
+	}
+
+	return &ResourceSummary{
+		Resource: Resource{
+			Name:       obj.GetName(),
+			Namespace:  obj.GetNamespace(),
+			APIVersion: obj.GetAPIVersion(),
+			Cluster:    res.Cluster,
+			Kind:       obj.GetKind(),
+		},
+		CreationTimestamp: obj.GetCreationTimestamp(),
+		ResourceVersion:   obj.GetResourceVersion(),
+		UID:               obj.GetUID(),
+	}, nil
+}
+
 // GetYAMLForResource returns the yaml byte array for a given cluster
-func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
-	obj, err := c.GetResource(ctx, client, res)
+func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
+	obj, err := r.GetResource(ctx, client, res)
 	if err != nil {
 		return nil, err
 	}
@@ -60,7 +81,7 @@ func (c *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
-func (c *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
+func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Build relationship graph based on GVK
@@ -85,7 +106,7 @@ func (c *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 	unObj.SetUnstructuredContent(resObj.Object)
 
 	// Build resource graph for target resource
-	g, err = c.GetResourceRelationship(ctx, client, *unObj, rg, g)
+	g, err = r.GetResourceRelationship(ctx, client, *unObj, rg, g)
 	if err != nil {
 		return nil, err
 	}
@@ -95,11 +116,11 @@ func (c *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 	file, _ := os.Create("./resource.gv")
 	_ = draw.DOT(g, file)
 
-	return c.ConvertResourceGraphToMap(g), nil
+	return r.ConvertResourceGraphToMap(g), nil
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
-func (c *ResourceManager) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
+func (r *ResourceManager) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, relationship.RelationshipGraphNode], resourceGraph graph.Graph[string, relationship.ResourceGraphNode]) (graph.Graph[string, relationship.ResourceGraphNode], error) {
 	var err error
 	namespace := obj.GetNamespace()
 	objName := obj.GetName()
@@ -134,7 +155,7 @@ func (c *ResourceManager) GetResourceRelationship(ctx context.Context, client *m
 	return resourceGraph, nil
 }
 
-func (c *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relationship.ResourceGraphNode]) map[string]ResourceTopology {
+func (r *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relationship.ResourceGraphNode]) map[string]ResourceTopology {
 	am, _ := g.AdjacencyMap()
 	m := make(map[string]ResourceTopology)
 	for key, edgeMap := range am {

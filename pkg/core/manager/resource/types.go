@@ -17,6 +17,7 @@ package resource
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 type ResourceConfig struct {
@@ -29,6 +30,13 @@ type Resource struct {
 	APIVersion string
 	Kind       string
 	Cluster    string
+}
+
+type ResourceSummary struct {
+	Resource          Resource
+	CreationTimestamp metav1.Time
+	ResourceVersion   string
+	UID               types.UID
 }
 
 type ResourceTopology struct {
