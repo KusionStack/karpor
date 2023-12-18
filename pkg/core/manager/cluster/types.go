@@ -43,23 +43,23 @@ type Config struct {
 }
 
 type ClusterTopology struct {
-	GroupVersionKind string
-	Count            int
-	Relationship     map[string]string
+	GroupVersionKind string            `json:"groupVersionKind"`
+	Count            int               `json:"count"`
+	Relationship     map[string]string `json:"relationship"`
 }
 
 type ClusterDetail struct {
-	NodeCount      int
-	ServerVersion  string
-	MemoryCapacity int64
-	CPUCapacity    int64
-	PodsCapacity   int64
+	NodeCount      int    `json:"nodeCount"`
+	ServerVersion  string `json:"serverVersion"`
+	MemoryCapacity int64  `json:"memoryCapacity"`
+	CPUCapacity    int64  `json:"cpuCapacity"`
+	PodsCapacity   int64  `json:"podsCapacity"`
 }
 
 type ClusterSummary struct {
-	TotalCount     int
-	HealthyCount   int
-	UnhealthyCount int
+	TotalCount     int `json:"totalCount"`
+	HealthyCount   int `json:"healthyCount"`
+	UnhealthyCount int `json:"unhealthyCount"`
 }
 
 // KubeConfig represents the structure of a kubeconfig file
