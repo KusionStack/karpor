@@ -140,6 +140,7 @@ func setupAPIV1(
 			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))
 			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, genericConfig))
 			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, genericConfig))
+			r.Get("/summary", resourcehandler.GetSummary(resourceMgr, genericConfig))
 		})
 	})
 

@@ -15,13 +15,9 @@
 package clusterinstall
 
 import (
-	"context"
 	"fmt"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
-	"github.com/KusionStack/karbour/pkg/generated/clientset/versioned"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 )
 
@@ -57,36 +53,4 @@ func ConvertKubeconfigToCluster(name, description, displayName string, cfg *rest
 	access.Credential = credential
 	cluster.Spec.Access = access
 	return &cluster, nil
-}
-
-func ProbeWithHealthz(cfg *rest.Config) error {
-	client, err := kubernetes.NewForConfig(cfg)
-	if err != nil {
-		return err
-	}
-	var statusCode int
-	if err := client.RESTClient().
-		Get().
-		AbsPath("/healthz").
-		Do(context.TODO()).
-		StatusCode(&statusCode).
-		Error(); err != nil {
-		return err
-	}
-	if statusCode != 200 {
-		return fmt.Errorf("status code is %d, not 200", statusCode)
-	}
-	return nil
-}
-
-func CountClusters(cfg *rest.Config) (int, error) {
-	client, err := versioned.NewForConfig(cfg)
-	if err != nil {
-		return 0, err
-	}
-	clusters, err := client.ClusterV1beta1().Clusters().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return 0, err
-	}
-	return len(clusters.Items), nil
 }

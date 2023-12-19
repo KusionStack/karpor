@@ -17,6 +17,7 @@ package resource
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 type ResourceConfig struct {
@@ -24,28 +25,35 @@ type ResourceConfig struct {
 }
 
 type Resource struct {
-	Name       string
-	Namespace  string
-	APIVersion string
-	Kind       string
-	Cluster    string
+	Name       string `json:"name"`
+	Namespace  string `json:"namespace"`
+	APIVersion string `json:"apiVersion"`
+	Kind       string `json:"kind"`
+	Cluster    string `json:"cluster"`
+}
+
+type ResourceSummary struct {
+	Resource          Resource    `json:"resource"`
+	CreationTimestamp metav1.Time `json:"creationTimestamp"`
+	ResourceVersion   string      `json:"resourceVersion"`
+	UID               types.UID   `json:"uid"`
 }
 
 type ResourceTopology struct {
-	Identifier string
-	Parents    []string
-	Children   []string
+	Identifier string   `json:"identifier"`
+	Parents    []string `json:"parents"`
+	Children   []string `json:"children"`
 }
 
 type UniResource struct {
-	Cluster string
-	Object  runtime.Object
+	Cluster string         `json:"cluster"`
+	Object  runtime.Object `json:"object"`
 }
 
 type UniResourceList struct {
 	metav1.TypeMeta
-	Items       []UniResource
-	Total       int
-	CurrentPage int
-	PageSize    int
+	Items       []UniResource `json:"items"`
+	Total       int           `json:"total"`
+	CurrentPage int           `json:"currentPage"`
+	PageSize    int           `json:"pageSize"`
 }

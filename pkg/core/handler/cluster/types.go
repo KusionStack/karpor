@@ -14,10 +14,19 @@
 
 package cluster
 
-import "github.com/KusionStack/karbour/pkg/core/handler"
+import (
+	"github.com/KusionStack/karbour/pkg/core/handler"
+	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
+)
 
 // Ensure that ClusterPayload implements the handler.Payload interface.
 var _ handler.Payload = &ClusterPayload{}
+
+// sortCriteriaMap maps string representations to SortCriteria values
+var sortCriteriaMap = map[string]cluster.SortCriteria{
+	"timestamp": cluster.ByTimestamp,
+	"name":      cluster.ByName,
+}
 
 // ClusterPayload represents the structure for cluster request data. It includes
 // the name, display name, description and kubeconfig of a karbour-managed cluster
