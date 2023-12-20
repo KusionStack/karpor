@@ -122,9 +122,11 @@ func (m *AuditManager) Score(ctx context.Context, locator core.Locator) (*ScoreD
 	severityStats := map[string]int{}
 
 	// Summarize severity statistics for all issues.
-	for issue := range scanResult.ByIssue() {
-		severitySum += int(issue.Severity)
-		severityStats[issue.Severity.String()] += 1
+	for issue, resources := range scanResult.ByIssue() {
+		for range resources {
+			severitySum += int(issue.Severity)
+			severityStats[issue.Severity.String()] += 1
+		}
 	}
 
 	// Use the aggregated data to calculate the score.
