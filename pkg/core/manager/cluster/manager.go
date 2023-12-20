@@ -19,6 +19,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"time"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/clusterinstall"
@@ -163,7 +164,10 @@ func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.M
 
 // CountCluster returns the summary of clusters by their health status
 func (c *ClusterManager) CountCluster(ctx context.Context, client *multicluster.MultiClusterClient, config *rest.Config) (*ClusterSummary, error) {
-	clusterSummary := &ClusterSummary{}
+	clusterSummary := &ClusterSummary{
+		HealthyClusters:   make([]string, 0),
+		UnhealthyClusters: make([]string, 0),
+	}
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	clusterList, err := client.DynamicClient.Resource(clusterGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
@@ -180,11 +184,14 @@ func (c *ClusterManager) CountCluster(ctx context.Context, client *multicluster.
 		if err = spokeClient.ClientSet.RESTClient().
 			Get().
 			AbsPath("/healthz").
+			Timeout(1 * time.Second).
 			Do(context.Background()).
 			StatusCode(&statusCode).
 			Error(); err != nil || statusCode != 200 {
+			clusterSummary.UnhealthyClusters = append(clusterSummary.UnhealthyClusters, cluster.GetName())
 			clusterSummary.UnhealthyCount++
 		} else {
+			clusterSummary.HealthyClusters = append(clusterSummary.HealthyClusters, cluster.GetName())
 			clusterSummary.HealthyCount++
 		}
 	}
