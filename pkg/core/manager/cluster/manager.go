@@ -19,11 +19,14 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"time"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/clusterinstall"
+	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/relationship"
+	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
@@ -40,12 +43,14 @@ import (
 
 type ClusterManager struct {
 	config *Config
+	cache  *cache.Cache[core.Locator, map[string]ClusterTopology]
 }
 
 // NewClusterManager returns a new ClusterManager object
 func NewClusterManager(config *Config) *ClusterManager {
 	return &ClusterManager{
 		config: config,
+		cache:  cache.NewCache[core.Locator, map[string]ClusterTopology](10 * time.Minute),
 	}
 }
 
@@ -233,6 +238,14 @@ func (c *ClusterManager) GetDetailsForCluster(ctx context.Context, client *multi
 func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
+	locator := &core.Locator{
+		Cluster: name,
+	}
+	if topologyData, exist := c.cache.Get(*locator); exist {
+		log.Info("Cache hit for cluster topology", "locator", locator)
+		return topologyData, nil
+	}
+
 	// Build relationship graph based on GVK
 	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
@@ -242,17 +255,30 @@ func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *mult
 		return nil, err
 	}
 
+	clusterTopologyMap := c.ConvertGraphToMap(rg)
+	c.cache.Set(*locator, clusterTopologyMap)
+	log.Info("Added to cluster topology cache for locator", "locator", locator)
+
 	// Draw graph
 	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./relationship.gv")
 	_ = draw.DOT(graph, file)
 
-	return c.ConvertGraphToMap(rg), nil
+	return clusterTopologyMap, nil
 }
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
 func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
+
+	locator := &core.Locator{
+		Cluster:   cluster,
+		Namespace: namespace,
+	}
+	if topologyData, exist := c.cache.Get(*locator); exist {
+		log.Info("Cache hit for cluster topology", "locator", locator)
+		return topologyData, nil
+	}
 
 	// Build relationship graph based on GVK
 	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
@@ -263,12 +289,16 @@ func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 		return nil, err
 	}
 
+	namespaceTopologyMap := c.ConvertGraphToMap(rg)
+	c.cache.Set(*locator, namespaceTopologyMap)
+	log.Info("Added to cluster topology cache for locator", "locator", locator)
+
 	// Draw graph
 	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./relationship.gv")
 	_ = draw.DOT(graph, file)
 
-	return c.ConvertGraphToMap(rg), nil
+	return namespaceTopologyMap, nil
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph

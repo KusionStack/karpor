@@ -17,9 +17,13 @@ package resource
 import (
 	"context"
 	"os"
+	"strings"
+	"time"
 
+	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/relationship"
+	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
@@ -32,12 +36,14 @@ import (
 
 type ResourceManager struct {
 	config *ResourceConfig
+	cache  *cache.Cache[core.Locator, map[string]ResourceTopology]
 }
 
 // NewResourceManager returns a new ResourceManager
 func NewResourceManager(config *ResourceConfig) *ResourceManager {
 	return &ResourceManager{
 		config: config,
+		cache:  cache.NewCache[core.Locator, map[string]ResourceTopology](10 * time.Minute),
 	}
 }
 
@@ -71,6 +77,32 @@ func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multic
 	}, nil
 }
 
+// GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
+func (r *ResourceManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]unstructured.Unstructured, error) {
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	var eventList *unstructured.UnstructuredList
+	filteredList := make([]unstructured.Unstructured, 0)
+	// Retrieve the list of events for the specific resource
+	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(res.Namespace).List(context.TODO(), metav1.ListOptions{
+		// FieldSelector is case-sensitive so this would depend on user input. Safer way is to list all events within namespace and compare afterwards
+		// FieldSelector: fmt.Sprintf("involvedObject.apiVersion=%s,involvedObject.kind=%s,involvedObject.name=%s", res.APIVersion, res.Kind, res.Name),
+	})
+	if err != nil {
+		return nil, err
+	}
+	// Iterate over the list and filter events for the specific resource
+	for _, event := range eventList.Items {
+		involvedObjectName, foundName, _ := unstructured.NestedString(event.Object, "involvedObject", "name")
+		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
+		// case-insensitive comparison
+		if foundName && foundKind && strings.EqualFold(involvedObjectName, res.Name) && strings.EqualFold(involvedObjectKind, res.Kind) {
+			filteredList = append(filteredList, event)
+		}
+	}
+
+	return filteredList, nil
+}
+
 // GetYAMLForResource returns the yaml byte array for a given cluster
 func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
 	obj, err := r.GetResource(ctx, client, res)
@@ -84,6 +116,13 @@ func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
+	locator := r.ConvertResourceToLocator(res)
+	if topologyData, exist := r.cache.Get(*locator); exist {
+		log.Info("Cache hit for resource topology", "locator", locator)
+		return topologyData, nil
+	}
+
+	log.Info("Cache miss for locator", "locator", locator)
 	// Build relationship graph based on GVK
 	rg, _, err := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
 	if err != nil {
@@ -111,12 +150,16 @@ func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 		return nil, err
 	}
 
+	topologyMap := r.ConvertResourceGraphToMap(g)
+	r.cache.Set(*locator, topologyMap)
+	log.Info("Added to resource topology cache for locator", "locator", locator)
+
 	// Draw graph
 	// TODO: This is drawn on the server side, not needed eventually
 	file, _ := os.Create("./resource.gv")
 	_ = draw.DOT(g, file)
 
-	return r.ConvertResourceGraphToMap(g), nil
+	return topologyMap, nil
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
@@ -181,4 +224,17 @@ func (r *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relati
 		}
 	}
 	return m
+}
+
+func (r *ResourceManager) ConvertResourceToLocator(res *Resource) *core.Locator {
+	if res != nil {
+		return &core.Locator{
+			Cluster:    res.Cluster,
+			APIVersion: res.APIVersion,
+			Kind:       res.Kind,
+			Namespace:  res.Namespace,
+			Name:       res.Name,
+		}
+	}
+	return nil
 }
