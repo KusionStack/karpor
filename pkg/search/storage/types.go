@@ -83,7 +83,7 @@ func (r *SearchResult) ToYAML() (string, error) {
 
 	var yamlString string
 	for _, res := range r.Resources {
-		resYAML, err := yaml.Marshal(res)
+		resYAML, err := yaml.Marshal(res.Object)
 		if err != nil {
 			return "", err
 		}

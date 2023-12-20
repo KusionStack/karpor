@@ -20,6 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
+	"github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 )
@@ -84,4 +85,18 @@ func (payload *AuditPayload) Decode(r *http.Request) error {
 	}
 
 	return nil
+}
+
+// AuditData represents the aggregated data of scanner issues, including the
+// original list of issues and their aggregated count based on title.
+type AuditData struct {
+	IssueTotal    int            `json:"issueTotal"`
+	ResourceTotal int            `json:"resourceTotal"`
+	BySeverity    map[string]int `json:"bySeverity"`
+	IssueGroups   []*IssueGroup  `json:"issueGroups"`
+}
+
+type IssueGroup struct {
+	Issue    scanner.Issue   `json:"issue"`
+	Locators []*core.Locator `json:"locators"`
 }

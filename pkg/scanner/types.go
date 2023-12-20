@@ -20,9 +20,9 @@ package scanner
 import (
 	"context"
 	"encoding/json"
-	"io"
 
-	"k8s.io/apimachinery/pkg/runtime"
+	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
 // IssueSeverityLevel defines the severity levels for issues identified by
@@ -38,10 +38,21 @@ const (
 // KubeScanner is an interface for scanners that analyze Kubernetes resources.
 // Each scanner should implement this interface to provide scanning functionality.
 type KubeScanner interface {
-	Name() string                                                            // Name returns the name of the scanner.
-	Scan(ctx context.Context, resources ...runtime.Object) ([]*Issue, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
-	ScanManifest(ctx context.Context, manifest io.Reader) ([]*Issue, error)  // Scan accepts a Kubernetes manifest and returns a slice of issues found.
+	Name() string                                                                 // Name returns the name of the scanner.
+	Scan(ctx context.Context, resources ...*storage.Resource) (ScanResult, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
 }
+
+type ScanResult interface {
+	ByIssue() map[Issue]ResourceList
+	ByResource() map[core.Locator]IssueList
+	IssueTotal() int
+	MergeBy(result ScanResult)
+}
+
+type (
+	ResourceList []*storage.Resource
+	IssueList    []*Issue
+)
 
 // Issue represents a particular finding or problem discovered by a scanner.
 // It encapsulates the details of the issue such as the scanner's name, its severity,

@@ -17,15 +17,26 @@ package core
 import (
 	"fmt"
 	"strings"
+
+	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
 type Locator struct {
 	Cluster    string `json:"cluster" yaml:"cluster"`
-	Group      string `json:"group" yaml:"group"`
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string `json:"kind" yaml:"kind"`
 	Namespace  string `json:"namespace" yaml:"namespace"`
 	Name       string `json:"name" yaml:"name"`
+}
+
+func LocatorFor(r storage.Resource) *Locator {
+	return &Locator{
+		Cluster:    r.Cluster,
+		APIVersion: r.APIVersion,
+		Kind:       r.Kind,
+		Namespace:  r.Namespace,
+		Name:       r.Name,
+	}
 }
 
 func (c *Locator) ToSQL() string {
@@ -33,9 +44,6 @@ func (c *Locator) ToSQL() string {
 
 	if c.Cluster != "" {
 		conditions = append(conditions, fmt.Sprintf("cluster='%s'", c.Cluster))
-	}
-	if c.Group != "" {
-		conditions = append(conditions, fmt.Sprintf("group='%s'", c.Group))
 	}
 	if c.APIVersion != "" {
 		conditions = append(conditions, fmt.Sprintf("apiVersion='%s'", c.APIVersion))
