@@ -4,137 +4,6 @@
         "contact": {}
     },
     "paths": {
-        "/api/v1/audit": {
-            "post": {
-                "description": "This endpoint audits based on the specified locator.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "audit"
-                ],
-                "summary": "Audit based on locator.",
-                "parameters": [
-                    {
-                        "description": "Locator for perform the audit",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/audit.AuditPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Audit results",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/audit.AuditData"
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/audit/score": {
-            "post": {
-                "description": "This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "audit"
-                ],
-                "summary": "ScoreHandler calculates a score for the audited manifest.",
-                "parameters": [
-                    {
-                        "description": "Manifest data to calculate score for (either plain text or JSON format)",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/audit.AuditPayload"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Score calculation result",
-                        "schema": {
-                            "$ref": "#/definitions/audit.ScoreData"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/cluster": {
             "get": {
                 "description": "This endpoint lists all cluster resources.",
@@ -840,6 +709,170 @@
                 }
             }
         },
+        "/api/v1/insight/audit": {
+            "get": {
+                "description": "This endpoint audits based on the specified locator.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Audit based on locator.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Audit results",
+                        "schema": {
+                            "$ref": "#/definitions/audit.AuditData"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/insight/score": {
+            "get": {
+                "description": "This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "ScoreHandler calculates a score for the audited manifest.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Score calculation result",
+                        "schema": {
+                            "$ref": "#/definitions/audit.ScoreData"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
@@ -1208,26 +1241,6 @@
                 },
                 "resourceTotal": {
                     "type": "integer"
-                }
-            }
-        },
-        "audit.AuditPayload": {
-            "type": "object",
-            "properties": {
-                "apiVersion": {
-                    "type": "string"
-                },
-                "cluster": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "namespace": {
-                    "type": "string"
                 }
             }
         },
