@@ -140,7 +140,10 @@ func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 	if err != nil {
 		return nil, err
 	}
-	resObj, _ := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	resObj, err := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
 	unObj := &unstructured.Unstructured{}
 	unObj.SetUnstructuredContent(resObj.Object)
 

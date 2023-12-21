@@ -27,6 +27,7 @@ import (
 	"github.com/dominikbraun/graph"
 	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
+	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -225,6 +226,7 @@ func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamic
 
 	for _, node := range rg.RelationshipNodes {
 		var resList *unstructured.UnstructuredList
+		var resCount int
 		resGVR, err := topologyutil.GetGVRFromGVK(schema.GroupVersion{Group: node.Group, Version: node.Version}.String(), node.Kind)
 		if err != nil {
 			return rg, err
@@ -236,10 +238,13 @@ func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamic
 		} else {
 			continue
 		}
-		if err != nil {
+		if errors.IsNotFound(err) {
+			resCount = 0
+		} else if err != nil {
 			return rg, err
+		} else {
+			resCount = len(resList.Items)
 		}
-		resCount := len(resList.Items)
 		log.Info("Counted resources for Vertex", "node", node.GetHash(), "count", resCount)
 		node.ResourceCount = resCount
 	}

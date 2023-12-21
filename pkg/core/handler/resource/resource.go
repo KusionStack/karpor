@@ -16,6 +16,7 @@ package resource
 
 import (
 	"net/http"
+	"net/url"
 	"strconv"
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
@@ -272,9 +273,13 @@ func SearchForResource(resourceMgr *resource.ResourceManager, searchStorage stor
 }
 
 func BuildResourceFromParam(r *http.Request) *resource.Resource {
+	apiVersion := chi.URLParam(r, "apiVersion")
+	if r.URL.RawPath != "" {
+		apiVersion, _ = url.PathUnescape(apiVersion)
+	}
 	res := resource.Resource{
 		Cluster:    chi.URLParam(r, "clusterName"),
-		APIVersion: chi.URLParam(r, "apiVersion"),
+		APIVersion: apiVersion,
 		Kind:       chi.URLParam(r, "kind"),
 		Namespace:  chi.URLParam(r, "namespaceName"),
 		Name:       chi.URLParam(r, "resourceName"),
