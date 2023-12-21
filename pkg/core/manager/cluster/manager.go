@@ -238,10 +238,10 @@ func (c *ClusterManager) GetDetailsForCluster(ctx context.Context, client *multi
 func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	locator := &core.Locator{
+	locator := core.Locator{
 		Cluster: name,
 	}
-	if topologyData, exist := c.cache.Get(*locator); exist {
+	if topologyData, exist := c.cache.Get(locator); exist {
 		log.Info("Cache hit for cluster topology", "locator", locator)
 		return topologyData, nil
 	}
@@ -256,7 +256,7 @@ func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *mult
 	}
 
 	clusterTopologyMap := c.ConvertGraphToMap(rg)
-	c.cache.Set(*locator, clusterTopologyMap)
+	c.cache.Set(locator, clusterTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
 
 	// Draw graph
@@ -271,11 +271,11 @@ func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *mult
 func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	locator := &core.Locator{
+	locator := core.Locator{
 		Cluster:   cluster,
 		Namespace: namespace,
 	}
-	if topologyData, exist := c.cache.Get(*locator); exist {
+	if topologyData, exist := c.cache.Get(locator); exist {
 		log.Info("Cache hit for cluster topology", "locator", locator)
 		return topologyData, nil
 	}
@@ -290,7 +290,7 @@ func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	}
 
 	namespaceTopologyMap := c.ConvertGraphToMap(rg)
-	c.cache.Set(*locator, namespaceTopologyMap)
+	c.cache.Set(locator, namespaceTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
 
 	// Draw graph
