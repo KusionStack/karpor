@@ -22,11 +22,9 @@ import (
 	docs "github.com/KusionStack/karbour/api/openapispec"
 	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
-	confighandler "github.com/KusionStack/karbour/pkg/core/handler/config"
 	resourcehandler "github.com/KusionStack/karbour/pkg/core/handler/resource"
 	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/core/manager/config"
 	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
@@ -58,9 +56,6 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
-	configMgr := config.NewManager(&config.Config{
-		Verbose: false,
-	})
 	clusterMgr := clustermanager.NewClusterManager(&clustermanager.Config{
 		Verbose: false,
 	})
@@ -80,7 +75,7 @@ func NewCoreServer(
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, configMgr, clusterMgr, resourceMgr, auditMgr, searchStorage, genericConfig)
+		setupAPIV1(r, clusterMgr, resourceMgr, auditMgr, searchStorage, genericConfig)
 	})
 
 	// Endpoint to list all available endpoints in the router.
@@ -97,21 +92,13 @@ func NewCoreServer(
 // resource type and setting up proper handlers.
 func setupAPIV1(
 	r chi.Router,
-	configMgr *config.Manager,
 	clusterMgr *clustermanager.ClusterManager,
 	resourceMgr *resourcemanager.ResourceManager,
 	auditMgr *auditmanager.AuditManager,
 	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
 ) {
-	// Define API routes for 'config', 'cluster', 'resource', and 'audit', etc.
-	r.Route("/config", func(r chi.Router) {
-		r.Get("/", confighandler.Get(configMgr))
-		// r.Delete("/", confighandler.Delete(configMgr))
-		// r.Post("/", confighandler.Post(configMgr))
-		// r.Put("/", confighandler.Put(configMgr))
-	})
-
+	// Define API routes for 'cluster', 'insight', 'search', etc.
 	r.Route("/cluster", func(r chi.Router) {
 		// Define cluster specific routes.
 		r.Route("/", func(r chi.Router) {
