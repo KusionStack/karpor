@@ -254,16 +254,16 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 	}
 }
 
-//	@Summary		Upload kubeConfig file for cluster
-//	@Description	Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
-//	@Tags			cluster
-//	@Accept			multipart/form-data
-//	@Produce		plain
-//	@Param			file	formData	file		true	"Upload file with field name 'file'"
-//	@Success		200		{object}	UploadData	"Returns the content of the uploaded KubeConfig file."
-//	@Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
-//	@Failure		500		{string}	string		"Internal server error."
-//	@Router			/api/v1/cluster/config/file [post]
+// @Summary		Upload kubeConfig file for cluster
+// @Description	Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
+// @Tags			cluster
+// @Accept			multipart/form-data
+// @Produce		plain
+// @Param			file	formData	file		true	"Upload file with field name 'file'"
+// @Success		200		{object}	UploadData	"Returns the content of the uploaded KubeConfig file."
+// @Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
+// @Failure		500		{string}	string		"Internal server error."
+// @Router			/api/v1/cluster/config/file [post]
 func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
 	// Extract the context and logger from the request.
 	ctx := r.Context()
