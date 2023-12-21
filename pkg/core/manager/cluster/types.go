@@ -57,9 +57,11 @@ type ClusterDetail struct {
 }
 
 type ClusterSummary struct {
-	TotalCount     int `json:"totalCount"`
-	HealthyCount   int `json:"healthyCount"`
-	UnhealthyCount int `json:"unhealthyCount"`
+	TotalCount        int      `json:"totalCount"`
+	HealthyCount      int      `json:"healthyCount"`
+	HealthyClusters   []string `json:"healthyClusters"`
+	UnhealthyCount    int      `json:"unhealthyCount"`
+	UnhealthyClusters []string `json:"unhealthyClusters"`
 }
 
 // KubeConfig represents the structure of a kubeconfig file
