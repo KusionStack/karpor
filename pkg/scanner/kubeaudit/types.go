@@ -102,14 +102,14 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issues = make([]*scanner.Issue, 0)
 	}
 
-	locator := core.LocatorFor(*resource)
+	locator := core.LocatorFor(resource)
 
-	if _, exist := sr.locatorMap[*locator]; !exist {
-		sr.locatorMap[*locator] = resource
+	if _, exist := sr.locatorMap[locator]; !exist {
+		sr.locatorMap[locator] = resource
 	}
 
-	if _, ok := sr.resourceIssueMap[*locator]; !ok {
-		sr.resourceIssueMap[*locator] = make([]*scanner.Issue, 0)
+	if _, ok := sr.resourceIssueMap[locator]; !ok {
+		sr.resourceIssueMap[locator] = make([]*scanner.Issue, 0)
 	}
 
 	for _, issue := range issues {
@@ -123,14 +123,14 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 
 		rel := relationship{
 			Issue:   *issue,
-			Locator: *locator,
+			Locator: locator,
 		}
 
 		if _, exist := sr.relationshipExist[rel]; exist {
 			continue
 		}
 
-		sr.resourceIssueMap[*locator] = append(sr.resourceIssueMap[*locator], issue)
+		sr.resourceIssueMap[locator] = append(sr.resourceIssueMap[locator], issue)
 		sr.issueResourceMap[*issue] = append(sr.issueResourceMap[*issue], resource)
 		sr.relationshipExist[rel] = struct{}{}
 	}

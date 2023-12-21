@@ -24,6 +24,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/pkg/errors"
 )
 
 // AuditManager manages the auditing process of Kubernetes manifests using
@@ -83,7 +84,7 @@ func (m *AuditManager) Audit(ctx context.Context, locator core.Locator) (scanner
 
 			newResult, err := m.ks.Scan(ctx, res.Resources...)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "failed to scan resources")
 			}
 			if result == nil {
 				result = newResult

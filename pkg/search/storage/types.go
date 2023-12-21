@@ -15,12 +15,15 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
 
 	"gopkg.in/yaml.v2"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 )
 
 const (
@@ -92,4 +95,22 @@ func (r *SearchResult) ToYAML() (string, error) {
 	}
 
 	return yamlString, nil
+}
+
+func ConvertYAMLToResource(cluster string, yamlBytes []byte) (*Resource, error) {
+	obj := &unstructured.Unstructured{}
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(yamlBytes), len(yamlBytes))
+	err := decoder.Decode(obj)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Resource{
+		Cluster:    cluster,
+		Namespace:  obj.GetNamespace(),
+		APIVersion: obj.GetAPIVersion(),
+		Kind:       obj.GetKind(),
+		Name:       obj.GetName(),
+		Object:     obj.Object,
+	}, nil
 }

@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"sync"
 
 	"github.com/KusionStack/karbour/pkg/scanner"
@@ -28,9 +27,8 @@ import (
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 	"github.com/elliotxx/kubeaudit/auditors/all"
 	"github.com/elliotxx/kubeaudit/config"
+	"github.com/pkg/errors"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/runtime"
 	"sigs.k8s.io/yaml"
 )
 
@@ -106,13 +104,13 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 				return
 			}
 
-			report, err := s.scanManifest(ctx, res.Cluster, bytes.NewBuffer(resYAML))
+			result, err := s.scanManifest(ctx, res.Cluster, resYAML)
 			if err != nil {
 				errChan <- err
 				return
 			}
 
-			resultsChan <- report
+			resultsChan <- result
 		}(*res)
 	}
 
@@ -122,10 +120,10 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 		close(errChan)
 	}()
 
-	allReports := newScanResult()
+	allResults := newScanResult()
 
 	for report := range resultsChan {
-		allReports.MergeBy(report)
+		allResults.MergeBy(report)
 	}
 
 	for err := range errChan {
@@ -134,27 +132,24 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 		}
 	}
 
-	return allReports, nil
+	return allResults, nil
 }
 
-func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, manifest io.Reader) (scanner.ScanResult, error) {
-	report, err := s.kubeAuditor.AuditManifest("", manifest)
+func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, manifest []byte) (scanner.ScanResult, error) {
+	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
 	if err != nil {
 		return nil, err
 	}
 
-	results := report.Results()
-	if len(results) == 0 {
-		return nil, nil
-	}
-	if len(results) > 1 {
-		return nil, fmt.Errorf("the scan result number should be greater than or equal to 1")
+	results := report.RawResults()
+	if len(results) != 1 {
+		return nil, fmt.Errorf("the scan result number should be equal to 1")
 	}
 	result := results[0]
 
-	resource, err := runtimeObjectToResource(cluster, result.GetResource().Object())
+	resource, err := storage.ConvertYAMLToResource(cluster, manifest)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to convert yaml to resource")
 	}
 
 	r := newScanResult()
@@ -168,25 +163,4 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, man
 	r.add(resource, issues)
 
 	return r, nil
-}
-
-func runtimeObjectToResource(cluster string, obj runtime.Object) (*storage.Resource, error) {
-	m, err := meta.Accessor(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	objMap, err := objectToMap(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	return &storage.Resource{
-		Cluster:    cluster,
-		APIVersion: obj.GetObjectKind().GroupVersionKind().Version,
-		Kind:       obj.GetObjectKind().GroupVersionKind().Kind,
-		Namespace:  m.GetNamespace(),
-		Name:       m.GetName(),
-		Object:     objMap,
-	}, nil
 }

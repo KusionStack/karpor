@@ -29,8 +29,12 @@ type Locator struct {
 	Name       string `json:"name" yaml:"name"`
 }
 
-func LocatorFor(r storage.Resource) *Locator {
-	return &Locator{
+func LocatorFor(r *storage.Resource) Locator {
+	if r.Cluster == "" {
+		panic("cluster is empty")
+	}
+
+	return Locator{
 		Cluster:    r.Cluster,
 		APIVersion: r.APIVersion,
 		Kind:       r.Kind,

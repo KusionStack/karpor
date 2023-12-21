@@ -12,10 +12,10 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 	for issue, resources := range sr.ByIssue() {
 		issueGroup := &IssueGroup{
 			Issue:    issue,
-			Locators: []*core.Locator{},
+			Locators: []core.Locator{},
 		}
 		for _, resource := range resources {
-			locator := core.LocatorFor(*resource)
+			locator := core.LocatorFor(resource)
 			issueGroup.Locators = append(issueGroup.Locators, locator)
 			bySeverity[issue.Severity.String()] += 1
 		}
