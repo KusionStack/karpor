@@ -140,7 +140,6 @@ func setupAPIV1(
 		r.Route("/events", func(r chi.Router) {
 			r.Get("/", eventshandler.GetEvents(resourceMgr, genericConfig))
 		})
-
 	})
 }
 

@@ -85,16 +85,16 @@ func (c *Locator) GetType() (LocatorType, bool) {
 		return -1, false
 	}
 	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" && c.Name != "" {
-		return LocatorType(Resource), true
+		return Resource, true
 	} else if c.APIVersion != "" && c.Kind != "" && c.Name != "" {
-		return LocatorType(NonNamespacedResource), true
+		return NonNamespacedResource, true
 	} else if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" {
-		return LocatorType(ClusterGVKNamespace), true
+		return ClusterGVKNamespace, true
 	} else if c.APIVersion != "" && c.Kind != "" {
-		return LocatorType(GVK), true
+		return GVK, true
 	} else if c.Namespace != "" {
 		// TODO: what if only apiversion is present but kind is not?
-		return LocatorType(Namespace), true
+		return Namespace, true
 	}
-	return LocatorType(Cluster), true
+	return Cluster, true
 }

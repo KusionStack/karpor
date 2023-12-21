@@ -30,18 +30,18 @@ import (
 // array of Kubernetes runtime Object matched using the query from
 // context. It utilizes a ResourceManager to execute the logic.
 //
-//	@Summary      SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.
-//	@Description  This endpoint returns an array of Kubernetes runtime Object matched using the query from context.
-//	@Tags         resource
-//	@Produce      json
-//	@Success      200  {array}   runtime.Object  "Array of runtime.Object"
-//	@Failure      400  {string}  string          "Bad Request"
-//	@Failure      401  {string}  string          "Unauthorized"
-//	@Failure      404  {string}  string          "Not Found"
-//	@Failure      405  {string}  string          "Method Not Allowed"
-//	@Failure      429  {string}  string          "Too Many Requests"
-//	@Failure      500  {string}  string          "Internal Server Error"
-//	@Router       /api/v1/resource/search [get]
+//	@Summary		SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.
+//	@Description	This endpoint returns an array of Kubernetes runtime Object matched using the query from context.
+//	@Tags			resource
+//	@Produce		json
+//	@Success		200	{array}		runtime.Object	"Array of runtime.Object"
+//	@Failure		400	{string}	string			"Bad Request"
+//	@Failure		401	{string}	string			"Unauthorized"
+//	@Failure		404	{string}	string			"Not Found"
+//	@Failure		405	{string}	string			"Method Not Allowed"
+//	@Failure		429	{string}	string			"Too Many Requests"
+//	@Failure		500	{string}	string			"Internal Server Error"
+//	@Router			/api/v1/resource/search [get]
 func SearchForResource(resourceMgr *resource.ResourceManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
