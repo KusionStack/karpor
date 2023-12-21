@@ -16,7 +16,6 @@ package audit
 
 import (
 	"context"
-	"strings"
 	"time"
 
 	"github.com/KusionStack/karbour/pkg/core"
@@ -25,6 +24,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/pkg/errors"
 )
 
 // AuditManager manages the auditing process of Kubernetes manifests using
@@ -32,7 +32,7 @@ import (
 type AuditManager struct {
 	ks scanner.KubeScanner
 	ss storage.SearchStorage
-	c  *cache.Cache[core.Locator, *AuditData]
+	c  *cache.Cache[core.Locator, scanner.ScanResult]
 }
 
 // NewAuditManager initializes a new instance of AuditManager with a KubeScanner.
@@ -48,30 +48,29 @@ func NewAuditManager(searchStorage storage.SearchStorage) (*AuditManager, error)
 	return &AuditManager{
 		ks: kubeauditScanner,
 		ss: searchStorage,
-		c:  cache.NewCache[core.Locator, *AuditData](defaultExpiration),
+		c:  cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
 	}, nil
 }
 
 // Audit performs the audit on Kubernetes manifests with the specified locator
 // and returns the issues found during the audit.
-func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*AuditData, error) {
+func (m *AuditManager) Audit(ctx context.Context, locator core.Locator) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
 
-	var total int
 	searchQuery := locator.ToSQL()
 	searchPattern := storage.SQLPatternType
 	pageSizeIteration := 100
 	pageIteration := 1
 
-	if auditData, exist := m.c.Get(*locator); exist {
+	if auditData, exist := m.c.Get(locator); exist {
 		log.Info("Cache hit for locator", "locator", locator)
 		return auditData, nil
 	} else {
 		log.Info("Cache miss for locator", "locator", locator)
 
-		var allIssues []*scanner.Issue
+		var result scanner.ScanResult
 		for {
 			log.Info("Starting search in AuditManager ...",
 				"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
@@ -80,20 +79,18 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*Audit
 			if err != nil {
 				return nil, err
 			}
-			total = res.Total
 
 			log.Info("Finish current search", "overview", res.Overview())
 
-			manifests, err := res.ToYAML()
+			newResult, err := m.ks.Scan(ctx, res.Resources...)
 			if err != nil {
-				return nil, err
+				return nil, errors.Wrap(err, "failed to scan resources")
 			}
-
-			issues, err := m.ks.ScanManifest(ctx, strings.NewReader(manifests))
-			if err != nil {
-				return nil, err
+			if result == nil {
+				result = newResult
+			} else {
+				result.MergeFrom(newResult)
 			}
-			allIssues = append(allIssues, issues...)
 
 			if len(res.Resources) < pageSizeIteration {
 				break
@@ -101,41 +98,36 @@ func (m *AuditManager) Audit(ctx context.Context, locator *core.Locator) (*Audit
 			pageIteration++
 		}
 
-		data := NewAuditData(allIssues, total)
-		m.c.Set(*locator, data)
+		m.c.Set(locator, result)
 		log.Info("Added data to cache for locator", "locator", locator)
 
-		return data, nil
+		return result, nil
 	}
-}
-
-// Audit performs a security audit on the provided manifest, returning a list
-// of issues discovered during scanning.
-func (m *AuditManager) AuditManifest(ctx context.Context, manifest string) ([]*scanner.Issue, error) {
-	// Retrieve logger from context and log the start of the audit.
-	log := ctxutil.GetLogger(ctx)
-	log.Info("Starting audit of the specified manifest in AuditManager ...")
-
-	// Execute the scan using the scanner's ScanManifest method.
-	return m.ks.ScanManifest(ctx, strings.NewReader(manifest))
 }
 
 // Score calculates a score based on the severity and total number of issues
 // identified during the audit. It aggregates statistics on different severity
 // levels and generates a cumulative score.
-func (m *AuditManager) Score(ctx context.Context, issues []*scanner.Issue) (*ScoreData, error) {
+func (m *AuditManager) Score(ctx context.Context, locator core.Locator) (*ScoreData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting calculate score with specified issues list in AuditManager ...")
 
+	scanResult, err := m.Audit(ctx, locator)
+	if err != nil {
+		return nil, err
+	}
+
 	// Initialize variables to calculate the score.
-	issueTotal, severitySum := len(issues), 0
+	issueTotal, severitySum := scanResult.IssueTotal(), 0
 	severityStats := map[string]int{}
 
 	// Summarize severity statistics for all issues.
-	for _, issue := range issues {
-		severitySum += int(issue.Severity)
-		severityStats[issue.Severity.String()] += 1
+	for issue, resources := range scanResult.ByIssue() {
+		for range resources {
+			severitySum += int(issue.Severity)
+			severityStats[issue.Severity.String()] += 1
+		}
 	}
 
 	// Use the aggregated data to calculate the score.

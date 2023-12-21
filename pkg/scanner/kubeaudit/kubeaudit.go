@@ -19,14 +19,16 @@ package kubeaudit
 import (
 	"bytes"
 	"context"
-	"io"
+	"fmt"
+	"sync"
 
 	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/search/storage"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 	"github.com/elliotxx/kubeaudit/auditors/all"
 	"github.com/elliotxx/kubeaudit/config"
-	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer/json"
+	"github.com/pkg/errors"
+
 	"sigs.k8s.io/yaml"
 )
 
@@ -41,7 +43,6 @@ var _ scanner.KubeScanner = &kubeauditScanner{}
 type kubeauditScanner struct {
 	kubeAuditor    *kubeauditpkg.Kubeaudit
 	attentionLevel scanner.IssueSeverityLevel
-	serializer     *json.Serializer
 }
 
 // New creates a new instance of a kubeaudit-based scanner with the specified
@@ -64,12 +65,6 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 		return nil, err
 	}
 
-	// Prepare a JSON serializer for serializing the Kubernetes resources.
-	serializer := json.NewSerializerWithOptions(
-		json.DefaultMetaFactory, nil, nil,
-		json.SerializerOptions{Yaml: true, Pretty: false, Strict: false},
-	)
-
 	// Default attentionLevel to Low if it's invalid (less than zero).
 	if int(attentionLevel) < 0 {
 		attentionLevel = scanner.Low
@@ -78,12 +73,11 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	return &kubeauditScanner{
 		kubeAuditor:    kubeAuditor,
 		attentionLevel: attentionLevel,
-		serializer:     serializer,
 	}, nil
 }
 
-// New creates a default instance of a kubeaudit-based scanner with the default
-// attention level.
+// Default creates a default instance of a kubeaudit-based scanner with the
+// default attention level.
 func Default() (scanner.KubeScanner, error) {
 	return New(scanner.Low)
 }
@@ -93,76 +87,84 @@ func (s *kubeauditScanner) Name() string {
 	return ScannerName
 }
 
-// Scan audits the provided Kubernetes resources and returns a list of
-// security issues found, if any. It serializes the runtime.Object to JSON
-// and then uses kubeaudit to perform the auditing.
-func (s *kubeauditScanner) Scan(ctx context.Context, resources ...runtime.Object) ([]*scanner.Issue, error) {
-	manifest, err := s.serializeObjectsToYAML(resources...)
-	if err != nil {
-		return nil, err
+// Scan audits the provided Kubernetes resources and returns security issues
+// found during the scan.
+func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resource) (scanner.ScanResult, error) {
+	var wg sync.WaitGroup
+	wg.Add(len(resources))
+
+	resultsChan := make(chan scanner.ScanResult, len(resources))
+	errChan := make(chan error, len(resources))
+
+	for _, res := range resources {
+		go func(res storage.Resource) {
+			defer wg.Done()
+
+			resYAML, err := yaml.Marshal(res.Object)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			result, err := s.scanManifest(ctx, res.Cluster, resYAML)
+			if err != nil {
+				errChan <- err
+				return
+			}
+
+			resultsChan <- result
+		}(*res)
 	}
 
-	return s.ScanManifest(ctx, manifest)
+	go func() {
+		wg.Wait()
+		close(resultsChan)
+		close(errChan)
+	}()
+
+	allResults := newScanResult()
+
+	for report := range resultsChan {
+		allResults.MergeFrom(report)
+	}
+
+	for err := range errChan {
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return allResults, nil
 }
 
-// Scan audits the provided Kubernetes resources manifest and returns a list of
-// security issues found.
-func (s *kubeauditScanner) ScanManifest(ctx context.Context, manifest io.Reader) ([]*scanner.Issue, error) {
-	// Audit the specific manifest.
-	report, err := s.kubeAuditor.AuditManifest("", manifest)
+// scanManifest performs the actual scanning on the Kubernetes manifest and
+// returns the scan result.
+func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, manifest []byte) (scanner.ScanResult, error) {
+	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
 	if err != nil {
 		return nil, err
 	}
 
-	// Initialize a slice to collect issues.
+	results := report.RawResults()
+	if len(results) != 1 {
+		return nil, fmt.Errorf("the scan result number should be equal to 1")
+	}
+	result := results[0]
+
+	resource, err := storage.NewResource(cluster, manifest)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to convert yaml to resource")
+	}
+
+	r := newScanResult()
 	issues := []*scanner.Issue{}
-
-	for _, result := range report.Results() {
-		// Process the audit results and convert them to scanner.Issue.
-		for _, auditResult := range result.GetAuditResults() {
-			newIssue := AuditResult2Issue(auditResult)
-			if int(newIssue.Severity) >= int(s.attentionLevel) {
-				issues = append(issues, newIssue)
-			}
+	for _, auditResult := range result.GetAuditResults() {
+		newIssue := AuditResult2Issue(auditResult)
+		if int(newIssue.Severity) >= int(s.attentionLevel) {
+			issues = append(issues, newIssue)
 		}
 	}
+	r.add(resource, issues)
 
-	// Return the list of discovered issues.
-	return issues, nil
-}
-
-// serializeObjectsToYAML concatenates multiple runtime.Object instances into a
-// single YAML string.
-func (s *kubeauditScanner) serializeObjectsToYAML(objects ...runtime.Object) (io.Reader, error) {
-	var yamlBuffer bytes.Buffer
-	for i, obj := range objects {
-		// Serialize the object into YAML bytes.
-		data, err := runtime.Encode(s.serializer, obj)
-		if err != nil {
-			return nil, err
-		}
-
-		// Convert JSON bytes to YAML.
-		yamlData, err := yaml.JSONToYAML(data)
-		if err != nil {
-			return nil, err
-		}
-
-		// Write YAML to buffer, adding the separator if necessary.
-		if i > 0 {
-			if _, err := yamlBuffer.WriteString("---\n"); err != nil {
-				return nil, err
-			}
-		}
-		if _, err := yamlBuffer.Write(yamlData); err != nil {
-			return nil, err
-		}
-
-		// Append a newline after each object for readability.
-		if _, err := yamlBuffer.WriteRune('\n'); err != nil {
-			return nil, err
-		}
-	}
-
-	return &yamlBuffer, nil
+	return r, nil
 }

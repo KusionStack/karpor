@@ -15,12 +15,15 @@
 package storage
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
 
 	"gopkg.in/yaml.v2"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
 )
 
 const (
@@ -49,15 +52,6 @@ type SearchStorageGetter interface {
 	GetSearchStorage() (SearchStorage, error)
 }
 
-type Resource struct {
-	Cluster    string                 `json:"cluster"`
-	Namespace  string                 `json:"namespace"`
-	APIVersion string                 `json:"apiVersion"`
-	Kind       string                 `json:"kind"`
-	Name       string                 `json:"name"`
-	Object     map[string]interface{} `json:"object"`
-}
-
 type SearchResult struct {
 	Total     int
 	Resources []*Resource
@@ -83,7 +77,7 @@ func (r *SearchResult) ToYAML() (string, error) {
 
 	var yamlString string
 	for _, res := range r.Resources {
-		resYAML, err := yaml.Marshal(res)
+		resYAML, err := yaml.Marshal(res.Object)
 		if err != nil {
 			return "", err
 		}
@@ -92,4 +86,42 @@ func (r *SearchResult) ToYAML() (string, error) {
 	}
 
 	return yamlString, nil
+}
+
+type Resource struct {
+	Cluster    string                 `json:"cluster"`
+	Namespace  string                 `json:"namespace"`
+	APIVersion string                 `json:"apiVersion"`
+	Kind       string                 `json:"kind"`
+	Name       string                 `json:"name"`
+	Object     map[string]interface{} `json:"object"`
+}
+
+// NewResource creates a new Resource instance based on the provided bytes
+// and cluster. It decodes the YAML bytes into an unstructured object and
+// constructs a Resource with the relevant fields.
+func NewResource(cluster string, b []byte) (*Resource, error) {
+	// Ensure the cluster name is not empty.
+	if len(cluster) == 0 {
+		return nil, fmt.Errorf("cluster cannot be empty")
+	}
+
+	// Initialize an unstructured object for decoding data.
+	obj := &unstructured.Unstructured{}
+
+	// Create a YAML or JSON decoder with the provided bytes.
+	decoder := yamlutil.NewYAMLOrJSONDecoder(bytes.NewReader(b), len(b))
+	if err := decoder.Decode(obj); err != nil {
+		return nil, err
+	}
+
+	// Build and return the Resource object with decoded data and cluster info.
+	return &Resource{
+		Cluster:    cluster,
+		Namespace:  obj.GetNamespace(),
+		APIVersion: obj.GetAPIVersion(),
+		Kind:       obj.GetKind(),
+		Name:       obj.GetName(),
+		Object:     obj.Object,
+	}, nil
 }
