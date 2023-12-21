@@ -145,9 +145,9 @@ func setupAPIV1(
 		})
 	})
 
-	r.Route("/audit", func(r chi.Router) {
-		r.Post("/", audithandler.Audit(auditMgr))
-		r.Post("/score", audithandler.Score(auditMgr))
+	r.Route("/insight", func(r chi.Router) {
+		r.Get("/audit", audithandler.Audit(auditMgr))
+		r.Get("/score", audithandler.Score(auditMgr))
 	})
 }
 
