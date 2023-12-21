@@ -139,6 +139,7 @@ func setupAPIV1(
 		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
 			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))
 			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, genericConfig))
+			r.Get("/events", resourcehandler.GetEvents(resourceMgr, genericConfig))
 			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, genericConfig))
 			r.Get("/summary", resourcehandler.GetSummary(resourceMgr, genericConfig))
 		})

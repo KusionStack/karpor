@@ -39,6 +39,16 @@ type ResourceSummary struct {
 	UID               types.UID   `json:"uid"`
 }
 
+type ResourceEvents struct {
+	Resource       Resource    `json:"resource"`
+	Count          int         `json:"count"`
+	Reason         string      `json:"reason"`
+	Source         string      `json:"source"`
+	Type           string      `json:"type"`
+	LastTimestamp  metav1.Time `json:"firstTimestamp"`
+	FirstTimestamp metav1.Time `json:"lastTimestamp"`
+}
+
 type ResourceTopology struct {
 	Identifier string   `json:"identifier"`
 	Parents    []string `json:"parents"`

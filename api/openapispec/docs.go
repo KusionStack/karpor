@@ -915,6 +915,65 @@ var doc = `{
                 }
             }
         },
+        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/events": {
+            "get": {
+                "description": "This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "responses": {
+                    "200": {
+                        "description": "List of events",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/unstructured.Unstructured"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/summary": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
