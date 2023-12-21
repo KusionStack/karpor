@@ -15,11 +15,8 @@
 package kubeaudit
 
 import (
-	"encoding/json"
-
 	"github.com/KusionStack/karbour/pkg/scanner"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 // AuditResult2Issue converts a kubeaudit.AuditResult to a scanner.Issue,
@@ -57,18 +54,4 @@ func ConvertSeverity(level kubeauditpkg.SeverityLevel) scanner.IssueSeverityLeve
 		// Safe represents no security risk or an informational finding.
 		return scanner.Safe
 	}
-}
-
-func objectToMap(obj runtime.Object) (map[string]interface{}, error) {
-	jsonBytes, err := json.Marshal(obj)
-	if err != nil {
-		return nil, err
-	}
-
-	var resultMap map[string]interface{}
-	if err := json.Unmarshal(jsonBytes, &resultMap); err != nil {
-		return nil, err
-	}
-
-	return resultMap, nil
 }

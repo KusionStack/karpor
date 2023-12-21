@@ -89,7 +89,7 @@ func (m *AuditManager) Audit(ctx context.Context, locator core.Locator) (scanner
 			if result == nil {
 				result = newResult
 			} else {
-				result.MergeBy(newResult)
+				result.MergeFrom(newResult)
 			}
 
 			if len(res.Resources) < pageSizeIteration {

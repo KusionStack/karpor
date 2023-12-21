@@ -42,16 +42,19 @@ type KubeScanner interface {
 	Scan(ctx context.Context, resources ...*storage.Resource) (ScanResult, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
 }
 
+// ScanResult defines the interface for the result of a scan.
 type ScanResult interface {
 	ByIssue() map[Issue]ResourceList
 	ByResource() map[core.Locator]IssueList
 	IssueTotal() int
-	MergeBy(result ScanResult)
+	MergeFrom(result ScanResult)
 }
 
 type (
+	// ResourceList is a slice of storage resources.
 	ResourceList []*storage.Resource
-	IssueList    []*Issue
+	// IssueList is a slice of issues.
+	IssueList []*Issue
 )
 
 // Issue represents a particular finding or problem discovered by a scanner.

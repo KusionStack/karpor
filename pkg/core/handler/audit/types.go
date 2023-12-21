@@ -96,6 +96,7 @@ type AuditData struct {
 	IssueGroups   []*IssueGroup  `json:"issueGroups"`
 }
 
+// IssueGroup represents a group of locators tied to a specific issue.
 type IssueGroup struct {
 	Issue    scanner.Issue  `json:"issue"`
 	Locators []core.Locator `json:"locators"`

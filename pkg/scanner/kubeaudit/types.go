@@ -10,23 +10,28 @@ import (
 
 var _ scanner.ScanResult = &scanResult{}
 
+// scanResult implements the scanner.ScanResult interface and represents the
+// result of scanning Kubernetes resources.
 type scanResult struct {
-	issueResourceMap  map[scanner.Issue]scanner.ResourceList
-	resourceIssueMap  map[core.Locator]scanner.IssueList
-	locatorMap        map[core.Locator]*storage.Resource
-	relationshipExist map[relationship]struct{}
-	lock              sync.RWMutex
+	issueResourceMap  map[scanner.Issue]scanner.ResourceList // Map of issues to resources
+	resourceIssueMap  map[core.Locator]scanner.IssueList     // Map of resources to issues
+	locatorMap        map[core.Locator]*storage.Resource     // Map of locators to resources
+	relationshipExist map[relationship]struct{}              // Map to track relationships
+	lock              sync.RWMutex                           // Mutex for concurrent access
 }
 
+// relationship represents the relationship between an issue and a locator.
 type relationship struct {
 	scanner.Issue
 	core.Locator
 }
 
+// NewScanResult creates a new instance of scanResult.
 func NewScanResult() scanner.ScanResult {
 	return newScanResult()
 }
 
+// newScanResult creates and returns a new instance of scanResult.
 func newScanResult() *scanResult {
 	return &scanResult{
 		issueResourceMap:  make(map[scanner.Issue]scanner.ResourceList),
@@ -37,14 +42,17 @@ func newScanResult() *scanResult {
 	}
 }
 
+// ByIssue returns the map of issues to resources.
 func (sr *scanResult) ByIssue() map[scanner.Issue]scanner.ResourceList {
 	return sr.issueResourceMap
 }
 
+// ByResource returns the map of resources to issues.
 func (sr *scanResult) ByResource() map[core.Locator]scanner.IssueList {
 	return sr.resourceIssueMap
 }
 
+// IssueTotal calculates the total number of issues.
 func (sr *scanResult) IssueTotal() int {
 	sr.lock.RLock()
 	defer sr.lock.RUnlock()
@@ -69,7 +77,8 @@ func (sr *scanResult) IssueTotal() int {
 	return totalByIssueMap
 }
 
-func (sr *scanResult) MergeBy(result scanner.ScanResult) {
+// MergeFrom merges the results from another scanResult into the current one.
+func (sr *scanResult) MergeFrom(result scanner.ScanResult) {
 	if result == nil {
 		return
 	}
@@ -90,6 +99,7 @@ func (sr *scanResult) MergeBy(result scanner.ScanResult) {
 	}
 }
 
+// add adds a resource with its associated issues to the scanResult.
 func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 	sr.lock.Lock()
 	defer sr.lock.Unlock()

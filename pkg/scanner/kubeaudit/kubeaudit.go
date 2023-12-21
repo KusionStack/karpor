@@ -76,8 +76,8 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	}, nil
 }
 
-// New creates a default instance of a kubeaudit-based scanner with the default
-// attention level.
+// Default creates a default instance of a kubeaudit-based scanner with the
+// default attention level.
 func Default() (scanner.KubeScanner, error) {
 	return New(scanner.Low)
 }
@@ -87,6 +87,8 @@ func (s *kubeauditScanner) Name() string {
 	return ScannerName
 }
 
+// Scan audits the provided Kubernetes resources and returns security issues
+// found during the scan.
 func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resource) (scanner.ScanResult, error) {
 	var wg sync.WaitGroup
 	wg.Add(len(resources))
@@ -123,7 +125,7 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 	allResults := newScanResult()
 
 	for report := range resultsChan {
-		allResults.MergeBy(report)
+		allResults.MergeFrom(report)
 	}
 
 	for err := range errChan {
@@ -135,6 +137,8 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 	return allResults, nil
 }
 
+// scanManifest performs the actual scanning on the Kubernetes manifest and
+// returns the scan result.
 func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, manifest []byte) (scanner.ScanResult, error) {
 	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
 	if err != nil {
@@ -147,7 +151,7 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, man
 	}
 	result := results[0]
 
-	resource, err := storage.ConvertYAMLToResource(cluster, manifest)
+	resource, err := storage.NewResource(cluster, manifest)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to convert yaml to resource")
 	}
