@@ -20,9 +20,14 @@ import (
 	"strings"
 
 	docs "github.com/KusionStack/karbour/api/openapispec"
+
 	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
-	resourcehandler "github.com/KusionStack/karbour/pkg/core/handler/resource"
+	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
+	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
+	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
+	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
+
 	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
@@ -56,7 +61,7 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
-	clusterMgr := clustermanager.NewClusterManager(&clustermanager.Config{
+	clusterMgr := clustermanager.NewClusterManager(&clustermanager.ClusterConfig{
 		Verbose: false,
 	})
 	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
@@ -98,43 +103,44 @@ func setupAPIV1(
 	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
 ) {
-	// Define API routes for 'cluster', 'insight', 'search', etc.
+	// Define API routes for 'cluster', 'search', and 'insight', etc.
+	r.Route("/clusters", func(r chi.Router) {
+		r.Get("/", clusterhandler.List(clusterMgr, genericConfig))
+	})
+
 	r.Route("/cluster", func(r chi.Router) {
 		// Define cluster specific routes.
-		r.Route("/", func(r chi.Router) {
-			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
-			r.Get("/", clusterhandler.List(clusterMgr, genericConfig))
-		})
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
+			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
 			r.Put("/", clusterhandler.UpdateMetadata(clusterMgr, genericConfig))
 			r.Delete("/", clusterhandler.Delete(clusterMgr, genericConfig))
-			r.Get("/yaml", clusterhandler.GetYAML(clusterMgr, genericConfig))
-			r.Get("/detail", clusterhandler.GetDetail(clusterMgr, genericConfig))
-			r.Get("/topology", clusterhandler.GetTopology(clusterMgr, genericConfig))
-			r.Get("/namespace/{namespaceName}", clusterhandler.GetNamespace(clusterMgr, genericConfig))
-			r.Get("/namespace/{namespaceName}/topology", clusterhandler.GetNamespaceTopology(clusterMgr, genericConfig))
 		})
 		r.Post("/config/file", clusterhandler.UpdateKubeConfig)
 		r.Post("/config/validate", clusterhandler.ValidateKubeConfig(clusterMgr))
 	})
 
-	r.Route("/resource", func(r chi.Router) {
-		r.Route("/search", func(r chi.Router) {
-			r.Get("/", resourcehandler.SearchForResource(resourceMgr, searchStorage))
-		})
-		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
-			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))
-			r.Get("/yaml", resourcehandler.GetYAML(resourceMgr, genericConfig))
-			r.Get("/events", resourcehandler.GetEvents(resourceMgr, genericConfig))
-			r.Get("/topology", resourcehandler.GetTopology(resourceMgr, genericConfig))
-			r.Get("/summary", resourcehandler.GetSummary(resourceMgr, genericConfig))
-		})
+	r.Route("/search", func(r chi.Router) {
+		r.Get("/", searchhandler.SearchForResource(resourceMgr, searchStorage))
 	})
 
 	r.Route("/insight", func(r chi.Router) {
-		r.Get("/audit", audithandler.Audit(auditMgr))
-		r.Get("/score", audithandler.Score(auditMgr))
+		r.Route("/audit", func(r chi.Router) {
+			r.Get("/", audithandler.Audit(auditMgr))
+		})
+		r.Route("/score", func(r chi.Router) {
+			r.Get("/", audithandler.Score(auditMgr))
+		})
+		r.Route("/topology", func(r chi.Router) {
+			r.Get("/", topologyhandler.GetTopology(resourceMgr, clusterMgr, genericConfig))
+		})
+		r.Route("/summary", func(r chi.Router) {
+			r.Get("/", summaryhandler.GetSummary(resourceMgr, clusterMgr, genericConfig))
+		})
+		r.Route("/events", func(r chi.Router) {
+			r.Get("/", eventshandler.GetEvents(resourceMgr, genericConfig))
+		})
+
 	})
 }
 

@@ -21,6 +21,17 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
+type LocatorType int
+
+const (
+	Cluster LocatorType = iota
+	GVK
+	Namespace
+	ClusterGVKNamespace
+	Resource
+	NonNamespacedResource
+)
+
 type Locator struct {
 	Cluster    string `json:"cluster" yaml:"cluster"`
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
@@ -67,4 +78,23 @@ func (c *Locator) ToSQL() string {
 	} else {
 		return "SELECT * from resources"
 	}
+}
+
+func (c *Locator) GetType() (LocatorType, bool) {
+	if c.Cluster == "" {
+		return -1, false
+	}
+	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" && c.Name != "" {
+		return LocatorType(Resource), true
+	} else if c.APIVersion != "" && c.Kind != "" && c.Name != "" {
+		return LocatorType(NonNamespacedResource), true
+	} else if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" {
+		return LocatorType(ClusterGVKNamespace), true
+	} else if c.APIVersion != "" && c.Kind != "" {
+		return LocatorType(GVK), true
+	} else if c.Namespace != "" {
+		// TODO: what if only apiversion is present but kind is not?
+		return LocatorType(Namespace), true
+	}
+	return LocatorType(Cluster), true
 }
