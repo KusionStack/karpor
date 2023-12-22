@@ -118,26 +118,23 @@ func (m *AuditManager) Score(ctx context.Context, locator core.Locator) (*ScoreD
 		return nil, err
 	}
 
-	// Initialize variables to calculate the score.
-	issueTotal, severitySum := scanResult.IssueTotal(), 0
+	// Calculate the total score and severity statistics for each resource.
+	var scoreTotal float64
 	severityStats := map[string]int{}
-
-	// Summarize severity statistics for all issues.
-	for issue, resources := range scanResult.ByIssue() {
-		for range resources {
-			severitySum += int(issue.Severity)
-			severityStats[issue.Severity.String()] += 1
+	for _, issues := range scanResult.ByResource() {
+		score, stats := CalculateResourceScore(issues)
+		scoreTotal += score
+		for k, v := range stats {
+			severityStats[k] += v
 		}
 	}
-
-	// Use the aggregated data to calculate the score.
-	score := CalculateScore(issueTotal, severitySum)
+	scoreTotal = scoreTotal / float64(len(scanResult.ByResource()))
 
 	// Prepare the score data including the total, sum and statistics.
 	data := &ScoreData{
-		Score:             score,
-		IssuesTotal:       issueTotal,
-		SeveritySum:       severitySum,
+		Score:             scoreTotal,
+		ResourceTotal:     len(scanResult.ByResource()),
+		IssuesTotal:       scanResult.IssueTotal(),
 		SeverityStatistic: severityStats,
 	}
 

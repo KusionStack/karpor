@@ -16,8 +16,24 @@ package audit
 
 import (
 	"math"
+
+	"github.com/KusionStack/karbour/pkg/scanner"
 )
 
+// CalculateResourceScore calculates the resource score and severity statistics
+// based on the provided issues.
+func CalculateResourceScore(issues scanner.IssueList) (float64, map[string]int) {
+	severityStats := map[string]int{}
+	issueTotal, severitySum := len(issues), 0
+	for _, issue := range issues {
+		severitySum += int(issue.Severity)
+		severityStats[issue.Severity.String()] += 1
+	}
+	return CalculateScore(issueTotal, severitySum), severityStats
+}
+
+// CalculateScore calculates the score based on the number of issues and their
+// severity sum (in the range of 1-5).
 // P is the number of issues, and S is the sum of the severity (range 1-5) of
 // the issue S will not be less than P.
 //
