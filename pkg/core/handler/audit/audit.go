@@ -22,28 +22,27 @@ import (
 	"github.com/KusionStack/karbour/pkg/core/manager/audit"
 	_ "github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 )
 
 // Audit handles the auditing process based on the specified locator.
 //
-//	@Summary		Audit based on locator.
-//	@Description	This endpoint audits based on the specified locator.
-//	@Tags			insight
-//	@Produce		json
-//	@Param			cluster		query		string			false	"The specified cluster name, such as 'example-cluster'"
-//	@Param			apiVersion	query		string			false	"The specified apiVersion, such as 'apps/v1'"
-//	@Param			kind		query		string			false	"The specified kind, such as 'Deployment'"
-//	@Param			namespace	query		string			false	"The specified namespace, such as 'default'"
-//	@Param			name		query		string			false	"The specified resource name, such as 'foo'"
-//	@Success		200			{object}	audit.AuditData	"Audit results"
-//	@Failure		400			{string}	string			"Bad Request"
-//	@Failure		401			{string}	string			"Unauthorized"
-//	@Failure		429			{string}	string			"Too Many Requests"
-//	@Failure		404			{string}	string			"Not Found"
-//	@Failure		500			{string}	string			"Internal Server Error"
-//	@Router			/api/v1/insight/audit [get]
+//	@Summary          Audit based on locator.
+//	@Description    This endpoint audits based on the specified locator.
+//	@Tags                  insight
+//	@Produce             json
+//	@Param               cluster            query                      string           false  "The specified cluster name, such as 'example-cluster'"
+//	@Param               apiVersion  query            string                     false  "The specified apiVersion, such as 'apps/v1'"
+//	@Param               kind               query                      string           false  "The specified kind, such as 'Deployment'"
+//	@Param               namespace   query            string                     false  "The specified namespace, such as 'default'"
+//	@Param               name               query                      string           false  "The specified resource name, such as 'foo'"
+//	@Success        200                     {object}  audit.AuditData  "Audit results"
+//	@Failure        400                     {string}  string               "Bad Request"
+//	@Failure        401                     {string}  string               "Unauthorized"
+//	@Failure        429                     {string}  string               "Too Many Requests"
+//	@Failure        404                     {string}  string               "Not Found"
+//	@Failure        500                     {string}  string               "Internal Server Error"
+//	@Router                          /api/v1/insight/audit [get]
 func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -54,12 +53,10 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Starting audit with specified locator in handler ...")
 
 		// Decode the query parameters into the locator.
-		locator := core.Locator{
-			Cluster:    chi.URLParam(r, "cluster"),
-			APIVersion: chi.URLParam(r, "apiVersion"),
-			Kind:       chi.URLParam(r, "kind"),
-			Namespace:  chi.URLParam(r, "namespace"),
-			Name:       chi.URLParam(r, "name"),
+		locator, err := core.NewLocatorFromQuery(r)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
 		}
 
 		// Log successful decoding of the request body.
@@ -82,22 +79,22 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 // audited manifest. It utilizes an AuditManager to compute the score based
 // on detected issues.
 //
-//	@Summary		ScoreHandler calculates a score for the audited manifest.
-//	@Description	This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.
-//	@Tags			insight
-//	@Produce		json
-//	@Param			cluster		query		string			false	"The specified cluster name, such as 'example-cluster'"
-//	@Param			apiVersion	query		string			false	"The specified apiVersion, such as 'apps/v1'"
-//	@Param			kind		query		string			false	"The specified kind, such as 'Deployment'"
-//	@Param			namespace	query		string			false	"The specified namespace, such as 'default'"
-//	@Param			name		query		string			false	"The specified resource name, such as 'foo'"
-//	@Success		200			{object}	audit.ScoreData	"Score calculation result"
-//	@Failure		400			{string}	string			"Bad Request"
-//	@Failure		401			{string}	string			"Unauthorized"
-//	@Failure		429			{string}	string			"Too Many Requests"
-//	@Failure		404			{string}	string			"Not Found"
-//	@Failure		500			{string}	string			"Internal Server Error"
-//	@Router			/api/v1/insight/score [get]
+//	@Summary          ScoreHandler calculates a score for the audited manifest.
+//	@Description    This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.
+//	@Tags                  insight
+//	@Produce             json
+//	@Param               cluster            query                      string           false  "The specified cluster name, such as 'example-cluster'"
+//	@Param               apiVersion  query            string                     false  "The specified apiVersion, such as 'apps/v1'"
+//	@Param               kind               query                      string           false  "The specified kind, such as 'Deployment'"
+//	@Param               namespace   query            string                     false  "The specified namespace, such as 'default'"
+//	@Param               name               query                      string           false  "The specified resource name, such as 'foo'"
+//	@Success        200                     {object}  audit.ScoreData  "Score calculation result"
+//	@Failure        400                     {string}  string               "Bad Request"
+//	@Failure        401                     {string}  string               "Unauthorized"
+//	@Failure        429                     {string}  string               "Too Many Requests"
+//	@Failure        404                     {string}  string               "Not Found"
+//	@Failure        500                     {string}  string               "Internal Server Error"
+//	@Router                          /api/v1/insight/score [get]
 func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -108,12 +105,10 @@ func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Starting calculate score with specified locator in handler...")
 
 		// Decode the query parameters into the locator.
-		locator := core.Locator{
-			Cluster:    chi.URLParam(r, "cluster"),
-			APIVersion: chi.URLParam(r, "apiVersion"),
-			Kind:       chi.URLParam(r, "kind"),
-			Namespace:  chi.URLParam(r, "namespace"),
-			Name:       chi.URLParam(r, "name"),
+		locator, err := core.NewLocatorFromQuery(r)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
 		}
 
 		// Log successful decoding of the request body.

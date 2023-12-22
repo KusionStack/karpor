@@ -30,30 +30,30 @@ import (
 // GetEvents returns an HTTP handler function that returns events for a
 // Kubernetes resource. It utilizes a ResourceManager to execute the logic.
 //
-//	@Summary		GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//	@Description	This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
-//	@Tags			insight
-//	@Produce		json
-//	@Param			cluster		query		string						false	"The specified cluster name, such as 'example-cluster'"
-//	@Param			apiVersion	query		string						false	"The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
-//	@Param			kind		query		string						false	"The specified kind, such as 'Deployment'"
-//	@Param			namespace	query		string						false	"The specified namespace, such as 'default'"
-//	@Param			name		query		string						false	"The specified resource name, such as 'foo'"
-//	@Success		200			{array}		unstructured.Unstructured	"List of events"
-//	@Failure		400			{string}	string						"Bad Request"
-//	@Failure		401			{string}	string						"Unauthorized"
-//	@Failure		404			{string}	string						"Not Found"
-//	@Failure		405			{string}	string						"Method Not Allowed"
-//	@Failure		429			{string}	string						"Too Many Requests"
-//	@Failure		500			{string}	string						"Internal Server Error"
-//	@Router			/api/v1/insight/events [get]
+//	@Summary          GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+//	@Description    This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
+//	@Tags                  insight
+//	@Produce             json
+//	@Param               cluster            query             string                                    false  "The specified cluster name, such as 'example-cluster'"
+//	@Param               apiVersion  query            string                                     false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
+//	@Param               kind               query             string                                    false  "The specified kind, such as 'Deployment'"
+//	@Param               namespace   query            string                                     false  "The specified namespace, such as 'default'"
+//	@Param               name               query             string                                    false  "The specified resource name, such as 'foo'"
+//	@Success        200                     {array}           unstructured.Unstructured  "List of events"
+//	@Failure        400                     {string}  string                                     "Bad Request"
+//	@Failure        401                     {string}  string                                     "Unauthorized"
+//	@Failure        404                     {string}  string                                     "Not Found"
+//	@Failure        405                     {string}  string                                     "Method Not Allowed"
+//	@Failure        429                     {string}  string                                     "Too Many Requests"
+//	@Failure        500                     {string}  string                                     "Internal Server Error"
+//	@Router                          /api/v1/insight/events [get]
 func GetEvents(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		loc, err := resource.BuildLocatorFromQuery(r)
+		loc, err := core.NewLocatorFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -68,7 +68,7 @@ func GetEvents(resourceMgr *resource.ResourceManager, c *server.CompletedConfig)
 
 		locType, ok := loc.GetType()
 		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
-			result, err := resourceMgr.GetResourceEvents(r.Context(), client, loc)
+			result, err := resourceMgr.GetResourceEvents(r.Context(), client, &loc)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return

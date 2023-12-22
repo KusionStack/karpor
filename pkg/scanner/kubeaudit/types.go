@@ -126,7 +126,10 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issues = make([]*scanner.Issue, 0)
 	}
 
-	locator := core.LocatorFor(resource)
+	locator, err := core.NewLocatorFromResource(resource)
+	if err != nil {
+		return
+	}
 
 	if _, exist := sr.locatorMap[locator]; !exist {
 		sr.locatorMap[locator] = resource
