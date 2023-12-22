@@ -20,8 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/core/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -29,7 +28,7 @@ import (
 )
 
 // GetTopology returns an HTTP handler function that returns a topology map for
-// a Kubernetes resource. It utilizes a ResourceManager to execute the logic.
+// a Kubernetes resource. It utilizes an InsightManager to execute the logic.
 //
 //	@Summary          GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
 //	@Description    This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
@@ -48,7 +47,7 @@ import (
 //	@Failure        429                     {string}  string                                                "Too Many Requests"
 //	@Failure        500                     {string}  string                                                "Internal Server Error"
 //	@Router                          /api/v1/insight/topology [get]
-func GetTopology(resourceMgr *resource.ResourceManager, clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -69,21 +68,21 @@ func GetTopology(resourceMgr *resource.ResourceManager, clusterMgr *cluster.Clus
 
 		locType, ok := loc.GetType()
 		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
-			resourceTopologyMap, err := resourceMgr.GetTopologyForResource(r.Context(), client, &loc)
+			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, resourceTopologyMap))
 		} else if ok && locType == core.Cluster {
-			clusterTopologyMap, err := clusterMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster)
+			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, clusterTopologyMap))
 		} else if ok && locType == core.Namespace {
-			namespaceTopologyMap, err := clusterMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace)
+			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return

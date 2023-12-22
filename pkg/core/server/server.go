@@ -29,7 +29,8 @@ import (
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
 	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
+	insightmanager "github.com/KusionStack/karbour/pkg/core/manager/insight"
+	searchmanager "github.com/KusionStack/karbour/pkg/core/manager/search"
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
@@ -64,7 +65,10 @@ func NewCoreServer(
 	clusterMgr := clustermanager.NewClusterManager(&clustermanager.ClusterConfig{
 		Verbose: false,
 	})
-	resourceMgr := resourcemanager.NewResourceManager(&resourcemanager.ResourceConfig{
+	insightMgr := insightmanager.NewInsightManager(&insightmanager.InsightConfig{
+		Verbose: false,
+	})
+	searchMgr := searchmanager.NewSearchManager(&searchmanager.SearchConfig{
 		Verbose: false,
 	})
 	auditMgr, err := auditmanager.NewAuditManager(searchStorage)
@@ -80,7 +84,7 @@ func NewCoreServer(
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, clusterMgr, resourceMgr, auditMgr, searchStorage, genericConfig)
+		setupAPIV1(r, clusterMgr, insightMgr, searchMgr, auditMgr, searchStorage, genericConfig)
 	})
 
 	// Endpoint to list all available endpoints in the router.
@@ -98,7 +102,8 @@ func NewCoreServer(
 func setupAPIV1(
 	r chi.Router,
 	clusterMgr *clustermanager.ClusterManager,
-	resourceMgr *resourcemanager.ResourceManager,
+	insightMgr *insightmanager.InsightManager,
+	searchMgr *searchmanager.SearchManager,
 	auditMgr *auditmanager.AuditManager,
 	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
@@ -121,7 +126,7 @@ func setupAPIV1(
 	})
 
 	r.Route("/search", func(r chi.Router) {
-		r.Get("/", searchhandler.SearchForResource(resourceMgr, searchStorage))
+		r.Get("/", searchhandler.SearchForResource(searchMgr, searchStorage))
 	})
 
 	r.Route("/insight", func(r chi.Router) {
@@ -132,16 +137,16 @@ func setupAPIV1(
 			r.Get("/", audithandler.Score(auditMgr))
 		})
 		r.Route("/topology", func(r chi.Router) {
-			r.Get("/", topologyhandler.GetTopology(resourceMgr, clusterMgr, genericConfig))
+			r.Get("/", topologyhandler.GetTopology(insightMgr, genericConfig))
 		})
 		r.Route("/summary", func(r chi.Router) {
-			r.Get("/", summaryhandler.GetSummary(resourceMgr, clusterMgr, genericConfig))
+			r.Get("/", summaryhandler.GetSummary(insightMgr, genericConfig))
 		})
 		r.Route("/events", func(r chi.Router) {
-			r.Get("/", eventshandler.GetEvents(resourceMgr, genericConfig))
+			r.Get("/", eventshandler.GetEvents(insightMgr, genericConfig))
 		})
 		r.Route("/detail", func(r chi.Router) {
-			r.Get("/", detailhandler.GetDetail(resourceMgr, genericConfig))
+			r.Get("/", detailhandler.GetDetail(insightMgr, genericConfig))
 		})
 	})
 }

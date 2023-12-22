@@ -20,8 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/core/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -29,7 +28,7 @@ import (
 )
 
 // GetSummary returns an HTTP handler function that returns a Kubernetes
-// resource summary. It utilizes a ResourceManager to execute the logic.
+// resource summary. It utilizes an InsightManager to execute the logic.
 //
 //	@Summary          Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
 //	@Description    This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
@@ -48,7 +47,7 @@ import (
 //	@Failure        429                     {string}  string                              "Too Many Requests"
 //	@Failure        500                     {string}  string                              "Internal Server Error"
 //	@Router                          /api/v1/insight/summary [get]
-func GetSummary(resourceMgr *resource.ResourceManager, clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -69,14 +68,14 @@ func GetSummary(resourceMgr *resource.ResourceManager, clusterMgr *cluster.Clust
 
 		locType, ok := loc.GetType()
 		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
-			resourceSummary, err := resourceMgr.GetResourceSummary(r.Context(), client, &loc)
+			resourceSummary, err := insightMgr.GetResourceSummary(r.Context(), client, &loc)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, resourceSummary))
 		} else if ok && locType == core.Cluster {
-			clusterDetail, err := clusterMgr.GetDetailsForCluster(r.Context(), client, loc.Cluster)
+			clusterDetail, err := insightMgr.GetDetailsForCluster(r.Context(), client, loc.Cluster)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return

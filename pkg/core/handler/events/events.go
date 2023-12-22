@@ -20,7 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -28,7 +28,7 @@ import (
 )
 
 // GetEvents returns an HTTP handler function that returns events for a
-// Kubernetes resource. It utilizes a ResourceManager to execute the logic.
+// Kubernetes resource. It utilizes an InsightManager to execute the logic.
 //
 //	@Summary          GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
 //	@Description    This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.
@@ -47,7 +47,7 @@ import (
 //	@Failure        429                     {string}  string                                     "Too Many Requests"
 //	@Failure        500                     {string}  string                                     "Internal Server Error"
 //	@Router                          /api/v1/insight/events [get]
-func GetEvents(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
+func GetEvents(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -68,7 +68,7 @@ func GetEvents(resourceMgr *resource.ResourceManager, c *server.CompletedConfig)
 
 		locType, ok := loc.GetType()
 		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
-			result, err := resourceMgr.GetResourceEvents(r.Context(), client, &loc)
+			result, err := insightMgr.GetResourceEvents(r.Context(), client, &loc)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(ctx, err))
 				return

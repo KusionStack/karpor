@@ -21,7 +21,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -29,7 +29,7 @@ import (
 )
 
 // GetDetail returns an HTTP handler function that returns a Kubernetes
-// resource. It utilizes a ResourceManager to execute the logic.
+// resource. It utilizes an InsightManager to execute the logic.
 //
 //	@Summary          GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
 //	@Description    This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
@@ -49,7 +49,7 @@ import (
 //	@Failure        429                     {string}  string                               "Too Many Requests"
 //	@Failure        500                     {string}  string                               "Internal Server Error"
 //	@Router                          /api/v1/insight/detail [get]
-func GetDetail(resourceMgr *resource.ResourceManager, c *server.CompletedConfig) http.HandlerFunc {
+func GetDetail(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -73,14 +73,14 @@ func GetDetail(resourceMgr *resource.ResourceManager, c *server.CompletedConfig)
 		locType, ok := loc.GetType()
 		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
 			if strings.ToLower(outputFormat) == "yaml" {
-				resourceYAML, err := resourceMgr.GetYAMLForResource(r.Context(), client, &loc)
+				resourceYAML, err := insightMgr.GetYAMLForResource(r.Context(), client, &loc)
 				if err != nil {
 					render.Render(w, r, handler.FailureResponse(ctx, err))
 					return
 				}
 				render.JSON(w, r, handler.SuccessResponse(ctx, string(resourceYAML)))
 			} else {
-				resourceUnstructured, err := resourceMgr.GetResource(r.Context(), client, &loc)
+				resourceUnstructured, err := insightMgr.GetResource(r.Context(), client, &loc)
 				if err != nil {
 					render.Render(w, r, handler.FailureResponse(ctx, err))
 					return

@@ -19,7 +19,7 @@ import (
 	"strconv"
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/resource"
+	"github.com/KusionStack/karbour/pkg/core/manager/search"
 	"github.com/KusionStack/karbour/pkg/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -28,7 +28,7 @@ import (
 
 // SearchForResource returns an HTTP handler function that returns an
 // array of Kubernetes runtime Object matched using the query from
-// context. It utilizes a ResourceManager to execute the logic.
+// context. It utilizes a SearchManager to execute the logic.
 //
 //	@Summary          SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.
 //	@Description    This endpoint returns an array of Kubernetes runtime Object matched using the query from context.
@@ -46,7 +46,7 @@ import (
 //	@Failure        429                   {string}  string                    "Too Many Requests"
 //	@Failure        500                   {string}  string                    "Internal Server Error"
 //	@Router                        /api/v1/search [get]
-func SearchForResource(resourceMgr *resource.ResourceManager, searchStorage storage.SearchStorage) http.HandlerFunc {
+func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -71,11 +71,11 @@ func SearchForResource(resourceMgr *resource.ResourceManager, searchStorage stor
 			return
 		}
 
-		rt := &resource.UniResourceList{}
+		rt := &search.UniResourceList{}
 		for _, r := range res.Resources {
 			unObj := &unstructured.Unstructured{}
 			unObj.SetUnstructuredContent(r.Object)
-			rt.Items = append(rt.Items, resource.UniResource{
+			rt.Items = append(rt.Items, search.UniResource{
 				Cluster: r.Cluster,
 				Object:  unObj,
 			})
