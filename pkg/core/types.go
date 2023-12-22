@@ -23,8 +23,10 @@ import (
 	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
+// LocatorType represents the type of a Locator.
 type LocatorType int
 
+// Enumerated constants representing different types of Locators.
 const (
 	Cluster LocatorType = iota
 	GVK
@@ -34,6 +36,7 @@ const (
 	NonNamespacedResource
 )
 
+// Locator represents information required to locate a resource.
 type Locator struct {
 	Cluster    string `json:"cluster" yaml:"cluster"`
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
@@ -42,6 +45,7 @@ type Locator struct {
 	Name       string `json:"name" yaml:"name"`
 }
 
+// NewLocatorFromResource creates a Locator from a storage.Resource.
 func NewLocatorFromResource(r *storage.Resource) (Locator, error) {
 	if r.Cluster == "" {
 		return Locator{}, fmt.Errorf("cluster cannot be empty")
@@ -56,15 +60,16 @@ func NewLocatorFromResource(r *storage.Resource) (Locator, error) {
 	}, nil
 }
 
+// NewLocatorFromQuery creates a Locator from an HTTP request query parameters.
 func NewLocatorFromQuery(r *http.Request) (Locator, error) {
-	apiVersion := r.URL.Query().Get("apiVersion")
-	if r.URL.RawPath != "" {
-		apiVersion, _ = url.PathUnescape(apiVersion)
-	}
-
 	cluster := r.URL.Query().Get("cluster")
 	if cluster == "" {
 		return Locator{}, fmt.Errorf("cluster cannot be empty")
+	}
+
+	apiVersion := r.URL.Query().Get("apiVersion")
+	if r.URL.RawPath != "" {
+		apiVersion, _ = url.PathUnescape(apiVersion)
 	}
 
 	return Locator{
@@ -76,6 +81,7 @@ func NewLocatorFromQuery(r *http.Request) (Locator, error) {
 	}, nil
 }
 
+// ToSQL generates a SQL query string based on the Locator.
 func (c *Locator) ToSQL() string {
 	var conditions []string
 
@@ -102,6 +108,7 @@ func (c *Locator) ToSQL() string {
 	}
 }
 
+// GetType returns the type of Locator and a boolean indicating success.
 func (c *Locator) GetType() (LocatorType, bool) {
 	if c.Cluster == "" {
 		return -1, false
