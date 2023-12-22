@@ -30,7 +30,7 @@
                     "200": {
                         "description": "Returns the content of the uploaded KubeConfig file.",
                         "schema": {
-                            "$ref": "#/definitions/cluster.UploadData"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.UploadData"
                         }
                     },
                     "400": {
@@ -69,7 +69,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cluster.ValidatePayload"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ValidatePayload"
                         }
                     }
                 ],
@@ -196,7 +196,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cluster.ClusterPayload"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -265,7 +265,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/cluster.ClusterPayload"
+                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -494,7 +494,7 @@
                     "200": {
                         "description": "Audit results",
                         "schema": {
-                            "$ref": "#/definitions/audit.AuditData"
+                            "$ref": "#/definitions/pkg_core_handler_audit.AuditData"
                         }
                     },
                     "400": {
@@ -761,7 +761,7 @@
                     "200": {
                         "description": "Score calculation result",
                         "schema": {
-                            "$ref": "#/definitions/audit.ScoreData"
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData"
                         }
                     },
                     "400": {
@@ -843,7 +843,7 @@
                     "200": {
                         "description": "Resource Summary",
                         "schema": {
-                            "$ref": "#/definitions/resource.ResourceSummary"
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary"
                         }
                     },
                     "400": {
@@ -933,7 +933,7 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/resource.ResourceTopology"
+                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology"
                             }
                         }
                     },
@@ -1063,107 +1063,7 @@
         }
     },
     "definitions": {
-        "audit.AuditData": {
-            "type": "object",
-            "properties": {
-                "bySeverity": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "issueGroups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/audit.IssueGroup"
-                    }
-                },
-                "issueTotal": {
-                    "type": "integer"
-                },
-                "resourceTotal": {
-                    "type": "integer"
-                }
-            }
-        },
-        "audit.IssueGroup": {
-            "type": "object",
-            "properties": {
-                "issue": {
-                    "$ref": "#/definitions/scanner.Issue"
-                },
-                "locators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/core.Locator"
-                    }
-                }
-            }
-        },
-        "audit.ScoreData": {
-            "type": "object",
-            "properties": {
-                "issuesTotal": {
-                    "description": "IssuesTotal is the total count of all issues found during the audit.\nThis count can be used to understand the overall number of problems\nthat need to be addressed.",
-                    "type": "integer"
-                },
-                "score": {
-                    "description": "Score represents the calculated score of the audited manifest based on\nthe number and severity of issues. It provides a quantitative measure\nof the security posture of the resources in the manifest.",
-                    "type": "number"
-                },
-                "severityStatistic": {
-                    "description": "SeverityStatistic is a mapping of severity levels to their respective\nnumber of occurrences. It allows for a quick overview of the distribution\nof issues across different severity categories.",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "severitySum": {
-                    "description": "SeveritySum is the sum of severity scores of all issues, which can be\nused to gauge the cumulative severity of all problems found.",
-                    "type": "integer"
-                }
-            }
-        },
-        "cluster.ClusterPayload": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "description": "ClusterDescription is the description of cluster to be created",
-                    "type": "string"
-                },
-                "displayName": {
-                    "description": "ClusterDisplayName is the display name of cluster to be created",
-                    "type": "string"
-                },
-                "kubeconfig": {
-                    "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
-                    "type": "string"
-                }
-            }
-        },
-        "cluster.UploadData": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "fileName": {
-                    "type": "string"
-                },
-                "fileSize": {
-                    "type": "integer"
-                }
-            }
-        },
-        "cluster.ValidatePayload": {
-            "type": "object",
-            "properties": {
-                "kubeConfig": {
-                    "type": "string"
-                }
-            }
-        },
-        "core.Locator": {
+        "github_com_KusionStack_karbour_pkg_core.Locator": {
             "type": "object",
             "properties": {
                 "apiVersion": {
@@ -1183,14 +1083,38 @@
                 }
             }
         },
-        "resource.ResourceSummary": {
+        "github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData": {
+            "type": "object",
+            "properties": {
+                "issuesTotal": {
+                    "description": "IssuesTotal is the total count of all issues found during the audit.\nThis count can be used to understand the overall number of problems\nthat need to be addressed.",
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "description": "ResourceTotal is the count of unique resources audited during the scan.",
+                    "type": "integer"
+                },
+                "score": {
+                    "description": "Score represents the calculated score of the audited manifest based on\nthe number and severity of issues. It provides a quantitative measure\nof the security posture of the resources in the manifest.",
+                    "type": "number"
+                },
+                "severityStatistic": {
+                    "description": "SeverityStatistic is a mapping of severity levels to their respective\nnumber of occurrences. It allows for a quick overview of the distribution\nof issues across different severity categories.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary": {
             "type": "object",
             "properties": {
                 "creationTimestamp": {
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/core.Locator"
+                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
                 },
                 "resourceVersion": {
                     "type": "string"
@@ -1200,7 +1124,7 @@
                 }
             }
         },
-        "resource.ResourceTopology": {
+        "github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology": {
             "type": "object",
             "properties": {
                 "children": {
@@ -1220,7 +1144,7 @@
                 }
             }
         },
-        "scanner.Issue": {
+        "github_com_KusionStack_karbour_pkg_scanner.Issue": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1233,10 +1157,114 @@
                 },
                 "severity": {
                     "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
-                    "type": "integer"
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel"
+                        }
+                    ]
                 },
                 "title": {
                     "description": "Title is a brief summary of the issue.",
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel": {
+            "type": "integer",
+            "enum": [
+                0,
+                1,
+                2,
+                3,
+                5
+            ],
+            "x-enum-comments": {
+                "Critical": "Critical indicates an extremely serious issue that must be addressed immediately.",
+                "High": "High indicates a serious issue that has a significant impact.",
+                "Low": "Low indicates a minor issue that should be addressed.",
+                "Medium": "Medium indicates a potential issue that may have a moderate impact.",
+                "Safe": "Safe indicates the absence of any security risk or an informational finding that does not require action."
+            },
+            "x-enum-varnames": [
+                "Safe",
+                "Low",
+                "Medium",
+                "High",
+                "Critical"
+            ]
+        },
+        "pkg_core_handler_audit.AuditData": {
+            "type": "object",
+            "properties": {
+                "bySeverity": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "issueGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pkg_core_handler_audit.IssueGroup"
+                    }
+                },
+                "issueTotal": {
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg_core_handler_audit.IssueGroup": {
+            "type": "object",
+            "properties": {
+                "issue": {
+                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue"
+                },
+                "locators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
+                    }
+                }
+            }
+        },
+        "pkg_core_handler_cluster.ClusterPayload": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "ClusterDescription is the description of cluster to be created",
+                    "type": "string"
+                },
+                "displayName": {
+                    "description": "ClusterDisplayName is the display name of cluster to be created",
+                    "type": "string"
+                },
+                "kubeconfig": {
+                    "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
+                    "type": "string"
+                }
+            }
+        },
+        "pkg_core_handler_cluster.UploadData": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg_core_handler_cluster.ValidatePayload": {
+            "type": "object",
+            "properties": {
+                "kubeConfig": {
                     "type": "string"
                 }
             }
