@@ -128,7 +128,7 @@ func (m *AuditManager) Score(ctx context.Context, locator core.Locator) (*ScoreD
 			severityStats[k] += v
 		}
 	}
-	scoreTotal = scoreTotal / float64(len(scanResult.ByResource()))
+	scoreTotal /= float64(len(scanResult.ByResource()))
 
 	// Prepare the score data including the total, sum and statistics.
 	data := &ScoreData{
