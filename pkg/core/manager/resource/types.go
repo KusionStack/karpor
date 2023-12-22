@@ -15,6 +15,7 @@
 package resource
 
 import (
+	"github.com/KusionStack/karbour/pkg/core"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -24,29 +25,21 @@ type ResourceConfig struct {
 	Verbose bool `json:"verbose"`
 }
 
-type Resource struct {
-	Name       string `json:"name"`
-	Namespace  string `json:"namespace"`
-	APIVersion string `json:"apiVersion"`
-	Kind       string `json:"kind"`
-	Cluster    string `json:"cluster"`
-}
-
 type ResourceSummary struct {
-	Resource          Resource    `json:"resource"`
-	CreationTimestamp metav1.Time `json:"creationTimestamp"`
-	ResourceVersion   string      `json:"resourceVersion"`
-	UID               types.UID   `json:"uid"`
+	Resource          core.Locator `json:"resource"`
+	CreationTimestamp metav1.Time  `json:"creationTimestamp"`
+	ResourceVersion   string       `json:"resourceVersion"`
+	UID               types.UID    `json:"uid"`
 }
 
 type ResourceEvents struct {
-	Resource       Resource    `json:"resource"`
-	Count          int         `json:"count"`
-	Reason         string      `json:"reason"`
-	Source         string      `json:"source"`
-	Type           string      `json:"type"`
-	LastTimestamp  metav1.Time `json:"firstTimestamp"`
-	FirstTimestamp metav1.Time `json:"lastTimestamp"`
+	Resource       core.Locator `json:"resource"`
+	Count          int          `json:"count"`
+	Reason         string       `json:"reason"`
+	Source         string       `json:"source"`
+	Type           string       `json:"type"`
+	LastTimestamp  metav1.Time  `json:"firstTimestamp"`
+	FirstTimestamp metav1.Time  `json:"lastTimestamp"`
 }
 
 type ResourceTopology struct {

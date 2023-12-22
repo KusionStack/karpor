@@ -22,8 +22,8 @@ import (
 	docs "github.com/KusionStack/karbour/api/openapispec"
 	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
+	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
-	resourcehandler "github.com/KusionStack/karbour/pkg/core/handler/resource"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
 	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
@@ -140,11 +140,8 @@ func setupAPIV1(
 		r.Route("/events", func(r chi.Router) {
 			r.Get("/", eventshandler.GetEvents(resourceMgr, genericConfig))
 		})
-	})
-
-	r.Route("/resource", func(r chi.Router) {
-		r.Route("/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}", func(r chi.Router) {
-			r.Get("/", resourcehandler.Get(resourceMgr, genericConfig))
+		r.Route("/detail", func(r chi.Router) {
+			r.Get("/", detailhandler.GetDetail(resourceMgr, genericConfig))
 		})
 	})
 }

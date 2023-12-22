@@ -40,25 +40,12 @@ definitions:
           used to gauge the cumulative severity of all problems found.
         type: integer
     type: object
-  github_com_KusionStack_karbour_pkg_core_manager_resource.Resource:
-    properties:
-      apiVersion:
-        type: string
-      cluster:
-        type: string
-      kind:
-        type: string
-      name:
-        type: string
-      namespace:
-        type: string
-    type: object
   github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceSummary:
     properties:
       creationTimestamp:
         type: string
       resource:
-        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_resource.Resource'
+        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core.Locator'
       resourceVersion:
         type: string
       uid:
@@ -531,6 +518,71 @@ paths:
       summary: Audit based on locator.
       tags:
       - insight
+  /api/v1/insight/detail:
+    get:
+      description: This endpoint returns a Kubernetes resource by name, namespace,
+        cluster, apiVersion and kind.
+      parameters:
+      - description: The format of the response. Either in json or yaml. Default to
+          json
+        in: query
+        name: format
+        type: string
+      - description: The specified cluster name, such as 'example-cluster'
+        in: query
+        name: cluster
+        type: string
+      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
+        in: query
+        name: apiVersion
+        type: string
+      - description: The specified kind, such as 'Deployment'
+        in: query
+        name: kind
+        type: string
+      - description: The specified namespace, such as 'default'
+        in: query
+        name: namespace
+        type: string
+      - description: The specified resource name, such as 'foo'
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unstructured object
+          schema:
+            $ref: '#/definitions/unstructured.Unstructured'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: GetDetail returns a Kubernetes resource by name, namespace, cluster,
+        apiVersion and kind.
+      tags:
+      - resource
   /api/v1/insight/events:
     get:
       description: This endpoint returns events for a Kubernetes resource YAML by
@@ -768,51 +820,6 @@ paths:
             type: string
       summary: GetTopology returns a topology map for a Kubernetes resource by name,
         namespace, cluster, apiVersion and kind.
-      tags:
-      - resource
-  /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/:
-    get:
-      description: This endpoint returns a Kubernetes resource by name, namespace,
-        cluster, apiVersion and kind.
-      parameters:
-      - description: The format of the response. Either in json or yaml. Default to
-          json
-        in: query
-        name: format
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Unstructured object
-          schema:
-            $ref: '#/definitions/unstructured.Unstructured'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "405":
-          description: Method Not Allowed
-          schema:
-            type: string
-        "429":
-          description: Too Many Requests
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get returns a Kubernetes resource by name, namespace, cluster, apiVersion
-        and kind.
       tags:
       - resource
   /api/v1/resource/search:

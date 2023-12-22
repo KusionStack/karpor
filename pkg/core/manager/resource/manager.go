@@ -64,7 +64,7 @@ func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multic
 	}
 
 	return &ResourceSummary{
-		Resource: Resource{
+		Resource: core.Locator{
 			Name:       obj.GetName(),
 			Namespace:  obj.GetNamespace(),
 			APIVersion: obj.GetAPIVersion(),
@@ -226,17 +226,4 @@ func (r *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relati
 		}
 	}
 	return m
-}
-
-func (r *ResourceManager) ConvertResourceToLocator(res *Resource) *core.Locator {
-	if res != nil {
-		return &core.Locator{
-			Cluster:    res.Cluster,
-			APIVersion: res.APIVersion,
-			Kind:       res.Kind,
-			Namespace:  res.Namespace,
-			Name:       res.Name,
-		}
-	}
-	return nil
 }

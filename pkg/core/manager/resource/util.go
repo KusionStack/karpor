@@ -20,23 +20,7 @@ import (
 	"net/url"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/go-chi/chi/v5"
 )
-
-func BuildResourceFromParam(r *http.Request) *Resource {
-	apiVersion := chi.URLParam(r, "apiVersion")
-	if r.URL.RawPath != "" {
-		apiVersion, _ = url.PathUnescape(apiVersion)
-	}
-	res := Resource{
-		Cluster:    chi.URLParam(r, "clusterName"),
-		APIVersion: apiVersion,
-		Kind:       chi.URLParam(r, "kind"),
-		Namespace:  chi.URLParam(r, "namespaceName"),
-		Name:       chi.URLParam(r, "resourceName"),
-	}
-	return &res
-}
 
 func BuildLocatorFromQuery(r *http.Request) (*core.Locator, error) {
 	apiVersion := r.URL.Query().Get("apiVersion")

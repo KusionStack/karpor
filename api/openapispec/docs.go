@@ -541,6 +541,100 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/v1/insight/detail": {
+            "get": {
+                "description": "This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resource"
+                ],
+                "summary": "GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The format of the response. Either in json or yaml. Default to json",
+                        "name": "format",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/insight/events": {
             "get": {
                 "description": "This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
@@ -893,70 +987,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/": {
-            "get": {
-                "description": "This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "resource"
-                ],
-                "summary": "Get returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The format of the response. Either in json or yaml. Default to json",
-                        "name": "format",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Unstructured object",
-                        "schema": {
-                            "$ref": "#/definitions/unstructured.Unstructured"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "405": {
-                        "description": "Method Not Allowed",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
         "/api/v1/resource/search": {
             "get": {
                 "description": "This endpoint returns an array of Kubernetes runtime Object matched using the query from context.",
@@ -1088,26 +1118,6 @@ const docTemplate = `{
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_resource.Resource": {
-            "type": "object",
-            "properties": {
-                "apiVersion": {
-                    "type": "string"
-                },
-                "cluster": {
-                    "type": "string"
-                },
-                "kind": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "namespace": {
-                    "type": "string"
-                }
-            }
-        },
         "github_com_KusionStack_karbour_pkg_core_manager_resource.ResourceSummary": {
             "type": "object",
             "properties": {
@@ -1115,7 +1125,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_resource.Resource"
+                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
                 },
                 "resourceVersion": {
                     "type": "string"
