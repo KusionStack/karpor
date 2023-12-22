@@ -20,14 +20,12 @@ import (
 	"strings"
 
 	docs "github.com/KusionStack/karbour/api/openapispec"
-
 	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
 	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
-
 	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	resourcemanager "github.com/KusionStack/karbour/pkg/core/manager/resource"
@@ -35,6 +33,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/KusionStack/karbour/pkg/search/storage"
+
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpswagger "github.com/swaggo/http-swagger"

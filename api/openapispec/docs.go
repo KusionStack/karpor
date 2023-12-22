@@ -134,6 +134,14 @@ const docTemplate = `{
                     "cluster"
                 ],
                 "summary": "Get returns a cluster resource by name.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The format of the response. Either in json or yaml",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Unstructured object",
@@ -382,6 +390,26 @@ const docTemplate = `{
                     "cluster"
                 ],
                 "summary": "List lists all cluster resources.",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Whether to display summary or not. Default to false",
+                        "name": "summary",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The order to list the cluster. Default to order by name",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether to sort the list in descending order. Default to false",
+                        "name": "descending",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of cluster objects",
@@ -523,6 +551,38 @@ const docTemplate = `{
                     "resource"
                 ],
                 "summary": "GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "List of events",
@@ -664,6 +724,38 @@ const docTemplate = `{
                     "resource"
                 ],
                 "summary": "Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Resource Summary",
@@ -720,6 +812,38 @@ const docTemplate = `{
                     "resource"
                 ],
                 "summary": "GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "map from string to resource.ResourceTopology",
@@ -779,70 +903,19 @@ const docTemplate = `{
                     "resource"
                 ],
                 "summary": "Get returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The format of the response. Either in json or yaml. Default to json",
+                        "name": "format",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Unstructured object",
                         "schema": {
                             "$ref": "#/definitions/unstructured.Unstructured"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "405": {
-                        "description": "Method Not Allowed",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml": {
-            "get": {
-                "description": "This endpoint returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "resource"
-                ],
-                "summary": "GetYAML returns a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
-                "responses": {
-                    "200": {
-                        "description": "Byte array",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "type": "integer"
-                            }
                         }
                     },
                     "400": {
@@ -894,6 +967,34 @@ const docTemplate = `{
                     "resource"
                 ],
                 "summary": "SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The query to use for search. Required",
+                        "name": "query",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The search pattern. Can be either sql or dsl. Required",
+                        "name": "pattern",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The size of the page. Default to 10",
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The current page to fetch. Default to 1",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Array of runtime.Object",

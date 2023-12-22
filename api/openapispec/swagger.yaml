@@ -219,6 +219,11 @@ paths:
       - cluster
     get:
       description: This endpoint returns a cluster resource by name.
+      parameters:
+      - description: The format of the response. Either in json or yaml
+        in: query
+        name: format
+        type: string
       produces:
       - application/json
       responses:
@@ -423,6 +428,19 @@ paths:
   /api/v1/clusters:
     get:
       description: This endpoint lists all cluster resources.
+      parameters:
+      - description: Whether to display summary or not. Default to false
+        in: query
+        name: summary
+        type: boolean
+      - description: The order to list the cluster. Default to order by name
+        in: query
+        name: orderBy
+        type: string
+      - description: Whether to sort the list in descending order. Default to false
+        in: query
+        name: descending
+        type: boolean
       produces:
       - application/json
       responses:
@@ -517,6 +535,27 @@ paths:
     get:
       description: This endpoint returns events for a Kubernetes resource YAML by
         name, namespace, cluster, apiVersion and kind.
+      parameters:
+      - description: The specified cluster name, such as 'example-cluster'
+        in: query
+        name: cluster
+        type: string
+      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
+        in: query
+        name: apiVersion
+        type: string
+      - description: The specified kind, such as 'Deployment'
+        in: query
+        name: kind
+        type: string
+      - description: The specified namespace, such as 'default'
+        in: query
+        name: namespace
+        type: string
+      - description: The specified resource name, such as 'foo'
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -613,6 +652,27 @@ paths:
     get:
       description: This endpoint returns a Kubernetes resource summary by name, namespace,
         cluster, apiVersion and kind.
+      parameters:
+      - description: The specified cluster name, such as 'example-cluster'
+        in: query
+        name: cluster
+        type: string
+      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
+        in: query
+        name: apiVersion
+        type: string
+      - description: The specified kind, such as 'Deployment'
+        in: query
+        name: kind
+        type: string
+      - description: The specified namespace, such as 'default'
+        in: query
+        name: namespace
+        type: string
+      - description: The specified resource name, such as 'foo'
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -652,6 +712,27 @@ paths:
     get:
       description: This endpoint returns a topology map for a Kubernetes resource
         by name, namespace, cluster, apiVersion and kind.
+      parameters:
+      - description: The specified cluster name, such as 'example-cluster'
+        in: query
+        name: cluster
+        type: string
+      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
+        in: query
+        name: apiVersion
+        type: string
+      - description: The specified kind, such as 'Deployment'
+        in: query
+        name: kind
+        type: string
+      - description: The specified namespace, such as 'default'
+        in: query
+        name: namespace
+        type: string
+      - description: The specified resource name, such as 'foo'
+        in: query
+        name: name
+        type: string
       produces:
       - application/json
       responses:
@@ -693,6 +774,12 @@ paths:
     get:
       description: This endpoint returns a Kubernetes resource by name, namespace,
         cluster, apiVersion and kind.
+      parameters:
+      - description: The format of the response. Either in json or yaml. Default to
+          json
+        in: query
+        name: format
+        type: string
       produces:
       - application/json
       responses:
@@ -728,51 +815,29 @@ paths:
         and kind.
       tags:
       - resource
-  /api/v1/resource/cluster/{clusterName}/{apiVersion}/namespace/{namespaceName}/{kind}/name/{resourceName}/yaml:
-    get:
-      description: This endpoint returns a Kubernetes resource YAML by name, namespace,
-        cluster, apiVersion and kind.
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Byte array
-          schema:
-            items:
-              type: integer
-            type: array
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "405":
-          description: Method Not Allowed
-          schema:
-            type: string
-        "429":
-          description: Too Many Requests
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: GetYAML returns a Kubernetes resource YAML by name, namespace, cluster,
-        apiVersion and kind.
-      tags:
-      - resource
   /api/v1/resource/search:
     get:
       description: This endpoint returns an array of Kubernetes runtime Object matched
         using the query from context.
+      parameters:
+      - description: The query to use for search. Required
+        in: query
+        name: query
+        required: true
+        type: string
+      - description: The search pattern. Can be either sql or dsl. Required
+        in: query
+        name: pattern
+        required: true
+        type: string
+      - description: The size of the page. Default to 10
+        in: query
+        name: pageSize
+        type: string
+      - description: The current page to fetch. Default to 1
+        in: query
+        name: page
+        type: string
       produces:
       - application/json
       responses:

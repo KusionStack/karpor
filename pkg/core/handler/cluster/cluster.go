@@ -15,7 +15,6 @@
 package cluster
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"path/filepath"
@@ -42,13 +41,14 @@ import (
 //	@Description	This endpoint returns a cluster resource by name.
 //	@Tags			cluster
 //	@Produce		json
-//	@Success		200	{object}	unstructured.Unstructured	"Unstructured object"
-//	@Failure		400	{string}	string						"Bad Request"
-//	@Failure		401	{string}	string						"Unauthorized"
-//	@Failure		404	{string}	string						"Not Found"
-//	@Failure		405	{string}	string						"Method Not Allowed"
-//	@Failure		429	{string}	string						"Too Many Requests"
-//	@Failure		500	{string}	string						"Internal Server Error"
+//	@Param			format	query		string						false	"The format of the response. Either in json or yaml"
+//	@Success		200		{object}	unstructured.Unstructured	"Unstructured object"
+//	@Failure		400		{string}	string						"Bad Request"
+//	@Failure		401		{string}	string						"Unauthorized"
+//	@Failure		404		{string}	string						"Not Found"
+//	@Failure		405		{string}	string						"Method Not Allowed"
+//	@Failure		429		{string}	string						"Too Many Requests"
+//	@Failure		500		{string}	string						"Internal Server Error"
 //	@Router			/api/v1/cluster/{clusterName} [get]
 func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -72,15 +72,13 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, string(clusterYAML)))
-		} else if strings.ToLower(outputFormat) == "json" {
+		} else {
 			clusterUnstructured, err := clusterMgr.GetCluster(r.Context(), client, cluster)
 			if err != nil {
 				render.Render(w, r, handler.FailureResponse(r.Context(), err))
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, clusterUnstructured))
-		} else {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("format can only be yaml or json")))
 		}
 	}
 }
@@ -178,13 +176,16 @@ func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfi
 //	@Description	This endpoint lists all cluster resources.
 //	@Tags			cluster
 //	@Produce		json
-//	@Success		200	{array}		unstructured.Unstructured	"List of cluster objects"
-//	@Failure		400	{string}	string						"Bad Request"
-//	@Failure		401	{string}	string						"Unauthorized"
-//	@Failure		404	{string}	string						"Not Found"
-//	@Failure		405	{string}	string						"Method Not Allowed"
-//	@Failure		429	{string}	string						"Too Many Requests"
-//	@Failure		500	{string}	string						"Internal Server Error"
+//	@Param			summary		query		bool						false	"Whether to display summary or not. Default to false"
+//	@Param			orderBy		query		string						false	"The order to list the cluster. Default to order by name"
+//	@Param			descending	query		bool						false	"Whether to sort the list in descending order. Default to false"
+//	@Success		200			{array}		unstructured.Unstructured	"List of cluster objects"
+//	@Failure		400			{string}	string						"Bad Request"
+//	@Failure		401			{string}	string						"Unauthorized"
+//	@Failure		404			{string}	string						"Not Found"
+//	@Failure		405			{string}	string						"Method Not Allowed"
+//	@Failure		429			{string}	string						"Too Many Requests"
+//	@Failure		500			{string}	string						"Internal Server Error"
 //	@Router			/api/v1/clusters [get]
 func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
