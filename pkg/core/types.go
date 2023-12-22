@@ -16,6 +16,8 @@ package core
 
 import (
 	"fmt"
+	"net/http"
+	"net/url"
 	"strings"
 
 	"github.com/KusionStack/karbour/pkg/search/storage"
@@ -40,9 +42,9 @@ type Locator struct {
 	Name       string `json:"name" yaml:"name"`
 }
 
-func LocatorFor(r *storage.Resource) Locator {
+func NewLocatorFromResource(r *storage.Resource) (Locator, error) {
 	if r.Cluster == "" {
-		panic("cluster is empty")
+		return Locator{}, fmt.Errorf("cluster cannot be empty")
 	}
 
 	return Locator{
@@ -51,7 +53,27 @@ func LocatorFor(r *storage.Resource) Locator {
 		Kind:       r.Kind,
 		Namespace:  r.Namespace,
 		Name:       r.Name,
+	}, nil
+}
+
+func NewLocatorFromQuery(r *http.Request) (Locator, error) {
+	apiVersion := r.URL.Query().Get("apiVersion")
+	if r.URL.RawPath != "" {
+		apiVersion, _ = url.PathUnescape(apiVersion)
 	}
+
+	cluster := r.URL.Query().Get("cluster")
+	if cluster == "" {
+		return Locator{}, fmt.Errorf("cluster cannot be empty")
+	}
+
+	return Locator{
+		Cluster:    cluster,
+		APIVersion: apiVersion,
+		Kind:       r.URL.Query().Get("kind"),
+		Namespace:  r.URL.Query().Get("namespace"),
+		Name:       r.URL.Query().Get("name"),
+	}, nil
 }
 
 func (c *Locator) ToSQL() string {

@@ -36,7 +36,10 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 		// For each resource tied to the issue, create a Locator and increment
 		// severity count.
 		for _, resource := range resources {
-			locator := core.LocatorFor(resource)
+			locator, err := core.NewLocatorFromResource(resource)
+			if err != nil {
+				continue
+			}
 			issueGroup.Locators = append(issueGroup.Locators, locator)
 			bySeverity[issue.Severity.String()]++
 		}
