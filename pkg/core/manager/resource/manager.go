@@ -48,27 +48,27 @@ func NewResourceManager(config *ResourceConfig) *ResourceManager {
 }
 
 // GetResource returns the unstructured cluster object for a given cluster
-func (r *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*unstructured.Unstructured, error) {
-	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
+func (r *ResourceManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*unstructured.Unstructured, error) {
+	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
 	if err != nil {
 		return nil, err
 	}
-	return client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	return client.DynamicClient.Resource(resourceGVR).Namespace(loc.Namespace).Get(ctx, loc.Name, metav1.GetOptions{})
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (*ResourceSummary, error) {
-	obj, err := r.GetResource(ctx, client, res)
+func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
+	obj, err := r.GetResource(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ResourceSummary{
-		Resource: Resource{
+		Resource: core.Locator{
 			Name:       obj.GetName(),
 			Namespace:  obj.GetNamespace(),
 			APIVersion: obj.GetAPIVersion(),
-			Cluster:    res.Cluster,
+			Cluster:    loc.Cluster,
 			Kind:       obj.GetKind(),
 		},
 		CreationTimestamp: obj.GetCreationTimestamp(),
@@ -78,12 +78,12 @@ func (r *ResourceManager) GetResourceSummary(ctx context.Context, client *multic
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (r *ResourceManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]unstructured.Unstructured, error) {
+func (r *ResourceManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	var eventList *unstructured.UnstructuredList
 	filteredList := make([]unstructured.Unstructured, 0)
 	// Retrieve the list of events for the specific resource
-	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(res.Namespace).List(context.TODO(), metav1.ListOptions{
+	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{
 		// FieldSelector is case-sensitive so this would depend on user input. Safer way is to list all events within namespace and compare afterwards
 		// FieldSelector: fmt.Sprintf("involvedObject.apiVersion=%s,involvedObject.kind=%s,involvedObject.name=%s", res.APIVersion, res.Kind, res.Name),
 	})
@@ -95,7 +95,7 @@ func (r *ResourceManager) GetResourceEvents(ctx context.Context, client *multicl
 		involvedObjectName, foundName, _ := unstructured.NestedString(event.Object, "involvedObject", "name")
 		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
 		// case-insensitive comparison
-		if foundName && foundKind && strings.EqualFold(involvedObjectName, res.Name) && strings.EqualFold(involvedObjectKind, res.Kind) {
+		if foundName && foundKind && strings.EqualFold(involvedObjectName, loc.Name) && strings.EqualFold(involvedObjectKind, loc.Kind) {
 			filteredList = append(filteredList, event)
 		}
 	}
@@ -104,8 +104,8 @@ func (r *ResourceManager) GetResourceEvents(ctx context.Context, client *multicl
 }
 
 // GetYAMLForResource returns the yaml byte array for a given cluster
-func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) ([]byte, error) {
-	obj, err := r.GetResource(ctx, client, res)
+func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]byte, error) {
+	obj, err := r.GetResource(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -113,10 +113,9 @@ func (r *ResourceManager) GetYAMLForResource(ctx context.Context, client *multic
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
-func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, res *Resource) (map[string]ResourceTopology, error) {
+func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, locator *core.Locator) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	locator := r.ConvertResourceToLocator(res)
 	if topologyData, exist := r.cache.Get(*locator); exist {
 		log.Info("Cache hit for resource topology", "locator", locator)
 		return topologyData, nil
@@ -128,7 +127,7 @@ func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 	if err != nil {
 		return nil, err
 	}
-	log.Info("Retrieving topology for resource", "resourceName", res.Name)
+	log.Info("Retrieving topology for resource", "resourceName", locator.Name)
 
 	ResourceGraphNodeHash := func(rgn relationship.ResourceGraphNode) string {
 		return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
@@ -136,11 +135,11 @@ func (r *ResourceManager) GetTopologyForResource(ctx context.Context, client *mu
 	g := graph.New(ResourceGraphNodeHash, graph.Directed(), graph.PreventCycles())
 
 	// Get target resource
-	resourceGVR, err := topologyutil.GetGVRFromGVK(res.APIVersion, res.Kind)
+	resourceGVR, err := topologyutil.GetGVRFromGVK(locator.APIVersion, locator.Kind)
 	if err != nil {
 		return nil, err
 	}
-	resObj, err := client.DynamicClient.Resource(resourceGVR).Namespace(res.Namespace).Get(ctx, res.Name, metav1.GetOptions{})
+	resObj, err := client.DynamicClient.Resource(resourceGVR).Namespace(locator.Namespace).Get(ctx, locator.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -227,17 +226,4 @@ func (r *ResourceManager) ConvertResourceGraphToMap(g graph.Graph[string, relati
 		}
 	}
 	return m
-}
-
-func (r *ResourceManager) ConvertResourceToLocator(res *Resource) *core.Locator {
-	if res != nil {
-		return &core.Locator{
-			Cluster:    res.Cluster,
-			APIVersion: res.APIVersion,
-			Kind:       res.Kind,
-			Namespace:  res.Namespace,
-			Name:       res.Name,
-		}
-	}
-	return nil
 }

@@ -42,12 +42,12 @@ import (
 )
 
 type ClusterManager struct {
-	config *Config
+	config *ClusterConfig
 	cache  *cache.Cache[core.Locator, map[string]ClusterTopology]
 }
 
 // NewClusterManager returns a new ClusterManager object
-func NewClusterManager(config *Config) *ClusterManager {
+func NewClusterManager(config *ClusterConfig) *ClusterManager {
 	return &ClusterManager{
 		config: config,
 		cache:  cache.NewCache[core.Locator, map[string]ClusterTopology](10 * time.Minute),

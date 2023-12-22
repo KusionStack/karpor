@@ -38,7 +38,7 @@ const (
 	ByName
 )
 
-type Config struct {
+type ClusterConfig struct {
 	Verbose bool `json:"verbose"`
 }
 
