@@ -23,14 +23,13 @@ type ScoreData struct {
 	// of the security posture of the resources in the manifest.
 	Score float64 `json:"score"`
 
+	// ResourceTotal is the count of unique resources audited during the scan.
+	ResourceTotal int `json:"resourceTotal"`
+
 	// IssuesTotal is the total count of all issues found during the audit.
 	// This count can be used to understand the overall number of problems
 	// that need to be addressed.
 	IssuesTotal int `json:"issuesTotal"`
-
-	// SeveritySum is the sum of severity scores of all issues, which can be
-	// used to gauge the cumulative severity of all problems found.
-	SeveritySum int `json:"severitySum"`
 
 	// SeverityStatistic is a mapping of severity levels to their respective
 	// number of occurrences. It allows for a quick overview of the distribution
