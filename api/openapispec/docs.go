@@ -548,7 +548,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "resource"
+                    "insight"
                 ],
                 "summary": "GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
                 "parameters": [
@@ -642,7 +642,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "resource"
+                    "insight"
                 ],
                 "summary": "GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
                 "parameters": [
@@ -815,7 +815,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "resource"
+                    "insight"
                 ],
                 "summary": "Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
                 "parameters": [
@@ -903,7 +903,7 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "tags": [
-                    "resource"
+                    "insight"
                 ],
                 "summary": "GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
                 "parameters": [
@@ -987,14 +987,14 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/v1/resource/search": {
+        "/api/v1/search": {
             "get": {
                 "description": "This endpoint returns an array of Kubernetes runtime Object matched using the query from context.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "resource"
+                    "search"
                 ],
                 "summary": "SearchForResource returns an array of Kubernetes runtime Object matched using the query from context.",
                 "parameters": [

@@ -33,7 +33,7 @@ import (
 //
 //	@Summary		GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
 //	@Description	This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//	@Tags			resource
+//	@Tags			insight
 //	@Produce		json
 //	@Param			cluster		query		string									false	"The specified cluster name, such as 'example-cluster'"
 //	@Param			apiVersion	query		string									false	"The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"

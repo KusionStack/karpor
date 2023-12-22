@@ -582,7 +582,7 @@ paths:
       summary: GetDetail returns a Kubernetes resource by name, namespace, cluster,
         apiVersion and kind.
       tags:
-      - resource
+      - insight
   /api/v1/insight/events:
     get:
       description: This endpoint returns events for a Kubernetes resource YAML by
@@ -644,7 +644,7 @@ paths:
       summary: GetEvents returns events for a Kubernetes resource by name, namespace,
         cluster, apiVersion and kind.
       tags:
-      - resource
+      - insight
   /api/v1/insight/score:
     get:
       description: This endpoint calculates a score for the provided manifest based
@@ -759,7 +759,7 @@ paths:
       summary: Get returns a Kubernetes resource summary by name, namespace, cluster,
         apiVersion and kind.
       tags:
-      - resource
+      - insight
   /api/v1/insight/topology:
     get:
       description: This endpoint returns a topology map for a Kubernetes resource
@@ -821,8 +821,8 @@ paths:
       summary: GetTopology returns a topology map for a Kubernetes resource by name,
         namespace, cluster, apiVersion and kind.
       tags:
-      - resource
-  /api/v1/resource/search:
+      - insight
+  /api/v1/search:
     get:
       description: This endpoint returns an array of Kubernetes runtime Object matched
         using the query from context.
@@ -880,5 +880,5 @@ paths:
       summary: SearchForResource returns an array of Kubernetes runtime Object matched
         using the query from context.
       tags:
-      - resource
+      - search
 swagger: "2.0"
