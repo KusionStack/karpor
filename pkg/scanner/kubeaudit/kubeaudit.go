@@ -24,9 +24,11 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/util/safeutil"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 	"github.com/elliotxx/kubeaudit/auditors/all"
 	"github.com/elliotxx/kubeaudit/config"
+	"github.com/elliotxx/safe"
 	"github.com/pkg/errors"
 
 	"sigs.k8s.io/yaml"
@@ -98,6 +100,7 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 
 	for _, res := range resources {
 		go func(res storage.Resource) {
+			defer safe.HandleCrash(safeutil.RecoverHandler(ctx, errChan))
 			defer wg.Done()
 
 			resYAML, err := yaml.Marshal(res.Object)
@@ -117,6 +120,7 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 	}
 
 	go func() {
+		defer safe.HandleCrash(safeutil.RecoverHandler(ctx, errChan))
 		wg.Wait()
 		close(resultsChan)
 		close(errChan)
