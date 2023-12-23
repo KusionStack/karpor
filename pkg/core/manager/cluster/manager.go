@@ -18,17 +18,12 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"os"
 	"time"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/clusterinstall"
-	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/multicluster"
-	"github.com/KusionStack/karbour/pkg/relationship"
-	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -43,14 +38,12 @@ import (
 
 type ClusterManager struct {
 	config *ClusterConfig
-	cache  *cache.Cache[core.Locator, map[string]ClusterTopology]
 }
 
 // NewClusterManager returns a new ClusterManager object
 func NewClusterManager(config *ClusterConfig) *ClusterManager {
 	return &ClusterManager{
 		config: config,
-		cache:  cache.NewCache[core.Locator, map[string]ClusterTopology](10 * time.Minute),
 	}
 }
 
@@ -211,114 +204,9 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 	return k8syaml.Marshal(obj)
 }
 
-// GetYAMLForCluster returns the yaml byte array for a given cluster
+// GetNamespaceForCluster returns the yaml byte array for a given cluster
 func (c *ClusterManager) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
 	return client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
-}
-
-// GetDetailsForCluster returns ClusterDetail object for a given cluster
-func (c *ClusterManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
-	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
-	// Get the list of nodes
-	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
-	if err != nil {
-		return nil, err
-	}
-
-	var memoryCapacity, cpuCapacity, podCapacity int64
-	for _, node := range nodes.Items {
-		memoryCapacity += node.Status.Capacity.Memory().Value()
-		cpuCapacity += node.Status.Capacity.Cpu().Value()
-		podCapacity += node.Status.Capacity.Pods().Value()
-	}
-	return &ClusterDetail{
-		NodeCount:      len(nodes.Items),
-		ServerVersion:  serverVersion.String(),
-		MemoryCapacity: memoryCapacity,
-		CPUCapacity:    cpuCapacity,
-		PodsCapacity:   podCapacity,
-	}, nil
-}
-
-// GetTopologyForCluster returns a map that describes topology for a given cluster
-func (c *ClusterManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
-	log := ctxutil.GetLogger(ctx)
-
-	locator := core.Locator{
-		Cluster: name,
-	}
-	if topologyData, exist := c.cache.Get(locator); exist {
-		log.Info("Cache hit for cluster topology", "locator", locator)
-		return topologyData, nil
-	}
-
-	// Build relationship graph based on GVK
-	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
-	// Count resources in all namespaces
-	log.Info("Retrieving topology for cluster", "clusterName", name)
-	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, "")
-	if err != nil {
-		return nil, err
-	}
-
-	clusterTopologyMap := c.ConvertGraphToMap(rg)
-	c.cache.Set(locator, clusterTopologyMap)
-	log.Info("Added to cluster topology cache for locator", "locator", locator)
-
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./relationship.gv")
-	_ = draw.DOT(graph, file)
-
-	return clusterTopologyMap, nil
-}
-
-// GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
-func (c *ClusterManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
-	log := ctxutil.GetLogger(ctx)
-
-	locator := core.Locator{
-		Cluster:   cluster,
-		Namespace: namespace,
-	}
-	if topologyData, exist := c.cache.Get(locator); exist {
-		log.Info("Cache hit for cluster topology", "locator", locator)
-		return topologyData, nil
-	}
-
-	// Build relationship graph based on GVK
-	graph, rg, _ := relationship.BuildRelationshipGraph(ctx, client.DynamicClient)
-	// Only count resources that belong to a specific namespace
-	log.Info("Retrieving topology", "namespace", namespace, "cluster", cluster)
-	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, namespace)
-	if err != nil {
-		return nil, err
-	}
-
-	namespaceTopologyMap := c.ConvertGraphToMap(rg)
-	c.cache.Set(locator, namespaceTopologyMap)
-	log.Info("Added to cluster topology cache for locator", "locator", locator)
-
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./relationship.gv")
-	_ = draw.DOT(graph, file)
-
-	return namespaceTopologyMap, nil
-}
-
-// ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
-func (c *ClusterManager) ConvertGraphToMap(rg *relationship.RelationshipGraph) map[string]ClusterTopology {
-	m := make(map[string]ClusterTopology)
-	for _, rgn := range rg.RelationshipNodes {
-		rgnMap := rgn.ConvertToMap()
-		m[rgn.GetHash()] = ClusterTopology{
-			GroupVersionKind: rgn.GetHash(),
-			Count:            rgn.ResourceCount,
-			Relationship:     rgnMap,
-		}
-	}
-	return m
 }
 
 // SanitizeKubeConfigWithYAML takes a plain KubeConfig YAML string and returns

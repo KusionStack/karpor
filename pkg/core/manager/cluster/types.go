@@ -42,20 +42,6 @@ type ClusterConfig struct {
 	Verbose bool `json:"verbose"`
 }
 
-type ClusterTopology struct {
-	GroupVersionKind string            `json:"groupVersionKind"`
-	Count            int               `json:"count"`
-	Relationship     map[string]string `json:"relationship"`
-}
-
-type ClusterDetail struct {
-	NodeCount      int    `json:"nodeCount"`
-	ServerVersion  string `json:"serverVersion"`
-	MemoryCapacity int64  `json:"memoryCapacity"`
-	CPUCapacity    int64  `json:"cpuCapacity"`
-	PodsCapacity   int64  `json:"podsCapacity"`
-}
-
 type ClusterSummary struct {
 	TotalCount        int      `json:"totalCount"`
 	HealthyCount      int      `json:"healthyCount"`

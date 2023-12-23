@@ -12,40 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package resource
+package search
 
 import (
-	"github.com/KusionStack/karbour/pkg/core"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 )
 
-type ResourceConfig struct {
+type SearchConfig struct {
 	Verbose bool `json:"verbose"`
 }
 
-type ResourceSummary struct {
-	Resource          core.Locator `json:"resource"`
-	CreationTimestamp metav1.Time  `json:"creationTimestamp"`
-	ResourceVersion   string       `json:"resourceVersion"`
-	UID               types.UID    `json:"uid"`
+type SearchManager struct {
+	config *SearchConfig
 }
 
-type ResourceEvents struct {
-	Resource       core.Locator `json:"resource"`
-	Count          int          `json:"count"`
-	Reason         string       `json:"reason"`
-	Source         string       `json:"source"`
-	Type           string       `json:"type"`
-	LastTimestamp  metav1.Time  `json:"firstTimestamp"`
-	FirstTimestamp metav1.Time  `json:"lastTimestamp"`
-}
-
-type ResourceTopology struct {
-	Identifier string   `json:"identifier"`
-	Parents    []string `json:"parents"`
-	Children   []string `json:"children"`
+// NewSearchManager returns a new SearchManager object
+func NewSearchManager(config *SearchConfig) *SearchManager {
+	return &SearchManager{
+		config: config,
+	}
 }
 
 type UniResource struct {
