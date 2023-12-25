@@ -31,13 +31,13 @@ import (
 )
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (m *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	locator := core.Locator{
 		Cluster: name,
 	}
-	if topologyData, exist := m.clusterTopologyCache.Get(locator); exist {
+	if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
 		log.Info("Cache hit for cluster topology", "locator", locator)
 		return topologyData, nil
 	}
@@ -51,8 +51,8 @@ func (m *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 		return nil, err
 	}
 
-	clusterTopologyMap := m.ConvertGraphToMap(rg)
-	m.clusterTopologyCache.Set(locator, clusterTopologyMap)
+	clusterTopologyMap := i.ConvertGraphToMap(rg)
+	i.clusterTopologyCache.Set(locator, clusterTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
 
 	// Draw graph
@@ -64,10 +64,10 @@ func (m *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
-func (m *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, locator *core.Locator) (map[string]ResourceTopology, error) {
+func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, locator *core.Locator) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	if topologyData, exist := m.resourceTopologyCache.Get(*locator); exist {
+	if topologyData, exist := i.resourceTopologyCache.Get(*locator); exist {
 		log.Info("Cache hit for resource topology", "locator", locator)
 		return topologyData, nil
 	}
@@ -98,13 +98,13 @@ func (m *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 	unObj.SetUnstructuredContent(resObj.Object)
 
 	// Build resource graph for target resource
-	g, err = m.GetResourceRelationship(ctx, client, *unObj, rg, g)
+	g, err = i.GetResourceRelationship(ctx, client, *unObj, rg, g)
 	if err != nil {
 		return nil, err
 	}
 
-	topologyMap := m.ConvertResourceGraphToMap(g)
-	m.resourceTopologyCache.Set(*locator, topologyMap)
+	topologyMap := i.ConvertResourceGraphToMap(g)
+	i.resourceTopologyCache.Set(*locator, topologyMap)
 	log.Info("Added to resource topology cache for locator", "locator", locator)
 
 	// Draw graph
@@ -116,7 +116,7 @@ func (m *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 }
 
 // GetResourceRelationship returns a full graph that contains all the resources that are related to obj
-func (m *InsightManager) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, topology.RelationshipGraphNode], resourceGraph graph.Graph[string, topology.ResourceGraphNode]) (graph.Graph[string, topology.ResourceGraphNode], error) {
+func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *multicluster.MultiClusterClient, obj unstructured.Unstructured, relationshipGraph graph.Graph[string, topology.RelationshipGraphNode], resourceGraph graph.Graph[string, topology.ResourceGraphNode]) (graph.Graph[string, topology.ResourceGraphNode], error) {
 	var err error
 	namespace := obj.GetNamespace()
 	objName := obj.GetName()
@@ -151,7 +151,7 @@ func (m *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 	return resourceGraph, nil
 }
 
-func (m *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode]) map[string]ResourceTopology {
+func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode]) map[string]ResourceTopology {
 	am, _ := g.AdjacencyMap()
 	rtm := make(map[string]ResourceTopology)
 	for key, edgeMap := range am {
@@ -180,14 +180,14 @@ func (m *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 }
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
-func (m *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	locator := core.Locator{
 		Cluster:   cluster,
 		Namespace: namespace,
 	}
-	if topologyData, exist := m.clusterTopologyCache.Get(locator); exist {
+	if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
 		log.Info("Cache hit for cluster topology", "locator", locator)
 		return topologyData, nil
 	}
@@ -201,8 +201,8 @@ func (m *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 		return nil, err
 	}
 
-	namespaceTopologyMap := m.ConvertGraphToMap(rg)
-	m.clusterTopologyCache.Set(locator, namespaceTopologyMap)
+	namespaceTopologyMap := i.ConvertGraphToMap(rg)
+	i.clusterTopologyCache.Set(locator, namespaceTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
 
 	// Draw graph
@@ -214,7 +214,7 @@ func (m *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
-func (m *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph) map[string]ClusterTopology {
+func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph) map[string]ClusterTopology {
 	ctm := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {
 		rgnMap := rgn.ConvertToMap()

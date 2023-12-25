@@ -12,25 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package ctxutil
+package handler
 
 import (
 	"context"
+	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core/middleware"
-	"github.com/go-logr/logr"
-	"k8s.io/klog/v2"
+	"github.com/go-chi/render"
 )
 
-// GetLogger returns the logger from the given context.
-//
-// Example:
-//
-//	logger := ctxutil.GetLogger(ctx)
-func GetLogger(ctx context.Context) logr.Logger {
-	if logger, ok := ctx.Value(middleware.APILoggerKey).(logr.Logger); ok {
-		return logger
+func HandleResult(w http.ResponseWriter, r *http.Request, ctx context.Context, err error, data any) {
+	if err != nil {
+		render.Render(w, r, FailureResponse(ctx, err))
+		return
 	}
-
-	return klog.NewKlogr()
+	render.JSON(w, r, SuccessResponse(ctx, data))
 }

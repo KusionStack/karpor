@@ -31,8 +31,8 @@ import (
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karbour/pkg/core/manager/insight"
 	searchmanager "github.com/KusionStack/karbour/pkg/core/manager/search"
+	appmiddleware "github.com/KusionStack/karbour/pkg/core/middleware"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/go-chi/chi/v5"
@@ -126,7 +126,7 @@ func setupAPIV1(
 		r.Get("/topology", topologyhandler.GetTopology(insightMgr, genericConfig))
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
-		r.Get("/detail", detailhandler.GetDetail(insightMgr, genericConfig))
+		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
 	})
 }
 

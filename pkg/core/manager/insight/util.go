@@ -15,9 +15,18 @@
 package insight
 
 import (
+	"context"
+	"fmt"
 	"math"
+	"sort"
 
+	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // CalculateResourceScore calculates the resource score and severity statistics
@@ -45,4 +54,77 @@ func CalculateScore(p, s int) float64 {
 	a, b := -0.04, -0.06
 	param := a*float64(p) + b*float64(s)
 	return 100 * math.Exp(param)
+}
+
+// CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using core.Locator
+func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (int, error) {
+	if loc.Cluster == "" || loc.APIVersion == "" || loc.Kind == "" {
+		return 0, fmt.Errorf("cluster, APIVersion and Kind in locator cannot be empty")
+	}
+	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
+	if err != nil {
+		return 0, err
+	}
+	resList, err := client.DynamicClient.Resource(resourceGVR).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return 0, err
+	}
+	return len(resList.Items), nil
+}
+
+// CountResourcesByGVK returns a map from string to int
+func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (map[string]int, error) {
+	// Retrieve logger from context and log the start of the audit.
+	log := ctxutil.GetLogger(ctx)
+	if loc.Cluster == "" || loc.Namespace == "" {
+		return nil, fmt.Errorf("cluster and Namespace in locator cannot be empty")
+	}
+	counts := make(map[string]int)
+	// Another option here is to retrieve the list of API resources and iterate over each using dynamic client
+	// That will create more pressure on the spoke cluster and cause unexpected and unnecessary amount of time
+	// We opted to use Elastic search as the source of the count
+	searchQuery := loc.ToSQL()
+	searchPattern := storage.SQLPatternType
+	pageSizeIteration := 100
+	pageIteration := 1
+
+	log.Info("Starting search in InsightManager ...",
+		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
+
+	for {
+		res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+		if err != nil {
+			return nil, err
+		}
+		log.Info("Finish current search", "overview", res.Overview())
+
+		for _, resource := range res.Resources {
+			gvk := fmt.Sprintf("%s.%s", resource.Kind, resource.APIVersion)
+			counts[gvk]++
+		}
+		if len(res.Resources) < pageSizeIteration {
+			break
+		}
+		pageIteration++
+	}
+
+	return counts, nil
+}
+
+func GetTopFiveFromMap(m map[string]int) map[string]int {
+	s := make([]KeyValuePair, 0)
+	res := make(map[string]int, 0)
+
+	for k, v := range m {
+		s = append(s, KeyValuePair{k, v})
+	}
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].value > s[j].value
+	})
+
+	for _, kv := range s[:5] {
+		res[kv.key] = kv.value
+	}
+
+	return res
 }

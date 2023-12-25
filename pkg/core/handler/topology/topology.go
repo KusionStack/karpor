@@ -67,28 +67,22 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		}
 
 		locType, ok := loc.GetType()
-		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
+		if !ok {
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			return
+		}
+
+		switch locType {
+		case core.Resource, core.NonNamespacedResource:
 			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, resourceTopologyMap))
-		} else if ok && locType == core.Cluster {
+			handler.HandleResult(w, r, ctx, err, resourceTopologyMap)
+		case core.Cluster:
 			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, clusterTopologyMap))
-		} else if ok && locType == core.Namespace {
+			handler.HandleResult(w, r, ctx, err, clusterTopologyMap)
+		case core.Namespace:
 			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, namespaceTopologyMap))
-		} else {
+			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
+		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
 	}

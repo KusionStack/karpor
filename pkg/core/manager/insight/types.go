@@ -85,3 +85,26 @@ type ScoreData struct {
 	// of issues across different severity categories.
 	SeverityStatistic map[string]int `json:"severityStatistic"`
 }
+
+// GVK-related
+
+type GVKSummary struct {
+	Cluster string `json:"cluster"`
+	Group   string `json:"group"`
+	Version string `json:"version"`
+	Kind    string `json:"kind"`
+	Count   int    `json:"count"`
+}
+
+// Namespace-related
+
+type NamespaceSummary struct {
+	Cluster    string         `json:"cluster"`
+	Namespace  string         `json:"namespace"`
+	CountByGVK map[string]int `json:"countByGVK"`
+}
+
+type KeyValuePair struct {
+	key   string
+	value int
+}
