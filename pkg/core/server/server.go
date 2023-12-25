@@ -112,7 +112,6 @@ func setupAPIV1(
 	})
 
 	r.Route("/cluster", func(r chi.Router) {
-		// Define cluster specific routes.
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
 			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
@@ -128,24 +127,12 @@ func setupAPIV1(
 	})
 
 	r.Route("/insight", func(r chi.Router) {
-		r.Route("/audit", func(r chi.Router) {
-			r.Get("/", audithandler.Audit(auditMgr))
-		})
-		r.Route("/score", func(r chi.Router) {
-			r.Get("/", audithandler.Score(auditMgr))
-		})
-		r.Route("/topology", func(r chi.Router) {
-			r.Get("/", topologyhandler.GetTopology(insightMgr, genericConfig))
-		})
-		r.Route("/summary", func(r chi.Router) {
-			r.Get("/", summaryhandler.GetSummary(insightMgr, genericConfig))
-		})
-		r.Route("/events", func(r chi.Router) {
-			r.Get("/", eventshandler.GetEvents(insightMgr, genericConfig))
-		})
-		r.Route("/detail", func(r chi.Router) {
-			r.Get("/", detailhandler.GetDetail(insightMgr, genericConfig))
-		})
+		r.Get("/audit", audithandler.Audit(auditMgr))
+		r.Get("/score", audithandler.Score(auditMgr))
+		r.Get("/topology", topologyhandler.GetTopology(insightMgr, genericConfig))
+		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
+		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
+		r.Get("/detail", detailhandler.GetDetail(insightMgr, genericConfig))
 	})
 }
 

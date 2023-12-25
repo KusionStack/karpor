@@ -8,6 +8,8 @@ Add one of the following kinds:
 /kind documentation
 /kind feature
 /kind chore
+/kind perf
+/kind style
 -->
 
 ## What this PR does / why we need it:
