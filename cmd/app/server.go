@@ -71,16 +71,18 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 	}
 	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
-	// TODO have a "real" external address
-	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts("localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")}); err != nil {
+	// TODO: have a "real" external address
+	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts(
+		"localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")},
+	); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
 	return o, nil
 }
 
-// NewApiserverCommand provides a CLI handler for 'start master' command
+// NewServerCommand provides a CLI handler for 'start master' command
 // with a default Options.
-func NewApiserverCommand(ctx context.Context) *cobra.Command {
+func NewServerCommand(ctx context.Context) *cobra.Command {
 	o, err := NewOptions(os.Stdout, os.Stderr)
 	if err != nil {
 		klog.Background().Error(err, "Unable to initialize command options")
@@ -140,7 +142,8 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		return nil, err
 	}
 
-	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
+		karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
 	config.GenericConfig.OpenAPIConfig.Info.Version = "0.1"
 	config.GenericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
@@ -148,7 +151,8 @@ func (o *Options) Config() (*apiserver.Config, error) {
 		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
 	)
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
+			karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 		config.GenericConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		config.GenericConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}

@@ -51,7 +51,7 @@ func (s *KarbourServer) InstallGatewayServer(c *CompletedConfig) *KarbourServer 
 		searchstorage.RESTStorageProvider{
 			SearchStorageType:      c.ExtraConfig.SearchStorageType,
 			ElasticSearchAddresses: c.ExtraConfig.ElasticSearchAddresses,
-			ElasticSearchName:      c.ExtraConfig.ElasticSearchName,
+			ElasticSearchName:      c.ExtraConfig.ElasticSearchUsername,
 			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
 		},
 	}

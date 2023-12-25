@@ -21,14 +21,14 @@ import (
 
 type ElasticSearchConfig struct {
 	Addresses []string
-	UserName  string
+	Username  string
 	Password  string
 }
 
 type SearchStorageOptions struct {
 	SearchStorageType      string
 	ElasticSearchAddresses []string
-	ElasticSearchName      string
+	ElasticSearchUsername  string
 	ElasticSearchPassword  string
 }
 
@@ -43,7 +43,7 @@ func (o *SearchStorageOptions) Validate() []error {
 func (o *SearchStorageOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.SearchStorageType = o.SearchStorageType
 	config.ElasticSearchAddresses = o.ElasticSearchAddresses
-	config.ElasticSearchName = o.ElasticSearchName
+	config.ElasticSearchUsername = o.ElasticSearchUsername
 	config.ElasticSearchPassword = o.ElasticSearchPassword
 	return nil
 }
@@ -56,6 +56,6 @@ func (o *SearchStorageOptions) AddFlags(fs *pflag.FlagSet) {
 
 	fs.StringVar(&o.SearchStorageType, "search-storage-type", "", "The search storage type")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address")
-	fs.StringVar(&o.ElasticSearchName, "elastic-search-username", "", "The elastic search username")
+	fs.StringVar(&o.ElasticSearchUsername, "elastic-search-username", "", "The elastic search username")
 	fs.StringVar(&o.ElasticSearchPassword, "elastic-search-password", "", "The elastic search password")
 }

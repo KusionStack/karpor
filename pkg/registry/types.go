@@ -29,6 +29,6 @@ type RESTStorageProvider interface {
 type ExtraConfig struct {
 	SearchStorageType      string
 	ElasticSearchAddresses []string
-	ElasticSearchName      string
+	ElasticSearchUsername  string
 	ElasticSearchPassword  string
 }

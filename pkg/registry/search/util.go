@@ -23,7 +23,7 @@ func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 	storage := RESTStorageProvider{
 		SearchStorageType:      c.SearchStorageType,
 		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchName,
+		ElasticSearchName:      c.ElasticSearchUsername,
 		ElasticSearchPassword:  c.ElasticSearchPassword,
 	}
 
