@@ -19,8 +19,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-
-	"github.com/KusionStack/karbour/pkg/search/storage"
 )
 
 // LocatorType represents the type of a Locator.
@@ -43,21 +41,6 @@ type Locator struct {
 	Kind       string `json:"kind" yaml:"kind"`
 	Namespace  string `json:"namespace" yaml:"namespace"`
 	Name       string `json:"name" yaml:"name"`
-}
-
-// NewLocatorFromResource creates a Locator from a storage.Resource.
-func NewLocatorFromResource(r *storage.Resource) (Locator, error) {
-	if r.Cluster == "" {
-		return Locator{}, fmt.Errorf("cluster cannot be empty")
-	}
-
-	return Locator{
-		Cluster:    r.Cluster,
-		APIVersion: r.APIVersion,
-		Kind:       r.Kind,
-		Namespace:  r.Namespace,
-		Name:       r.Name,
-	}, nil
 }
 
 // NewLocatorFromQuery creates a Locator from an HTTP request query parameters.

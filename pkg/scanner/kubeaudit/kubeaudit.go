@@ -21,16 +21,17 @@ import (
 	"context"
 	"fmt"
 	"sync"
+	"time"
 
+	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/scanner"
 	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/safeutil"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 	"github.com/elliotxx/kubeaudit/auditors/all"
 	"github.com/elliotxx/kubeaudit/config"
 	"github.com/elliotxx/safe"
-	"github.com/pkg/errors"
-
 	"sigs.k8s.io/yaml"
 )
 
@@ -45,6 +46,7 @@ var _ scanner.KubeScanner = &kubeauditScanner{}
 type kubeauditScanner struct {
 	kubeAuditor    *kubeauditpkg.Kubeaudit
 	attentionLevel scanner.IssueSeverityLevel
+	c              *cache.Cache[core.Locator, scanner.ScanResult]
 }
 
 // New creates a new instance of a kubeaudit-based scanner with the specified
@@ -55,6 +57,8 @@ type kubeauditScanner struct {
 // classified at the "Medium" level or higher ("Medium", "High", "Critical")
 // will be returned to the caller.
 func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error) {
+	const defaultExpiration = 10 * time.Minute
+
 	// Initialize auditors with the kubeaudit configuration.
 	auditors, err := all.Auditors(config.KubeauditConfig{})
 	if err != nil {
@@ -75,6 +79,7 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	return &kubeauditScanner{
 		kubeAuditor:    kubeAuditor,
 		attentionLevel: attentionLevel,
+		c:              cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
 	}, nil
 }
 
@@ -99,7 +104,7 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 	errChan := make(chan error, len(resources))
 
 	for _, res := range resources {
-		go func(res storage.Resource) {
+		go func(res *storage.Resource) {
 			defer safe.HandleCrash(safeutil.RecoverHandler(ctx, errChan))
 			defer wg.Done()
 
@@ -109,14 +114,14 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 				return
 			}
 
-			result, err := s.scanManifest(ctx, res.Cluster, resYAML)
+			result, err := s.scanManifest(ctx, res, resYAML)
 			if err != nil {
 				errChan <- err
 				return
 			}
 
 			resultsChan <- result
-		}(*res)
+		}(res)
 	}
 
 	go func() {
@@ -143,32 +148,32 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 
 // scanManifest performs the actual scanning on the Kubernetes manifest and
 // returns the scan result.
-func (s *kubeauditScanner) scanManifest(ctx context.Context, cluster string, manifest []byte) (scanner.ScanResult, error) {
-	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
-	if err != nil {
-		return nil, err
-	}
-
-	results := report.RawResults()
-	if len(results) != 1 {
-		return nil, fmt.Errorf("the scan result number should be equal to 1")
-	}
-	result := results[0]
-
-	resource, err := storage.NewResource(cluster, manifest)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to convert yaml to resource")
-	}
-
-	r := newScanResult()
-	issues := []*scanner.Issue{}
-	for _, auditResult := range result.GetAuditResults() {
-		newIssue := AuditResult2Issue(auditResult)
-		if int(newIssue.Severity) >= int(s.attentionLevel) {
-			issues = append(issues, newIssue)
+func (s *kubeauditScanner) scanManifest(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
+	if scanResult, exist := s.c.Get(resource.Locator); exist {
+		return scanResult, nil
+	} else {
+		report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
+		if err != nil {
+			return nil, err
 		}
-	}
-	r.add(resource, issues)
 
-	return r, nil
+		results := report.RawResults()
+		if len(results) != 1 {
+			return nil, fmt.Errorf("the scan result number should be equal to 1")
+		}
+		result := results[0]
+
+		r := newScanResult()
+		issues := []*scanner.Issue{}
+		for _, auditResult := range result.GetAuditResults() {
+			newIssue := AuditResult2Issue(auditResult)
+			if int(newIssue.Severity) >= int(s.attentionLevel) {
+				issues = append(issues, newIssue)
+			}
+		}
+		r.add(resource, issues)
+		s.c.Set(resource.Locator, r)
+
+		return r, nil
+	}
 }
