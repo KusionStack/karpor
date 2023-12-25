@@ -15,8 +15,8 @@
 package search
 
 import (
-	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/registry"
 )
 
 func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
