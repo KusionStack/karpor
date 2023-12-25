@@ -15,32 +15,10 @@
 package insight
 
 import (
-	"time"
-
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/util/cache"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
-
-type InsightConfig struct {
-	Verbose bool `json:"verbose"`
-}
-
-type InsightManager struct {
-	config                *InsightConfig
-	clusterTopologyCache  *cache.Cache[core.Locator, map[string]ClusterTopology]
-	resourceTopologyCache *cache.Cache[core.Locator, map[string]ResourceTopology]
-}
-
-// NewInsightManager returns a new InsightManager object
-func NewInsightManager(config *InsightConfig) *InsightManager {
-	return &InsightManager{
-		config:                config,
-		clusterTopologyCache:  cache.NewCache[core.Locator, map[string]ClusterTopology](10 * time.Minute),
-		resourceTopologyCache: cache.NewCache[core.Locator, map[string]ResourceTopology](10 * time.Minute),
-	}
-}
 
 // Resource-related
 
@@ -81,4 +59,29 @@ type ClusterDetail struct {
 	MemoryCapacity int64  `json:"memoryCapacity"`
 	CPUCapacity    int64  `json:"cpuCapacity"`
 	PodsCapacity   int64  `json:"podsCapacity"`
+}
+
+// Audit-related
+
+// ScoreData encapsulates the results of scoring an audited manifest. It provides
+// a numerical score along with statistics about the total number of issues and
+// their severities.
+type ScoreData struct {
+	// Score represents the calculated score of the audited manifest based on
+	// the number and severity of issues. It provides a quantitative measure
+	// of the security posture of the resources in the manifest.
+	Score float64 `json:"score"`
+
+	// ResourceTotal is the count of unique resources audited during the scan.
+	ResourceTotal int `json:"resourceTotal"`
+
+	// IssuesTotal is the total count of all issues found during the audit.
+	// This count can be used to understand the overall number of problems
+	// that need to be addressed.
+	IssuesTotal int `json:"issuesTotal"`
+
+	// SeverityStatistic is a mapping of severity levels to their respective
+	// number of occurrences. It allows for a quick overview of the distribution
+	// of issues across different severity categories.
+	SeverityStatistic map[string]int `json:"severityStatistic"`
 }

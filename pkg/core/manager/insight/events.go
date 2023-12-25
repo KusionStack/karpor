@@ -26,7 +26,7 @@ import (
 )
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
+func (m *InsightManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	var eventList *unstructured.UnstructuredList
 	filteredList := make([]unstructured.Unstructured, 0)

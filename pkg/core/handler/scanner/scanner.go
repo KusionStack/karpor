@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package audit
+package scanner
 
 import (
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/audit"
+	insightmgr "github.com/KusionStack/karbour/pkg/core/manager/insight"
 	_ "github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
@@ -43,7 +43,7 @@ import (
 //	@Failure		404			{string}	string			"Not Found"
 //	@Failure		500			{string}	string			"Internal Server Error"
 //	@Router			/api/v1/insight/audit [get]
-func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
+func Audit(insightMgr *insightmgr.InsightManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -63,7 +63,7 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
 
 		// Perform the audit using the manager and the provided manifest.
-		scanResult, err := auditMgr.Audit(ctx, locator)
+		scanResult, err := insightMgr.Audit(ctx, locator)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -95,7 +95,7 @@ func Audit(auditMgr *audit.AuditManager) http.HandlerFunc {
 //	@Failure		404			{string}	string			"Not Found"
 //	@Failure		500			{string}	string			"Internal Server Error"
 //	@Router			/api/v1/insight/score [get]
-func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
+func Score(insightMgr *insightmgr.InsightManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -115,7 +115,7 @@ func Score(auditMgr *audit.AuditManager) http.HandlerFunc {
 		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
 
 		// Calculate score using the audit issues.
-		data, err := auditMgr.Score(ctx, locator)
+		data, err := insightMgr.Score(ctx, locator)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
