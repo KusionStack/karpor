@@ -21,14 +21,13 @@ import (
 	"strings"
 
 	docs "github.com/KusionStack/karbour/api/openapispec"
-	audithandler "github.com/KusionStack/karbour/pkg/core/handler/audit"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
+	scannerhandler "github.com/KusionStack/karbour/pkg/core/handler/scanner"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
 	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
-	auditmanager "github.com/KusionStack/karbour/pkg/core/manager/audit"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karbour/pkg/core/manager/insight"
 	searchmanager "github.com/KusionStack/karbour/pkg/core/manager/search"
@@ -62,27 +61,23 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
+	insightMgr, err := insightmanager.NewInsightManager(searchStorage)
+	if err != nil {
+		return nil, err
+	}
 	clusterMgr := clustermanager.NewClusterManager(&clustermanager.ClusterConfig{
-		Verbose: false,
-	})
-	insightMgr := insightmanager.NewInsightManager(&insightmanager.InsightConfig{
 		Verbose: false,
 	})
 	searchMgr := searchmanager.NewSearchManager(&searchmanager.SearchConfig{
 		Verbose: false,
 	})
-	auditMgr, err := auditmanager.NewAuditManager(searchStorage)
-	if err != nil {
-		return nil, err
-	}
-
 	// Set up the root routes.
 	docs.SwaggerInfo.BasePath = "/"
 	router.Get("/docs/*", httpswagger.Handler())
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, clusterMgr, insightMgr, searchMgr, auditMgr, searchStorage, genericConfig)
+		setupAPIV1(r, clusterMgr, insightMgr, searchMgr, searchStorage, genericConfig)
 	})
 
 	// Endpoint to list all available endpoints in the router.
@@ -102,7 +97,6 @@ func setupAPIV1(
 	clusterMgr *clustermanager.ClusterManager,
 	insightMgr *insightmanager.InsightManager,
 	searchMgr *searchmanager.SearchManager,
-	auditMgr *auditmanager.AuditManager,
 	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
 ) {
@@ -127,8 +121,8 @@ func setupAPIV1(
 	})
 
 	r.Route("/insight", func(r chi.Router) {
-		r.Get("/audit", audithandler.Audit(auditMgr))
-		r.Get("/score", audithandler.Score(auditMgr))
+		r.Get("/audit", scannerhandler.Audit(insightMgr))
+		r.Get("/score", scannerhandler.Score(insightMgr))
 		r.Get("/topology", topologyhandler.GetTopology(insightMgr, genericConfig))
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))

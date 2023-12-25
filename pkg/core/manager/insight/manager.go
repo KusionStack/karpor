@@ -15,30 +15,38 @@
 package insight
 
 import (
-	"context"
+	"time"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/multicluster"
-	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	k8syaml "sigs.k8s.io/yaml"
+	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/scanner/kubeaudit"
+	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/util/cache"
 )
 
-// GetResource returns the unstructured cluster object for a given cluster
-func (i *InsightManager) GetResource(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*unstructured.Unstructured, error) {
-	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
-	if err != nil {
-		return nil, err
-	}
-	return client.DynamicClient.Resource(resourceGVR).Namespace(loc.Namespace).Get(ctx, loc.Name, metav1.GetOptions{})
+type InsightManager struct {
+	search                storage.SearchStorage
+	scanner               scanner.KubeScanner
+	scanCache             *cache.Cache[core.Locator, scanner.ScanResult]
+	clusterTopologyCache  *cache.Cache[core.Locator, map[string]ClusterTopology]
+	resourceTopologyCache *cache.Cache[core.Locator, map[string]ResourceTopology]
 }
 
-// GetYAMLForResource returns the yaml byte array for a given cluster
-func (i *InsightManager) GetYAMLForResource(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]byte, error) {
-	obj, err := i.GetResource(ctx, client, loc)
+// NewInsightManager returns a new InsightManager object
+func NewInsightManager(searchStorage storage.SearchStorage) (*InsightManager, error) {
+	const defaultExpiration = 10 * time.Minute
+
+	// Create a new Kubernetes scanner instance.
+	kubeauditScanner, err := kubeaudit.Default()
 	if err != nil {
 		return nil, err
 	}
-	return k8syaml.Marshal(obj.Object)
+
+	return &InsightManager{
+		scanner:               kubeauditScanner,
+		search:                searchStorage,
+		scanCache:             cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
+		clusterTopologyCache:  cache.NewCache[core.Locator, map[string]ClusterTopology](defaultExpiration),
+		resourceTopologyCache: cache.NewCache[core.Locator, map[string]ResourceTopology](defaultExpiration),
+	}, nil
 }

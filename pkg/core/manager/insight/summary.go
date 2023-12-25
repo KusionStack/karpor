@@ -23,7 +23,7 @@ import (
 )
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
-func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+func (m *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
@@ -47,8 +47,8 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
-	obj, err := i.GetResource(ctx, client, loc)
+func (m *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
+	obj, err := m.GetResource(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
