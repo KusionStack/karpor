@@ -81,6 +81,20 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 				return
 			}
 			render.JSON(w, r, handler.SuccessResponse(ctx, clusterDetail))
+		} else if ok && locType == core.Namespace {
+			namespaceSummary, err := insightMgr.GetNamespaceSummary(r.Context(), client, &loc)
+			if err != nil {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
+			render.JSON(w, r, handler.SuccessResponse(ctx, namespaceSummary))
+		} else if ok && locType == core.GVK {
+			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &loc)
+			if err != nil {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
+			render.JSON(w, r, handler.SuccessResponse(ctx, gvkSummary))
 		} else {
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}

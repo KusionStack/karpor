@@ -20,6 +20,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/multicluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
@@ -64,5 +65,37 @@ func (m *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 		CreationTimestamp: obj.GetCreationTimestamp(),
 		ResourceVersion:   obj.GetResourceVersion(),
 		UID:               obj.GetUID(),
+	}, nil
+}
+
+// GetGVKSummary returns the unstructured cluster object summary for a given GVK. Possibly will add more metrics to it in the future.
+func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*GVKSummary, error) {
+	gvkCount, err := CountResourcesByGVK(ctx, client, loc)
+	if err != nil {
+		return nil, err
+	}
+	gv, err := schema.ParseGroupVersion(loc.APIVersion)
+	if err != nil {
+		return nil, err
+	}
+	return &GVKSummary{
+		Cluster: loc.Cluster,
+		Group:   gv.Group,
+		Version: gv.Version,
+		Kind:    loc.Kind,
+		Count:   gvkCount,
+	}, nil
+}
+
+// GetNamespaceSummary returns the unstructured cluster object summary for a given namespace. Possibly will add more metrics to it in the future.
+func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*NamespaceSummary, error) {
+	namespaceCount, err := i.CountResourcesByNamespace(ctx, client, loc)
+	if err != nil {
+		return nil, err
+	}
+	return &NamespaceSummary{
+		Cluster:        loc.Cluster,
+		Namespace:      loc.Namespace,
+		ResourcesByGVK: namespaceCount,
 	}, nil
 }
