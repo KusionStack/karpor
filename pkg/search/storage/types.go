@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/KusionStack/karbour/pkg/core"
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -89,12 +90,8 @@ func (r *SearchResult) ToYAML() (string, error) {
 }
 
 type Resource struct {
-	Cluster    string                 `json:"cluster"`
-	Namespace  string                 `json:"namespace"`
-	APIVersion string                 `json:"apiVersion"`
-	Kind       string                 `json:"kind"`
-	Name       string                 `json:"name"`
-	Object     map[string]interface{} `json:"object"`
+	core.Locator `json:",inline" yaml:",inline"`
+	Object       map[string]interface{} `json:"object"`
 }
 
 // NewResource creates a new Resource instance based on the provided bytes
@@ -117,11 +114,13 @@ func NewResource(cluster string, b []byte) (*Resource, error) {
 
 	// Build and return the Resource object with decoded data and cluster info.
 	return &Resource{
-		Cluster:    cluster,
-		Namespace:  obj.GetNamespace(),
-		APIVersion: obj.GetAPIVersion(),
-		Kind:       obj.GetKind(),
-		Name:       obj.GetName(),
-		Object:     obj.Object,
+		Locator: core.Locator{
+			Cluster:    cluster,
+			Namespace:  obj.GetNamespace(),
+			APIVersion: obj.GetAPIVersion(),
+			Kind:       obj.GetKind(),
+			Name:       obj.GetName(),
+		},
+		Object: obj.Object,
 	}, nil
 }
