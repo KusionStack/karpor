@@ -78,9 +78,7 @@ func NewCoreServer(
 
 	// Set up the root routes.
 	docs.SwaggerInfo.BasePath = "/"
-	router.Route("/", func(r chi.Router) {
-		r.Get("/docs/*", httpswagger.Handler())
-	})
+	router.Get("/docs/*", httpswagger.Handler())
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {

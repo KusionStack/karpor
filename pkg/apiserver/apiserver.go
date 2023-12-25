@@ -19,6 +19,7 @@ package apiserver
 import (
 	"fmt"
 	"net/http"
+	"path/filepath"
 
 	"github.com/KusionStack/karbour/pkg/core/server"
 	"github.com/KusionStack/karbour/pkg/registry"
@@ -119,14 +120,17 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 		return s
 	}
 
-	// Define the directory where the static files are located.
-	const DefaultStaticDirectory = "./static"
+	// Define the directory and pattern where the static files are located.
+	const StaticDirectory = "static"
 
 	// Log the use of the static directory for the dashboard.
-	klog.Infof("Dashboard's static directory use: %s", DefaultStaticDirectory)
+	klog.Infof("Dashboard's static directory use: %s", StaticDirectory)
 
 	// Set up the router to serve static files when not found by other routes.
-	s.mux.NotFound(http.FileServer(http.Dir(DefaultStaticDirectory)).ServeHTTP)
+	s.mux.NotFound(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, filepath.Join(StaticDirectory, "index.html"))
+	})
+	s.mux.Mount("/static", staticHandler(StaticDirectory))
 
 	return s
 }
@@ -136,4 +140,8 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 // to ensure any issues are captured and reported.
 func (s *KarbourServer) Error() error {
 	return s.err
+}
+
+func staticHandler(staticDirectory string) http.Handler {
+	return http.StripPrefix("/static", http.FileServer(http.Dir(staticDirectory+"/static")))
 }
