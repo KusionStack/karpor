@@ -17,6 +17,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"strings"
 
 	docs "github.com/KusionStack/karbour/api/openapispec"
@@ -35,7 +36,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/KusionStack/karbour/pkg/search/storage"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpswagger "github.com/swaggo/http-swagger"
@@ -153,12 +153,13 @@ func setupAPIV1(
 func listEndpoints(r chi.Router) []string {
 	var endpoints []string
 	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		endpoint := fmt.Sprintf("%s %s", method, route)
+		endpoint := fmt.Sprintf("%s\t%s", method, route)
 		endpoints = append(endpoints, endpoint)
 		return nil
 	}
 	if err := chi.Walk(r, walkFunc); err != nil {
 		fmt.Printf("Walking routes error: %s\n", err.Error())
 	}
+	sort.Strings(endpoints)
 	return endpoints
 }
