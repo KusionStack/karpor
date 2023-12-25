@@ -18,7 +18,7 @@ import (
 	"context"
 	"time"
 
-	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
+	appmiddleware "github.com/KusionStack/karbour/pkg/core/middleware"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/render"
 )

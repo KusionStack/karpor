@@ -31,7 +31,7 @@ import (
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karbour/pkg/core/manager/insight"
 	searchmanager "github.com/KusionStack/karbour/pkg/core/manager/search"
-	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
+	appmiddleware "github.com/KusionStack/karbour/pkg/core/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
 	"github.com/KusionStack/karbour/pkg/search/storage"
