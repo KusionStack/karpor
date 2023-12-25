@@ -19,7 +19,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/aquasecurity/esquery"
 )
 

@@ -15,7 +15,7 @@
 package kubeaudit
 
 import (
-	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 )
 

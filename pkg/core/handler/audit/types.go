@@ -16,7 +16,7 @@ package audit
 
 import (
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
 )
 
 // AuditData represents the aggregated data of scanner issues, including the

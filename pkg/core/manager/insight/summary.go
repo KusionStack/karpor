@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

@@ -17,7 +17,7 @@ package audit
 import (
 	"math"
 
-	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
 )
 
 // CalculateResourceScore calculates the resource score and severity statistics

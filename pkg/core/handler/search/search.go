@@ -20,7 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/search"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

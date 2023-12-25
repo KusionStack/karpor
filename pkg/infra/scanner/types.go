@@ -22,7 +22,7 @@ import (
 	"encoding/json"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 )
 
 // IssueSeverityLevel defines the severity levels for issues identified by

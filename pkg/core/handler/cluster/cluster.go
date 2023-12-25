@@ -23,7 +23,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"

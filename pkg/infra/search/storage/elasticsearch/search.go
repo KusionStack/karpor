@@ -22,7 +22,7 @@ import (
 	"io"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/cch123/elasticsql"
 )
 

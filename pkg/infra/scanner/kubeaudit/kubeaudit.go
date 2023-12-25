@@ -24,8 +24,8 @@ import (
 	"time"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/scanner"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
 	"github.com/KusionStack/karbour/pkg/util/safeutil"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"

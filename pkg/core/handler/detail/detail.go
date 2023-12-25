@@ -22,7 +22,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
-	"github.com/KusionStack/karbour/pkg/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 	"k8s.io/apiserver/pkg/server"

@@ -35,7 +35,7 @@ import (
 	appmiddleware "github.com/KusionStack/karbour/pkg/middleware"
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/registry/search"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	httpswagger "github.com/swaggo/http-swagger"

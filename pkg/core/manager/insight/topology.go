@@ -19,8 +19,8 @@ import (
 	"os"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/multicluster"
-	"github.com/KusionStack/karbour/pkg/relationship"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/relationship"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
