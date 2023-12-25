@@ -72,39 +72,29 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 		}
 
 		locType, ok := loc.GetType()
-		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
+		if !ok {
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			return
+		}
+
+		switch locType {
+		case core.Resource, core.NonNamespacedResource:
 			if strings.ToLower(outputFormat) == "yaml" {
 				resourceYAML, err := insightMgr.GetYAMLForResource(r.Context(), client, &loc)
-				if err != nil {
-					render.Render(w, r, handler.FailureResponse(ctx, err))
-					return
-				}
-				render.JSON(w, r, handler.SuccessResponse(ctx, string(resourceYAML)))
+				handler.HandleResult(w, r, ctx, err, string(resourceYAML))
 			} else {
 				resourceUnstructured, err := insightMgr.GetResource(r.Context(), client, &loc)
-				if err != nil {
-					render.Render(w, r, handler.FailureResponse(ctx, err))
-					return
-				}
-				render.JSON(w, r, handler.SuccessResponse(ctx, resourceUnstructured))
+				handler.HandleResult(w, r, ctx, err, resourceUnstructured)
 			}
-		} else if ok && (locType == core.Namespace) {
+		case core.Namespace:
 			if strings.ToLower(outputFormat) == "yaml" {
 				namespaceYAML, err := clusterMgr.GetNamespaceYAML(r.Context(), client, loc.Namespace)
-				if err != nil {
-					render.Render(w, r, handler.FailureResponse(ctx, err))
-					return
-				}
-				render.JSON(w, r, handler.SuccessResponse(ctx, string(namespaceYAML)))
+				handler.HandleResult(w, r, ctx, err, string(namespaceYAML))
 			} else {
 				namespace, err := clusterMgr.GetNamespace(r.Context(), client, loc.Namespace)
-				if err != nil {
-					render.Render(w, r, handler.FailureResponse(ctx, err))
-					return
-				}
-				render.JSON(w, r, handler.SuccessResponse(ctx, namespace))
+				handler.HandleResult(w, r, ctx, err, namespace)
 			}
-		} else {
+		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
 	}
