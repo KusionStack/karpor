@@ -14,7 +14,7 @@
 
 package elasticsearch
 
-import "github.com/KusionStack/karbour/pkg/search/storage"
+import "github.com/KusionStack/karbour/pkg/infra/search/storage"
 
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`

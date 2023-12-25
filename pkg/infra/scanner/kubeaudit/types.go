@@ -18,8 +18,8 @@ import (
 	"sync"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/scanner"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 )
 
 var _ scanner.ScanResult = &scanResult{}

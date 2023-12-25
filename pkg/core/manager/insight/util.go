@@ -21,9 +21,9 @@ import (
 	"sort"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/multicluster"
-	"github.com/KusionStack/karbour/pkg/scanner"
-	"github.com/KusionStack/karbour/pkg/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

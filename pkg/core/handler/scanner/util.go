@@ -16,7 +16,7 @@ package scanner
 
 import (
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/infra/scanner"
 )
 
 // convertScanResultToAuditData converts the scanner.ScanResult to an AuditData
