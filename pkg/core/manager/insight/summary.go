@@ -24,7 +24,7 @@ import (
 )
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
-func (m *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
@@ -48,8 +48,8 @@ func (m *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (m *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
-	obj, err := m.GetResource(ctx, client, loc)
+func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
+	obj, err := i.GetResource(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func (m *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 
 // GetGVKSummary returns the unstructured cluster object summary for a given GVK. Possibly will add more metrics to it in the future.
 func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*GVKSummary, error) {
-	gvkCount, err := CountResourcesByGVK(ctx, client, loc)
+	gvkCount, err := i.CountResourcesByGVK(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
@@ -93,9 +93,10 @@ func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multic
 	if err != nil {
 		return nil, err
 	}
+	topFiveCount := GetTopFiveFromMap(namespaceCount)
 	return &NamespaceSummary{
-		Cluster:        loc.Cluster,
-		Namespace:      loc.Namespace,
-		ResourcesByGVK: namespaceCount,
+		Cluster:    loc.Cluster,
+		Namespace:  loc.Namespace,
+		CountByGVK: topFiveCount,
 	}, nil
 }

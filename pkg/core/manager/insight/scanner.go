@@ -26,7 +26,7 @@ import (
 
 // Audit performs the audit on Kubernetes manifests with the specified locator
 // and returns the issues found during the audit.
-func (m *InsightManager) Audit(ctx context.Context, locator core.Locator) (scanner.ScanResult, error) {
+func (i *InsightManager) Audit(ctx context.Context, locator core.Locator) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
@@ -36,7 +36,7 @@ func (m *InsightManager) Audit(ctx context.Context, locator core.Locator) (scann
 	pageSizeIteration := 100
 	pageIteration := 1
 
-	if auditData, exist := m.scanCache.Get(locator); exist {
+	if auditData, exist := i.scanCache.Get(locator); exist {
 		log.Info("Cache hit for locator", "locator", locator)
 		return auditData, nil
 	} else {
@@ -48,14 +48,14 @@ func (m *InsightManager) Audit(ctx context.Context, locator core.Locator) (scann
 				"searchQuery", searchQuery, "searchPattern", searchPattern,
 				"searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
-			res, err := m.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+			res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
 			if err != nil {
 				return nil, err
 			}
 
 			log.Info("Finish current search", "overview", res.Overview())
 
-			newResult, err := m.scanner.Scan(ctx, res.Resources...)
+			newResult, err := i.scanner.Scan(ctx, res.Resources...)
 			if err != nil {
 				return nil, errors.Wrap(err, "failed to scan resources")
 			}
@@ -71,7 +71,7 @@ func (m *InsightManager) Audit(ctx context.Context, locator core.Locator) (scann
 			pageIteration++
 		}
 
-		m.scanCache.Set(locator, result)
+		i.scanCache.Set(locator, result)
 		log.Info("Added data to cache for locator", "locator", locator)
 
 		return result, nil
@@ -81,12 +81,12 @@ func (m *InsightManager) Audit(ctx context.Context, locator core.Locator) (scann
 // Score calculates a score based on the severity and total number of issues
 // identified during the audit. It aggregates statistics on different severity
 // levels and generates a cumulative score.
-func (m *InsightManager) Score(ctx context.Context, locator core.Locator) (*ScoreData, error) {
+func (i *InsightManager) Score(ctx context.Context, locator core.Locator) (*ScoreData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting calculate score with specified issues list in AuditManager ...")
 
-	scanResult, err := m.Audit(ctx, locator)
+	scanResult, err := i.Audit(ctx, locator)
 	if err != nil {
 		return nil, err
 	}

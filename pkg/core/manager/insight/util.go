@@ -15,15 +15,17 @@
 package insight
 
 import (
-	"math"
-
 	"context"
 	"fmt"
+	"math"
+	"sort"
 
 	"github.com/KusionStack/karbour/pkg/scanner"
+	"github.com/KusionStack/karbour/pkg/search/storage"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/multicluster"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -56,7 +58,7 @@ func CalculateScore(p, s int) float64 {
 }
 
 // CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using core.Locator
-func CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (int, error) {
+func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (int, error) {
 	if loc.Cluster == "" || loc.APIVersion == "" || loc.Kind == "" {
 		return 0, fmt.Errorf("cluster, APIVersion and Kind in locator cannot be empty")
 	}
@@ -74,79 +76,56 @@ func CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterC
 // CountResourcesByGVK returns a map from string to int
 func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (map[string]int, error) {
 	// Retrieve logger from context and log the start of the audit.
-	// log := ctxutil.GetLogger(ctx)
-
+	log := ctxutil.GetLogger(ctx)
 	if loc.Cluster == "" || loc.Namespace == "" {
 		return nil, fmt.Errorf("cluster and Namespace in locator cannot be empty")
 	}
 	counts := make(map[string]int)
-	// Retrieve the list of API resources
-	// apiResourceList, err := client.ClientSet.Discovery().ServerPreferredResources()
-	// if err != nil {
-	// 	return nil, err
-	// }
-	// for _, list := range apiResourceList {
-	// 	groupVersion, err := schema.ParseGroupVersion(list.GroupVersion)
-	// 	if err != nil {
-	// 		fmt.Printf("Error parsing group version: %s\n", err.Error())
-	// 		continue
-	// 	}
+	// Another option here is to retrieve the list of API resources and iterate over each using dynamic client
+	// That will create more pressure on the spoke cluster and cause unexpected and unnecessary amount of time
+	// We opted to use Elastic search as the source of the count
+	searchQuery := loc.ToSQL()
+	searchPattern := storage.SQLPatternType
+	pageSizeIteration := 100
+	pageIteration := 1
 
-	// 	for _, resource := range list.APIResources {
-	// 		gvk := groupVersion.WithKind(resource.Kind)
+	log.Info("Starting search in InsightManager ...",
+		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
-	// 		// Skip resources that are not namespaced
-	// 		if !resource.Namespaced {
-	// 			continue
-	// 		}
+	for {
+		res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+		if err != nil {
+			return nil, err
+		}
+		log.Info("Finish current search", "overview", res.Overview())
 
-	// 		// Retrieve the list of resources for the given GVK
-	// 		gvr := schema.GroupVersionResource{Group: gvk.Group, Version: gvk.Version, Resource: resource.Name}
-	// 		timeoutSeconds := int64(1)
-	// 		unstructuredList, err := client.DynamicClient.Resource(gvr).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{
-	// 			TimeoutSeconds: &timeoutSeconds,
-	// 		})
-	// 		if err != nil {
-	// 			fmt.Printf("Error listing %s: %s\n", gvk.String(), err.Error())
-	// 			continue
-	// 		}
-
-	// 		// Count the resources
-	// 		counts[resource.Kind] += len(unstructuredList.Items)
-	// 	}
-	// }
-
-	// searchQuery := loc.ToSQL()
-	// searchPattern := storage.SQLPatternType
-	// pageSizeIteration := 100
-	// pageIteration := 1
-
-	// for {
-	// 	log.Info("Starting search in AuditManager ...",
-	// 		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
-
-	// 	res, err := i.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	log.Info("Finish current search", "overview", res.Overview())
-
-	// 	newResult, err := m.ks.Scan(ctx, res.Resources...)
-	// 	if err != nil {
-	// 		return nil, errors.Wrap(err, "failed to scan resources")
-	// 	}
-	// 	if result == nil {
-	// 		result = newResult
-	// 	} else {
-	// 		result.MergeFrom(newResult)
-	// 	}
-
-	// 	if len(res.Resources) < pageSizeIteration {
-	// 		break
-	// 	}
-	// 	pageIteration++
-	// }
+		for _, resource := range res.Resources {
+			gvk := fmt.Sprintf("%s.%s", resource.Kind, resource.APIVersion)
+			counts[gvk]++
+		}
+		if len(res.Resources) < pageSizeIteration {
+			break
+		}
+		pageIteration++
+	}
 
 	return counts, nil
+}
+
+func GetTopFiveFromMap(m map[string]int) map[string]int {
+	s := make([]KeyValuePair, 0)
+	res := make(map[string]int, 0)
+
+	for k, v := range m {
+		s = append(s, KeyValuePair{k, v})
+	}
+	sort.Slice(s, func(i, j int) bool {
+		return s[i].value > s[j].value
+	})
+
+	for _, kv := range s[:5] {
+		res[kv.key] = kv.value
+	}
+
+	return res
 }

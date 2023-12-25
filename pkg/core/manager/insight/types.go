@@ -99,7 +99,12 @@ type GVKSummary struct {
 // Namespace-related
 
 type NamespaceSummary struct {
-	Cluster        string         `json:"cluster"`
-	Namespace      string         `json:"namespace"`
-	ResourcesByGVK map[string]int `json:"resourcesByGVK"`
+	Cluster    string         `json:"cluster"`
+	Namespace  string         `json:"namespace"`
+	CountByGVK map[string]int `json:"countByGVK"`
+}
+
+type KeyValuePair struct {
+	key   string
+	value int
 }
