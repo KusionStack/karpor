@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package relationship
+package topology
 
 type RelationshipGraph struct {
 	RelationshipNodes []*RelationshipGraphNode `json:"relationship,omitempty" yaml:"relationship,omitempty"`
