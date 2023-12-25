@@ -67,14 +67,16 @@ func GetEvents(insightMgr *insight.InsightManager, c *server.CompletedConfig) ht
 		}
 
 		locType, ok := loc.GetType()
-		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
-			result, err := insightMgr.GetResourceEvents(r.Context(), client, &loc)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, result))
-		} else {
+		if !ok {
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			return
+		}
+
+		switch locType {
+		case core.Resource, core.NonNamespacedResource:
+			resourceEvents, err := insightMgr.GetResourceEvents(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, resourceEvents)
+		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
 	}

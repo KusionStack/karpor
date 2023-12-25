@@ -67,21 +67,25 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 		}
 
 		locType, ok := loc.GetType()
-		if ok && (locType == core.Resource || locType == core.NonNamespacedResource) {
+		if !ok {
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			return
+		}
+
+		switch locType {
+		case core.Resource, core.NonNamespacedResource:
 			resourceSummary, err := insightMgr.GetResourceSummary(r.Context(), client, &loc)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, resourceSummary))
-		} else if ok && locType == core.Cluster {
+			handler.HandleResult(w, r, ctx, err, resourceSummary)
+		case core.Cluster:
 			clusterDetail, err := insightMgr.GetDetailsForCluster(r.Context(), client, loc.Cluster)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, clusterDetail))
-		} else {
+			handler.HandleResult(w, r, ctx, err, clusterDetail)
+		case core.Namespace:
+			namespaceSummary, err := insightMgr.GetNamespaceSummary(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, namespaceSummary)
+		case core.GVK:
+			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, gvkSummary)
+		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
 	}

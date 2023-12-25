@@ -126,7 +126,7 @@ func setupAPIV1(
 		r.Get("/topology", topologyhandler.GetTopology(insightMgr, genericConfig))
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
-		r.Get("/detail", detailhandler.GetDetail(insightMgr, genericConfig))
+		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
 	})
 }
 

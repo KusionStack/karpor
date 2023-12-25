@@ -205,8 +205,17 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 }
 
 // GetNamespaceForCluster returns the yaml byte array for a given cluster
-func (c *ClusterManager) GetNamespaceForCluster(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (*v1.Namespace, error) {
+func (c *ClusterManager) GetNamespace(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) (*v1.Namespace, error) {
 	return client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+}
+
+// GetNamespaceForCluster returns the yaml byte array for a given cluster
+func (c *ClusterManager) GetNamespaceYAML(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) ([]byte, error) {
+	obj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return k8syaml.Marshal(obj)
 }
 
 // SanitizeKubeConfigWithYAML takes a plain KubeConfig YAML string and returns
