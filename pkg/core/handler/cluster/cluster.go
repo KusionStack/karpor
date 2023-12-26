@@ -242,53 +242,64 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Failure		400		{string}	string		"The uploaded file is too large or the request is invalid."
 // @Failure		500		{string}	string		"Internal server error."
 // @Router			/api/v1/cluster/config/file [post]
-func UpdateKubeConfig(w http.ResponseWriter, r *http.Request) {
-	// Extract the context and logger from the request.
-	ctx := r.Context()
-	log := ctxutil.GetLogger(ctx)
+func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		log := ctxutil.GetLogger(ctx)
 
-	// Begin the update process, logging the start.
-	log.Info("Starting get uploaded kubeconfig file in handler...")
+		// Begin the update process, logging the start.
+		log.Info("Starting get uploaded kubeconfig file in handler...")
 
-	// Limit the size of the request body to prevent overflow.
-	const maxUploadSize = 2 << 20
-	r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
-	if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "failed to parse multipart form")))
-		return
+		// Limit the size of the request body to prevent overflow.
+		const maxUploadSize = 2 << 20
+		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
+		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "failed to parse multipart form")))
+			return
+		}
+
+		// Retrieve the file from the parsed multipart form.
+		file, fileHeader, err := r.FormFile("file")
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "invalid request")))
+			return
+		}
+		defer file.Close()
+
+		// Check the file extension.
+		log.Info("Uploaded filename", "filename", fileHeader.Filename)
+		if !isAllowedExtension(fileHeader.Filename) {
+			render.Render(w, r, handler.FailureResponse(
+				ctx, errors.New("invalid file format, only '', .yaml, .yml, .json, .kubeconfig, .kubeconf are allowed.")))
+			return
+		}
+
+		// Read the contents of the file.
+		buf := make([]byte, maxUploadSize)
+		fileSize, err := file.Read(buf)
+		if err != nil && err != io.EOF {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error reading file")))
+			return
+		}
+		plainContent := string(buf[:fileSize])
+
+		// Sanitize the uploaded file content.
+		sanitizedContent, err := clusterMgr.SanitizeKubeConfigWithYAML(ctx, plainContent)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error sanitize uploaded config")))
+			return
+		}
+
+		// Convert the bytes read to a string and return as response.
+		data := &UploadData{
+			FileName:         fileHeader.Filename,
+			FileSize:         fileSize,
+			Content:          plainContent,
+			SanitizedContent: sanitizedContent,
+		}
+		render.JSON(w, r, handler.SuccessResponse(ctx, data))
 	}
-
-	// Retrieve the file from the parsed multipart form.
-	file, fileHeader, err := r.FormFile("file")
-	if err != nil {
-		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "invalid request")))
-		return
-	}
-	defer file.Close()
-
-	// Check the file extension.
-	log.Info("Uploaded filename", "filename", fileHeader.Filename)
-	if !isAllowedExtension(fileHeader.Filename) {
-		render.Render(w, r, handler.FailureResponse(
-			ctx, errors.New("invalid file format, only '', .yaml, .yml, .json, .kubeconfig, .kubeconf are allowed.")))
-		return
-	}
-
-	// Read the contents of the file.
-	buf := make([]byte, maxUploadSize)
-	fileSize, err := file.Read(buf)
-	if err != nil && err != io.EOF {
-		render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error reading file")))
-		return
-	}
-
-	// Convert the bytes read to a string and return as response.
-	data := &UploadData{
-		FileName: fileHeader.Filename,
-		Content:  string(buf[:fileSize]),
-		FileSize: fileSize,
-	}
-	render.JSON(w, r, handler.SuccessResponse(ctx, data))
 }
 
 // ValidateKubeConfig returns an HTTP handler function to validate a KubeConfig.
