@@ -106,6 +106,9 @@ jobs:
         working-directory: ./ui
         run: |
           npm install
+          # Using 'CI=false' prevents build errors due to warnings.
+          # It bypasses the 'process.env.CI = true' setting in CI environments
+          # that treats warnings as errors, ensuring a successful build.
           CI=false npm run build
 
       - name: Release the karbour with GoReleaser
