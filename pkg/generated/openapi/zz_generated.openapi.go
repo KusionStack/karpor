@@ -332,14 +332,16 @@ func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) c
 					},
 					"description": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
 					"displayName": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
 						},
 					},
 					"finalized": {
@@ -349,7 +351,7 @@ func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) c
 						},
 					},
 				},
-				Required: []string{"provider", "access"},
+				Required: []string{"provider", "access", "displayName"},
 			},
 		},
 		Dependencies: []string{

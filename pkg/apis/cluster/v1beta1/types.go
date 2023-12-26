@@ -55,8 +55,8 @@ type ClusterSpec struct {
 	Provider string        `json:"provider"`
 	Access   ClusterAccess `json:"access"`
 	// +optional
-	Description string `json:"description,omitempty"`
-	DisplayName string `json:"displayName,omitempty"`
+	Description string `json:"description"`
+	DisplayName string `json:"displayName"`
 	Finalized   *bool  `json:"finalized,omitempty"`
 }
 

@@ -67,18 +67,10 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 
 		if strings.ToLower(outputFormat) == "yaml" {
 			clusterYAML, err := clusterMgr.GetYAMLForCluster(r.Context(), client, cluster)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(r.Context(), err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, string(clusterYAML)))
+			handler.HandleResult(w, r, ctx, err, string(clusterYAML))
 		} else {
 			clusterUnstructured, err := clusterMgr.GetCluster(r.Context(), client, cluster)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(r.Context(), err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, clusterUnstructured))
+			handler.HandleResult(w, r, ctx, err, clusterUnstructured)
 		}
 	}
 }
@@ -118,18 +110,14 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		clusterCreated, err := clusterMgr.CreateCluster(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription, payload.ClusterKubeConfig)
-		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
-			return
-		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, clusterCreated))
+		handler.HandleResult(w, r, ctx, err, clusterCreated)
 	}
 }
 
-// Create returns an HTTP handler function that updates a cluster
+// Update returns an HTTP handler function that updates a cluster
 // resource. It utilizes a ClusterManager to execute the logic.
 //
-//	@Summary		UpdateMetadata updates the cluster metadata by name.
+//	@Summary		Update updates the cluster metadata by name.
 //	@Description	This endpoint updates the display name and description of an existing cluster resource.
 //	@Tags			cluster
 //	@Accept			plain
@@ -144,7 +132,7 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 //	@Failure		429		{string}	string						"Too Many Requests"
 //	@Failure		500		{string}	string						"Internal Server Error"
 //	@Router			/api/v1/cluster/{clusterName}  [put]
-func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -160,12 +148,13 @@ func UpdateMetadata(clusterMgr *cluster.ClusterManager, c *server.CompletedConfi
 		}
 
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		clusterUpdated, err := clusterMgr.UpdateMetadata(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription)
-		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
-			return
+		if payload.ClusterKubeConfig != "" {
+			clusterUpdated, err := clusterMgr.UpdateCredential(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription, payload.ClusterKubeConfig)
+			handler.HandleResult(w, r, ctx, err, clusterUpdated)
+		} else {
+			clusterUpdated, err := clusterMgr.UpdateMetadata(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription)
+			handler.HandleResult(w, r, ctx, err, clusterUpdated)
 		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, clusterUpdated))
 	}
 }
 
@@ -202,22 +191,14 @@ func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Ha
 
 		if summary {
 			clusterSummary, err := clusterMgr.CountCluster(r.Context(), client, c.LoopbackClientConfig)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, clusterSummary))
+			handler.HandleResult(w, r, ctx, err, clusterSummary)
 		} else {
 			criteria, ok := sortCriteriaMap[orderBy]
 			if !ok {
 				criteria = cluster.ByName
 			}
 			clusterList, err := clusterMgr.ListCluster(r.Context(), client, criteria, descending)
-			if err != nil {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
-			render.JSON(w, r, handler.SuccessResponse(ctx, clusterList))
+			handler.HandleResult(w, r, ctx, err, clusterList)
 		}
 	}
 }
@@ -247,11 +228,7 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		err := clusterMgr.DeleteCluster(r.Context(), client, cluster)
-		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
-			return
-		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, "Cluster deleted"))
+		handler.HandleResult(w, r, ctx, err, "Cluster deleted")
 	}
 }
 

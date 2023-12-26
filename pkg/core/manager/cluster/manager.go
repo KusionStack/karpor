@@ -96,11 +96,11 @@ func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluste
 	if err != nil {
 		return nil, err
 	}
-	if currentObj == nil {
-		return nil, fmt.Errorf("cluster %s not found. Try creating it instead", name)
+	if displayName == "" {
+		displayName = name
 	}
 
-	// Update the display name and description. Updating name and kubeconfig is not allowed here.
+	// Update the display name and description. Updating name and kubeconfig is not allowed in this method.
 	currentObj.Object["spec"].(map[string]interface{})["displayName"] = displayName
 	currentObj.Object["spec"].(map[string]interface{})["description"] = description
 	return client.DynamicClient.Resource(clusterGVR).Update(ctx, currentObj, metav1.UpdateOptions{})
@@ -113,9 +113,6 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
-	}
-	if currentObj == nil {
-		return nil, fmt.Errorf("cluster %s not found. Try creating it instead", name)
 	}
 
 	// Create new restConfig from updated kubeconfig
