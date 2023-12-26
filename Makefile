@@ -6,6 +6,13 @@ GOSOURCE_PATHS = ./pkg/...
 LICENSE_CHECKER ?= license-eye
 LICENSE_CHECKER_VERSION ?= main
 
+# Check if SKIP_UI_BUILD flag is set
+ifndef SKIP_UI_BUILD
+BUILD_UI = build-ui
+else
+BUILD_UI =
+endif
+
 .PHONY: update-codegen
 update-codegen: ## Update generated code
 	hack/update-codegen.sh
@@ -15,25 +22,29 @@ update-codegen: ## Update generated code
 build-all: build-darwin build-linux build-windows ## Build for all platforms
 
 .PHONY: build-darwin
-build-darwin: ## Build for MacOS
+build-darwin: $(BUILD_UI) ## Build for MacOS
 	-rm -rf ./_build/darwin
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/darwin/$(APPROOT) \
 		./cmd
 
 .PHONY: build-linux
-build-linux: ## Build for Linux
+build-linux: $(BUILD_UI) ## Build for Linux
 	-rm -rf ./_build/linux
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/linux/$(APPROOT) \
 		./cmd
 
 .PHONY: build-windows
-build-windows: ## Build for Windows
+build-windows: $(BUILD_UI) ## Build for Windows
 	-rm -rf ./_build/windows
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/windows/$(APPROOT).exe \
 		./cmd
+
+.PHONY: build-ui
+build-ui: ## Build ui for dashboard
+	cd ui && npm install && npm run build
 
 .PHONY: check-license
 check-license:  ## Checks if repo files contain valid license header
