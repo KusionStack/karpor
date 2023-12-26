@@ -25,12 +25,10 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
+// GetResourceEvents returns the list of events specified by core.Locator
 func (i *InsightManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
-	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	var eventList *unstructured.UnstructuredList
-	filteredList := make([]unstructured.Unstructured, 0)
 	// Retrieve the list of events for the specific resource
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{
 		// FieldSelector is case-sensitive so this would depend on user input. Safer way is to list all events within namespace and compare afterwards
 		// FieldSelector: fmt.Sprintf("involvedObject.apiVersion=%s,involvedObject.kind=%s,involvedObject.name=%s", res.APIVersion, res.Kind, res.Name),
@@ -38,15 +36,91 @@ func (i *InsightManager) GetResourceEvents(ctx context.Context, client *multiclu
 	if err != nil {
 		return nil, err
 	}
+	filteredList := make([]unstructured.Unstructured, 0)
 	// Iterate over the list and filter events for the specific resource
 	for _, event := range eventList.Items {
 		involvedObjectName, foundName, _ := unstructured.NestedString(event.Object, "involvedObject", "name")
+		involvedObjectAPIVersion, foundAPIVersion, _ := unstructured.NestedString(event.Object, "involvedObject", "apiVersion")
 		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
 		// case-insensitive comparison
-		if foundName && foundKind && strings.EqualFold(involvedObjectName, loc.Name) && strings.EqualFold(involvedObjectKind, loc.Kind) {
+		if foundName && foundKind && foundAPIVersion &&
+			strings.EqualFold(involvedObjectName, loc.Name) &&
+			strings.EqualFold(involvedObjectAPIVersion, loc.APIVersion) &&
+			strings.EqualFold(involvedObjectKind, loc.Kind) {
 			filteredList = append(filteredList, event)
 		}
 	}
 
 	return filteredList, nil
+}
+
+// GetNamespaceEvents returns the complete list of events in a namespace
+func (i *InsightManager) GetNamespaceGVKEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	filteredList := make([]unstructured.Unstructured, 0)
+	for _, event := range eventList.Items {
+		involvedObjectAPIVersion, foundAPIVersion, _ := unstructured.NestedString(event.Object, "involvedObject", "apiVersion")
+		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
+		if foundAPIVersion && foundKind && strings.EqualFold(involvedObjectAPIVersion, loc.APIVersion) && strings.EqualFold(involvedObjectKind, loc.Kind) {
+			filteredList = append(filteredList, event)
+		}
+	}
+	return filteredList, nil
+}
+
+// GetNamespaceEvents returns the complete list of events in a namespace
+func (i *InsightManager) GetNamespaceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	// Another option is to add .Namespace(loc.Namespace) here
+	// It is quicker but it will not include the events that are related to the namespace resource itself
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	filteredList := make([]unstructured.Unstructured, 0)
+	for _, event := range eventList.Items {
+		involvedObjectName, foundName, _ := unstructured.NestedString(event.Object, "involvedObject", "name")
+		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
+		involvedObjectNamespace, foundNamespace, _ := unstructured.NestedString(event.Object, "involvedObject", "namespace")
+		// Either the event is for a resource whose namespace == locator's namespace, or
+		// the event is for the namespace itself, in which case we are checking if
+		// involvedObjectKind == "Namespace" AND involvedObjectName == locator's namespace
+		if (foundNamespace && strings.EqualFold(involvedObjectNamespace, loc.Namespace)) ||
+			(foundName && foundKind && strings.EqualFold(involvedObjectKind, "Namespace") && strings.EqualFold(involvedObjectName, loc.Namespace)) {
+			filteredList = append(filteredList, event)
+		}
+	}
+	return filteredList, nil
+}
+
+// GetGVKEvents returns the complete list of events for a GVK
+func (i *InsightManager) GetGVKEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	filteredList := make([]unstructured.Unstructured, 0)
+	for _, event := range eventList.Items {
+		involvedObjectAPIVersion, foundAPIVersion, _ := unstructured.NestedString(event.Object, "involvedObject", "apiVersion")
+		involvedObjectKind, foundKind, _ := unstructured.NestedString(event.Object, "involvedObject", "kind")
+		if foundAPIVersion && foundKind && strings.EqualFold(involvedObjectAPIVersion, loc.APIVersion) && strings.EqualFold(involvedObjectKind, loc.Kind) {
+			filteredList = append(filteredList, event)
+		}
+	}
+	return filteredList, nil
+}
+
+// GetClusterEvents returns the complete list of events in a cluster
+func (i *InsightManager) GetClusterEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
+	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return eventList.Items, nil
 }

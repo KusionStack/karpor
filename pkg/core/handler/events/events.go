@@ -76,6 +76,18 @@ func GetEvents(insightMgr *insight.InsightManager, c *server.CompletedConfig) ht
 		case core.Resource, core.NonNamespacedResource:
 			resourceEvents, err := insightMgr.GetResourceEvents(r.Context(), client, &loc)
 			handler.HandleResult(w, r, ctx, err, resourceEvents)
+		case core.Cluster:
+			clusterEvents, err := insightMgr.GetClusterEvents(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, clusterEvents)
+		case core.ClusterGVKNamespace:
+			clusterGVKEvents, err := insightMgr.GetNamespaceGVKEvents(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, clusterGVKEvents)
+		case core.Namespace:
+			namespaceEvents, err := insightMgr.GetNamespaceEvents(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, namespaceEvents)
+		case core.GVK:
+			gvkEvents, err := insightMgr.GetGVKEvents(r.Context(), client, &loc)
+			handler.HandleResult(w, r, ctx, err, gvkEvents)
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
