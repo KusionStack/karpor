@@ -90,7 +90,6 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	if err := o.ServerRun.ApplyTo(&config.Config); err != nil {
 		return err
 	}
-
 	if err := o.Etcd.Complete(config.Config.StorageObjectCountTracker, config.Config.DrainedNotify(), config.Config.AddPostStartHook); err != nil {
 		return err
 	}
