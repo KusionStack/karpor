@@ -30,7 +30,7 @@
                     "200": {
                         "description": "Returns the content of the uploaded KubeConfig file.",
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.UploadData"
+                            "$ref": "#/definitions/cluster.UploadData"
                         }
                     },
                     "400": {
@@ -69,7 +69,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ValidatePayload"
+                            "$ref": "#/definitions/cluster.ValidatePayload"
                         }
                     }
                 ],
@@ -196,7 +196,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                            "$ref": "#/definitions/cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -265,7 +265,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_cluster.ClusterPayload"
+                            "$ref": "#/definitions/cluster.ClusterPayload"
                         }
                     }
                 ],
@@ -494,7 +494,7 @@
                     "200": {
                         "description": "Audit results",
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_scanner.AuditData"
+                            "$ref": "#/definitions/scanner.AuditData"
                         }
                     },
                     "400": {
@@ -761,7 +761,7 @@
                     "200": {
                         "description": "Score calculation result",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData"
+                            "$ref": "#/definitions/insight.ScoreData"
                         }
                     },
                     "400": {
@@ -843,7 +843,7 @@
                     "200": {
                         "description": "Resource Summary",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary"
+                            "$ref": "#/definitions/insight.ResourceSummary"
                         }
                     },
                     "400": {
@@ -933,7 +933,7 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology"
+                                "$ref": "#/definitions/insight.ResourceTopology"
                             }
                         }
                     },
@@ -1063,7 +1063,49 @@
         }
     },
     "definitions": {
-        "github_com_KusionStack_karbour_pkg_core.Locator": {
+        "cluster.ClusterPayload": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "description": "ClusterDescription is the description of cluster to be created",
+                    "type": "string"
+                },
+                "displayName": {
+                    "description": "ClusterDisplayName is the display name of cluster to be created",
+                    "type": "string"
+                },
+                "kubeconfig": {
+                    "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.UploadData": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "fileName": {
+                    "type": "string"
+                },
+                "fileSize": {
+                    "type": "integer"
+                },
+                "sanitizedContent": {
+                    "type": "string"
+                }
+            }
+        },
+        "cluster.ValidatePayload": {
+            "type": "object",
+            "properties": {
+                "kubeConfig": {
+                    "type": "string"
+                }
+            }
+        },
+        "core.Locator": {
             "type": "object",
             "properties": {
                 "apiVersion": {
@@ -1083,14 +1125,14 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary": {
+        "insight.ResourceSummary": {
             "type": "object",
             "properties": {
                 "creationTimestamp": {
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
+                    "$ref": "#/definitions/core.Locator"
                 },
                 "resourceVersion": {
                     "type": "string"
@@ -1100,7 +1142,7 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology": {
+        "insight.ResourceTopology": {
             "type": "object",
             "properties": {
                 "children": {
@@ -1120,7 +1162,7 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData": {
+        "insight.ScoreData": {
             "type": "object",
             "properties": {
                 "issuesTotal": {
@@ -1144,7 +1186,30 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_infra_scanner.Issue": {
+        "scanner.AuditData": {
+            "type": "object",
+            "properties": {
+                "bySeverity": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "issueGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/scanner.IssueGroup"
+                    }
+                },
+                "issueTotal": {
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "type": "integer"
+                }
+            }
+        },
+        "scanner.Issue": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1157,11 +1222,7 @@
                 },
                 "severity": {
                     "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
-                    "allOf": [
-                        {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel"
-                        }
-                    ]
+                    "type": "integer"
                 },
                 "title": {
                     "description": "Title is a brief summary of the issue.",
@@ -1169,102 +1230,16 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel": {
-            "type": "integer",
-            "enum": [
-                0,
-                1,
-                2,
-                3,
-                5
-            ],
-            "x-enum-comments": {
-                "Critical": "Critical indicates an extremely serious issue that must be addressed immediately.",
-                "High": "High indicates a serious issue that has a significant impact.",
-                "Low": "Low indicates a minor issue that should be addressed.",
-                "Medium": "Medium indicates a potential issue that may have a moderate impact.",
-                "Safe": "Safe indicates the absence of any security risk or an informational finding that does not require action."
-            },
-            "x-enum-varnames": [
-                "Safe",
-                "Low",
-                "Medium",
-                "High",
-                "Critical"
-            ]
-        },
-        "pkg_core_handler_cluster.ClusterPayload": {
-            "type": "object",
-            "properties": {
-                "description": {
-                    "description": "ClusterDescription is the description of cluster to be created",
-                    "type": "string"
-                },
-                "displayName": {
-                    "description": "ClusterDisplayName is the display name of cluster to be created",
-                    "type": "string"
-                },
-                "kubeconfig": {
-                    "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
-                    "type": "string"
-                }
-            }
-        },
-        "pkg_core_handler_cluster.UploadData": {
-            "type": "object",
-            "properties": {
-                "content": {
-                    "type": "string"
-                },
-                "fileName": {
-                    "type": "string"
-                },
-                "fileSize": {
-                    "type": "integer"
-                }
-            }
-        },
-        "pkg_core_handler_cluster.ValidatePayload": {
-            "type": "object",
-            "properties": {
-                "kubeConfig": {
-                    "type": "string"
-                }
-            }
-        },
-        "pkg_core_handler_scanner.AuditData": {
-            "type": "object",
-            "properties": {
-                "bySeverity": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "issueGroups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/pkg_core_handler_scanner.IssueGroup"
-                    }
-                },
-                "issueTotal": {
-                    "type": "integer"
-                },
-                "resourceTotal": {
-                    "type": "integer"
-                }
-            }
-        },
-        "pkg_core_handler_scanner.IssueGroup": {
+        "scanner.IssueGroup": {
             "type": "object",
             "properties": {
                 "issue": {
-                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.Issue"
+                    "$ref": "#/definitions/scanner.Issue"
                 },
                 "locators": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
+                        "$ref": "#/definitions/core.Locator"
                     }
                 }
             }
