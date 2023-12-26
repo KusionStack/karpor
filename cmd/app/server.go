@@ -36,6 +36,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
+	"k8s.io/apiserver/pkg/endpoints/discovery"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -163,6 +164,13 @@ func (o *Options) Config() (*server.Config, error) {
 	}
 
 	config.GenericConfig.Config.EnableIndex = false
+	config.GenericConfig.Config.EnableDiscovery = true
+	config.GenericConfig.LegacyAPIGroupPrefixes = sets.NewString("/api")
+	// Define the discovery addresses for the API server
+	discoveryAddresses := discovery.DefaultAddresses{
+		DefaultAddress: "127.0.0.1",
+	}
+	config.GenericConfig.DiscoveryAddresses = discoveryAddresses
 
 	return config, nil
 }
