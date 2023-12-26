@@ -106,7 +106,7 @@ jobs:
         working-directory: ./ui
         run: |
           npm install
-          npm run build
+          CI=false npm run build
 
       - name: Release the karbour with GoReleaser
         uses: goreleaser/goreleaser-action@v2
