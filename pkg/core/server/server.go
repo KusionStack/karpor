@@ -112,7 +112,7 @@ func setupAPIV1(
 			r.Put("/", clusterhandler.Update(clusterMgr, genericConfig))
 			r.Delete("/", clusterhandler.Delete(clusterMgr, genericConfig))
 		})
-		r.Post("/config/file", clusterhandler.UpdateKubeConfig)
+		r.Post("/config/file", clusterhandler.UploadKubeConfig(clusterMgr))
 		r.Post("/config/validate", clusterhandler.ValidateKubeConfig(clusterMgr))
 	})
 

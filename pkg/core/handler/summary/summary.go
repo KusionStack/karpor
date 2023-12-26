@@ -30,23 +30,23 @@ import (
 // GetSummary returns an HTTP handler function that returns a Kubernetes
 // resource summary. It utilizes an InsightManager to execute the logic.
 //
-//	@Summary		Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
-//	@Description	This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
-//	@Tags			insight
-//	@Produce		json
-//	@Param			cluster		query		string					false	"The specified cluster name, such as 'example-cluster'"
-//	@Param			apiVersion	query		string					false	"The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
-//	@Param			kind		query		string					false	"The specified kind, such as 'Deployment'"
-//	@Param			namespace	query		string					false	"The specified namespace, such as 'default'"
-//	@Param			name		query		string					false	"The specified resource name, such as 'foo'"
-//	@Success		200			{object}	insight.ResourceSummary	"Resource Summary"
-//	@Failure		400			{string}	string					"Bad Request"
-//	@Failure		401			{string}	string					"Unauthorized"
-//	@Failure		404			{string}	string					"Not Found"
-//	@Failure		405			{string}	string					"Method Not Allowed"
-//	@Failure		429			{string}	string					"Too Many Requests"
-//	@Failure		500			{string}	string					"Internal Server Error"
-//	@Router			/api/v1/insight/summary [get]
+//  @Summary      Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
+//  @Description  This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.
+//  @Tags         insight
+//  @Produce      json
+//  @Param        cluster     query     string                   false  "The specified cluster name, such as 'example-cluster'"
+//  @Param        apiVersion  query     string                   false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
+//  @Param        kind        query     string                   false  "The specified kind, such as 'Deployment'"
+//  @Param        namespace   query     string                   false  "The specified namespace, such as 'default'"
+//  @Param        name        query     string                   false  "The specified resource name, such as 'foo'"
+//  @Success      200         {object}  insight.ResourceSummary  "Resource Summary"
+//  @Failure      400         {string}  string                   "Bad Request"
+//  @Failure      401         {string}  string                   "Unauthorized"
+//  @Failure      404         {string}  string                   "Not Found"
+//  @Failure      405         {string}  string                   "Method Not Allowed"
+//  @Failure      429         {string}  string                   "Too Many Requests"
+//  @Failure      500         {string}  string                   "Internal Server Error"
+//  @Router       /api/v1/insight/summary [get]
 func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
