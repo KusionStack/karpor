@@ -188,7 +188,7 @@
                 "tags": [
                     "cluster"
                 ],
-                "summary": "UpdateMetadata updates the cluster metadata by name.",
+                "summary": "Update updates the cluster metadata by name.",
                 "parameters": [
                     {
                         "description": "cluster to update (either plain text or JSON format)",
@@ -494,7 +494,7 @@
                     "200": {
                         "description": "Audit results",
                         "schema": {
-                            "$ref": "#/definitions/pkg_core_handler_audit.AuditData"
+                            "$ref": "#/definitions/pkg_core_handler_scanner.AuditData"
                         }
                     },
                     "400": {
@@ -761,7 +761,7 @@
                     "200": {
                         "description": "Score calculation result",
                         "schema": {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData"
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData"
                         }
                     },
                     "400": {
@@ -1083,30 +1083,6 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData": {
-            "type": "object",
-            "properties": {
-                "issuesTotal": {
-                    "description": "IssuesTotal is the total count of all issues found during the audit.\nThis count can be used to understand the overall number of problems\nthat need to be addressed.",
-                    "type": "integer"
-                },
-                "resourceTotal": {
-                    "description": "ResourceTotal is the count of unique resources audited during the scan.",
-                    "type": "integer"
-                },
-                "score": {
-                    "description": "Score represents the calculated score of the audited manifest based on\nthe number and severity of issues. It provides a quantitative measure\nof the security posture of the resources in the manifest.",
-                    "type": "number"
-                },
-                "severityStatistic": {
-                    "description": "SeverityStatistic is a mapping of severity levels to their respective\nnumber of occurrences. It allows for a quick overview of the distribution\nof issues across different severity categories.",
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                }
-            }
-        },
         "github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary": {
             "type": "object",
             "properties": {
@@ -1144,7 +1120,31 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_scanner.Issue": {
+        "github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData": {
+            "type": "object",
+            "properties": {
+                "issuesTotal": {
+                    "description": "IssuesTotal is the total count of all issues found during the audit.\nThis count can be used to understand the overall number of problems\nthat need to be addressed.",
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "description": "ResourceTotal is the count of unique resources audited during the scan.",
+                    "type": "integer"
+                },
+                "score": {
+                    "description": "Score represents the calculated score of the audited manifest based on\nthe number and severity of issues. It provides a quantitative measure\nof the security posture of the resources in the manifest.",
+                    "type": "number"
+                },
+                "severityStatistic": {
+                    "description": "SeverityStatistic is a mapping of severity levels to their respective\nnumber of occurrences. It allows for a quick overview of the distribution\nof issues across different severity categories.",
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
+        "github_com_KusionStack_karbour_pkg_infra_scanner.Issue": {
             "type": "object",
             "properties": {
                 "message": {
@@ -1159,7 +1159,7 @@
                     "description": "Severity indicates how critical the issue is, using the IssueSeverityLevel constants.",
                     "allOf": [
                         {
-                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel"
+                            "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel"
                         }
                     ]
                 },
@@ -1169,7 +1169,7 @@
                 }
             }
         },
-        "github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel": {
+        "github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel": {
             "type": "integer",
             "enum": [
                 0,
@@ -1192,43 +1192,6 @@
                 "High",
                 "Critical"
             ]
-        },
-        "pkg_core_handler_audit.AuditData": {
-            "type": "object",
-            "properties": {
-                "bySeverity": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
-                },
-                "issueGroups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/pkg_core_handler_audit.IssueGroup"
-                    }
-                },
-                "issueTotal": {
-                    "type": "integer"
-                },
-                "resourceTotal": {
-                    "type": "integer"
-                }
-            }
-        },
-        "pkg_core_handler_audit.IssueGroup": {
-            "type": "object",
-            "properties": {
-                "issue": {
-                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue"
-                },
-                "locators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
-                    }
-                }
-            }
         },
         "pkg_core_handler_cluster.ClusterPayload": {
             "type": "object",
@@ -1266,6 +1229,43 @@
             "properties": {
                 "kubeConfig": {
                     "type": "string"
+                }
+            }
+        },
+        "pkg_core_handler_scanner.AuditData": {
+            "type": "object",
+            "properties": {
+                "bySeverity": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "issueGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/pkg_core_handler_scanner.IssueGroup"
+                    }
+                },
+                "issueTotal": {
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "type": "integer"
+                }
+            }
+        },
+        "pkg_core_handler_scanner.IssueGroup": {
+            "type": "object",
+            "properties": {
+                "issue": {
+                    "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.Issue"
+                },
+                "locators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_KusionStack_karbour_pkg_core.Locator"
+                    }
                 }
             }
         },

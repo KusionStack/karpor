@@ -109,7 +109,7 @@ func setupAPIV1(
 		r.Route("/{clusterName}", func(r chi.Router) {
 			r.Get("/", clusterhandler.Get(clusterMgr, genericConfig))
 			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
-			r.Put("/", clusterhandler.UpdateMetadata(clusterMgr, genericConfig))
+			r.Put("/", clusterhandler.Update(clusterMgr, genericConfig))
 			r.Delete("/", clusterhandler.Delete(clusterMgr, genericConfig))
 		})
 		r.Post("/config/file", clusterhandler.UpdateKubeConfig)

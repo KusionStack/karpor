@@ -12,7 +12,31 @@ definitions:
       namespace:
         type: string
     type: object
-  github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData:
+  github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary:
+    properties:
+      creationTimestamp:
+        type: string
+      resource:
+        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core.Locator'
+      resourceVersion:
+        type: string
+      uid:
+        type: string
+    type: object
+  github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology:
+    properties:
+      children:
+        items:
+          type: string
+        type: array
+      identifier:
+        type: string
+      parents:
+        items:
+          type: string
+        type: array
+    type: object
+  github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData:
     properties:
       issuesTotal:
         description: |-
@@ -39,31 +63,7 @@ definitions:
           of issues across different severity categories.
         type: object
     type: object
-  github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceSummary:
-    properties:
-      creationTimestamp:
-        type: string
-      resource:
-        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core.Locator'
-      resourceVersion:
-        type: string
-      uid:
-        type: string
-    type: object
-  github_com_KusionStack_karbour_pkg_core_manager_insight.ResourceTopology:
-    properties:
-      children:
-        items:
-          type: string
-        type: array
-      identifier:
-        type: string
-      parents:
-        items:
-          type: string
-        type: array
-    type: object
-  github_com_KusionStack_karbour_pkg_scanner.Issue:
+  github_com_KusionStack_karbour_pkg_infra_scanner.Issue:
     properties:
       message:
         description: Message provides a detailed human-readable description of the
@@ -74,14 +74,14 @@ definitions:
         type: string
       severity:
         allOf:
-        - $ref: '#/definitions/github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel'
+        - $ref: '#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel'
         description: Severity indicates how critical the issue is, using the IssueSeverityLevel
           constants.
       title:
         description: Title is a brief summary of the issue.
         type: string
     type: object
-  github_com_KusionStack_karbour_pkg_scanner.IssueSeverityLevel:
+  github_com_KusionStack_karbour_pkg_infra_scanner.IssueSeverityLevel:
     enum:
     - 0
     - 1
@@ -103,30 +103,6 @@ definitions:
     - Medium
     - High
     - Critical
-  pkg_core_handler_audit.AuditData:
-    properties:
-      bySeverity:
-        additionalProperties:
-          type: integer
-        type: object
-      issueGroups:
-        items:
-          $ref: '#/definitions/pkg_core_handler_audit.IssueGroup'
-        type: array
-      issueTotal:
-        type: integer
-      resourceTotal:
-        type: integer
-    type: object
-  pkg_core_handler_audit.IssueGroup:
-    properties:
-      issue:
-        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_scanner.Issue'
-      locators:
-        items:
-          $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core.Locator'
-        type: array
-    type: object
   pkg_core_handler_cluster.ClusterPayload:
     properties:
       description:
@@ -152,6 +128,30 @@ definitions:
     properties:
       kubeConfig:
         type: string
+    type: object
+  pkg_core_handler_scanner.AuditData:
+    properties:
+      bySeverity:
+        additionalProperties:
+          type: integer
+        type: object
+      issueGroups:
+        items:
+          $ref: '#/definitions/pkg_core_handler_scanner.IssueGroup'
+        type: array
+      issueTotal:
+        type: integer
+      resourceTotal:
+        type: integer
+    type: object
+  pkg_core_handler_scanner.IssueGroup:
+    properties:
+      issue:
+        $ref: '#/definitions/github_com_KusionStack_karbour_pkg_infra_scanner.Issue'
+      locators:
+        items:
+          $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core.Locator'
+        type: array
     type: object
   unstructured.Unstructured:
     properties:
@@ -334,7 +334,7 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: UpdateMetadata updates the cluster metadata by name.
+      summary: Update updates the cluster metadata by name.
       tags:
       - cluster
   /api/v1/cluster/config/file:
@@ -493,7 +493,7 @@ paths:
         "200":
           description: Audit results
           schema:
-            $ref: '#/definitions/pkg_core_handler_audit.AuditData'
+            $ref: '#/definitions/pkg_core_handler_scanner.AuditData'
         "400":
           description: Bad Request
           schema:
@@ -675,7 +675,7 @@ paths:
         "200":
           description: Score calculation result
           schema:
-            $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_audit.ScoreData'
+            $ref: '#/definitions/github_com_KusionStack_karbour_pkg_core_manager_insight.ScoreData'
         "400":
           description: Bad Request
           schema:
