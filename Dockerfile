@@ -12,28 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Front-end build layer, builds front-end code and generates static files.
-FROM node:20 AS ui-builder
-
-# Copy front-end code
-ADD ./ui /root/ui
-WORKDIR /root/ui
-
-# Install dependencies
-RUN npm install
-
-# Build, generate static files
-RUN npm run build
-
 FROM alpine:3.17.3 AS production
 
+USER root
 WORKDIR /
 
-# Copy the static file directory built in the previous layer to the current layer
-COPY --from=ui-builder /root/ui/build /static
 COPY karbour .
 COPY relationship.yaml .
-
-USER root
 
 ENTRYPOINT ["/karbour"]

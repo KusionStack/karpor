@@ -6,34 +6,72 @@ GOSOURCE_PATHS = ./pkg/...
 LICENSE_CHECKER ?= license-eye
 LICENSE_CHECKER_VERSION ?= main
 
+# Check if the SKIP_UI_BUILD flag is set to control the UI building process.
+# If the flag is not set, the BUILD_UI variable is assigned the value 'build-ui'.
+# If the flag is set, the BUILD_UI variable remains empty.
+ifndef SKIP_UI_BUILD
+    BUILD_UI = build-ui
+else
+    BUILD_UI =
+endif
+
+# Target: update-codegen
+# Description: Updates the generated code using the 'hack/update-codegen.sh' script.
+# Example: make update-codegen
 .PHONY: update-codegen
 update-codegen: ## Update generated code
 	hack/update-codegen.sh
 
-## Build-related targets
+# Build-related targets
+
+# Target: build-all
+# Description: Builds for all supported platforms (Darwin, Linux, Windows).
+# Example: make build-all
 .PHONY: build-all
 build-all: build-darwin build-linux build-windows ## Build for all platforms
 
+# Target: build-darwin
+# Description: Builds for macOS platform.
+# Dependencies: BUILD_UI
+# Example:
+# - make build-darwin
+# - make build-darwin SKIP_UI_BUILD=true
 .PHONY: build-darwin
-build-darwin: ## Build for MacOS
+build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 	-rm -rf ./_build/darwin
 	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/darwin/$(APPROOT) \
 		./cmd
 
+# Target: build-linux
+# Description: Builds for Linux platform.
+# Dependencies: BUILD_UI
+# Example: make build-linux
 .PHONY: build-linux
-build-linux: ## Build for Linux
+build-linux: $(BUILD_UI) ## Build for Linux
 	-rm -rf ./_build/linux
 	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/linux/$(APPROOT) \
 		./cmd
 
+# Target: build-windows
+# Description: Builds for Windows platform.
+# Dependencies: BUILD_UI
+# Example: make build-windows
 .PHONY: build-windows
-build-windows: ## Build for Windows
+build-windows: $(BUILD_UI) ## Build for Windows
 	-rm -rf ./_build/windows
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/windows/$(APPROOT).exe \
 		./cmd
+
+# Target: build-ui
+# Description: Builds the UI for the dashboard.
+# Example: make build-ui
+.PHONY: build-ui
+build-ui: ## Build UI for the dashboard
+	@echo "Building UI for the dashboard ..."
+	cd ui && npm install && npm run build
 
 .PHONY: check-license
 check-license:  ## Checks if repo files contain valid license header

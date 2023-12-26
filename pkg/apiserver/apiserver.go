@@ -18,14 +18,17 @@ package apiserver
 
 import (
 	"fmt"
+	"io"
+	"io/fs"
 	"net/http"
-	"path/filepath"
 
 	"github.com/KusionStack/karbour/pkg/core/server"
 	"github.com/KusionStack/karbour/pkg/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
 	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
+	"github.com/KusionStack/karbour/ui"
 	"github.com/go-chi/chi/v5"
+
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"
 )
@@ -120,17 +123,41 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 		return s
 	}
 
-	// Define the directory and pattern where the static files are located.
-	const StaticDirectory = "static"
-
-	// Log the use of the static directory for the dashboard.
-	klog.Infof("Dashboard's static directory use: %s", StaticDirectory)
+	// Get the web root and static directory of dashboard from embedded
+	// filesystem.
+	webRootFS, err := fs.Sub(ui.Embedded, "build")
+	if err != nil {
+		klog.Warningf("Failed to get web root directory from embedded filesystem as %s", err.Error())
+	}
+	staticFS, err := fs.Sub(ui.Embedded, "build/static")
+	if err != nil {
+		klog.Warningf("Failed to get static directory from embedded filesystem as %s", err.Error())
+	}
 
 	// Set up the router to serve static files when not found by other routes.
 	s.mux.NotFound(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, filepath.Join(StaticDirectory, "index.html"))
+		indexFile, err := webRootFS.Open("index.html")
+		if err != nil {
+			klog.Warningf("Failed to open dashboard index.html from embedded filesystem as %s", err.Error())
+			http.Error(w, "File not found", http.StatusNotFound)
+			return
+		}
+		defer indexFile.Close()
+
+		b, err := io.ReadAll(indexFile)
+		if err != nil {
+			klog.Warningf("Failed to read dashboard index.html as %s", err.Error())
+			http.Error(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+
+		w.Header().Set("Content-Type", "text/html; charset=utf-8")
+		w.WriteHeader(http.StatusOK)
+		w.Write(b)
 	})
-	s.mux.Mount("/static", staticHandler(StaticDirectory))
+
+	staticHandler := http.StripPrefix("/static/", http.FileServer(http.FS(staticFS)))
+	s.mux.Mount("/static", staticHandler)
 
 	return s
 }
@@ -140,8 +167,4 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 // to ensure any issues are captured and reported.
 func (s *KarbourServer) Error() error {
 	return s.err
-}
-
-func staticHandler(staticDirectory string) http.Handler {
-	return http.StripPrefix("/static", http.FileServer(http.Dir(staticDirectory+"/static")))
 }
