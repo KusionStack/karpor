@@ -32,24 +32,24 @@ import (
 // GetDetail returns an HTTP handler function that returns a Kubernetes
 // resource. It utilizes an InsightManager to execute the logic.
 //
-//  @Summary      GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Description  This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
-//  @Tags         insight
-//  @Produce      json
-//  @Param        format      query     string                     false  "The format of the response. Either in json or yaml. Default to json"
-//  @Param        cluster     query     string                     false  "The specified cluster name, such as 'example-cluster'"
-//  @Param        apiVersion  query     string                     false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
-//  @Param        kind        query     string                     false  "The specified kind, such as 'Deployment'"
-//  @Param        namespace   query     string                     false  "The specified namespace, such as 'default'"
-//  @Param        name        query     string                     false  "The specified resource name, such as 'foo'"
-//  @Success      200         {object}  unstructured.Unstructured  "Unstructured object"
-//  @Failure      400         {string}  string                     "Bad Request"
-//  @Failure      401         {string}  string                     "Unauthorized"
-//  @Failure      404         {string}  string                     "Not Found"
-//  @Failure      405         {string}  string                     "Method Not Allowed"
-//  @Failure      429         {string}  string                     "Too Many Requests"
-//  @Failure      500         {string}  string                     "Internal Server Error"
-//  @Router       /api/v1/insight/detail [get]
+// @Summary      GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+// @Description  This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
+// @Tags         insight
+// @Produce      json
+// @Param        format      query     string                     false  "The format of the response. Either in json or yaml. Default to json"
+// @Param        cluster     query     string                     false  "The specified cluster name, such as 'example-cluster'"
+// @Param        apiVersion  query     string                     false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
+// @Param        kind        query     string                     false  "The specified kind, such as 'Deployment'"
+// @Param        namespace   query     string                     false  "The specified namespace, such as 'default'"
+// @Param        name        query     string                     false  "The specified resource name, such as 'foo'"
+// @Success      200         {object}  unstructured.Unstructured  "Unstructured object"
+// @Failure      400         {string}  string                     "Bad Request"
+// @Failure      401         {string}  string                     "Unauthorized"
+// @Failure      404         {string}  string                     "Not Found"
+// @Failure      405         {string}  string                     "Method Not Allowed"
+// @Failure      429         {string}  string                     "Too Many Requests"
+// @Failure      500         {string}  string                     "Internal Server Error"
+// @Router       /api/v1/insight/detail [get]
 func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
