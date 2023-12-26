@@ -16,6 +16,7 @@ package insight
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
@@ -101,17 +102,20 @@ func (i *InsightManager) Score(ctx context.Context, locator core.Locator) (*Scor
 			severityStats[k] += v
 		}
 	}
-	if len(scanResult.ByResource()) > 0 {
-		scoreTotal /= float64(len(scanResult.ByResource()))
+
+	resourceTotal := len(scanResult.ByResource())
+	if resourceTotal == 0 {
+		scoreTotal = 100
+	} else if resourceTotal > 0 {
+		scoreTotal /= float64(resourceTotal)
+	} else {
+		return nil, fmt.Errorf("invalid resource total")
 	}
 
-	// Prepare the score data including the total, sum and statistics.
-	data := &ScoreData{
+	return &ScoreData{
 		Score:             scoreTotal,
-		ResourceTotal:     len(scanResult.ByResource()),
+		ResourceTotal:     resourceTotal,
 		IssuesTotal:       scanResult.IssueTotal(),
 		SeverityStatistic: severityStats,
-	}
-
-	return data, nil
+	}, nil
 }
