@@ -164,13 +164,10 @@ func (o *Options) Config() (*server.Config, error) {
 	}
 
 	config.GenericConfig.Config.EnableIndex = false
-	config.GenericConfig.Config.EnableDiscovery = true
-	config.GenericConfig.LegacyAPIGroupPrefixes = sets.NewString("/api")
 	// Define the discovery addresses for the API server
-	discoveryAddresses := discovery.DefaultAddresses{
-		DefaultAddress: "127.0.0.1",
+	config.GenericConfig.DiscoveryAddresses = discovery.DefaultAddresses{
+		DefaultAddress: config.GenericConfig.LoopbackClientConfig.Host,
 	}
-	config.GenericConfig.DiscoveryAddresses = discoveryAddresses
 
 	return config, nil
 }
