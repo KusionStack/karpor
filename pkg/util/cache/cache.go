@@ -45,8 +45,8 @@ func NewCache[K comparable, V any](expiration time.Duration) *Cache[K, V] {
 // Get retrieves an item from the cache based on the provided key. It returns
 // the data and a boolean indicating if the data exists and hasn't expired.
 func (c *Cache[K, V]) Get(key K) (V, bool) {
-	c.mu.RLock()
-	defer c.mu.RUnlock()
+	c.mu.Lock()
+	defer c.mu.Unlock()
 
 	item, exist := c.cache[key]
 	if !exist {
