@@ -19,7 +19,7 @@ definitions:
         type: string
       fileSize:
         type: integer
-      sanitizedContent:
+      sanitizedClusterContent:
         type: string
     type: object
   cluster.ValidatePayload:
@@ -329,6 +329,21 @@ paths:
         name: file
         required: true
         type: file
+      - description: cluster name
+        in: formData
+        name: name
+        required: true
+        type: string
+      - description: cluster display name
+        in: formData
+        name: displayName
+        required: true
+        type: string
+      - description: cluster description
+        in: formData
+        name: description
+        required: true
+        type: string
       produces:
       - text/plain
       responses:

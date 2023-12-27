@@ -37,10 +37,10 @@ type ClusterPayload struct {
 }
 
 type UploadData struct {
-	FileName         string `json:"fileName"`
-	FileSize         int    `json:"fileSize"`
-	Content          string `json:"content"`
-	SanitizedContent string `json:"sanitizedContent"`
+	FileName                string `json:"fileName"`
+	FileSize                int    `json:"fileSize"`
+	Content                 string `json:"content"`
+	SanitizedClusterContent string `json:"sanitizedClusterContent"`
 }
 
 type ValidatePayload struct {

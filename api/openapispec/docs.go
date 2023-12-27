@@ -43,6 +43,27 @@ var doc = `{
                         "name": "file",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster name",
+                        "name": "name",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster display name",
+                        "name": "displayName",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster description",
+                        "name": "description",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -1111,7 +1132,7 @@ var doc = `{
                 "fileSize": {
                     "type": "integer"
                 },
-                "sanitizedContent": {
+                "sanitizedClusterContent": {
                     "type": "string"
                 }
             }
