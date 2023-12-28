@@ -531,8 +531,8 @@ var doc = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "The specified no cache flag, default is 'false'",
-                        "name": "noCache",
+                        "description": "Switch for forced scanning, default is 'false'",
+                        "name": "forceNew",
                         "in": "query"
                     }
                 ],
@@ -804,8 +804,8 @@ var doc = `{
                     },
                     {
                         "type": "boolean",
-                        "description": "The specified no cache flag, default is 'false'",
-                        "name": "noCache",
+                        "description": "Switch for forced compute score, default is 'false'",
+                        "name": "forceNew",
                         "in": "query"
                     }
                 ],

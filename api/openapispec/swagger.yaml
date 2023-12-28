@@ -481,9 +481,9 @@ paths:
         in: query
         name: name
         type: string
-      - description: The specified no cache flag, default is 'false'
+      - description: Switch for forced scanning, default is 'false'
         in: query
-        name: noCache
+        name: forceNew
         type: boolean
       produces:
       - application/json
@@ -667,9 +667,9 @@ paths:
         in: query
         name: name
         type: string
-      - description: The specified no cache flag, default is 'false'
+      - description: Switch for forced compute score, default is 'false'
         in: query
-        name: noCache
+        name: forceNew
         type: boolean
       produces:
       - application/json

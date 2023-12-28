@@ -37,7 +37,7 @@ import (
 // @Param        kind        query     string     false  "The specified kind, such as 'Deployment'"
 // @Param        namespace   query     string     false  "The specified namespace, such as 'default'"
 // @Param        name        query     string     false  "The specified resource name, such as 'foo'"
-// @Param        noCache     query     bool       false  "The specified no cache flag, default is 'false'"
+// @Param        forceNew    query     bool       false  "Switch for forced scanning, default is 'false'"
 // @Success      200         {object}  AuditData  "Audit results"
 // @Failure      400         {string}  string     "Bad Request"
 // @Failure      401         {string}  string     "Unauthorized"
@@ -60,13 +60,13 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		noCache, _ := strconv.ParseBool(r.URL.Query().Get("noCache"))
+		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
 		// Log successful decoding of the request body.
 		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
 
 		// Perform the audit using the manager and the provided manifest.
-		scanResult, err := insight.Audit(ctx, locator, noCache)
+		scanResult, err := insight.Audit(ctx, locator, forceNew)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -91,7 +91,7 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 // @Param        kind        query     string             false  "The specified kind, such as 'Deployment'"
 // @Param        namespace   query     string             false  "The specified namespace, such as 'default'"
 // @Param        name        query     string             false  "The specified resource name, such as 'foo'"
-// @Param        noCache     query     bool               false  "The specified no cache flag, default is 'false'"
+// @Param        forceNew    query     bool               false  "Switch for forced compute score, default is 'false'"
 // @Success      200         {object}  insight.ScoreData  "Score calculation result"
 // @Failure      400         {string}  string             "Bad Request"
 // @Failure      401         {string}  string             "Unauthorized"
@@ -114,13 +114,13 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		noCache, _ := strconv.ParseBool(r.URL.Query().Get("noCache"))
+		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
 		// Log successful decoding of the request body.
 		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
 
 		// Calculate score using the audit issues.
-		data, err := insightMgr.Score(ctx, locator, noCache)
+		data, err := insightMgr.Score(ctx, locator, forceNew)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
