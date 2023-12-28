@@ -99,11 +99,19 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	r := RelationshipGraph{}
-	yamlFile, err := os.ReadFile("relationship.yaml")
+	// TODO: Obtaining topological relationship from CR in the future.
+	// Get the file path from the environment variable, fallback to default if
+	// not set.
+	filePath := os.Getenv("KARBOUR_RELATIONSHIP_FILE")
+	if filePath == "" {
+		filePath = "relationship.yaml" // Default file path
+	}
+
+	yamlFile, err := os.ReadFile(filePath)
 	if err != nil {
 		log.Error(err, "yamlFile.Get err")
 	}
+	r := RelationshipGraph{}
 	err = yaml.Unmarshal(yamlFile, &r)
 	if err != nil {
 		log.Error(err, "Unmarshal error")
