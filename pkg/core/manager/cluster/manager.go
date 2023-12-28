@@ -76,7 +76,7 @@ func (c *ClusterManager) CreateCluster(ctx context.Context, client *multicluster
 	}
 
 	// Convert the rest.Config to Cluster object and create it using dynamic client
-	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, description, displayName, restConfig)
+	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
 	if err != nil {
 		return nil, err
 	}
