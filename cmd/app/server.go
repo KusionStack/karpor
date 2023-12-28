@@ -24,15 +24,15 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/spf13/cobra"
-
 	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
 	"github.com/KusionStack/karbour/pkg/registry"
 	"github.com/KusionStack/karbour/pkg/scheme"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
+	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"

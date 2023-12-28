@@ -18,6 +18,6 @@ USER root
 WORKDIR /
 
 COPY karbour .
-COPY relationship.yaml .
+COPY config/relationship.yaml .
 
 ENTRYPOINT ["/karbour"]
