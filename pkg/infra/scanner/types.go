@@ -38,8 +38,8 @@ const (
 // KubeScanner is an interface for scanners that analyze Kubernetes resources.
 // Each scanner should implement this interface to provide scanning functionality.
 type KubeScanner interface {
-	Name() string                                                                 // Name returns the name of the scanner.
-	Scan(ctx context.Context, resources ...*storage.Resource) (ScanResult, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
+	Name() string                                                                               // Name returns the name of the scanner.
+	Scan(ctx context.Context, noCache bool, resources ...*storage.Resource) (ScanResult, error) // Scan accepts one or more Kubernetes resources and returns a slice of issues found.
 }
 
 // ScanResult defines the interface for the result of a scan.

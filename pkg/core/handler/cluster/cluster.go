@@ -243,13 +243,13 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Tags         cluster
 // @Accept       multipart/form-data
 // @Produce      plain
-// @Param        file  formData  file        true  "Upload file with field name 'file'"
-// @Param        name formData  string true  "cluster name"
-// @Param        displayName formData  string true  "cluster display name"
-// @Param        description formData  string true  "cluster description"
-// @Success      200   {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
-// @Failure      400   {string}  string      "The uploaded file is too large or the request is invalid."
-// @Failure      500   {string}  string      "Internal server error."
+// @Param        file         formData  file        true  "Upload file with field name 'file'"
+// @Param        name         formData  string      true  "cluster name"
+// @Param        displayName  formData  string      true  "cluster display name"
+// @Param        description  formData  string      true  "cluster description"
+// @Success      200          {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
+// @Failure      400          {string}  string      "The uploaded file is too large or the request is invalid."
+// @Failure      500          {string}  string      "Internal server error."
 // @Router       /api/v1/cluster/config/file [post]
 func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

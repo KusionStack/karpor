@@ -481,6 +481,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: Switch for forced scanning, default is 'false'
+        in: query
+        name: forceNew
+        type: boolean
       produces:
       - application/json
       responses:
@@ -663,6 +667,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: Switch for forced compute score, default is 'false'
+        in: query
+        name: forceNew
+        type: boolean
       produces:
       - application/json
       responses:
@@ -888,5 +896,5 @@ paths:
             type: string
       summary: List all available endpoints
       tags:
-      - endpoints
+      - debug
 swagger: "2.0"
