@@ -96,7 +96,7 @@ func (s *kubeauditScanner) Name() string {
 
 // Scan audits the provided Kubernetes resources and returns security issues
 // found during the scan.
-func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resource) (scanner.ScanResult, error) {
+func (s *kubeauditScanner) Scan(ctx context.Context, noCache bool, resources ...*storage.Resource) (scanner.ScanResult, error) {
 	var wg sync.WaitGroup
 	wg.Add(len(resources))
 
@@ -114,7 +114,7 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 				return
 			}
 
-			result, err := s.scanManifest(ctx, res, resYAML)
+			result, err := s.scanManifest(ctx, noCache, res, resYAML)
 			if err != nil {
 				errChan <- err
 				return
@@ -148,32 +148,40 @@ func (s *kubeauditScanner) Scan(ctx context.Context, resources ...*storage.Resou
 
 // scanManifest performs the actual scanning on the Kubernetes manifest and
 // returns the scan result.
-func (s *kubeauditScanner) scanManifest(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
-	if scanResult, exist := s.c.Get(resource.Locator); exist {
-		return scanResult, nil
+func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
+	if noCache {
+		return s.scanManifestFor(ctx, resource, manifest)
 	} else {
-		report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
-		if err != nil {
-			return nil, err
+		if scanResult, exist := s.c.Get(resource.Locator); exist {
+			return scanResult, nil
+		} else {
+			return s.scanManifestFor(ctx, resource, manifest)
 		}
-
-		results := report.RawResults()
-		if len(results) != 1 {
-			return nil, fmt.Errorf("the scan result number should be equal to 1")
-		}
-		result := results[0]
-
-		r := newScanResult()
-		issues := []*scanner.Issue{}
-		for _, auditResult := range result.GetAuditResults() {
-			newIssue := AuditResult2Issue(auditResult)
-			if int(newIssue.Severity) >= int(s.attentionLevel) {
-				issues = append(issues, newIssue)
-			}
-		}
-		r.add(resource, issues)
-		s.c.Set(resource.Locator, r)
-
-		return r, nil
 	}
+}
+
+func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
+	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
+	if err != nil {
+		return nil, err
+	}
+
+	results := report.RawResults()
+	if len(results) != 1 {
+		return nil, fmt.Errorf("the scan result number should be equal to 1")
+	}
+	result := results[0]
+
+	r := newScanResult()
+	issues := []*scanner.Issue{}
+	for _, auditResult := range result.GetAuditResults() {
+		newIssue := AuditResult2Issue(auditResult)
+		if int(newIssue.Severity) >= int(s.attentionLevel) {
+			issues = append(issues, newIssue)
+		}
+	}
+	r.add(resource, issues)
+	s.c.Set(resource.Locator, r)
+
+	return r, nil
 }

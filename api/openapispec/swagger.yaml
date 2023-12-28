@@ -481,6 +481,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: The specified no cache flag, default is 'false'
+        in: query
+        name: noCache
+        type: boolean
       produces:
       - application/json
       responses:
@@ -663,6 +667,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: The specified no cache flag, default is 'false'
+        in: query
+        name: noCache
+        type: boolean
       produces:
       - application/json
       responses:
@@ -888,5 +896,5 @@ paths:
             type: string
       summary: List all available endpoints
       tags:
-      - endpoints
+      - debug
 swagger: "2.0"

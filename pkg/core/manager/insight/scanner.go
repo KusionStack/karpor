@@ -27,67 +27,34 @@ import (
 
 // Audit performs the audit on Kubernetes manifests with the specified locator
 // and returns the issues found during the audit.
-func (i *InsightManager) Audit(ctx context.Context, locator core.Locator) (scanner.ScanResult, error) {
+func (i *InsightManager) Audit(ctx context.Context, locator core.Locator, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
 
-	searchQuery := locator.ToSQL()
-	searchPattern := storage.SQLPatternType
-	pageSizeIteration := 100
-	pageIteration := 1
-
-	if auditData, exist := i.scanCache.Get(locator); exist {
-		log.Info("Cache hit for locator", "locator", locator)
-		return auditData, nil
+	if noCache {
+		log.Info("Scan without cache for locator", "locator", locator)
+		return i.scanFor(ctx, locator, true)
 	} else {
-		log.Info("Cache miss for locator", "locator", locator)
-
-		var result scanner.ScanResult
-		for {
-			log.Info("Starting search in AuditManager ...",
-				"searchQuery", searchQuery, "searchPattern", searchPattern,
-				"searchPageSize", pageSizeIteration, "searchPage", pageIteration)
-
-			res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
-			if err != nil {
-				return nil, err
-			}
-
-			log.Info("Finish current search", "overview", res.Overview())
-
-			newResult, err := i.scanner.Scan(ctx, res.Resources...)
-			if err != nil {
-				return nil, errors.Wrap(err, "failed to scan resources")
-			}
-			if result == nil {
-				result = newResult
-			} else {
-				result.MergeFrom(newResult)
-			}
-
-			if len(res.Resources) < pageSizeIteration {
-				break
-			}
-			pageIteration++
+		if auditData, exist := i.scanCache.Get(locator); exist {
+			log.Info("Cache hit for locator", "locator", locator)
+			return auditData, nil
+		} else {
+			log.Info("Cache miss for locator", "locator", locator)
+			return i.scanFor(ctx, locator, false)
 		}
-
-		i.scanCache.Set(locator, result)
-		log.Info("Added data to cache for locator", "locator", locator)
-
-		return result, nil
 	}
 }
 
 // Score calculates a score based on the severity and total number of issues
 // identified during the audit. It aggregates statistics on different severity
 // levels and generates a cumulative score.
-func (i *InsightManager) Score(ctx context.Context, locator core.Locator) (*ScoreData, error) {
+func (i *InsightManager) Score(ctx context.Context, locator core.Locator, noCache bool) (*ScoreData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting calculate score with specified issues list in AuditManager ...")
 
-	scanResult, err := i.Audit(ctx, locator)
+	scanResult, err := i.Audit(ctx, locator, noCache)
 	if err != nil {
 		return nil, err
 	}
@@ -118,4 +85,48 @@ func (i *InsightManager) Score(ctx context.Context, locator core.Locator) (*Scor
 		IssuesTotal:       scanResult.IssueTotal(),
 		SeverityStatistic: severityStats,
 	}, nil
+}
+
+func (i *InsightManager) scanFor(ctx context.Context, locator core.Locator, noCache bool) (scanner.ScanResult, error) {
+	// Retrieve logger from context and log the start of the audit.
+	log := ctxutil.GetLogger(ctx)
+
+	searchQuery := locator.ToSQL()
+	searchPattern := storage.SQLPatternType
+	pageSizeIteration := 100
+	pageIteration := 1
+
+	var result scanner.ScanResult
+	for {
+		log.Info("Starting search in AuditManager ...",
+			"searchQuery", searchQuery, "searchPattern", searchPattern,
+			"searchPageSize", pageSizeIteration, "searchPage", pageIteration)
+
+		res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+		if err != nil {
+			return nil, err
+		}
+
+		log.Info("Finish current search", "overview", res.Overview())
+
+		newResult, err := i.scanner.Scan(ctx, noCache, res.Resources...)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to scan resources")
+		}
+		if result == nil {
+			result = newResult
+		} else {
+			result.MergeFrom(newResult)
+		}
+
+		if len(res.Resources) < pageSizeIteration {
+			break
+		}
+		pageIteration++
+	}
+
+	i.scanCache.Set(locator, result)
+	log.Info("Added data to cache for locator", "locator", locator)
+
+	return result, nil
 }

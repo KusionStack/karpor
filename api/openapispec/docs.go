@@ -528,6 +528,12 @@ var doc = `{
                         "description": "The specified resource name, such as 'foo'",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "The specified no cache flag, default is 'false'",
+                        "name": "noCache",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -794,6 +800,12 @@ var doc = `{
                         "type": "string",
                         "description": "The specified resource name, such as 'foo'",
                         "name": "name",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "The specified no cache flag, default is 'false'",
+                        "name": "noCache",
                         "in": "query"
                     }
                 ],
@@ -1111,7 +1123,7 @@ var doc = `{
                     "text/plain"
                 ],
                 "tags": [
-                    "endpoints"
+                    "debug"
                 ],
                 "summary": "List all available endpoints",
                 "responses": {

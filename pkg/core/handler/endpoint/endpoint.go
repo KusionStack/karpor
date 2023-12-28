@@ -26,13 +26,13 @@ import (
 // Endpoints provides an endpoint to list all available endpoints registered
 // in the router.
 //
-// @Summary List all available endpoints
-// @Description List all registered endpoints in the router
-// @Tags debug
-// @Accept plain
-// @Produce plain
-// @Success 200 {string} string "Endpoints listed successfully"
-// @Router /endpoints [get]
+// @Summary      List all available endpoints
+// @Description  List all registered endpoints in the router
+// @Tags         debug
+// @Accept       plain
+// @Produce      plain
+// @Success      200  {string}  string  "Endpoints listed successfully"
+// @Router       /endpoints [get]
 func Endpoints(router chi.Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		endpoints := listEndpoints(router)
