@@ -874,4 +874,19 @@ paths:
         using the query from context.
       tags:
       - search
+  /endpoints:
+    get:
+      consumes:
+      - text/plain
+      description: List all registered endpoints in the router
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Endpoints listed successfully
+          schema:
+            type: string
+      summary: List all available endpoints
+      tags:
+      - endpoints
 swagger: "2.0"

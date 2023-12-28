@@ -15,14 +15,10 @@
 package server
 
 import (
-	"fmt"
-	"net/http"
-	"sort"
-	"strings"
-
 	docs "github.com/KusionStack/karbour/api/openapispec"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
+	endpointhandler "github.com/KusionStack/karbour/pkg/core/handler/endpoint"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
 	scannerhandler "github.com/KusionStack/karbour/pkg/core/handler/scanner"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
@@ -65,27 +61,20 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
-	clusterMgr := clustermanager.NewClusterManager(&clustermanager.ClusterConfig{
-		Verbose: false,
-	})
-	searchMgr := searchmanager.NewSearchManager(&searchmanager.SearchConfig{
-		Verbose: false,
-	})
-	// Set up the root routes.
-	docs.SwaggerInfo.BasePath = "/"
-	router.Get("/docs/*", httpswagger.Handler())
+	clusterMgr := clustermanager.NewClusterManager()
+	searchMgr := searchmanager.NewSearchManager()
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/api/v1", func(r chi.Router) {
 		setupAPIV1(r, clusterMgr, insightMgr, searchMgr, searchStorage, genericConfig)
 	})
 
+	// Set up the root routes.
+	docs.SwaggerInfo.BasePath = "/"
+	router.Get("/docs/*", httpswagger.Handler())
+
 	// Endpoint to list all available endpoints in the router.
-	router.Get("/endpoints", func(w http.ResponseWriter, req *http.Request) {
-		endpoints := listEndpoints(router)
-		w.Header().Set("Content-Type", "text/plain")
-		w.Write([]byte(strings.Join(endpoints, "\n")))
-	})
+	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
 	return router, nil
 }
@@ -128,19 +117,4 @@ func setupAPIV1(
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
 	})
-}
-
-// listEndpoints generates a list of all routes registered in the router.
-func listEndpoints(r chi.Router) []string {
-	var endpoints []string
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
-		endpoint := fmt.Sprintf("%s\t%s", method, route)
-		endpoints = append(endpoints, endpoint)
-		return nil
-	}
-	if err := chi.Walk(r, walkFunc); err != nil {
-		fmt.Printf("Walking routes error: %s\n", err.Error())
-	}
-	sort.Strings(endpoints)
-	return endpoints
 }

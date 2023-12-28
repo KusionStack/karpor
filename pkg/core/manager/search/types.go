@@ -19,19 +19,11 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
-type SearchConfig struct {
-	Verbose bool `json:"verbose"`
-}
-
-type SearchManager struct {
-	config *SearchConfig
-}
+type SearchManager struct{}
 
 // NewSearchManager returns a new SearchManager object
-func NewSearchManager(config *SearchConfig) *SearchManager {
-	return &SearchManager{
-		config: config,
-	}
+func NewSearchManager() *SearchManager {
+	return &SearchManager{}
 }
 
 type UniResource struct {

@@ -38,10 +38,6 @@ const (
 	ByName
 )
 
-type ClusterConfig struct {
-	Verbose bool `json:"verbose"`
-}
-
 type ClusterSummary struct {
 	TotalCount        int      `json:"totalCount"`
 	HealthyCount      int      `json:"healthyCount"`
