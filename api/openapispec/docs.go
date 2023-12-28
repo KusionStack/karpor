@@ -1079,6 +1079,29 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/endpoints": {
+            "get": {
+                "description": "List all registered endpoints in the router",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "endpoints"
+                ],
+                "summary": "List all available endpoints",
+                "responses": {
+                    "200": {
+                        "description": "Endpoints listed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
