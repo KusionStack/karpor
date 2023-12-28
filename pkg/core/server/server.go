@@ -65,12 +65,9 @@ func NewCoreServer(
 	if err != nil {
 		return nil, err
 	}
-	clusterMgr := clustermanager.NewClusterManager(&clustermanager.ClusterConfig{
-		Verbose: false,
-	})
-	searchMgr := searchmanager.NewSearchManager(&searchmanager.SearchConfig{
-		Verbose: false,
-	})
+	clusterMgr := clustermanager.NewClusterManager()
+	searchMgr := searchmanager.NewSearchManager()
+
 	// Set up the root routes.
 	docs.SwaggerInfo.BasePath = "/"
 	router.Get("/docs/*", httpswagger.Handler())

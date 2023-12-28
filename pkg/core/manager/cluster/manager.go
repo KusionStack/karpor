@@ -36,15 +36,11 @@ import (
 	k8syaml "sigs.k8s.io/yaml"
 )
 
-type ClusterManager struct {
-	config *ClusterConfig
-}
+type ClusterManager struct{}
 
 // NewClusterManager returns a new ClusterManager object
-func NewClusterManager(config *ClusterConfig) *ClusterManager {
-	return &ClusterManager{
-		config: config,
-	}
+func NewClusterManager() *ClusterManager {
+	return &ClusterManager{}
 }
 
 // GetCluster returns the unstructured Cluster object for a given cluster
