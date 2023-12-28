@@ -24,14 +24,20 @@ import (
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	"github.com/KusionStack/karbour/pkg/util/clusterinstall"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 
 	_ "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	_ "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/tools/clientcmd"
+
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 // Get returns an HTTP handler function that reads a cluster
@@ -238,6 +244,9 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Accept       multipart/form-data
 // @Produce      plain
 // @Param        file  formData  file        true  "Upload file with field name 'file'"
+// @Param        name formData  string true  "cluster name"
+// @Param        displayName formData  string true  "cluster display name"
+// @Param        description formData  string true  "cluster description"
 // @Success      200   {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
 // @Failure      400   {string}  string      "The uploaded file is too large or the request is invalid."
 // @Failure      500   {string}  string      "Internal server error."
@@ -260,6 +269,9 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		}
 
 		// Retrieve the file from the parsed multipart form.
+		name := r.FormValue("name")
+		displayName := r.FormValue("displayName")
+		description := r.FormValue("description")
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "invalid request")))
@@ -284,19 +296,42 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		}
 		plainContent := string(buf[:fileSize])
 
-		// Sanitize the uploaded file content.
-		sanitizedContent, err := clusterMgr.SanitizeKubeConfigWithYAML(ctx, plainContent)
+		// Create new restConfig from uploaded kubeconfig.
+		restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(plainContent))
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error sanitize uploaded config")))
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error create new rest config from uploaded kubeconfig")))
 			return
 		}
 
+		// Convert the rest.Config to Cluster object.
+		clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error convert kubeconfig to cluster")))
+			return
+		}
+		unstructuredClusterMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(clusterObj)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error convert cluster to unstructured obj")))
+			return
+		}
+		clusterUnstructured := &unstructured.Unstructured{}
+		clusterUnstructured.SetUnstructuredContent(unstructuredClusterMap)
+
+		// Sanitize the cluster object.
+		sanitizedUnstructuredClusterObj, err := cluster.SanitizeUnstructuredCluster(ctx, clusterUnstructured)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error sanitize unstructured obj")))
+			return
+		}
+
+		clusterYAML, err := k8syaml.Marshal(sanitizedUnstructuredClusterObj)
+
 		// Convert the bytes read to a string and return as response.
 		data := &UploadData{
-			FileName:         fileHeader.Filename,
-			FileSize:         fileSize,
-			Content:          plainContent,
-			SanitizedContent: sanitizedContent,
+			FileName:                fileHeader.Filename,
+			FileSize:                fileSize,
+			Content:                 plainContent,
+			SanitizedClusterContent: string(clusterYAML),
 		}
 		render.JSON(w, r, handler.SuccessResponse(ctx, data))
 	}
