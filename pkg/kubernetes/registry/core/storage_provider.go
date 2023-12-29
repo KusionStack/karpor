@@ -15,7 +15,7 @@
 package core
 
 import (
-	"github.com/KusionStack/karbour/pkg/scheme"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
