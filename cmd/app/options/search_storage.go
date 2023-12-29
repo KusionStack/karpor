@@ -15,7 +15,7 @@
 package options
 
 import (
-	"github.com/KusionStack/karbour/pkg/registry"
+	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/spf13/pflag"
 )
 

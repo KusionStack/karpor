@@ -22,7 +22,7 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/apis/search/v1beta1"
+	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/KusionStack/karbour/pkg/syncer/internal"
 	"github.com/KusionStack/karbour/pkg/syncer/transform"

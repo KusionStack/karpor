@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"time"
 
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
+	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/clusterinstall"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"

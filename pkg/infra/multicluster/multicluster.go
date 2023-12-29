@@ -19,8 +19,8 @@ import (
 	"net"
 	"net/url"
 
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
-	"github.com/KusionStack/karbour/pkg/scheme"
+	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"

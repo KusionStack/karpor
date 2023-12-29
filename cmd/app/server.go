@@ -25,10 +25,10 @@ import (
 	"os"
 
 	"github.com/KusionStack/karbour/cmd/app/options"
-	"github.com/KusionStack/karbour/pkg/apiserver"
-	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
-	"github.com/KusionStack/karbour/pkg/registry"
-	"github.com/KusionStack/karbour/pkg/scheme"
+	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
+	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karbour/pkg/server"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -130,8 +130,8 @@ func (o *Options) Complete() error {
 }
 
 // Config returns config for the api server given Options
-func (o *Options) Config() (*apiserver.Config, error) {
-	config := &apiserver.Config{
+func (o *Options) Config() (*server.Config, error) {
+	config := &server.Config{
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
 		ExtraConfig:   &registry.ExtraConfig{},
 	}
