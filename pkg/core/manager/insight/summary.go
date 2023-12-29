@@ -93,7 +93,7 @@ func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multic
 	if err != nil {
 		return nil, err
 	}
-	topFiveCount := GetTopFiveFromMap(namespaceCount)
+	topFiveCount := GetTopResultsFromMap(namespaceCount)
 	return &NamespaceSummary{
 		Cluster:    loc.Cluster,
 		Namespace:  loc.Namespace,

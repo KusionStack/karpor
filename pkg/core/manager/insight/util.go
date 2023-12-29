@@ -111,7 +111,9 @@ func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *
 	return counts, nil
 }
 
-func GetTopFiveFromMap(m map[string]int) map[string]int {
+// GetTopResultsFromMap returns the top 5 results from the map sorted by value
+// If map does not have 5 elements, return the full map
+func GetTopResultsFromMap(m map[string]int) map[string]int {
 	s := make([]KeyValuePair, 0)
 	res := make(map[string]int, 0)
 
@@ -122,9 +124,18 @@ func GetTopFiveFromMap(m map[string]int) map[string]int {
 		return s[i].value > s[j].value
 	})
 
-	for _, kv := range s[:5] {
+	index := min(len(s), 5)
+	for _, kv := range s[:index] {
 		res[kv.key] = kv.value
 	}
 
 	return res
+}
+
+// min returns the smaller of two integers x and y.
+func min(x, y int) int {
+	if x < y {
+		return x
+	}
+	return y
 }

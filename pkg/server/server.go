@@ -25,6 +25,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/core/server"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/cluster"
+	corestorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/core"
 	searchstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
 	"github.com/KusionStack/karbour/ui"
 	"github.com/go-chi/chi/v5"
@@ -47,6 +48,20 @@ func (s *KarbourServer) InstallGatewayServer(c *CompletedConfig) *KarbourServer 
 	if s.err != nil {
 		return s
 	}
+
+	// Installing core API group
+	coreProvider := corestorage.RESTStorageProvider{}
+	coreGroupName := coreProvider.GroupName()
+	coreGroupInfo, err := coreProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
+	if err != nil {
+		s.err = fmt.Errorf("problem initializing API group %q: %v", coreGroupName, err)
+		return s
+	}
+	if err := s.GenericAPIServer.InstallLegacyAPIGroup(genericapiserver.DefaultLegacyAPIPrefix, &coreGroupInfo); err != nil {
+		s.err = fmt.Errorf("problem installing legacy API group %q: %v", coreGroupName, err)
+		return s
+	}
+	klog.Infof("Enabling API group %q.", coreGroupName)
 
 	// Initialize REST storage providers for the server.
 	restStorageProviders := []registry.RESTStorageProvider{
