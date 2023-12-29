@@ -1,0 +1,52 @@
+apiVersion: search.karbour.com/v1beta1
+kind: TransformRule
+metadata:
+  name: only-metadata
+spec:
+  type: replace
+  valueTemplate: '{"kind": "{{ .Object.kind }}","apiVersion": "{{ .Object.apiVersion}}","metadata": {{ toJson .Object.metadata }}}'
+---
+apiVersion: search.karbour.com/v1beta1
+kind: SyncRegistry
+metadata:
+  name: intelligent-technology-sync-rule
+spec:
+  clusters:
+    - "*"
+  syncResources:
+    - apiVersion: apps.cafe.cloud.alipay.com/v1alpha1
+      resource: inplacesets
+      transformRefName: only-metadata
+    - apiVersion: apps.cafe.cloud.alipay.com/v1alpha1
+      resource: cafedeployments
+      transformRefName: only-metadata
+    - apiVersion: policy/v1beta1
+      resource: poddisruptionbudgets
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: persistentvolumes
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: persistentvolumeclaims
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: nodes
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: services
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: pods
+      transformRefName: only-metadata
+    - apiVersion: apps/v1
+      resource: replicasets
+      transformRefName: only-metadata
+    - apiVersion: apps/v1
+      resource: deployments
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: namespaces
+      transformRefName: only-metadata
+    - apiVersion: v1
+      resource: secrets
+      transformRefName: only-metadata

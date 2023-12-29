@@ -31,9 +31,11 @@ import (
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/server"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
+	"github.com/KusionStack/karbour/pkg/syncer"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -190,6 +192,8 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})
+
+	server.GenericAPIServer.AddPostStartHookOrDie("register-default-sync-strategy", syncer.StrategyRegister)
 
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
 }
