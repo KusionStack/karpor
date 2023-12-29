@@ -25,7 +25,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
-	"github.com/dominikbraun/graph/draw"
 	yaml "gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -175,11 +174,6 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	}
 
 	log.Info("Built-in graph completed.")
-
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./relationship.gv")
-	_ = draw.DOT(g, file)
 
 	return g, &r, nil
 }

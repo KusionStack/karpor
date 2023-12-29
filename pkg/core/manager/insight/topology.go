@@ -107,11 +107,6 @@ func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 	i.resourceTopologyCache.Set(*locator, topologyMap)
 	log.Info("Added to resource topology cache for locator", "locator", locator)
 
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./resource.gv")
-	_ = draw.DOT(g, file)
-
 	return topologyMap, nil
 }
 
@@ -130,8 +125,12 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 	}
 	resourceGraph.AddVertex(objResourceNode)
 
-	objGVKOnGraph, _ := topology.FindNodeOnGraph(relationshipGraph, gv.Group, gv.Version, obj.GetKind())
-	// TODO: process error
+	objGVKOnGraph, err := topology.FindNodeOnGraph(relationshipGraph, gv.Group, gv.Version, obj.GetKind())
+	// When obj GVK is not found on relationship graph, return an empty graph with no error
+	if err != nil {
+		return nil, nil
+	}
+
 	// Recursively find parents
 	for _, objParent := range objGVKOnGraph.Parent {
 		resourceGraph, err = topology.GetParents(ctx, client.DynamicClient, obj, objParent, namespace, objName, objResourceNode, relationshipGraph, resourceGraph)
@@ -152,8 +151,11 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 }
 
 func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode]) map[string]ResourceTopology {
-	am, _ := g.AdjacencyMap()
 	rtm := make(map[string]ResourceTopology)
+	if g == nil {
+		return rtm
+	}
+	am, _ := g.AdjacencyMap()
 	for key, edgeMap := range am {
 		childList := make([]string, 0)
 		for edgeTarget := range edgeMap {
