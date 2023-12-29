@@ -19,8 +19,8 @@ import (
 	"fmt"
 	"reflect"
 
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/apis/cluster/v1beta1"
-	searchv1beta1 "github.com/KusionStack/karbour/pkg/apis/search/v1beta1"
+	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

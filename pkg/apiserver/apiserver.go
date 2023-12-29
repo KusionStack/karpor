@@ -23,9 +23,9 @@ import (
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/core/server"
-	"github.com/KusionStack/karbour/pkg/registry"
-	clusterstorage "github.com/KusionStack/karbour/pkg/registry/cluster"
-	searchstorage "github.com/KusionStack/karbour/pkg/registry/search"
+	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	clusterstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/cluster"
+	searchstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
 	"github.com/KusionStack/karbour/ui"
 	"github.com/go-chi/chi/v5"
 

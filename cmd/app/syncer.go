@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/scheme"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/syncer"
 	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"

@@ -26,9 +26,9 @@ import (
 
 	"github.com/KusionStack/karbour/cmd/app/options"
 	"github.com/KusionStack/karbour/pkg/apiserver"
-	karbouropenapi "github.com/KusionStack/karbour/pkg/generated/openapi"
-	"github.com/KusionStack/karbour/pkg/registry"
-	"github.com/KusionStack/karbour/pkg/scheme"
+	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
+	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

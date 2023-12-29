@@ -26,7 +26,7 @@ if [ "$#" -lt 4 ] || [ "${1}" == "--help" ]; then
 Usage: $(basename "$0") <generators> <output-package> <apis-package> <groups-versions> ...
 
   <generators>        the generators comma separated to run (deepcopy,defaulter,client,lister,informer) or "all".
-  <output-package>    the output package name (e.g. github.com/example/project/pkg/generated).
+  <output-package>    the output package name (e.g. github.com/example/project/pkg/kubernetes/generated).
   <apis-package>      the external types dir (e.g. github.com/example/api or github.com/example/project/pkg/apis).
   <groups-versions>   the groups and their versions in the format "groupA:v1,v2 groupB:v1 groupC:v2", relative
                       to <api-package>.
