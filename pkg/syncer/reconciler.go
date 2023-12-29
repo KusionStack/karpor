@@ -39,6 +39,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+const (
+	anyCluster = "*"
+)
+
 type SyncReconciler struct {
 	storage storage.Storage
 
@@ -280,7 +284,7 @@ func (r *SyncReconciler) getMatchedClusters(registry *searchv1beta1.SyncRegistry
 
 func isMatched(registry *searchv1beta1.SyncRegistry, cluster *clusterv1beta1.Cluster) (bool, error) {
 	for _, name := range registry.Spec.Clusters {
-		if cluster.Name == name {
+		if name == anyCluster || name == cluster.Name {
 			return true, nil
 		}
 	}
