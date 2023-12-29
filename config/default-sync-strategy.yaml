@@ -9,7 +9,7 @@ spec:
 apiVersion: search.karbour.com/v1beta1
 kind: SyncRegistry
 metadata:
-  name: intelligent-technology-sync-rule
+  name: default-sync-rule
 spec:
   clusters:
     - "*"

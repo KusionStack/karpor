@@ -68,5 +68,6 @@ header:
     - 'LICENSE'
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
+    - 'config/**'
   comment: never
   license-location-threshold: 80
