@@ -19,9 +19,9 @@ package search
 import (
 	"fmt"
 
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search/syncclusterresources"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search/transformrule"

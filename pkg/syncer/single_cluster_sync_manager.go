@@ -21,8 +21,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/go-logr/logr"
 	"go.uber.org/multierr"
 	"k8s.io/apimachinery/pkg/runtime/schema"

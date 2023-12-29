@@ -20,8 +20,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/go-logr/logr"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
