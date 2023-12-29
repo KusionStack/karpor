@@ -55,7 +55,7 @@ import (
 // @Failure      405     {string}  string                     "Method Not Allowed"
 // @Failure      429     {string}  string                     "Too Many Requests"
 // @Failure      500     {string}  string                     "Internal Server Error"
-// @Router       /api/v1/cluster/{clusterName} [get]
+// @Router       /rest-api/v1/cluster/{clusterName} [get]
 func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -98,7 +98,7 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 // @Failure      405      {string}  string                     "Method Not Allowed"
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
-// @Router       /api/v1/cluster/{clusterName} [post]
+// @Router       /rest-api/v1/cluster/{clusterName} [post]
 func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -137,7 +137,7 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Failure      405      {string}  string                     "Method Not Allowed"
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
-// @Router       /api/v1/cluster/{clusterName}  [put]
+// @Router       /rest-api/v1/cluster/{clusterName}  [put]
 func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -181,7 +181,7 @@ func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Failure      405         {string}  string                     "Method Not Allowed"
 // @Failure      429         {string}  string                     "Too Many Requests"
 // @Failure      500         {string}  string                     "Internal Server Error"
-// @Router       /api/v1/clusters [get]
+// @Router       /rest-api/v1/clusters [get]
 func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -223,7 +223,7 @@ func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Ha
 // @Failure      405  {string}  string  "Method Not Allowed"
 // @Failure      429  {string}  string  "Too Many Requests"
 // @Failure      500  {string}  string  "Internal Server Error"
-// @Router       /api/v1/cluster/{clusterName} [delete]
+// @Router       /rest-api/v1/cluster/{clusterName} [delete]
 func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -250,7 +250,7 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Success      200          {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
 // @Failure      400          {string}  string      "The uploaded file is too large or the request is invalid."
 // @Failure      500          {string}  string      "Internal server error."
-// @Router       /api/v1/cluster/config/file [post]
+// @Router       /rest-api/v1/cluster/config/file [post]
 func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -352,7 +352,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 // @Failure      429      {object}  string           "Too Many Requests"
 // @Failure      404      {object}  string           "Not Found"
 // @Failure      500      {object}  string           "Internal Server Error"
-// @Router       /api/v1/cluster/config/validate [post]
+// @Router       /rest-api/v1/cluster/config/validate [post]
 func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.

@@ -45,7 +45,7 @@ import (
 // @Failure      405       {string}  string          "Method Not Allowed"
 // @Failure      429       {string}  string          "Too Many Requests"
 // @Failure      500       {string}  string          "Internal Server Error"
-// @Router       /api/v1/search [get]
+// @Router       /rest-api/v1/search [get]
 func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
