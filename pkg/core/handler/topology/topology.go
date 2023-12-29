@@ -46,7 +46,7 @@ import (
 // @Failure      405         {string}  string                               "Method Not Allowed"
 // @Failure      429         {string}  string                               "Too Many Requests"
 // @Failure      500         {string}  string                               "Internal Server Error"
-// @Router       /api/v1/insight/topology [get]
+// @Router       /rest-api/v1/insight/topology [get]
 func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.

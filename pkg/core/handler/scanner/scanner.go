@@ -44,7 +44,7 @@ import (
 // @Failure      429         {string}  string     "Too Many Requests"
 // @Failure      404         {string}  string     "Not Found"
 // @Failure      500         {string}  string     "Internal Server Error"
-// @Router       /api/v1/insight/audit [get]
+// @Router       /rest-api/v1/insight/audit [get]
 func Audit(insight *insight.InsightManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
@@ -98,7 +98,7 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 // @Failure      429         {string}  string             "Too Many Requests"
 // @Failure      404         {string}  string             "Not Found"
 // @Failure      500         {string}  string             "Internal Server Error"
-// @Router       /api/v1/insight/score [get]
+// @Router       /rest-api/v1/insight/score [get]
 func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.

@@ -23,7 +23,30 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/v1/cluster/config/file": {
+        "/endpoints": {
+            "get": {
+                "description": "List all registered endpoints in the router",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "debug"
+                ],
+                "summary": "List all available endpoints",
+                "responses": {
+                    "200": {
+                        "description": "Endpoints listed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/cluster/config/file": {
             "post": {
                 "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is \"\", \".yaml\", \".yml\", \".json\", \".kubeconfig\", \".kubeconf\".",
                 "consumes": [
@@ -88,7 +111,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/cluster/config/validate": {
+        "/rest-api/v1/cluster/config/validate": {
             "post": {
                 "description": "Validates the provided KubeConfig using cluster manager methods.",
                 "consumes": [
@@ -153,7 +176,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/cluster/{clusterName}": {
+        "/rest-api/v1/cluster/{clusterName}": {
             "get": {
                 "description": "This endpoint returns a cluster resource by name.",
                 "produces": [
@@ -409,7 +432,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/clusters": {
+        "/rest-api/v1/clusters": {
             "get": {
                 "description": "This endpoint lists all cluster resources.",
                 "produces": [
@@ -488,7 +511,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/audit": {
+        "/rest-api/v1/insight/audit": {
             "get": {
                 "description": "This endpoint audits based on the specified locator.",
                 "produces": [
@@ -576,7 +599,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/detail": {
+        "/rest-api/v1/insight/detail": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
                 "produces": [
@@ -670,7 +693,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/events": {
+        "/rest-api/v1/insight/events": {
             "get": {
                 "description": "This endpoint returns events for a Kubernetes resource YAML by name, namespace, cluster, apiVersion and kind.",
                 "produces": [
@@ -761,7 +784,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/score": {
+        "/rest-api/v1/insight/score": {
             "get": {
                 "description": "This endpoint calculates a score for the provided manifest based on the number and severity of issues detected during the audit.",
                 "produces": [
@@ -849,7 +872,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/summary": {
+        "/rest-api/v1/insight/summary": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
                 "produces": [
@@ -937,7 +960,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/insight/topology": {
+        "/rest-api/v1/insight/topology": {
             "get": {
                 "description": "This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
                 "produces": [
@@ -1028,7 +1051,7 @@ var doc = `{
                 }
             }
         },
-        "/api/v1/search": {
+        "/rest-api/v1/search": {
             "get": {
                 "description": "This endpoint returns an array of Kubernetes runtime Object matched using the query from context.",
                 "produces": [
@@ -1106,29 +1129,6 @@ var doc = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/endpoints": {
-            "get": {
-                "description": "List all registered endpoints in the router",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "debug"
-                ],
-                "summary": "List all available endpoints",
-                "responses": {
-                    "200": {
-                        "description": "Endpoints listed successfully",
                         "schema": {
                             "type": "string"
                         }

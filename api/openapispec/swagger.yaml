@@ -145,7 +145,22 @@ definitions:
 info:
   contact: {}
 paths:
-  /api/v1/cluster/{clusterName}:
+  /endpoints:
+    get:
+      consumes:
+      - text/plain
+      description: List all registered endpoints in the router
+      produces:
+      - text/plain
+      responses:
+        "200":
+          description: Endpoints listed successfully
+          schema:
+            type: string
+      summary: List all available endpoints
+      tags:
+      - debug
+  /rest-api/v1/cluster/{clusterName}:
     delete:
       description: This endpoint deletes the cluster resource by name.
       produces:
@@ -316,7 +331,7 @@ paths:
       summary: Update updates the cluster metadata by name.
       tags:
       - cluster
-  /api/v1/cluster/config/file:
+  /rest-api/v1/cluster/config/file:
     post:
       consumes:
       - multipart/form-data
@@ -362,7 +377,7 @@ paths:
       summary: Upload kubeConfig file for cluster
       tags:
       - cluster
-  /api/v1/cluster/config/validate:
+  /rest-api/v1/cluster/config/validate:
     post:
       consumes:
       - text/plain
@@ -405,7 +420,7 @@ paths:
       summary: Validate KubeConfig
       tags:
       - cluster
-  /api/v1/clusters:
+  /rest-api/v1/clusters:
     get:
       description: This endpoint lists all cluster resources.
       parameters:
@@ -457,7 +472,7 @@ paths:
       summary: List lists all cluster resources.
       tags:
       - cluster
-  /api/v1/insight/audit:
+  /rest-api/v1/insight/audit:
     get:
       description: This endpoint audits based on the specified locator.
       parameters:
@@ -515,7 +530,7 @@ paths:
       summary: Audit based on locator.
       tags:
       - insight
-  /api/v1/insight/detail:
+  /rest-api/v1/insight/detail:
     get:
       description: This endpoint returns a Kubernetes resource by name, namespace,
         cluster, apiVersion and kind.
@@ -580,7 +595,7 @@ paths:
         apiVersion and kind.
       tags:
       - insight
-  /api/v1/insight/events:
+  /rest-api/v1/insight/events:
     get:
       description: This endpoint returns events for a Kubernetes resource YAML by
         name, namespace, cluster, apiVersion and kind.
@@ -642,7 +657,7 @@ paths:
         cluster, apiVersion and kind.
       tags:
       - insight
-  /api/v1/insight/score:
+  /rest-api/v1/insight/score:
     get:
       description: This endpoint calculates a score for the provided manifest based
         on the number and severity of issues detected during the audit.
@@ -701,7 +716,7 @@ paths:
       summary: ScoreHandler calculates a score for the audited manifest.
       tags:
       - insight
-  /api/v1/insight/summary:
+  /rest-api/v1/insight/summary:
     get:
       description: This endpoint returns a Kubernetes resource summary by name, namespace,
         cluster, apiVersion and kind.
@@ -761,7 +776,7 @@ paths:
         apiVersion and kind.
       tags:
       - insight
-  /api/v1/insight/topology:
+  /rest-api/v1/insight/topology:
     get:
       description: This endpoint returns a topology map for a Kubernetes resource
         by name, namespace, cluster, apiVersion and kind.
@@ -823,7 +838,7 @@ paths:
         namespace, cluster, apiVersion and kind.
       tags:
       - insight
-  /api/v1/search:
+  /rest-api/v1/search:
     get:
       description: This endpoint returns an array of Kubernetes runtime Object matched
         using the query from context.
@@ -882,19 +897,4 @@ paths:
         using the query from context.
       tags:
       - search
-  /endpoints:
-    get:
-      consumes:
-      - text/plain
-      description: List all registered endpoints in the router
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: Endpoints listed successfully
-          schema:
-            type: string
-      summary: List all available endpoints
-      tags:
-      - debug
 swagger: "2.0"

@@ -65,8 +65,8 @@ func NewCoreServer(
 	searchMgr := searchmanager.NewSearchManager()
 
 	// Set up the API routes for version 1 of the API.
-	router.Route("/api/v1", func(r chi.Router) {
-		setupAPIV1(r, clusterMgr, insightMgr, searchMgr, searchStorage, genericConfig)
+	router.Route("/rest-api/v1", func(r chi.Router) {
+		setupRestAPIV1(r, clusterMgr, insightMgr, searchMgr, searchStorage, genericConfig)
 	})
 
 	// Set up the root routes.
@@ -79,9 +79,9 @@ func NewCoreServer(
 	return router, nil
 }
 
-// setupAPIV1 configures routing for the API version 1, grouping routes by
+// setupRestAPIV1 configures routing for the API version 1, grouping routes by
 // resource type and setting up proper handlers.
-func setupAPIV1(
+func setupRestAPIV1(
 	r chi.Router,
 	clusterMgr *clustermanager.ClusterManager,
 	insightMgr *insightmanager.InsightManager,
