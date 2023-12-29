@@ -716,6 +716,66 @@ paths:
       summary: ScoreHandler calculates a score for the audited manifest.
       tags:
       - insight
+  /rest-api/v1/insight/summary:
+    get:
+      description: This endpoint returns a Kubernetes resource summary by name, namespace,
+        cluster, apiVersion and kind.
+      parameters:
+      - description: The specified cluster name, such as 'example-cluster'
+        in: query
+        name: cluster
+        type: string
+      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
+        in: query
+        name: apiVersion
+        type: string
+      - description: The specified kind, such as 'Deployment'
+        in: query
+        name: kind
+        type: string
+      - description: The specified namespace, such as 'default'
+        in: query
+        name: namespace
+        type: string
+      - description: The specified resource name, such as 'foo'
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Resource Summary
+          schema:
+            $ref: '#/definitions/insight.ResourceSummary'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get returns a Kubernetes resource summary by name, namespace, cluster,
+        apiVersion and kind.
+      tags:
+      - insight
   /rest-api/v1/insight/topology:
     get:
       description: This endpoint returns a topology map for a Kubernetes resource
@@ -837,64 +897,4 @@ paths:
         using the query from context.
       tags:
       - search
-  /rest-rest-api/v1/insight/summary:
-    get:
-      description: This endpoint returns a Kubernetes resource summary by name, namespace,
-        cluster, apiVersion and kind.
-      parameters:
-      - description: The specified cluster name, such as 'example-cluster'
-        in: query
-        name: cluster
-        type: string
-      - description: The specified apiVersion, such as 'apps/v1'. Should be percent-encoded
-        in: query
-        name: apiVersion
-        type: string
-      - description: The specified kind, such as 'Deployment'
-        in: query
-        name: kind
-        type: string
-      - description: The specified namespace, such as 'default'
-        in: query
-        name: namespace
-        type: string
-      - description: The specified resource name, such as 'foo'
-        in: query
-        name: name
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Resource Summary
-          schema:
-            $ref: '#/definitions/insight.ResourceSummary'
-        "400":
-          description: Bad Request
-          schema:
-            type: string
-        "401":
-          description: Unauthorized
-          schema:
-            type: string
-        "404":
-          description: Not Found
-          schema:
-            type: string
-        "405":
-          description: Method Not Allowed
-          schema:
-            type: string
-        "429":
-          description: Too Many Requests
-          schema:
-            type: string
-        "500":
-          description: Internal Server Error
-          schema:
-            type: string
-      summary: Get returns a Kubernetes resource summary by name, namespace, cluster,
-        apiVersion and kind.
-      tags:
-      - insight
 swagger: "2.0"

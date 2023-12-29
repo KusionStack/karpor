@@ -872,6 +872,94 @@ var doc = `{
                 }
             }
         },
+        "/rest-api/v1/insight/summary": {
+            "get": {
+                "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The specified cluster name, such as 'example-cluster'",
+                        "name": "cluster",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
+                        "name": "apiVersion",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified kind, such as 'Deployment'",
+                        "name": "kind",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified namespace, such as 'default'",
+                        "name": "namespace",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The specified resource name, such as 'foo'",
+                        "name": "name",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Resource Summary",
+                        "schema": {
+                            "$ref": "#/definitions/insight.ResourceSummary"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/rest-api/v1/insight/topology": {
             "get": {
                 "description": "This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.",
@@ -1007,94 +1095,6 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {}
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "405": {
-                        "description": "Method Not Allowed",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "429": {
-                        "description": "Too Many Requests",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/rest-rest-api/v1/insight/summary": {
-            "get": {
-                "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "insight"
-                ],
-                "summary": "Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "The specified cluster name, such as 'example-cluster'",
-                        "name": "cluster",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded",
-                        "name": "apiVersion",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "The specified kind, such as 'Deployment'",
-                        "name": "kind",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "The specified namespace, such as 'default'",
-                        "name": "namespace",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "The specified resource name, such as 'foo'",
-                        "name": "name",
-                        "in": "query"
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Resource Summary",
-                        "schema": {
-                            "$ref": "#/definitions/insight.ResourceSummary"
                         }
                     },
                     "400": {
