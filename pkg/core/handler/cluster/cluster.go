@@ -32,7 +32,6 @@ import (
 
 	_ "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	_ "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/tools/clientcmd"
@@ -325,6 +324,10 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		}
 
 		clusterYAML, err := k8syaml.Marshal(sanitizedUnstructuredClusterObj)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error marshal unstructured obj")))
+			return
+		}
 
 		// Convert the bytes read to a string and return as response.
 		data := &UploadData{
