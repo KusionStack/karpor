@@ -19,6 +19,7 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	namespacestore "k8s.io/kubernetes/pkg/registry/core/namespace/storage"
 )
 
 const GroupName = "core"
@@ -38,6 +39,15 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 		NegotiatedSerializer:         scheme.Codecs,
 	}
 	storage := map[string]rest.Storage{}
+
+	namespaceStorage, namespaceStatusStorage, namespaceFinalizeStorage, err := namespacestore.NewREST(restOptionsGetter)
+	if err != nil {
+		return genericapiserver.APIGroupInfo{}, err
+	}
+
+	storage["namespaces"] = namespaceStorage
+	storage["namespaces/status"] = namespaceStatusStorage
+	storage["namespaces/finalize"] = namespaceFinalizeStorage
 	apiGroupInfo.VersionedResourcesStorageMap["v1"] = storage
 	return apiGroupInfo, nil
 }

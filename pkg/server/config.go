@@ -57,7 +57,7 @@ func (c *CompletedConfig) New() (*KarbourServer, error) {
 	s := &KarbourServer{
 		GenericAPIServer: genericServer,
 	}
-	if err := s.InstallGatewayServer(c).
+	if err := s.InstallKubernetesServer(c).
 		InstallCoreServer(c).
 		InstallStaticFileServer().
 		Error(); err != nil {

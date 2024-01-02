@@ -41,10 +41,10 @@ type KarbourServer struct {
 	err error
 }
 
-// InstallGatewayServer installs various resource-specific REST storage
+// InstallKubernetesServer installs various resource-specific REST storage
 // implementations on the KarbourServer. This method is part of the
 // bootstrapping process of setting up the API server.
-func (s *KarbourServer) InstallGatewayServer(c *CompletedConfig) *KarbourServer {
+func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServer {
 	if s.err != nil {
 		return s
 	}
