@@ -15,6 +15,8 @@
 package scanner
 
 import (
+	"sort"
+
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 )
@@ -42,13 +44,25 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 		issueGroups = append(issueGroups, issueGroup)
 	}
 
+	// Custom sorting function for IssueGroups
+	sort.Slice(issueGroups, func(i, j int) bool {
+		// First, sort by Severity from high to low.
+		if issueGroups[i].Issue.Severity > issueGroups[j].Issue.Severity {
+			return true
+		} else if issueGroups[i].Issue.Severity < issueGroups[j].Issue.Severity {
+			return false
+		}
+
+		// If Severities are equal, sort by Locators array size from high to
+		// low.
+		return len(issueGroups[i].Locators) > len(issueGroups[j].Locators)
+	})
+
 	// Construct the AuditData structure.
-	auditData := &AuditData{
+	return &AuditData{
 		IssueTotal:    sr.IssueTotal(),
 		ResourceTotal: len(sr.ByResource()),
 		BySeverity:    bySeverity,
 		IssueGroups:   issueGroups,
 	}
-
-	return auditData
 }
