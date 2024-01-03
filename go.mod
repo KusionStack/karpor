@@ -30,13 +30,31 @@ require (
 	k8s.io/apiextensions-apiserver v0.26.1
 	k8s.io/apimachinery v0.26.1
 	k8s.io/apiserver v0.26.1
+	k8s.io/cli-runtime v0.26.1
 	k8s.io/client-go v0.26.1
+	k8s.io/cloud-provider v0.26.1
+	k8s.io/cluster-bootstrap v0.26.1
 	k8s.io/code-generator v0.26.1
 	k8s.io/component-base v0.26.1
+	k8s.io/component-helpers v0.26.1
+	k8s.io/controller-manager v0.26.1
+	k8s.io/cri-api v0.26.1
+	k8s.io/csi-translation-lib v0.26.1
+	k8s.io/dynamic-resource-allocation v0.26.1
 	k8s.io/klog/v2 v2.80.1
+	k8s.io/kms v0.26.1
+	k8s.io/kube-controller-manager v0.26.1
 	k8s.io/kube-openapi v0.0.0-20230106171958-10e5f0effbd2
+	k8s.io/kube-proxy v0.26.1
+	k8s.io/kube-scheduler v0.26.1
+	k8s.io/kubectl v0.26.1
+	k8s.io/kubelet v0.26.1
 	k8s.io/kubernetes v1.26.1
+	k8s.io/legacy-cloud-providers v0.26.1
 	k8s.io/metrics v0.26.1
+	k8s.io/mount-utils v0.26.1
+	k8s.io/pod-security-admission v0.26.1
+	k8s.io/sample-apiserver v0.26.1
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.6
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3
@@ -89,6 +107,7 @@ require (
 	github.com/matttproud/golang_protobuf_extensions v1.0.2 // indirect
 	github.com/mitchellh/copystructure v1.1.1 // indirect
 	github.com/mitchellh/reflectwalk v1.0.1 // indirect
+	github.com/moby/sys/mountinfo v0.6.2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
@@ -137,9 +156,7 @@ require (
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0 // indirect
-	k8s.io/component-helpers v0.26.1 // indirect
 	k8s.io/gengo v0.0.0-20220902162205-c0856e24416d // indirect
-	k8s.io/kms v0.26.1 // indirect
 	sigs.k8s.io/apiserver-network-proxy/konnectivity-client v0.0.35 // indirect
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 )
