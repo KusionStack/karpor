@@ -26,7 +26,7 @@ import (
 
 	"github.com/KusionStack/karbour/cmd/app/options"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
-	"github.com/KusionStack/karbour/pkg/kubernetes/k8sopenapi"
+	k8sopenapi "github.com/KusionStack/karbour/pkg/kubernetes/openapi"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/server"
