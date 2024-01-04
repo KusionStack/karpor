@@ -207,7 +207,6 @@ func (c *ClusterManager) GetNamespace(ctx context.Context, client *multicluster.
 
 // GetNamespaceForCluster returns the yaml byte array for a given cluster
 func (c *ClusterManager) GetNamespaceYAML(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) ([]byte, error) {
-	// obj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
 	obj, err := c.GetNamespace(ctx, client, namespace)
 	if err != nil {
 		return nil, err
