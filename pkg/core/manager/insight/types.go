@@ -40,17 +40,17 @@ type ResourceEvents struct {
 }
 
 type ResourceTopology struct {
-	Identifier string   `json:"identifier"`
-	Parents    []string `json:"parents"`
-	Children   []string `json:"children"`
+	Locator  core.Locator `json:"locator"`
+	Parents  []string     `json:"parents"`
+	Children []string     `json:"children"`
 }
 
 // Cluster-related
 
 type ClusterTopology struct {
-	GroupVersionKind string            `json:"groupVersionKind"`
-	Count            int               `json:"count"`
-	Relationship     map[string]string `json:"relationship"`
+	Locator      core.Locator      `json:"locator"`
+	Count        int               `json:"count"`
+	Relationship map[string]string `json:"relationship"`
 }
 
 type ClusterDetail struct {

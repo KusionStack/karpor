@@ -16,7 +16,6 @@ package insight
 
 import (
 	"context"
-	"os"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -24,7 +23,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
-	"github.com/dominikbraun/graph/draw"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -43,7 +41,7 @@ func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 	}
 
 	// Build relationship graph based on GVK
-	graph, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
+	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
 	log.Info("Retrieving topology for cluster", "clusterName", name)
 	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, "")
@@ -51,14 +49,9 @@ func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 		return nil, err
 	}
 
-	clusterTopologyMap := i.ConvertGraphToMap(rg)
+	clusterTopologyMap := i.ConvertGraphToMap(rg, locator)
 	i.clusterTopologyCache.Set(locator, clusterTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
-
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./topology.gv")
-	_ = draw.DOT(graph, file)
 
 	return clusterTopologyMap, nil
 }
@@ -103,7 +96,7 @@ func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 		return nil, err
 	}
 
-	topologyMap := i.ConvertResourceGraphToMap(g)
+	topologyMap := i.ConvertResourceGraphToMap(g, *locator)
 	i.resourceTopologyCache.Set(*locator, topologyMap)
 	log.Info("Added to resource topology cache for locator", "locator", locator)
 
@@ -150,7 +143,7 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 	return resourceGraph, nil
 }
 
-func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode]) map[string]ResourceTopology {
+func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode], loc core.Locator) map[string]ResourceTopology {
 	rtm := make(map[string]ResourceTopology)
 	if g == nil {
 		return rtm
@@ -161,9 +154,17 @@ func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 		for edgeTarget := range edgeMap {
 			childList = append(childList, edgeTarget)
 		}
+		vertex, _ := g.Vertex(key)
+		locator := core.Locator{
+			Cluster:    loc.Cluster,
+			APIVersion: schema.GroupVersion{Group: vertex.Group, Version: vertex.Version}.String(),
+			Kind:       vertex.Kind,
+			Namespace:  vertex.Namespace,
+			Name:       vertex.Name,
+		}
 		rtm[key] = ResourceTopology{
-			Identifier: key,
-			Children:   childList,
+			Locator:  locator,
+			Children: childList,
 		}
 	}
 
@@ -195,7 +196,7 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	}
 
 	// Build relationship graph based on GVK
-	graph, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
+	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Only count resources that belong to a specific namespace
 	log.Info("Retrieving topology", "namespace", namespace, "cluster", cluster)
 	rg, err := rg.CountRelationshipGraph(ctx, client.DynamicClient, client.ClientSet.DiscoveryClient, namespace)
@@ -203,27 +204,28 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 		return nil, err
 	}
 
-	namespaceTopologyMap := i.ConvertGraphToMap(rg)
+	namespaceTopologyMap := i.ConvertGraphToMap(rg, locator)
 	i.clusterTopologyCache.Set(locator, namespaceTopologyMap)
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
-
-	// Draw graph
-	// TODO: This is drawn on the server side, not needed eventually
-	file, _ := os.Create("./relationship.gv")
-	_ = draw.DOT(graph, file)
 
 	return namespaceTopologyMap, nil
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
-func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph) map[string]ClusterTopology {
+func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph, loc core.Locator) map[string]ClusterTopology {
 	ctm := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {
 		rgnMap := rgn.ConvertToMap()
+		locator := core.Locator{
+			Cluster:    loc.Cluster,
+			APIVersion: schema.GroupVersion{Group: rgn.Group, Version: rgn.Version}.String(),
+			Kind:       rgn.Kind,
+			Namespace:  loc.Namespace,
+		}
 		ctm[rgn.GetHash()] = ClusterTopology{
-			GroupVersionKind: rgn.GetHash(),
-			Count:            rgn.ResourceCount,
-			Relationship:     rgnMap,
+			Locator:      locator,
+			Count:        rgn.ResourceCount,
+			Relationship: rgnMap,
 		}
 	}
 	return ctm
