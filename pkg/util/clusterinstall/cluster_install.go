@@ -18,11 +18,17 @@ import (
 	"fmt"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
 )
 
 func ConvertKubeconfigToCluster(name, displayName, description string, cfg *rest.Config) (*clusterv1beta1.Cluster, error) {
-	cluster := clusterv1beta1.Cluster{}
+	cluster := clusterv1beta1.Cluster{
+		TypeMeta: metav1.TypeMeta{
+			APIVersion: clusterv1beta1.SchemeGroupVersion.String(),
+			Kind:       "Cluster",
+		},
+	}
 	cluster.Name = name
 	cluster.Spec.Description = description
 	if displayName != "" {

@@ -198,13 +198,16 @@ func (c *ClusterManager) GetYAMLForCluster(ctx context.Context, client *multiclu
 }
 
 // GetNamespaceForCluster returns the yaml byte array for a given cluster
-func (c *ClusterManager) GetNamespace(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) (*v1.Namespace, error) {
-	return client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+func (c *ClusterManager) GetNamespace(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) (*unstructured.Unstructured, error) {
+	// Typed clientset clears the TypeMeta (APIVersion and Kind) when decoding: https://github.com/kubernetes/kubernetes/issues/80609
+	// e.g return client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{}) returns an empty TypeMeta
+	nsGVR := v1.SchemeGroupVersion.WithResource("namespaces")
+	return client.DynamicClient.Resource(nsGVR).Get(ctx, namespace, metav1.GetOptions{})
 }
 
 // GetNamespaceForCluster returns the yaml byte array for a given cluster
 func (c *ClusterManager) GetNamespaceYAML(ctx context.Context, client *multicluster.MultiClusterClient, namespace string) ([]byte, error) {
-	obj, err := client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{})
+	obj, err := c.GetNamespace(ctx, client, namespace)
 	if err != nil {
 		return nil, err
 	}

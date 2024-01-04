@@ -16,6 +16,7 @@ package insight
 
 import (
 	"context"
+	"strings"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -33,6 +34,13 @@ func (i *InsightManager) GetResource(
 	if err != nil {
 		return nil, err
 	}
+	if strings.EqualFold(loc.Kind, "Secret") {
+		secret, err := client.DynamicClient.Resource(resourceGVR).Namespace(loc.Namespace).Get(ctx, loc.Name, metav1.GetOptions{})
+		if err != nil {
+			return nil, err
+		}
+		return i.SanitizeSecret(secret)
+	}
 	return client.DynamicClient.
 		Resource(resourceGVR).
 		Namespace(loc.Namespace).
@@ -48,4 +56,13 @@ func (i *InsightManager) GetYAMLForResource(
 		return nil, err
 	}
 	return k8syaml.Marshal(obj.Object)
+}
+
+// SanitizeSecret redact the data field in the secret object
+func (i *InsightManager) SanitizeSecret(original *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	sanitized := original
+	if _, ok := sanitized.Object["data"]; ok {
+		sanitized.Object["data"] = "[redacted]"
+	}
+	return original, nil
 }
