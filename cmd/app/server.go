@@ -26,6 +26,7 @@ import (
 
 	"github.com/KusionStack/karbour/cmd/app/options"
 	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
+	k8sopenapi "github.com/KusionStack/karbour/pkg/kubernetes/openapi"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/server"
@@ -43,6 +44,7 @@ import (
 	"k8s.io/apiserver/pkg/server/filters"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/klog/v2"
+	"k8s.io/kube-openapi/pkg/common"
 	netutils "k8s.io/utils/net"
 )
 
@@ -144,7 +146,7 @@ func (o *Options) Config() (*server.Config, error) {
 	}
 
 	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
-		karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
 	config.GenericConfig.OpenAPIConfig.Info.Version = "0.1"
 	config.GenericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
@@ -153,7 +155,7 @@ func (o *Options) Config() (*server.Config, error) {
 	)
 	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
 		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
-			karbouropenapi.GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+			GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 		config.GenericConfig.OpenAPIV3Config.Info.Title = "Karbour"
 		config.GenericConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
@@ -190,4 +192,12 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 	})
 
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
+}
+
+func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
+	ret := k8sopenapi.GetOpenAPIDefinitions(ref)
+	for k, v := range karbouropenapi.GetOpenAPIDefinitions(ref) {
+		ret[k] = v
+	}
+	return ret
 }
