@@ -234,7 +234,7 @@ func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema
 			syncer.OnUpdate(ue.ObjectNew)
 		},
 		DeleteFunc: func(de event.DeleteEvent, rli workqueue.RateLimitingInterface) {
-			syncer.OnUpdate(de.Object)
+			syncer.OnDelete(de.Object)
 		},
 		GenericFunc: func(ge event.GenericEvent, rli workqueue.RateLimitingInterface) {
 			syncer.OnGeneric(ge.Object)
