@@ -94,13 +94,9 @@ func (s *ESClient) deleteByQuery(ctx context.Context, query map[string]interface
 }
 
 func (s *ESClient) delete(ctx context.Context, body io.Reader) error {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(body); err != nil {
-		return err
-	}
 	req := esapi.DeleteByQueryRequest{
 		Index: []string{s.indexName},
-		Body:  buf,
+		Body:  body,
 	}
 	res, err := req.Do(ctx, s.client)
 	if err != nil {

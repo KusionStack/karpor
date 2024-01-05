@@ -40,10 +40,8 @@ import (
 func StrategyRegister(hookContext genericapiserver.PostStartHookContext) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
-		select {
-		case <-hookContext.StopCh:
-			cancel()
-		}
+		<-hookContext.StopCh
+		cancel()
 	}()
 	client := dynamic.NewForConfigOrDie(hookContext.LoopbackClientConfig)
 	discoveryClient := discovery.NewDiscoveryClientForConfigOrDie(hookContext.LoopbackClientConfig)
