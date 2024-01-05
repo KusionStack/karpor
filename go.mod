@@ -5,7 +5,6 @@ go 1.19
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
 	github.com/aquasecurity/esquery v0.2.0
-	github.com/cch123/elasticsql v1.0.1
 	github.com/dominikbraun/graph v0.23.0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
 	github.com/elliotxx/kubeaudit v0.0.0-20240124033725-e70be1692249
@@ -127,7 +126,7 @@ require (
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
 	github.com/swaggo/files v1.0.1 // indirect
-	github.com/xwb1989/sqlparser v0.0.0-20171128062118-da747e0c62c4 // indirect
+	github.com/xwb1989/sqlparser v0.0.0-20171128062118-da747e0c62c4
 	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/v3 v3.5.5 // indirect
