@@ -26,11 +26,6 @@ run:
 linters:
   disable-all: true
   enable: # please keep this alphabetized
-  # Don't use soon to deprecated[1] linters that lead to false
-  # https://github.com/golangci/golangci-lint/issues/1841
-  # - deadcode
-  # - structcheck
-  # - varcheck
     - ineffassign
     - staticcheck
     - unused
@@ -43,7 +38,6 @@ linters:
     - dupl
     - exportloopref
     - gocritic
-#    - misspell
     - nolintlint
     - prealloc
     - predeclared
@@ -52,15 +46,24 @@ linters:
     - typecheck
     - unconvert
     - whitespace
-    # - wsl
-    # - revive
-    # - unparam
-    # - gomnd
-    # - gosec
-    # - exhaustive
-    # - thelper
-    # - goconst
-    # - errcheck
+    - errname
+    - contextcheck
+    - errorlint
+    - forbidigo
+    - goconst
+    - loggercheck
+    - misspell
+    - nilerr
+    - nilnil
+    - nlreturn
+    - tagliatelle
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - varnamelen
+    - wastedassign
+    - whitespace
+    - wrapcheck
 
 linters-settings:
   gofumpt:
