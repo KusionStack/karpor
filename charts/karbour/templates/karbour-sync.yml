@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: karbour-syncer
+  name: karbour-syncer
+  namespace: karbour
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karbour-syncer
+  template:
+    metadata:
+      labels:
+        app: karbour-syncer
+    spec:
+      containers:
+        - command:
+            - /karbour
+            - syncer
+          args:
+            - --elastic-search-addresses=http://elasticsearch.karbour.svc:9200
+          env:
+            - name: KUBECONFIG
+              value: /etc/karbour/config
+          image: kusionstack/karbour:latest
+          name: karbour-server
+          ports:
+            - containerPort: 7443
+          volumeMounts:
+            - mountPath: /etc/karbour/
+              name: karbour-kubeconfig
+      volumes:
+        - name: karbour-kubeconfig
+          configMap:
+            name: karbour-kubeconfig
