@@ -28,7 +28,7 @@ const (
 	defaultMapping   = `{
   "settings":{
     "index":{
-      "max_result_window": 1000000",
+      "max_result_window": "1000000",
       "number_of_shards":1,
       "auto_expand_replicas":"0-1",
       "number_of_replicas":0
