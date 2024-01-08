@@ -35,8 +35,8 @@ type ResourceEvents struct {
 	Reason         string       `json:"reason"`
 	Source         string       `json:"source"`
 	Type           string       `json:"type"`
-	LastTimestamp  metav1.Time  `json:"firstTimestamp"`
-	FirstTimestamp metav1.Time  `json:"lastTimestamp"`
+	LastTimestamp  metav1.Time  `json:"lastTimestamp"`
+	FirstTimestamp metav1.Time  `json:"firstTimestamp"`
 }
 
 type ResourceTopology struct {
