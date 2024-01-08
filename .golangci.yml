@@ -26,39 +26,37 @@ run:
 linters:
   disable-all: true
   enable: # please keep this alphabetized
-    - ineffassign
-    - staticcheck
-    - unused
-    - gosimple
-    - govet
-    - gofumpt
     - bodyclose
+    - contextcheck
     - depguard
     - dogsled
     - dupl
-    - exportloopref
-    - gocritic
-    - nolintlint
-    - prealloc
-    - predeclared
-    - stylecheck
-    - tparallel
-    - typecheck
-    - unconvert
-    - whitespace
-    - errname
-    - contextcheck
     - errorlint
+    - errname
+    - exportloopref
     - forbidigo
+    - gosimple
+    - gocritic
     - goconst
+    - gofumpt
+    - govet
+    - ineffassign
     - loggercheck
     - misspell
+    - nolintlint
     - nilerr
     - nilnil
     - nlreturn
+    - prealloc
+    - predeclared
+    - staticcheck
+    - stylecheck
     - tagliatelle
+    - tparallel
+    - typecheck
     - unconvert
     - unparam
+    - unused
     - usestdlibvars
     - varnamelen
     - wastedassign
