@@ -1,5 +1,3 @@
-# Reference from:
-# https://github.com/c-bata/go-prompt/blob/master/.github/workflows/test.yml
 name: Check
 on:
   pull_request:
