@@ -80,7 +80,7 @@ func (s *informerSource) SyncRule() v1beta1.ResourceSyncRule {
 }
 
 func (s *informerSource) Start(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) error {
-	informer, err := s.createInformer(handler, queue, predicates...)
+	informer, err := s.createInformer(ctx, handler, queue, predicates...)
 	if err != nil {
 		return err
 	}
@@ -109,7 +109,7 @@ func (s *informerSource) Stop(ctx context.Context) error {
 	}
 }
 
-func (s *informerSource) createInformer(handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Controller, error) {
+func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing GroupVersionResource: %v", err)

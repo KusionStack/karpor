@@ -150,7 +150,7 @@ func (s *singleClusterSyncManager) UpdateSyncResources(ctx context.Context, sync
 			return err
 		}
 		if _, exist := byGVR[gvr]; exist {
-			return fmt.Errorf("found duplicate ResourceSyncRule defination for resource %q of cluster %q", gvr, s.clusterName)
+			return fmt.Errorf("found duplicate ResourceSyncRule definition for resource %q of cluster %q", gvr, s.clusterName)
 		}
 		byGVR[gvr] = r
 	}
@@ -221,7 +221,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 	return merr
 }
 
-func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
+func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
 

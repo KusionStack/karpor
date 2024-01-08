@@ -46,12 +46,8 @@ func (p RESTStorageProvider) GroupName() string {
 
 func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
-	searchStorageGetter, err := p.SearchStorageGetter()
-	if err != nil {
-		return genericapiserver.APIGroupInfo{}, err
-	}
 
-	storageMap, err := p.v1beta1Storage(restOptionsGetter, searchStorageGetter)
+	storageMap, err := p.v1beta1Storage(restOptionsGetter)
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}
@@ -60,7 +56,7 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	return apiGroupInfo, nil
 }
 
-func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOptionsGetter, searchStorageGetter storage.SearchStorageGetter) (map[string]rest.Storage, error) {
+func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOptionsGetter) (map[string]rest.Storage, error) {
 	v1beta1Storage := map[string]rest.Storage{}
 
 	syncClusterResources, syncClusterResourcesStatus, err := syncclusterresources.NewREST(restOptionsGetter)

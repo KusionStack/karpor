@@ -20,22 +20,22 @@ import (
 	"time"
 )
 
+const MockCacheValue = "test value"
+
 func TestCache_SetAndGet(t *testing.T) {
 	expiration := 100 * time.Millisecond
 	cache := NewCache[int, string](expiration)
 
 	key := 42
-	value := "test value"
-
-	cache.Set(key, value)
+	cache.Set(key, MockCacheValue)
 
 	// Check if the value is retrieved correctly
 	retrievedValue, exists := cache.Get(key)
 	if !exists {
-		t.Errorf("Expected value '%s' to exist in cache, but it doesn't.", value)
+		t.Errorf("Expected value '%s' to exist in cache, but it doesn't.", MockCacheValue)
 	}
-	if retrievedValue != value {
-		t.Errorf("Expected value '%s', got '%s'", value, retrievedValue)
+	if retrievedValue != MockCacheValue {
+		t.Errorf("Expected value '%s', got '%s'", MockCacheValue, retrievedValue)
 	}
 
 	// Wait for the value to expire
@@ -53,7 +53,6 @@ func TestCache_SetAndGet_Concurrent(t *testing.T) {
 	cache := NewCache[int, string](expiration)
 
 	key := 42
-	value := "test value"
 
 	// Concurrently set and get the value
 	var wg sync.WaitGroup
@@ -61,15 +60,15 @@ func TestCache_SetAndGet_Concurrent(t *testing.T) {
 
 	go func() {
 		defer wg.Done()
-		cache.Set(key, value)
+		cache.Set(key, MockCacheValue)
 	}()
 
 	go func() {
 		defer wg.Done()
 		time.Sleep(50 * time.Millisecond)
 		retrievedValue, exists := cache.Get(key)
-		if !exists || retrievedValue != value {
-			t.Errorf("Concurrent Set/Get: Expected value '%s', got '%s'", value, retrievedValue)
+		if !exists || retrievedValue != MockCacheValue {
+			t.Errorf("Concurrent Set/Get: Expected value '%s', got '%s'", MockCacheValue, retrievedValue)
 		}
 	}()
 
@@ -81,9 +80,7 @@ func TestCache_ExpiredKeyIsDeleted(t *testing.T) {
 	cache := NewCache[int, string](expiration)
 
 	key := 42
-	value := "test value"
-
-	cache.Set(key, value)
+	cache.Set(key, MockCacheValue)
 
 	// Wait for the value to expire
 	time.Sleep(expiration + 50*time.Millisecond)

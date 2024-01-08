@@ -87,7 +87,6 @@ type ScoreData struct {
 }
 
 // GVK-related
-
 type GVKSummary struct {
 	Cluster string `json:"cluster"`
 	Group   string `json:"group"`
@@ -97,7 +96,8 @@ type GVKSummary struct {
 }
 
 // Namespace-related
-
+//
+//nolint:tagliatelle
 type NamespaceSummary struct {
 	Cluster    string         `json:"cluster"`
 	Namespace  string         `json:"namespace"`

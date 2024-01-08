@@ -315,6 +315,7 @@ func scheme() *runtime.Scheme {
 	return s
 }
 
+//nolint:unparam
 func makeUnstructured(namespace, name string, fields map[string]interface{}) *unstructured.Unstructured {
 	u := &unstructured.Unstructured{}
 	u.SetAPIVersion("v1")

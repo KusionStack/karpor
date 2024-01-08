@@ -160,7 +160,7 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resou
 	}
 }
 
-func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
+func (s *kubeauditScanner) scanManifestFor(_ context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
 	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
 	if err != nil {
 		return nil, err

@@ -20,7 +20,9 @@ import (
 	"sort"
 	"strings"
 
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
+	"github.com/go-logr/logr"
 )
 
 // Endpoints provides an endpoint to list all available endpoints registered
@@ -35,14 +37,15 @@ import (
 // @Router       /endpoints [get]
 func Endpoints(router chi.Router) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		endpoints := listEndpoints(router)
+		log := ctxutil.GetLogger(r.Context())
+		endpoints := listEndpoints(log, router)
 		w.Header().Set("Content-Type", "text/plain")
 		w.Write([]byte(strings.Join(endpoints, "\n")))
 	}
 }
 
 // listEndpoints generates a list of all routes registered in the router.
-func listEndpoints(r chi.Router) []string {
+func listEndpoints(log logr.Logger, r chi.Router) []string {
 	var endpoints []string
 
 	// Walk through the routes to collect endpoints
@@ -54,7 +57,7 @@ func listEndpoints(r chi.Router) []string {
 
 	// Populate the list of endpoints by walking through the router
 	if err := chi.Walk(r, walkFunc); err != nil {
-		fmt.Printf("Walking routes error: %s\n", err.Error())
+		log.Error(err, "Walking routes error")
 	}
 
 	// Sort the collected endpoints alphabetically

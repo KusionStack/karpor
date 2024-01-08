@@ -54,11 +54,11 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 	coreGroupName := coreProvider.GroupName()
 	coreGroupInfo, err := coreProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
 	if err != nil {
-		s.err = fmt.Errorf("problem initializing API group %q: %v", coreGroupName, err)
+		s.err = fmt.Errorf("problem initializing API group %q: %w", coreGroupName, err)
 		return s
 	}
 	if err := s.GenericAPIServer.InstallLegacyAPIGroup(genericapiserver.DefaultLegacyAPIPrefix, &coreGroupInfo); err != nil {
-		s.err = fmt.Errorf("problem installing legacy API group %q: %v", coreGroupName, err)
+		s.err = fmt.Errorf("problem installing legacy API group %q: %w", coreGroupName, err)
 		return s
 	}
 	klog.Infof("Enabling API group %q.", coreGroupName)
@@ -82,7 +82,7 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 		)
 		if err != nil {
 			// Capture initialization errors and prevent further setup attempts.
-			s.err = fmt.Errorf("problem initializing API group %q: %v", groupName, err)
+			s.err = fmt.Errorf("problem initializing API group %q: %w", groupName, err)
 			return s
 		}
 
@@ -96,7 +96,7 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 		// Install the API group on the GenericAPIServer.
 		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
 			// Capture any errors encountered during installation.
-			s.err = fmt.Errorf("problem installing API group %q: %v", groupName, err)
+			s.err = fmt.Errorf("problem installing API group %q: %w", groupName, err)
 			return s
 		}
 
