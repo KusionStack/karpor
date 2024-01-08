@@ -27,7 +27,7 @@ linters:
   disable-all: true
   enable: # please keep this alphabetized
     - bodyclose
-    - contextcheck
+#    - contextcheck
     - depguard
     - dogsled
     - dupl

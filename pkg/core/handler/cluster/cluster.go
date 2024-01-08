@@ -289,7 +289,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		// Read the contents of the file.
 		buf := make([]byte, maxUploadSize)
 		fileSize, err := file.Read(buf)
-		if err != nil && err != io.EOF {
+		if err != nil && errors.Is(err, io.EOF) {
 			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error reading file")))
 			return
 		}

@@ -22,6 +22,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
 	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/labels"
@@ -152,7 +153,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 
 	resources, err := r.getResources(ctx, cluster)
 	if err != nil {
-		return fmt.Errorf("error detecting sync resources of the cluster %q: %v", cluster.Name, err)
+		return errors.Wrapf(err, "error detecting sync resources of the cluster %s", cluster.Name)
 	}
 
 	if len(resources) == 0 {
@@ -162,7 +163,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 
 	clusterConfig, err := buildClusterConfig(cluster)
 	if err != nil {
-		return fmt.Errorf("failed to build config for cluster %q: %v", cluster.Name, err)
+		return errors.Wrapf(err, "failed to build config for cluster %s", cluster.Name)
 	}
 
 	singleMgr, exist := r.mgr.GetForCluster(cluster.Name)
@@ -176,16 +177,16 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 	if !exist {
 		singleMgr, err = r.mgr.Create(ctx, cluster.Name, clusterConfig)
 		if err != nil {
-			return fmt.Errorf("failed to setup the sync manager for cluster %q: %v", cluster.Name, err)
+			return errors.Wrapf(err, "failed to setup the sync manager for cluster %s", cluster.Name)
 		}
 
 		if err := r.startCluster(ctx, cluster.Name); err != nil {
-			return fmt.Errorf("failed to start sync manager for cluster %q: %v", cluster.Name, err)
+			return errors.Wrapf(err, "failed to start sync manager for cluster %s", err)
 		}
 	}
 
 	if err := singleMgr.UpdateSyncResources(ctx, resources); err != nil {
-		return fmt.Errorf("failed to update sync resources for cluster %q: %v", cluster.Name, err)
+		return errors.Wrapf(err, "failed to update sync resources for cluster %s", cluster.Name)
 	}
 	return nil
 }
@@ -222,7 +223,7 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 		var sr searchv1beta1.SyncResources
 		err := r.client.Get(ctx, types.NamespacedName{Name: refName}, &sr)
 		if err != nil {
-			return nil, fmt.Errorf("failed to get SyncResources %q: %v", refName, err)
+			return nil, errors.Wrapf(err, "failed to get SyncResources %s", refName)
 		}
 		resources = append(resources, sr.Spec.SyncResources...)
 	}
@@ -249,7 +250,7 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 func (r *SyncReconciler) getRegistries(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]searchv1beta1.SyncRegistry, error) {
 	var syncRegistriesList searchv1beta1.SyncRegistryList
 	if err := r.client.List(ctx, &syncRegistriesList); err != nil {
-		return nil, fmt.Errorf("SyncRegistry lister error: %v", err)
+		return nil, errors.Wrap(err, "SyncRegistry lister error")
 	}
 
 	var ret []searchv1beta1.SyncRegistry
@@ -315,7 +316,7 @@ func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv
 		if apierrors.IsNotFound(err) {
 			return nil, fmt.Errorf("TransformRule referenced by name %q doesn't exist", rsr.TransformRefName)
 		}
-		return nil, fmt.Errorf("failed to list transformRule %q from lister: %v", rsr.TransformRefName, err)
+		return nil, errors.Wrapf(err, "failed to list transformRule %s from lister", rsr.TransformRefName)
 	}
 	normalized := rsr.DeepCopy()
 	normalized.Transform = &rule.Spec

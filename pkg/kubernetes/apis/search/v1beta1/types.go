@@ -108,7 +108,7 @@ type ResourceSyncRule struct {
 
 	// MaxConcurrent is the maximum number of workers (default: 10)
 	// +optional
-	MaxConcurrent int `json:"workers,omitempty"`
+	MaxConcurrent int `json:"maxConcurrent,omitempty"`
 
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	// +optional
@@ -176,10 +176,10 @@ type FieldSelector struct {
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
 	// +optional
 	MatchFields map[string]string `json:"matchFields,omitempty"`
-	// SeverSupported indicates whether the matchFields is supported by the API server.
+	// ServerSupported indicates whether the matchFields is supported by the API server.
 	// If not supported, the client-side filtering will be utilized instead."
 	// +optional
-	SeverSupported bool `json:"serverSupported,omitempty"`
+	ServerSupported bool `json:"serverSupported,omitempty"`
 }
 
 type SyncRegistryStatus struct {

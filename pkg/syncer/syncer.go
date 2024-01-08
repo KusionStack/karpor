@@ -24,6 +24,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
@@ -117,7 +118,7 @@ func (s *ResourceSyncer) SyncRule() v1beta1.ResourceSyncRule {
 
 func (s *ResourceSyncer) Stop(ctx context.Context) error {
 	if err := s.source.Stop(ctx); err != nil {
-		return fmt.Errorf("failed to stop the source: %v", err)
+		return errors.Wrap(err, "failed to stop the source")
 	}
 	s.cancel()
 	return nil

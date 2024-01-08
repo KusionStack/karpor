@@ -24,6 +24,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
@@ -197,7 +198,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 		if exist && !reflect.DeepEqual(syncer.SyncRule(), rsr) {
 			s.logger.Info("ResourceSyncRule has been updated", "grv", gvr)
 			if err := s.stopResource(ctx, syncer); err != nil {
-				merr = multierr.Append(merr, fmt.Errorf("error stopping syncing resource, gvr: %v, err: %v", gvr, err))
+				merr = multierr.Append(merr, errors.Wrapf(err, "error stopping syncing resource, gvr: %v", gvr))
 				continue
 			}
 			exist = false
