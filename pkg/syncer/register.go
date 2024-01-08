@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/pkg/errors"
-
 	embedConfig "github.com/KusionStack/karbour/config"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/pkg/errors"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
