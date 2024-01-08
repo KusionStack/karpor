@@ -24,34 +24,37 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/cch123/elasticsql"
+	"github.com/pkg/errors"
 )
 
 func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string, pageSize, page int) (*storage.SearchResult, error) {
 	var res *SearchResponse
 	var err error
+
 	switch patternType {
 	case storage.DSLPatternType:
 		res, err = s.searchByDSL(ctx, queryStr, pageSize, page)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "search by DSL failed")
 		}
 	case storage.SQLPatternType:
 		res, err = s.searchBySQL(ctx, queryStr, pageSize, page)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "search by SQL failed")
 		}
 	default:
 		return nil, fmt.Errorf("invalid type %s", patternType)
 	}
 
-	rt := &storage.SearchResult{}
-	rt.Total = res.Hits.Total.Value
-	hits := res.Hits.Hits
-	resources := make([]*storage.Resource, len(hits))
-	for i := range hits {
-		resources[i] = hits[i].Source
+	rt := &storage.SearchResult{
+		Total:     res.Hits.Total.Value,
+		Resources: make([]*storage.Resource, len(res.Hits.Hits)),
 	}
-	rt.Resources = resources
+
+	for i, hit := range res.Hits.Hits {
+		rt.Resources[i] = hit.Source
+	}
+
 	return rt, nil
 }
 
