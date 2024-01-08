@@ -168,6 +168,7 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 	}
 	s.logger.Info("Starting workers", "count", workers)
 	for i := 0; i < workers; i++ {
+		//nolint:contextcheck
 		go wait.UntilWithContext(s.ctx, s.runWorker, time.Second)
 	}
 

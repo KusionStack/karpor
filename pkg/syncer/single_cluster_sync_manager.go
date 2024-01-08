@@ -218,6 +218,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 		return true
 	})
 	for _, syncer := range syncersToStop {
+		//nolint:contextcheck
 		s.stopResource(s.ctx, syncer)
 	}
 	return merr
@@ -242,7 +243,7 @@ func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.G
 			syncer.OnGeneric(ge.Object)
 		},
 	})
-
+	//nolint:contextcheck
 	s.wg.StartWithContext(s.ctx, func(ctx context.Context) {
 		if err := syncer.Run(ctx); err != nil {
 			s.logger.Error(err, "failed to start syncer", "gvr", gvr)
