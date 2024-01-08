@@ -46,7 +46,6 @@ linters:
     - nolintlint
     - nilerr
     - nilnil
-    - nlreturn
     - prealloc
     - predeclared
     - staticcheck
@@ -58,10 +57,8 @@ linters:
     - unparam
     - unused
     - usestdlibvars
-    - varnamelen
     - wastedassign
     - whitespace
-    - wrapcheck
 
 linters-settings:
   gofumpt:
@@ -70,6 +67,19 @@ linters-settings:
     # Choose whether or not to use the extra rules that are disabled
     # by default
     extra-rules: false
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        json: goCamel
+        yaml: goCamel
+        xml: goCamel
+        toml: goCamel
 
 issues:
   exclude:
