@@ -105,7 +105,7 @@ func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluste
 }
 
 // UpdateCredential updates cluster credential by name and a new kubeconfig
-func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description, kubeconfig string) (*unstructured.Unstructured, error) {
+func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, kubeconfig string) (*unstructured.Unstructured, error) {
 	log := ctxutil.GetLogger(ctx)
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	// Make sure the cluster exists first
@@ -113,6 +113,8 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 	if err != nil {
 		return nil, err
 	}
+	displayName := currentObj.Object["spec"].(map[string]interface{})["displayName"].(string)
+	description := currentObj.Object["spec"].(map[string]interface{})["description"].(string)
 
 	// Create new restConfig from updated kubeconfig
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
@@ -120,11 +122,8 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 		return nil, err
 	}
 
-	originalDisplayName := currentObj.Object["spec"].(map[string]interface{})["displayName"].(string)
-	originalDescription := currentObj.Object["spec"].(map[string]interface{})["description"].(string)
-
 	// Convert the rest.Config to Cluster object and update it using dynamic client
-	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, originalDisplayName, originalDescription, restConfig)
+	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
 	if err != nil {
 		return nil, err
 	}
