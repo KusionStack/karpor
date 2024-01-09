@@ -17,7 +17,6 @@ package cluster
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -31,7 +30,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
@@ -106,7 +104,6 @@ func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluste
 
 // UpdateCredential updates cluster credential by name and a new kubeconfig
 func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, kubeconfig string) (*unstructured.Unstructured, error) {
-	log := ctxutil.GetLogger(ctx)
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	// Make sure the cluster exists first
 	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
@@ -132,11 +129,8 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 		return nil, err
 	}
 	unstructuredMap["metadata"].(map[string]interface{})["resourceVersion"] = currentObj.Object["metadata"].(map[string]interface{})["resourceVersion"]
-	patch, err := json.Marshal(unstructuredMap)
-	if err != nil {
-		log.Info("JSON marshaling failed: %s", err)
-	}
-	return client.DynamicClient.Resource(clusterGVR).Patch(ctx, name, types.StrategicMergePatchType, patch, metav1.PatchOptions{})
+	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
+	return client.DynamicClient.Resource(clusterGVR).Update(ctx, unstructuredCluster, metav1.UpdateOptions{})
 }
 
 // DeleteCluster deletes the cluster by name
