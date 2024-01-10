@@ -77,7 +77,7 @@ func JSONPathMatch(source, target unstructured.Unstructured, criteriaSet []map[s
 	for _, criteriaMap := range criteriaSet {
 		for criteriaKey, criteriaValue := range criteriaMap {
 			targetValue, _ := GetNestedValue(target, criteriaValue)
-			sourceValue := ""
+			var sourceValue string
 			if criteriaKey == "name" {
 				// match name
 				sourceValue = source.GetName()

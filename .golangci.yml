@@ -26,41 +26,39 @@ run:
 linters:
   disable-all: true
   enable: # please keep this alphabetized
-  # Don't use soon to deprecated[1] linters that lead to false
-  # https://github.com/golangci/golangci-lint/issues/1841
-  # - deadcode
-  # - structcheck
-  # - varcheck
-    - ineffassign
-    - staticcheck
-    - unused
-    - gosimple
-    - govet
-    - gofumpt
     - bodyclose
+    - contextcheck
     - depguard
     - dogsled
     - dupl
+    - errorlint
+    - errname
     - exportloopref
+    - forbidigo
+    - gosimple
     - gocritic
-#    - misspell
+    - goconst
+    - gofumpt
+    - govet
+    - ineffassign
+    - loggercheck
+    - misspell
     - nolintlint
+    - nilerr
+    - nilnil
     - prealloc
     - predeclared
+    - staticcheck
     - stylecheck
+    - tagliatelle
     - tparallel
     - typecheck
     - unconvert
+    - unparam
+    - unused
+    - usestdlibvars
+    - wastedassign
     - whitespace
-    # - wsl
-    # - revive
-    # - unparam
-    # - gomnd
-    # - gosec
-    # - exhaustive
-    # - thelper
-    # - goconst
-    # - errcheck
 
 linters-settings:
   gofumpt:
@@ -69,6 +67,24 @@ linters-settings:
     # Choose whether or not to use the extra rules that are disabled
     # by default
     extra-rules: false
+  tagliatelle:
+    # Check the struck tag name case.
+    case:
+      # Use the struct field name to check the name of the struct tag.
+      # Default: false
+      use-field-name: true
+      rules:
+        # Any struct tag type can be used.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        json: goCamel
+        yaml: goCamel
+        xml: goCamel
+        toml: goCamel
+  errorlint:
+    # Check whether fmt.Errorf uses the %w verb for formatting errors.
+    # See the https://github.com/polyfloyd/go-errorlint for caveats.
+    # Default: true
+    errorf: false
 
 issues:
   exclude:

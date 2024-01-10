@@ -26,6 +26,7 @@ import (
 	"time"
 
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
 )
@@ -79,7 +80,7 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 		cluster := config.Clusters[0].Cluster
 		clientConfig.Host = cluster.Server
 		if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
-			return nil, fmt.Errorf("invalid certificate-authority-data for cluster %s: %v", config.Clusters[0].Name, err)
+			return nil, errors.Wrapf(err, "invalid certificate-authority-data for cluster %s", config.Clusters[0].Name)
 		} else {
 			clientConfig.CAData = plain
 		}

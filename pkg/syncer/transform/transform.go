@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	jsonpatch "github.com/evanphx/json-patch"
+	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -60,7 +61,7 @@ func (r *TransformFuncRegistry) Get(transformerType string) (transFunc Transform
 func Patch(original interface{}, patchText string) (interface{}, error) {
 	patch, err := jsonpatch.DecodePatch([]byte(patchText))
 	if err != nil {
-		return nil, fmt.Errorf("patch is invalid: %v", err)
+		return nil, errors.Wrap(err, "patch is invalid")
 	}
 
 	originalJSON, err := json.Marshal(original)
@@ -76,12 +77,12 @@ func Patch(original interface{}, patchText string) (interface{}, error) {
 	var dest interface{}
 	u, ok := original.(runtime.Unstructured)
 	if !ok {
-		return nil, fmt.Errorf(`type "%vT not supported`, original)
+		return nil, fmt.Errorf(`type %T not supported`, original)
 	}
 	dest = u.NewEmptyInstance()
 
 	if err := json.Unmarshal(modifiedJSON, &dest); err != nil {
-		return nil, fmt.Errorf("json decoding error: %v", err)
+		return nil, errors.Wrap(err, "json decoding error")
 	}
 	return &dest, nil
 }
@@ -89,7 +90,7 @@ func Patch(original interface{}, patchText string) (interface{}, error) {
 func Replace(original interface{}, jsonString string) (interface{}, error) {
 	var dest unstructured.Unstructured
 	if err := json.Unmarshal([]byte(jsonString), &dest); err != nil {
-		return nil, fmt.Errorf("json decoding error: %v", err)
+		return nil, errors.Wrap(err, "json decoding error")
 	}
 	return &dest, nil
 }

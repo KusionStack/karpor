@@ -17,7 +17,6 @@ package syncer
 import (
 	"bytes"
 	"context"
-	"errors"
 	"fmt"
 	"text/template"
 	"time"
@@ -28,6 +27,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/syncer/transform"
 	"github.com/KusionStack/karbour/pkg/syncer/utils"
 	sprig "github.com/Masterminds/sprig/v3"
+	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
@@ -80,7 +80,7 @@ func (s *informerSource) SyncRule() v1beta1.ResourceSyncRule {
 }
 
 func (s *informerSource) Start(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) error {
-	informer, err := s.createInformer(handler, queue, predicates...)
+	informer, err := s.createInformer(ctx, handler, queue, predicates...)
 	if err != nil {
 		return err
 	}
@@ -109,10 +109,10 @@ func (s *informerSource) Stop(ctx context.Context) error {
 	}
 }
 
-func (s *informerSource) createInformer(handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Controller, error) {
+func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing GroupVersionResource: %v", err)
+		return nil, errors.Wrap(err, "error parsing GroupVersionResource")
 	}
 
 	selectors, err := parseSelectors(s.ResourceSyncRule)
@@ -122,7 +122,7 @@ func (s *informerSource) createInformer(handler ctrlhandler.EventHandler, queue 
 
 	transform, err := s.parseTransformer()
 	if err != nil {
-		return nil, fmt.Errorf("error parsing transform rule: %v", err)
+		return nil, errors.Wrap(err, "error parsing transform rule")
 	}
 
 	var resyncPeriod time.Duration
@@ -173,7 +173,7 @@ func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 		if s.FieldSelector != nil {
 			selector.Field = utils.FieldsSelector{
 				Selector:        fields.SelectorFromSet(fields.Set(s.FieldSelector.MatchFields)),
-				ServerSupported: s.FieldSelector.SeverSupported,
+				ServerSupported: s.FieldSelector.ServerSupported,
 			}
 		}
 		selectors = append(selectors, selector)
@@ -194,7 +194,7 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 
 	tmpl, err := newTemplate(t.ValueTemplate)
 	if err != nil {
-		return nil, fmt.Errorf("invalid transform template: %v", err)
+		return nil, errors.Wrap(err, "invalid transform template")
 	}
 
 	return func(obj interface{}) (interface{}, error) {
@@ -212,7 +212,7 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 		}
 		var buf bytes.Buffer
 		if err := tmpl.Execute(&buf, templateData); err != nil {
-			return nil, fmt.Errorf("transform: error rendering template: %v", err)
+			return nil, errors.Wrap(err, "transform: error rendering template")
 		}
 		return fn(obj, buf.String())
 	}, nil

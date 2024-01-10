@@ -24,12 +24,14 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/go-logr/logr"
+	"github.com/pkg/errors"
 	"go.uber.org/multierr"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/workqueue"
+
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -150,7 +152,7 @@ func (s *singleClusterSyncManager) UpdateSyncResources(ctx context.Context, sync
 			return err
 		}
 		if _, exist := byGVR[gvr]; exist {
-			return fmt.Errorf("found duplicate ResourceSyncRule defination for resource %q of cluster %q", gvr, s.clusterName)
+			return fmt.Errorf("found duplicate ResourceSyncRule definition for resource %q of cluster %q", gvr, s.clusterName)
 		}
 		byGVR[gvr] = r
 	}
@@ -197,7 +199,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 		if exist && !reflect.DeepEqual(syncer.SyncRule(), rsr) {
 			s.logger.Info("ResourceSyncRule has been updated", "grv", gvr)
 			if err := s.stopResource(ctx, syncer); err != nil {
-				merr = multierr.Append(merr, fmt.Errorf("error stopping syncing resource, gvr: %v, err: %v", gvr, err))
+				merr = multierr.Append(merr, errors.Wrapf(err, "error stopping syncing resource, gvr: %v", gvr))
 				continue
 			}
 			exist = false
@@ -216,12 +218,13 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 		return true
 	})
 	for _, syncer := range syncersToStop {
+		//nolint:contextcheck
 		s.stopResource(s.ctx, syncer)
 	}
 	return merr
 }
 
-func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
+func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
 
@@ -240,7 +243,7 @@ func (s *singleClusterSyncManager) startResource(ctx context.Context, gvr schema
 			syncer.OnGeneric(ge.Object)
 		},
 	})
-
+	//nolint:contextcheck
 	s.wg.StartWithContext(s.ctx, func(ctx context.Context) {
 		if err := syncer.Run(ctx); err != nil {
 			s.logger.Error(err, "failed to start syncer", "gvr", gvr)

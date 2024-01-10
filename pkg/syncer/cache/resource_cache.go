@@ -19,7 +19,6 @@ import (
 	"strconv"
 
 	hashstructure "github.com/mitchellh/hashstructure/v2"
-
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/client-go/tools/cache"
 )

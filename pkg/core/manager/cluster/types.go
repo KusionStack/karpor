@@ -47,6 +47,8 @@ type ClusterSummary struct {
 }
 
 // KubeConfig represents the structure of a kubeconfig file
+//
+//nolint:tagliatelle
 type KubeConfig struct {
 	APIVersion     string         `yaml:"apiVersion"`
 	Kind           string         `yaml:"kind"`
@@ -63,6 +65,8 @@ type ClusterEntry struct {
 }
 
 // Cluster contains the cluster information
+//
+//nolint:tagliatelle
 type Cluster struct {
 	Server                   string `yaml:"server"`
 	CertificateAuthorityData string `yaml:"certificate-authority-data,omitempty"`
@@ -87,6 +91,8 @@ type UserEntry struct {
 }
 
 // User contains the user information
+//
+//nolint:tagliatelle
 type User struct {
 	ClientCertificateData string `yaml:"client-certificate-data,omitempty"`
 	ClientKeyData         string `yaml:"client-key-data,omitempty"`

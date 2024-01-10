@@ -26,7 +26,7 @@ import (
 
 type SyncRegistry struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	// +optional
 	Spec SyncRegistrySpec `json:"spec,omitempty"`
@@ -57,7 +57,7 @@ type SyncRegistryList struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Items []SyncRegistry `json:"items"`
 }
@@ -68,7 +68,7 @@ type SyncRegistryList struct {
 
 type SyncResources struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Spec SyncResourcesSpec `json:"spec,omitempty"`
 }
@@ -79,7 +79,7 @@ type SyncResourcesList struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Items []SyncResources `json:"items"`
 }
@@ -108,7 +108,7 @@ type ResourceSyncRule struct {
 
 	// MaxConcurrent is the maximum number of workers (default: 10)
 	// +optional
-	MaxConcurrent int `json:"workers,omitempty"`
+	MaxConcurrent int `json:"maxConcurrent,omitempty"`
 
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	// +optional
@@ -130,7 +130,7 @@ type ResourceSyncRule struct {
 // TransformRule is used to define the rule to transform the original resource into the desired target resource.
 type TransformRule struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	// +optional
 	Spec TransformRuleSpec `json:"spec,omitempty"`
@@ -152,7 +152,7 @@ type TransformRuleList struct {
 	metav1.TypeMeta `json:",inline"`
 
 	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Items []TransformRule `json:"items"`
 }
@@ -176,10 +176,10 @@ type FieldSelector struct {
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
 	// +optional
 	MatchFields map[string]string `json:"matchFields,omitempty"`
-	// SeverSupported indicates whether the matchFields is supported by the API server.
+	// ServerSupported indicates whether the matchFields is supported by the API server.
 	// If not supported, the client-side filtering will be utilized instead."
 	// +optional
-	SeverSupported bool `json:"serverSupported,omitempty"`
+	ServerSupported bool `json:"serverSupported,omitempty"`
 }
 
 type SyncRegistryStatus struct {
