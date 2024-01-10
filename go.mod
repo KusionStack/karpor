@@ -8,7 +8,7 @@ require (
 	github.com/cch123/elasticsql v1.0.1
 	github.com/dominikbraun/graph v0.23.0
 	github.com/elastic/go-elasticsearch/v8 v8.7.0
-	github.com/elliotxx/kubeaudit v0.0.0-20231205073701-512973cd5c66
+	github.com/elliotxx/kubeaudit v0.0.0-20240110033358-8ba75eb764ad
 	github.com/elliotxx/safe v1.0.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
 	github.com/go-chi/chi/v5 v5.0.10

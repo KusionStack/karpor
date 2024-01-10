@@ -27,6 +27,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
+	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/KusionStack/karbour/pkg/util/safeutil"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 	"github.com/elliotxx/kubeaudit/auditors/all"
@@ -160,14 +161,18 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resou
 	}
 }
 
-func (s *kubeauditScanner) scanManifestFor(_ context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
-	report, err := s.kubeAuditor.AuditManifest("", bytes.NewBuffer(manifest))
+func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
+	// Extract the context and logger from the request.
+	log := ctxutil.GetLogger(ctx)
+
+	report, err := s.kubeAuditor.AuditSingleManifest(bytes.NewBuffer(manifest))
 	if err != nil {
 		return nil, err
 	}
 
 	results := report.RawResults()
 	if len(results) != 1 {
+		log.Info("invalid manifest", "manifest", string(manifest))
 		return nil, fmt.Errorf("the scan result number should be equal to 1")
 	}
 	result := results[0]
