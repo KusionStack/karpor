@@ -201,8 +201,8 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		}
 
 		if err := s.sync(ctx, key); err != nil {
-			s.queue.AddRateLimited(key)
-			return fmt.Errorf("error syncing '%s/%s': %s, requeuing", s.source.SyncRule().Resource, key, err.Error())
+			s.queue.AddAfter(key, 5*time.Second)
+			return errors.Wrapf(err, "error syncing '%s/%s', requeuing", s.source.SyncRule().Resource, key)
 		}
 
 		s.queue.Forget(obj)
@@ -235,7 +235,11 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 		err = s.storage.Save(ctx, cluster, obj)
 	}
 	if err != nil {
-		return err
+		op := "save"
+		if isDeleted {
+			op = "delete"
+		}
+		return errors.Wrapf(err, "failed to %s from storage", op)
 	}
 
 	// obj was successfully processed, remove it from cache
