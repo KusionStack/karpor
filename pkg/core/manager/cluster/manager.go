@@ -103,13 +103,15 @@ func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluste
 }
 
 // UpdateCredential updates cluster credential by name and a new kubeconfig
-func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description, kubeconfig string) (*unstructured.Unstructured, error) {
+func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multicluster.MultiClusterClient, name, kubeconfig string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	// Make sure the cluster exists first
 	currentObj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
+	displayName := currentObj.Object["spec"].(map[string]interface{})["displayName"].(string)
+	description := currentObj.Object["spec"].(map[string]interface{})["description"].(string)
 
 	// Create new restConfig from updated kubeconfig
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))

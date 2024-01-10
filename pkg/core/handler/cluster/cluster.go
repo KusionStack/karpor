@@ -154,7 +154,7 @@ func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		if payload.ClusterKubeConfig != "" {
-			clusterUpdated, err := clusterMgr.UpdateCredential(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription, payload.ClusterKubeConfig)
+			clusterUpdated, err := clusterMgr.UpdateCredential(r.Context(), client, cluster, payload.ClusterKubeConfig)
 			handler.HandleResult(w, r, ctx, err, clusterUpdated)
 		} else {
 			clusterUpdated, err := clusterMgr.UpdateMetadata(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription)
