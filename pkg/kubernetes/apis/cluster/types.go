@@ -34,7 +34,7 @@ const (
 // Cluster is an extension type to access a cluster
 type Cluster struct {
 	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Spec   ClusterSpec   `json:"spec"`
 	Status ClusterStatus `json:"status,omitempty"`
@@ -45,7 +45,7 @@ type Cluster struct {
 // ClusterList is a list of Cluster objects.
 type ClusterList struct {
 	metav1.TypeMeta `json:",inline"`
-	metav1.ListMeta `json:"metadata,omitempty"`
+	metav1.ListMeta `json:"metadata,omitempty"` //nolint:tagliatelle
 
 	Items []Cluster `json:"items"`
 }

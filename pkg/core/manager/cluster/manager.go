@@ -175,7 +175,7 @@ func (c *ClusterManager) CountCluster(ctx context.Context, client *multicluster.
 			Get().
 			AbsPath("/healthz").
 			Timeout(1 * time.Second).
-			Do(context.Background()).
+			Do(ctx).
 			StatusCode(&statusCode).
 			Error(); err != nil || statusCode != 200 {
 			clusterSummary.UnhealthyClusters = append(clusterSummary.UnhealthyClusters, cluster.GetName())

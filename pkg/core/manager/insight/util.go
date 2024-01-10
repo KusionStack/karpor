@@ -65,7 +65,7 @@ func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multic
 	if err != nil {
 		return 0, err
 	}
-	resList, err := client.DynamicClient.Resource(resourceGVR).List(context.TODO(), metav1.ListOptions{})
+	resList, err := client.DynamicClient.Resource(resourceGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return 0, err
 	}

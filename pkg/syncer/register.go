@@ -21,10 +21,10 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/pkg/errors"
-
 	embedConfig "github.com/KusionStack/karbour/config"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/pkg/errors"
+
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -66,7 +66,7 @@ func createResources(ctx context.Context, client dynamic.Interface, mapper meta.
 			continue
 		}
 		if err = createResource(ctx, client, mapper, b); err != nil {
-			return fmt.Errorf("failed to create resource: %w", err)
+			return fmt.Errorf("failed to create resource: %v", err)
 		}
 	}
 	return nil
@@ -75,7 +75,7 @@ func createResources(ctx context.Context, client dynamic.Interface, mapper meta.
 func createResource(ctx context.Context, client dynamic.Interface, mapper meta.RESTMapper, data []byte) error {
 	obj, gvk, err := scheme.Codecs.UniversalDeserializer().Decode(data, nil, &unstructured.Unstructured{})
 	if err != nil {
-		return fmt.Errorf("could not decode data: %w", err)
+		return fmt.Errorf("could not decode data: %v", err)
 	}
 	u, ok := obj.(*unstructured.Unstructured)
 	if !ok {
@@ -83,7 +83,7 @@ func createResource(ctx context.Context, client dynamic.Interface, mapper meta.R
 	}
 	m, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
 	if err != nil {
-		return fmt.Errorf("could not get REST mapping for %s: %w", gvk, err)
+		return fmt.Errorf("could not get REST mapping for %s: %v", gvk, err)
 	}
 	_, err = client.Resource(m.Resource).Namespace(u.GetNamespace()).Create(ctx, u, metav1.CreateOptions{})
 	if err != nil {

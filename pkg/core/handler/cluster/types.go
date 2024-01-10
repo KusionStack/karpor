@@ -30,6 +30,8 @@ var sortCriteriaMap = map[string]cluster.SortCriteria{
 
 // ClusterPayload represents the structure for cluster request data. It includes
 // the name, display name, description and kubeconfig of a karbour-managed cluster
+//
+//nolint:tagliatelle
 type ClusterPayload struct {
 	ClusterDisplayName string `json:"displayName"` // ClusterDisplayName is the display name of cluster to be created
 	ClusterDescription string `json:"description"` // ClusterDescription is the description of cluster to be created

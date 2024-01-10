@@ -27,7 +27,7 @@ import (
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, _ := client.ClientSet.DiscoveryClient.ServerVersion()
 	// Get the list of nodes
-	nodes, err := client.ClientSet.CoreV1().Nodes().List(context.TODO(), metav1.ListOptions{})
+	nodes, err := client.ClientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

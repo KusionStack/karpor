@@ -152,7 +152,7 @@ type FieldSelector struct {
 	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
 	MatchFields map[string]string
 	// ServerSupported specifies whether the field selection is supported in api server side
-	SeverSupported bool
+	ServerSupported bool
 }
 
 type SyncRegistryStatus struct {

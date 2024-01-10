@@ -475,7 +475,7 @@ func schema_pkg_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) 
 					},
 					"serverSupported": {
 						SchemaProps: spec.SchemaProps{
-							Description: "SeverSupported indicates whether the matchFields is supported by the API server. If not supported, the client-side filtering will be utilized instead.\"",
+							Description: "ServerSupported indicates whether the matchFields is supported by the API server. If not supported, the client-side filtering will be utilized instead.\"",
 							Type:        []string{"boolean"},
 							Format:      "",
 						},

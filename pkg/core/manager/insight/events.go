@@ -29,7 +29,7 @@ import (
 func (i *InsightManager) GetResourceEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	// Retrieve the list of events for the specific resource
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{
+	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(ctx, metav1.ListOptions{
 		// FieldSelector is case-sensitive so this would depend on user input. Safer way is to list all events within namespace and compare afterwards
 		// FieldSelector: fmt.Sprintf("involvedObject.apiVersion=%s,involvedObject.kind=%s,involvedObject.name=%s", res.APIVersion, res.Kind, res.Name),
 	})
@@ -57,7 +57,7 @@ func (i *InsightManager) GetResourceEvents(ctx context.Context, client *multiclu
 // GetNamespaceEvents returns the complete list of events in a namespace
 func (i *InsightManager) GetNamespaceGVKEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(context.TODO(), metav1.ListOptions{})
+	eventList, err := client.DynamicClient.Resource(eventGVR).Namespace(loc.Namespace).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +77,7 @@ func (i *InsightManager) GetNamespaceEvents(ctx context.Context, client *multicl
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	// Another option is to add .Namespace(loc.Namespace) here
 	// It is quicker but it will not include the events that are related to the namespace resource itself
-	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (i *InsightManager) GetNamespaceEvents(ctx context.Context, client *multicl
 // GetGVKEvents returns the complete list of events for a GVK
 func (i *InsightManager) GetGVKEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -118,7 +118,7 @@ func (i *InsightManager) GetGVKEvents(ctx context.Context, client *multicluster.
 // GetClusterEvents returns the complete list of events in a cluster
 func (i *InsightManager) GetClusterEvents(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
-	eventList, err := client.DynamicClient.Resource(eventGVR).List(context.TODO(), metav1.ListOptions{})
+	eventList, err := client.DynamicClient.Resource(eventGVR).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
