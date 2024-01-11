@@ -201,7 +201,7 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		}
 
 		if err := s.sync(ctx, key); err != nil {
-			s.queue.AddAfter(key, 5*time.Second)
+			s.queue.AddRateLimited(key)
 			return errors.Wrapf(err, "error syncing '%s/%s', requeuing", s.source.SyncRule().Resource, key)
 		}
 

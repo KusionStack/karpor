@@ -125,6 +125,7 @@ func createIndex(client *elasticsearch.Client, mapping string, indexName string)
 	if err != nil {
 		return err
 	}
+	defer resp.Body.Close()
 	if resp.IsError() {
 		msg := resp.String()
 		if strings.Contains(resp.String(), "resource_already_exists_exception") {
