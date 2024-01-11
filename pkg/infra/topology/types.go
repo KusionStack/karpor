@@ -14,6 +14,12 @@
 
 package topology
 
+const (
+	ParentTypeKey = "parent"
+	ChildTypeKey  = "child"
+)
+
+//nolint:tagliatelle
 type RelationshipGraph struct {
 	RelationshipNodes []*RelationshipGraphNode `json:"relationship,omitempty" yaml:"relationship,omitempty"`
 }
@@ -24,7 +30,7 @@ type RelationshipGraphNode struct {
 	Kind          string          `json:"kind,omitempty" yaml:"kind,omitempty"`
 	Parent        []*Relationship `json:"parent,omitempty" yaml:"parent,omitempty"`
 	Children      []*Relationship `json:"children,omitempty" yaml:"children,omitempty"`
-	ResourceCount int             `json:"resourceCount,omitempty" yaml:"resource_count,omitempty"`
+	ResourceCount int             `json:"resourceCount,omitempty" yaml:"resourceCount,omitempty"`
 }
 
 type Relationship struct {
@@ -34,10 +40,10 @@ type Relationship struct {
 	Group         string              `json:"group,omitempty" yaml:"group,omitempty"`
 	Version       string              `json:"version,omitempty" yaml:"version,omitempty"`
 	Kind          string              `json:"kind,omitempty" yaml:"kind,omitempty"`
-	ClusterScoped bool                `json:"clusterScoped,omitempty" yaml:"cluster_scoped,omitempty"`
+	ClusterScoped bool                `json:"clusterScoped,omitempty" yaml:"clusterScoped,omitempty"`
 	Type          string              `json:"type,omitempty" yaml:"type,omitempty"`
-	SelectorPath  string              `json:"selectorPath,omitempty" yaml:"selector_path,omitempty"`
-	JSONPath      []map[string]string `json:"jsonPath,omitempty" yaml:"json_path,omitempty"`
+	SelectorPath  string              `json:"selectorPath,omitempty" yaml:"selectorPath,omitempty"`
+	JSONPath      []map[string]string `json:"jsonPath,omitempty" yaml:"jsonPath,omitempty"`
 }
 
 type ResourceGraphNode struct {

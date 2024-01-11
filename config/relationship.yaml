@@ -80,13 +80,13 @@ relationship:
     kind: Service
     type: Selector
     # if omitted, use spec.selector
-    selector_path: spec.selector
+    selectorPath: spec.selector
   - group: policy
     version: v1beta1
     kind: PodDisruptionBudget
     type: Selector
     # if omitted, use spec.selector
-    selector_path: spec.selector.matchLabels
+    selectorPath: spec.selector.matchLabels
 
 - group: ""
   version: v1
@@ -96,7 +96,7 @@ relationship:
     version: v1
     kind: Pod
     type: Selector
-    selector_path: spec.selector
+    selectorPath: spec.selector
   # Not needed. Only used to test empty child list
   # - group: ""
   #   version: v1
@@ -118,8 +118,8 @@ relationship:
     kind: Pod
     type: JSONPath
     # for the two-way relationship
-    cluster_scoped: true
-    json_path:
+    clusterScoped: true
+    jsonPath:
     - name: $.spec.nodeName
 
 - group: ""
@@ -130,7 +130,7 @@ relationship:
     version: v1
     kind: Pod
     type: JSONPath
-    json_path:
+    jsonPath:
     - name: $.spec.imagePullSecrets.name
     - name: $.spec.volumes[:].secret.secretName
 
@@ -142,8 +142,8 @@ relationship:
     version: v1
     kind: PersistentVolume
     type: JSONPath
-    cluster_scoped: true
-    json_path:
+    clusterScoped: true
+    jsonPath:
       # TODO: need to make sure keys are valid?
     - name: $.spec.claimRef.name
       namespace: $.spec.claimRef.namespace
@@ -151,7 +151,7 @@ relationship:
     version: v1
     kind: Pod
     type: JSONPath
-    json_path:
+    jsonPath:
     - name: $.spec.volumes[:].persistentVolumeClaim.claimName
 
 - group: ""
@@ -164,7 +164,7 @@ relationship:
     # This is for the two-way relationship
     # Technically PVC is not cluster scoped but for PVC to find PV, it needs to be cluster-scoped
     # Alternative is to explicitly declare two-way relationship
-    cluster_scoped: true
+    clusterScoped: true
     type: JSONPath
-    json_path:
+    jsonPath:
     - name: $.spec.volumeName

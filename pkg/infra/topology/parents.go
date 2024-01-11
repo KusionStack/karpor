@@ -18,11 +18,12 @@ package topology
 
 import (
 	"context"
+	"errors"
 
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
-	"k8s.io/apimachinery/pkg/api/errors"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -69,6 +70,7 @@ func GetParents(
 	resourceGraph graph.Graph[string, ResourceGraphNode],
 ) (graph.Graph[string, ResourceGraphNode], error) {
 	log := ctxutil.GetLogger(ctx)
+	var statusError *k8serrors.StatusError
 
 	var err error
 	if parentRelation.Type == "OwnerReference" {
@@ -81,20 +83,20 @@ func GetParents(
 		gv, _ := schema.ParseGroupVersion(parentRelation.Group + "/" + parentRelation.Version)
 		gvk := gv.WithKind(parentRelation.Kind)
 		parentResList, err := GetParentResourcesList(ctx, client, parentRelation, namespace)
-		if errors.IsNotFound(err) {
+		if k8serrors.IsNotFound(err) {
 			log.Info("Obj in namespace not found", "objName", objName, "namespace", namespace)
-		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
+		} else if errors.As(err, &statusError) {
 			log.Info("Error getting obj in namespace", "objName", objName, "namespace", namespace, "statusError", statusError.ErrStatus.Message)
 		} else if err != nil {
 			return nil, err
 		} else if len(parentResList.Items) > 0 {
 			if parentRelation.Type == "JSONPath" {
-				resourceGraph, err = GetByJSONPath(ctx, parentResList, "parent", client, obj, parentRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByJSONPath(ctx, parentResList, ParentTypeKey, client, obj, parentRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}
 			} else if parentRelation.Type == "Selector" {
-				resourceGraph, err = GetByLabelSelector(ctx, parentResList, "parent", client, obj, parentRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByLabelSelector(ctx, parentResList, ParentTypeKey, client, obj, parentRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}
@@ -116,6 +118,7 @@ func GetParentsByOwnerReference(
 	resourceGraph graph.Graph[string, ResourceGraphNode],
 ) (graph.Graph[string, ResourceGraphNode], error) {
 	log := ctxutil.GetLogger(ctx)
+	var statusError *k8serrors.StatusError
 
 	log.Info("Using OwnerReferences to find parents...")
 	objName := obj.GetName()
@@ -139,9 +142,9 @@ func GetParentsByOwnerReference(
 
 	log.Info("Listing parent resource in namespace", "objOwnerKind", objOwner.Kind, "namespace", namespace)
 	parentResList, err := client.Resource(parentRes).Namespace(namespace).List(ctx, metav1.ListOptions{})
-	if errors.IsNotFound(err) {
+	if k8serrors.IsNotFound(err) {
 		log.Info("Obj in namespace not found", "objName", objName, "namespace", namespace)
-	} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
+	} else if errors.As(err, &statusError) {
 		log.Info("Error getting obj in namespace", "objName", objName, "namespace", namespace, "statusError", statusError.ErrStatus.Message)
 	} else if err != nil {
 		return nil, err

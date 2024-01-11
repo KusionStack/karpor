@@ -52,11 +52,11 @@ func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOp
 	sanitized := &unstructured.Unstructured{}
 	cluster, err := r.Store.Get(ctx, name, options)
 	if err != nil {
-		return sanitized, nil
+		return sanitized, err
 	}
 	clusterMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(cluster)
 	if err != nil {
-		return sanitized, nil
+		return sanitized, err
 	}
 	clusterUnstructured := &unstructured.Unstructured{}
 	clusterUnstructured.SetUnstructuredContent(clusterMap)
