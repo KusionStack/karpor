@@ -191,7 +191,8 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		return false
 	}
 
-	err := func(obj interface{}) error {
+	// TODO: handle the sync error
+	_ = func(obj interface{}) error {
 		defer s.queue.Done(obj)
 
 		key, ok := obj.(string)
@@ -200,28 +201,26 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 			return nil
 		}
 
-		if err := s.sync(ctx, key); err != nil {
+		var op string
+		var err error
+		if op, err = s.sync(ctx, key); err != nil {
+			s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, key), "op", op)
 			s.queue.AddRateLimited(key)
-			return fmt.Errorf("error syncing '%s/%s': %s, requeuing", s.source.SyncRule().Resource, key, err.Error())
+			return err
 		}
-
+		s.logger.Info("Successfully synced", "op", op, "event", key)
 		s.queue.Forget(obj)
-		s.logger.Info("Successfully synced", "event", key)
 		return nil
 	}(obj)
-	if err != nil {
-		utilruntime.HandleError(err)
-		return true
-	}
-
 	return true
 }
 
-func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
+func (s *ResourceSyncer) sync(ctx context.Context, key string) (string, error) {
+	op := "unknown"
 	obj, ok := s.pendingResources.Get(key)
 	if !ok {
 		s.logger.WithValues("resourceKey", key).Info("ignore sync, resource object already processed")
-		return nil
+		return op, nil
 	}
 
 	_, isDeleted := obj.(deleted)
@@ -230,15 +229,17 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 
 	var err error
 	if isDeleted {
+		op = "delete"
 		err = s.storage.Delete(ctx, cluster, obj)
 	} else {
+		op = "save"
 		err = s.storage.Save(ctx, cluster, obj)
 	}
 	if err != nil {
-		return err
+		return op, err
 	}
 
 	// obj was successfully processed, remove it from cache
 	s.pendingResources.Remove(obj)
-	return nil
+	return op, nil
 }

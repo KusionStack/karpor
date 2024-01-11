@@ -71,15 +71,15 @@ func (s *ESClient) insertObj(ctx context.Context, cluster string, obj runtime.Ob
 		Body:       bytes.NewReader(body),
 		Index:      s.indexName,
 	}
-	res, err := req.Do(ctx, s.client)
+	resp, err := req.Do(ctx, s.client)
 	if err != nil {
 		return err
 	}
-
-	if res.IsError() {
+	defer resp.Body.Close()
+	if resp.IsError() {
 		return &ESError{
-			StatusCode: res.StatusCode,
-			Message:    res.String(),
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
 		}
 	}
 	return nil
@@ -98,15 +98,15 @@ func (s *ESClient) delete(ctx context.Context, body io.Reader) error {
 		Index: []string{s.indexName},
 		Body:  body,
 	}
-	res, err := req.Do(ctx, s.client)
+	resp, err := req.Do(ctx, s.client)
 	if err != nil {
 		return err
 	}
-
-	if res.IsError() {
+	defer resp.Body.Close()
+	if resp.IsError() {
 		return &ESError{
-			StatusCode: res.StatusCode,
-			Message:    res.String(),
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
 		}
 	}
 	return nil

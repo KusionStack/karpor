@@ -92,25 +92,25 @@ func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface
 
 func (s *ESClient) search(ctx context.Context, body io.Reader, pageSize, page int) (*SearchResponse, error) {
 	from := (page - 1) * pageSize
-	res, err := s.client.Search(
+	resp, err := s.client.Search(
 		s.client.Search.WithContext(ctx),
 		s.client.Search.WithIndex(s.indexName),
 		s.client.Search.WithBody(body),
 		s.client.Search.WithSize(pageSize),
 		s.client.Search.WithFrom(from),
 	)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
-	if res.IsError() {
+	defer resp.Body.Close()
+	if resp.IsError() {
 		return nil, &ESError{
-			StatusCode: res.StatusCode,
-			Message:    res.String(),
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
 		}
 	}
 	sr := &SearchResponse{}
-	if err := json.NewDecoder(res.Body).Decode(sr); err != nil {
+	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
 		return nil, err
 	}
 	return sr, nil
