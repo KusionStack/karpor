@@ -200,13 +200,15 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 			return nil
 		}
 
-		if err := s.sync(ctx, key); err != nil {
+		var op string
+		var err error
+		if op, err = s.sync(ctx, key); err != nil {
 			s.queue.AddRateLimited(key)
-			return errors.Wrapf(err, "error syncing '%s/%s', requeuing", s.source.SyncRule().Resource, key)
+			return errors.Wrapf(err, "error syncing '%s/%s', op:%s, requeuing", s.source.SyncRule().Resource, key, op)
 		}
 
 		s.queue.Forget(obj)
-		s.logger.Info("Successfully synced", "event", key)
+		s.logger.Info("Successfully synced", "op", op, "event", key)
 		return nil
 	}(obj)
 	if err != nil {
@@ -217,11 +219,12 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	return true
 }
 
-func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
+func (s *ResourceSyncer) sync(ctx context.Context, key string) (string, error) {
+	op := "unknown"
 	obj, ok := s.pendingResources.Get(key)
 	if !ok {
 		s.logger.WithValues("resourceKey", key).Info("ignore sync, resource object already processed")
-		return nil
+		return op, nil
 	}
 
 	_, isDeleted := obj.(deleted)
@@ -230,19 +233,17 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 
 	var err error
 	if isDeleted {
+		op = "delete"
 		err = s.storage.Delete(ctx, cluster, obj)
 	} else {
+		op = "save"
 		err = s.storage.Save(ctx, cluster, obj)
 	}
 	if err != nil {
-		op := "save"
-		if isDeleted {
-			op = "delete"
-		}
-		return errors.Wrapf(err, "failed to %s from storage", op)
+		return op, err
 	}
 
 	// obj was successfully processed, remove it from cache
 	s.pendingResources.Remove(obj)
-	return nil
+	return op, nil
 }
