@@ -191,7 +191,8 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		return false
 	}
 
-	err := func(obj interface{}) error {
+	// TODO: handle the sync error
+	_ = func(obj interface{}) error {
 		defer s.queue.Done(obj)
 
 		key, ok := obj.(string)
@@ -203,19 +204,14 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		var op string
 		var err error
 		if op, err = s.sync(ctx, key); err != nil {
+			s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, key), "op", op)
 			s.queue.AddRateLimited(key)
-			return errors.Wrapf(err, "error syncing '%s/%s', op:%s, requeuing", s.source.SyncRule().Resource, key, op)
+			return err
 		}
-
-		s.queue.Forget(obj)
 		s.logger.Info("Successfully synced", "op", op, "event", key)
+		s.queue.Forget(obj)
 		return nil
 	}(obj)
-	if err != nil {
-		utilruntime.HandleError(err)
-		return true
-	}
-
 	return true
 }
 
