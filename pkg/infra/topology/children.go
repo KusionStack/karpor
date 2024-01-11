@@ -18,11 +18,12 @@ package topology
 
 import (
 	"context"
+	"errors"
 
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
-	"k8s.io/apimachinery/pkg/api/errors"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -67,6 +68,7 @@ func GetChildren(
 	resourceGraph graph.Graph[string, ResourceGraphNode],
 ) (graph.Graph[string, ResourceGraphNode], error) {
 	log := ctxutil.GetLogger(ctx)
+	var statusError *k8serrors.StatusError
 
 	if childRelation.Type == "OwnerReference" {
 		// If relationship type is ownerreference, honor that instead of relationship graph
@@ -100,20 +102,20 @@ func GetChildren(
 			childResList, err = client.Resource(childRes).Namespace(namespace).List(ctx, metav1.ListOptions{})
 		}
 		log.Info("List return size", "size", len(childResList.Items))
-		if errors.IsNotFound(err) {
+		if k8serrors.IsNotFound(err) {
 			log.Info("Obj in namespace not found", "obj", objName, "namespace", namespace)
-		} else if statusError, isStatus := err.(*errors.StatusError); isStatus {
-			log.Info("Error getting obj in namespace", "obj", objName, "namespace", namespace, "statusError", statusError.ErrStatus.Message)
+		} else if errors.As(err, &statusError) {
+			log.Info("Error getting obj in namespace", "obj", objName, "namespace", namespace, "statusError", err.Error())
 		} else if err != nil {
 			return nil, err
 		} else if len(childResList.Items) > 0 {
 			if childRelation.Type == "JSONPath" {
-				resourceGraph, err = GetByJSONPath(ctx, childResList, "child", client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByJSONPath(ctx, childResList, ChildTypeKey, client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}
 			} else if childRelation.Type == "Selector" {
-				resourceGraph, err = GetByLabelSelector(ctx, childResList, "child", client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
+				resourceGraph, err = GetByLabelSelector(ctx, childResList, ChildTypeKey, client, obj, childRelation, gvk, objResourceNode, relationshipGraph, resourceGraph)
 				if err != nil {
 					return nil, err
 				}

@@ -121,7 +121,7 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 	objGVKOnGraph, err := topology.FindNodeOnGraph(relationshipGraph, gv.Group, gv.Version, obj.GetKind())
 	// When obj GVK is not found on relationship graph, return an empty graph with no error
 	if err != nil {
-		return nil, nil
+		return nil, nil //nolint:nilerr
 	}
 
 	// Recursively find parents

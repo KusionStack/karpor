@@ -63,18 +63,18 @@ func GetByJSONPath(
 				Namespace: relatedRes.GetNamespace(),
 			}
 			resourceGraph.AddVertex(relatedResourceNode)
-			if relationshipType == "parent" {
+			if relationshipType == ParentTypeKey {
 				resourceGraph.AddEdge(relatedResourceNode.GetHash(), objResourceNode.GetHash())
 			} else {
 				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
 			}
 			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
-			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
+			if relationshipType == ParentTypeKey && len(relatedGVKOnGraph.Parent) > 0 {
 				// repeat for parent resources
 				for _, parentRelation := range relatedGVKOnGraph.Parent {
 					resourceGraph, _ = GetParents(ctx, client, relatedRes, parentRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
 				}
-			} else if relationshipType == "child" && len(relatedGVKOnGraph.Children) > 0 {
+			} else if relationshipType == ChildTypeKey && len(relatedGVKOnGraph.Children) > 0 {
 				// repeat for child resources
 				for _, childRelation := range relatedGVKOnGraph.Children {
 					resourceGraph, _ = GetChildren(ctx, client, relatedRes, childRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
@@ -103,7 +103,7 @@ func GetByLabelSelector(
 	var labelsMatch bool
 	var err error
 	for _, relatedRes := range relatedResList.Items {
-		if relationshipType == "parent" {
+		if relationshipType == ParentTypeKey {
 			labelsMatch, err = topologyutil.LabelSelectorsMatch(relatedRes, obj, relation.SelectorPath)
 		} else {
 			labelsMatch, err = topologyutil.LabelSelectorsMatch(obj, relatedRes, relation.SelectorPath)
@@ -121,17 +121,17 @@ func GetByLabelSelector(
 				Namespace: relatedRes.GetNamespace(),
 			}
 			resourceGraph.AddVertex(relatedResourceNode)
-			if relationshipType == "parent" {
+			if relationshipType == ParentTypeKey {
 				resourceGraph.AddEdge(relatedResourceNode.GetHash(), objResourceNode.GetHash())
 			} else {
 				resourceGraph.AddEdge(objResourceNode.GetHash(), relatedResourceNode.GetHash())
 			}
 			relatedGVKOnGraph, _ := FindNodeOnGraph(relationshipGraph, relatedGVK.Group, relatedGVK.Version, relatedGVK.Kind)
-			if relationshipType == "parent" && len(relatedGVKOnGraph.Parent) > 0 {
+			if relationshipType == ParentTypeKey && len(relatedGVKOnGraph.Parent) > 0 {
 				for _, parentRelation := range relatedGVKOnGraph.Parent {
 					resourceGraph, _ = GetParents(ctx, client, relatedRes, parentRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
 				}
-			} else if relationshipType == "child" && len(relatedGVKOnGraph.Children) > 0 {
+			} else if relationshipType == ChildTypeKey && len(relatedGVKOnGraph.Children) > 0 {
 				for _, childRelation := range relatedGVKOnGraph.Children {
 					resourceGraph, _ = GetChildren(ctx, client, relatedRes, childRelation, relatedRes.GetNamespace(), relatedRes.GetName(), relatedResourceNode, relationshipGraph, resourceGraph)
 				}
