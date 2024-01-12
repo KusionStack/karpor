@@ -99,10 +99,10 @@ func (s *ESClient) search(ctx context.Context, body io.Reader, pageSize, page in
 		s.client.Search.WithSize(pageSize),
 		s.client.Search.WithFrom(from),
 	)
-	defer res.Body.Close()
 	if err != nil {
 		return nil, err
 	}
+	defer res.Body.Close()
 	if res.IsError() {
 		return nil, &ESError{
 			StatusCode: res.StatusCode,
