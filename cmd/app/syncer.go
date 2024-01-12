@@ -29,9 +29,9 @@ import (
 )
 
 type syncerOptions struct {
-	MetricsAddr string
-	ProbeAddr   string
-	ESAddress   string
+	MetricsAddr            string
+	ProbeAddr              string
+	ElasticSearchAddresses []string
 }
 
 func NewSyncerOptions() *syncerOptions {
@@ -41,7 +41,7 @@ func NewSyncerOptions() *syncerOptions {
 func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	fs.StringVar(&o.ESAddress, "es-address", "", "The address of Elasticsearch.")
+	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
 }
 
 func NewSyncerCommand(ctx context.Context) *cobra.Command {
@@ -73,7 +73,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 
 	// TODO: add startup parameters to change the type of storage
 	es, err := elasticsearch.NewESClient(esclient.Config{
-		Addresses: []string{options.ESAddress},
+		Addresses: options.ElasticSearchAddresses,
 	})
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
