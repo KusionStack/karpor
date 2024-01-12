@@ -24,6 +24,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/tools/cache"
+	k8scache "k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 )
 
@@ -61,10 +62,11 @@ func NewResourceInformer(lw cache.ListerWatcher,
 	transform cache.TransformFunc,
 	resyncPeriod time.Duration,
 	handler ResourceHandler,
+	knownObjects k8scache.KeyListerGetter,
 ) cache.Controller {
 	informerCache := NewResourceCache()
 	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
-		KnownObjects:          informerCache,
+		KnownObjects:          knownObjects,
 		EmitDeltaTypeReplaced: true,
 	})
 

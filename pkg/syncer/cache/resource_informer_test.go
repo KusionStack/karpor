@@ -169,7 +169,7 @@ func TestInformerWithSelectors(t *testing.T) {
 			},
 		}
 
-		informer := NewResourceInformer(lw, utils.MultiSelectors(tt.selectors), nil, 0, recorder.resourceHandler())
+		informer := NewResourceInformer(lw, utils.MultiSelectors(tt.selectors), nil, 0, recorder.resourceHandler(), nil)
 		stop := make(chan struct{})
 		defer close(stop)
 		go informer.Run(stop)
@@ -275,7 +275,7 @@ func TestInformerWithTransformer(t *testing.T) {
 			},
 		}
 
-		informer := NewResourceInformer(lw, nil, tt.transFunc, 0, recorder.resourceHandler())
+		informer := NewResourceInformer(lw, nil, tt.transFunc, 0, recorder.resourceHandler(), nil)
 		stop := make(chan struct{})
 		defer close(stop)
 		go informer.Run(stop)

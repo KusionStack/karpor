@@ -67,7 +67,7 @@ func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pageSize, pag
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.searchByQuery(ctx, esQuery, pageSize, page)
+	res, err := s.SearchByQuery(ctx, esQuery, pageSize, page)
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string, pageSize, pag
 	return s.search(ctx, strings.NewReader(dsl), pageSize, page)
 }
 
-func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}, pageSize, page int) (*SearchResponse, error) {
+func (s *ESClient) SearchByQuery(ctx context.Context, query map[string]interface{}, pageSize, page int) (*SearchResponse, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err

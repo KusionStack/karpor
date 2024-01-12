@@ -98,7 +98,7 @@ type ResourceSyncer struct {
 }
 
 func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) *ResourceSyncer {
-	source := NewSource(cluster, dynamicClient, rsr)
+	source := NewSource(cluster, dynamicClient, rsr, storage)
 	return &ResourceSyncer{
 		source:           source,
 		storage:          storage,
