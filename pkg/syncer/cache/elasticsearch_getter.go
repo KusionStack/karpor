@@ -8,7 +8,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/aquasecurity/esquery"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	k8scache "k8s.io/client-go/tools/cache"
 )
@@ -38,7 +37,7 @@ func (e *ESListerGetter) ListKeys() []string {
 		esquery.Term("apiVersion", e.gvr.GroupVersion().String()),
 		esquery.Term("kind", kind),
 	).Map()
-	sr, err := e.esClient.SearchByQuery(context.Background(), query, 1000000, 0)
+	sr, err := e.esClient.SearchByQuery(context.Background(), query, nil)
 	if err != nil {
 		return nil
 	}
@@ -80,17 +79,13 @@ func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, e
 		esquery.Term("kind", kind),
 		esquery.Term("namespace", ns),
 		esquery.Term("name", name)).Map()
-	sr, err := e.esClient.SearchByQuery(context.Background(), query, 1000000, 0)
+	sr, err := e.esClient.SearchByQuery(context.Background(), query, nil)
 	resources := sr.GetResources()
 	if len(resources) != 1 {
 		return nil, false, fmt.Errorf("query result expected 1, got %d", len(resources))
 	}
 
-	unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0].Object)
-	if err != nil {
-		return nil, false, err
-	}
 	unObj := &unstructured.Unstructured{}
-	unObj.SetUnstructuredContent(unStructContent)
+	unObj.SetUnstructuredContent(resources[0].Object)
 	return unObj, true, nil
 }

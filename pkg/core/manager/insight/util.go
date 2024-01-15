@@ -92,7 +92,7 @@ func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *
 		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
 	for {
-		res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+		res, err := i.search.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: pageSizeIteration, PageSize: pageIteration})
 		if err != nil {
 			return nil, err
 		}
