@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KusionStack/karbour/pkg/syncer/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -61,11 +62,16 @@ func NewResourceInformer(lw cache.ListerWatcher,
 	transform cache.TransformFunc,
 	resyncPeriod time.Duration,
 	handler ResourceHandler,
-	knownObjects cache.KeyListerGetter,
-) cache.Controller {
+	importer utils.Importer,
+) (cache.Controller, error) {
 	informerCache := NewResourceCache()
+	err := importer.ImportTo(informerCache)
+	if err != nil {
+		return nil, err
+	}
+
 	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
-		KnownObjects:          knownObjects,
+		KnownObjects:          informerCache,
 		EmitDeltaTypeReplaced: true,
 	})
 
@@ -154,5 +160,5 @@ func NewResourceInformer(lw cache.ListerWatcher,
 		},
 	}
 
-	return cache.New(cfg)
+	return cache.New(cfg), nil
 }

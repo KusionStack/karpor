@@ -145,8 +145,8 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 
 	h := internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
 	// TODO: Use interface instead of struct
-	knownObjects := utils.NewESListerGetter(s.cluster, s.storage.(*elasticsearch.ESClient), gvr)
-	return cache.NewResourceInformer(lw, utils.MultiSelectors(selectors), transform, resyncPeriod, h, knownObjects), nil
+	importer := utils.NewESImporter(s.storage.(*elasticsearch.ESClient), s.cluster, gvr)
+	return cache.NewResourceInformer(lw, utils.MultiSelectors(selectors), transform, resyncPeriod, h, importer)
 }
 
 func (s *informerSource) HasSynced() bool {
