@@ -70,6 +70,7 @@ func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, e
 	default:
 		return nil, false, fmt.Errorf("invalid key:%s", key)
 	}
+
 	resource := e.gvr.Resource
 	kind := resource[0 : len(resource)-1]
 	query := make(map[string]interface{})
@@ -80,6 +81,9 @@ func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, e
 		esquery.Term("namespace", ns),
 		esquery.Term("name", name)).Map()
 	sr, err := e.esClient.SearchByQuery(context.Background(), query, nil)
+	if err != nil {
+		return nil, false, err
+	}
 	resources := sr.GetResources()
 	if len(resources) != 1 {
 		return nil, false, fmt.Errorf("query result expected 1, got %d", len(resources))
