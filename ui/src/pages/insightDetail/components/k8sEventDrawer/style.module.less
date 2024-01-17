@@ -1,0 +1,132 @@
+.execption_drawer {
+  .tool_bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 16px 0;
+
+  }
+
+  .collapse_panel_title {
+    display: flex;
+    align-items: center;
+
+    .title {
+      font-weight: 500;
+      font-size: 14;
+      color: 'rgba(0,10,26,0.89)'
+    }
+  }
+
+  .collapse_panel_body {
+    margin-top: 0;
+    padding-top: 12;
+    border-top: 1px solid #f7f7f7;
+
+    .header {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      margin-top: 16px;
+
+      .item {
+        display: flex;
+        align-items: center;
+        margin-right: 24px;
+
+        .label {
+          font-weight: 400;
+          font-size: 14px;
+          color: rgba(0, 10, 26, 0.45);
+          line-height: 24px;
+        }
+
+        .value {
+          font-weight: 400;
+          font-size: 14px;
+          color: rgba(0, 10, 26, 0.89);
+        }
+      }
+
+      .item:nth-child(1) {
+        margin-left: 0;
+      }
+    }
+
+    .body {
+      margin-top: 12px;
+      background-color: #F7FAFF;
+      border-radius: 8px;
+      padding: 15px;
+
+      .label {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.45);
+      }
+
+      .value {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.89);
+      }
+    }
+  }
+}
+
+.collapse_panel_title {
+  display: flex;
+
+  .left {
+    margin-right: 8px;
+  }
+
+  .right {
+    .top {
+      font-weight: 500;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.88);
+      line-height: 22px;
+
+      .time {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.45);
+        line-height: 22px;
+        margin-left: 8px;
+      }
+    }
+
+    .bottom {
+      font-weight: 400;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+      line-height: 22px;
+    }
+  }
+}
+
+.collapse_panel_body {
+  border-top: 1px solid #f5f5f5;
+
+  .label {
+    margin-bottom: 10px;
+  }
+
+  .value {
+    display: flex;
+    flex-wrap: wrap;
+
+    .time_block {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      font-weight: 400;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.65);
+      line-height: 22px;
+      margin-right: 8px;
+      padding: 5px 10px;
+      margin: 5px;
+    }
+  }
+}

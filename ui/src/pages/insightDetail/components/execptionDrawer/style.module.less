@@ -1,0 +1,120 @@
+.execption_drawer {
+  .tool_bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0 16px 0;
+
+  }
+
+  .collapse_panel_title {
+    .top {
+      display: flex;
+      align-items: center;
+
+      .title {
+        font-weight: 500;
+        font-size: 14;
+        color: 'rgba(0,10,26,0.89)'
+      }
+    }
+
+    .bottom {
+      width: 100%;
+      padding-left: 36px;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      font-size: 12px;
+
+      .label {
+        font-weight: 400;
+        color: rgba(0, 10, 26, 0.45);
+        line-height: 24px;
+        margin-right: 2px;
+      }
+
+      .value {
+        flex: 1;
+        font-weight: 400;
+        color: rgba(0, 10, 26, 0.89);
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        width: 0;
+      }
+    }
+  }
+
+  .collapse_panel_body {
+    margin-top: 0;
+    padding-top: 12;
+    border-top: 1px solid #f7f7f7;
+
+    .header {
+      display: flex;
+      align-items: center;
+      font-size: 16px;
+      margin-top: 16px;
+
+      .item {
+        display: flex;
+        align-items: center;
+        margin-right: 24px;
+
+        .label {
+          font-weight: 400;
+          font-size: 14px;
+          color: rgba(0, 10, 26, 0.45);
+          line-height: 24px;
+        }
+
+        .value {
+          font-weight: 400;
+          font-size: 14px;
+          color: rgba(0, 10, 26, 0.89);
+        }
+      }
+
+      .item:nth-child(1) {
+        margin-left: 0;
+      }
+    }
+
+    .rowItem {
+      display: flex;
+
+      .label {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.45);
+        line-height: 24px;
+      }
+
+      .value {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.89);
+        flex: 1;
+      }
+    }
+
+    .body {
+      margin-top: 12px;
+      background-color: #F7FAFF;
+      border-radius: 8px;
+      padding: 15px;
+
+      .label {
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.45);
+      }
+
+      .value {
+        max-height: 500px;
+        overflow: auto;
+      }
+    }
+  }
+}

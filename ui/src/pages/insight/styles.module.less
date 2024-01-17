@@ -1,0 +1,86 @@
+.container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+
+  .pageTitle {
+    font-weight: 500;
+    font-size: 16px;
+    color: rgba(0, 10, 26, 0.89);
+    margin-bottom: 16px;
+  }
+
+  .content {
+    background: #fff;
+    height: 100%;
+    border-radius: 8px;
+    padding: 16px 24px;
+    flex: 1;
+
+    .header {
+      display: flex;
+      align-items: center;
+
+      .dropText {
+        color: rgba(0, 10, 26, 0.89);
+      }
+
+      .selectTips {
+        margin-left: 24px;
+        font-weight: 400;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.28);
+
+        .bulb {
+          color: orange;
+        }
+      }
+
+    }
+
+    .stat {
+      margin: 20px 0 24px 0;
+      height: 120px;
+      background-color: #F7FAFF;
+      border-radius: 8px;
+      padding: 12px 26px;
+      display: flex;
+      align-items: center;
+
+      .circle {
+        margin-right: 68px;
+      }
+
+      .symbol {
+        margin: 0 48px;
+        font-weight: 400;
+        font-size: 16px;
+        color: rgba(0, 0, 0, 0.89);
+      }
+
+    }
+
+    .toolBar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .left {
+        font-weight: 500;
+        font-size: 14px;
+        color: rgba(0, 10, 26, 0.89);
+      }
+    }
+
+    .list {
+      // display: flex;
+      // flex-wrap: wrap;
+      display: grid;
+      // justify-content: center;
+      grid-template-columns: repeat(auto-fill, 350px);
+      grid-gap: 20px 20px;
+      margin-top: 20px;
+    }
+
+  }
+}

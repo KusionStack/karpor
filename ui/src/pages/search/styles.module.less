@@ -1,0 +1,231 @@
+.search {
+  padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  .title {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 28px;
+    font-weight: bold;
+  }
+
+  .subTitle {
+    color: #646566;
+  }
+
+  .searchTab {
+    width: 650px;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    padding: 20px 0;
+  }
+
+  .searchBox {
+    position: relative;
+
+    .searchPanel {
+      position: absolute;
+      width: 100%;
+      height: 300px;
+      margin-top: 3px;
+      border-radius: 6px;
+      background: #fff;
+      z-index: 999;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 12px;
+
+      .history {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 5px;
+
+        .left {
+          font-weight: bold;
+        }
+
+        .right {
+          cursor: pointer;
+          color: #646566;
+        }
+      }
+
+      .recommand {
+        margin-top: 20px;
+
+        .recommandTitle {
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+      }
+    }
+  }
+
+  .examples {
+    background: rgba(22, 119, 255, .1);
+
+    padding: 25px;
+    // width: 450px;
+    border-radius: 8px;
+    margin-top: 60px;
+
+    .keywords,
+    .sql {
+      margin-top: 7px;
+      color: #000;
+      display: flex;
+      flex-direction: column;
+
+      .keywordsTitle {
+        font-weight: bold;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .item {
+        font-size: 15px;
+        margin-bottom: 12px;
+        cursor: pointer;
+
+        .keyword {
+          color: #2F54EB;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+}
+
+.option_item {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .option_item_label {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+  .option_item_delete {
+    cursor: pointer;
+  }
+}
+
+
+.iconFont {
+  padding-right: 10px;
+  color: #1890ff;
+  cursor: pointer;
+}
+
+
+.box {
+  display: flex;
+  padding: 20px;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.basic-syntax {
+  flex: 1;
+  padding: 10px;
+
+  .item-box {
+    margin-bottom: 20px;
+    height: 100px;
+
+    .title {
+      margin-bottom: 20px;
+      color: #5e6e8c;
+      font-size: 16px;
+      font-weight: 400;
+    }
+
+    .children-item-box {
+      margin-bottom: 15px;
+      cursor: pointer;
+
+      .children-item {
+        background: #fff;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+        border-radius: 3px;
+        padding: 4px 8px;
+        font-size: 12px;
+        text-align: left;
+        margin-bottom: 10px;
+
+        &:hover {
+          border: 1px solid #d9d9d9;
+        }
+      }
+    }
+
+  }
+}
+
+.searchFilterKeyword {
+  color: #1890ff;
+}
+
+@keyframes cursor-blinks {
+  0% {
+    opacity: 1;
+    display: block;
+  }
+
+  50% {
+    opacity: 0;
+    display: none;
+  }
+
+  100% {
+    opacity: 1;
+    display: block;
+  }
+}
+
+.cursor {
+  width: 0;
+  overflow: visible;
+  position: relative;
+}
+
+.line {
+  position: absolute;
+  width: 1px;
+  height: 100%;
+  background: black;
+  left: 0;
+  top: 50%;
+  transform: translate(0, -50%);
+  animation: cursor-blinks 1.5s infinite steps(1, start);
+}
+
+.CodeMirror {
+  height: 35px;
+  /* 设置固定高度 */
+  overflow: auto;
+  /* 允许出现滚动条 */
+  white-space: pre;
+  /* 禁止自动换行 */
+  word-wrap: normal;
+  /* 禁止自动换行 */
+}
+
+/* 移除CodeMirror聚焦时的外部轮廓 */
+.CodeMirror-focused {
+  outline: none;
+}
+
+/* 在CSS中禁止CodeMirror的换行 */
+.CodeMirror-line {
+  white-space: pre !important;
+}

@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { message } from 'antd';
 
-axios.defaults.baseURL = "https://localhost:7443";
+export const HOST = '';
+axios.defaults.baseURL = HOST;
 
 axios.interceptors.request.use((config) => {
   return config;
@@ -19,6 +20,5 @@ axios.interceptors.response.use((response) => {
     // return Promise.reject(error);
     throw new Error(error)
   } catch (error) {
-    console.log(error, "====error====")
   }
 });
