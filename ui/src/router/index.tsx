@@ -13,10 +13,16 @@ const Result = lazy(() => import("../pages/result"));
 const Cluster = lazy(() => import("../pages/cluster"));
 const ClusterAdd = lazy(() => import("../pages/cluster/add"));
 const ClusterCertificate = lazy(() => import("../pages/cluster/certificate"));
-const InsightDetailCluster = lazy(() => import("../pages/insightDetail/cluster"));
+const InsightDetailCluster = lazy(
+  () => import("../pages/insightDetail/cluster"),
+);
 const InsightDetailKind = lazy(() => import("../pages/insightDetail/kind"));
-const InsightDetailNamespace = lazy(() => import("../pages/insightDetail/namespace"));
-const InsightDetailResource = lazy(() => import("../pages/insightDetail/resource"));
+const InsightDetailNamespace = lazy(
+  () => import("../pages/insightDetail/namespace"),
+);
+const InsightDetailResource = lazy(
+  () => import("../pages/insightDetail/resource"),
+);
 const Reflux = lazy(() => import("../pages/reflux"));
 const Insight = lazy(() => import("../pages/insight"));
 const NotFound = lazy(() => import("../pages/notfound"));
@@ -43,7 +49,11 @@ const router: RouteObject[] = [
       {
         key: "/search",
         path: "/search",
-        element: <><Outlet /></>,
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
         icon: <SearchOutlined />,
         children: [
           {
@@ -57,7 +67,7 @@ const router: RouteObject[] = [
             title: "结果",
             element: lazyLoad(<Result />),
           },
-        ]
+        ],
       },
       {
         key: "/reflux",
@@ -76,7 +86,11 @@ const router: RouteObject[] = [
       {
         key: "insightDetail",
         path: "insightDetail",
-        element: <><Outlet /></>,
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
         // element: lazyLoad(<InsightDetail />),
         children: [
           {
@@ -99,12 +113,16 @@ const router: RouteObject[] = [
             path: "resource",
             element: lazyLoad(<InsightDetailResource />),
           },
-        ]
+        ],
       },
       {
         key: "/cluster",
         path: "/cluster",
-        element: <><Outlet /></>,
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
         icon: <ApartmentOutlined />,
         children: [
           {
@@ -124,7 +142,7 @@ const router: RouteObject[] = [
             title: "更新证书",
             element: lazyLoad(<ClusterCertificate />),
           },
-        ]
+        ],
       },
       {
         path: "/",

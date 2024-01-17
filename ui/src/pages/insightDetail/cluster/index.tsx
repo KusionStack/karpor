@@ -17,25 +17,24 @@ import { generateTopologyData } from "../../../utils/tools";
 
 import styles from "./styles.module.less";
 
-
-
 const ClusterDetail = () => {
   const location = useLocation();
-  const urlParams = queryString.parse(location?.search)
-  const { type, cluster, kind, namespace, name, key, from, query, apiVersion } = urlParams;
+  const urlParams = queryString.parse(location?.search);
+  const { type, cluster, kind, namespace, name, key, from, query, apiVersion } =
+    urlParams;
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false);
-  const [currentTab, setCurrentTab] = useState('Topology');
+  const [currentTab, setCurrentTab] = useState("Topology");
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [tableQueryStr, setTableQueryStr] = useState('');
-  const [yamlData, setYamlData] = useState('');
-  const [auditList, setAuditList] = useState<any>([])
-  const [auditLoading, setAuditLoading] = useState<any>(false)
-  const [auditStat, setAuditStat] = useState<any>()
-  const [tableName, setTableName] = useState('Pod');
+  const [tableQueryStr, setTableQueryStr] = useState("");
+  const [yamlData, setYamlData] = useState("");
+  const [auditList, setAuditList] = useState<any>([]);
+  const [auditLoading, setAuditLoading] = useState<any>(false);
+  const [auditStat, setAuditStat] = useState<any>();
+  const [tableName, setTableName] = useState("Pod");
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
-  const [summary, setSummary] = useState<any>()
-  const [currentItem, setCurrentItem] = useState<any>()
+  const [summary, setSummary] = useState<any>();
+  const [currentItem, setCurrentItem] = useState<any>();
   const [topologyData, setTopologyData] = useState<any>();
   const [topologyLoading, setTopologyLoading] = useState(false);
 
@@ -49,10 +48,10 @@ const ClusterDetail = () => {
     if (topologyData?.nodes && topologyData?.nodes?.length > 0) {
       const tmp = topologyData?.nodes?.find((item: any) => {
         if (item?.id) {
-          const kindTmp = item?.id?.split('.');
+          const kindTmp = item?.id?.split(".");
           const len = kindTmp?.length;
           const lastKindTmp = kindTmp?.[len - 1];
-          if (lastKindTmp === 'Pod') {
+          if (lastKindTmp === "Pod") {
             return true;
           } else {
             return false;
@@ -60,73 +59,73 @@ const ClusterDetail = () => {
         } else {
           return false;
         }
-      })
+      });
       if (tmp) {
-        const tmpData = tmp?.id?.split('.');
+        const tmpData = tmp?.id?.split(".");
         const len = tmpData?.length;
         const kindVersion = tmpData?.[len - 2];
         const queryStr = `select * from resources where cluster = '${cluster}' and apiVersion = '${kindVersion}' and kind = 'Pod'`;
         setTableQueryStr(queryStr);
       }
     }
-  }, [topologyData, cluster, apiVersion])
+  }, [topologyData, cluster, apiVersion]);
 
   async function handleTabChange(value: string) {
     setCurrentTab(value);
-  };
+  }
 
   async function getAudit(isRescan) {
-    setAuditLoading(true)
+    setAuditLoading(true);
     const response: any = await axios({
       url: `/rest-api/v1/insight/audit`,
-      method: 'GET',
+      method: "GET",
       params: {
         cluster,
         ...(isRescan ? { forceNew: true } : {}),
-      }
+      },
     });
-    setAuditLoading(false)
+    setAuditLoading(false);
     if (response?.success) {
-      setAuditList(response?.data)
+      setAuditList(response?.data);
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || "请求失败，请重试");
     }
-  };
+  }
   async function getAuditScore() {
     const response: any = await axios({
       url: `/rest-api/v1/insight/score`,
-      method: 'GET',
+      method: "GET",
       params: {
         cluster,
-      }
+      },
     });
     if (response?.success) {
-      setAuditStat(response?.data)
+      setAuditStat(response?.data);
     }
-  };
+  }
   async function getClusterDetail() {
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${cluster}`,
       params: {
-        format: 'yaml'
-      }
+        format: "yaml",
+      },
     });
     if (response?.success) {
       setYamlData(response?.data);
     }
-  };
+  }
 
   async function getSummary() {
     const response: any = await axios({
-      url: '/rest-api/v1/insight/summary',
+      url: "/rest-api/v1/insight/summary",
       params: {
         cluster,
-      }
+      },
     });
     if (response?.success) {
-      setSummary(response?.data)
+      setSummary(response?.data);
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || "请求失败，请重试");
     }
   }
 
@@ -134,21 +133,21 @@ const ClusterDetail = () => {
     setTopologyLoading(true);
     try {
       const response: any = await axios({
-        url: '/rest-api/v1/insight/topology',
-        method: 'GET',
+        url: "/rest-api/v1/insight/topology",
+        method: "GET",
         params: {
           cluster,
-        }
+        },
       });
       if (response?.success) {
         const tmpData = generateTopologyData(response?.data);
         setTopologyData(tmpData);
       } else {
-        message.error(response?.message || "请求失败")
+        message.error(response?.message || "请求失败");
       }
-      setTopologyLoading(false)
+      setTopologyLoading(false);
     } catch (error) {
-      setTopologyLoading(false)
+      setTopologyLoading(false);
     }
   }
 
@@ -158,12 +157,11 @@ const ClusterDetail = () => {
     getAuditScore();
     getSummary();
     getTopologyData();
-    if (type === 'kind' && kind) {
-      setTableName(kind as any)
+    if (type === "kind" && kind) {
+      setTableName(kind as any);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, type])
-
+  }, [kind, type]);
 
   function rescan() {
     getAuditScore();
@@ -185,27 +183,30 @@ const ClusterDetail = () => {
 
   async function onTopologyNodeClick(node) {
     const { locator } = node?.data || {};
-    setTableName(locator?.kind)
+    setTableName(locator?.kind);
     const sqlStr = `select * from resources where cluster = '${locator?.cluster}' and apiVersion = '${locator?.apiVersion}' and kind = '${locator?.kind}'`;
-    setTableQueryStr(sqlStr)
+    setTableQueryStr(sqlStr);
   }
 
   function getBreadcrumbs() {
     let first;
-    if (from === 'cluster') {
+    if (from === "cluster") {
       first = {
         title: <NavLink to={"/cluster"}>集群管理</NavLink>,
       };
     }
-    if (from === 'result') {
+    if (from === "result") {
       first = {
         title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
       };
     }
-    const result = [first, {
-      key: cluster,
-      title: cluster,
-    }];
+    const result = [
+      first,
+      {
+        key: cluster,
+        title: cluster,
+      },
+    ];
     setBreadcrumbItems(result);
   }
 
@@ -214,55 +215,57 @@ const ClusterDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, key, cluster, kind, namespace, name]);
 
-
-
-  return <div className={styles.container}>
-    <Breadcrumb
-      style={{ marginBottom: 20 }}
-      separator=">"
-      items={breadcrumbItems} />
-    <ExecptionDrawer
-      open={drawerVisible}
-      onClose={() => setDrawerVisible(false)}
-      execptionList={auditList}
-      execptionStat={auditStat} />
-    <K8sEventDrawer
-      open={k8sDrawerVisible}
-      onClose={() => setK8sDrawerVisible(false)}
-    />
-    <EventDetail
-      open={modalVisible}
-      cancel={() => setModalVisible(false)}
-      onOk={() => setModalVisible(false)}
-      detail={currentItem} />
-    {/* <div className={styles.header}>
+  return (
+    <div className={styles.container}>
+      <Breadcrumb
+        style={{ marginBottom: 20 }}
+        separator=">"
+        items={breadcrumbItems}
+      />
+      <ExecptionDrawer
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        execptionList={auditList}
+        execptionStat={auditStat}
+      />
+      <K8sEventDrawer
+        open={k8sDrawerVisible}
+        onClose={() => setK8sDrawerVisible(false)}
+      />
+      <EventDetail
+        open={modalVisible}
+        cancel={() => setModalVisible(false)}
+        onOk={() => setModalVisible(false)}
+        detail={currentItem}
+      />
+      {/* <div className={styles.header}>
       <ArrowLeftOutlined style={{ marginRight: 10 }} onClick={() => goBack()} />集群接入
     </div> */}
-    <div className={styles.module}>
-      <SummaryCard auditStat={auditStat} summary={summary} />
-      <div className={styles.execption_event}>
-        {/* 异常事件 */}
-        <ExecptionList
-          auditLoading={auditLoading}
-          rescan={rescan}
-          execptionList={auditList}
-          execptionStat={auditStat}
-          showDrawer={showDrawer}
-          onItemClick={onItemClick} />
+      <div className={styles.module}>
+        <SummaryCard auditStat={auditStat} summary={summary} />
+        <div className={styles.execption_event}>
+          {/* 异常事件 */}
+          <ExecptionList
+            auditLoading={auditLoading}
+            rescan={rescan}
+            execptionList={auditList}
+            execptionStat={auditStat}
+            showDrawer={showDrawer}
+            onItemClick={onItemClick}
+          />
+        </div>
       </div>
-    </div>
 
-    {/* 拓扑图 */}
-    < div className={styles.tab_content} >
-      <div className={styles.tab_header}>
-        <KarbourTabs
-          list={tabsList}
-          current={currentTab}
-          onChange={handleTabChange}
-        />
-      </div>
-      {
-        currentTab === 'Topology' && (
+      {/* 拓扑图 */}
+      <div className={styles.tab_content}>
+        <div className={styles.tab_header}>
+          <KarbourTabs
+            list={tabsList}
+            current={currentTab}
+            onChange={handleTabChange}
+          />
+        </div>
+        {currentTab === "Topology" && (
           <>
             <TopologyMap
               tableName={tableName}
@@ -270,28 +273,21 @@ const ClusterDetail = () => {
               topologyLoading={topologyLoading}
               onTopologyNodeClick={onTopologyNodeClick}
             />
-            <SourceTable
-              queryStr={tableQueryStr}
-              tableName={tableName} />
+            <SourceTable queryStr={tableQueryStr} tableName={tableName} />
           </>
-        )
-      }
-      {
-        currentTab === 'YAML' && (
-          <Yaml data={yamlData || ''} />
-        )
-      }
-      {
-        currentTab === 'K8s' && (
+        )}
+        {currentTab === "YAML" && <Yaml data={yamlData || ""} />}
+        {currentTab === "K8s" && (
           <K8sEvent
             rescan={rescan}
             execptionList={[1, 2, 3, 4, 5]}
             showDrawer={showK8sDrawer}
-            onItemClick={onItemClick} />
-        )
-      }
-    </div >
-  </div >
-}
+            onItemClick={onItemClick}
+          />
+        )}
+      </div>
+    </div>
+  );
+};
 
 export default ClusterDetail;

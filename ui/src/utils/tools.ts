@@ -1,18 +1,19 @@
-import yaml from 'js-yaml';
-import moment from 'moment';
-
+import yaml from "js-yaml";
+import moment from "moment";
 
 export function truncationPageData({ list, page, pageSize }) {
-  return list && list?.length > 0 ? list?.slice((page - 1) * pageSize, page * pageSize) : [];
+  return list && list?.length > 0
+    ? list?.slice((page - 1) * pageSize, page * pageSize)
+    : [];
 }
 
-export function utcDateToLocalDate(date, FMT = 'YYYY-MM-DD HH:mm:ss') {
-  return moment.utc(date).local().format(FMT)
+export function utcDateToLocalDate(date, FMT = "YYYY-MM-DD HH:mm:ss") {
+  return moment.utc(date).local().format(FMT);
 }
 
 // 求次幂
 function pow1024(num) {
-  return Math.pow(1024, num)
+  return Math.pow(1024, num);
 }
 
 /**
@@ -21,27 +22,23 @@ function pow1024(num) {
  * @returns {string|*}
  */
 export const filterSize = (size) => {
-
-  if (!size) return '';
-  if (size < pow1024(1)) return size + ' B';
-  if (size < pow1024(2)) return (size / pow1024(1)).toFixed(2) + ' KB';
-  if (size < pow1024(3)) return (size / pow1024(2)).toFixed(2) + ' MB';
-  if (size < pow1024(4)) return (size / pow1024(3)).toFixed(2) + ' GB';
-  return (size / pow1024(4)).toFixed(2) + ' TB'
-}
-
-
-
+  if (!size) return "";
+  if (size < pow1024(1)) return size + " B";
+  if (size < pow1024(2)) return (size / pow1024(1)).toFixed(2) + " KB";
+  if (size < pow1024(3)) return (size / pow1024(2)).toFixed(2) + " MB";
+  if (size < pow1024(4)) return (size / pow1024(3)).toFixed(2) + " GB";
+  return (size / pow1024(4)).toFixed(2) + " TB";
+};
 
 export function format_with_regex(number) {
-  return !(number + '').includes('.')
+  return !(number + "").includes(".")
     ? // 就是说1-3位后面一定要匹配3位
-    (number + '').replace(/\d{1,3}(?=(\d{3})+$)/g, (match) => {
-      return match + ',';
-    })
-    : (number + '').replace(/\d{1,3}(?=(\d{3})+(\.))/g, (match) => {
-      return match + ',';
-    });
+      (number + "").replace(/\d{1,3}(?=(\d{3})+$)/g, (match) => {
+        return match + ",";
+      })
+    : (number + "").replace(/\d{1,3}(?=(\d{3})+(\.))/g, (match) => {
+        return match + ",";
+      });
 }
 
 export const yaml2json = (yamlStr: string) => {
@@ -52,12 +49,11 @@ export const yaml2json = (yamlStr: string) => {
     };
   } catch (err) {
     return {
-      data: '',
+      data: "",
       error: true,
     };
   }
 };
-
 
 export function generateTopologyData(data) {
   const nodes = [];
@@ -101,8 +97,7 @@ export function generateTopologyData(data) {
     }
   }
 
-
-  return { nodes, edges }
+  return { nodes, edges };
 }
 
 export function generateResourceTopologyData(data) {
@@ -126,42 +121,41 @@ export function generateResourceTopologyData(data) {
   };
 
   // Iterate over the data and populate nodes and edges
-  Object.keys(data).forEach(key => {
+  Object.keys(data).forEach((key) => {
     const entity = data[key];
 
     // Add the entity as a node
-    addNode(key, key.split(':')[1].split('.')[1], entity?.locator);
+    addNode(key, key.split(":")[1].split(".")[1], entity?.locator);
 
     // Add edges for all children with duplication check
-    entity.children.forEach(child => {
+    entity.children.forEach((child) => {
       addEdge(key, child);
     });
 
     // Add edges for all parents with duplication check
     if (entity.Parents) {
-      entity.Parents.forEach(parent => {
+      entity.Parents.forEach((parent) => {
         addEdge(parent, key);
       });
     }
   });
-  return { nodes, edges }
+  return { nodes, edges };
 }
 
 export function getDataType(data) {
   const map = new Map();
-  map.set('[object String]', 'String');
-  map.set('[object Number]', 'Number');
-  map.set('[object Boolean]', 'Boolean');
-  map.set('[object Symbol]', 'Symbol');
-  map.set('[object Undefined]', 'Undefined');
-  map.set('[object Null]', 'Null');
-  map.set('[object Function]', 'Function');
-  map.set('[object Date]', 'Date');
-  map.set('[object Array]', 'Array');
-  map.set('[object RegExp]', 'RegExp');
-  map.set('[object Error]', 'Error');
-  map.set('[object HTMLDocument]', 'HTMLDocument');
+  map.set("[object String]", "String");
+  map.set("[object Number]", "Number");
+  map.set("[object Boolean]", "Boolean");
+  map.set("[object Symbol]", "Symbol");
+  map.set("[object Undefined]", "Undefined");
+  map.set("[object Null]", "Null");
+  map.set("[object Function]", "Function");
+  map.set("[object Date]", "Date");
+  map.set("[object Array]", "Array");
+  map.set("[object RegExp]", "RegExp");
+  map.set("[object Error]", "Error");
+  map.set("[object HTMLDocument]", "HTMLDocument");
   const type = Object.prototype.toString.call(data);
   return map.get(type);
 }
-

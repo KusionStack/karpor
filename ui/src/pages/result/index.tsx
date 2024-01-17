@@ -1,14 +1,21 @@
 import { useState, useEffect, useRef } from "react";
-import { Pagination, Empty, Space, Button, Divider, message, AutoComplete, Tooltip, Input } from "antd";
+import {
+  Pagination,
+  Empty,
+  Space,
+  Button,
+  Divider,
+  message,
+  AutoComplete,
+  Tooltip,
+  Input,
+} from "antd";
 import axios from "axios";
 import { useLocation, useNavigate } from "react-router-dom";
-import {
-  ClockCircleOutlined, CloseOutlined,
-} from "@ant-design/icons";
+import { ClockCircleOutlined, CloseOutlined } from "@ant-design/icons";
 import queryString from "query-string";
 import KarbourTabs from "../../components/Tabs/index";
 import { searchPrefix } from "../../utils/constants";
-
 
 import { utcDateToLocalDate } from "../../utils/tools";
 import Loading from "../../components/loading";
@@ -46,7 +53,6 @@ import crd from "../../assets/labeled/crd-128.png";
 
 import styles from "./styles.module.less";
 
-
 // crd 用来做所有用户自定义的非原生的资源图标
 const ICON_MAP = {
   ClusterRole: cRole,
@@ -82,7 +88,7 @@ const ICON_MAP = {
   Node: nodeIcon,
   InPlaceSet: crd,
   PodDisruptionBudget: crd,
-}
+};
 
 const tabsList = [
   { label: "按照关键字搜索", value: "keyword", disabled: true },
@@ -98,7 +104,7 @@ const Result = () => {
   const [searchParams, setSearchParams] = useState({
     pageSize: 20,
     page: 1,
-    query: urlSearchParams?.query || '',
+    query: urlSearchParams?.query || "",
     total: 0,
   });
   const [options, setOptions] = useState<{ value: string }[]>([]);
@@ -107,7 +113,9 @@ const Result = () => {
   const optionsRef = useRef<any>(getHistoryList());
 
   function getHistoryList() {
-    const historyList: any = localStorage?.getItem(`${searchType}History`) ? JSON.parse(localStorage?.getItem(`${searchType}History`)) : [];
+    const historyList: any = localStorage?.getItem(`${searchType}History`)
+      ? JSON.parse(localStorage?.getItem(`${searchType}History`))
+      : [];
     return historyList;
   }
 
@@ -115,7 +123,7 @@ const Result = () => {
     const lastHistory: any = localStorage.getItem(`${searchType}History`);
     const tmp = lastHistory ? JSON.parse(lastHistory) : [];
     if (tmp?.length > 0 && tmp?.includes(val)) {
-      const newList = tmp?.filter(item => item !== val);
+      const newList = tmp?.filter((item) => item !== val);
       localStorage.setItem(`${searchType}History`, JSON.stringify(newList));
     }
   }
@@ -123,49 +131,52 @@ const Result = () => {
   function deleteItem(event, value) {
     event.preventDefault();
     event.stopPropagation();
-    deleteHistoryByItem(searchType, value)
+    deleteHistoryByItem(searchType, value);
     optionsRef.current = getHistoryList();
     setOptionsCopy(optionsRef.current);
   }
 
   useEffect(() => {
-    const tmpOption = optionsRef.current?.map(item => ({
-      label: (<div className={styles.option_item}>
-        <div className={styles.option_item_label}>{item}</div>
-        <div className={styles.option_item_delete}
-          onClick={(event) => deleteItem(event, item)}
-        >
-          <CloseOutlined style={{ color: '#808080' }} />
+    const tmpOption = optionsRef.current?.map((item) => ({
+      label: (
+        <div className={styles.option_item}>
+          <div className={styles.option_item_label}>{item}</div>
+          <div
+            className={styles.option_item_delete}
+            onClick={(event) => deleteItem(event, item)}
+          >
+            <CloseOutlined style={{ color: "#808080" }} />
+          </div>
         </div>
-      </div>),
+      ),
       value: item,
-    }))
+    }));
     setOptions(tmpOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optionsCopy])
+  }, [optionsCopy]);
 
   function handleTabChange(value: string) {
     setSearchType(value);
-  };
+  }
 
   function handleChangePage(page: number, pageSize: number) {
     getPageData({
       ...searchParams,
       page,
       pageSize,
-    })
+    });
   }
 
   async function getPageData(params) {
-    setLoading(true)
+    setLoading(true);
     const response: any = await axios("/rest-api/v1/search", {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
       params: {
-        query: `${searchPrefix} ${(params?.query || searchParams?.query)}`, // encodeURIComponent(searchValue as any),
-        ...(searchType === 'sql' ? { pattern: "sql", } : {}),
+        query: `${searchPrefix} ${params?.query || searchParams?.query}`, // encodeURIComponent(searchValue as any),
+        ...(searchType === "sql" ? { pattern: "sql" } : {}),
         page: params?.page || searchParams?.page,
         pageSize: params?.pageSize || searchParams?.pageSize,
       },
@@ -176,30 +187,29 @@ const Result = () => {
         ...searchParams,
         ...params,
         total: response?.data?.total,
-      })
+      });
       const objParams = {
         ...urlSearchParams,
         query: params?.query || searchParams?.query,
-      }
+      };
       const urlString = queryString.stringify(objParams);
-      navigate(`${location?.pathname}?${urlString}`, { replace: true })
+      navigate(`${location?.pathname}?${urlString}`, { replace: true });
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || "请求失败，请重试");
     }
-    setLoading(false)
+    setLoading(false);
   }
 
   useEffect(() => {
     getPageData(searchParams);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-
   function handleInputChange(value: any) {
     setSearchParams({
       ...searchParams,
       query: value,
-    })
-  };
+    });
+  }
 
   function cacheHistory(searchType: string, val: string) {
     const lastHistory: any = localStorage.getItem(`${searchType}History`);
@@ -207,7 +217,7 @@ const Result = () => {
     if (tmp?.length > 0 && tmp?.includes(val)) {
       return;
     } else {
-      const newList = [val, ...tmp]
+      const newList = [val, ...tmp];
       localStorage.setItem(`${searchType}History`, JSON.stringify(newList));
       optionsRef.current = getHistoryList();
       setOptionsCopy(optionsRef.current);
@@ -220,7 +230,7 @@ const Result = () => {
     //   return
     // }
     if (searchParams?.query) {
-      cacheHistory(searchType, searchParams?.query as any)
+      cacheHistory(searchType, searchParams?.query as any);
     }
     getPageData({
       ...searchParams,
@@ -229,43 +239,44 @@ const Result = () => {
   }
 
   const handleClick = (item: any, key: string) => {
-    const nav = key === 'name' ? 'resource' : key
+    const nav = key === "name" ? "resource" : key;
     const objParams = {
-      from: 'result',
+      from: "result",
       cluster: item?.cluster,
       apiVersion: item?.object?.apiVersion,
       type: key,
       kind: item?.object?.kind,
       namespace: item?.object?.metadata?.namespace,
       name: item?.object?.metadata?.name,
-      query: searchParams?.query
-    }
+      query: searchParams?.query,
+    };
     const urlParams = queryString.stringify(objParams);
     navigate(`/insightDetail/${nav}?${urlParams}`);
   };
 
   const handleTitleClick = (item: any, kind: string) => {
-    const nav = kind === 'Namespace' ? 'namespace' : 'resource';
+    const nav = kind === "Namespace" ? "namespace" : "resource";
     const objParams = {
-      from: 'result',
+      from: "result",
       cluster: item?.cluster,
       apiVersion: item?.object?.apiVersion,
       type: nav,
       kind: item?.object?.kind,
-      ...(nav === 'namespace' ? { namespace: item?.object?.metadata?.name } : { namespace: item?.object?.metadata?.namespace }),
-      ...(nav === 'resource' ? { name: item?.object?.metadata?.name, } : {}),
-      query: searchParams?.query
-    }
+      ...(nav === "namespace"
+        ? { namespace: item?.object?.metadata?.name }
+        : { namespace: item?.object?.metadata?.namespace }),
+      ...(nav === "resource" ? { name: item?.object?.metadata?.name } : {}),
+      query: searchParams?.query,
+    };
     const urlParams = queryString.stringify(objParams);
     navigate(`/insightDetail/${nav}?${urlParams}`);
-  }
+  };
 
   function handleOnkeyUp(event) {
     if (event?.code === "Enter" && event?.keyCode === 13) {
-      handleSearch()
+      handleSearch();
     }
   }
-
 
   return (
     <div className={styles.container}>
@@ -284,97 +295,134 @@ const Result = () => {
             options={options}
             // onSearch={(text) => }
             placeholder={
-              searchType === "keyword" ? "支持搜索集群，集群资源（service/pod/cafed）..." : "支持 SQL 语句查询"
+              searchType === "keyword"
+                ? "支持搜索集群，集群资源（service/pod/cafed）..."
+                : "支持 SQL 语句查询"
             }
             filterOption={(inputValue, option) =>
-              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
+              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              -1
             }
             style={{ width: 600 }}
             value={searchParams?.query}
             allowClear={true}
             onChange={handleInputChange}
           />
-          <Button type="primary" onClick={handleSearch}>搜索</Button>
+          <Button type="primary" onClick={handleSearch}>
+            搜索
+          </Button>
         </Space.Compact>
       </div>
       <div className={styles.content}>
-        {
-          loading ? (
-            <div style={{ height: 500, display: 'flex', justifyContent: 'center' }}>
-              <Loading />
+        {loading ? (
+          <div
+            style={{ height: 500, display: "flex", justifyContent: "center" }}
+          >
+            <Loading />
+          </div>
+        ) : pageData && pageData?.length > 0 ? (
+          <>
+            {/* 汇总 */}
+            <div className={styles.stat}>
+              <div>约&nbsp;{searchParams?.total}&nbsp;条搜索结果</div>
             </div>
-          ) : (
-            pageData && pageData?.length > 0 ? <>
-              {/* 汇总 */}
-              <div className={styles.stat}>
-                <div>约&nbsp;{searchParams?.total}&nbsp;条搜索结果</div>
-              </div>
-              {pageData?.map((item: any, index: number) => {
-                return (
-                  <div
-                    className={styles.card}
-                    key={`${item?.name}_${index}`}
-                  >
-                    <div className={styles.left}>
-                      <img src={ICON_MAP?.[item?.object?.kind] || crd} alt="icon" />
+            {pageData?.map((item: any, index: number) => {
+              return (
+                <div className={styles.card} key={`${item?.name}_${index}`}>
+                  <div className={styles.left}>
+                    <img
+                      src={ICON_MAP?.[item?.object?.kind] || crd}
+                      alt="icon"
+                    />
+                  </div>
+                  <div className={styles.right}>
+                    <div
+                      className={styles.top}
+                      onClick={() => handleTitleClick(item, item?.object?.kind)}
+                    >
+                      {item?.object?.metadata?.name || "--"}
                     </div>
-                    <div className={styles.right}>
-                      <div className={styles.top} onClick={() => handleTitleClick(item, item?.object?.kind)}>
-                        {item?.object?.metadata?.name || '--'}
+                    <div className={styles.bottom}>
+                      <div
+                        className={styles.item}
+                        onClick={() => handleClick(item, "cluster")}
+                      >
+                        <span className={styles.api_icon}>Cluster</span>
+                        <span className={styles.label}>
+                          {item?.cluster || "--"}
+                        </span>
                       </div>
-                      <div className={styles.bottom}>
-                        <div className={styles.item} onClick={() => handleClick(item, "cluster")}>
-                          <span className={styles.api_icon}>Cluster</span>
-                          <span className={styles.label}>{item?.cluster || '--'}</span>
-                        </div>
-                        <Divider type="vertical" />
-                        <div className={`${styles.item} ${styles.disable}`}>
-                          <span className={styles.api_icon}>APIVersion</span>
-                          <span className={styles.label}>{item?.object?.apiVersion || '--'}</span>
-                        </div>
-                        <Divider type="vertical" />
-                        <div className={styles.item} onClick={() => handleClick(item, "kind")}>
-                          <span className={styles.api_icon}>Kind</span>
-                          <span className={styles.label}>{item?.object?.kind || '--'}</span>
-                        </div>
-                        <Divider type="vertical" />
-                        {
-                          item?.object?.metadata?.namespace && <>
-                            <div className={styles.item} onClick={() => handleClick(item, "namespace")}>
-                              <span className={styles.api_icon}>Namespace</span>
-                              <span className={styles.label}>{item?.object?.metadata?.namespace || '--'}</span>
-                            </div>
-                            <Divider type="vertical" />
-                          </>
-                        }
-                        <div className={`${styles.item} ${styles.disable}`}>
-                          <ClockCircleOutlined />
-                          <Tooltip title="创建时间">
-                            <span className={styles.label}>{utcDateToLocalDate(item?.object?.metadata?.creationTimestamp) || '--'}</span>
-                          </Tooltip>
-                        </div>
+                      <Divider type="vertical" />
+                      <div className={`${styles.item} ${styles.disable}`}>
+                        <span className={styles.api_icon}>APIVersion</span>
+                        <span className={styles.label}>
+                          {item?.object?.apiVersion || "--"}
+                        </span>
+                      </div>
+                      <Divider type="vertical" />
+                      <div
+                        className={styles.item}
+                        onClick={() => handleClick(item, "kind")}
+                      >
+                        <span className={styles.api_icon}>Kind</span>
+                        <span className={styles.label}>
+                          {item?.object?.kind || "--"}
+                        </span>
+                      </div>
+                      <Divider type="vertical" />
+                      {item?.object?.metadata?.namespace && (
+                        <>
+                          <div
+                            className={styles.item}
+                            onClick={() => handleClick(item, "namespace")}
+                          >
+                            <span className={styles.api_icon}>Namespace</span>
+                            <span className={styles.label}>
+                              {item?.object?.metadata?.namespace || "--"}
+                            </span>
+                          </div>
+                          <Divider type="vertical" />
+                        </>
+                      )}
+                      <div className={`${styles.item} ${styles.disable}`}>
+                        <ClockCircleOutlined />
+                        <Tooltip title="创建时间">
+                          <span className={styles.label}>
+                            {utcDateToLocalDate(
+                              item?.object?.metadata?.creationTimestamp,
+                            ) || "--"}
+                          </span>
+                        </Tooltip>
                       </div>
                     </div>
                   </div>
-                );
-              })}
-              <div className={styles.footer}>
-                <Pagination
-                  total={searchParams?.total}
-                  showTotal={(total: number, range: any[]) =>
-                    `${range[0]}-${range[1]} 共 ${total} 条`
-                  }
-                  pageSize={searchParams?.pageSize}
-                  current={searchParams?.page}
-                  onChange={handleChangePage}
-                />
-              </div>
-            </>
-              : <div style={{ height: 500, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
-                <Empty />
-              </div>
-          )
-        }
+                </div>
+              );
+            })}
+            <div className={styles.footer}>
+              <Pagination
+                total={searchParams?.total}
+                showTotal={(total: number, range: any[]) =>
+                  `${range[0]}-${range[1]} 共 ${total} 条`
+                }
+                pageSize={searchParams?.pageSize}
+                current={searchParams?.page}
+                onChange={handleChangePage}
+              />
+            </div>
+          </>
+        ) : (
+          <div
+            style={{
+              height: 500,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Empty />
+          </div>
+        )}
       </div>
     </div>
   );

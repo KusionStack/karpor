@@ -1,31 +1,29 @@
 import { Progress, Dropdown, Space, Input, Select } from "antd";
 import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-import type { MenuProps } from 'antd';
+import type { MenuProps } from "antd";
 import Card from "./card";
 
 import styles from "./styles.module.less";
 
 const Insight = () => {
-
-  const items: MenuProps['items'] = [
+  const items: MenuProps["items"] = [
     {
-      key: '1',
+      key: "1",
       label: "label1",
     },
     {
-      key: '2',
-      label: 'label2',
+      key: "2",
+      label: "label2",
       disabled: true,
     },
     {
-      key: '3',
+      key: "3",
       danger: true,
-      label: 'a danger item',
+      label: "a danger item",
     },
   ];
 
-  function handleChangeSelect(item) {
-  }
+  function handleChangeSelect(item) {}
 
   return (
     <div className={styles.container}>
@@ -33,19 +31,37 @@ const Insight = () => {
       <div className={styles.content}>
         <div className={styles.header}>
           <Dropdown menu={{ items }}>
-            <div className={styles.dropText} onClick={(e) => e.preventDefault()}>
-              <Space style={{ color: 'rgba(0,10,26,0.89)', fontWeight: 500, fontSize: 14 }}>
+            <div
+              className={styles.dropText}
+              onClick={(e) => e.preventDefault()}
+            >
+              <Space
+                style={{
+                  color: "rgba(0,10,26,0.89)",
+                  fontWeight: 500,
+                  fontSize: 14,
+                }}
+              >
                 Hover me
                 <DownOutlined style={{ paddingTop: 3 }} />
               </Space>
             </div>
           </Dropdown>
-          <div className={styles.selectTips}><span className={styles.bulb}>💡 </span>点击下拉切换资源类型</div>
+          <div className={styles.selectTips}>
+            <span className={styles.bulb}>💡 </span>点击下拉切换资源类型
+          </div>
         </div>
         <div className={styles.stat}>
           <div className={styles.circle}>
             {/* <MemoPiePercent width={96} height={96}/> */}
-            <Progress type="circle" percent={80} size={96} strokeColor="#59D226" trailColor="#2F54EB" format={() => '集群'} />
+            <Progress
+              type="circle"
+              percent={80}
+              size={96}
+              strokeColor="#59D226"
+              trailColor="#2F54EB"
+              format={() => "集群"}
+            />
           </div>
           <div className={styles.all}>
             <Card title="集群总数" value={5000} />
@@ -67,13 +83,17 @@ const Insight = () => {
               style={{ width: 124 }}
               onChange={handleChangeSelect}
               options={[
-                { value: 'jack', label: 'Jack' },
-                { value: 'lucy', label: 'Lucy' },
-                { value: 'Yiminghe', label: 'yiminghe' },
-                { value: 'disabled', label: 'Disabled', disabled: true },
+                { value: "jack", label: "Jack" },
+                { value: "lucy", label: "Lucy" },
+                { value: "Yiminghe", label: "yiminghe" },
+                { value: "disabled", label: "Disabled", disabled: true },
               ]}
             />
-            <Input style={{ width: 160, marginLeft: 16 }} placeholder="请输入搜索关键字" suffix={<SearchOutlined />} />
+            <Input
+              style={{ width: 160, marginLeft: 16 }}
+              placeholder="请输入搜索关键字"
+              suffix={<SearchOutlined />}
+            />
           </div>
         </div>
       </div>

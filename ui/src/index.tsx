@@ -14,10 +14,11 @@ dayjs.locale("zh-cn");
 
 function App() {
   return (
-    <ConfigProvider locale={zhCN}
+    <ConfigProvider
+      locale={zhCN}
       theme={{
         token: {
-          colorPrimary: '#2F54EB',
+          colorPrimary: "#2F54EB",
         },
       }}
     >
@@ -29,6 +30,6 @@ function App() {
 }
 
 const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
+  document.getElementById("root") as HTMLElement,
 );
 root.render(<App />);

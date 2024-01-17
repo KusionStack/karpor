@@ -17,7 +17,11 @@
 import { useEffect, useRef, useState } from "react";
 import { Button, Input, Tag, Space, AutoComplete } from "antd";
 import { useNavigate } from "react-router-dom";
-import { CloseOutlined, DeleteOutlined, HistoryOutlined } from "@ant-design/icons";
+import {
+  CloseOutlined,
+  DeleteOutlined,
+  HistoryOutlined,
+} from "@ant-design/icons";
 import { searchPrefix } from "../../utils/constants";
 import KarbourTabs from "../../components/Tabs/index";
 // import SqlSearchBox from "./components/sqlSearchBox/index";
@@ -32,7 +36,7 @@ const tabsList = [
 
 const SearchPage = () => {
   const navigate = useNavigate();
-  const [searchType, setSearchType] = useState<string>('sql');
+  const [searchType, setSearchType] = useState<string>("sql");
   const [inputValue, setInputValue] = useState("");
   const [open, setOpen] = useState<boolean>(false);
   const [options, setOptions] = useState<{ value: string }[]>([]);
@@ -40,7 +44,9 @@ const SearchPage = () => {
   const optionsRef = useRef<any>(getHistoryList());
 
   function getHistoryList() {
-    const historyList: any = localStorage?.getItem(`${searchType}History`) ? JSON.parse(localStorage?.getItem(`${searchType}History`)) : [];
+    const historyList: any = localStorage?.getItem(`${searchType}History`)
+      ? JSON.parse(localStorage?.getItem(`${searchType}History`))
+      : [];
     return historyList;
   }
 
@@ -48,7 +54,7 @@ const SearchPage = () => {
     const lastHistory: any = localStorage.getItem(`${searchType}History`);
     const tmp = lastHistory ? JSON.parse(lastHistory) : [];
     if (tmp?.length > 0 && tmp?.includes(val)) {
-      const newList = tmp?.filter(item => item !== val);
+      const newList = tmp?.filter((item) => item !== val);
       localStorage.setItem(`${searchType}History`, JSON.stringify(newList));
     }
   }
@@ -56,26 +62,29 @@ const SearchPage = () => {
   function deleteItem(event, value) {
     event.preventDefault();
     event.stopPropagation();
-    deleteHistoryByItem(searchType, value)
+    deleteHistoryByItem(searchType, value);
     optionsRef.current = getHistoryList();
     setOptionsCopy(optionsRef.current);
   }
 
   useEffect(() => {
-    const tmpOption = optionsRef.current?.map(item => ({
-      label: (<div className={styles.option_item}>
-        <div className={styles.option_item_label}>{item}</div>
-        <div className={styles.option_item_delete}
-          onClick={(event) => deleteItem(event, item)}
-        >
-          <CloseOutlined style={{ color: '#808080' }} />
+    const tmpOption = optionsRef.current?.map((item) => ({
+      label: (
+        <div className={styles.option_item}>
+          <div className={styles.option_item_label}>{item}</div>
+          <div
+            className={styles.option_item_delete}
+            onClick={(event) => deleteItem(event, item)}
+          >
+            <CloseOutlined style={{ color: "#808080" }} />
+          </div>
         </div>
-      </div>),
+      ),
       value: item,
-    }))
+    }));
     setOptions(tmpOption);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optionsCopy])
+  }, [optionsCopy]);
 
   const handleTabChange = (value: string) => {
     setSearchType(value);
@@ -87,7 +96,7 @@ const SearchPage = () => {
     if (tmp?.length > 0 && tmp?.includes(val)) {
       return;
     } else {
-      const newList = [val, ...tmp]
+      const newList = [val, ...tmp];
       localStorage.setItem(`${searchType}History`, JSON.stringify(newList));
       optionsRef.current = getHistoryList();
       setOptionsCopy(optionsRef.current);
@@ -100,9 +109,9 @@ const SearchPage = () => {
     //   return
     // }
     if (inputValue) {
-      cacheHistory(searchType, inputValue)
+      cacheHistory(searchType, inputValue);
     }
-    if (searchType.toLocaleUpperCase() === 'sql') {
+    if (searchType.toLocaleUpperCase() === "sql") {
       navigate(`/search/result?query=${inputValue}&pattern=sql`);
     } else {
       navigate(`/search/result?query=${inputValue}&pattern=sql`);
@@ -128,16 +137,17 @@ const SearchPage = () => {
 
   function handleOnkeyUp(event) {
     if (event?.code === "Enter" && event?.keyCode === 13) {
-      handleSearch()
+      handleSearch();
     }
   }
 
   return (
-    <div className={styles.search}
+    <div
+      className={styles.search}
       onClick={(evt) => {
         evt.preventDefault();
         evt.stopPropagation();
-        setOpen(false)
+        setOpen(false);
       }}
     >
       <div className={styles.title}>
@@ -181,37 +191,56 @@ const SearchPage = () => {
             options={options}
             // onSearch={(text) => }
             placeholder={
-              searchType === "keyword" ? "支持搜索集群，集群资源（service/pod/cafed）..." : "支持 SQL 语句查询"
+              searchType === "keyword"
+                ? "支持搜索集群，集群资源（service/pod/cafed）..."
+                : "支持 SQL 语句查询"
             }
             filterOption={(inputValue, option: any) => {
-              return option!.value?.toUpperCase().indexOf(inputValue.toUpperCase()) !== -1
-            }
-            }
+              return (
+                option!.value
+                  ?.toUpperCase()
+                  .indexOf(inputValue.toUpperCase()) !== -1
+              );
+            }}
             style={{ width: 600 }}
             value={inputValue}
             allowClear={true}
             onChange={handleInputChange}
           />
-          <Button type="primary" onClick={handleSearch}>搜索</Button>
+          <Button type="primary" onClick={handleSearch}>
+            搜索
+          </Button>
         </Space.Compact>
-        {
-          open && <div className={styles.searchPanel} onFocus={handlePanelFocus}
+        {open && (
+          <div
+            className={styles.searchPanel}
+            onFocus={handlePanelFocus}
             onClick={(evt) => {
               evt.preventDefault();
               evt.stopPropagation();
             }}
           >
             <div className={styles.history}>
-              <div className={styles.left}><HistoryOutlined /> 历史记录</div>
-              <div className={styles.right} onClick={deleteHistory}><DeleteOutlined /> 清空</div>
+              <div className={styles.left}>
+                <HistoryOutlined /> 历史记录
+              </div>
+              <div className={styles.right} onClick={deleteHistory}>
+                <DeleteOutlined /> 清空
+              </div>
             </div>
             <div className={styles.historyList}>
-              {
-                options?.length ? options?.length > 0 && options?.map((item: any) => {
-                  return <Tag onClick={() => setInputValue(item)} key={item}>{item}</Tag>
+              {options?.length ? (
+                options?.length > 0 &&
+                options?.map((item: any) => {
+                  return (
+                    <Tag onClick={() => setInputValue(item)} key={item}>
+                      {item}
+                    </Tag>
+                  );
                 })
-                  : <div>暂无历史记录</div>
-              }
+              ) : (
+                <div>暂无历史记录</div>
+              )}
             </div>
             {/* <div className={styles.recommand}>
               <div className={styles.recommandTitle}>🔥 热门推荐</div>
@@ -222,7 +251,7 @@ const SearchPage = () => {
               }</div>
             </div> */}
           </div>
-        }
+        )}
       </div>
       {/* codeMirror */}
       {/* <div>
@@ -230,56 +259,138 @@ const SearchPage = () => {
         <button onClick={handleSearch}>搜索</button>
       </div> */}
       <div className={styles.examples}>
-        {
-          searchType === 'keyword'
-            ? <div className={styles.keywords}>
-              <div className={styles.keywordsTitle}>
-                关键字搜索案例
-              </div>
-              <div className={styles.item}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}>"my-application"</Tag>
-              </div>
-              <div className={styles.item}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>name:</span>/.*my-application.*/kind:pod</Tag>
-              </div>
-              <div className={styles.item}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>cluster:</span>xxxkind:service</Tag>
-              </div>
+        {searchType === "keyword" ? (
+          <div className={styles.keywords}>
+            <div className={styles.keywordsTitle}>关键字搜索案例</div>
+            <div className={styles.item}>
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                "my-application"
+              </Tag>
             </div>
-            : <div className={styles.sql}>
-              <div className={styles.keywordsTitle}>
-                SQL 搜索案例
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind='Namespace'`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>kind='Namespace'</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind!='Pod'`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>kind!='Pod'</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where namespace='default'`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>namespace='default'</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where cluster='democluster' and kind='Pod'`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>cluster='democluster' and kind='Pod'</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind not in ('pod','service')`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>kind not in ('pod','service')</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind='Service' order by object.metadata.creationTimestamp desc`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>kind='Service' order by object.metadata.creationTimestamp desc</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>{`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}</Tag>
-              </div>
-              <div className={styles.item} onClick={() => handleClickSql(`where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`)}>
-                <Tag bordered={false} color="#fff" style={{ color: '#000' }}><span className={styles.keyword}>select</span> * <span className={styles.keyword}>from</span> resources <span className={styles.keyword}>where </span>kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z'<br/> and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp</Tag>
-              </div>
+            <div className={styles.item}>
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>name:</span>
+                /.*my-application.*/kind:pod
+              </Tag>
             </div>
-        }
+            <div className={styles.item}>
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>cluster:</span>xxxkind:service
+              </Tag>
+            </div>
+          </div>
+        ) : (
+          <div className={styles.sql}>
+            <div className={styles.keywordsTitle}>SQL 搜索案例</div>
+            <div
+              className={styles.item}
+              onClick={() => handleClickSql(`where kind='Namespace'`)}
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>kind='Namespace'
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() => handleClickSql(`where kind!='Pod'`)}
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>kind!='Pod'
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() => handleClickSql(`where namespace='default'`)}
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>
+                namespace='default'
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() =>
+                handleClickSql(`where cluster='democluster' and kind='Pod'`)
+              }
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>
+                cluster='democluster' and kind='Pod'
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() =>
+                handleClickSql(`where kind not in ('pod','service')`)
+              }
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>kind not in
+                ('pod','service')
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() =>
+                handleClickSql(
+                  `where kind='Service' order by object.metadata.creationTimestamp desc`,
+                )
+              }
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>kind='Service'
+                order by object.metadata.creationTimestamp desc
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() =>
+                handleClickSql(
+                  `where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`,
+                )
+              }
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>
+                {`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}
+              </Tag>
+            </div>
+            <div
+              className={styles.item}
+              onClick={() =>
+                handleClickSql(
+                  `where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`,
+                )
+              }
+            >
+              <Tag bordered={false} color="#fff" style={{ color: "#000" }}>
+                <span className={styles.keyword}>select</span> *{" "}
+                <span className={styles.keyword}>from</span> resources{" "}
+                <span className={styles.keyword}>where </span>kind='Pod' and
+                object.metadata.creationTimestamp between '2024-01-01T18:00:00Z'
+                <br /> and '2024-01-11T18:00:00Z' order by
+                object.metadata.creationTimestamp
+              </Tag>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
 };
 
 export default SearchPage;
-

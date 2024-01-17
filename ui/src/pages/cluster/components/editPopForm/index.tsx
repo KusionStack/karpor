@@ -1,12 +1,10 @@
-import { Popover, Form, Input, Button, Space } from "antd"
+import { Popover, Form, Input, Button, Space } from "antd";
 import { useEffect, useState } from "react";
 
 const { TextArea } = Input;
 
-
 export const EditForm = ({ submit, cancel, lastDetail }) => {
   const [form] = Form.useForm();
-
 
   useEffect(() => {
     if (lastDetail) {
@@ -14,57 +12,75 @@ export const EditForm = ({ submit, cancel, lastDetail }) => {
         name: lastDetail?.metadata?.name,
         displayName: lastDetail?.spec?.displayName,
         description: lastDetail?.spec?.description,
-      })
+      });
     }
-  }, [lastDetail, form])
+  }, [lastDetail, form]);
 
   function onFinish(values: any) {
     submit(values, () => {
-      onCancel()
+      onCancel();
     });
-  };
+  }
 
   function onCancel() {
     form.resetFields();
     cancel();
   }
 
-  return <div style={{ width: 320, padding: '20px 20px 0 20px' }}>
-    <Form form={form} layout="vertical" onFinish={onFinish}>
-      <Form.Item name="name" label="集群名称" rules={[{ required: true }]}>
-        <Input disabled />
-      </Form.Item>
-      <Form.Item name="displayName" label="显示名称" rules={[{ required: true }]}>
-        <Input />
-      </Form.Item>
-      <Form.Item name="description" label="集群描述" rules={[{ required: true }]}>
-        <TextArea autoSize={{ minRows: 3 }} />
-      </Form.Item>
-      <Form.Item style={{ textAlign: 'right' }}>
-        <Space>
-          <Button htmlType="button" onClick={onCancel}>
-            取消
-          </Button>
-          <Button type="primary" htmlType="submit">
-            确定
-          </Button>
-        </Space>
-      </Form.Item>
-    </Form>
-  </div>
-}
+  return (
+    <div style={{ width: 320, padding: "20px 20px 0 20px" }}>
+      <Form form={form} layout="vertical" onFinish={onFinish}>
+        <Form.Item name="name" label="集群名称" rules={[{ required: true }]}>
+          <Input disabled />
+        </Form.Item>
+        <Form.Item
+          name="displayName"
+          label="显示名称"
+          rules={[{ required: true }]}
+        >
+          <Input />
+        </Form.Item>
+        <Form.Item
+          name="description"
+          label="集群描述"
+          rules={[{ required: true }]}
+        >
+          <TextArea autoSize={{ minRows: 3 }} />
+        </Form.Item>
+        <Form.Item style={{ textAlign: "right" }}>
+          <Space>
+            <Button htmlType="button" onClick={onCancel}>
+              取消
+            </Button>
+            <Button type="primary" htmlType="submit">
+              确定
+            </Button>
+          </Space>
+        </Form.Item>
+      </Form>
+    </div>
+  );
+};
 
 type IProps = {
   setLastDetail: (value) => void;
   title?: string | React.ReactNode;
   submit: (values: any, callback: () => void) => void;
   cancel: () => void;
-  btnType?: "dashed" | "link" | "text" | "default" | "primary"
+  btnType?: "dashed" | "link" | "text" | "default" | "primary";
   btnStyle?: any;
   lastDetail?: any;
-}
+};
 
-const EditPopForm = ({ setLastDetail, title, submit, cancel, btnType, btnStyle, lastDetail }: IProps) => {
+const EditPopForm = ({
+  setLastDetail,
+  title,
+  submit,
+  cancel,
+  btnType,
+  btnStyle,
+  lastDetail,
+}: IProps) => {
   const [open, setOpen] = useState(false);
   const hide = () => {
     setOpen(false);
@@ -73,17 +89,26 @@ const EditPopForm = ({ setLastDetail, title, submit, cancel, btnType, btnStyle, 
   const formProps = {
     submit,
     cancel: hide,
-    lastDetail
-  }
+    lastDetail,
+  };
   function handleOpenChange(v) {
     setOpen(v);
     setLastDetail(lastDetail);
   }
   return (
-    <Popover open={open} onOpenChange={handleOpenChange} placement="bottomRight" title={title || '编辑'} trigger="click" content={<EditForm {...formProps} />}>
-      <Button style={btnStyle} type={btnType || 'default'}>编辑</Button>
+    <Popover
+      open={open}
+      onOpenChange={handleOpenChange}
+      placement="bottomRight"
+      title={title || "编辑"}
+      trigger="click"
+      content={<EditForm {...formProps} />}
+    >
+      <Button style={btnStyle} type={btnType || "default"}>
+        编辑
+      </Button>
     </Popover>
-  )
-}
+  );
+};
 
 export default EditPopForm;

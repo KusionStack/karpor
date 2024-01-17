@@ -11,85 +11,82 @@ import SummaryCard from "../components/summaryCard";
 
 import styles from "./styles.module.less";
 
-
 const ClusterDetail = () => {
-
   const navigate = useNavigate();
   const location = useLocation();
-  const urlParams = queryString.parse(location?.search)
-  const { type, apiVersion, cluster, kind, namespace, name, key, from, query } = urlParams;
+  const urlParams = queryString.parse(location?.search);
+  const { type, apiVersion, cluster, kind, namespace, name, key, from, query } =
+    urlParams;
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
   const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [tableQueryStr] = useState(`select * from resources where cluster = '${cluster}' and apiVersion='${apiVersion}' and kind = '${kind}'`);
-  const [auditList, setAuditList] = useState<any>([])
-  const [auditLoading, setAuditLoading] = useState<any>(false)
-  const [auditStat, setAuditStat] = useState<any>()
+  const [tableQueryStr] = useState(
+    `select * from resources where cluster = '${cluster}' and apiVersion='${apiVersion}' and kind = '${kind}'`,
+  );
+  const [auditList, setAuditList] = useState<any>([]);
+  const [auditLoading, setAuditLoading] = useState<any>(false);
+  const [auditStat, setAuditStat] = useState<any>();
   const [tableName, setTableName] = useState(kind as any);
   const [breadcrumbItems, setBreadcrumbItems] = useState([]);
-  const [summary, setSummary] = useState<any>()
-  const [currentItem, setCurrentItem] = useState<any>()
+  const [summary, setSummary] = useState<any>();
+  const [currentItem, setCurrentItem] = useState<any>();
 
   async function getAudit(isRescan) {
-    setAuditLoading(true)
+    setAuditLoading(true);
     const response: any = await axios({
       url: `/rest-api/v1/insight/audit`,
-      method: 'GET',
+      method: "GET",
       params: {
         apiVersion,
         kind,
         cluster,
         ...(isRescan ? { forceNew: true } : {}),
-      }
+      },
     });
-    setAuditLoading(false)
+    setAuditLoading(false);
     if (response?.success) {
-      setAuditList(response?.data)
+      setAuditList(response?.data);
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || "请求失败，请重试");
     }
-  };
+  }
   async function getAuditScore() {
     const response: any = await axios({
       url: `/rest-api/v1/insight/score`,
-      method: 'GET',
+      method: "GET",
       params: {
         cluster,
         apiVersion,
         kind,
-      }
+      },
     });
     if (response?.success) {
-      setAuditStat(response?.data)
-    }
-  };
-
-  async function getSummary() {
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/summary',
-      params: {
-        cluster,
-        apiVersion,
-        kind,
-      }
-    });
-    if (response?.success) {
-      setSummary(response?.data)
-    } else {
-      message.error(response?.message || '请求失败，请重试')
+      setAuditStat(response?.data);
     }
   }
 
-
-
+  async function getSummary() {
+    const response: any = await axios({
+      url: "/rest-api/v1/insight/summary",
+      params: {
+        cluster,
+        apiVersion,
+        kind,
+      },
+    });
+    if (response?.success) {
+      setSummary(response?.data);
+    } else {
+      message.error(response?.message || "请求失败，请重试");
+    }
+  }
 
   useEffect(() => {
     getAudit(false);
     getAuditScore();
     getSummary();
-    setTableName(kind as any)
+    setTableName(kind as any);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, type])
-
+  }, [kind, type]);
 
   function rescan() {
     getAuditScore();
@@ -105,10 +102,9 @@ const ClusterDetail = () => {
     setCurrentItem(item);
   }
 
-
   function replacePage(item) {
     const obj = { from, type, apiVersion, query };
-    const list = ['cluster', 'kind'];
+    const list = ["cluster", "kind"];
     for (let i = 0; i < list?.length; i++) {
       if (list[i] === item) {
         obj[list[i]] = urlParams[list[i]];
@@ -118,7 +114,7 @@ const ClusterDetail = () => {
         obj[list[i]] = urlParams[list[i]];
       }
     }
-    if (from === 'result') {
+    if (from === "result") {
       obj.query = query;
     }
     const urlStringfyParams = queryString.stringify(obj);
@@ -127,75 +123,80 @@ const ClusterDetail = () => {
 
   function getBreadcrumbs() {
     let first;
-    if (from === 'cluster') {
+    if (from === "cluster") {
       first = {
         title: <NavLink to={"/cluster"}>集群管理</NavLink>,
       };
     }
-    if (from === 'result') {
+    if (from === "result") {
       first = {
         title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
       };
     }
     const middle = [];
-    ['cluster', 'kind']?.forEach((item) => {
+    ["cluster", "kind"]?.forEach((item) => {
       if (urlParams?.[item]) {
         middle.push({
           key: item,
           label: urlParams?.[item],
           // eslint-disable-next-line jsx-a11y/anchor-is-valid
           title: <a onClick={() => replacePage(item)}>{urlParams?.[item]}</a>,
-        })
+        });
       }
-    })
-    middle[middle?.length - 1] = { label: middle[middle?.length - 1]?.lebel, title: middle[middle?.length - 1]?.label }
+    });
+    middle[middle?.length - 1] = {
+      label: middle[middle?.length - 1]?.lebel,
+      title: middle[middle?.length - 1]?.label,
+    };
     const result = [first, ...middle];
     setBreadcrumbItems(result);
   }
 
   useEffect(() => {
     getBreadcrumbs();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, key, cluster, kind, namespace, name]);
 
+  return (
+    <div className={styles.container}>
+      <Breadcrumb
+        style={{ marginBottom: 20 }}
+        separator=">"
+        items={breadcrumbItems}
+      />
+      <ExecptionDrawer
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        execptionList={auditList}
+        execptionStat={auditStat}
+      />
+      <EventDetail
+        open={modalVisible}
+        cancel={() => setModalVisible(false)}
+        onOk={() => setModalVisible(false)}
+        detail={currentItem}
+      />
+      <div className={styles.module}>
+        <SummaryCard auditStat={auditStat} summary={summary} />
+        <div className={styles.execption_event}>
+          {/* 异常事件 */}
+          <ExecptionList
+            auditLoading={auditLoading}
+            rescan={rescan}
+            execptionList={auditList}
+            execptionStat={auditStat}
+            showDrawer={showDrawer}
+            onItemClick={onItemClick}
+          />
+        </div>
+      </div>
 
-
-  return <div className={styles.container}>
-    <Breadcrumb
-      style={{ marginBottom: 20 }}
-      separator=">"
-      items={breadcrumbItems} />
-    <ExecptionDrawer
-      open={drawerVisible}
-      onClose={() => setDrawerVisible(false)}
-      execptionList={auditList}
-      execptionStat={auditStat} />
-    <EventDetail
-      open={modalVisible}
-      cancel={() => setModalVisible(false)}
-      onOk={() => setModalVisible(false)}
-      detail={currentItem} />
-    <div className={styles.module}>
-      <SummaryCard auditStat={auditStat} summary={summary} />
-      <div className={styles.execption_event}>
-        {/* 异常事件 */}
-        <ExecptionList
-          auditLoading={auditLoading}
-          rescan={rescan}
-          execptionList={auditList}
-          execptionStat={auditStat}
-          showDrawer={showDrawer}
-          onItemClick={onItemClick} />
+      {/* 拓扑图 */}
+      <div className={styles.tab_content}>
+        <SourceTable queryStr={tableQueryStr} tableName={tableName} />
       </div>
     </div>
-
-    {/* 拓扑图 */}
-    < div className={styles.tab_content} >
-      <SourceTable
-        queryStr={tableQueryStr}
-        tableName={tableName} />
-    </div >
-  </div >
-}
+  );
+};
 
 export default ClusterDetail;

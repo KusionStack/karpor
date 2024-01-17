@@ -2,58 +2,56 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ArrowLeftOutlined, UploadOutlined } from "@ant-design/icons";
 import { Form, Input, Space, Button, Upload, Radio, message } from "antd";
-import type { RadioChangeEvent, UploadProps } from 'antd';
+import type { RadioChangeEvent, UploadProps } from "antd";
 import ReactDiffViewer, { DiffMethod } from "react-diff-viewer-continued";
 // import 'react-diff-viewer-continued/es/styles/index.css';
 import Yaml from "../../../components/yaml";
 import { HOST } from "../../../utils/request";
-import yaml from 'js-yaml';
+import yaml from "js-yaml";
 
 import styles from "./styles.module.less";
 import { yaml2json } from "../../../utils/tools";
 import axios from "axios";
 import queryString from "query-string";
 
-
 const { TextArea } = Input;
 
 export const UploadConfig = (props) => {
-  const [radioValue, setRadioValue] = useState("file")
+  const [radioValue, setRadioValue] = useState("file");
 
   const onRadioChange = (e: RadioChangeEvent) => {
     setRadioValue(e.target.value);
     props?.onChange({
       type: e.target.value,
       value: "",
-    })
+    });
   };
 
   const handleTextAreaChange = (event) => {
     props?.onChange({
       ...props?.fileList,
       value: event.target.value,
-    })
-  }
+    });
+  };
 
-  return <div>
-    <div style={{ marginBottom: 15 }}>
-      <Radio.Group onChange={onRadioChange} value={radioValue}>
-        <Radio value="file">文件配置</Radio>
-        <Radio value="yaml">输入yaml</Radio>
-      </Radio.Group>
-    </div>
-    {
-      radioValue === 'file' ? (
+  return (
+    <div>
+      <div style={{ marginBottom: 15 }}>
+        <Radio.Group onChange={onRadioChange} value={radioValue}>
+          <Radio value="file">文件配置</Radio>
+          <Radio value="yaml">输入yaml</Radio>
+        </Radio.Group>
+      </div>
+      {radioValue === "file" ? (
         <Upload name="logo" action="/upload.do">
           <Button icon={<UploadOutlined />}>上传配置文件</Button>
         </Upload>
-      )
-        : <TextArea onChange={handleTextAreaChange} />
-    }
-
-  </div>
-}
-
+      ) : (
+        <TextArea onChange={handleTextAreaChange} />
+      )}
+    </div>
+  );
+};
 
 const ClusterCertificate = () => {
   const [form] = Form.useForm();
@@ -63,9 +61,8 @@ const ClusterCertificate = () => {
   const { cluster } = queryString.parse(location?.search);
   const [newYamlContent, setNewYamlContent] = useState<any>();
   const [loading, setLoading] = useState(false);
-  const [lastYamlContent, setLastYamlContent] = useState('');
+  const [lastYamlContent, setLastYamlContent] = useState("");
   const [lastYamlContentJson, setLastYamlContentJson] = useState<any>();
-
 
   function onCancel() {
     form.resetFields();
@@ -75,55 +72,60 @@ const ClusterCertificate = () => {
   async function getClusterDetail() {
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${cluster}`,
-      method: 'GET',
+      method: "GET",
       params: {
-        format: 'yaml'
-      }
+        format: "yaml",
+      },
     });
     if (response?.success) {
       setLastYamlContent(response?.data);
       setLastYamlContentJson(yaml2json(response?.data)?.data);
     } else {
-      message.error(response?.message || "请求失败，请重试")
+      message.error(response?.message || "请求失败，请重试");
     }
   }
 
   useEffect(() => {
     if (cluster) {
-      getClusterDetail()
+      getClusterDetail();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cluster])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cluster]);
 
   async function onFinish() {
     if (!newYamlContent?.content) {
       message.warning("请上传新的 KubeConfig 配置文件");
     } else {
-      setLoading(true)
-      const validateResponse: any = await axios.post("/rest-api/v1/cluster/config/validate", {
-        kubeConfig: newYamlContent?.content,
-      })
+      setLoading(true);
+      const validateResponse: any = await axios.post(
+        "/rest-api/v1/cluster/config/validate",
+        {
+          kubeConfig: newYamlContent?.content,
+        },
+      );
       if (validateResponse?.success) {
         const response: any = await axios({
           url: `/rest-api/v1/cluster/${cluster}`,
-          method: 'PUT',
+          method: "PUT",
           data: {
-            kubeConfig: newYamlContent?.content
-          }
-        })
+            kubeConfig: newYamlContent?.content,
+          },
+        });
         if (response?.success) {
-          setLoading(false)
+          setLoading(false);
           message.success("验证成功并提交，3s 后将跳转到集群管理页面");
           setTimeout(() => {
             navigate("/cluster");
-          }, 3000)
+          }, 3000);
         } else {
           message.error(response?.message || "验证成功但提交失败");
-          setLoading(false)
+          setLoading(false);
         }
       } else {
-        message.error(validateResponse?.message || 'KubeConfig 不符合要求，请验证后上传');
-        setLoading(false)
+        message.error(
+          validateResponse?.message || "KubeConfig 不符合要求，请验证后上传",
+        );
+        setLoading(false);
       }
     }
   }
@@ -133,13 +135,13 @@ const ClusterCertificate = () => {
   }
 
   const uploadProps: UploadProps = {
-    name: 'file',
-    accept: '.yaml,.yml,.json,.kubeconfig,.kubeconf',
+    name: "file",
+    accept: ".yaml,.yml,.json,.kubeconfig,.kubeconf",
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      authorization: 'authorization-text',
+      authorization: "authorization-text",
     },
-    method: 'POST',
+    method: "POST",
     data: {
       name: lastYamlContentJson?.metadata?.name,
       description: lastYamlContentJson?.spec?.description,
@@ -155,26 +157,30 @@ const ClusterCertificate = () => {
     },
     onPreview: () => false,
     onChange(info) {
-      if (info.file.status !== 'uploading') {
+      if (info.file.status !== "uploading") {
       }
-      if (info.file.status === 'done') {
+      if (info.file.status === "done") {
         if (info?.file?.response?.success) {
           message.success(`${info.file.name}上传成功`);
           form.setFieldsValue({
-            kubeConfig: info?.file?.response?.data?.content
-          })
+            kubeConfig: info?.file?.response?.data?.content,
+          });
           setNewYamlContent({
             content: info?.file?.response?.data?.content,
-            sanitizedClusterContent: info?.file?.response?.data?.sanitizedClusterContent
-          })
+            sanitizedClusterContent:
+              info?.file?.response?.data?.sanitizedClusterContent,
+          });
         } else {
-          message.error(info?.file?.response?.message || '文件只支持.yaml, .yml, .json, .kubeconfig, .kubeconf')
+          message.error(
+            info?.file?.response?.message ||
+              "文件只支持.yaml, .yml, .json, .kubeconfig, .kubeconf",
+          );
           // form.setFieldsValue({
           //   kubeConfig: undefined
           // })
           // setNewYamlContent('')
         }
-      } else if (info.file.status === 'error') {
+      } else if (info.file.status === "error") {
         message.error(`${info.file.name} file upload failed.`);
       }
     },
@@ -183,14 +189,14 @@ const ClusterCertificate = () => {
   const newStyles = {
     variables: {
       dark: {
-        highlightBackground: '#fefed5',
-        highlightGutterBackground: '#ffcd3c',
+        highlightBackground: "#fefed5",
+        highlightGutterBackground: "#ffcd3c",
       },
     },
     line: {
-      padding: '10px 2px',
-      '&:hover': {
-        background: '#a26ea1',
+      padding: "10px 2px",
+      "&:hover": {
+        background: "#a26ea1",
       },
     },
   };
@@ -202,61 +208,74 @@ const ClusterCertificate = () => {
   const oldYaml = yaml.dump(lastYamlContent);
   const newYaml = yaml.dump(newYamlContent?.sanitizedClusterContent);
 
-  return <div className={styles.container}>
-    <div className={styles.header}>
-      <ArrowLeftOutlined style={{ marginRight: 10 }} onClick={() => goBack()} />更新证书
-    </div>
-    <div className={styles.content}>
-      <Form form={form} onFinish={onFinish} layout="vertical" style={{ width: 600, display: 'flex' }} initialValues={{
-        type: 'file',
-      }}>
-        <Form.Item
-          name="kubeConfig"
-          rules={[{ required: true, message: "该配置内容不能为空" }]}
+  return (
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <ArrowLeftOutlined
+          style={{ marginRight: 10 }}
+          onClick={() => goBack()}
+        />
+        更新证书
+      </div>
+      <div className={styles.content}>
+        <Form
+          form={form}
+          onFinish={onFinish}
+          layout="vertical"
+          style={{ width: 600, display: "flex" }}
+          initialValues={{
+            type: "file",
+          }}
         >
-          <Upload {...uploadProps}>
-            <Button icon={<UploadOutlined />}>上传 KubeConfig 配置文件</Button>
-          </Upload>
-        </Form.Item>
-        <Form.Item style={{ marginLeft: 20 }}>
-          <Space>
-            <Button type="primary" htmlType="submit" loading={loading}>
-              {
-                loading ? '验证提交中' : '验证并更新'
-              }
-            </Button>
-            <Button htmlType="button" onClick={onCancel}>
-              取消
-            </Button>
-          </Space>
-        </Form.Item>
-      </Form>
-      {
-        newYamlContent?.sanitizedClusterContent ? <div className={styles.config_content}>
-          {/* <div className={styles.title}>左侧为原配置信息，右侧为新配置信息</div> */}
-          <div className={styles.diff_container}>
-            <ReactDiffViewer
-              leftTitle="原配置信息"
-              rightTitle="新配置信息"
-              styles={newStyles}
-              // oldValue={JSON.stringify(oldData, null, 2)}
-              // newValue={JSON.stringify(newData, null, 2)}
-              oldValue={oldYaml}
-              newValue={newYaml}
-              splitView={true}
-              useDarkTheme={false}
-              compareMethod={DiffMethod.LINES}
-            // renderContent={this.highlightSyntax}
-            />
+          <Form.Item
+            name="kubeConfig"
+            rules={[{ required: true, message: "该配置内容不能为空" }]}
+          >
+            <Upload {...uploadProps}>
+              <Button icon={<UploadOutlined />}>
+                上传 KubeConfig 配置文件
+              </Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item style={{ marginLeft: 20 }}>
+            <Space>
+              <Button type="primary" htmlType="submit" loading={loading}>
+                {loading ? "验证提交中" : "验证并更新"}
+              </Button>
+              <Button htmlType="button" onClick={onCancel}>
+                取消
+              </Button>
+            </Space>
+          </Form.Item>
+        </Form>
+        {newYamlContent?.sanitizedClusterContent ? (
+          <div className={styles.config_content}>
+            {/* <div className={styles.title}>左侧为原配置信息，右侧为新配置信息</div> */}
+            <div className={styles.diff_container}>
+              <ReactDiffViewer
+                leftTitle="原配置信息"
+                rightTitle="新配置信息"
+                styles={newStyles}
+                // oldValue={JSON.stringify(oldData, null, 2)}
+                // newValue={JSON.stringify(newData, null, 2)}
+                oldValue={oldYaml}
+                newValue={newYaml}
+                splitView={true}
+                useDarkTheme={false}
+                compareMethod={DiffMethod.LINES}
+                // renderContent={this.highlightSyntax}
+              />
+            </div>
           </div>
-        </div>
-          : <div className={styles.config_content}>
+        ) : (
+          <div className={styles.config_content}>
             <div className={styles.title}>原配置信息</div>
-            <Yaml data={lastYamlContent} height='100%' />
+            <Yaml data={lastYamlContent} height="100%" />
           </div>
-      }
+        )}
+      </div>
     </div>
-  </div>
-}
+  );
+};
 
 export default ClusterCertificate;

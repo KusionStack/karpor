@@ -6,14 +6,17 @@ type IProps = {
   title: string;
   value: number;
   color?: string;
-}
+};
 
 const Card = ({ title, value, color }: IProps) => {
-
-  return <div className={styles.wrapper}>
-    <div className={styles.top}>{title}</div>
-    <div className={styles.bottom} style={{ color }}>{format_with_regex(value)}</div>
-  </div>
-}
+  return (
+    <div className={styles.wrapper}>
+      <div className={styles.top}>{title}</div>
+      <div className={styles.bottom} style={{ color }}>
+        {format_with_regex(value)}
+      </div>
+    </div>
+  );
+};
 
 export default Card;

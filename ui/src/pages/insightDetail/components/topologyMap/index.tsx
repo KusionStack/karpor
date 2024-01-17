@@ -1,7 +1,7 @@
-import ReactDOM from 'react-dom';
-import G6 from '@antv/g6';
-import type { IAbstractGraph, IG6GraphEvent } from '@antv/g6';
-import type { Point } from '@antv/g-base/lib/types';
+import ReactDOM from "react-dom";
+import G6 from "@antv/g6";
+import type { IAbstractGraph, IG6GraphEvent } from "@antv/g6";
+import type { Point } from "@antv/g-base/lib/types";
 import styles from "./style.module.less";
 import { memo, useLayoutEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,7 +13,7 @@ import {
   appenAutoShapeListener,
   Image,
   Text,
-} from '@antv/g6-react-node';
+} from "@antv/g6-react-node";
 import Loading from "../../../../components/loading";
 import transferPng from "../../../../assets/transfer.png";
 import PointButton from "./PointButton";
@@ -28,12 +28,12 @@ function getTextSize(str: string, maxWidth: number, fontSize: number) {
 
 // 文本超出隐藏 (字段, 最大长度, 字体大小)
 function fittingString(str: any, maxWidth: number, fontSize: number) {
-  const ellipsis = '...';
+  const ellipsis = "...";
   const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0];
   let currentWidth = 0;
   let res = str;
-  const pattern = new RegExp('[\u4E00-\u9FA5]+'); // distinguish the Chinese charactors and letters
-  str?.split('')?.forEach((letter, i) => {
+  const pattern = new RegExp("[\u4E00-\u9FA5]+"); // distinguish the Chinese charactors and letters
+  str?.split("")?.forEach((letter, i) => {
     if (currentWidth > maxWidth - ellipsisLength) return;
     if (pattern?.test(letter)) {
       // Chinese charactors
@@ -47,7 +47,7 @@ function fittingString(str: any, maxWidth: number, fontSize: number) {
     }
   });
   return res;
-};
+}
 
 type propsType = {
   value: Record<string, any>[];
@@ -58,31 +58,31 @@ type propsType = {
 };
 
 const OverviewTooltip = memo((props: propsType) => {
-  const model = props?.hiddenButtonInfo?.e.item?.get('model')
+  const model = props?.hiddenButtonInfo?.e.item?.get("model");
   const boxStyle: any = {
-    background: '#fff',
-    border: '1px solid #f5f5f5',
-    position: 'absolute',
+    background: "#fff",
+    border: "1px solid #f5f5f5",
+    position: "absolute",
     top: props?.hiddenButtonInfo?.y - 20 || -500,
     left: props?.hiddenButtonInfo?.x + (props?.itemWidth || 100) / 2 || -500, //居中
     zIndex: 5,
     padding: 10,
     borderRadius: 8,
     fontSize: 12,
-  }
+  };
   const itemStyle = {
-    color: '#646566',
-    margin: "10px 5px"
-  }
+    color: "#646566",
+    margin: "10px 5px",
+  };
   return (
     <div style={boxStyle}>
-      <div style={itemStyle}>{props?.type === 'cluster' ? model?.label : model?.id}</div>
+      <div style={itemStyle}>
+        {props?.type === "cluster" ? model?.label : model?.id}
+      </div>
       {/* <div style={itemStyle}>{model?.label}</div> */}
     </div>
   );
 });
-
-
 
 type IProps = {
   topologyData: any;
@@ -90,15 +90,21 @@ type IProps = {
   onTopologyNodeClick?: (node: any) => void;
   isResource?: boolean;
   tableName?: string;
-}
+};
 
-const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isResource, tableName }: IProps) => {
+const TopologyMap = ({
+  onTopologyNodeClick,
+  topologyData,
+  topologyLoading,
+  isResource,
+  tableName,
+}: IProps) => {
   const ref = useRef(null);
   const graphRef = useRef<any>();
   let graph: IAbstractGraph | null = null;
   const location = useLocation();
-  const { from, type, query } = queryString.parse(location?.search)
-  const navigate = useNavigate()
+  const { from, type, query } = queryString.parse(location?.search);
+  const navigate = useNavigate();
   const [tooltipopen, setTooltipopen] = useState(false); //悬停是否显示
   const [itemWidth, setItemWidth] = useState<number>(100); //节点宽
   const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
@@ -107,16 +113,15 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
     e?: IG6GraphEvent;
   }>({ x: -500, y: -500, e: undefined });
 
-
   function getName(cfg: any) {
-    if (type === 'resource') {
+    if (type === "resource") {
       const [left, right] = cfg?.id?.split(":");
-      const leftList = left?.split('.');
+      const leftList = left?.split(".");
       const leftListLength = leftList?.length;
       const leftLast = leftList?.[leftListLength - 1];
       return `${leftLast}:${right}`;
     }
-    if (type === 'cluster' || type === 'namespace') {
+    if (type === "cluster" || type === "namespace") {
       const list = cfg?.label?.split(".");
       const len = list?.length;
       return list?.[len - 1];
@@ -237,19 +242,19 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
     // 跳转到kind详情页
     const objParams = {
       from,
-      type: 'kind',
+      type: "kind",
       cluster: locator?.cluster,
       apiVersion: locator?.apiVersion,
       kind: locator?.kind,
-      query
-    }
+      query,
+    };
     const urlStr = queryString.stringify(objParams);
-    navigate(`/insightDetail/kind?${urlStr}`)
+    navigate(`/insightDetail/kind?${urlStr}`);
   }
 
   function handleMouseEnter(evt, cfg) {
-    const model = evt?.item?.get('model');
-    graph.setItemState(evt.item, 'hoverState', true);
+    const model = evt?.item?.get("model");
+    graph.setItemState(evt.item, "hoverState", true);
     const { x, y } = graph?.getCanvasByPoint(model.x, model.y) as Point;
     const node = graph?.findById(model.id)?.getBBox();
     if (node) {
@@ -259,46 +264,46 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
     setTooltipopen(true);
   }
   function handleMouseLeave(evt, cfg) {
-    graph.setItemState(evt.item, 'hoverState', false);
+    graph.setItemState(evt.item, "hoverState", false);
     setTooltipopen(false);
   }
 
   function handleClickNode(cfg) {
-    onTopologyNodeClick(cfg)
+    onTopologyNodeClick(cfg);
   }
-
-
-
 
   const Card = ({ cfg }) => {
     const displayName = fittingString(getName(cfg), 190, 16);
 
-    const isHighLight = type === 'resource' ? cfg?.locator?.name === tableName : displayName === tableName;
+    const isHighLight =
+      type === "resource"
+        ? cfg?.locator?.name === tableName
+        : displayName === tableName;
     return (
       <Group draggable>
         <Rect
           style={{
             width: 250,
-            height: 'auto',
-            fill: isHighLight ? '#fff' : '#C6E5FF',
-            shadowColor: '#eee',
+            height: "auto",
+            fill: isHighLight ? "#fff" : "#C6E5FF",
+            shadowColor: "#eee",
             shadowBlur: 30,
             radius: [8],
-            justifyContent: 'center',
+            justifyContent: "center",
             padding: [10, 0],
-            stroke: '#C6E5FF',
+            stroke: "#C6E5FF",
           }}
           draggable
         >
           <Rect
             onClick={() => handleClickNode(cfg)}
             style={{
-              cursor: 'pointer',
-              stroke: 'transparent',
-              fill: 'transparent',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
+              cursor: "pointer",
+              stroke: "transparent",
+              fill: "transparent",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
               margin: [0, 15],
             }}
           >
@@ -306,8 +311,8 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
               <Rect
                 onClick={() => handleClickNode(cfg)}
                 style={{
-                  stroke: 'transparent',
-                  fill: 'transparent',
+                  stroke: "transparent",
+                  fill: "transparent",
                   margin: [0, 10, 10, 0],
                 }}
               >
@@ -316,103 +321,106 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
                   onMouseOver={(evt) => handleMouseEnter(evt, cfg)}
                   onMouseLeave={(evt) => handleMouseLeave(evt, cfg)}
                   width={getTextSize(getName(cfg), 190, 16)}
-                // style={{
-                //   width: getTextSize(getName(cfg), 190, 16),
-                //   fill: '#000',
-                //   fontSize: 16,
-                // }}
+                  // style={{
+                  //   width: getTextSize(getName(cfg), 190, 16),
+                  //   fill: '#000',
+                  //   fontSize: 16,
+                  // }}
                 >
                   {displayName}
                 </PointButton>
               </Rect>
-              {
-                (type === 'cluster' || type === 'namespace') &&
+              {(type === "cluster" || type === "namespace") && (
                 <Rect>
                   <TextCopy
                     onClick={(event) => handleMouseEnter(event, cfg)}
                     style={{
-                      fill: '#000',
+                      fill: "#000",
                       fontSize: 16,
                     }}
                   >
                     {`${cfg?.data?.count}`}
                   </TextCopy>
                 </Rect>
-              }
+              )}
             </Group>
-            {
-              (type === 'cluster') && <Rect>
+            {type === "cluster" && (
+              <Rect>
                 <Image
                   onClick={(event) => handleTransfer(event, cfg)}
                   style={{
-                    cursor: 'pointer',
+                    cursor: "pointer",
                     img: transferPng,
                     width: 20,
                     height: 20,
                   }}
                 />
               </Rect>
-            }
+            )}
           </Rect>
         </Rect>
       </Group>
     );
   };
 
-  G6.registerNode('card-node', createNodeFromReact(Card));
+  G6.registerNode("card-node", createNodeFromReact(Card));
 
-  G6.registerEdge('custom-polyline', {
-    getPath(points) {
-      const [sourcePoint, endPoint] = points;
-      const x = (sourcePoint.x + endPoint.x) / 2;
-      const y1 = sourcePoint.y;
-      const y2 = endPoint.y;
-      const path = [
-        ['M', sourcePoint.x, sourcePoint.y],
-        ['L', x, y1],
-        ['L', x, y2],
-        ['L', endPoint.x, endPoint.y]
-      ]
-      return path;
-    },
-    afterDraw(cfg, group) {
-      const keyshape = group.find(ele => ele.get('name') === 'edge-shape');
-      const style = keyshape.attr();
-      const halo = group.addShape('path', {
-        attrs: {
-          ...style,
-          lineWidth: 8,
-          // color: '#2F54EB',
-          opacity: 0.3
-        },
-        name: 'edge-halo',
-      })
-      halo.hide();
-    },
-    afterUpdate(cfg, item) {
-      const group = item.getContainer();
-      const keyshape = group.find(ele => ele.get('name') === 'edge-shape');
-      const halo = group?.find(ele => ele.get('name') === 'edge-halo');
-      const path = keyshape.attr('path');
-      halo.attr('path', path);
-    },
-    setState(name, value, item) {
-      const group = item.getContainer();
-      if (name === 'hover') {
-        const halo = group?.find(ele => ele.get('name') === 'edge-halo');
-        if (value) {
-          halo.show()
-        } else {
-          halo.hide();
+  G6.registerEdge(
+    "custom-polyline",
+    {
+      getPath(points) {
+        const [sourcePoint, endPoint] = points;
+        const x = (sourcePoint.x + endPoint.x) / 2;
+        const y1 = sourcePoint.y;
+        const y2 = endPoint.y;
+        const path = [
+          ["M", sourcePoint.x, sourcePoint.y],
+          ["L", x, y1],
+          ["L", x, y2],
+          ["L", endPoint.x, endPoint.y],
+        ];
+        return path;
+      },
+      afterDraw(cfg, group) {
+        const keyshape = group.find((ele) => ele.get("name") === "edge-shape");
+        const style = keyshape.attr();
+        const halo = group.addShape("path", {
+          attrs: {
+            ...style,
+            lineWidth: 8,
+            // color: '#2F54EB',
+            opacity: 0.3,
+          },
+          name: "edge-halo",
+        });
+        halo.hide();
+      },
+      afterUpdate(cfg, item) {
+        const group = item.getContainer();
+        const keyshape = group.find((ele) => ele.get("name") === "edge-shape");
+        const halo = group?.find((ele) => ele.get("name") === "edge-halo");
+        const path = keyshape.attr("path");
+        halo.attr("path", path);
+      },
+      setState(name, value, item) {
+        const group = item.getContainer();
+        if (name === "hover") {
+          const halo = group?.find((ele) => ele.get("name") === "edge-halo");
+          if (value) {
+            halo.show();
+          } else {
+            halo.hide();
+          }
         }
-      }
-    }
-  }, 'cubic')
+      },
+    },
+    "cubic",
+  );
 
   useLayoutEffect(() => {
     if (topologyData) {
       (async () => {
-        const container = document.getElementById('overviewContainer');
+        const container = document.getElementById("overviewContainer");
         const width = container?.scrollWidth || 800;
         const height = container?.scrollHeight || 400;
         const toolbar = new G6.ToolBar();
@@ -433,7 +441,7 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
             enabledStack: true,
             modes: {
               // drag-canvas 拖拽画布  drag-node 拖拽节点 zoom-canvas 可缩放  click-select 点选节点  'scroll-canvas' 左右 上下滚动
-              default: ['drag-canvas', 'drag-node', "click-select"],
+              default: ["drag-canvas", "drag-node", "click-select"],
             },
             layout: {
               // center: [width / 2, height / 2],
@@ -444,11 +452,11 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
               // ranksep: 20,
               // nodesep: 20,
               nodesepFunc: () => 1,
-              ranksepFunc: () => 1
+              ranksepFunc: () => 1,
             },
             defaultNode: {
               // type: "cardNode",
-              type: 'card-node',
+              type: "card-node",
               size: [240, 45],
               // linkPoints: {
               //   left: true,
@@ -475,45 +483,46 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
               //   lineWidth: 2,
               //   stroke: '#C0C5D7',
               // },
-              type: 'polyline',
+              type: "polyline",
               //线条样式
               style: {
                 radius: 10,
                 offset: 20,
                 endArrow: true,
                 lineWidth: 2,
-                stroke: '#C0C5D7',
+                stroke: "#C0C5D7",
               },
             },
             edgeStateStyles: {
               hover: {
                 lineWidth: 6,
                 // stroke: '#2F54EB',
-              }
-
+              },
             },
             nodeStateStyles: {
               selected: {
                 // stroke: 'transparent',
-                stroke: '#2F54EB',
+                stroke: "#2F54EB",
                 lineWidth: 2,
               },
-              'hoverState': {
+              hoverState: {
                 // stroke: '#2F54EB',
                 lineWidth: 3,
                 // fill: '#f50',
               },
-              'clickState': {
-                stroke: '#2F54EB',
+              clickState: {
+                stroke: "#2F54EB",
                 lineWidth: 2,
-              }
-            }
+              },
+            },
           });
           // G6.Util.processParallelEdges(topologyData?.edges);
           graph.read(topologyData);
           appenAutoShapeListener(graph);
           if (topologyData?.nodes?.length < 5) {
-            graph?.zoomTo(1.5, { x: width / 2, y: height / 2 }, true, { duration: 10 });
+            graph?.zoomTo(1.5, { x: width / 2, y: height / 2 }, true, {
+              duration: 10,
+            });
             setTimeout(() => {
               // if (graph) {
               //   graph?.fitCenter?.(); // 居中 直接不生效  使用延时
@@ -529,24 +538,24 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
           //   const model = evt?.item?.get('model');
           //   onTopologyNodeClick(model)
           // })
-          graph.on('card-node-transfer-keyshape:click', (evt) => {
-            const model = evt?.item?.get('model');
+          graph.on("card-node-transfer-keyshape:click", (evt) => {
+            const model = evt?.item?.get("model");
             evt.defaultPrevented = true;
             evt.stopPropagation();
             const locator = model?.data?.locator;
             // 跳转到kind详情页
             const objParams = {
               from,
-              type: 'kind',
+              type: "kind",
               cluster: locator?.cluster,
               apiVersion: locator?.apiVersion,
               kind: locator?.kind,
-              query
-            }
+              query,
+            };
             const urlStr = queryString.stringify(objParams);
-            navigate(`/insightDetail/kind?${urlStr}`)
+            navigate(`/insightDetail/kind?${urlStr}`);
             // graph.setItemState(evt.item, 'clickState', true);
-          })
+          });
           // graph.on('node:mouseenter', (evt) => {
           //   // const model = evt?.item?.get('model');
           //   // graph.setItemState(evt.item, 'hoverState', true);
@@ -578,12 +587,12 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
           //   graph.setItemState(evt.item, 'hoverState', false);
           //   setTooltipopen(false);
           // })
-          graph.on('edge:mouseenter', (evt) => {
-            graph.setItemState(evt.item, 'hover', true);
-          })
-          graph.on('edge:mouseleave', (evt) => {
-            graph.setItemState(evt.item, 'hover', false);
-          })
+          graph.on("edge:mouseenter", (evt) => {
+            graph.setItemState(evt.item, "hover", true);
+          });
+          graph.on("edge:mouseleave", (evt) => {
+            graph.setItemState(evt.item, "hover", false);
+          });
 
           // setTimeout(() => {
           //   if (graph) {
@@ -594,7 +603,11 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
           if (typeof window !== "undefined") {
             window.onresize = () => {
               if (!graph || graph.get("destroyed")) return;
-              if (!container || !container.scrollWidth || !container.scrollHeight)
+              if (
+                !container ||
+                !container.scrollWidth ||
+                !container.scrollHeight
+              )
                 return;
               graph.changeSize(container.scrollWidth, container.scrollHeight);
             };
@@ -608,41 +621,40 @@ const TopologyMap = ({ onTopologyNodeClick, topologyData, topologyLoading, isRes
           graph.destroy(); //清除画布;
           graphRef.current = null;
         }
-      } catch (error) { }
+      } catch (error) {}
     };
     // eslint-disable-next-line
   }, [topologyData, tableName]);
 
-
-
   return (
-    <div className={styles.g6Topology} style={{ height: isResource ? 450 : 400 }}>
-      {
-        topologyLoading
-          ? <Loading />
-          : (
-            <div ref={ref} id="overviewContainer" className={styles.overviewG6}>
-              {tooltipopen ? (
-                <OverviewTooltip
-                  type={type as string}
-                  value={
-                    // (ruleCheckStatisticsResponseData?.result &&
-                    //   hiddenButtontooltip?.e?.item?.getModel()?.name &&
-                    //   ruleCheckStatisticsResponseData?.result[
-                    //   hiddenButtontooltip?.e?.item?.getModel()?.name as string
-                    //   ]) ||
-                    []
-                  }
-                  itemWidth={itemWidth}
-                  hiddenButtonInfo={hiddenButtontooltip}
-                  open={tooltipopen}
-                />
-              ) : null}
-            </div>
-          )
-      }
+    <div
+      className={styles.g6Topology}
+      style={{ height: isResource ? 450 : 400 }}
+    >
+      {topologyLoading ? (
+        <Loading />
+      ) : (
+        <div ref={ref} id="overviewContainer" className={styles.overviewG6}>
+          {tooltipopen ? (
+            <OverviewTooltip
+              type={type as string}
+              value={
+                // (ruleCheckStatisticsResponseData?.result &&
+                //   hiddenButtontooltip?.e?.item?.getModel()?.name &&
+                //   ruleCheckStatisticsResponseData?.result[
+                //   hiddenButtontooltip?.e?.item?.getModel()?.name as string
+                //   ]) ||
+                []
+              }
+              itemWidth={itemWidth}
+              hiddenButtonInfo={hiddenButtontooltip}
+              open={tooltipopen}
+            />
+          ) : null}
+        </div>
+      )}
     </div>
-  )
-}
+  );
+};
 
 export default TopologyMap;

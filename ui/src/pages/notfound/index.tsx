@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 
 import styles from "./styles.module.less";
 
-
 const NotFound = () => {
   const navigate = useNavigate();
   function goBack() {

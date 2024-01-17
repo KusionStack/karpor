@@ -1,8 +1,8 @@
-import React, { useRef, useEffect } from 'react';
-import { EditorState, Compartment } from '@codemirror/state';
-import { EditorView, keymap } from '@codemirror/view';
-import { basicSetup } from '@codemirror/basic-setup';
-import { sql } from '@codemirror/lang-sql';
+import React, { useRef, useEffect } from "react";
+import { EditorState, Compartment } from "@codemirror/state";
+import { EditorView, keymap } from "@codemirror/view";
+import { basicSetup } from "@codemirror/basic-setup";
+import { sql } from "@codemirror/lang-sql";
 
 const SqlSearchBox = () => {
   const editorRef = useRef(null);
@@ -12,13 +12,13 @@ const SqlSearchBox = () => {
     if (editorRef.current) {
       // 初始化编辑器状态
       const startState = EditorState.create({
-        doc: '',
+        doc: "",
         extensions: [
           basicSetup, // 基础设置（包括行号、括号匹配等）
           keymap.of([]), // 如果需要，你可以在这里添加快捷键
           sql(), // SQL 语法支持
           EditorView.lineWrapping, // 禁用换行
-          new Compartment().of(EditorView.editable.of(false)) // 设置为不可编辑
+          new Compartment().of(EditorView.editable.of(false)), // 设置为不可编辑
         ],
       });
 
