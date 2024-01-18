@@ -39,8 +39,7 @@ const K8sEvent = ({ execptionList, rescan, showDrawer, onItemClick }) => {
                 </span>
               </div>
               <div className={styles.tight_bottom}>
-                Message:try to switch on ali-monitor for pod
-                huanyu/huanyuprodgz00c0shadow133602185-qswgl-fd7d5
+                Message:try to switch on monitor for pod foo/fooprod-qswgl-fd7d5
               </div>
             </div>
           </div>

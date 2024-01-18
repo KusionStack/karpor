@@ -85,7 +85,7 @@ const Insight = () => {
               options={[
                 { value: "jack", label: "Jack" },
                 { value: "lucy", label: "Lucy" },
-                { value: "Yiminghe", label: "yiminghe" },
+                { value: "john", label: "John" },
                 { value: "disabled", label: "Disabled", disabled: true },
               ]}
             />
