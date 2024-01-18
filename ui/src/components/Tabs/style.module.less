@@ -1,14 +1,22 @@
-.tab-container {
+.tabContainer {
   display: flex;
-  justify-content: center;
   align-items: center;
-  .normal {
-    margin: 20px;
-    padding: 5px 0px;
-    cursor: pointer;
-  }
-  .active {
-    font-weight: bold;
-    border-bottom: 2px solid #a305e1;
+  font-size: 16px;
+
+  .item {
+    .normal {
+      margin-right: 32px;
+      padding: 10px 0px;
+      cursor: pointer;
+      font-weight: 400;
+      color: rgba(0, 0, 0, 0.65);
+      border-bottom: 2px solid transparent;
+    }
+
+    .active {
+      font-weight: 600;
+      color: #2f54eb;
+      border-bottom: 2px solid #2f54eb;
+    }
   }
 }

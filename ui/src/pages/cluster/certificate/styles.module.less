@@ -1,0 +1,41 @@
+.container {
+  height: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+
+  .header {
+    margin-bottom: 16px;
+  }
+
+  .content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+
+    .config_content {
+      padding: 24px;
+      background: #fff;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      box-sizing: border-box;
+      overflow: auto;
+
+      .title {
+        color: #656466;
+        margin-bottom: 10px;
+      }
+
+      .diff_container {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .diff-container .diff-viewer {
+        flex: 1;
+      }
+    }
+  }
+}

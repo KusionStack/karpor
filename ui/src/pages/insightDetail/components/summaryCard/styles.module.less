@@ -1,0 +1,61 @@
+.summary_card {
+  width: 300px;
+  height: 475px;
+  border-radius: 8px;
+  background: #fff;
+  padding: 20px 0;
+  box-sizing: border-box;
+  position: relative;
+  margin-right: 10px;
+}
+
+.summary {
+  border-radius: 8px;
+  background: #fff;
+  box-sizing: border-box;
+  position: relative;
+  padding: 20px;
+
+  .field_box {
+    .item {
+      margin-right: 24px;
+      margin-bottom: 12px;
+      display: flex;
+      // flex-direction: column;
+      font-weight: 400;
+      font-size: 14px;
+      line-height: 22px;
+
+      &.namespaceStat {
+        font-weight: bold;
+      }
+
+      .label {
+        color: rgba(0, 0, 0, 0.48);
+        margin-right: 5px;
+        // width: 120px;
+      }
+
+      .value {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: rgba(0, 0, 0, 0.89);
+      }
+    }
+  }
+}
+
+.popoverItem {
+  margin-bottom: 5px;
+
+  .popoverLabel {
+    color: rgba(0, 0, 0, 0.48);
+    margin-right: 5px;
+  }
+
+  .popoverValue {
+    color: rgba(0, 0, 0, 0.89);
+  }
+}

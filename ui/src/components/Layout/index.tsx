@@ -1,11 +1,14 @@
-import React, { memo, useEffect, useMemo, useState } from "react";
-import { Layout, Menu, MenuProps } from "antd";
-import { HeatMapOutlined } from "@ant-design/icons";
-import { matchRoutes, Outlet, useLocation, NavLink } from "react-router-dom";
-import router, { RouteObject } from "../../router";
+import React, { memo } from "react";
+import { Divider, Menu } from "antd";
+import {
+  ClusterOutlined,
+  FundOutlined,
+  QuestionCircleOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import type { MenuProps } from "antd";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import styles from "./style.module.less";
-
-const { Content, Header } = Layout;
 
 type MenuItem = Required<MenuProps>["items"][number];
 
@@ -14,7 +17,9 @@ function getItem(
   key: React.Key,
   icon?: React.ReactNode,
   children?: MenuItem[],
-  type?: "group"
+  type?: "group",
+  hidden?: boolean,
+  disabled?: boolean,
 ): MenuItem {
   return {
     key,
@@ -22,72 +27,105 @@ function getItem(
     children,
     label,
     type,
+    hidden,
+    disabled,
   } as MenuItem;
 }
 
 const LayoutPage = () => {
-  const [defaultSelectedKeys, setSelectKey] = useState<string[]>(["1"]);
-  const [defaultOpenKeys, setDefaultOpenKeys] = useState<string[]>(["1"]);
-  const [initial, setInitial] = useState(false);
-  const location = useLocation();
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
 
-  const items: MenuItem[] = useMemo(() => {
-    let menuItems = [];
-    router &&
-      (router[0]?.children || []).forEach((item: RouteObject) => {
-        // console.log(item, "===item===");
-        const navItem = getItem(
-          <NavLink to={item.path as string}>{item.title}</NavLink>,
-          item.path as string,
-          item.icon
-        );
-        if (item.istopmenu) {
-          menuItems.push(navItem);
-        }
-      });
-    return menuItems;
-  }, []);
+  const menuItems = [
+    getItem("搜索", "/search", <SearchOutlined />),
+    getItem("结果", "/search/result", <SearchOutlined />, null, null, true),
+    getItem("数据洞察", "/insight", <FundOutlined />, null, null, null, true),
+    getItem("集群列表", "/cluster", <ClusterOutlined />),
+    getItem("集群详情", "/insightDetail", <SearchOutlined />, null, null, true),
+    getItem(
+      "集群接入",
+      "/cluster/access",
+      <SearchOutlined />,
+      null,
+      null,
+      true,
+    ),
+    getItem(
+      "更新证书",
+      "/cluster/certificate",
+      <SearchOutlined />,
+      null,
+      null,
+      true,
+    ),
+    getItem("回流配置", "/reflux", <SearchOutlined />, null, null, true),
+  ];
 
-  useEffect(() => {
-    const routes = matchRoutes(router, { pathname: location.pathname });
-    // console.log('routes', routes, location.pathname);
-    const pathArr: string[] = [];
-    if (routes && routes.length) {
-      routes.forEach((item) => {
-        const path = item.route.path;
-        if (path === location.pathname) {
-          pathArr.push(path);
-        }
-      });
+  function getKey() {
+    return [pathname];
+  }
+
+  function getMenuItems() {
+    function loop(list) {
+      return list
+        ?.filter((item) => !item?.hidden)
+        ?.map((item) => {
+          if (item?.children) {
+            item.children = loop(item?.children);
+          }
+          return item;
+        });
     }
-    setSelectKey(pathArr);
-    setDefaultOpenKeys(pathArr);
-    setInitial(true);
-  }, [location]);
+    return loop(menuItems);
+  }
 
-  if (!initial) {
-    return null;
+  function handleMenuClick(e) {
+    navigate(e.key);
+  }
+
+  function goHome() {
+    navigate("/search");
   }
 
   return (
-    <Layout>
-      <Header className={styles["top-container"]}>
-        <div className={styles.logo}>
-          <HeatMapOutlined />
+    <div className={styles.wrapper}>
+      <div className={styles.nav}>
+        <div className={styles.left}>
+          <div className={styles.title} onClick={goHome}>
+            <div className={styles.subLogo}>K</div>
+            <div className={styles.text}>Karbour 数据门户</div>
+          </div>
+          <div>
+            <Divider type="vertical" />
+          </div>
+          <Menu
+            style={{ flex: 1, border: "none" }}
+            mode="horizontal"
+            selectedKeys={getKey()}
+            items={getMenuItems()}
+            onClick={handleMenuClick}
+          />
         </div>
-        <Menu
-          style={{ flex: 1, border: "none" }}
-          mode="horizontal"
-          defaultSelectedKeys={defaultSelectedKeys}
-          defaultOpenKeys={defaultOpenKeys}
-          selectedKeys={defaultSelectedKeys}
-          items={items}
-        />
-      </Header>
-      <Content className={styles.container}>
-        <Outlet />
-      </Content>
-    </Layout>
+        <div className={styles.right}>
+          <div className={styles.help}>
+            <a
+              target="_blank"
+              href="https://github.com/KusionStack/karbour"
+              rel="noreferrer"
+            >
+              <QuestionCircleOutlined style={{ color: "#999" }} />
+            </a>
+          </div>
+        </div>
+      </div>
+      <div className={styles.content}>
+        <div className={styles.right}>
+          <div className={styles.right_content}>
+            <Outlet />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 

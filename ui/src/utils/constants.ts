@@ -1,10 +1,10 @@
 export const basicSyntaxColumns = [
   [
     {
-      title: 'Scope search to specific repos',
+      title: "Scope search to specific repos",
       queryExamples: [
-        { id: 'org-repos', query: 'repo:sourcegraph/.*' },
-        { id: 'single-repo', query: 'repo:facebook/react' },
+        { id: "org-repos", query: "repo:sourcegraph/.*" },
+        { id: "single-repo", query: "repo:facebook/react" },
       ],
     },
     // {
@@ -25,11 +25,11 @@ export const basicSyntaxColumns = [
   ],
   [
     {
-      title: 'Get logical',
+      title: "Get logical",
       queryExamples: [
-        { id: 'not-operator', query: 'lang:go NOT file:main.go' },
-        { id: 'or-operator', query: 'lang:javascript OR lang:typescript' },
-        { id: 'and-operator', query: 'hello AND world' },
+        { id: "not-operator", query: "lang:go NOT file:main.go" },
+        { id: "or-operator", query: "lang:javascript OR lang:typescript" },
+        { id: "and-operator", query: "hello AND world" },
       ],
     },
     // {
@@ -54,7 +54,7 @@ export const basicSyntaxColumns = [
     //     ],
     // },
   ],
-]
+];
 
 const relationshipModule = {
   key: "relationship",
@@ -62,9 +62,9 @@ const relationshipModule = {
     w: 18,
     h: 4,
     x: 0,
-    y: 0
-  }
-}
+    y: 0,
+  },
+};
 
 const statInfoModule = {
   key: "statInfo",
@@ -72,9 +72,9 @@ const statInfoModule = {
     w: 18,
     h: 4,
     x: 0,
-    y: 0
-  }
-}
+    y: 0,
+  },
+};
 
 const initModuleGrid = [
   {
@@ -83,8 +83,8 @@ const initModuleGrid = [
       w: 6,
       h: 4,
       x: 18,
-      y: 0
-    }
+      y: 0,
+    },
   },
   {
     key: "issue",
@@ -92,8 +92,8 @@ const initModuleGrid = [
       w: 18,
       h: 4,
       x: 0,
-      y: 4
-    }
+      y: 4,
+    },
   },
   {
     key: "score",
@@ -101,15 +101,37 @@ const initModuleGrid = [
       w: 6,
       h: 4,
       x: 18,
-      y: 4
-    }
+      y: 4,
+    },
   },
-]
+];
 
-const insightModuleGrid = [relationshipModule, ...initModuleGrid]
-const clusterModuleGrid = [statInfoModule, ...initModuleGrid]
+const insightModuleGrid = [relationshipModule, ...initModuleGrid];
+const clusterModuleGrid = [statInfoModule, ...initModuleGrid];
 
-export {
-  insightModuleGrid,
-  clusterModuleGrid
-}
+export { insightModuleGrid, clusterModuleGrid };
+
+export const SEVERITY_MAP = {
+  Critical: {
+    color: "purple",
+    text: "严重",
+  },
+  High: {
+    color: "error",
+    text: "高",
+  },
+  Medium: {
+    color: "warning",
+    text: "中",
+  },
+  Low: {
+    color: "success",
+    text: "低",
+  },
+  Safe: {
+    color: "success",
+    text: "安全",
+  },
+};
+
+export const searchPrefix = "select * from resources";

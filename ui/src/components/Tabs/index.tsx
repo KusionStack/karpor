@@ -4,22 +4,45 @@ import styles from "./style.module.less";
 
 type Props = {
   current: string;
-  list: Array<{ label: string; value: string }>;
-  onChange: (val: string) => void;
+  list: Array<{
+    label: string | React.ReactNode;
+    value: string;
+    disabled?: boolean;
+  }>;
+  onChange: (val: string, index?: number) => void;
+  itemStyle?: any;
+  boxStyle?: any;
 };
 
-const KarbourTabs = ({ current, list, onChange }: Props) => {
+const KarbourTabs = ({
+  current,
+  list,
+  onChange,
+  itemStyle,
+  boxStyle,
+}: Props) => {
   return (
-    <div className={styles['tab-container']}>
-      {list?.map((item) => {
+    <div className={styles.tabContainer} style={boxStyle}>
+      {list?.map((item, index) => {
         return (
           <div
             className={styles.item}
             key={item.value as React.Key}
-            onClick={() => onChange(item.value)}
+            onClick={() => {
+              !item?.disabled && onChange(item.value, index);
+            }}
+            style={{
+              ...itemStyle,
+              ...(item?.disabled ? { color: "#f1f1f1" } : {}),
+            }}
           >
             <div
-              className={classNames(styles.normal, { [styles.active]: current === item.value })}
+              className={classNames(styles.normal, {
+                [styles.active]: current === item.value,
+              })}
+              style={
+                item?.disabled ? { color: "#999", cursor: "not-allowed" } : {}
+              }
             >
               {item.label}
             </div>

@@ -1,5 +1,5 @@
 import { lazy, ReactNode, Suspense } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet, useRoutes } from "react-router-dom";
 import {
   SearchOutlined,
   MacCommandOutlined,
@@ -8,16 +8,24 @@ import {
 import { Spin } from "antd";
 import Layout from "../components/Layout";
 
-const Search = lazy(() => import("../views/search/Search"));
-const Result = lazy(() => import("../views/result/Result"));
-const Cluster = lazy(() => import("../views/cluster/Cluster"));
-const ClusterDetail = lazy(
-  () => import("../views/cluster-detail/ClusterDetail")
+const Search = lazy(() => import("../pages/search"));
+const Result = lazy(() => import("../pages/result"));
+const Cluster = lazy(() => import("../pages/cluster"));
+const ClusterAdd = lazy(() => import("../pages/cluster/add"));
+const ClusterCertificate = lazy(() => import("../pages/cluster/certificate"));
+const InsightDetailCluster = lazy(
+  () => import("../pages/insightDetail/cluster"),
 );
-const Insight = lazy(() => import("../views/insight/Insight"));
-const Detail = lazy(() => import("../views/detail/Detail"));
-const NotFound = lazy(() => import("../views/notfound/NotFound"));
-const InsightGrid = lazy(() => import("../views/insightGrid/InsightGrid"));
+const InsightDetailKind = lazy(() => import("../pages/insightDetail/kind"));
+const InsightDetailNamespace = lazy(
+  () => import("../pages/insightDetail/namespace"),
+);
+const InsightDetailResource = lazy(
+  () => import("../pages/insightDetail/resource"),
+);
+const Reflux = lazy(() => import("../pages/reflux"));
+const Insight = lazy(() => import("../pages/insight"));
+const NotFound = lazy(() => import("../pages/notfound"));
 
 const lazyLoad = (children: ReactNode): ReactNode => {
   return <Suspense fallback={<Spin />}>{children}</Suspense>;
@@ -25,12 +33,12 @@ const lazyLoad = (children: ReactNode): ReactNode => {
 
 export interface RouteObject {
   key?: string;
-  path: string;
+  path?: string;
   title?: string;
   icon?: React.ReactNode;
   element: React.ReactNode;
   children?: RouteObject[];
-  istopmenu?: boolean;
+  index?: any;
 }
 
 const router: RouteObject[] = [
@@ -41,26 +49,32 @@ const router: RouteObject[] = [
       {
         key: "/search",
         path: "/search",
-        title: "search",
-        element: lazyLoad(<Search />),
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
         icon: <SearchOutlined />,
-        istopmenu: true,
+        children: [
+          {
+            index: true,
+            title: "搜索",
+            element: lazyLoad(<Search />),
+          },
+          {
+            key: "result",
+            path: "result",
+            title: "结果",
+            element: lazyLoad(<Result />),
+          },
+        ],
       },
       {
-        key: "/result",
-        path: "/result",
-        title: "",
-        element: lazyLoad(<Result />),
-        // icon: <DesktopOutlined />,
-        istopmenu: false,
-      },
-      {
-        key: "/detail",
-        path: "/detail",
-        title: "",
-        element: lazyLoad(<Detail />),
-        // icon: <SendOutlined />,
-        istopmenu: false,
+        key: "/reflux",
+        path: "/reflux",
+        title: "reflux",
+        element: lazyLoad(<Reflux />),
+        icon: <SearchOutlined />,
       },
       {
         key: "/insight",
@@ -68,46 +82,84 @@ const router: RouteObject[] = [
         title: "Insight",
         element: lazyLoad(<Insight />),
         icon: <MacCommandOutlined />,
-        istopmenu: true,
+      },
+      {
+        key: "insightDetail",
+        path: "insightDetail",
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
+        // element: lazyLoad(<InsightDetail />),
+        children: [
+          {
+            key: "cluster",
+            path: "cluster",
+            element: lazyLoad(<InsightDetailCluster />),
+          },
+          {
+            key: "kind",
+            path: "kind",
+            element: lazyLoad(<InsightDetailKind />),
+          },
+          {
+            key: "namespace",
+            path: "namespace",
+            element: lazyLoad(<InsightDetailNamespace />),
+          },
+          {
+            key: "resource",
+            path: "resource",
+            element: lazyLoad(<InsightDetailResource />),
+          },
+        ],
       },
       {
         key: "/cluster",
         path: "/cluster",
-        title: "Cluster",
-        element: lazyLoad(<Cluster />),
+        element: (
+          <>
+            <Outlet />
+          </>
+        ),
         icon: <ApartmentOutlined />,
-        istopmenu: true,
-      },
-      {
-        key: "/clusterDetail",
-        path: "/clusterDetail",
-        title: "",
-        element: lazyLoad(<ClusterDetail />),
-        // icon: <SettingOutlined />,
-        istopmenu: false,
-      },
-      {
-        key: "/insightGrid",
-        path: "/insightGrid",
-        title: "",
-        element: lazyLoad(<InsightGrid />),
-        // icon: <SettingOutlined />,
-        istopmenu: false,
+        children: [
+          {
+            index: true,
+            title: "集群列表",
+            element: lazyLoad(<Cluster />),
+          },
+          {
+            key: "access",
+            path: "access",
+            title: "集群接入",
+            element: lazyLoad(<ClusterAdd />),
+          },
+          {
+            key: "certificate",
+            path: "certificate",
+            title: "更新证书",
+            element: lazyLoad(<ClusterCertificate />),
+          },
+        ],
       },
       {
         path: "/",
         title: "",
         element: <Navigate to="/search" replace />,
-        istopmenu: false,
       },
       {
         path: "*",
         title: "",
         element: <NotFound />,
-        istopmenu: false,
       },
     ],
   },
 ];
 
-export default router;
+const WrappedRoutes = () => {
+  return useRoutes(router);
+};
+
+export default WrappedRoutes;
