@@ -45,8 +45,13 @@ type Query struct {
 	Operator string
 }
 
+type Pagination struct {
+	Page     int
+	PageSize int
+}
+
 type SearchStorage interface {
-	Search(ctx context.Context, queryString, patternType string, pageSize, page int) (*SearchResult, error)
+	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
 }
 
 type SearchStorageGetter interface {

@@ -102,7 +102,7 @@ func (i *InsightManager) scanFor(ctx context.Context, locator core.Locator, noCa
 			"searchQuery", searchQuery, "searchPattern", searchPattern,
 			"searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
-		res, err := i.search.Search(ctx, searchQuery, searchPattern, pageSizeIteration, pageIteration)
+		res, err := i.search.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: pageSizeIteration, PageSize: pageIteration})
 		if err != nil {
 			return nil, err
 		}

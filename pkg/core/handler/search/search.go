@@ -66,7 +66,7 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
-		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, searchPageSize, searchPage)
+		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return

@@ -21,6 +21,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/KusionStack/karbour/pkg/syncer/internal"
@@ -53,6 +55,7 @@ type SyncSource interface {
 type informerSource struct {
 	cluster string
 	v1beta1.ResourceSyncRule
+	storage storage.Storage
 
 	client   dynamic.Interface
 	informer clientgocache.Controller
@@ -62,9 +65,10 @@ type informerSource struct {
 	stopped chan struct{}
 }
 
-func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule) SyncSource {
+func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) SyncSource {
 	return &informerSource{
 		cluster:          cluster,
+		storage:          storage,
 		ResourceSyncRule: rsr,
 		client:           client,
 		stopped:          make(chan struct{}),
@@ -140,7 +144,9 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 	}
 
 	h := internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
-	return cache.NewResourceInformer(lw, utils.MultiSelectors(selectors), transform, resyncPeriod, h), nil
+	// TODO: Use interface instead of struct
+	knownObjects := utils.NewESListerGetter(s.cluster, s.storage.(*elasticsearch.ESClient), gvr)
+	return cache.NewResourceInformer(lw, utils.MultiSelectors(selectors), transform, resyncPeriod, h, knownObjects), nil
 }
 
 func (s *informerSource) HasSynced() bool {

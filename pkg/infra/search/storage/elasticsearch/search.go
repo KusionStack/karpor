@@ -24,21 +24,27 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/cch123/elasticsql"
+	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/pkg/errors"
 )
 
-func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string, pageSize, page int) (*storage.SearchResult, error) {
+type Pagination struct {
+	Page     int
+	PageSize int
+}
+
+func (s *ESClient) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var res *SearchResponse
 	var err error
 
 	switch patternType {
 	case storage.DSLPatternType:
-		res, err = s.searchByDSL(ctx, queryStr, pageSize, page)
+		res, err = s.searchByDSL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by DSL failed")
 		}
 	case storage.SQLPatternType:
-		res, err = s.searchBySQL(ctx, queryStr, pageSize, page)
+		res, err = s.searchBySQL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by SQL failed")
 		}
@@ -58,7 +64,7 @@ func (s *ESClient) Search(ctx context.Context, queryStr string, patternType stri
 	return rt, nil
 }
 
-func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pageSize, page int) (*SearchResponse, error) {
+func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*SearchResponse, error) {
 	queries, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
@@ -67,38 +73,44 @@ func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pageSize, pag
 	if err != nil {
 		return nil, err
 	}
-	res, err := s.searchByQuery(ctx, esQuery, pageSize, page)
+	res, err := s.SearchByQuery(ctx, esQuery, pagination)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string, pageSize, page int) (*SearchResponse, error) {
+func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*SearchResponse, error) {
 	dsl, _, err := elasticsql.Convert(sqlStr)
 	if err != nil {
 		return nil, err
 	}
-	return s.search(ctx, strings.NewReader(dsl), pageSize, page)
+	return s.search(ctx, strings.NewReader(dsl), pagination)
 }
 
-func (s *ESClient) searchByQuery(ctx context.Context, query map[string]interface{}, pageSize, page int) (*SearchResponse, error) {
+func (s *ESClient) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*SearchResponse, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
 	}
-	return s.search(ctx, buf, pageSize, page)
+	return s.search(ctx, buf, pagination)
 }
 
-func (s *ESClient) search(ctx context.Context, body io.Reader, pageSize, page int) (*SearchResponse, error) {
-	from := (page - 1) * pageSize
-	resp, err := s.client.Search(
+func (s *ESClient) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*SearchResponse, error) {
+	opts := []func(*esapi.SearchRequest){
 		s.client.Search.WithContext(ctx),
 		s.client.Search.WithIndex(s.indexName),
 		s.client.Search.WithBody(body),
-		s.client.Search.WithSize(pageSize),
-		s.client.Search.WithFrom(from),
-	)
+	}
+	if pagination != nil {
+		from := (pagination.Page - 1) * pagination.PageSize
+		opts = append(
+			opts,
+			s.client.Search.WithSize(pagination.PageSize),
+			s.client.Search.WithFrom(from),
+		)
+	}
+	resp, err := s.client.Search(opts...)
 	if err != nil {
 		return nil, err
 	}

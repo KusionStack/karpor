@@ -61,10 +61,11 @@ func NewResourceInformer(lw cache.ListerWatcher,
 	transform cache.TransformFunc,
 	resyncPeriod time.Duration,
 	handler ResourceHandler,
+	knownObjects cache.KeyListerGetter,
 ) cache.Controller {
 	informerCache := NewResourceCache()
 	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
-		KnownObjects:          informerCache,
+		KnownObjects:          knownObjects,
 		EmitDeltaTypeReplaced: true,
 	})
 
