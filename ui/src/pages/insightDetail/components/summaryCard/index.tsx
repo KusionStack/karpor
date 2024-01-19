@@ -145,13 +145,13 @@ const SummaryCard = ({ auditStat, summary }) => {
               <div className={styles.value}>{summary?.nodeCount || "--"}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>Pods：</div>
+              <div className={styles.label}>Pod：</div>
               <div className={styles.value}>
                 {summary?.podsCapacity || "--"}
               </div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>CPU容量：</div>
+              <div className={styles.label}>CPU 容量：</div>
               <div className={styles.value}>{summary?.cpuCapacity || "--"}</div>
             </div>
             <div className={styles.item}>
@@ -163,7 +163,7 @@ const SummaryCard = ({ auditStat, summary }) => {
               </div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>Kubemate版本：</div>
+              <div className={styles.label}>Kubernetes 版本：</div>
               {/* <div className={styles.value}>{summary?.serverVersion || '--'}</div> */}
               <PopoverCard data={summary?.serverVersion} />
             </div>
