@@ -29,17 +29,21 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   const urlSearchParams = queryString?.parse(location?.search);
 
   function goResourcePage(record) {
+    const nav = record?.object?.kind === "Namespace" ? "namespace" : "resource";
     const params = {
       from: urlSearchParams?.from,
-      cluster: urlSearchParams?.cluster,
-      name: record?.object?.metadata?.name,
+      type: nav,
+      query: urlSearchParams?.query,
+      cluster: record?.cluster,
       kind: record?.object?.kind,
       apiVersion: record?.object?.apiVersion,
-      namespace: record?.object?.metadata?.namespace,
-      query: urlSearchParams?.query,
+      ...(nav === "namespace"
+        ? { namespace: record?.object?.metadata?.name }
+        : { namespace: record?.object?.metadata?.namespace }),
+      ...(nav === "resource" ? { name: record?.object?.metadata?.name } : {}),
     };
     const urlParams = queryString?.stringify(params);
-    navigate(`/insightDetail/resource?type=resource&${urlParams}`);
+    navigate(`/insightDetail/${nav}?${urlParams}`);
   }
 
   const columns = [
