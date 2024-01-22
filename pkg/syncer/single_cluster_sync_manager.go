@@ -227,7 +227,6 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
     s.logger.Info("create resource syncer", "rsr", rsr)
     syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
-    // handler := NewSyncer(s.clusterName, s.storage)
     s.syncers.Store(gvr, syncer)
     s.controller.Watch(syncer.Source(), handler.Funcs{
         CreateFunc: func(ce event.CreateEvent, rli workqueue.RateLimitingInterface) {

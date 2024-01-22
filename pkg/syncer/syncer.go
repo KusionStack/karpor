@@ -17,12 +17,10 @@ package syncer
 import (
     "context"
     "fmt"
-    "sync"
     "time"
 
     "github.com/KusionStack/karbour/pkg/infra/search/storage"
     "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
-    "github.com/KusionStack/karbour/pkg/syncer/cache"
     "github.com/go-logr/logr"
     "github.com/pkg/errors"
     utilruntime "k8s.io/apimachinery/pkg/util/runtime"
@@ -33,60 +31,11 @@ import (
     ctrl "sigs.k8s.io/controller-runtime"
     "sigs.k8s.io/controller-runtime/pkg/client"
     "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-    "k8s.io/apimachinery/pkg/types"
+    "github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
+    "strings"
 )
 
 const defaultWorkers = 10
-
-type syncCache struct {
-    objs map[string]client.Object
-    sync.RWMutex
-}
-
-type Item struct {
-    Key string
-    Uid types.UID
-}
-
-func (c *syncCache) Save(obj client.Object) bool {
-    c.Lock()
-    defer c.Unlock()
-
-    key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-    _, isDeleted := obj.(deleted)
-    fmt.Printf("key=%s,isDeleted=%v,v=%s\n", key, isDeleted, obj.GetResourceVersion())
-    cached, ok := c.objs[key]
-    if ok {
-        // only override if resource version is newer
-        compare, _ := cache.CompareResourverVersion(obj.GetResourceVersion(), cached.GetResourceVersion())
-        if compare <= 0 {
-            return false
-        }
-    }
-    c.objs[key] = obj
-    return true
-}
-
-func (c *syncCache) Remove(obj client.Object) {
-    c.Lock()
-    defer c.Unlock()
-
-    key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-    cached, ok := c.objs[key]
-    if !ok {
-        return
-    }
-    if obj.GetResourceVersion() == cached.GetResourceVersion() {
-        delete(c.objs, key)
-    }
-}
-
-func (c *syncCache) Get(key string) (client.Object, bool) {
-    c.RLock()
-    defer c.RUnlock()
-    obj, ok := c.objs[key]
-    return obj, ok
-}
 
 type deleted struct {
     client.Object
@@ -147,8 +96,7 @@ func (s *ResourceSyncer) OnGeneric(obj client.Object) {
 
 func (s *ResourceSyncer) enqueue(obj client.Object) {
     key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-    item := Item{key, obj.GetUID()}
-    s.queue.Add(item)
+    s.queue.Add(key)
 }
 
 func (s *ResourceSyncer) Run(ctx context.Context) error {
@@ -189,48 +137,69 @@ func (s *ResourceSyncer) runWorker(ctx context.Context) {
 }
 
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
-    val, shutdown := s.queue.Get()
+    item, shutdown := s.queue.Get()
     if shutdown {
         return false
     }
-    item := val.(Item)
+    key := item.(string)
     func() {
-        defer s.queue.Done(val)
+        defer s.queue.Done(item)
 
-        var op string
-        var err error
-        if op, err = s.sync(ctx, item); err != nil {
-            s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, item.Key), "op", op)
+        if err := s.sync(ctx, key); err != nil {
             s.queue.AddRateLimited(item)
             return
         }
-        s.logger.Info("Successfully synced", "op", op, "key", item.Key)
-        s.queue.Forget(val)
+        s.queue.Forget(item)
         return
     }()
     return true
 }
 
-func (s *ResourceSyncer) sync(ctx context.Context, item Item) (string, error) {
-    op := "unknown"
-    val, exists, err := s.source.GetByKey(item.Key)
+func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
+    val, exists, err := s.source.GetByKey(key)
     if err != nil {
-        return op, err
+        return err
     }
 
+    var op string
     if exists {
         op = "save"
         obj := val.(*unstructured.Unstructured)
         err = s.storage.Save(ctx, s.source.Cluster(), obj)
     } else {
         op = "delete"
-        obj := &unstructured.Unstructured{}
-        obj.SetUID(item.Uid)
+        obj := genUnObj(s.SyncRule(), key)
         err = s.storage.Delete(ctx, s.source.Cluster(), obj)
+        if errors.Is(err, elasticsearch.ErrNotFound) {
+            s.logger.Error(err, "failed to sync", "key", key, "op", op)
+            err = nil
+        }
     }
 
     if err != nil {
-        return op, err
+        s.logger.Error(err, "failed to sync", "key", key, "op", op)
+        return err
     }
-    return op, nil
+
+    if op == "save" {
+        s.logger.V(2).Info("successfully sync", "key", key, "op", op)
+    } else {
+        s.logger.Info("successfully sync", "key", key, "op", op)
+    }
+    return nil
+}
+
+func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
+    obj := &unstructured.Unstructured{}
+    obj.SetAPIVersion(sr.APIVersion)
+    obj.SetKind(sr.Resource[0 : len(sr.Resource)-1])
+    keys := strings.Split(key, "/")
+    if len(keys) == 1 {
+        obj.SetName(keys[0])
+    } else if len(keys) == 2 {
+        obj.SetNamespace(keys[0])
+        obj.SetName(keys[1])
+
+    }
+    return obj
 }

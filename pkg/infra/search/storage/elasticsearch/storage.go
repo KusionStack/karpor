@@ -18,9 +18,12 @@ import (
     "context"
     "fmt"
 
-    "k8s.io/apimachinery/pkg/api/meta"
     "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
     "k8s.io/apimachinery/pkg/runtime"
+)
+
+var (
+    ErrNotFound = fmt.Errorf("object not found")
 )
 
 func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
@@ -28,12 +31,17 @@ func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object)
 }
 
 func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
-    metaObj, err := meta.Accessor(obj)
-    if err != nil {
+    unObj, ok := obj.(*unstructured.Unstructured)
+    if !ok {
+        // TODO: support other implement of runtime.Object
+        return fmt.Errorf("only support *unstructured.Unstructured type")
+    }
+
+    if err := s.Get(ctx, cluster, unObj); err != nil {
         return err
     }
 
-    return s.deleteByID(ctx, string(metaObj.GetUID()))
+    return s.deleteByID(ctx, string(unObj.GetUID()))
 }
 
 func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
@@ -50,14 +58,10 @@ func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
     }
 
     resources := sr.GetResources()
-    if len(resources) != 1 {
-        return fmt.Errorf("query result expected 1, got %d", len(resources))
+    if len(resources) == 0 {
+        return ErrNotFound
     }
 
-    unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0].Object)
-    if err != nil {
-        return err
-    }
-    unObj.SetUnstructuredContent(unStructContent)
+    unObj.SetUnstructuredContent(resources[0].Object)
     return nil
 }
