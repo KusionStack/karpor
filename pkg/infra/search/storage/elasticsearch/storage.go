@@ -15,54 +15,49 @@
 package elasticsearch
 
 import (
-	"context"
-	"fmt"
+    "context"
+    "fmt"
 
-	"k8s.io/apimachinery/pkg/api/meta"
-	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-	"k8s.io/apimachinery/pkg/runtime"
+    "k8s.io/apimachinery/pkg/api/meta"
+    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+    "k8s.io/apimachinery/pkg/runtime"
 )
 
 func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-	return s.insertObj(ctx, cluster, obj)
+    return s.insertObj(ctx, cluster, obj)
 }
 
 func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
-	metaObj, err := meta.Accessor(obj)
-	if err != nil {
-		return err
-	}
+    metaObj, err := meta.Accessor(obj)
+    if err != nil {
+        return err
+    }
 
-	query := generateQuery(cluster, metaObj.GetNamespace(), metaObj.GetName(), obj)
-	err = s.deleteByQuery(ctx, query)
-	if err != nil {
-		return err
-	}
-	return nil
+    return s.deleteByID(ctx, string(metaObj.GetUID()))
 }
 
 func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
-	unObj, ok := obj.(*unstructured.Unstructured)
-	if !ok {
-		// TODO: support other implement of runtime.Object
-		return fmt.Errorf("only support *unstructured.Unstructured type")
-	}
+    unObj, ok := obj.(*unstructured.Unstructured)
+    if !ok {
+        // TODO: support other implement of runtime.Object
+        return fmt.Errorf("only support *unstructured.Unstructured type")
+    }
 
-	query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-	sr, err := s.SearchByQuery(ctx, query, nil)
-	if err != nil {
-		return err
-	}
+    query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
+    sr, err := s.SearchByQuery(ctx, query, nil)
+    if err != nil {
+        return err
+    }
 
-	resources := sr.GetResources()
-	if len(resources) != 1 {
-		return fmt.Errorf("query result expected 1, got %d", len(resources))
-	}
+    resources := sr.GetResources()
+    if len(resources) != 1 {
+        return fmt.Errorf("query result expected 1, got %d", len(resources))
+    }
 
-	unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0].Object)
-	if err != nil {
-		return err
-	}
-	unObj.SetUnstructuredContent(unStructContent)
-	return nil
+    unStructContent, err := runtime.DefaultUnstructuredConverter.ToUnstructured(resources[0].Object)
+    if err != nil {
+        return err
+    }
+    unObj.SetUnstructuredContent(unStructContent)
+    return nil
 }
