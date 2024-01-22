@@ -32,6 +32,8 @@ import (
     "k8s.io/client-go/util/workqueue"
     ctrl "sigs.k8s.io/controller-runtime"
     "sigs.k8s.io/controller-runtime/pkg/client"
+    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+    "k8s.io/apimachinery/pkg/types"
 )
 
 const defaultWorkers = 10
@@ -39,6 +41,11 @@ const defaultWorkers = 10
 type syncCache struct {
     objs map[string]client.Object
     sync.RWMutex
+}
+
+type Item struct {
+    Key string
+    Uid types.UID
 }
 
 func (c *syncCache) Save(obj client.Object) bool {
@@ -139,7 +146,9 @@ func (s *ResourceSyncer) OnGeneric(obj client.Object) {
 }
 
 func (s *ResourceSyncer) enqueue(obj client.Object) {
-    s.queue.Add(obj)
+    key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
+    item := Item{key, obj.GetUID()}
+    s.queue.Add(item)
 }
 
 func (s *ResourceSyncer) Run(ctx context.Context) error {
@@ -180,52 +189,48 @@ func (s *ResourceSyncer) runWorker(ctx context.Context) {
 }
 
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
-    item, shutdown := s.queue.Get()
+    val, shutdown := s.queue.Get()
     if shutdown {
         return false
     }
-    obj, ok := item.(client.Object)
-    if !ok {
-        s.logger.Error(nil, "unsupported type: %T", item)
-        return false
-    }
+    item := val.(Item)
+    func() {
+        defer s.queue.Done(val)
 
-    s.syncObj(ctx, obj)
+        var op string
+        var err error
+        if op, err = s.sync(ctx, item); err != nil {
+            s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, item.Key), "op", op)
+            s.queue.AddRateLimited(item)
+            return
+        }
+        s.logger.Info("Successfully synced", "op", op, "key", item.Key)
+        s.queue.Forget(val)
+        return
+    }()
     return true
 }
 
-func (s *ResourceSyncer) syncObj(ctx context.Context, obj client.Object) error {
-    defer s.queue.Done(obj)
-    var op string
-    var err error
-    key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-
-    if op, err = s.sync(ctx, obj); err != nil {
-        s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, key), "op", op)
-        s.queue.AddRateLimited(obj)
-        return err
-    }
-    s.logger.Info("Successfully synced", "op", op, "event", key)
-    s.queue.Forget(obj)
-    return nil
-}
-
-func (s *ResourceSyncer) sync(ctx context.Context, obj client.Object) (string, error) {
+func (s *ResourceSyncer) sync(ctx context.Context, item Item) (string, error) {
     op := "unknown"
-    _, isDeleted := obj.(deleted)
-    cluster := s.source.Cluster()
-
-    var err error
-    if isDeleted {
-        op = "delete"
-        err = s.storage.Delete(ctx, cluster, obj)
-    } else {
-        op = "save"
-        err = s.storage.Save(ctx, cluster, obj)
-    }
+    val, exists, err := s.source.GetByKey(item.Key)
     if err != nil {
         return op, err
     }
 
+    if exists {
+        op = "save"
+        obj := val.(*unstructured.Unstructured)
+        err = s.storage.Save(ctx, s.source.Cluster(), obj)
+    } else {
+        op = "delete"
+        obj := &unstructured.Unstructured{}
+        obj.SetUID(item.Uid)
+        err = s.storage.Delete(ctx, s.source.Cluster(), obj)
+    }
+
+    if err != nil {
+        return op, err
+    }
     return op, nil
 }
