@@ -63,7 +63,7 @@ func NewResourceInformer(lw cache.ListerWatcher,
 	handler ResourceHandler,
 	knownObjects cache.KeyListerGetter,
 ) cache.Controller {
-	// informerCache := NewResourceCache()
+	informerCache := NewResourceCache()
 	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
 		KnownObjects:          knownObjects,
 		EmitDeltaTypeReplaced: true,
@@ -83,28 +83,27 @@ func NewResourceInformer(lw cache.ListerWatcher,
 
 		switch dType {
 		case cache.Sync, cache.Replaced, cache.Added, cache.Updated:
-			return handler.OnAdd(obj)
-			// if _, exists, err := informerCache.Get(obj); err == nil && exists {
-			// 	if newer, err := informerCache.IsNewer(obj); err != nil {
-			// 		return err
-			// 	} else if !newer {
-			// 		return nil
-			// 	}
-			//
-			// 	if err := informerCache.Update(obj); err != nil {
-			// 		return err
-			// 	}
-			// 	return handler.OnUpdate(obj)
-			// } else {
-			// 	if err := informerCache.Add(obj); err != nil {
-			// 		return err
-			// 	}
-			// 	return handler.OnAdd(obj)
-			// }
+			if _, exists, err := informerCache.Get(obj); err == nil && exists {
+				if newer, err := informerCache.IsNewer(obj); err != nil {
+					return err
+				} else if !newer {
+					return nil
+				}
+
+				if err := informerCache.Update(obj); err != nil {
+					return err
+				}
+				return handler.OnUpdate(obj)
+			} else {
+				if err := informerCache.Add(obj); err != nil {
+					return err
+				}
+				return handler.OnAdd(obj)
+			}
 		case cache.Deleted:
-			// if err := informerCache.Delete(obj); err != nil {
-			// 	return err
-			// }
+			if err := informerCache.Delete(obj); err != nil {
+				return err
+			}
 			return handler.OnDelete(obj)
 		}
 		return nil
