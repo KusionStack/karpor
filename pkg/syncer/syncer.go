@@ -180,11 +180,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 		return err
 	}
 
-	if op == "save" {
-		s.logger.V(2).Info("successfully sync", "key", key, "op", op)
-	} else {
-		s.logger.Info("successfully sync", "key", key, "op", op)
-	}
+	s.logger.V(1).Info("successfully sync", "key", key, "op", op)
 	return nil
 }
 
