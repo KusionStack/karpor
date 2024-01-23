@@ -19,10 +19,17 @@ import (
 
 	"github.com/spf13/pflag"
 
+	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
+	k8sopenapi "github.com/KusionStack/karbour/pkg/kubernetes/openapi"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
+	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/server"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/apiserver/pkg/server/filters"
 	"k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/util/feature"
@@ -31,17 +38,20 @@ import (
 	clientgoclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/component-base/featuregate"
 	"k8s.io/klog/v2"
+	"k8s.io/kube-openapi/pkg/common"
+	kubeoptions "k8s.io/kubernetes/pkg/kubeapiserver/options"
 )
 
 // RecommendedOptions contains the recommended options for running an API server.
 // If you add something to this list, it should be in a logical grouping.
 // Each of them can be nil to leave the feature unconfigured on ApplyTo.
 type RecommendedOptions struct {
-	ServerRun     *options.ServerRunOptions
-	Etcd          *options.EtcdOptions
-	SecureServing *options.SecureServingOptionsWithLoopback
-	Audit         *options.AuditOptions
-	Features      *options.FeatureOptions
+	ServerRun      *options.ServerRunOptions
+	Etcd           *options.EtcdOptions
+	SecureServing  *options.SecureServingOptionsWithLoopback
+	Audit          *options.AuditOptions
+	Features       *options.FeatureOptions
+	Authentication *kubeoptions.BuiltInAuthenticationOptions
 
 	// FeatureGate is a way to plumb feature gate through if you have them.
 	FeatureGate featuregate.FeatureGate
@@ -60,9 +70,18 @@ func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptio
 	sso.HTTP2MaxStreamsPerConnection = 1000
 
 	return &RecommendedOptions{
-		ServerRun:                  options.NewServerRunOptions(),
-		Etcd:                       options.NewEtcdOptions(storagebackend.NewDefaultConfig(prefix, codec)),
-		SecureServing:              sso.WithLoopback(),
+		ServerRun:     options.NewServerRunOptions(),
+		Etcd:          options.NewEtcdOptions(storagebackend.NewDefaultConfig(prefix, codec)),
+		SecureServing: sso.WithLoopback(),
+		Authentication: kubeoptions.NewBuiltInAuthenticationOptions().
+			WithAnonymous().
+			WithBootstrapToken().
+			WithClientCert().
+			WithOIDC().
+			WithRequestHeader().
+			WithServiceAccounts().
+			WithTokenFile().
+			WithWebHook(),
 		Audit:                      options.NewAuditOptions(),
 		Features:                   options.NewFeatureOptions(),
 		FeatureGate:                feature.DefaultFeatureGate,
@@ -77,6 +96,7 @@ func (o *RecommendedOptions) AddFlags(fs *pflag.FlagSet) {
 	o.ServerRun.AddUniversalFlags(fs)
 	o.Etcd.AddFlags(fs)
 	o.SecureServing.AddFlags(fs)
+	o.Authentication.AddFlags(fs)
 	o.Audit.AddFlags(fs)
 	o.Features.AddFlags(fs)
 	o.Admission.AddFlags(fs)
@@ -87,42 +107,62 @@ func (o *RecommendedOptions) AddFlags(fs *pflag.FlagSet) {
 // ApplyTo adds RecommendedOptions to the server configuration.
 // pluginInitializers can be empty, it is only need for additional initializers.
 func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
-	if err := o.ServerRun.ApplyTo(&config.Config); err != nil {
+	genericConfig := &config.Config
+	if err := o.ServerRun.ApplyTo(genericConfig); err != nil {
 		return err
 	}
-	if err := o.Etcd.Complete(config.Config.StorageObjectCountTracker, config.Config.DrainedNotify(), config.Config.AddPostStartHook); err != nil {
+	if err := o.Etcd.Complete(genericConfig.StorageObjectCountTracker, genericConfig.DrainedNotify(), genericConfig.AddPostStartHook); err != nil {
 		return err
 	}
-	if err := o.Etcd.ApplyTo(&config.Config); err != nil {
+	if err := o.Etcd.ApplyTo(genericConfig); err != nil {
 		return err
 	}
-	if err := o.EgressSelector.ApplyTo(&config.Config); err != nil {
+	if err := o.EgressSelector.ApplyTo(genericConfig); err != nil {
 		return err
 	}
-	if err := o.Traces.ApplyTo(config.Config.EgressSelector, &config.Config); err != nil {
+	if err := o.Traces.ApplyTo(genericConfig.EgressSelector, genericConfig); err != nil {
 		return err
 	}
-	if err := o.SecureServing.ApplyTo(&config.Config.SecureServing, &config.Config.LoopbackClientConfig); err != nil {
+	if err := o.SecureServing.ApplyTo(&genericConfig.SecureServing, &genericConfig.LoopbackClientConfig); err != nil {
 		return err
 	}
-	if err := o.Audit.ApplyTo(&config.Config); err != nil {
-		return err
+
+	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	genericConfig.OpenAPIConfig.Info.Title = "Karbour"
+	genericConfig.OpenAPIConfig.Info.Version = "0.1"
+	if feature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
+		genericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+		genericConfig.OpenAPIV3Config.Info.Title = "Karbour"
+		genericConfig.OpenAPIV3Config.Info.Version = "0.1"
 	}
-	if err := o.Features.ApplyTo(&config.Config); err != nil {
-		return err
-	}
+
+	genericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
+		sets.NewString("watch", "proxy"),
+		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
+	)
 
 	kubeClientConfig := config.LoopbackClientConfig
 	client, err := clientgoclientset.NewForConfig(kubeClientConfig)
 	if err != nil {
 		return err
 	}
+	informer := clientgoinformers.NewSharedInformerFactory(client, kubeClientConfig.Timeout)
 	config.ClientConfig = kubeClientConfig
-	config.SharedInformerFactory = clientgoinformers.NewSharedInformerFactory(client, kubeClientConfig.Timeout)
+	config.SharedInformerFactory = informer
+
+	if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, config.OpenAPIV3Config, client, informer); err != nil {
+		return err
+	}
+	if err := o.Audit.ApplyTo(genericConfig); err != nil {
+		return err
+	}
+	if err := o.Features.ApplyTo(genericConfig); err != nil {
+		return err
+	}
 
 	if initializers, err := o.ExtraAdmissionInitializers(config); err != nil {
 		return err
-	} else if err := o.Admission.ApplyTo(&config.Config, config.SharedInformerFactory, config.ClientConfig, o.FeatureGate, initializers...); err != nil {
+	} else if err := o.Admission.ApplyTo(genericConfig, config.SharedInformerFactory, config.ClientConfig, o.FeatureGate, initializers...); err != nil {
 		return err
 	}
 	if feature.DefaultFeatureGate.Enabled(features.APIPriorityAndFairness) {
@@ -148,6 +188,7 @@ func (o *RecommendedOptions) Validate() []error {
 	errors = append(errors, o.ServerRun.Validate()...)
 	errors = append(errors, o.Etcd.Validate()...)
 	errors = append(errors, o.SecureServing.Validate()...)
+	errors = append(errors, o.Authentication.Validate()...)
 	errors = append(errors, o.Audit.Validate()...)
 	errors = append(errors, o.Features.Validate()...)
 	errors = append(errors, o.Admission.Validate()...)
@@ -155,4 +196,12 @@ func (o *RecommendedOptions) Validate() []error {
 	errors = append(errors, o.Traces.Validate()...)
 
 	return errors
+}
+
+func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
+	ret := k8sopenapi.GetOpenAPIDefinitions(ref)
+	for k, v := range karbouropenapi.GetOpenAPIDefinitions(ref) {
+		ret[k] = v
+	}
+	return ret
 }

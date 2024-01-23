@@ -26,28 +26,21 @@ import (
 	"os"
 
 	"github.com/KusionStack/karbour/cmd/app/options"
-	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
-	k8sopenapi "github.com/KusionStack/karbour/pkg/kubernetes/openapi"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/server"
+	"github.com/KusionStack/karbour/pkg/syncer"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
-
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 
-	"github.com/KusionStack/karbour/pkg/syncer"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
-	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/endpoints/discovery"
-	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/apiserver/pkg/server/filters"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/klog/v2"
-	"k8s.io/kube-openapi/pkg/common"
 	netutils "k8s.io/utils/net"
 )
 
@@ -161,26 +154,11 @@ func (o *Options) Config() (*server.Config, error) {
 		return nil, err
 	}
 
-	config.GenericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(
-		GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-	config.GenericConfig.OpenAPIConfig.Info.Title = "Karbour"
-	config.GenericConfig.OpenAPIConfig.Info.Version = "0.1"
-	config.GenericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
-		sets.NewString("watch", "proxy"),
-		sets.NewString("attach", "exec", "proxy", "log", "portforward"),
-	)
-	if utilfeature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		config.GenericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(
-			GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-		config.GenericConfig.OpenAPIV3Config.Info.Title = "Karbour"
-		config.GenericConfig.OpenAPIV3Config.Info.Version = "0.1"
-	}
 	config.GenericConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
 		handler = proxyutil.WithProxyByCluster(handler)
 		return handler
 	}
-
 	config.GenericConfig.Config.EnableIndex = false
 	// Define the discovery addresses for the API server
 	config.GenericConfig.DiscoveryAddresses = discovery.DefaultAddresses{
@@ -210,12 +188,4 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 	server.GenericAPIServer.AddPostStartHookOrDie("register-default-sync-strategy", syncer.StrategyRegister)
 
 	return server.GenericAPIServer.PrepareRun().Run(stopCh)
-}
-
-func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
-	ret := k8sopenapi.GetOpenAPIDefinitions(ref)
-	for k, v := range karbouropenapi.GetOpenAPIDefinitions(ref) {
-		ret[k] = v
-	}
-	return ret
 }
