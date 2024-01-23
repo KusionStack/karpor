@@ -15,53 +15,51 @@
 package elasticsearch
 
 import (
-    "context"
-    "fmt"
+	"context"
+	"fmt"
 
-    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-    "k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 )
 
-var (
-    ErrNotFound = fmt.Errorf("object not found")
-)
+var ErrNotFound = fmt.Errorf("object not found")
 
 func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-    return s.insertObj(ctx, cluster, obj)
+	return s.insertObj(ctx, cluster, obj)
 }
 
 func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
-    unObj, ok := obj.(*unstructured.Unstructured)
-    if !ok {
-        // TODO: support other implement of runtime.Object
-        return fmt.Errorf("only support *unstructured.Unstructured type")
-    }
+	unObj, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		// TODO: support other implement of runtime.Object
+		return fmt.Errorf("only support *unstructured.Unstructured type")
+	}
 
-    if err := s.Get(ctx, cluster, unObj); err != nil {
-        return err
-    }
+	if err := s.Get(ctx, cluster, unObj); err != nil {
+		return err
+	}
 
-    return s.deleteByID(ctx, string(unObj.GetUID()))
+	return s.deleteByID(ctx, string(unObj.GetUID()))
 }
 
 func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
-    unObj, ok := obj.(*unstructured.Unstructured)
-    if !ok {
-        // TODO: support other implement of runtime.Object
-        return fmt.Errorf("only support *unstructured.Unstructured type")
-    }
+	unObj, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		// TODO: support other implement of runtime.Object
+		return fmt.Errorf("only support *unstructured.Unstructured type")
+	}
 
-    query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-    sr, err := s.SearchByQuery(ctx, query, nil)
-    if err != nil {
-        return err
-    }
+	query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
+	sr, err := s.SearchByQuery(ctx, query, nil)
+	if err != nil {
+		return err
+	}
 
-    resources := sr.GetResources()
-    if len(resources) == 0 {
-        return ErrNotFound
-    }
+	resources := sr.GetResources()
+	if len(resources) == 0 {
+		return ErrNotFound
+	}
 
-    unObj.SetUnstructuredContent(resources[0].Object)
-    return nil
+	unObj.SetUnstructuredContent(resources[0].Object)
+	return nil
 }

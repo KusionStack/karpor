@@ -11,7 +11,7 @@ import (
 )
 
 type Importer interface {
-	ImportTo(store cache.Store) error
+	ImportTo(ctx context.Context, store cache.Store) error
 }
 
 var _ Importer = &ESImporter{}
@@ -30,7 +30,7 @@ func NewESImporter(esClient *elasticsearch.ESClient, cluster string, gvr schema.
 	}
 }
 
-func (e *ESImporter) ImportTo(store cache.Store) error {
+func (e *ESImporter) ImportTo(ctx context.Context, store cache.Store) error {
 	resource := e.gvr.Resource
 	kind := resource[0 : len(resource)-1]
 	query := make(map[string]interface{})
@@ -39,7 +39,7 @@ func (e *ESImporter) ImportTo(store cache.Store) error {
 		esquery.Term("apiVersion", e.gvr.GroupVersion().String()),
 		esquery.Term("kind", kind),
 	).Map()
-	sr, err := e.esClient.SearchByQuery(context.Background(), query, nil)
+	sr, err := e.esClient.SearchByQuery(ctx, query, nil)
 	if err != nil {
 		return err
 	}
