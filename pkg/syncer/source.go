@@ -43,6 +43,10 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+const (
+	defaultResyncPeriod = 1 * time.Hour
+)
+
 type SyncSource interface {
 	source.Source
 	clientgocache.Store
@@ -167,7 +171,7 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 		return nil, nil, errors.Wrap(err, "error parsing transform rule")
 	}
 
-	var resyncPeriod time.Duration
+	resyncPeriod := defaultResyncPeriod
 	if s.ResyncPeriod != nil {
 		resyncPeriod = s.ResyncPeriod.Duration
 	}
