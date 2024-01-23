@@ -25,10 +25,12 @@ import (
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
+	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/server"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/apiserver/pkg/server/egressselector"
 	"k8s.io/apiserver/pkg/server/filters"
 	"k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
@@ -52,6 +54,7 @@ type RecommendedOptions struct {
 	Audit          *options.AuditOptions
 	Features       *options.FeatureOptions
 	Authentication *kubeoptions.BuiltInAuthenticationOptions
+	Authorization  *kubeoptions.BuiltInAuthorizationOptions
 
 	// FeatureGate is a way to plumb feature gate through if you have them.
 	FeatureGate featuregate.FeatureGate
@@ -82,6 +85,7 @@ func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptio
 			WithServiceAccounts().
 			WithTokenFile().
 			WithWebHook(),
+		Authorization:              kubeoptions.NewBuiltInAuthorizationOptions(),
 		Audit:                      options.NewAuditOptions(),
 		Features:                   options.NewFeatureOptions(),
 		FeatureGate:                feature.DefaultFeatureGate,
@@ -97,6 +101,7 @@ func (o *RecommendedOptions) AddFlags(fs *pflag.FlagSet) {
 	o.Etcd.AddFlags(fs)
 	o.SecureServing.AddFlags(fs)
 	o.Authentication.AddFlags(fs)
+	o.Authorization.AddFlags(fs)
 	o.Audit.AddFlags(fs)
 	o.Features.AddFlags(fs)
 	o.Admission.AddFlags(fs)
@@ -153,6 +158,12 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, config.OpenAPIV3Config, client, informer); err != nil {
 		return err
 	}
+
+	genericConfig.Authorization.Authorizer, genericConfig.RuleResolver, err = BuildAuthorizer(o.Authorization, config.EgressSelector, informer)
+	if err != nil {
+		return err
+	}
+
 	if err := o.Audit.ApplyTo(genericConfig); err != nil {
 		return err
 	}
@@ -204,4 +215,19 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		ret[k] = v
 	}
 	return ret
+}
+
+// BuildAuthorizer constructs the authorizer
+func BuildAuthorizer(authz *kubeoptions.BuiltInAuthorizationOptions, EgressSelector *egressselector.EgressSelector, versionedInformers clientgoinformers.SharedInformerFactory) (authorizer.Authorizer, authorizer.RuleResolver, error) {
+	authorizationConfig := authz.ToAuthorizationConfig(versionedInformers)
+
+	if EgressSelector != nil {
+		egressDialer, err := EgressSelector.Lookup(egressselector.ControlPlane.AsNetworkContext())
+		if err != nil {
+			return nil, nil, err
+		}
+		authorizationConfig.CustomDial = egressDialer
+	}
+
+	return authorizationConfig.New()
 }
