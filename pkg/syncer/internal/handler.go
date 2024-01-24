@@ -36,6 +36,7 @@ func (e EventHandler) OnAdd(obj interface{}) {
 	u, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		klog.Errorf("invalid object type. Expected *unstructured.Unstructured, but got %T", obj)
+		return
 	}
 
 	ce := event.CreateEvent{Object: u}
