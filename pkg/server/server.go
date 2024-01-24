@@ -27,11 +27,14 @@ import (
 	clusterstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/cluster"
 	corestorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/core"
 	searchstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/ui"
 	"github.com/go-chi/chi/v5"
-
+	"k8s.io/apiserver/pkg/registry/generic"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	serverstorage "k8s.io/apiserver/pkg/server/storage"
 	"k8s.io/klog/v2"
+	rbacrest "k8s.io/kubernetes/pkg/registry/rbac/rest"
 )
 
 // KarbourServer is the carrier of the main process of Karbour.
@@ -48,20 +51,11 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 	if s.err != nil {
 		return s
 	}
-
-	// Installing core API group
-	coreProvider := corestorage.RESTStorageProvider{}
-	coreGroupName := coreProvider.GroupName()
-	coreGroupInfo, err := coreProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
+	err := s.InstallLegacyAPI(c.GenericConfig.RESTOptionsGetter)
 	if err != nil {
-		s.err = fmt.Errorf("problem initializing API group %q: %v", coreGroupName, err)
+		s.err = err
 		return s
 	}
-	if err := s.GenericAPIServer.InstallLegacyAPIGroup(genericapiserver.DefaultLegacyAPIPrefix, &coreGroupInfo); err != nil {
-		s.err = fmt.Errorf("problem installing legacy API group %q: %v", coreGroupName, err)
-		return s
-	}
-	klog.Infof("Enabling API group %q.", coreGroupName)
 
 	// Initialize REST storage providers for the server.
 	restStorageProviders := []registry.RESTStorageProvider{
@@ -72,37 +66,14 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 			ElasticSearchName:      c.ExtraConfig.ElasticSearchUsername,
 			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
 		},
+		rbacrest.RESTStorageProvider{Authorizer: c.GenericConfig.Authorization.Authorizer},
 	}
-
-	// Attempt to set up each storage provider on the server.
-	for _, restStorageProvider := range restStorageProviders {
-		groupName := restStorageProvider.GroupName()
-		apiGroupInfo, err := restStorageProvider.NewRESTStorage(
-			c.GenericConfig.RESTOptionsGetter,
-		)
-		if err != nil {
-			// Capture initialization errors and prevent further setup attempts.
-			s.err = fmt.Errorf("problem initializing API group %q: %v", groupName, err)
-			return s
-		}
-
-		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
-			// Skip the setup of this API group if it is effectively disabled
-			// (no resources configured).
-			klog.Infof("API group %q is not enabled, skipping.", groupName)
-			continue
-		}
-
-		// Install the API group on the GenericAPIServer.
-		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			// Capture any errors encountered during installation.
-			s.err = fmt.Errorf("problem installing API group %q: %v", groupName, err)
-			return s
-		}
-
-		klog.Infof("Enabling API group %q.", groupName)
+	apiResourceConfigSource := serverstorage.NewResourceConfig()
+	apiResourceConfigSource.EnableVersions(scheme.Versions...)
+	err = s.InstallAPIs(apiResourceConfigSource, c.GenericConfig.RESTOptionsGetter, restStorageProviders...)
+	if err != nil {
+		s.err = err
 	}
-
 	return s
 }
 
@@ -182,4 +153,46 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 // to ensure any issues are captured and reported.
 func (s *KarbourServer) Error() error {
 	return s.err
+}
+
+func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
+	// Installing core API group
+	coreProvider := corestorage.RESTStorageProvider{}
+	coreGroupName := coreProvider.GroupName()
+	coreGroupInfo, err := coreProvider.NewRESTStorage(restOptionsGetter)
+	if err != nil {
+		return fmt.Errorf("problem initializing legacy API group %q: %v", coreGroupName, err)
+	}
+	if err = s.GenericAPIServer.InstallLegacyAPIGroup(genericapiserver.DefaultLegacyAPIPrefix, &coreGroupInfo); err != nil {
+		return fmt.Errorf("problem installing legacy API group %q: %v", coreGroupName, err)
+	}
+	klog.Infof("Enabling legacy API group %q.", coreGroupName)
+	return nil
+}
+
+func (s *KarbourServer) InstallAPIs(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter, restStorageProviders ...registry.RESTStorageProvider) error {
+	// Attempt to set up each storage provider on the server.
+	for _, restStorageProvider := range restStorageProviders {
+		groupName := restStorageProvider.GroupName()
+		apiGroupInfo, err := restStorageProvider.NewRESTStorage(apiResourceConfigSource, restOptionsGetter)
+		if err != nil {
+			return fmt.Errorf("problem initializing API group %q: %v", groupName, err)
+		}
+
+		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
+			// Skip the setup of this API group if it is effectively disabled
+			// (no resources configured).
+			klog.Infof("API group %q is not enabled, skipping.", groupName)
+			continue
+		}
+
+		// Install the API group on the GenericAPIServer.
+		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
+			// Capture any errors encountered during installation.
+			return fmt.Errorf("problem installing API group %q: %v", groupName, err)
+		}
+
+		klog.Infof("Enabling API group %q.", groupName)
+	}
+	return nil
 }
