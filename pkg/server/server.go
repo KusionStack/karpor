@@ -171,14 +171,13 @@ func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGe
 }
 
 func (s *KarbourServer) InstallAPIs(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter, restStorageProviders ...registry.RESTStorageProvider) error {
-	// Attempt to set up each storage provider on the server.
+	apiGroupsInfo := []*genericapiserver.APIGroupInfo{}
 	for _, restStorageProvider := range restStorageProviders {
 		groupName := restStorageProvider.GroupName()
 		apiGroupInfo, err := restStorageProvider.NewRESTStorage(apiResourceConfigSource, restOptionsGetter)
 		if err != nil {
 			return fmt.Errorf("problem initializing API group %q: %v", groupName, err)
 		}
-
 		if len(apiGroupInfo.VersionedResourcesStorageMap) == 0 {
 			// Skip the setup of this API group if it is effectively disabled
 			// (no resources configured).
@@ -186,13 +185,21 @@ func (s *KarbourServer) InstallAPIs(apiResourceConfigSource serverstorage.APIRes
 			continue
 		}
 
-		// Install the API group on the GenericAPIServer.
-		if err = s.GenericAPIServer.InstallAPIGroup(&apiGroupInfo); err != nil {
-			// Capture any errors encountered during installation.
-			return fmt.Errorf("problem installing API group %q: %v", groupName, err)
+		klog.Infof("Enabling API group %q.", groupName)
+
+		if postHookProvider, ok := restStorageProvider.(genericapiserver.PostStartHookProvider); ok {
+			name, hook, err := postHookProvider.PostStartHook()
+			if err != nil {
+				klog.Fatalf("Error building PostStartHook: %v", err)
+			}
+			s.GenericAPIServer.AddPostStartHookOrDie(name, hook)
 		}
 
-		klog.Infof("Enabling API group %q.", groupName)
+		apiGroupsInfo = append(apiGroupsInfo, &apiGroupInfo)
+	}
+
+	if err := s.GenericAPIServer.InstallAPIGroups(apiGroupsInfo...); err != nil {
+		return fmt.Errorf("error in registering group versions: %v", err)
 	}
 	return nil
 }
