@@ -17,14 +17,15 @@ package syncer
 import (
 	"context"
 	"fmt"
-	"sync"
+	"strings"
 	"time"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
@@ -36,49 +37,6 @@ import (
 
 const defaultWorkers = 10
 
-type syncCache struct {
-	objs map[string]client.Object
-	sync.RWMutex
-}
-
-func (c *syncCache) Save(obj client.Object) bool {
-	c.Lock()
-	defer c.Unlock()
-
-	key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-	cached, ok := c.objs[key]
-	if ok {
-		// only override if resource version is newer
-		compare, _ := cache.CompareResourverVersion(obj.GetResourceVersion(), cached.GetResourceVersion())
-		if compare <= 0 {
-			return false
-		}
-	}
-	c.objs[key] = obj
-	return true
-}
-
-func (c *syncCache) Remove(obj client.Object) {
-	c.Lock()
-	defer c.Unlock()
-
-	key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-	cached, ok := c.objs[key]
-	if !ok {
-		return
-	}
-	if obj.GetResourceVersion() == cached.GetResourceVersion() {
-		delete(c.objs, key)
-	}
-}
-
-func (c *syncCache) Get(key string) (client.Object, bool) {
-	c.RLock()
-	defer c.RUnlock()
-	obj, ok := c.objs[key]
-	return obj, ok
-}
-
 type deleted struct {
 	client.Object
 }
@@ -87,10 +45,7 @@ type ResourceSyncer struct {
 	source  SyncSource
 	storage storage.Storage
 
-	queue workqueue.RateLimitingInterface
-	// resources that being processed or to be processed, but only keep the latest resource version
-	pendingResources *syncCache
-
+	queue  workqueue.RateLimitingInterface
 	ctx    context.Context
 	cancel context.CancelFunc
 
@@ -100,11 +55,10 @@ type ResourceSyncer struct {
 func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) *ResourceSyncer {
 	source := NewSource(cluster, dynamicClient, rsr, storage)
 	return &ResourceSyncer{
-		source:           source,
-		storage:          storage,
-		queue:            workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), fmt.Sprintf("%s/%s-sync-queue", rsr.APIVersion, rsr.Resource)),
-		pendingResources: &syncCache{objs: make(map[string]client.Object)},
-		logger:           ctrl.Log.WithName(fmt.Sprintf("%s-syncer", source.SyncRule().Resource)),
+		source:  source,
+		storage: storage,
+		queue:   workqueue.NewNamedRateLimitingQueue(workqueue.DefaultControllerRateLimiter(), fmt.Sprintf("%s/%s-sync-queue", rsr.APIVersion, rsr.Resource)),
+		logger:  ctrl.Log.WithName(fmt.Sprintf("%s-syncer", source.SyncRule().Resource)),
 	}
 }
 
@@ -141,10 +95,8 @@ func (s *ResourceSyncer) OnGeneric(obj client.Object) {
 }
 
 func (s *ResourceSyncer) enqueue(obj client.Object) {
-	if s.pendingResources.Save(obj) {
-		key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
-		s.queue.Add(key)
-	}
+	key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
+	s.queue.Add(key)
 }
 
 func (s *ResourceSyncer) Run(ctx context.Context) error {
@@ -185,61 +137,63 @@ func (s *ResourceSyncer) runWorker(ctx context.Context) {
 }
 
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
-	obj, shutdown := s.queue.Get()
-
+	item, shutdown := s.queue.Get()
 	if shutdown {
 		return false
 	}
+	key := item.(string)
+	func() {
+		defer s.queue.Done(item)
 
-	// TODO: handle the sync error
-	_ = func(obj interface{}) error {
-		defer s.queue.Done(obj)
-
-		key, ok := obj.(string)
-		if !ok {
-			utilruntime.HandleError(fmt.Errorf("expected string in workqueue but got %#v", obj))
-			return nil
+		if err := s.sync(ctx, key); err != nil {
+			s.queue.AddRateLimited(item)
+			return
 		}
-
-		var op string
-		var err error
-		if op, err = s.sync(ctx, key); err != nil {
-			s.logger.Error(err, fmt.Sprintf("Failed to sync %s/%s", s.source.SyncRule().Resource, key), "op", op)
-			s.queue.AddRateLimited(key)
-			return err
-		}
-		s.logger.Info("Successfully synced", "op", op, "event", key)
-		s.queue.Forget(obj)
-		return nil
-	}(obj)
+		s.queue.Forget(item)
+	}()
 	return true
 }
 
-func (s *ResourceSyncer) sync(ctx context.Context, key string) (string, error) {
-	op := "unknown"
-	obj, ok := s.pendingResources.Get(key)
-	if !ok {
-		s.logger.WithValues("resourceKey", key).Info("ignore sync, resource object already processed")
-		return op, nil
-	}
-
-	_, isDeleted := obj.(deleted)
-	obj = obj.DeepCopyObject().(client.Object)
-	cluster := s.source.Cluster()
-
-	var err error
-	if isDeleted {
-		op = "delete"
-		err = s.storage.Delete(ctx, cluster, obj)
-	} else {
-		op = "save"
-		err = s.storage.Save(ctx, cluster, obj)
-	}
+func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
+	val, exists, err := s.source.GetByKey(key)
 	if err != nil {
-		return op, err
+		return err
 	}
 
-	// obj was successfully processed, remove it from cache
-	s.pendingResources.Remove(obj)
-	return op, nil
+	var op string
+	if exists {
+		op = "save"
+		obj := val.(*unstructured.Unstructured)
+		err = s.storage.Save(ctx, s.source.Cluster(), obj)
+	} else {
+		op = "delete"
+		obj := genUnObj(s.SyncRule(), key)
+		err = s.storage.Delete(ctx, s.source.Cluster(), obj)
+		if errors.Is(err, elasticsearch.ErrNotFound) {
+			s.logger.Error(err, "failed to sync", "key", key, "op", op)
+			err = nil
+		}
+	}
+
+	if err != nil {
+		s.logger.Error(err, "failed to sync", "key", key, "op", op)
+		return err
+	}
+
+	s.logger.V(1).Info("successfully sync", "key", key, "op", op)
+	return nil
+}
+
+func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
+	obj := &unstructured.Unstructured{}
+	obj.SetAPIVersion(sr.APIVersion)
+	obj.SetKind(sr.Resource[0 : len(sr.Resource)-1])
+	keys := strings.Split(key, "/")
+	if len(keys) == 1 {
+		obj.SetName(keys[0])
+	} else if len(keys) == 2 {
+		obj.SetNamespace(keys[0])
+		obj.SetName(keys[1])
+	}
+	return obj
 }

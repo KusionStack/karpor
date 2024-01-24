@@ -18,11 +18,9 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"io"
 
 	"github.com/aquasecurity/esquery"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
-
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -85,18 +83,34 @@ func (s *ESClient) insertObj(ctx context.Context, cluster string, obj runtime.Ob
 	return nil
 }
 
+//nolint:unused
 func (s *ESClient) deleteByQuery(ctx context.Context, query map[string]interface{}) error {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return err
 	}
-	return s.delete(ctx, buf)
-}
-
-func (s *ESClient) delete(ctx context.Context, body io.Reader) error {
 	req := esapi.DeleteByQueryRequest{
 		Index: []string{s.indexName},
-		Body:  body,
+		Body:  buf,
+	}
+	resp, err := req.Do(ctx, s.client)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.IsError() {
+		return &ESError{
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
+		}
+	}
+	return nil
+}
+
+func (s *ESClient) deleteByID(ctx context.Context, id string) error {
+	req := esapi.DeleteRequest{
+		Index:      s.indexName,
+		DocumentID: id,
 	}
 	resp, err := req.Do(ctx, s.client)
 	if err != nil {

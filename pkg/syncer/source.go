@@ -24,7 +24,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karbour/pkg/syncer/cache"
 	"github.com/KusionStack/karbour/pkg/syncer/internal"
 	"github.com/KusionStack/karbour/pkg/syncer/transform"
 	"github.com/KusionStack/karbour/pkg/syncer/utils"
@@ -44,8 +43,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/source"
 )
 
+const (
+	defaultResyncPeriod = 1 * time.Hour
+)
+
 type SyncSource interface {
 	source.Source
+	clientgocache.Store
 	Cluster() string
 	SyncRule() v1beta1.ResourceSyncRule
 	Stop(context.Context) error
@@ -58,11 +62,48 @@ type informerSource struct {
 	storage storage.Storage
 
 	client   dynamic.Interface
+	cache    clientgocache.Store
 	informer clientgocache.Controller
 
 	ctx     context.Context
 	cancel  context.CancelFunc
 	stopped chan struct{}
+}
+
+func (s *informerSource) Add(obj interface{}) error {
+	return s.cache.Add(obj)
+}
+
+func (s *informerSource) Update(obj interface{}) error {
+	return s.cache.Update(obj)
+}
+
+func (s *informerSource) Delete(obj interface{}) error {
+	return s.cache.Delete(obj)
+}
+
+func (s *informerSource) List() []interface{} {
+	return s.cache.List()
+}
+
+func (s *informerSource) ListKeys() []string {
+	return s.cache.ListKeys()
+}
+
+func (s *informerSource) Get(obj interface{}) (item interface{}, exists bool, err error) {
+	return s.cache.Get(obj)
+}
+
+func (s *informerSource) GetByKey(key string) (item interface{}, exists bool, err error) {
+	return s.cache.GetByKey(key)
+}
+
+func (s *informerSource) Replace(i []interface{}, s2 string) error {
+	return s.cache.Replace(i, s2)
+}
+
+func (s *informerSource) Resync() error {
+	return s.cache.Resync()
 }
 
 func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) SyncSource {
@@ -84,10 +125,11 @@ func (s *informerSource) SyncRule() v1beta1.ResourceSyncRule {
 }
 
 func (s *informerSource) Start(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) error {
-	informer, err := s.createInformer(ctx, handler, queue, predicates...)
+	cache, informer, err := s.createInformer(ctx, handler, queue, predicates...)
 	if err != nil {
 		return err
 	}
+	s.cache = cache
 	s.informer = informer
 
 	s.ctx, s.cancel = context.WithCancel(ctx)
@@ -113,23 +155,23 @@ func (s *informerSource) Stop(ctx context.Context) error {
 	}
 }
 
-func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Controller, error) {
+func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing GroupVersionResource")
+		return nil, nil, errors.Wrap(err, "error parsing GroupVersionResource")
 	}
 
 	selectors, err := parseSelectors(s.ResourceSyncRule)
 	if err != nil {
-		return nil, fmt.Errorf("error parsing selectors: %v", selectors)
+		return nil, nil, fmt.Errorf("error parsing selectors: %v", selectors)
 	}
 
 	transform, err := s.parseTransformer()
 	if err != nil {
-		return nil, errors.Wrap(err, "error parsing transform rule")
+		return nil, nil, errors.Wrap(err, "error parsing transform rule")
 	}
 
-	var resyncPeriod time.Duration
+	resyncPeriod := defaultResyncPeriod
 	if s.ResyncPeriod != nil {
 		resyncPeriod = s.ResyncPeriod.Duration
 	}
@@ -143,10 +185,14 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 		},
 	}
 
-	h := internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
+	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
+	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, transform)
 	// TODO: Use interface instead of struct
-	knownObjects := utils.NewESListerGetter(s.cluster, s.storage.(*elasticsearch.ESClient), gvr)
-	return cache.NewResourceInformer(lw, utils.MultiSelectors(selectors), transform, resyncPeriod, h, knownObjects), nil
+	importer := utils.NewESImporter(s.storage.(*elasticsearch.ESClient), s.cluster, gvr)
+	if err = importer.ImportTo(ctx, cache); err != nil {
+		return nil, nil, err
+	}
+	return cache, informer, nil
 }
 
 func (s *informerSource) HasSynced() bool {
