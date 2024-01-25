@@ -56,6 +56,7 @@ const defaultEtcdPathPrefix = "/registry/karbour"
 type Options struct {
 	RecommendedOptions   *options.RecommendedOptions
 	SearchStorageOptions *options.SearchStorageOptions
+	CoreOptions          *options.CoreOptions
 
 	StdOut io.Writer
 	StdErr io.Writer
@@ -71,6 +72,7 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 			scheme.Codecs.LegacyCodec(scheme.Versions...),
 		),
 		SearchStorageOptions: options.NewSearchStorageOptions(),
+		CoreOptions:          options.NewCoreOptions(),
 		StdOut:               out,
 		StdErr:               errOut,
 	}
@@ -119,6 +121,7 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.SearchStorageOptions.AddFlags(fs)
+	o.CoreOptions.AddFlags(fs)
 }
 
 // Validate validates Options
@@ -144,6 +147,9 @@ func (o *Options) Config() (*server.Config, error) {
 		return nil, err
 	}
 	if err := o.SearchStorageOptions.ApplyTo(config.ExtraConfig); err != nil {
+		return nil, err
+	}
+	if err := o.CoreOptions.ApplyTo(config.ExtraConfig); err != nil {
 		return nil, err
 	}
 

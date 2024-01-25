@@ -51,6 +51,9 @@ func NewCoreServer(
 	router.Use(appmiddleware.APILogger)
 	router.Use(appmiddleware.Timing)
 	router.Use(middleware.Recoverer)
+	if extraConfig.ReadOnlyMode {
+		router.Use(appmiddleware.ReadOnlyMode)
+	}
 
 	// Initialize managers, storage for the different core components of the API.
 	searchStorage, err := search.NewSearchStorage(*extraConfig)
