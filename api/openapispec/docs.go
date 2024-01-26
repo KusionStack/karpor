@@ -1000,6 +1000,12 @@ var doc = `{
                         "description": "The specified resource name, such as 'foo'",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Force re-generating the topology, default is 'false'",
+                        "name": "forceNew",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1135,6 +1141,29 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/server-configs": {
+            "get": {
+                "description": "Print server configs",
+                "consumes": [
+                    "text/plain"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "debug"
+                ],
+                "summary": "Print server configs",
+                "responses": {
+                    "200": {
+                        "description": "Config printed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -1226,8 +1255,8 @@ var doc = `{
                         "type": "string"
                     }
                 },
-                "identifier": {
-                    "type": "string"
+                "locator": {
+                    "$ref": "#/definitions/core.Locator"
                 },
                 "parents": {
                     "type": "array",

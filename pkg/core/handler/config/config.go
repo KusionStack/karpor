@@ -34,7 +34,7 @@ import (
 // @Accept       plain
 // @Produce      plain
 // @Success      200  {string}  string  "Config printed successfully"
-// @Router       /server-config [get]
+// @Router       /server-configs [get]
 func GetServerConfig(router chi.Router, genericConfig *genericapiserver.CompletedConfig, extraConfig *registry.ExtraConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
