@@ -32,23 +32,15 @@
 
 # Karbour
 
-Karbour is a search and insight platform for Kubernetes resources. Search smarter, not harder! ⛵️
+Karbour is a Search and Insight platform for Multi-Kubernetes Resources. Search smarter, not harder! ⛵️
 
-<!-- ## Key Features -->
+## Key Features
 
-<!-- - **App Whole Lifecycle Management**: Manage App from the first code to production-ready with [Karbour](https://github.com/KarbourStack/karbour) and [Konfig](https://github.com/KarbourStack/konfig) -->
+-   `Karbour` runs on compute as low as $15/month.
+-   Lightweight and easy to setup. One `helm` is done.
+-   Self-hosted - Cost-effective, bring your own server, scale when you need.
 
-<!-- - **Self-Service**: Enable App Dev self-service capabilities and help them cooperate with SRE and Platform Dev efficiently -->
-
-<!-- - **Hybrid Resources Operation**: Orchestrate hybrid runtime resources such as Kubernetes, clouds and customized infrastructures in a unified way -->
-
-<!-- - **Vendor Agnostic**: Write once, render dynamically, deliver to any cloud -->
-
-<!-- <div align="center"> -->
-
-<!-- ![arch](docs/arch.png) -->
-
-<!-- </div> -->
+<!-- - HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates. -->
 
 ## Quick Start
 
@@ -76,7 +68,7 @@ docker pull kusionstack/karbour:latest
 
 # Contact Us
 
-- Twitter: [KusionStack](https://twitter.com/KusionStack)
+-   Twitter: [KusionStack](https://twitter.com/KusionStack)
 
 <!-- - Slack: [Kusionstack](https://join.slack.com/t/karbour/shared_invite/zt-19lqcc3a9-_kTNwagaT5qwBE~my5Lnxg) -->
 
