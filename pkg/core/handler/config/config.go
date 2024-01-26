@@ -15,7 +15,6 @@
 package config
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/KusionStack/karbour/pkg/core/handler"
@@ -42,7 +41,7 @@ func GetServerConfig(router chi.Router, genericConfig *genericapiserver.Complete
 		logger := ctxutil.GetLogger(ctx)
 
 		logger.Info("Getting server config...")
-		configData, err := json.Marshal(MaskSecretInConfig(extraConfig))
-		handler.HandleResult(w, r, ctx, err, string(configData))
+		configData, err := MaskSecretInConfig(extraConfig)
+		handler.HandleResult(w, r, ctx, err, configData)
 	}
 }

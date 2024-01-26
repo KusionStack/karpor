@@ -14,10 +14,17 @@
 
 package config
 
-import "github.com/KusionStack/karbour/pkg/kubernetes/registry"
+import (
+	"fmt"
 
-func MaskSecretInConfig(extraConfig *registry.ExtraConfig) *registry.ExtraConfig {
+	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+)
+
+func MaskSecretInConfig(extraConfig *registry.ExtraConfig) (*registry.ExtraConfig, error) {
+	if extraConfig == nil {
+		return nil, fmt.Errorf("extraConfig should not be empty")
+	}
 	maskedConfig := *extraConfig
 	maskedConfig.ElasticSearchPassword = "redacted"
-	return &maskedConfig
+	return &maskedConfig, nil
 }
