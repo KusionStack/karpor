@@ -40,7 +40,7 @@ import (
 // @Param        kind        query     string                               false  "The specified kind, such as 'Deployment'"
 // @Param        namespace   query     string                               false  "The specified namespace, such as 'default'"
 // @Param        name        query     string                               false  "The specified resource name, such as 'foo'"
-// @Param        forceNew    query     bool                                                    false  "Force re-generating the topology, default is 'false'"
+// @Param        forceNew    query     bool                                 false  "Force re-generating the topology, default is 'false'"
 // @Success      200         {object}  map[string]insight.ResourceTopology  "map from string to resource.ResourceTopology"
 // @Failure      400         {string}  string                               "Bad Request"
 // @Failure      401         {string}  string                               "Unauthorized"

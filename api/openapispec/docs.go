@@ -1141,29 +1141,6 @@ var doc = `{
                     }
                 }
             }
-        },
-        "/server-configs": {
-            "get": {
-                "description": "Print server configs",
-                "consumes": [
-                    "text/plain"
-                ],
-                "produces": [
-                    "text/plain"
-                ],
-                "tags": [
-                    "debug"
-                ],
-                "summary": "Print server configs",
-                "responses": {
-                    "200": {
-                        "description": "Config printed successfully",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {

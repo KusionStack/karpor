@@ -901,19 +901,4 @@ paths:
         using the query from context.
       tags:
       - search
-  /server-configs:
-    get:
-      consumes:
-      - text/plain
-      description: Print server configs
-      produces:
-      - text/plain
-      responses:
-        "200":
-          description: Config printed successfully
-          schema:
-            type: string
-      summary: Print server configs
-      tags:
-      - debug
 swagger: "2.0"
