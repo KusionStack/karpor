@@ -1,56 +1,57 @@
-import { useEffect, useState } from "react";
-import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import axios from "axios";
-import queryString from "query-string";
-import { Breadcrumb, message } from "antd";
-import ExecptionDrawer from "../components/execptionDrawer";
-import TopologyMap from "../components/topologyMap";
-import KarbourTabs from "../../../components/Tabs";
-import ExecptionList from "../components/execptionList";
-import EventDetail from "../components/eventDetail";
-import Yaml from "../../../components/yaml";
-import K8sEvent from "../components/k8sEvent";
-import K8sEventDrawer from "../components/k8sEventDrawer";
-import SummaryCard from "../components/summaryCard";
-import { generateResourceTopologyData } from "../../../utils/tools";
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import queryString from 'query-string'
+import { Breadcrumb, message } from 'antd'
+import ExecptionDrawer from '../components/execptionDrawer'
+import TopologyMap from '../components/topologyMap'
+import KarbourTabs from '../../../components/Tabs'
+import ExecptionList from '../components/execptionList'
+import EventDetail from '../components/eventDetail'
+import Yaml from '../../../components/Yaml'
+import K8sEvent from '../components/k8sEvent'
+import K8sEventDrawer from '../components/k8sEventDrawer'
+import SummaryCard from '../components/summaryCard'
+import { generateResourceTopologyData } from '../../../utils/tools'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
+import React from 'react'
 
 const ClusterDetail = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const urlParams = queryString.parse(location?.search);
+  const navigate = useNavigate()
+  const location = useLocation()
+  const urlParams = queryString.parse(location?.search)
   const { type, apiVersion, cluster, kind, namespace, name, key, from, query } =
-    urlParams;
-  const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
-  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false);
-  const [currentTab, setCurrentTab] = useState("Topology");
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [yamlData, setYamlData] = useState("");
-  const [auditList, setAuditList] = useState<any>([]);
-  const [auditLoading, setAuditLoading] = useState<any>(false);
-  const [auditStat, setAuditStat] = useState<any>();
-  const [breadcrumbItems, setBreadcrumbItems] = useState([]);
-  const [summary, setSummary] = useState<any>();
-  const [currentItem, setCurrentItem] = useState<any>();
-  const [topologyData, setTopologyData] = useState<any>();
-  const [topologyLoading, setTopologyLoading] = useState(false);
+    urlParams
+  const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
+  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
+  const [currentTab, setCurrentTab] = useState('Topology')
+  const [modalVisible, setModalVisible] = useState<boolean>(false)
+  const [yamlData, setYamlData] = useState('')
+  const [auditList, setAuditList] = useState<any>([])
+  const [auditLoading, setAuditLoading] = useState<any>(false)
+  const [auditStat, setAuditStat] = useState<any>()
+  const [breadcrumbItems, setBreadcrumbItems] = useState([])
+  const [summary, setSummary] = useState<any>()
+  const [currentItem, setCurrentItem] = useState<any>()
+  const [topologyData, setTopologyData] = useState<any>()
+  const [topologyLoading, setTopologyLoading] = useState(false)
 
   const tabsList = [
-    { label: "关联资源", value: "Topology" },
-    { label: "YAML", value: "YAML" },
-    { label: "K8s事件", value: "K8s", disabled: true },
-  ];
+    { label: '关联资源', value: 'Topology' },
+    { label: 'YAML', value: 'YAML' },
+    { label: 'K8s事件', value: 'K8s', disabled: true },
+  ]
 
   async function handleTabChange(value: string) {
-    setCurrentTab(value);
+    setCurrentTab(value)
   }
 
   async function getAudit(isRescan) {
-    setAuditLoading(true);
+    setAuditLoading(true)
     const response: any = await axios({
       url: `/rest-api/v1/insight/audit`,
-      method: "GET",
+      method: 'GET',
       params: {
         apiVersion,
         kind,
@@ -59,18 +60,18 @@ const ClusterDetail = () => {
         name,
         ...(isRescan ? { forceNew: true } : {}),
       },
-    });
-    setAuditLoading(false);
+    })
+    setAuditLoading(false)
     if (response?.success) {
-      setAuditList(response?.data);
+      setAuditList(response?.data)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
   async function getAuditScore() {
     const response: any = await axios({
       url: `/rest-api/v1/insight/score`,
-      method: "GET",
+      method: 'GET',
       params: {
         cluster,
         apiVersion,
@@ -78,31 +79,31 @@ const ClusterDetail = () => {
         namespace,
         name,
       },
-    });
+    })
     if (response?.success) {
-      setAuditStat(response?.data);
+      setAuditStat(response?.data)
     }
   }
   async function getClusterDetail() {
     const response: any = await axios({
-      url: "/rest-api/v1/insight/detail",
+      url: '/rest-api/v1/insight/detail',
       params: {
         cluster,
         apiVersion,
         kind,
         namespace,
         name,
-        format: "yaml",
+        format: 'yaml',
       },
-    });
+    })
     if (response?.success) {
-      setYamlData(response?.data);
+      setYamlData(response?.data)
     }
   }
 
   async function getSummary() {
     const response: any = await axios({
-      url: "/rest-api/v1/insight/summary",
+      url: '/rest-api/v1/insight/summary',
       params: {
         cluster,
         apiVersion,
@@ -110,20 +111,20 @@ const ClusterDetail = () => {
         namespace,
         name,
       },
-    });
+    })
     if (response?.success) {
-      setSummary(response?.data);
+      setSummary(response?.data)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
 
   async function getTopologyData() {
-    setTopologyLoading(true);
+    setTopologyLoading(true)
     try {
       const response: any = await axios({
-        url: "/rest-api/v1/insight/topology",
-        method: "GET",
+        url: '/rest-api/v1/insight/topology',
+        method: 'GET',
         params: {
           cluster,
           apiVersion,
@@ -131,104 +132,103 @@ const ClusterDetail = () => {
           namespace,
           name,
         },
-      });
+      })
       if (response?.success) {
-        const tmpData = generateResourceTopologyData(response?.data);
-        setTopologyData(tmpData);
+        const tmpData = generateResourceTopologyData(response?.data)
+        setTopologyData(tmpData)
       } else {
-        message.error(response?.message || "请求失败");
+        message.error(response?.message || '请求失败')
       }
-      setTopologyLoading(false);
+      setTopologyLoading(false)
     } catch (error) {
-      setTopologyLoading(false);
+      setTopologyLoading(false)
     }
   }
 
   useEffect(() => {
-    getClusterDetail();
-    getAudit(false);
-    getAuditScore();
-    getSummary();
-    getTopologyData();
+    getClusterDetail()
+    getAudit(false)
+    getAuditScore()
+    getSummary()
+    getTopologyData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name, apiVersion]);
+  }, [from, key, cluster, kind, namespace, name, apiVersion])
 
   function rescan() {
-    getAuditScore();
-    getAudit(true);
+    getAuditScore()
+    getAudit(true)
   }
 
   function showDrawer() {
-    setDrawerVisible(true);
+    setDrawerVisible(true)
   }
 
   function showK8sDrawer() {
-    setK8sDrawerVisible(true);
+    setK8sDrawerVisible(true)
   }
 
   function onItemClick(item) {
-    setModalVisible(true);
-    setCurrentItem(item);
+    setModalVisible(true)
+    setCurrentItem(item)
   }
 
   function replacePage(item) {
-    const obj = { from, type, apiVersion, query };
-    const list = ["cluster", "kind", "namespace", "name"];
+    const obj = { from, type, apiVersion, query }
+    const list = ['cluster', 'kind', 'namespace', 'name']
     for (let i = 0; i < list?.length; i++) {
       if (list[i] === item) {
-        obj[list[i]] = urlParams[list[i]];
-        obj.type = item;
-        break;
+        obj[list[i]] = urlParams[list[i]]
+        obj.type = item
+        break
       } else {
-        obj[list[i]] = urlParams[list[i]];
+        obj[list[i]] = urlParams[list[i]]
       }
     }
-    if (from === "result") {
-      obj.query = query;
+    if (from === 'result') {
+      obj.query = query
     }
 
-    const urlStringfyParams = queryString.stringify(obj);
-    navigate(`/insightDetail/${item}?${urlStringfyParams}`);
+    const urlStringfyParams = queryString.stringify(obj)
+    navigate(`/insightDetail/${item}?${urlStringfyParams}`)
   }
 
   function getBreadcrumbs() {
-    let first;
-    if (from === "cluster") {
+    let first
+    if (from === 'cluster') {
       first = {
-        title: <NavLink to={"/cluster"}>集群管理</NavLink>,
-      };
+        title: <NavLink to={'/cluster'}>集群管理</NavLink>,
+      }
     }
-    if (from === "result") {
+    if (from === 'result') {
       first = {
         title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
-      };
+      }
     }
-    const middle = [];
-    ["cluster", "kind", "namespace", "name"]?.forEach((item) => {
+    const middle = []
+    ;['cluster', 'kind', 'namespace', 'name']?.forEach(item => {
       if (urlParams?.[item]) {
         middle.push({
           key: item,
           label: urlParams?.[item],
-          // eslint-disable-next-line jsx-a11y/anchor-is-valid
           title: <a onClick={() => replacePage(item)}>{urlParams?.[item]}</a>,
-        });
+        })
       }
-    });
+    })
     middle[middle?.length - 1] = {
       label: middle[middle?.length - 1]?.lebel,
       title: middle[middle?.length - 1]?.label,
-    };
-    const result = [first, ...middle];
-    setBreadcrumbItems(result);
+    }
+    const result = [first, ...middle]
+    setBreadcrumbItems(result)
   }
 
   useEffect(() => {
-    getBreadcrumbs();
+    getBreadcrumbs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name]);
+  }, [from, key, cluster, kind, namespace, name])
 
   async function onTopologyNodeClick(node: any) {
-    const { locator } = node || {};
+    const { locator } = node || {}
     const paramsObj = {
       apiVersion: locator?.apiVersion,
       cluster: locator?.cluster,
@@ -237,10 +237,10 @@ const ClusterDetail = () => {
       name: locator?.name,
       from,
       query,
-      type: "resource",
-    };
-    const urlString = queryString.stringify(paramsObj);
-    navigate(`/insightDetail/resource?${urlString}`, { replace: true });
+      type: 'resource',
+    }
+    const urlString = queryString.stringify(paramsObj)
+    navigate(`/insightDetail/resource?${urlString}`, { replace: true })
   }
 
   return (
@@ -263,7 +263,6 @@ const ClusterDetail = () => {
       <EventDetail
         open={modalVisible}
         cancel={() => setModalVisible(false)}
-        onOk={() => setModalVisible(false)}
         detail={currentItem}
       />
       <div className={styles.module}>
@@ -290,7 +289,7 @@ const ClusterDetail = () => {
             onChange={handleTabChange}
           />
         </div>
-        {currentTab === "Topology" && (
+        {currentTab === 'Topology' && (
           <TopologyMap
             tableName={name as string}
             isResource={true}
@@ -299,8 +298,8 @@ const ClusterDetail = () => {
             onTopologyNodeClick={onTopologyNodeClick}
           />
         )}
-        {currentTab === "YAML" && <Yaml data={yamlData} />}
-        {currentTab === "K8s" && (
+        {currentTab === 'YAML' && <Yaml data={yamlData} />}
+        {currentTab === 'K8s' && (
           <K8sEvent
             rescan={rescan}
             execptionList={[1, 2, 3, 4, 5]}
@@ -310,7 +309,7 @@ const ClusterDetail = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ClusterDetail;
+export default ClusterDetail

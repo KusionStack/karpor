@@ -1,31 +1,32 @@
-import React, { useEffect, useRef } from "react";
-import type { LegacyRef } from "react";
-import hljs from "highlight.js";
-import yaml from "js-yaml";
-import "highlight.js/styles/lightfair.css";
-import { yaml2json } from "../../utils/tools";
+import React, { useEffect, useRef } from 'react'
+import type { LegacyRef } from 'react'
+import hljs from 'highlight.js'
+import yaml from 'js-yaml'
+import 'highlight.js/styles/lightfair.css'
+import { yaml2json } from '@/utils/tools'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
 
-hljs.registerLanguage("yaml", require("highlight.js/lib/languages/yaml"));
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+hljs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 
 type IProps = {
-  data: any;
-  height?: string | number;
-};
+  data: any
+  height?: string | number
+}
 
 const Yaml = (props: IProps) => {
-  const yamlRef = useRef<LegacyRef<HTMLDivElement> | undefined>();
-  const { data } = props;
+  const yamlRef = useRef<LegacyRef<HTMLDivElement> | undefined>()
+  const { data } = props
   useEffect(() => {
-    const yamlStatusJson = yaml2json(data);
+    const yamlStatusJson = yaml2json(data)
     if (yamlRef.current && yamlStatusJson?.data) {
-      (yamlRef.current as unknown as HTMLElement).innerHTML = hljs.highlight(
-        "yaml",
+      ;(yamlRef.current as unknown as HTMLElement).innerHTML = hljs.highlight(
+        'yaml',
         yaml.dump(yamlStatusJson?.data),
-      ).value;
+      ).value
     }
-  }, [data]);
+  }, [data])
 
   // function copy() {
   //   const textarea = document.createElement('textarea');
@@ -52,7 +53,7 @@ const Yaml = (props: IProps) => {
         ref={yamlRef as any}
       />
     </div>
-  );
-};
+  )
+}
 
-export default Yaml;
+export default Yaml

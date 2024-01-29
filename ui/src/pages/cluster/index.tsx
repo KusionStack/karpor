@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { Empty, Button, Input, message, Popconfirm } from "antd";
-import axios from "axios";
+import React, { useEffect, useState } from 'react'
+import { Empty, Button, Input, message, Popconfirm } from 'antd'
+import axios from 'axios'
 import {
   DeploymentUnitOutlined,
   SearchOutlined,
@@ -10,88 +10,88 @@ import {
   SortDescendingOutlined,
   ArrowDownOutlined,
   ArrowUpOutlined,
-} from "@ant-design/icons";
-import { useNavigate } from "react-router-dom";
-import KarbourTabs from "../../components/Tabs";
-import styles from "./styles.module.less";
-import EditPopForm from "./components/editPopForm";
-import k8sPng from "../../assets/kubernetes.png";
-import Loading from "../../components/loading";
-import { utcDateToLocalDate } from "../../utils/tools";
+} from '@ant-design/icons'
+import { useNavigate } from 'react-router-dom'
+import { utcDateToLocalDate } from '@/utils/tools'
+import KarbourTabs from '../../components/Tabs'
+import styles from './styles.module.less'
+import EditPopForm from './components/editPopForm'
+import k8sPng from '../../assets/kubernetes.png'
+import Loading from '../../components/Loading'
 
 const Cluster = () => {
-  const navigate = useNavigate();
-  const [pageData, setPageData] = useState<any>([]);
-  const [showPageData, setShowPageData] = useState<any>([]);
-  const [loading, setloading] = useState(false);
-  const [summary, setSummary] = useState<any>();
+  const navigate = useNavigate()
+  const [pageData, setPageData] = useState<any>([])
+  const [showPageData, setShowPageData] = useState<any>([])
+  const [loading, setloading] = useState(false)
+  const [summary, setSummary] = useState<any>()
   const [sortParams, setSortParams] = useState<any>({
-    orderBy: "name",
+    orderBy: 'name',
     isAsc: true,
-  });
-  const [searchValue, setSearchValue] = useState("");
+  })
+  const [searchValue, setSearchValue] = useState('')
 
-  const [lastDetail, setLastDetail] = useState<any>();
+  const [lastDetail, setLastDetail] = useState<any>()
 
   async function getClusterSummary() {
-    setloading(true);
+    setloading(true)
     const response: any = await axios(`/rest-api/v1/clusters?summary=true`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       params: {},
-    });
+    })
     if (response?.success) {
-      setSummary(response?.data);
+      setSummary(response?.data)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
-    setloading(false);
+    setloading(false)
   }
 
   async function getPageData(params) {
     const response: any = await axios(`/rest-api/v1/clusters`, {
-      method: "GET",
+      method: 'GET',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       params: {
         orderBy: params?.orderBy,
         ...(params?.isAsc ? { ascending: true } : { descending: true }),
       },
-    });
+    })
     if (response?.success) {
-      setPageData(response?.data?.items);
+      setPageData(response?.data?.items)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
 
   function getShowPageData(allData, currentTabKey) {
-    let result: any;
-    if (currentTabKey === "all") {
-      result = allData;
+    let result: any
+    if (currentTabKey === 'all') {
+      result = allData
     } else {
-      let exceptionList = [];
-      let healthyList = [];
-      allData?.forEach((item) => {
+      const exceptionList = []
+      const healthyList = []
+      allData?.forEach(item => {
         if (summary?.unhealthyClusters?.includes(item?.metadata?.name)) {
-          exceptionList.push(item);
+          exceptionList.push(item)
         }
         if (summary?.healthyClusters?.includes(item?.metadata?.name)) {
-          healthyList.push(item);
+          healthyList.push(item)
         }
-      });
-      result = currentTabKey === "healthy" ? healthyList : exceptionList;
+      })
+      result = currentTabKey === 'healthy' ? healthyList : exceptionList
     }
-    return result;
+    return result
   }
 
   useState(() => {
-    getClusterSummary();
-    getPageData(sortParams);
-  });
+    getClusterSummary()
+    getPageData(sortParams)
+  })
 
   // function handleChangePage(page: number, pageSize: number) {
   //   setSearchParams({
@@ -102,50 +102,49 @@ const Cluster = () => {
   // }
 
   const join = () => {
-    navigate("/cluster/access");
-  };
+    navigate('/cluster/access')
+  }
 
-  async function handleSubmit(values, callback: Function) {
-    let url = `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`;
+  async function handleSubmit(values, callback: () => void) {
     const response: any = await axios({
-      url,
-      method: "PUT",
+      url: `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`,
+      method: 'PUT',
       data: values,
-    });
+    })
     if (response?.success) {
-      message.success("修改成功");
-      callback();
-      getClusterSummary();
-      getPageData(sortParams);
+      message.success('修改成功')
+      callback()
+      getClusterSummary()
+      getPageData(sortParams)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
 
-  const [currentTab, setCurrentTab] = useState("all");
+  const [currentTab, setCurrentTab] = useState('all')
   // const [radioValue, setRadioValue] = useState('all');
-  const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0);
+  const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0)
 
   function handleTabChange(value: string, index: number) {
-    setTriangleLeftOffestIndex(index);
-    setCurrentTab(value);
-    const res = getShowPageData(pageData, value);
-    setShowPageData(res);
+    setTriangleLeftOffestIndex(index)
+    setCurrentTab(value)
+    const res = getShowPageData(pageData, value)
+    setShowPageData(res)
   }
 
   useEffect(() => {
-    const res = getShowPageData(pageData, currentTab);
+    const res = getShowPageData(pageData, currentTab)
     if (!searchValue) {
-      setShowPageData(res);
+      setShowPageData(res)
     } else {
-      const newValue = searchValue?.toLowerCase().trim()?.split(" ");
-      const newShowPageData = [];
+      const newValue = searchValue?.toLowerCase().trim()?.split(' ')
+      const newShowPageData = []
       if (newValue?.length === 1) {
         res?.forEach((item: any) => {
           if (item?.metadata?.name?.toLowerCase()?.includes(newValue?.[0])) {
-            newShowPageData.push(item);
+            newShowPageData.push(item)
           }
-        });
+        })
       } else {
         res?.forEach((item: any) => {
           if (
@@ -153,35 +152,35 @@ const Cluster = () => {
               item?.metadata?.name?.toLowerCase()?.includes(innerValue),
             )
           ) {
-            newShowPageData.push(item);
+            newShowPageData.push(item)
           }
-        });
+        })
       }
-      setShowPageData(newShowPageData);
+      setShowPageData(newShowPageData)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchValue, pageData]);
+  }, [searchValue, pageData])
 
   const iconStyle: any = {
     width: 24,
-    height: "24px",
-    display: "flex",
-    justifyContent: "center",
-    lineHeight: "24px",
-    alignItems: "center",
+    height: '24px',
+    display: 'flex',
+    justifyContent: 'center',
+    lineHeight: '24px',
+    alignItems: 'center',
     marginRight: 10,
-    background: "rgba(47,84,235,0.08)",
+    background: 'rgba(47,84,235,0.08)',
     borderRadius: 6,
-  };
+  }
 
   const tabStyle = {
-    display: "flex",
-    alignItems: "center",
+    display: 'flex',
+    alignItems: 'center',
     fontSize: 14,
     fontWeight: 400,
-  };
+  }
 
-  const numberStyle = { paddingLeft: 10, fontSize: 24 };
+  const numberStyle = { paddingLeft: 10, fontSize: 24 }
 
   // const radioOptions = [
   //   { label: '全部', value: 'all' },
@@ -196,30 +195,31 @@ const Cluster = () => {
   async function deleteItem(item) {
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${item?.metadata?.name}`,
-      method: "DELETE",
-    });
+      method: 'DELETE',
+    })
     if (response?.success) {
-      message.success("删除成功");
-      getPageData(sortParams);
-      getClusterSummary();
+      message.success('删除成功')
+      getPageData(sortParams)
+      getClusterSummary()
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
 
   function goCertificate(item) {
     navigate(
       `/cluster/certificate?cluster=${item?.metadata?.name}&apiVersion=${item?.apiVersion}`,
-    );
-    navigate(`/cluster/certificate?cluster=${item?.metadata?.name}`);
+    )
+    navigate(`/cluster/certificate?cluster=${item?.metadata?.name}`)
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   function handleCancel() {}
 
   function goDetailPage(item) {
     navigate(
       `/insightDetail/cluster?from=cluster&type=cluster&cluster=${item?.metadata?.name}&apiVersion=${item?.apiVersion}`,
-    );
+    )
   }
 
   const tabsList = [
@@ -230,7 +230,7 @@ const Cluster = () => {
           全部集群<span style={numberStyle}>{summary?.totalCount}</span>
         </div>
       ),
-      value: "all",
+      value: 'all',
     },
     {
       label: (
@@ -238,14 +238,14 @@ const Cluster = () => {
           <BulbOutlined
             style={{
               ...iconStyle,
-              background: "rgba(255,77,79, 0.08)",
-              color: "#FF4D4F",
+              background: 'rgba(255,77,79, 0.08)',
+              color: '#FF4D4F',
             }}
           />
           异常集群<span style={numberStyle}>{summary?.unhealthyCount}</span>
         </div>
       ),
-      value: "exception",
+      value: 'exception',
     },
     {
       label: (
@@ -253,32 +253,32 @@ const Cluster = () => {
           <VerifiedOutlined
             style={{
               ...iconStyle,
-              background: "rgba(82,196,26, 0.08)",
-              color: "#52C41A",
+              background: 'rgba(82,196,26, 0.08)',
+              color: '#52C41A',
             }}
           />
           健康集群<span style={numberStyle}>{summary?.healthyCount}</span>
         </div>
       ),
-      value: "healthy",
+      value: 'healthy',
     },
     // { label: <div style={tabStyle}><DeleteRowOutlined style={{ ...iconStyle, background: 'rgba(0,10,26, 0.08)', color: '#000A1A' }} />已删除<span style={numberStyle}>3</span></div>, value: "delete" },
-  ];
+  ]
 
   const orderIconStyle = {
     marginLeft: 0,
     // color: '#2f54eb'
-  };
+  }
 
   function handleSort(key) {
     setSortParams({
       orderBy: key,
       isAsc: !sortParams?.isAsc,
-    });
+    })
     getPageData({
       orderBy: key,
       isAsc: !sortParams?.isAsc,
-    });
+    })
   }
 
   return (
@@ -313,8 +313,8 @@ const Cluster = () => {
               list={tabsList}
               current={currentTab}
               onChange={handleTabChange}
-              boxStyle={{ width: "100%" }}
-              itemStyle={{ width: "33%" }}
+              boxStyle={{ width: '100%' }}
+              itemStyle={{ width: '33%' }}
             />
           </div>
           <div
@@ -323,8 +323,8 @@ const Cluster = () => {
             <div className={styles.toolBar}>
               <Input
                 value={searchValue}
-                onChange={(event) => {
-                  setSearchValue(event.target.value);
+                onChange={event => {
+                  setSearchValue(event.target.value)
                 }}
                 style={{ width: 160, marginRight: 16 }}
                 placeholder="请输入搜索关键字"
@@ -333,11 +333,11 @@ const Cluster = () => {
               />
               <Button
                 type="link"
-                style={{ color: "#646566" }}
-                onClick={() => handleSort("name")}
+                style={{ color: '#646566' }}
+                onClick={() => handleSort('name')}
               >
                 名称排序
-                {sortParams?.orderBy === "name" &&
+                {sortParams?.orderBy === 'name' &&
                   (sortParams?.isAsc ? (
                     <SortDescendingOutlined style={orderIconStyle} />
                   ) : (
@@ -346,11 +346,11 @@ const Cluster = () => {
               </Button>
               <Button
                 type="link"
-                style={{ color: "#646566" }}
-                onClick={() => handleSort("timestamp")}
+                style={{ color: '#646566' }}
+                onClick={() => handleSort('timestamp')}
               >
                 时间排序
-                {sortParams?.orderBy === "timestamp" &&
+                {sortParams?.orderBy === 'timestamp' &&
                   (sortParams?.isAsc ? (
                     <ArrowUpOutlined style={orderIconStyle} />
                   ) : (
@@ -365,9 +365,9 @@ const Cluster = () => {
               <div
                 style={{
                   height: 300,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <Loading />
@@ -390,7 +390,7 @@ const Cluster = () => {
                               {item?.spec?.displayName ? (
                                 <span>
                                   {item?.spec?.displayName}
-                                  <span style={{ color: "#808080" }}>
+                                  <span style={{ color: '#808080' }}>
                                     （{item?.metadata?.name}）
                                   </span>
                                 </span>
@@ -402,14 +402,14 @@ const Cluster = () => {
                             <span><Tag style={{ fontSize: 12 }}>定义的标签</Tag></span> */}
                           </div>
                           <div className={styles.bottom}>
-                            描述：{item?.spec?.description || "--"}
+                            描述：{item?.spec?.description || '--'}
                           </div>
                           <div className={styles.bottom}>
                             {item?.metadata?.creationTimestamp
                               ? utcDateToLocalDate(
                                   item?.metadata?.creationTimestamp,
                                 )
-                              : "--"}
+                              : '--'}
                           </div>
                         </div>
                       </div>
@@ -419,7 +419,7 @@ const Cluster = () => {
                           placement="topLeft"
                           title={
                             <span
-                              style={{ display: "inline-block", width: 200 }}
+                              style={{ display: 'inline-block', width: 200 }}
                             >
                               删除后，将不会再管控该集群，和更新相关资源。
                             </span>
@@ -433,7 +433,7 @@ const Cluster = () => {
                         <EditPopForm
                           cancel={handleCancel}
                           submit={handleSubmit}
-                          btnStyle={{ margin: "0 16px" }}
+                          btnStyle={{ margin: '0 16px' }}
                           lastDetail={item}
                           setLastDetail={setLastDetail}
                         />
@@ -442,18 +442,18 @@ const Cluster = () => {
                         </Button>
                       </div>
                     </div>
-                  );
+                  )
                 })}
               </div>
             ) : (
               <div
                 style={{
-                  background: "#fff",
+                  background: '#fff',
                   borderRadius: 8,
                   height: 500,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
                 }}
               >
                 <Empty />
@@ -463,7 +463,7 @@ const Cluster = () => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default Cluster;
+export default Cluster

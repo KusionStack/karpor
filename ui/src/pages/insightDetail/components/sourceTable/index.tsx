@@ -1,35 +1,36 @@
-import { SearchOutlined } from "@ant-design/icons";
-import { Button, Input, Space, Table, message } from "antd";
-import axios from "axios";
-import queryString from "query-string";
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { SearchOutlined } from '@ant-design/icons'
+import { Button, Input, Space, Table, message } from 'antd'
+import axios from 'axios'
+import queryString from 'query-string'
+import { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-import styles from "./style.module.less";
+import styles from './style.module.less'
+import React from 'react'
 
 type IProps = {
-  queryStr: string;
-  data?: any[];
-  searchKey?: string;
-  pagination?: any;
-  tableName?: string;
-};
+  queryStr: string
+  data?: any[]
+  searchKey?: string
+  pagination?: any
+  tableName?: string
+}
 
 const defaultSearchParams = {
   current: 1,
   pageSize: 10,
   total: 0,
-};
+}
 
 const SourceTable = ({ queryStr, tableName }: IProps) => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const [pageParams, setPageParams] = useState(defaultSearchParams);
-  const [tableData, setTableData] = useState([]);
-  const urlSearchParams = queryString?.parse(location?.search);
+  const location = useLocation()
+  const navigate = useNavigate()
+  const [pageParams, setPageParams] = useState(defaultSearchParams)
+  const [tableData, setTableData] = useState([])
+  const urlSearchParams = queryString?.parse(location?.search)
 
   function goResourcePage(record) {
-    const nav = record?.object?.kind === "Namespace" ? "namespace" : "resource";
+    const nav = record?.object?.kind === 'Namespace' ? 'namespace' : 'resource'
     const params = {
       from: urlSearchParams?.from,
       type: nav,
@@ -37,89 +38,89 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       cluster: record?.cluster,
       kind: record?.object?.kind,
       apiVersion: record?.object?.apiVersion,
-      ...(nav === "namespace"
+      ...(nav === 'namespace'
         ? { namespace: record?.object?.metadata?.name }
         : { namespace: record?.object?.metadata?.namespace }),
-      ...(nav === "resource" ? { name: record?.object?.metadata?.name } : {}),
-    };
-    const urlParams = queryString?.stringify(params);
-    navigate(`/insightDetail/${nav}?${urlParams}`);
+      ...(nav === 'resource' ? { name: record?.object?.metadata?.name } : {}),
+    }
+    const urlParams = queryString?.stringify(params)
+    navigate(`/insightDetail/${nav}?${urlParams}`)
   }
 
   const columns = [
     {
-      dataIndex: "name",
-      key: "name",
-      title: "名称",
+      dataIndex: 'name',
+      key: 'name',
+      title: '名称',
       render: (_, record) => {
         return (
           <Button type="link" onClick={() => goResourcePage(record)}>
             {record?.object?.metadata?.name}
           </Button>
-        );
+        )
       },
     },
     {
-      dataIndex: "namespace",
-      key: "namespace",
-      title: "Namespace",
+      dataIndex: 'namespace',
+      key: 'namespace',
+      title: 'Namespace',
       render: (_, record) => {
-        return record?.object?.metadata?.namespace;
+        return record?.object?.metadata?.namespace
       },
     },
     {
-      dataIndex: "apiVersion",
-      key: "apiVersion",
-      title: "apiVersion",
+      dataIndex: 'apiVersion',
+      key: 'apiVersion',
+      title: 'apiVersion',
       render: (_, record) => {
-        return record?.object?.apiVersion;
+        return record?.object?.apiVersion
       },
     },
     {
-      dataIndex: "kind",
-      key: "kind",
-      title: "kind",
+      dataIndex: 'kind',
+      key: 'kind',
+      title: 'kind',
       // render: (text) => text === 'success' ? <Badge status="success" text="健康" /> : <Badge status="error" text="异常" />
       render: (_, record) => {
-        return record?.object?.kind;
+        return record?.object?.kind
       },
     },
-  ];
+  ]
 
   async function queryTableData(params) {
-    const { current, pageSize } = pageParams;
+    const { current, pageSize } = pageParams
     const response: any = await axios.get(
       `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}`,
-    );
+    )
     if (response?.success) {
-      setTableData(response?.data?.items || []);
+      setTableData(response?.data?.items || [])
       setPageParams({
         ...params,
         total: response?.data?.total,
-      });
+      })
     } else {
-      message.error(response?.message);
+      message.error(response?.message)
     }
   }
 
   useEffect(() => {
     if (queryStr) {
-      queryTableData({ current: 1, pageSize: pageParams?.pageSize });
+      queryTableData({ current: 1, pageSize: pageParams?.pageSize })
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [queryStr]);
+  }, [queryStr])
 
   function handleTableChange({ current, pageSize }) {
-    queryTableData({ current, pageSize });
+    queryTableData({ current, pageSize })
   }
 
   return (
     <div>
       <div className={styles.table_header}>
         <div className={styles.table_title}>
-          {tableName || "--"}
-          {urlSearchParams?.type === "kind" ? null : (
+          {tableName || '--'}
+          {urlSearchParams?.type === 'kind' ? null : (
             <span className={styles.tips}>
               💡 可在上方选择资源后在这里查看对应的详情
             </span>
@@ -136,8 +137,8 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       <Table
         columns={columns}
         dataSource={tableData}
-        rowKey={(record) => {
-          return `${record?.object?.metadata?.name}_${record?.object?.metadata?.namespace}_${record?.object?.apiVersion}_${record?.object?.kind}`;
+        rowKey={record => {
+          return `${record?.object?.metadata?.name}_${record?.object?.metadata?.namespace}_${record?.object?.apiVersion}_${record?.object?.kind}`
         }}
         onChange={handleTableChange}
         pagination={{
@@ -146,7 +147,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
         }}
       />
     </div>
-  );
-};
+  )
+}
 
-export default SourceTable;
+export default SourceTable

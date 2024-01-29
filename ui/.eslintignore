@@ -20,3 +20,7 @@
 /src/.umi-test
 /test/fixtures
 /build
+node_modules
+scripts
+config
+.husky/

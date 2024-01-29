@@ -1,29 +1,29 @@
-import axios from "axios";
-import { message } from "antd";
+import axios from 'axios'
+import { message } from 'antd'
 
-export const HOST = "";
-axios.defaults.baseURL = HOST;
+export const HOST = ''
+axios.defaults.baseURL = HOST
 
 axios.interceptors.request.use(
-  (config) => {
-    return config;
+  config => {
+    return config
   },
-  (error) => {
-    return Promise.reject(error);
+  error => {
+    return Promise.reject(error)
   },
-);
+)
 
 axios.interceptors.response.use(
-  (response) => {
+  response => {
     if (response?.status === 200) {
-      return response?.data;
+      return response?.data
     }
   },
-  (error) => {
+  error => {
     try {
-      message.error(error?.response?.data?.message || "请求失败，请重试");
+      message.error(error?.response?.data?.message || '请求失败，请重试')
       // return Promise.reject(error);
-      throw new Error(error);
+      throw new Error(error)
     } catch (error) {}
   },
-);
+)

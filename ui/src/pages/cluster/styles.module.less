@@ -1,14 +1,14 @@
 .container {
-  height: 100%;
   display: flex;
+  height: 100%;
   flex-direction: column;
 
   .actionBar {
     display: flex;
+    margin-bottom: 24px;
+    font-weight: bold;
     justify-content: space-between;
     align-items: center;
-    font-weight: bold;
-    margin-bottom: 24px;
   }
 
   // 空状态
@@ -20,9 +20,9 @@
     background: #fff;
 
     .emptyData {
+      display: flex;
       width: 776px;
       height: 228px;
-      display: flex;
       align-items: center;
 
       .left {
@@ -30,14 +30,14 @@
 
         .nodate {
           font-size: 14px;
-          color: rgba(0, 0, 0, 0.65);
+          color: rgb(0 0 0 / 65%);
         }
 
         .tip {
-          color: rgba(0, 0, 0, 0.85);
-          font-weight: 500;
+          margin: 10px 0 20px;
           font-size: 18px;
-          margin: 10px 0 20px 0;
+          font-weight: 500;
+          color: rgb(0 0 0 / 85%);
         }
       }
 
@@ -53,45 +53,45 @@
   // 非空状态
   .content {
     .stat {
-      background: #fff;
       display: flex;
-      align-items: center;
       height: 56px;
-      border-radius: 8px;
       padding: 0 20px;
       margin-bottom: 20px;
+      background: #fff;
+      border-radius: 8px;
+      align-items: center;
     }
 
     .pageContent {
-      background: #fff;
-      padding: 20px 25px;
-      border-radius: 8px;
       position: relative;
+      padding: 20px 25px;
+      background: #fff;
+      border-radius: 8px;
 
       &::before {
-        content: "";
+        position: absolute;
+        top: 0;
+        left: 10%;
         width: 0;
         height: 0;
-        border: 20px solid transparent;
-        border-bottom-color: #fff;
-        position: absolute;
-        left: 10%;
-        top: 0;
         margin-top: -30px;
+        border: 20px solid transparent;
         border-radius: 8px;
+        content: '';
+        border-bottom-color: #fff;
       }
 
       &::after {
-        content: "";
-        width: 0;
-        height: 0;
-        border: 20px solid transparent;
-        border-bottom-color: #fff;
         position: absolute;
         top: 0;
         left: 10%;
+        width: 0;
+        height: 0;
         margin-top: -32px;
+        border: 20px solid transparent;
         border-radius: 8px;
+        content: '';
+        border-bottom-color: #fff;
       }
 
       &.pageContent_1 {
@@ -122,19 +122,19 @@
       }
 
       .pageList {
-        border-radius: 8px;
         margin: 24px 0;
+        border-radius: 8px;
 
         .card {
+          display: flex;
+          padding: 15px 24px;
+          margin-bottom: 8px;
+          border: 1px solid rgb(0 10 26 / 15%);
+          border-radius: 8px;
           // height: 74px;
           box-sizing: border-box;
-          border: 1px solid rgba(0, 10, 26, 0.15);
-          border-radius: 8px;
-          padding: 15px 24px;
-          display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 8px;
 
           .left {
             display: flex;
@@ -142,10 +142,10 @@
             cursor: pointer;
 
             .score {
-              margin-right: 16px;
-              font-size: 24px;
               width: 48px;
               height: 48px;
+              margin-right: 16px;
+              font-size: 24px;
 
               img {
                 width: 100%;
@@ -166,8 +166,8 @@
               }
 
               .bottom {
-                font-size: 14px;
                 padding-top: 5px;
+                font-size: 14px;
               }
             }
           }

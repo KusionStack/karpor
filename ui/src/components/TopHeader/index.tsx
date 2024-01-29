@@ -1,61 +1,61 @@
+import React, { memo } from 'react'
 import {
   SearchOutlined,
   MacCommandOutlined,
   ApartmentOutlined,
   HeatMapOutlined,
-} from "@ant-design/icons";
-import { Layout, Menu } from "antd";
-import { memo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import styles from "./style.module.less";
+} from '@ant-design/icons'
+import { Layout, Menu } from 'antd'
+import { useNavigate, useLocation } from 'react-router-dom'
+import styles from './style.module.less'
 
-const { Header } = Layout;
+const { Header } = Layout
 
 const TopHeader = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate = useNavigate()
+  const location = useLocation()
 
   const items = [
     {
-      key: "/search",
-      label: "Search",
+      key: '/search',
+      label: 'Search',
       icon: <SearchOutlined />,
     },
     {
-      key: "/insight",
-      label: "Insight",
+      key: '/insight',
+      label: 'Insight',
       icon: <MacCommandOutlined />,
     },
     {
-      key: "/cluster",
-      label: "Cluster",
+      key: '/cluster',
+      label: 'Cluster',
       icon: <ApartmentOutlined />,
     },
-  ];
+  ]
 
   function handleCkick({ key }: { key: string }) {
-    navigate(key);
+    navigate(key)
   }
 
   const selectedKeys =
-    !location.pathname || location.pathname === "/"
-      ? "/search"
-      : location.pathname;
+    !location.pathname || location.pathname === '/'
+      ? '/search'
+      : location.pathname
 
   return (
-    <Header className={styles["top-container"]}>
+    <Header className={styles['top-container']}>
       <div className={styles.logo}>
         <HeatMapOutlined />
       </div>
       <Menu
         mode="horizontal"
-        defaultSelectedKeys={["/search"]}
+        defaultSelectedKeys={['/search']}
         selectedKeys={[selectedKeys]}
         onClick={handleCkick}
         items={items}
       />
     </Header>
-  );
-};
+  )
+}
 
-export default memo(TopHeader);
+export default memo(TopHeader)

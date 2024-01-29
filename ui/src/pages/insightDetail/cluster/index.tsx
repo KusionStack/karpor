@@ -1,204 +1,205 @@
-import { useEffect, useState } from "react";
-import { NavLink, useLocation } from "react-router-dom";
-import axios from "axios";
-import queryString from "query-string";
-import { Breadcrumb, message } from "antd";
-import ExecptionDrawer from "../components/execptionDrawer";
-import TopologyMap from "../components/topologyMap";
-import KarbourTabs from "../../../components/Tabs";
-import SourceTable from "../components/sourceTable";
-import ExecptionList from "../components/execptionList";
-import EventDetail from "../components/eventDetail";
-import Yaml from "../../../components/yaml";
-import K8sEvent from "../components/k8sEvent";
-import K8sEventDrawer from "../components/k8sEventDrawer";
-import SummaryCard from "../components/summaryCard";
-import { generateTopologyData } from "../../../utils/tools";
+import { useEffect, useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
+import axios from 'axios'
+import queryString from 'query-string'
+import { Breadcrumb, message } from 'antd'
+import ExecptionDrawer from '../components/execptionDrawer'
+import TopologyMap from '../components/topologyMap'
+import KarbourTabs from '../../../components/Tabs'
+import SourceTable from '../components/sourceTable'
+import ExecptionList from '../components/execptionList'
+import EventDetail from '../components/eventDetail'
+import Yaml from '../../../components/Yaml'
+import K8sEvent from '../components/k8sEvent'
+import K8sEventDrawer from '../components/k8sEventDrawer'
+import SummaryCard from '../components/summaryCard'
+import { generateTopologyData } from '../../../utils/tools'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
+import React from 'react'
 
 const ClusterDetail = () => {
-  const location = useLocation();
-  const urlParams = queryString.parse(location?.search);
+  const location = useLocation()
+  const urlParams = queryString.parse(location?.search)
   const { type, cluster, kind, namespace, name, key, from, query, apiVersion } =
-    urlParams;
-  const [drawerVisible, setDrawerVisible] = useState<boolean>(false);
-  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false);
-  const [currentTab, setCurrentTab] = useState("Topology");
-  const [modalVisible, setModalVisible] = useState<boolean>(false);
-  const [tableQueryStr, setTableQueryStr] = useState("");
-  const [yamlData, setYamlData] = useState("");
-  const [auditList, setAuditList] = useState<any>([]);
-  const [auditLoading, setAuditLoading] = useState<any>(false);
-  const [auditStat, setAuditStat] = useState<any>();
-  const [tableName, setTableName] = useState("Pod");
-  const [breadcrumbItems, setBreadcrumbItems] = useState([]);
-  const [summary, setSummary] = useState<any>();
-  const [currentItem, setCurrentItem] = useState<any>();
-  const [topologyData, setTopologyData] = useState<any>();
-  const [topologyLoading, setTopologyLoading] = useState(false);
+    urlParams
+  const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
+  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
+  const [currentTab, setCurrentTab] = useState('Topology')
+  const [modalVisible, setModalVisible] = useState<boolean>(false)
+  const [tableQueryStr, setTableQueryStr] = useState('')
+  const [yamlData, setYamlData] = useState('')
+  const [auditList, setAuditList] = useState<any>([])
+  const [auditLoading, setAuditLoading] = useState<any>(false)
+  const [auditStat, setAuditStat] = useState<any>()
+  const [tableName, setTableName] = useState('Pod')
+  const [breadcrumbItems, setBreadcrumbItems] = useState([])
+  const [summary, setSummary] = useState<any>()
+  const [currentItem, setCurrentItem] = useState<any>()
+  const [topologyData, setTopologyData] = useState<any>()
+  const [topologyLoading, setTopologyLoading] = useState(false)
 
   const tabsList = [
-    { label: "关联资源", value: "Topology" },
-    { label: "YAML", value: "YAML" },
-    { label: "K8s事件", value: "K8s", disabled: true },
-  ];
+    { label: '关联资源', value: 'Topology' },
+    { label: 'YAML', value: 'YAML' },
+    { label: 'K8s事件', value: 'K8s', disabled: true },
+  ]
 
   useEffect(() => {
     if (topologyData?.nodes && topologyData?.nodes?.length > 0) {
       const tmp = topologyData?.nodes?.find((item: any) => {
         if (item?.id) {
-          const kindTmp = item?.id?.split(".");
-          const len = kindTmp?.length;
-          const lastKindTmp = kindTmp?.[len - 1];
-          if (lastKindTmp === "Pod") {
-            return true;
+          const kindTmp = item?.id?.split('.')
+          const len = kindTmp?.length
+          const lastKindTmp = kindTmp?.[len - 1]
+          if (lastKindTmp === 'Pod') {
+            return true
           } else {
-            return false;
+            return false
           }
         } else {
-          return false;
+          return false
         }
-      });
+      })
       if (tmp) {
-        const tmpData = tmp?.id?.split(".");
-        const len = tmpData?.length;
-        const kindVersion = tmpData?.[len - 2];
-        const queryStr = `select * from resources where cluster = '${cluster}' and apiVersion = '${kindVersion}' and kind = 'Pod'`;
-        setTableQueryStr(queryStr);
+        const tmpData = tmp?.id?.split('.')
+        const len = tmpData?.length
+        const kindVersion = tmpData?.[len - 2]
+        const queryStr = `select * from resources where cluster = '${cluster}' and apiVersion = '${kindVersion}' and kind = 'Pod'`
+        setTableQueryStr(queryStr)
       }
     }
-  }, [topologyData, cluster, apiVersion]);
+  }, [topologyData, cluster, apiVersion])
 
   async function handleTabChange(value: string) {
-    setCurrentTab(value);
+    setCurrentTab(value)
   }
 
   async function getAudit(isRescan) {
-    setAuditLoading(true);
+    setAuditLoading(true)
     const response: any = await axios({
       url: `/rest-api/v1/insight/audit`,
-      method: "GET",
+      method: 'GET',
       params: {
         cluster,
         ...(isRescan ? { forceNew: true } : {}),
       },
-    });
-    setAuditLoading(false);
+    })
+    setAuditLoading(false)
     if (response?.success) {
-      setAuditList(response?.data);
+      setAuditList(response?.data)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
   async function getAuditScore() {
     const response: any = await axios({
       url: `/rest-api/v1/insight/score`,
-      method: "GET",
+      method: 'GET',
       params: {
         cluster,
       },
-    });
+    })
     if (response?.success) {
-      setAuditStat(response?.data);
+      setAuditStat(response?.data)
     }
   }
   async function getClusterDetail() {
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${cluster}`,
       params: {
-        format: "yaml",
+        format: 'yaml',
       },
-    });
+    })
     if (response?.success) {
-      setYamlData(response?.data);
+      setYamlData(response?.data)
     }
   }
 
   async function getSummary() {
     const response: any = await axios({
-      url: "/rest-api/v1/insight/summary",
+      url: '/rest-api/v1/insight/summary',
       params: {
         cluster,
       },
-    });
+    })
     if (response?.success) {
-      setSummary(response?.data);
+      setSummary(response?.data)
     } else {
-      message.error(response?.message || "请求失败，请重试");
+      message.error(response?.message || '请求失败，请重试')
     }
   }
 
   async function getTopologyData() {
-    setTopologyLoading(true);
+    setTopologyLoading(true)
     try {
       const response: any = await axios({
-        url: "/rest-api/v1/insight/topology",
-        method: "GET",
+        url: '/rest-api/v1/insight/topology',
+        method: 'GET',
         params: {
           cluster,
         },
-      });
+      })
       if (response?.success) {
-        const tmpData = generateTopologyData(response?.data);
-        setTopologyData(tmpData);
+        const tmpData = generateTopologyData(response?.data)
+        setTopologyData(tmpData)
       } else {
-        message.error(response?.message || "请求失败");
+        message.error(response?.message || '请求失败')
       }
-      setTopologyLoading(false);
+      setTopologyLoading(false)
     } catch (error) {
-      setTopologyLoading(false);
+      setTopologyLoading(false)
     }
   }
 
   useEffect(() => {
-    getClusterDetail();
-    getAudit(false);
-    getAuditScore();
-    getSummary();
-    getTopologyData();
-    if (type === "kind" && kind) {
-      setTableName(kind as any);
+    getClusterDetail()
+    getAudit(false)
+    getAuditScore()
+    getSummary()
+    getTopologyData()
+    if (type === 'kind' && kind) {
+      setTableName(kind as any)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kind, type]);
+  }, [kind, type])
 
   function rescan() {
-    getAuditScore();
-    getAudit(true);
+    getAuditScore()
+    getAudit(true)
   }
 
   function showDrawer() {
-    setDrawerVisible(true);
+    setDrawerVisible(true)
   }
 
   function showK8sDrawer() {
-    setK8sDrawerVisible(true);
+    setK8sDrawerVisible(true)
   }
 
   function onItemClick(item) {
-    setModalVisible(true);
-    setCurrentItem(item);
+    setModalVisible(true)
+    setCurrentItem(item)
   }
 
   async function onTopologyNodeClick(node) {
-    const { locator } = node?.data || {};
-    setTableName(locator?.kind);
-    const sqlStr = `select * from resources where cluster = '${locator?.cluster}' and apiVersion = '${locator?.apiVersion}' and kind = '${locator?.kind}'`;
-    setTableQueryStr(sqlStr);
+    const { locator } = node?.data || {}
+    setTableName(locator?.kind)
+    const sqlStr = `select * from resources where cluster = '${locator?.cluster}' and apiVersion = '${locator?.apiVersion}' and kind = '${locator?.kind}'`
+    setTableQueryStr(sqlStr)
   }
 
   function getBreadcrumbs() {
-    let first;
-    if (from === "cluster") {
+    let first
+    if (from === 'cluster') {
       first = {
-        title: <NavLink to={"/cluster"}>集群管理</NavLink>,
-      };
+        title: <NavLink to={'/cluster'}>集群管理</NavLink>,
+      }
     }
-    if (from === "result") {
+    if (from === 'result') {
       first = {
         title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
-      };
+      }
     }
     const result = [
       first,
@@ -206,14 +207,14 @@ const ClusterDetail = () => {
         key: cluster,
         title: cluster,
       },
-    ];
-    setBreadcrumbItems(result);
+    ]
+    setBreadcrumbItems(result)
   }
 
   useEffect(() => {
-    getBreadcrumbs();
+    getBreadcrumbs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name]);
+  }, [from, key, cluster, kind, namespace, name])
 
   return (
     <div className={styles.container}>
@@ -235,7 +236,6 @@ const ClusterDetail = () => {
       <EventDetail
         open={modalVisible}
         cancel={() => setModalVisible(false)}
-        onOk={() => setModalVisible(false)}
         detail={currentItem}
       />
       {/* <div className={styles.header}>
@@ -265,7 +265,7 @@ const ClusterDetail = () => {
             onChange={handleTabChange}
           />
         </div>
-        {currentTab === "Topology" && (
+        {currentTab === 'Topology' && (
           <>
             <TopologyMap
               tableName={tableName}
@@ -276,8 +276,8 @@ const ClusterDetail = () => {
             <SourceTable queryStr={tableQueryStr} tableName={tableName} />
           </>
         )}
-        {currentTab === "YAML" && <Yaml data={yamlData || ""} />}
-        {currentTab === "K8s" && (
+        {currentTab === 'YAML' && <Yaml data={yamlData || ''} />}
+        {currentTab === 'K8s' && (
           <K8sEvent
             rescan={rescan}
             execptionList={[1, 2, 3, 4, 5]}
@@ -287,7 +287,7 @@ const ClusterDetail = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default ClusterDetail;
+export default ClusterDetail

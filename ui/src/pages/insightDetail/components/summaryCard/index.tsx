@@ -1,70 +1,73 @@
-import { useLocation } from "react-router-dom";
-import queryString from "query-string";
-import { filterSize, getDataType } from "../../../../utils/tools";
-import GaugeChart from "../gauge";
+import React from 'react'
+import { Popover } from 'antd'
+import { useLocation } from 'react-router-dom'
+import queryString from 'query-string'
+import { filterSize, getDataType } from '@/utils/tools'
+import GaugeChart from '../gauge'
 
-import styles from "./styles.module.less";
-import { Popover } from "antd";
+import styles from './styles.module.less'
 
 function getContent(data) {
   return (
     <>
-      {Object.keys(data)?.map((key) => {
-        const [displayKey] = key?.split(".");
+      {Object.keys(data)?.map(key => {
+        const [displayKey] = key?.split('.')
         return (
           <div className={styles.popoverItem} key={key}>
             <span className={styles.popoverLabel}>{displayKey}:</span>
             <span className={styles.popoverValue}>{data?.[key]}</span>
           </div>
-        );
+        )
       })}
     </>
-  );
+  )
 }
 
-const PopoverCard = ({ data }) => {
+const PopoverCard = ({ data }: any) => {
   if (!data) {
-    return <div className={styles.value}>--</div>;
+    return <div className={styles.value}>--</div>
   }
-  const type = getDataType(data);
-  const showContent =
-    type === "String" ? <span>{data}</span> : getContent(data);
+  const type = getDataType(data)
+  const showContent = type === 'String' ? <span>{data}</span> : getContent(data)
   return (
     <Popover content={showContent}>
       <div className={styles.value}>
-        {type === "String" ? data : JSON.stringify(data)}
+        {type === 'String' ? data : JSON.stringify(data)}
       </div>
     </Popover>
-  );
-};
+  )
+}
 
 function renderStatistics(GVKData: any) {
   const sortList = Object.entries(GVKData)
     ?.map(([key, value]) => ({ key, value }))
-    ?.sort((a: any, b: any) => b?.value - a?.value);
+    ?.sort((a: any, b: any) => b?.value - a?.value)
   return (
     <>
       {sortList?.map(({ key, value }: any) => {
-        const [displayKey] = key?.split(".");
+        const [displayKey] = key?.split('.')
         return (
           <div className={styles.item} key={key}>
             <span className={styles.label}>{displayKey}:</span>
             <span className={styles.value}>{value}</span>
           </div>
-        );
+        )
       })}
     </>
-  );
+  )
 }
-
-const SummaryCard = ({ auditStat, summary }) => {
-  const location = useLocation();
-  const { type } = queryString.parse(location?.search);
+type SummaryCardProps = {
+  auditStat: { score: number }
+  summary: any
+}
+const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
+  const location = useLocation()
+  const { type } = queryString.parse(location?.search)
   return (
     <div className={styles.summary_card}>
       <GaugeChart data={(auditStat?.score / 100)?.toFixed(2)} />
       <div className={styles.summary}>
-        {type === "resource" && (
+        {type === 'resource' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
               <div className={styles.label}>apiVersion：</div>
@@ -93,7 +96,7 @@ const SummaryCard = ({ auditStat, summary }) => {
             </div>
           </div>
         )}
-        {type === "kind" && (
+        {type === 'kind' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
               <div className={styles.label}>cluster：</div>
@@ -107,11 +110,11 @@ const SummaryCard = ({ auditStat, summary }) => {
             </div>
             <div className={styles.item}>
               <div className={styles.label}>group：</div>
-              <div className={styles.value}>{summary?.group || "--"}</div>
+              <div className={styles.value}>{summary?.group || '--'}</div>
             </div>
             <div className={styles.item}>
               <div className={styles.label}>count：</div>
-              <div className={styles.value}>{summary?.count || "--"}</div>
+              <div className={styles.value}>{summary?.count || '--'}</div>
             </div>
             <div className={styles.item}>
               <div className={styles.label}>version：</div>
@@ -120,7 +123,7 @@ const SummaryCard = ({ auditStat, summary }) => {
             </div>
           </div>
         )}
-        {type === "namespace" && (
+        {type === 'namespace' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
               <div className={styles.label}>cluster：</div>
@@ -138,28 +141,28 @@ const SummaryCard = ({ auditStat, summary }) => {
             {summary?.countByGVK ? renderStatistics(summary?.countByGVK) : null}
           </div>
         )}
-        {type === "cluster" && (
+        {type === 'cluster' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
               <div className={styles.label}>Node：</div>
-              <div className={styles.value}>{summary?.nodeCount || "--"}</div>
+              <div className={styles.value}>{summary?.nodeCount || '--'}</div>
             </div>
             <div className={styles.item}>
               <div className={styles.label}>Pod：</div>
               <div className={styles.value}>
-                {summary?.podsCapacity || "--"}
+                {summary?.podsCapacity || '--'}
               </div>
             </div>
             <div className={styles.item}>
               <div className={styles.label}>CPU 容量：</div>
-              <div className={styles.value}>{summary?.cpuCapacity || "--"}</div>
+              <div className={styles.value}>{summary?.cpuCapacity || '--'}</div>
             </div>
             <div className={styles.item}>
               <div className={styles.label}>内存容量：</div>
               <div className={styles.value}>
                 {summary?.memoryCapacity
                   ? filterSize(summary?.memoryCapacity)
-                  : "--"}
+                  : '--'}
               </div>
             </div>
             <div className={styles.item}>
@@ -171,7 +174,7 @@ const SummaryCard = ({ auditStat, summary }) => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default SummaryCard;
+export default SummaryCard

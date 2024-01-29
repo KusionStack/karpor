@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 import {
   Collapse,
   DatePicker,
@@ -7,35 +7,43 @@ import {
   Pagination,
   Select,
   Tag,
-} from "antd";
+} from 'antd'
 import {
   CaretRightOutlined,
   ClockCircleOutlined,
   SearchOutlined,
-} from "@ant-design/icons";
-import K8sStat from "../k8sStat";
+} from '@ant-design/icons'
+import K8sStat from '../k8sStat'
 
-import styles from "./style.module.less";
-import { SEVERITY_MAP } from "../../../../utils/constants";
+import styles from './style.module.less'
+import { SEVERITY_MAP } from '../../../../utils/constants'
 
-const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker
 
-const K8sEventDrawer = ({ open, onClose }) => {
+type K8sEventDrawerProps = {
+  open: boolean
+  onClose: () => void
+}
+
+const K8sEventDrawer = ({ open, onClose }: K8sEventDrawerProps) => {
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   function onSearch() {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   function handleChangeSelect() {}
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
   function handleChangePage() {}
 
   const panelStyle: React.CSSProperties = {
-    background: "#fff",
+    background: '#fff',
     borderRadius: 8,
-    border: "1px solid rgba(0,0,0,0.15)",
+    border: '1px solid rgba(0,0,0,0.15)',
     marginBottom: 8,
-  };
+  }
 
   function getItems() {
-    return []?.map((item) => {
+    return []?.map(item => {
       return {
         key: item?.id,
         label: (
@@ -64,20 +72,20 @@ const K8sEventDrawer = ({ open, onClose }) => {
             <div className={styles.body}>
               <div className={styles.label}>时间触发时间点：</div>
               <div className={styles.value}>
-                {item?.timeList?.map((item) => {
+                {item?.timeList?.map(item => {
                   return (
                     <div key={item} className={styles.time_block}>
                       {item}
                     </div>
-                  );
+                  )
                 })}
               </div>
             </div>
           </div>
         ),
         style: panelStyle,
-      };
-    });
+      }
+    })
   }
 
   return (
@@ -91,7 +99,7 @@ const K8sEventDrawer = ({ open, onClose }) => {
               suffix={
                 <SearchOutlined
                   className="site-form-item-icon"
-                  style={{ color: "#999" }}
+                  style={{ color: '#999' }}
                 />
               }
               allowClear
@@ -105,10 +113,10 @@ const K8sEventDrawer = ({ open, onClose }) => {
               style={{ width: 124, marginRight: 16 }}
               onChange={handleChangeSelect}
               options={[
-                { value: "jack", label: "Jack" },
-                { value: "lucy", label: "Lucy" },
-                { value: "john", label: "John" },
-                { value: "disabled", label: "Disabled", disabled: true },
+                { value: 'jack', label: 'Jack' },
+                { value: 'lucy', label: 'Lucy' },
+                { value: 'john', label: 'John' },
+                { value: 'disabled', label: 'Disabled', disabled: true },
               ]}
             />
             <RangePicker />
@@ -117,15 +125,15 @@ const K8sEventDrawer = ({ open, onClose }) => {
         <div className={styles.events}>
           <Collapse
             bordered={false}
-            defaultActiveKey={["1"]}
+            defaultActiveKey={['1']}
             expandIcon={({ isActive }) => (
               <CaretRightOutlined rotate={isActive ? 90 : 0} />
             )}
-            style={{ background: "#fff" }}
+            style={{ background: '#fff' }}
             items={getItems()}
           />
         </div>
-        <div style={{ textAlign: "right", marginTop: 16 }}>
+        <div style={{ textAlign: 'right', marginTop: 16 }}>
           <Pagination
             total={1000}
             // showTotal={(total, range) =>
@@ -139,7 +147,7 @@ const K8sEventDrawer = ({ open, onClose }) => {
         </div>
       </div>
     </Drawer>
-  );
-};
+  )
+}
 
-export default K8sEventDrawer;
+export default K8sEventDrawer

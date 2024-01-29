@@ -1,7 +1,7 @@
 .container {
+  display: flex;
   height: 100%;
   box-sizing: border-box;
-  display: flex;
   flex-direction: column;
 
   .header {
@@ -14,18 +14,18 @@
     flex-direction: column;
 
     .config_content {
+      display: flex;
       padding: 24px;
+      overflow: auto;
       background: #fff;
       border-radius: 8px;
-      display: flex;
       flex-direction: column;
       flex: 1;
       box-sizing: border-box;
-      overflow: auto;
 
       .title {
-        color: #656466;
         margin-bottom: 10px;
+        color: #656466;
       }
 
       .diff_container {

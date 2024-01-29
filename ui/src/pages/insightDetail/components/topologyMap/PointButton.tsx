@@ -1,34 +1,35 @@
-import { Text } from "@antv/g6-react-node";
+import { Text } from '@antv/g6-react-node'
+import React from 'react'
 
-const TextCopy: any = Text;
+const TextCopy: any = Text
 
 const PointButton = (pointButtonProps: {
-  width: number;
-  color?: string;
-  children?: string;
-  onClick?: (evt) => void;
-  onMouseOver?: (evt) => void;
-  onMouseLeave?: (evt) => void;
-  disabled?: boolean;
-  marginRight?: number;
-  marginLeft?: number;
+  width: number
+  color?: string
+  children?: string
+  onClick?: (evt) => void
+  onMouseOver?: (evt) => void
+  onMouseLeave?: (evt) => void
+  disabled?: boolean
+  marginRight?: number
+  marginLeft?: number
 }) => {
   const {
     width,
-    color = "#000",
-    children = "",
-    onClick = () => {},
-    onMouseOver = () => {},
-    onMouseLeave = () => {},
+    color = '#000',
+    children = '',
+    onClick,
+    onMouseOver,
+    onMouseLeave,
     disabled = false,
-  } = pointButtonProps;
+  } = pointButtonProps
   return (
     <TextCopy
       style={{
         width,
         fill: color,
-        cursor: disabled ? "not-allowed" : "pointer",
-        fontFamily: "PingFangSC",
+        cursor: disabled ? 'not-allowed' : 'pointer',
+        fontFamily: 'PingFangSC',
         fontSize: 16,
       }}
       onClick={onClick}
@@ -37,7 +38,7 @@ const PointButton = (pointButtonProps: {
     >
       {children}
     </TextCopy>
-  );
-};
+  )
+}
 
-export default PointButton;
+export default PointButton

@@ -1,20 +1,20 @@
 .container {
-  height: 100%;
   display: flex;
+  height: 100%;
   flex-direction: column;
 
   .pageTitle {
-    font-weight: 500;
-    font-size: 16px;
-    color: rgba(0, 10, 26, 0.89);
     margin-bottom: 16px;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgb(0 10 26 / 89%);
   }
 
   .content {
-    background: #fff;
     height: 100%;
-    border-radius: 8px;
     padding: 16px 24px;
+    background: #fff;
+    border-radius: 8px;
     flex: 1;
 
     .header {
@@ -22,14 +22,14 @@
       align-items: center;
 
       .dropText {
-        color: rgba(0, 10, 26, 0.89);
+        color: rgb(0 10 26 / 89%);
       }
 
       .selectTips {
         margin-left: 24px;
-        font-weight: 400;
         font-size: 14px;
-        color: rgba(0, 10, 26, 0.28);
+        font-weight: 400;
+        color: rgb(0 10 26 / 28%);
 
         .bulb {
           color: orange;
@@ -38,12 +38,12 @@
     }
 
     .stat {
-      margin: 20px 0 24px 0;
+      display: flex;
       height: 120px;
+      padding: 12px 26px;
+      margin: 20px 0 24px;
       background-color: #f7faff;
       border-radius: 8px;
-      padding: 12px 26px;
-      display: flex;
       align-items: center;
 
       .circle {
@@ -52,9 +52,9 @@
 
       .symbol {
         margin: 0 48px;
-        font-weight: 400;
         font-size: 16px;
-        color: rgba(0, 0, 0, 0.89);
+        font-weight: 400;
+        color: rgb(0 0 0 / 89%);
       }
     }
 
@@ -64,9 +64,9 @@
       align-items: center;
 
       .left {
-        font-weight: 500;
         font-size: 14px;
-        color: rgba(0, 10, 26, 0.89);
+        font-weight: 500;
+        color: rgb(0 10 26 / 89%);
       }
     }
 
@@ -76,7 +76,7 @@
       display: grid;
       // justify-content: center;
       grid-template-columns: repeat(auto-fill, 350px);
-      grid-gap: 20px 20px;
+      grid-gap: 20px;
       margin-top: 20px;
     }
   }
