@@ -15,6 +15,8 @@
 package options
 
 import (
+	"encoding/json"
+
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/spf13/pflag"
 )
@@ -58,4 +60,14 @@ func (o *SearchStorageOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address")
 	fs.StringVar(&o.ElasticSearchUsername, "elastic-search-username", "", "The elastic search username")
 	fs.StringVar(&o.ElasticSearchPassword, "elastic-search-password", "", "The elastic search password")
+}
+
+// MarshalJSON is custom marshalling function for masking sensitive field values
+func (o SearchStorageOptions) MarshalJSON() ([]byte, error) {
+	type tempOptions SearchStorageOptions
+	o2 := tempOptions(o)
+	if o2.ElasticSearchPassword != "" {
+		o2.ElasticSearchPassword = MaskString
+	}
+	return json.Marshal(&o2)
 }

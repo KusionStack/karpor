@@ -57,8 +57,8 @@ definitions:
         items:
           type: string
         type: array
-      identifier:
-        type: string
+      locator:
+        $ref: '#/definitions/core.Locator'
       parents:
         items:
           type: string
@@ -801,6 +801,10 @@ paths:
         in: query
         name: name
         type: string
+      - description: Force re-generating the topology, default is 'false'
+        in: query
+        name: forceNew
+        type: boolean
       produces:
       - application/json
       responses:

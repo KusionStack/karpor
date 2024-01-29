@@ -17,6 +17,7 @@ package topology
 import (
 	"fmt"
 	"net/http"
+	"strconv"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
@@ -39,6 +40,7 @@ import (
 // @Param        kind        query     string                               false  "The specified kind, such as 'Deployment'"
 // @Param        namespace   query     string                               false  "The specified namespace, such as 'default'"
 // @Param        name        query     string                               false  "The specified resource name, such as 'foo'"
+// @Param        forceNew    query     bool                                 false  "Force re-generating the topology, default is 'false'"
 // @Success      200         {object}  map[string]insight.ResourceTopology  "map from string to resource.ResourceTopology"
 // @Failure      400         {string}  string                               "Bad Request"
 // @Failure      401         {string}  string                               "Unauthorized"
@@ -52,6 +54,7 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
+		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
 		loc, err := core.NewLocatorFromQuery(r)
 		if err != nil {
@@ -74,13 +77,13 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 
 		switch locType {
 		case core.Resource, core.NonNamespacedResource:
-			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc)
+			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc, forceNew)
 			handler.HandleResult(w, r, ctx, err, resourceTopologyMap)
 		case core.Cluster:
-			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster)
+			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster, forceNew)
 			handler.HandleResult(w, r, ctx, err, clusterTopologyMap)
 		case core.Namespace:
-			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace)
+			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace, forceNew)
 			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))

@@ -12,24 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package registry
+package options
 
-import (
-	"k8s.io/apiserver/pkg/registry/generic"
-	genericapiserver "k8s.io/apiserver/pkg/server"
+const (
+	MaskString = "******"
 )
-
-// RESTStorageProvider is a factory type for REST storage.
-type RESTStorageProvider interface {
-	GroupName() string
-	NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error)
-}
-
-// ExtraConfig holds custom apiserver config
-type ExtraConfig struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchUsername  string
-	ElasticSearchPassword  string
-	ReadOnlyMode           bool
-}

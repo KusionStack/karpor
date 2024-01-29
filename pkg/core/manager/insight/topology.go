@@ -29,17 +29,23 @@ import (
 )
 
 // GetTopologyForCluster returns a map that describes topology for a given cluster
-func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	locator := core.Locator{
 		Cluster: name,
 	}
-	if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
-		log.Info("Cache hit for cluster topology", "locator", locator)
-		return topologyData, nil
+
+	// If noCache is set to false, attempt to retrieve the result from cache first
+	if !noCache {
+		if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
+			log.Info("Cache hit for cluster topology", "locator", locator)
+			return topologyData, nil
+		}
+		log.Info("Cache miss for locator", "locator", locator)
 	}
 
+	log.Info("Calculating topology for cluster...", "cluster", name)
 	// Build relationship graph based on GVK
 	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
@@ -57,15 +63,19 @@ func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
-func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, locator *core.Locator) (map[string]ResourceTopology, error) {
+func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, locator *core.Locator, noCache bool) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	if topologyData, exist := i.resourceTopologyCache.Get(*locator); exist {
-		log.Info("Cache hit for resource topology", "locator", locator)
-		return topologyData, nil
+	// If noCache is set to false, attempt to retrieve the result from cache first
+	if !noCache {
+		if topologyData, exist := i.resourceTopologyCache.Get(*locator); exist {
+			log.Info("Cache hit for resource topology", "locator", locator)
+			return topologyData, nil
+		}
+		log.Info("Cache miss for locator", "locator", locator)
 	}
 
-	log.Info("Cache miss for locator", "locator", locator)
+	log.Info("Calculating topology for resource...", "locator", locator)
 	// Build relationship graph based on GVK
 	rg, _, err := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	if err != nil {
@@ -183,18 +193,23 @@ func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 }
 
 // GetTopologyForClusterNamespace returns a map that describes topology for a given namespace in a given cluster
-func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string) (map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	locator := core.Locator{
 		Cluster:   cluster,
 		Namespace: namespace,
 	}
-	if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
-		log.Info("Cache hit for cluster topology", "locator", locator)
-		return topologyData, nil
+
+	if !noCache {
+		if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
+			log.Info("Cache hit for cluster topology", "locator", locator)
+			return topologyData, nil
+		}
+		log.Info("Cache miss for locator", "locator", locator)
 	}
 
+	log.Info("Calculating topology for namespace...", "cluster", cluster, "namespace", namespace)
 	// Build relationship graph based on GVK
 	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Only count resources that belong to a specific namespace

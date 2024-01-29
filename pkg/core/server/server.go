@@ -15,6 +15,8 @@
 package server
 
 import (
+	"expvar"
+
 	docs "github.com/KusionStack/karbour/api/openapispec"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
@@ -51,6 +53,9 @@ func NewCoreServer(
 	router.Use(appmiddleware.APILogger)
 	router.Use(appmiddleware.Timing)
 	router.Use(middleware.Recoverer)
+	if extraConfig.ReadOnlyMode {
+		router.Use(appmiddleware.ReadOnlyMode)
+	}
 
 	// Initialize managers, storage for the different core components of the API.
 	searchStorage, err := search.NewSearchStorage(*extraConfig)
@@ -75,6 +80,9 @@ func NewCoreServer(
 
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
+
+	// Endpoint to list all available endpoints in the router.
+	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
 	return router, nil
 }

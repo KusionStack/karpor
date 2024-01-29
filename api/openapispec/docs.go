@@ -1000,6 +1000,12 @@ var doc = `{
                         "description": "The specified resource name, such as 'foo'",
                         "name": "name",
                         "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Force re-generating the topology, default is 'false'",
+                        "name": "forceNew",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1226,8 +1232,8 @@ var doc = `{
                         "type": "string"
                     }
                 },
-                "identifier": {
-                    "type": "string"
+                "locator": {
+                    "$ref": "#/definitions/core.Locator"
                 },
                 "parents": {
                     "type": "array",

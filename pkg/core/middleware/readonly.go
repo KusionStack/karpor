@@ -12,24 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package registry
+package middleware
 
 import (
-	"k8s.io/apiserver/pkg/registry/generic"
-	genericapiserver "k8s.io/apiserver/pkg/server"
+	"net/http"
 )
 
-// RESTStorageProvider is a factory type for REST storage.
-type RESTStorageProvider interface {
-	GroupName() string
-	NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error)
-}
+// ReadOnlyMode disallows non-GET requests in read-only mode.
+func ReadOnlyMode(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, "The server is currently in read-only mode.", http.StatusMethodNotAllowed)
+			return
+		}
 
-// ExtraConfig holds custom apiserver config
-type ExtraConfig struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchUsername  string
-	ElasticSearchPassword  string
-	ReadOnlyMode           bool
+		// If the request method is allowed, pass the request to the next handler.
+		next.ServeHTTP(w, r)
+	})
 }
