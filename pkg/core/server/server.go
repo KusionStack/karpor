@@ -15,9 +15,10 @@
 package server
 
 import (
+	"expvar"
+
 	docs "github.com/KusionStack/karbour/api/openapispec"
 	clusterhandler "github.com/KusionStack/karbour/pkg/core/handler/cluster"
-	confighandler "github.com/KusionStack/karbour/pkg/core/handler/config"
 	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
 	endpointhandler "github.com/KusionStack/karbour/pkg/core/handler/endpoint"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
@@ -81,7 +82,7 @@ func NewCoreServer(
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
 	// Endpoint to list all available endpoints in the router.
-	router.Get("/server-configs", confighandler.GetServerConfig(router, genericConfig, extraConfig))
+	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
 	return router, nil
 }

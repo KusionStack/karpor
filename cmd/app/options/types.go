@@ -12,19 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package config
+package options
 
-import (
-	"fmt"
-
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+const (
+	MaskString = "******"
 )
-
-func MaskSecretInConfig(extraConfig *registry.ExtraConfig) (*registry.ExtraConfig, error) {
-	if extraConfig == nil {
-		return nil, fmt.Errorf("extraConfig should not be empty")
-	}
-	maskedConfig := *extraConfig
-	maskedConfig.ElasticSearchPassword = "redacted"
-	return &maskedConfig, nil
-}

@@ -18,6 +18,7 @@ package app
 
 import (
 	"context"
+	"expvar"
 	"fmt"
 	"io"
 	"net"
@@ -95,6 +96,13 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		klog.Background().Error(err, "Unable to initialize command options")
 		klog.FlushAndExit(klog.ExitFlushTimeout, 1)
 	}
+
+	expvar.Publish("CoreOptions", expvar.Func(func() interface{} {
+		return o.CoreOptions
+	}))
+	expvar.Publish("StorageOptions", expvar.Func(func() interface{} {
+		return o.SearchStorageOptions
+	}))
 
 	cmd := &cobra.Command{
 		Short: "Launch an API server",
