@@ -3,21 +3,26 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
 import { Form, Input, Space, Button, Upload, message } from 'antd'
 import type { UploadProps } from 'antd'
+import axios from 'axios'
+import { useSelector } from 'react-redux'
 import { HOST } from '../../../utils/request'
 import Yaml from '../../../components/Yaml'
 
 import styles from './styles.module.less'
-import axios from 'axios'
 
 const { TextArea } = Input
 
 const AddCluster = () => {
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const [yamlContent, setYamlContent] = useState('')
   const [loading, setLoading] = useState(false)
 
   async function onFinish(values: any) {
+    if (isReadOnlyMode) {
+      return
+    }
     const tmp = {
       ...values,
     }
@@ -60,6 +65,7 @@ const AddCluster = () => {
   // };
 
   const uploadProps: UploadProps = {
+    disabled: isReadOnlyMode,
     name: 'file',
     accept: '.yaml,.yml,.json,.kubeconfig,.kubeconf',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
@@ -145,7 +151,7 @@ const AddCluster = () => {
             rules={[{ required: true, message: '配置文件不能为空' }]}
           >
             <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>
+              <Button disabled={isReadOnlyMode} icon={<UploadOutlined />}>
                 上传 KubeConfig 配置文件
               </Button>
             </Upload>
@@ -161,7 +167,12 @@ const AddCluster = () => {
         </Form.Item> */}
           <Form.Item>
             <Space>
-              <Button type="primary" htmlType="submit" loading={loading}>
+              <Button
+                disabled={isReadOnlyMode}
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+              >
                 验证并接入
               </Button>
               <Button htmlType="button" onClick={goBack}>
