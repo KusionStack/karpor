@@ -9,6 +9,9 @@ import {
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import styles from './style.module.less'
+import { useDispatch } from 'react-redux'
+import { setServerConfigMode } from '@/store/modules/globalSlice'
+import axios from 'axios'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -35,6 +38,20 @@ function getItem(
 const LayoutPage = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
+  const dispatch = useDispatch()
+
+  async function getServerConfigs() {
+    const response: any = await axios(`/server-configs`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      params: {},
+    })
+    dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
+  }
+
+  getServerConfigs()
 
   const menuItems = [
     getItem('搜索', '/search', <SearchOutlined />),

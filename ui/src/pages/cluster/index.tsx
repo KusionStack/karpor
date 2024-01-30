@@ -11,6 +11,7 @@ import {
   ArrowDownOutlined,
   ArrowUpOutlined,
 } from '@ant-design/icons'
+import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { utcDateToLocalDate } from '@/utils/tools'
 import KarbourTabs from '../../components/Tabs'
@@ -21,6 +22,7 @@ import Loading from '../../components/Loading'
 
 const Cluster = () => {
   const navigate = useNavigate()
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [pageData, setPageData] = useState<any>([])
   const [showPageData, setShowPageData] = useState<any>([])
   const [loading, setloading] = useState(false)
@@ -102,10 +104,16 @@ const Cluster = () => {
   // }
 
   const join = () => {
+    if (isReadOnlyMode) {
+      return
+    }
     navigate('/cluster/access')
   }
 
   async function handleSubmit(values, callback: () => void) {
+    if (isReadOnlyMode) {
+      return
+    }
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`,
       method: 'PUT',
@@ -193,6 +201,9 @@ const Cluster = () => {
   // }
 
   async function deleteItem(item) {
+    if (isReadOnlyMode) {
+      return
+    }
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${item?.metadata?.name}`,
       method: 'DELETE',
@@ -207,6 +218,9 @@ const Cluster = () => {
   }
 
   function goCertificate(item) {
+    if (isReadOnlyMode) {
+      return
+    }
     navigate(
       `/cluster/certificate?cluster=${item?.metadata?.name}&apiVersion=${item?.apiVersion}`,
     )
@@ -416,6 +430,7 @@ const Cluster = () => {
                       <div className={styles.right}>
                         {/* TODO: 非owner用户不能操作，所有按钮置灰 */}
                         <Popconfirm
+                          disabled={isReadOnlyMode}
                           placement="topLeft"
                           title={
                             <span
@@ -427,17 +442,20 @@ const Cluster = () => {
                           description=""
                           onConfirm={() => deleteItem(item)}
                         >
-                          <Button>删除</Button>
+                          <Button disabled={isReadOnlyMode}>删除</Button>
                         </Popconfirm>
-                        {/* <Button style={{ margin: '0 16px' }} onClick={() => edit(item)}>编辑</Button> */}
                         <EditPopForm
+                          isDisabled={isReadOnlyMode}
                           cancel={handleCancel}
                           submit={handleSubmit}
                           btnStyle={{ margin: '0 16px' }}
                           lastDetail={item}
                           setLastDetail={setLastDetail}
                         />
-                        <Button onClick={() => goCertificate(item)}>
+                        <Button
+                          disabled={isReadOnlyMode}
+                          onClick={() => goCertificate(item)}
+                        >
                           更新证书
                         </Button>
                       </div>

@@ -76,6 +76,7 @@ type IProps = {
   btnType?: 'dashed' | 'link' | 'text' | 'default' | 'primary'
   btnStyle?: any
   lastDetail?: any
+  isDisabled?: boolean
 }
 
 const EditPopForm = ({
@@ -86,6 +87,7 @@ const EditPopForm = ({
   btnType,
   btnStyle,
   lastDetail,
+  isDisabled,
 }: IProps) => {
   const [open, setOpen] = useState(false)
   const hide = () => {
@@ -110,7 +112,11 @@ const EditPopForm = ({
       trigger="click"
       content={<EditForm {...formProps} />}
     >
-      <Button style={btnStyle} type={btnType || 'default'}>
+      <Button
+        disabled={isDisabled}
+        style={btnStyle}
+        type={btnType || 'default'}
+      >
         编辑
       </Button>
     </Popover>

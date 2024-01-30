@@ -6,6 +6,7 @@ import type { RadioChangeEvent } from 'antd'
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued'
 import axios from 'axios'
 import queryString from 'query-string'
+import { useSelector } from 'react-redux'
 import yaml from 'js-yaml'
 import { yaml2json } from '@/utils/tools'
 // import 'react-diff-viewer-continued/es/styles/index.css';
@@ -61,7 +62,7 @@ export const UploadConfig = (props: UploadConfigProps) => {
 const ClusterCertificate = () => {
   const [form] = Form.useForm()
   const navigate = useNavigate()
-
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const location = useLocation()
   const { cluster } = queryString.parse(location?.search)
   const [newYamlContent, setNewYamlContent] = useState<any>()
@@ -98,6 +99,9 @@ const ClusterCertificate = () => {
   }, [cluster])
 
   async function onFinish() {
+    if (isReadOnlyMode) {
+      return
+    }
     if (!newYamlContent?.content) {
       message.warning('请上传新的 KubeConfig 配置文件')
     } else {
@@ -140,6 +144,7 @@ const ClusterCertificate = () => {
   }
 
   const uploadProps: any = {
+    disabled: isReadOnlyMode,
     name: 'file',
     accept: '.yaml,.yml,.json,.kubeconfig,.kubeconf',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
@@ -233,14 +238,19 @@ const ClusterCertificate = () => {
             rules={[{ required: true, message: '该配置内容不能为空' }]}
           >
             <Upload {...uploadProps}>
-              <Button icon={<UploadOutlined />}>
+              <Button disabled={isReadOnlyMode} icon={<UploadOutlined />}>
                 上传 KubeConfig 配置文件
               </Button>
             </Upload>
           </Form.Item>
           <Form.Item style={{ marginLeft: 20 }}>
             <Space>
-              <Button type="primary" htmlType="submit" loading={loading}>
+              <Button
+                disabled={isReadOnlyMode}
+                type="primary"
+                htmlType="submit"
+                loading={loading}
+              >
                 {loading ? '验证提交中' : '验证并更新'}
               </Button>
               <Button htmlType="button" onClick={onCancel}>
