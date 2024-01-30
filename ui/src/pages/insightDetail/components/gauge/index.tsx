@@ -1,22 +1,26 @@
-import { useEffect } from "react";
-import { Gauge } from "@antv/g2plot";
-import BigNumber from "bignumber.js";
+import React, { useEffect } from 'react'
+import { Gauge } from '@antv/g2plot'
+import BigNumber from 'bignumber.js'
 
-const GaugeChart = ({ data }) => {
+type IProps = {
+  data: number | string
+}
+
+const GaugeChart = ({ data }: IProps) => {
   useEffect(() => {
     if (!data) {
-      return;
+      return
     }
-    const container = document.getElementById("gaugeConatiner");
-    const numData = Number(data);
+    const container = document.getElementById('gaugeConatiner')
+    const numData = Number(data)
     const color =
-      numData < 0.6 ? "#F4664A" : numData < 0.8 ? "#FAAD14" : "#30BF78";
+      numData < 0.6 ? '#F4664A' : numData < 0.8 ? '#FAAD14' : '#30BF78'
     const gauge = new Gauge(container, {
       percent: numData,
       range: {
         width: 12,
         ticks: [0, 3 / 5, 4 / 5, 1],
-        color: ["#F4664A", "#FAAD14", "#30BF78"],
+        color: ['#F4664A', '#FAAD14', '#30BF78'],
       },
       gaugeStyle: {
         // lineCap: 'round',
@@ -36,7 +40,7 @@ const GaugeChart = ({ data }) => {
       axis: {
         label: {
           formatter(v) {
-            return Number(v) * 100;
+            return Number(v) * 100
           },
         },
         subTickLine: {
@@ -46,11 +50,11 @@ const GaugeChart = ({ data }) => {
       statistic: {
         title: {
           offsetY: -10,
-          formatter: () => "健康分",
+          formatter: () => '健康分',
           style: {
             color: color,
-            fontSize: "16px",
-            fontWeight: "bold",
+            fontSize: '16px',
+            fontWeight: 'bold',
           },
         },
         content: {
@@ -58,23 +62,23 @@ const GaugeChart = ({ data }) => {
           formatter: ({ percent }) => `${new BigNumber(percent).times(100)}`,
           style: {
             color: color,
-            fontSize: "16px",
-            fontWeight: "bold",
+            fontSize: '16px',
+            fontWeight: 'bold',
           },
         },
       },
-    });
+    })
 
-    gauge.render();
+    gauge.render()
 
     return () => {
       if (gauge) {
-        gauge.destroy();
+        gauge.destroy()
       }
-    };
-  }, [data]);
+    }
+  }, [data])
 
-  return <div style={{ width: "100%", height: 150 }} id="gaugeConatiner"></div>;
-};
+  return <div style={{ width: '100%', height: 150 }} id="gaugeConatiner"></div>
+}
 
-export default GaugeChart;
+export default GaugeChart

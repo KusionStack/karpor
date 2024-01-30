@@ -1,10 +1,16 @@
-import { Popover, Form, Input, Button, Space } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
+import { Popover, Form, Input, Button, Space } from 'antd'
 
-const { TextArea } = Input;
+const { TextArea } = Input
 
-export const EditForm = ({ submit, cancel, lastDetail }) => {
-  const [form] = Form.useForm();
+type EditFormProps = {
+  submit: (val: any, callback: () => void) => void
+  cancel: () => void
+  lastDetail: any
+}
+
+export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
+  const [form] = Form.useForm()
 
   useEffect(() => {
     if (lastDetail) {
@@ -12,23 +18,23 @@ export const EditForm = ({ submit, cancel, lastDetail }) => {
         name: lastDetail?.metadata?.name,
         displayName: lastDetail?.spec?.displayName,
         description: lastDetail?.spec?.description,
-      });
+      })
     }
-  }, [lastDetail, form]);
+  }, [lastDetail, form])
 
   function onFinish(values: any) {
     submit(values, () => {
-      onCancel();
-    });
+      onCancel()
+    })
   }
 
   function onCancel() {
-    form.resetFields();
-    cancel();
+    form.resetFields()
+    cancel()
   }
 
   return (
-    <div style={{ width: 320, padding: "20px 20px 0 20px" }}>
+    <div style={{ width: 320, padding: '20px 20px 0 20px' }}>
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item name="name" label="集群名称" rules={[{ required: true }]}>
           <Input disabled />
@@ -47,7 +53,7 @@ export const EditForm = ({ submit, cancel, lastDetail }) => {
         >
           <TextArea autoSize={{ minRows: 3 }} />
         </Form.Item>
-        <Form.Item style={{ textAlign: "right" }}>
+        <Form.Item style={{ textAlign: 'right' }}>
           <Space>
             <Button htmlType="button" onClick={onCancel}>
               取消
@@ -59,18 +65,18 @@ export const EditForm = ({ submit, cancel, lastDetail }) => {
         </Form.Item>
       </Form>
     </div>
-  );
-};
+  )
+}
 
 type IProps = {
-  setLastDetail: (value) => void;
-  title?: string | React.ReactNode;
-  submit: (values: any, callback: () => void) => void;
-  cancel: () => void;
-  btnType?: "dashed" | "link" | "text" | "default" | "primary";
-  btnStyle?: any;
-  lastDetail?: any;
-};
+  setLastDetail: (value) => void
+  title?: string | React.ReactNode
+  submit: (values: any, callback: () => void) => void
+  cancel: () => void
+  btnType?: 'dashed' | 'link' | 'text' | 'default' | 'primary'
+  btnStyle?: any
+  lastDetail?: any
+}
 
 const EditPopForm = ({
   setLastDetail,
@@ -81,34 +87,34 @@ const EditPopForm = ({
   btnStyle,
   lastDetail,
 }: IProps) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(false)
   const hide = () => {
-    setOpen(false);
-    cancel();
-  };
+    setOpen(false)
+    cancel()
+  }
   const formProps = {
     submit,
     cancel: hide,
     lastDetail,
-  };
+  }
   function handleOpenChange(v) {
-    setOpen(v);
-    setLastDetail(lastDetail);
+    setOpen(v)
+    setLastDetail(lastDetail)
   }
   return (
     <Popover
       open={open}
       onOpenChange={handleOpenChange}
       placement="bottomRight"
-      title={title || "编辑"}
+      title={title || '编辑'}
       trigger="click"
       content={<EditForm {...formProps} />}
     >
-      <Button style={btnStyle} type={btnType || "default"}>
+      <Button style={btnStyle} type={btnType || 'default'}>
         编辑
       </Button>
     </Popover>
-  );
-};
+  )
+}
 
-export default EditPopForm;
+export default EditPopForm

@@ -1,15 +1,22 @@
-import { Button, Modal, Tag } from "antd";
-import styles from "./style.module.less";
-import MutiTag from "../mutiTag";
-import { SEVERITY_MAP } from "../../../../utils/constants";
+import { Button, Modal, Tag } from 'antd'
+import styles from './style.module.less'
+import MutiTag from '../mutiTag'
+import { SEVERITY_MAP } from '../../../../utils/constants'
+import React from 'react'
 
-const EventDetail = ({ open, detail, cancel, onOk }) => {
-  const locatorsNames = detail?.locators?.map((item) => {
+type IProps = {
+  open: boolean
+  detail: any
+  cancel: () => void
+}
+
+const EventDetail = ({ open, detail, cancel }: IProps) => {
+  const locatorsNames = detail?.locators?.map(item => {
     return {
       ...item,
-      allName: `${item?.cluster || ""} ${item?.apiVersion || ""} ${item?.kind || ""} ${item?.namespace || ""} ${item?.name || ""} `,
-    };
-  });
+      allName: `${item?.cluster || ''} ${item?.apiVersion || ''} ${item?.kind || ''} ${item?.namespace || ''} ${item?.name || ''} `,
+    }
+  })
   return (
     <Modal
       title="异常事件详情"
@@ -28,7 +35,7 @@ const EventDetail = ({ open, detail, cancel, onOk }) => {
           <Tag color={SEVERITY_MAP?.[detail?.issue?.severity]?.color}>
             {SEVERITY_MAP?.[detail?.issue?.severity]?.text}
           </Tag>
-          {detail?.issue?.title || "--"}
+          {detail?.issue?.title || '--'}
         </div>
         <div className={styles.content}>
           <div className={styles.desc}>
@@ -42,7 +49,7 @@ const EventDetail = ({ open, detail, cancel, onOk }) => {
             </div>
             <div
               className={styles.item}
-              style={{ width: "100%", alignItems: "baseline" }}
+              style={{ width: '100%', alignItems: 'baseline' }}
             >
               <div className={styles.label}>描述信息：</div>
               <div className={styles.value}>
@@ -63,7 +70,7 @@ const EventDetail = ({ open, detail, cancel, onOk }) => {
         </div>
       </div>
     </Modal>
-  );
-};
+  )
+}
 
-export default EventDetail;
+export default EventDetail

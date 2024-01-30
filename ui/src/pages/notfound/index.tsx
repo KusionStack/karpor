@@ -1,12 +1,13 @@
-import { Button, Result } from "antd";
-import { useNavigate } from "react-router-dom";
+import { Button, Result } from 'antd'
+import { useNavigate } from 'react-router-dom'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
+import React from 'react'
 
 const NotFound = () => {
-  const navigate = useNavigate();
+  const navigate = useNavigate()
   function goBack() {
-    navigate("/search");
+    navigate('/search')
   }
 
   return (
@@ -22,7 +23,7 @@ const NotFound = () => {
         }
       />
     </div>
-  );
-};
+  )
+}
 
-export default NotFound;
+export default NotFound

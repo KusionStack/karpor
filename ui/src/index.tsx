@@ -1,16 +1,17 @@
-import ReactDOM from "react-dom/client";
-import { ConfigProvider } from "antd";
-import dayjs from "dayjs";
-import "dayjs/locale/zh-cn";
-import zhCN from "antd/locale/zh_CN";
-import { BrowserRouter } from "react-router-dom";
-import WrappedRoutes from "./router";
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { ConfigProvider } from 'antd'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import zhCN from 'antd/locale/zh_CN'
+import { BrowserRouter } from 'react-router-dom'
+import WrappedRoutes from '@/router'
 
-import "./utils/request";
+import '@/utils/request'
 
-import "./index.css";
+import './index.css'
 
-dayjs.locale("zh-cn");
+dayjs.locale('zh-cn')
 
 function App() {
   return (
@@ -18,7 +19,7 @@ function App() {
       locale={zhCN}
       theme={{
         token: {
-          colorPrimary: "#2F54EB",
+          colorPrimary: '#2F54EB',
         },
       }}
     >
@@ -26,10 +27,8 @@ function App() {
         <WrappedRoutes />
       </BrowserRouter>
     </ConfigProvider>
-  );
+  )
 }
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement,
-);
-root.render(<App />);
+const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
+root.render(<App />)

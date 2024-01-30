@@ -1,39 +1,46 @@
-import React, { useEffect, useState } from "react";
-import { Collapse, Drawer, Empty, Input, Pagination, Tag } from "antd";
-import ExecptionStat from "../execptionStat";
-import { CaretRightOutlined, SearchOutlined } from "@ant-design/icons";
-import { truncationPageData } from "../../../../utils/tools";
+import React, { useEffect, useState } from 'react'
+import { Collapse, Drawer, Empty, Input, Pagination, Tag } from 'antd'
+import ExecptionStat from '../execptionStat'
+import { CaretRightOutlined, SearchOutlined } from '@ant-design/icons'
+import { truncationPageData } from '../../../../utils/tools'
 
-import styles from "./style.module.less";
-import MutiTag from "../mutiTag";
-import { SEVERITY_MAP } from "../../../../utils/constants";
+import styles from './style.module.less'
+import MutiTag from '../mutiTag'
+import { SEVERITY_MAP } from '../../../../utils/constants'
 
-const DEFALUT_PAGE_SIZE = 10;
+const DEFALUT_PAGE_SIZE = 10
 
-const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
+type IProps = {
+  execptionStat?: any
+  execptionList: any
+  onClose: () => void
+  open: boolean
+}
+
+const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   const [pageParams, setPageParams] = useState({
     pageNo: 1,
     pageSize: DEFALUT_PAGE_SIZE,
     total: 0,
-  });
-  const [searchValue, setSearchValue] = useState("");
-  const [currentKey, setCurrentKey] = useState("All");
-  const [showPageData, setShowPageData] = useState([]);
+  })
+  const [searchValue, setSearchValue] = useState('')
+  const [currentKey, setCurrentKey] = useState('All')
+  const [showPageData, setShowPageData] = useState([])
 
   useEffect(() => {
-    if (currentKey === "All") {
-      let tmp: any = [];
+    if (currentKey === 'All') {
+      let tmp: any = []
       if (!searchValue) {
-        tmp = execptionList?.issueGroups;
+        tmp = execptionList?.issueGroups
       } else {
-        const newValue = searchValue?.toLowerCase().trim()?.split(" ");
-        const issueGroups = execptionList?.issueGroups;
+        const newValue = searchValue?.toLowerCase().trim()?.split(' ')
+        const issueGroups = execptionList?.issueGroups
         if (newValue?.length === 1) {
           issueGroups?.forEach((item: any) => {
             if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
-              tmp.push(item);
+              tmp.push(item)
             }
-          });
+          })
         } else {
           issueGroups?.forEach((item: any) => {
             if (
@@ -41,37 +48,37 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
                 item?.issue?.title?.toLowerCase()?.includes(innerValue),
               )
             ) {
-              tmp.push(item);
+              tmp.push(item)
             }
-          });
+          })
         }
       }
       const pageList = truncationPageData({
         list: tmp,
         page: pageParams?.pageNo,
         pageSize: pageParams?.pageSize,
-      });
-      setShowPageData(pageList);
+      })
+      setShowPageData(pageList)
       setPageParams({
         ...pageParams,
         total: tmp?.length,
-      });
+      })
     } else {
       const tmp = execptionList?.issueGroups?.filter(
         (item: any) => item?.issue?.severity === currentKey,
-      );
-      let filterTmp: any = [];
+      )
+      let filterTmp: any = []
       if (!searchValue) {
-        filterTmp = tmp;
+        filterTmp = tmp
       } else {
-        const newValue = searchValue?.toLowerCase().trim()?.split(" ");
-        const issueGroups = execptionList?.issueGroups;
+        const newValue = searchValue?.toLowerCase().trim()?.split(' ')
+        const issueGroups = execptionList?.issueGroups
         if (newValue?.length === 1) {
           issueGroups?.forEach((item: any) => {
             if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
-              filterTmp.push(item);
+              filterTmp.push(item)
             }
-          });
+          })
         } else {
           issueGroups?.forEach((item: any) => {
             if (
@@ -79,21 +86,21 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
                 item?.issue?.title?.toLowerCase()?.includes(innerValue),
               )
             ) {
-              filterTmp.push(item);
+              filterTmp.push(item)
             }
-          });
+          })
         }
       }
       const pageList = truncationPageData({
         list: filterTmp,
         page: pageParams?.pageNo,
         pageSize: pageParams?.pageSize,
-      });
+      })
       setPageParams({
         ...pageParams,
         total: filterTmp?.length,
-      });
-      setShowPageData(pageList);
+      })
+      setShowPageData(pageList)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
@@ -102,7 +109,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
     pageParams?.pageNo,
     pageParams?.pageSize,
     searchValue,
-  ]);
+  ])
 
   // useEffect(() => {
   //   let tmp = [];
@@ -120,12 +127,12 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
   // }, [execptionList?.issueGroups, pageParams?.pageNo, pageParams?.pageSize, searchValue]);
 
   function onSearch(event) {
-    const val = event.target.value;
-    setSearchValue(val);
+    const val = event.target.value
+    setSearchValue(val)
     setPageParams({
       ...pageParams,
       pageNo: 1,
-    });
+    })
   }
 
   function handleChangePage(page, pageSize) {
@@ -133,25 +140,25 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
       ...pageParams,
       pageNo: page,
       pageSize,
-    });
+    })
   }
 
   const panelStyle: React.CSSProperties = {
-    background: "#fff",
+    background: '#fff',
     borderRadius: 8,
-    border: "1px solid rgba(0,0,0,0.15)",
+    border: '1px solid rgba(0,0,0,0.15)',
     marginBottom: 8,
-  };
+  }
 
   function getItems() {
-    return showPageData?.map((item) => {
-      const uniqueKey = `${item?.issue?.title}_${item?.issue?.message}_${item?.issue?.scanner}_${item?.issue?.severity}`;
-      const locatorsNames = item?.locators?.map((item) => {
+    return showPageData?.map(item => {
+      const uniqueKey = `${item?.issue?.title}_${item?.issue?.message}_${item?.issue?.scanner}_${item?.issue?.severity}`
+      const locatorsNames = item?.locators?.map(item => {
         return {
           ...item,
-          allName: `${item?.cluster || ""} ${item?.apiVersion || ""} ${item?.kind || ""} ${item?.namespace || ""} ${item?.name || ""} `,
-        };
-      });
+          allName: `${item?.cluster || ''} ${item?.apiVersion || ''} ${item?.kind || ''} ${item?.namespace || ''} ${item?.name || ''} `,
+        }
+      })
       return {
         key: uniqueKey,
         label: (
@@ -174,7 +181,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
               <div className={styles.item}>
                 <div className={styles.label}>事件来源：</div>
                 <div className={styles.value}>
-                  {item?.issue?.scanner || "--"}
+                  {item?.issue?.scanner || '--'}
                 </div>
               </div>
               <div className={styles.item}>
@@ -184,7 +191,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
             </div>
             <div className={`${styles.item} ${styles.rowItem}`}>
               <div className={styles.label}>描述信息：</div>
-              <div className={styles.value}>{item?.issue?.message || "--"}</div>
+              <div className={styles.value}>{item?.issue?.message || '--'}</div>
             </div>
             <div className={styles.body}>
               <div className={styles.label}>相关资源：</div>
@@ -195,17 +202,17 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
           </div>
         ),
         style: panelStyle,
-      };
-    });
+      }
+    })
   }
 
   function onClickTable(key) {
-    setCurrentKey(key);
-    setSearchValue("");
+    setCurrentKey(key)
+    setSearchValue('')
     setPageParams({
       ...pageParams,
       pageNo: 1,
-    });
+    })
   }
 
   return (
@@ -228,7 +235,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
               suffix={
                 <SearchOutlined
                   className="site-form-item-icon"
-                  style={{ color: "#999" }}
+                  style={{ color: '#999' }}
                 />
               }
               allowClear
@@ -245,11 +252,11 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
                 expandIcon={({ isActive }) => (
                   <CaretRightOutlined rotate={isActive ? 90 : 0} />
                 )}
-                style={{ background: "#fff" }}
+                style={{ background: '#fff' }}
                 items={getItems()}
               />
             </div>
-            <div style={{ textAlign: "right", marginTop: 16 }}>
+            <div style={{ textAlign: 'right', marginTop: 16 }}>
               <Pagination
                 total={pageParams?.total}
                 showTotal={(total, range) =>
@@ -266,9 +273,9 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
           <div
             style={{
               height: 400,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
             }}
           >
             <Empty />
@@ -276,7 +283,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList, execptionStat }) => {
         )}
       </div>
     </Drawer>
-  );
-};
+  )
+}
 
-export default ExecptionDrawer;
+export default ExecptionDrawer

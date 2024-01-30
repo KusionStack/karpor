@@ -1,18 +1,18 @@
-import React, { memo } from "react";
-import classNames from "classnames";
-import styles from "./style.module.less";
+import React, { memo } from 'react'
+import classNames from 'classnames'
+import styles from './style.module.less'
 
 type Props = {
-  current: string;
+  current: string
   list: Array<{
-    label: string | React.ReactNode;
-    value: string;
-    disabled?: boolean;
-  }>;
-  onChange: (val: string, index?: number) => void;
-  itemStyle?: any;
-  boxStyle?: any;
-};
+    label: string | React.ReactNode
+    value: string
+    disabled?: boolean
+  }>
+  onChange: (val: string, index?: number) => void
+  itemStyle?: any
+  boxStyle?: any
+}
 
 const KarbourTabs = ({
   current,
@@ -29,11 +29,11 @@ const KarbourTabs = ({
             className={styles.item}
             key={item.value as React.Key}
             onClick={() => {
-              !item?.disabled && onChange(item.value, index);
+              !item?.disabled && onChange(item.value, index)
             }}
             style={{
               ...itemStyle,
-              ...(item?.disabled ? { color: "#f1f1f1" } : {}),
+              ...(item?.disabled ? { color: '#f1f1f1' } : {}),
             }}
           >
             <div
@@ -41,16 +41,16 @@ const KarbourTabs = ({
                 [styles.active]: current === item.value,
               })}
               style={
-                item?.disabled ? { color: "#999", cursor: "not-allowed" } : {}
+                item?.disabled ? { color: '#999', cursor: 'not-allowed' } : {}
               }
             >
               {item.label}
             </div>
           </div>
-        );
+        )
       })}
     </div>
-  );
-};
+  )
+}
 
-export default memo(KarbourTabs);
+export default memo(KarbourTabs)

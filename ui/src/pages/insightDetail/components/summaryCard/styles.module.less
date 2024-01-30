@@ -1,29 +1,29 @@
 .summary_card {
+  position: relative;
   width: 300px;
   height: 475px;
-  border-radius: 8px;
-  background: #fff;
   padding: 20px 0;
-  box-sizing: border-box;
-  position: relative;
   margin-right: 10px;
+  background: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
 }
 
 .summary {
-  border-radius: 8px;
-  background: #fff;
-  box-sizing: border-box;
   position: relative;
   padding: 20px;
+  background: #fff;
+  border-radius: 8px;
+  box-sizing: border-box;
 
   .field_box {
     .item {
+      display: flex;
       margin-right: 24px;
       margin-bottom: 12px;
-      display: flex;
+      font-size: 14px;
       // flex-direction: column;
       font-weight: 400;
-      font-size: 14px;
       line-height: 22px;
 
       &.namespaceStat {
@@ -31,17 +31,17 @@
       }
 
       .label {
-        color: rgba(0, 0, 0, 0.48);
         margin-right: 5px;
+        color: rgb(0 0 0 / 48%);
         // width: 120px;
       }
 
       .value {
-        flex: 1;
-        white-space: nowrap;
         overflow: hidden;
+        color: rgb(0 0 0 / 89%);
         text-overflow: ellipsis;
-        color: rgba(0, 0, 0, 0.89);
+        white-space: nowrap;
+        flex: 1;
       }
     }
   }
@@ -51,11 +51,11 @@
   margin-bottom: 5px;
 
   .popoverLabel {
-    color: rgba(0, 0, 0, 0.48);
     margin-right: 5px;
+    color: rgb(0 0 0 / 48%);
   }
 
   .popoverValue {
-    color: rgba(0, 0, 0, 0.89);
+    color: rgb(0 0 0 / 89%);
   }
 }

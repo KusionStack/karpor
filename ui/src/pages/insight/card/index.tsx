@@ -1,12 +1,13 @@
-import { format_with_regex } from "../../../utils/tools";
+import React from 'react'
+import { format_with_regex } from '../../../utils/tools'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
 
 type IProps = {
-  title: string;
-  value: number;
-  color?: string;
-};
+  title: string
+  value: number
+  color?: string
+}
 
 const Card = ({ title, value, color }: IProps) => {
   return (
@@ -16,7 +17,7 @@ const Card = ({ title, value, color }: IProps) => {
         {format_with_regex(value)}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Card;
+export default Card

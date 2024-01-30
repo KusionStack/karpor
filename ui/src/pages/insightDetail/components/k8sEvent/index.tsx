@@ -1,26 +1,27 @@
-import { Collapse, DatePicker, Tag } from "antd";
+import React from 'react'
+import { Collapse, DatePicker, Tag } from 'antd'
 import {
   ArrowRightOutlined,
   CaretRightOutlined,
   ClockCircleOutlined,
-} from "@ant-design/icons";
-import K8sStat from "../k8sStat";
-import { SEVERITY_MAP } from "../../../../utils/constants";
+} from '@ant-design/icons'
+import K8sStat from '../k8sStat'
+import { SEVERITY_MAP } from '../../../../utils/constants'
 
-import styles from "./style.module.less";
+import styles from './style.module.less'
 
-const { RangePicker } = DatePicker;
+const { RangePicker } = DatePicker
 
-const K8sEvent = ({ execptionList, rescan, showDrawer, onItemClick }) => {
+const K8sEvent = ({ showDrawer }: any) => {
   const panelStyle: React.CSSProperties = {
-    background: "#fff",
+    background: '#fff',
     borderRadius: 8,
-    border: "1px solid rgba(0,0,0,0.15)",
+    border: '1px solid rgba(0,0,0,0.15)',
     marginBottom: 8,
-  };
+  }
 
   function getItems() {
-    return []?.map((item) => {
+    return []?.map(item => {
       return {
         key: item?.id,
         label: (
@@ -49,16 +50,23 @@ const K8sEvent = ({ execptionList, rescan, showDrawer, onItemClick }) => {
             <div className={styles.body}>
               <div className={styles.label}>时间触发时间点：</div>
               <div className={styles.value}>
-                {item?.timeList?.map((item) => {
-                  return <div className={styles.time_block}>{item}</div>;
+                {item?.timeList?.map((item, index) => {
+                  return (
+                    <div
+                      key={`${item}_${index + 1}`}
+                      className={styles.time_block}
+                    >
+                      {item}
+                    </div>
+                  )
                 })}
               </div>
             </div>
           </div>
         ),
         style: panelStyle,
-      };
-    });
+      }
+    })
   }
   return (
     <div className={styles.k8s}>
@@ -74,7 +82,7 @@ const K8sEvent = ({ execptionList, rescan, showDrawer, onItemClick }) => {
         <div className={styles.events}>
           <Collapse
             bordered={false}
-            defaultActiveKey={["1"]}
+            defaultActiveKey={['1']}
             expandIcon={({ isActive }) => (
               <CaretRightOutlined rotate={isActive ? 90 : 0} />
             )}
@@ -87,7 +95,7 @@ const K8sEvent = ({ execptionList, rescan, showDrawer, onItemClick }) => {
         <ArrowRightOutlined />
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default K8sEvent;
+export default K8sEvent

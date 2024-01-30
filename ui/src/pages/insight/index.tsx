@@ -1,29 +1,31 @@
-import { Progress, Dropdown, Space, Input, Select } from "antd";
-import { DownOutlined, SearchOutlined } from "@ant-design/icons";
-import type { MenuProps } from "antd";
-import Card from "./card";
+import { Progress, Dropdown, Space, Input, Select } from 'antd'
+import { DownOutlined, SearchOutlined } from '@ant-design/icons'
+import type { MenuProps } from 'antd'
+import Card from './card'
 
-import styles from "./styles.module.less";
+import styles from './styles.module.less'
+import React from 'react'
 
 const Insight = () => {
-  const items: MenuProps["items"] = [
+  const items: MenuProps['items'] = [
     {
-      key: "1",
-      label: "label1",
+      key: '1',
+      label: 'label1',
     },
     {
-      key: "2",
-      label: "label2",
+      key: '2',
+      label: 'label2',
       disabled: true,
     },
     {
-      key: "3",
+      key: '3',
       danger: true,
-      label: "a danger item",
+      label: 'a danger item',
     },
-  ];
+  ]
 
-  function handleChangeSelect(item) {}
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  function handleChangeSelect() {}
 
   return (
     <div className={styles.container}>
@@ -31,13 +33,10 @@ const Insight = () => {
       <div className={styles.content}>
         <div className={styles.header}>
           <Dropdown menu={{ items }}>
-            <div
-              className={styles.dropText}
-              onClick={(e) => e.preventDefault()}
-            >
+            <div className={styles.dropText} onClick={e => e.preventDefault()}>
               <Space
                 style={{
-                  color: "rgba(0,10,26,0.89)",
+                  color: 'rgba(0,10,26,0.89)',
                   fontWeight: 500,
                   fontSize: 14,
                 }}
@@ -60,7 +59,7 @@ const Insight = () => {
               size={96}
               strokeColor="#59D226"
               trailColor="#2F54EB"
-              format={() => "集群"}
+              format={() => '集群'}
             />
           </div>
           <div className={styles.all}>
@@ -83,10 +82,10 @@ const Insight = () => {
               style={{ width: 124 }}
               onChange={handleChangeSelect}
               options={[
-                { value: "jack", label: "Jack" },
-                { value: "lucy", label: "Lucy" },
-                { value: "john", label: "John" },
-                { value: "disabled", label: "Disabled", disabled: true },
+                { value: 'jack', label: 'Jack' },
+                { value: 'lucy', label: 'Lucy' },
+                { value: 'john', label: 'John' },
+                { value: 'disabled', label: 'Disabled', disabled: true },
               ]}
             />
             <Input
@@ -98,7 +97,7 @@ const Insight = () => {
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default Insight;
+export default Insight

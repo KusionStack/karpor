@@ -3,7 +3,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin: 20px 0 16px 0;
+    margin: 20px 0 16px;
   }
 
   .collapse_panel_title {
@@ -12,49 +12,67 @@
       align-items: center;
 
       .title {
-        font-weight: 500;
         font-size: 14;
-        color: "rgba(0,10,26,0.89)";
+        font-weight: 500;
+        color: 'rgba(0,10,26,0.89)';
       }
     }
 
     .bottom {
+      display: flex;
       width: 100%;
       padding-left: 36px;
-      box-sizing: border-box;
-      display: flex;
-      align-items: center;
       font-size: 12px;
+      box-sizing: border-box;
+      align-items: center;
 
       .label {
-        font-weight: 400;
-        color: rgba(0, 10, 26, 0.45);
-        line-height: 24px;
         margin-right: 2px;
+        font-weight: 400;
+        line-height: 24px;
+        color: rgb(0 10 26 / 45%);
       }
 
       .value {
-        flex: 1;
-        font-weight: 400;
-        color: rgba(0, 10, 26, 0.89);
-        overflow: hidden;
-        white-space: nowrap;
-        text-overflow: ellipsis;
         width: 0;
+        overflow: hidden;
+        font-weight: 400;
+        color: rgb(0 10 26 / 89%);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
       }
     }
   }
 
   .collapse_panel_body {
-    margin-top: 0;
     padding-top: 12;
+    margin-top: 0;
     border-top: 1px solid #f7f7f7;
+
+    .body {
+      padding: 15px;
+      margin-top: 12px;
+      background-color: #f7faff;
+      border-radius: 8px;
+
+      .label {
+        font-size: 14px;
+        font-weight: 400;
+        color: rgb(0 10 26 / 45%);
+      }
+
+      .value {
+        max-height: 500px;
+        overflow: auto;
+      }
+    }
 
     .header {
       display: flex;
-      align-items: center;
-      font-size: 16px;
       margin-top: 16px;
+      font-size: 16px;
+      align-items: center;
 
       .item {
         display: flex;
@@ -62,16 +80,16 @@
         margin-right: 24px;
 
         .label {
-          font-weight: 400;
           font-size: 14px;
-          color: rgba(0, 10, 26, 0.45);
+          font-weight: 400;
           line-height: 24px;
+          color: rgb(0 10 26 / 45%);
         }
 
         .value {
-          font-weight: 400;
           font-size: 14px;
-          color: rgba(0, 10, 26, 0.89);
+          font-weight: 400;
+          color: rgb(0 10 26 / 89%);
         }
       }
 
@@ -82,38 +100,6 @@
 
     .rowItem {
       display: flex;
-
-      .label {
-        font-weight: 400;
-        font-size: 14px;
-        color: rgba(0, 10, 26, 0.45);
-        line-height: 24px;
-      }
-
-      .value {
-        font-weight: 400;
-        font-size: 14px;
-        color: rgba(0, 10, 26, 0.89);
-        flex: 1;
-      }
-    }
-
-    .body {
-      margin-top: 12px;
-      background-color: #f7faff;
-      border-radius: 8px;
-      padding: 15px;
-
-      .label {
-        font-weight: 400;
-        font-size: 14px;
-        color: rgba(0, 10, 26, 0.45);
-      }
-
-      .value {
-        max-height: 500px;
-        overflow: auto;
-      }
     }
   }
 }

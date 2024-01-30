@@ -17,8 +17,8 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.23",
-    "@types/react": "^18.0.35",
-    "@types/react-dom": "^18.0.11",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.2.7",
     "ahooks": "^3.7.8",
     "ansi_up": "^5.2.1",
     "antd": "^5.11.3",
@@ -42,8 +42,16 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
+    "release": "standard-version",
     "start": "GENERATE_SOURCEMAP=false HTTPS=true craco start",
     "build": "GENERATE_SOURCEMAP=false craco build",
+    "lint:prettier": "prettier --write src\"/**/*.+(js|ts|tsx|jsx|json|md|json)\"",
+    "lint:style": "stylelint src\"/**/*.+(css|scss|less|stylus|sass|postcss)\" --fix",
+    "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx src",
+    "lint": "eslint --ext .js,.jsx,.ts,.tsx src",
+    "lint:all": "npm run lint:style && npm run lint:prettier && npm run lint",
+    "prepare": "npx husky install",
+    "commit": "git-cz",
     "test": "craco test",
     "eject": "craco eject"
   },
@@ -66,12 +74,59 @@
     ]
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
+    "@babel/plugin-transform-private-property-in-object": "^7.23.4",
+    "@commitlint/config-conventional": "^18.5.0",
     "@craco/craco": "^7.1.0",
+    "@craco/types": "^7.1.0",
     "@types/react-grid-layout": "^1.3.2",
+    "commitizen": "^4.3.0",
+    "commitlint": "^18.5.0",
+    "commitlint-config-cz": "^0.13.3",
+    "compression-webpack-plugin": "^11.0.0",
     "craco-css-modules": "^1.0.5",
-    "craco-less": "^3.0.0",
+    "craco-less": "^3.0.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "cz-customizable": "^7.0.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "eslint-plugin-react": "^7.33.2",
+    "eslint-plugin-simple-import-sort": "^10.0.0",
+    "happypack": "^5.0.1",
     "http-proxy-middleware": "^2.0.6",
-    "less": "^4.1.3"
+    "husky": "^8.0.3",
+    "less": "^4.2.0",
+    "less-loader": "^12.1.0",
+    "lint-staged": "^15.2.0",
+    "postcss-html": "^1.6.0",
+    "postcss-less": "^6.0.0",
+    "prettier": "^3.2.4",
+    "standard-version": "^9.5.0",
+    "stylelint": "^16.2.0",
+    "stylelint-config-recess-order": "^4.4.0",
+    "stylelint-config-recommended-less": "^3.0.1",
+    "stylelint-config-standard": "^36.0.0",
+    "stylelint-prettier": "^5.0.0",
+    "webpack-bundle-analyzer": "^4.10.1"
+  },
+  "lint-staged": {
+    "*.{js,jsx,vue,ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ],
+    "*.{css,less,scss}": [
+      "stylelint --fix",
+      "prettier --write"
+    ]
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-customizable"
+    },
+    "cz-customizable": {
+      "config": ".cz-config.cjs"
+    }
   },
   "repository": "git@gitlab.alipay-inc.com:karbour/karbour-fe.git"
 }
