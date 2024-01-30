@@ -6,8 +6,8 @@ module.exports = {
   overrides: [
     {
       files: ['**/*.(less|css)'],
-      customSyntax: "postcss-less", // 处理.less文件时使用postcss-less语法解析器
-    }
+      customSyntax: 'postcss-less', // 处理.less文件时使用postcss-less语法解析器
+    },
   ],
   // 忽略检测文件
   ignoreFiles: [
