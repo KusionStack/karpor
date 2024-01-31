@@ -23,7 +23,7 @@ import {
   HistoryOutlined,
 } from '@ant-design/icons'
 import { searchPrefix } from '../../utils/constants'
-import KarbourTabs from '../../components/Tabs/index'
+import KarbourTabs from '../../components/tabs/index'
 // import SqlSearchBox from "./components/sqlSearchBox/index";
 import logoJPG from '../../assets/logo.jpg'
 

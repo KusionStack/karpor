@@ -6,7 +6,7 @@ import type { UploadProps } from 'antd'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { HOST } from '../../../utils/request'
-import Yaml from '../../../components/Yaml'
+import Yaml from '../../../components/yaml'
 
 import styles from './styles.module.less'
 

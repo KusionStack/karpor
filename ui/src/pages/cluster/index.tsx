@@ -14,11 +14,11 @@ import {
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { utcDateToLocalDate } from '@/utils/tools'
-import KarbourTabs from '../../components/Tabs'
+import KarbourTabs from '../../components/tabs'
 import styles from './styles.module.less'
 import EditPopForm from './components/editPopForm'
 import k8sPng from '../../assets/kubernetes.png'
-import Loading from '../../components/Loading'
+import Loading from '../../components/loading'
 
 const Cluster = () => {
   const navigate = useNavigate()

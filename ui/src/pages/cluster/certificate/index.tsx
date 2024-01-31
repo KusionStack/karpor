@@ -10,7 +10,7 @@ import { useSelector } from 'react-redux'
 import yaml from 'js-yaml'
 import { yaml2json } from '@/utils/tools'
 // import 'react-diff-viewer-continued/es/styles/index.css';
-import Yaml from '../../../components/Yaml'
+import Yaml from '../../../components/yaml'
 import { HOST } from '../../../utils/request'
 
 import styles from './styles.module.less'

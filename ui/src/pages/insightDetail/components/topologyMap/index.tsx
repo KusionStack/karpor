@@ -13,7 +13,7 @@ import {
   Image,
   Text,
 } from '@antv/g6-react-node'
-import Loading from '../../../../components/Loading'
+import Loading from '../../../../components/loading'
 import transferPng from '../../../../assets/transfer.png'
 import PointButton from './PointButton'
 

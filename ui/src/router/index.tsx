@@ -6,7 +6,7 @@ import {
   ApartmentOutlined,
 } from '@ant-design/icons'
 import { Spin } from 'antd'
-import Layout from '@/components/Layout'
+import Layout from '@/components/layout'
 
 const Search = lazy(() => import('@/pages/search'))
 const Result = lazy(() => import('@/pages/result'))
