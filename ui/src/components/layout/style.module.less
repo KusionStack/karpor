@@ -1,0 +1,103 @@
+.wrapper {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+
+  .nav {
+    display: flex;
+    padding: 0 20px;
+    background: #fff;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #f5f5f5;
+
+    .left {
+      display: flex;
+      align-items: center;
+      flex: 1;
+
+      .logo {
+        margin-right: 30px;
+      }
+
+      .title {
+        display: flex;
+        font-weight: bold;
+        cursor: pointer;
+        align-items: center;
+
+        .subLogo {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          margin-right: 6px;
+          line-height: 20px;
+          color: #fff;
+          text-align: center;
+          background: #2f54eb;
+          border-radius: 4px;
+        }
+
+        .text {
+          display: inline-block;
+          margin-right: 10px;
+          font-size: 14px;
+        }
+      }
+
+      .tenant {
+        padding-left: 10px;
+
+        .dropText {
+          font-size: 12px;
+          color: #999;
+        }
+      }
+    }
+
+    .right {
+      display: flex;
+      align-items: center;
+
+      .search {
+        margin-right: 10px;
+      }
+
+      .help {
+        margin: 0 10px;
+      }
+
+      .user {
+        display: flex;
+        margin-left: 10px;
+        font-size: 12px;
+        color: #666;
+        align-items: center;
+      }
+    }
+  }
+
+  .content {
+    display: flex;
+    overflow: auto;
+    background: #fff;
+    flex: 1;
+
+    .left {
+      // height: 100%;
+      width: 160px;
+      border-right: 1px solid #f5f5f5;
+    }
+
+    .right {
+      padding: 32px;
+      overflow-y: scroll;
+      background: #fafafa;
+      flex: 1;
+
+      .right_content {
+        height: calc(100% - 30px);
+      }
+    }
+  }
+}
