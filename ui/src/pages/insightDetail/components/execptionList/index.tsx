@@ -3,7 +3,7 @@ import { Button, Empty, Tag } from 'antd'
 import styles from './style.module.less'
 import ExecptionStat from '../execptionStat'
 import { ArrowRightOutlined } from '@ant-design/icons'
-import Loading from '../../../../components/Loading'
+import Loading from '../../../../components/loading'
 import { SEVERITY_MAP } from '../../../../utils/constants'
 import React from 'react'
 
