@@ -19,18 +19,16 @@ module.exports = {
   ],
   // webpack 配置
   webpack: {
-    // 配置别名
     alias: {
-      // 约定：使用 @ 表示 src 文件所在路径
       '@': path.resolve(__dirname, 'src'),
     },
     configure: (webpackConfig, { paths }) => {
       // 修改打包输出文件目录
-      paths.appBuild = path.resolve(__dirname, 'dist')
+      paths.appBuild = path.resolve(__dirname, 'build')
       webpackConfig.output = {
         ...webpackConfig.output,
         clean: true, // 自动将上次打包目录资源清空
-        path: path.resolve(__dirname, 'dist'),
+        path: path.resolve(__dirname, 'build'),
         publicPath: '/', //资源名
       }
 

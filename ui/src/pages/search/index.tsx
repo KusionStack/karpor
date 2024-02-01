@@ -84,6 +84,7 @@ const SearchPage = () => {
       value: item,
     }))
     setOptions(tmpOption)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [optionsCopy])
 
   const handleTabChange = (value: string) => {
@@ -197,7 +198,7 @@ const SearchPage = () => {
             }
             filterOption={(inputValue, option: any) => {
               return (
-                option!.value
+                option?.value
                   ?.toUpperCase()
                   .indexOf(inputValue.toUpperCase()) !== -1
               )
