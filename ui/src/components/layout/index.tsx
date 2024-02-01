@@ -37,7 +37,8 @@ function getItem(
 
 const LayoutPage = () => {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const location = useLocation()
+  const { pathname } = location
   const dispatch = useDispatch()
 
   async function getServerConfigs() {
@@ -96,8 +97,13 @@ const LayoutPage = () => {
     return loop(menuItems)
   }
 
-  function handleMenuClick(e) {
-    navigate(e.key)
+  function handleMenuClick(event) {
+    if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
+      const { origin } = window.location
+      window.open(`${origin}${event.key}`)
+    } else {
+      navigate(event.key)
+    }
   }
 
   function goHome() {
