@@ -103,8 +103,7 @@
     "stylelint-config-recess-order": "^4.4.0",
     "stylelint-config-recommended-less": "^3.0.1",
     "stylelint-config-standard": "^36.0.0",
-    "stylelint-prettier": "^5.0.0",
-    "webpack-bundle-analyzer": "^4.10.1"
+    "stylelint-prettier": "^5.0.0"
   },
   "repository": "git@gitlab.alipay-inc.com:karbour/karbour-fe.git"
 }

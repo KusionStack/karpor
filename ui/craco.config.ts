@@ -5,8 +5,6 @@ const CompressionPlugin = require('compression-webpack-plugin') //引入gzip压�
 const HappyPack = require('happypack')
 const os = require('os')
 const path = require('path')
-const BundleAnalyzerPlugin =
-  require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 // 开辟一个线程池，拿到系统CPU的核数，happypack 将编译工作利用所有线程
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 
@@ -72,11 +70,6 @@ module.exports = {
             loaders: ['babel-loader'],
             // 共享进程池
             threadPool: happyThreadPool,
-          }),
-
-          // 打包体积分析插件
-          new BundleAnalyzerPlugin({
-            openAnalyzer: true, // 在默认浏览器中是否自动打开报告，默认 true
           }),
         )
       })

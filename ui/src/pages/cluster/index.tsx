@@ -415,8 +415,8 @@ const Cluster = () => {
                             {/* <span><Tag style={{ fontSize: 12 }}>定义的标签</Tag></span>
                             <span><Tag style={{ fontSize: 12 }}>定义的标签</Tag></span> */}
                           </div>
-                          <div className={styles.bottom}>
-                            描述：{item?.spec?.description || '--'}
+                          <div className={styles.desc}>
+                            {item?.spec?.description || '--'}
                           </div>
                           <div className={styles.bottom}>
                             {item?.metadata?.creationTimestamp

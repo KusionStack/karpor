@@ -134,14 +134,14 @@ const AddCluster = () => {
           <Form.Item
             name="displayName"
             label="显示名称"
-            rules={[{ required: true }]}
+            rules={[{ required: false }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
             label="集群描述"
-            rules={[{ required: true }]}
+            rules={[{ required: false }]}
           >
             <TextArea autoSize={{ minRows: 3 }} />
           </Form.Item>
