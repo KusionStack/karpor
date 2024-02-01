@@ -301,7 +301,7 @@ const Result = () => {
                 : '支持 SQL 语句查询'
             }
             filterOption={(inputValue, option) =>
-              option!.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
+              option?.value.toUpperCase().indexOf(inputValue.toUpperCase()) !==
               -1
             }
             style={{ width: 600 }}
