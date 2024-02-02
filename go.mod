@@ -50,7 +50,7 @@ require (
 	k8s.io/kube-scheduler v0.26.1
 	k8s.io/kubectl v0.26.1
 	k8s.io/kubelet v0.26.1
-	k8s.io/kubernetes v1.26.1
+	k8s.io/kubernetes v1.15.0-alpha.0
 	k8s.io/legacy-cloud-providers v0.26.1
 	k8s.io/metrics v0.26.1
 	k8s.io/mount-utils v0.26.1
@@ -60,6 +60,43 @@ require (
 	sigs.k8s.io/controller-runtime v0.14.6
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3
 	sigs.k8s.io/yaml v1.3.0
+)
+
+require (
+	cloud.google.com/go v0.97.0 // indirect
+	github.com/Azure/azure-sdk-for-go v55.0.0+incompatible // indirect
+	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
+	github.com/Azure/go-autorest/autorest v0.11.27 // indirect
+	github.com/Azure/go-autorest/autorest/adal v0.9.20 // indirect
+	github.com/Azure/go-autorest/autorest/date v0.3.0 // indirect
+	github.com/Azure/go-autorest/autorest/to v0.4.0 // indirect
+	github.com/Azure/go-autorest/autorest/validation v0.1.0 // indirect
+	github.com/Azure/go-autorest/logger v0.2.1 // indirect
+	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
+	github.com/GoogleCloudPlatform/k8s-cloud-provider v1.18.1-0.20220218231025-f11817397a1b // indirect
+	github.com/aws/aws-sdk-go v1.44.116 // indirect
+	github.com/d2g/dhcp4 v0.0.0-20170904100407-a1d1b6c41b1c // indirect
+	github.com/d2g/dhcp4client v1.0.0 // indirect
+	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/golang-jwt/jwt/v4 v4.2.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.1.1 // indirect
+	github.com/gophercloud/gophercloud v1.8.0 // indirect
+	github.com/hashicorp/golang-lru v0.5.1 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0 // indirect
+	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
+	github.com/mitchellh/mapstructure v1.4.1 // indirect
+	github.com/onsi/ginkgo v1.16.5 // indirect
+	github.com/rubiojr/go-vhd v0.0.0-20200706105327-02e210299021 // indirect
+	github.com/vmware/govmomi v0.20.3 // indirect
+	github.com/vmware/photon-controller-go-sdk v0.0.0-20171012155938-e3620ad3ad39 // indirect
+	github.com/xanzy/go-cloudstack v2.4.1+incompatible // indirect
+	go.opencensus.io v0.23.0 // indirect
+	google.golang.org/api v0.60.0 // indirect
+	gopkg.in/gcfg.v1 v1.2.0 // indirect
+	gopkg.in/warnings.v0 v0.1.1 // indirect
+	k8s.io/csi-api v0.0.0-20190313123203-94ac839bf26c // indirect
+	k8s.io/klog v1.0.0 // indirect
 )
 
 require (
@@ -77,7 +114,7 @@ require (
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/docker/distribution v2.8.1+incompatible // indirect
+	github.com/docker/distribution v2.8.2+incompatible // indirect
 	github.com/elastic/elastic-transport-go/v8 v8.2.0 // indirect
 	github.com/elastic/go-elasticsearch/v7 v7.6.0 // indirect
 	github.com/emicklei/go-restful/v3 v3.9.0 // indirect
@@ -114,7 +151,6 @@ require (
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/mxk/go-flowrate v0.0.0-20140419014527-cca7078d478f // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/selinux v1.10.0 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/pquerna/cachecontrol v0.1.0 // indirect
 	github.com/prometheus/client_golang v1.14.0 // indirect
