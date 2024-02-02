@@ -15,11 +15,14 @@
 package core
 
 import (
+	podstore "github.com/KusionStack/karbour/pkg/kubernetes/registry/core/pod"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	namespacestore "k8s.io/kubernetes/pkg/registry/core/namespace/storage"
+	secretstore "k8s.io/kubernetes/pkg/registry/core/secret/storage"
+	serviceaccountstore "k8s.io/kubernetes/pkg/registry/core/serviceaccount/storage"
 )
 
 const GroupName = "core"
@@ -44,10 +47,29 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}
-
 	storage["namespaces"] = namespaceStorage
 	storage["namespaces/status"] = namespaceStatusStorage
 	storage["namespaces/finalize"] = namespaceFinalizeStorage
+
+	secretStorage, err := secretstore.NewREST(restOptionsGetter)
+	if err != nil {
+		return genericapiserver.APIGroupInfo{}, err
+	}
+	storage["secrets"] = secretStorage
+
+	serviceAccountStorage, err := serviceaccountstore.NewREST(restOptionsGetter, nil, nil, 0, nil, nil, false)
+	if err != nil {
+		return genericapiserver.APIGroupInfo{}, err
+	}
+	storage["serviceaccounts"] = serviceAccountStorage
+
+	podStorage, err := podstore.NewStorage(restOptionsGetter)
+	if err != nil {
+		return genericapiserver.APIGroupInfo{}, err
+	}
+	storage["pods"] = podStorage.Pod
+	storage["pods/status"] = podStorage.Status
+
 	apiGroupInfo.VersionedResourcesStorageMap["v1"] = storage
 	return apiGroupInfo, nil
 }

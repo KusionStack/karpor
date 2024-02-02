@@ -31,6 +31,7 @@ import (
 	_ "k8s.io/csi-translation-lib"
 	_ "k8s.io/dynamic-resource-allocation"
 	_ "k8s.io/kms"
+	_ "k8s.io/kube-aggregator"
 	_ "k8s.io/kube-controller-manager"
 	_ "k8s.io/kube-proxy"
 	_ "k8s.io/kube-scheduler"

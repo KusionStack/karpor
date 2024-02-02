@@ -26,6 +26,8 @@ import (
 	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	coreinstall "k8s.io/kubernetes/pkg/apis/core/install"
 	corev1 "k8s.io/kubernetes/pkg/apis/core/v1"
+	rbacinstall "k8s.io/kubernetes/pkg/apis/rbac/install"
+	rbacv1 "k8s.io/kubernetes/pkg/apis/rbac/v1"
 )
 
 var (
@@ -41,6 +43,7 @@ var (
 		clusterv1beta1.SchemeGroupVersion,
 		searchv1beta1.SchemeGroupVersion,
 		corev1.SchemeGroupVersion,
+		rbacv1.SchemeGroupVersion,
 	}
 )
 
@@ -48,14 +51,12 @@ func init() {
 	clusterinstall.Install(Scheme)
 	searchinstall.Install(Scheme)
 	coreinstall.Install(Scheme)
+	rbacinstall.Install(Scheme)
 
-	// we need to add the options to empty v1
-	// TODO fix the server code to avoid this
 	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Version: "v1"})
-
-	// TODO: keep the generic API server from wanting this
 	unversioned := schema.GroupVersion{Group: "", Version: "v1"}
-	Scheme.AddUnversionedTypes(unversioned,
+	Scheme.AddUnversionedTypes(
+		unversioned,
 		&metav1.Status{},
 		&metav1.APIVersions{},
 		&metav1.APIGroupList{},
