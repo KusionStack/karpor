@@ -28,6 +28,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   const [pageParams, setPageParams] = useState(defaultSearchParams)
   const [tableData, setTableData] = useState([])
   const urlSearchParams = queryString?.parse(location?.search)
+  const [loading, setLoading] = useState(false)
 
   function goResourcePage(record) {
     const nav = record?.object?.kind === 'Namespace' ? 'namespace' : 'resource'
@@ -89,6 +90,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
 
   async function queryTableData(params) {
     const { current, pageSize } = pageParams
+    setLoading(true)
     const response: any = await axios.get(
       `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}`,
     )
@@ -101,6 +103,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     } else {
       message.error(response?.message)
     }
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -135,6 +138,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
         </Space>
       </div>
       <Table
+        loading={loading}
         columns={columns}
         dataSource={tableData}
         rowKey={record => {

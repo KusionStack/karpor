@@ -1,0 +1,49 @@
+.searchBox {
+  position: relative;
+  width: 800px;
+  background: #f1f1f1;
+  border: 10px solid #f1f1f1;
+  border-radius: 16px;
+
+
+  .customAutoComplete {
+    /* stylelint-disable-next-line selector-pseudo-class-no-unknown */
+    :global {
+      .ant-select-selector {
+        border-radius: 0 16px 16px 0;
+
+        .ant-select-selection-search {
+          .ant-select-selection-search-input {
+            display: flex;
+            height: 42px;
+            padding-right: 50px;
+            font-size: 16px;
+            align-items: center;
+          }
+        }
+      }
+    }
+  }
+
+
+  .submit {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    z-index: 10000;
+    display: flex;
+    width: 40px;
+    justify-content: center;
+    height: 28px;
+    color: #fff;
+    cursor: pointer;
+    background: #2f54eb;
+    border-radius: 16px;
+    align-items: center;
+
+    img {
+      width: 16px;
+      height: 16px;
+    }
+  }
+}

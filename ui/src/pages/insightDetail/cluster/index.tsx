@@ -223,24 +223,6 @@ const ClusterDetail = () => {
         separator=">"
         items={breadcrumbItems}
       />
-      <ExecptionDrawer
-        open={drawerVisible}
-        onClose={() => setDrawerVisible(false)}
-        execptionList={auditList}
-        execptionStat={auditStat}
-      />
-      <K8sEventDrawer
-        open={k8sDrawerVisible}
-        onClose={() => setK8sDrawerVisible(false)}
-      />
-      <EventDetail
-        open={modalVisible}
-        cancel={() => setModalVisible(false)}
-        detail={currentItem}
-      />
-      {/* <div className={styles.header}>
-      <ArrowLeftOutlined style={{ marginRight: 10 }} onClick={() => goBack()} />集群接入
-    </div> */}
       <div className={styles.module}>
         <SummaryCard auditStat={auditStat} summary={summary} />
         <div className={styles.execption_event}>
@@ -255,7 +237,6 @@ const ClusterDetail = () => {
           />
         </div>
       </div>
-
       {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
@@ -286,6 +267,21 @@ const ClusterDetail = () => {
           />
         )}
       </div>
+      <ExecptionDrawer
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
+        execptionList={auditList}
+        execptionStat={auditStat}
+      />
+      <K8sEventDrawer
+        open={k8sDrawerVisible}
+        onClose={() => setK8sDrawerVisible(false)}
+      />
+      <EventDetail
+        open={modalVisible}
+        cancel={() => setModalVisible(false)}
+        detail={currentItem}
+      />
     </div>
   )
 }

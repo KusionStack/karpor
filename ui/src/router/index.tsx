@@ -5,8 +5,8 @@ import {
   MacCommandOutlined,
   ApartmentOutlined,
 } from '@ant-design/icons'
-import { Spin } from 'antd'
 import Layout from '@/components/layout'
+import Loading from '@/components/loading'
 
 const Search = lazy(() => import('@/pages/search'))
 const Result = lazy(() => import('@/pages/result'))
@@ -26,7 +26,7 @@ const Insight = lazy(() => import('@/pages/insight'))
 const NotFound = lazy(() => import('@/pages/notfound'))
 
 const lazyLoad = (children: ReactNode): ReactNode => {
-  return <Suspense fallback={<Spin />}>{children}</Suspense>
+  return <Suspense fallback={<Loading />}>{children}</Suspense>
 }
 
 export interface RouteObject {

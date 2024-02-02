@@ -1,11 +1,8 @@
 import React, { useEffect, useState } from 'react'
-import { Empty, Button, Input, message, Popconfirm } from 'antd'
+import { Empty, Button, Input, message } from 'antd'
 import axios from 'axios'
 import {
-  DeploymentUnitOutlined,
   SearchOutlined,
-  BulbOutlined,
-  VerifiedOutlined,
   SortAscendingOutlined,
   SortDescendingOutlined,
   ArrowDownOutlined,
@@ -13,12 +10,14 @@ import {
 } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { utcDateToLocalDate } from '@/utils/tools'
 import KarbourTabs from '../../components/tabs'
 import styles from './styles.module.less'
-import EditPopForm from './components/editPopForm'
-import k8sPng from '../../assets/kubernetes.png'
 import Loading from '../../components/loading'
+import ClusterCard from './components/clusterCard'
+import healthPng from '@/assets/health_green.png'
+import execptionalPng from '@/assets/execptional.png'
+// import clusterPng from '@/assets/cluster.png'
+import clusterPng from '@/assets/cluster_outlind.png'
 
 const Cluster = () => {
   const navigate = useNavigate()
@@ -171,13 +170,12 @@ const Cluster = () => {
 
   const iconStyle: any = {
     width: 24,
-    height: '24px',
+    height: 24,
     display: 'flex',
     justifyContent: 'center',
     lineHeight: '24px',
     alignItems: 'center',
     marginRight: 10,
-    background: 'rgba(47,84,235,0.08)',
     borderRadius: 6,
   }
 
@@ -227,9 +225,6 @@ const Cluster = () => {
     navigate(`/cluster/certificate?cluster=${item?.metadata?.name}`)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  function handleCancel() {}
-
   function goDetailPage(item) {
     navigate(
       `/insightDetail/cluster?from=cluster&type=cluster&cluster=${item?.metadata?.name}&apiVersion=${item?.apiVersion}`,
@@ -240,7 +235,7 @@ const Cluster = () => {
     {
       label: (
         <div style={tabStyle}>
-          <DeploymentUnitOutlined style={iconStyle} />
+          <img src={clusterPng} style={iconStyle} />
           全部集群<span style={numberStyle}>{summary?.totalCount}</span>
         </div>
       ),
@@ -249,13 +244,7 @@ const Cluster = () => {
     {
       label: (
         <div style={tabStyle}>
-          <BulbOutlined
-            style={{
-              ...iconStyle,
-              background: 'rgba(255,77,79, 0.08)',
-              color: '#FF4D4F',
-            }}
-          />
+          <img src={execptionalPng} style={iconStyle} />
           异常集群<span style={numberStyle}>{summary?.unhealthyCount}</span>
         </div>
       ),
@@ -264,13 +253,7 @@ const Cluster = () => {
     {
       label: (
         <div style={tabStyle}>
-          <VerifiedOutlined
-            style={{
-              ...iconStyle,
-              background: 'rgba(82,196,26, 0.08)',
-              color: '#52C41A',
-            }}
-          />
+          <img src={healthPng} style={iconStyle} />
           健康集群<span style={numberStyle}>{summary?.healthyCount}</span>
         </div>
       ),
@@ -390,76 +373,15 @@ const Cluster = () => {
               <div className={styles.pageList}>
                 {showPageData?.map((item: any, index: number) => {
                   return (
-                    <div className={styles.card} key={`${item?.name}_${index}`}>
-                      <div
-                        className={styles.left}
-                        onClick={() => goDetailPage(item)}
-                      >
-                        <div className={styles.score}>
-                          <img src={k8sPng} alt="icon" />
-                        </div>
-                        <div className={styles.detail}>
-                          <div className={styles.top}>
-                            <div className={styles.name}>
-                              {item?.spec?.displayName ? (
-                                <span>
-                                  {item?.spec?.displayName}
-                                  <span style={{ color: '#808080' }}>
-                                    （{item?.metadata?.name}）
-                                  </span>
-                                </span>
-                              ) : (
-                                <span>{item?.metadata?.name}</span>
-                              )}
-                            </div>
-                            {/* <span><Tag style={{ fontSize: 12 }}>定义的标签</Tag></span>
-                            <span><Tag style={{ fontSize: 12 }}>定义的标签</Tag></span> */}
-                          </div>
-                          <div className={styles.desc}>
-                            {item?.spec?.description || '--'}
-                          </div>
-                          <div className={styles.bottom}>
-                            {item?.metadata?.creationTimestamp
-                              ? utcDateToLocalDate(
-                                  item?.metadata?.creationTimestamp,
-                                )
-                              : '--'}
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.right}>
-                        {/* TODO: 非owner用户不能操作，所有按钮置灰 */}
-                        <Popconfirm
-                          disabled={isReadOnlyMode}
-                          placement="topLeft"
-                          title={
-                            <span
-                              style={{ display: 'inline-block', width: 200 }}
-                            >
-                              删除后，将不会再管控该集群，和更新相关资源。
-                            </span>
-                          }
-                          description=""
-                          onConfirm={() => deleteItem(item)}
-                        >
-                          <Button disabled={isReadOnlyMode}>删除</Button>
-                        </Popconfirm>
-                        <EditPopForm
-                          isDisabled={isReadOnlyMode}
-                          cancel={handleCancel}
-                          submit={handleSubmit}
-                          btnStyle={{ margin: '0 16px' }}
-                          lastDetail={item}
-                          setLastDetail={setLastDetail}
-                        />
-                        <Button
-                          disabled={isReadOnlyMode}
-                          onClick={() => goCertificate(item)}
-                        >
-                          更新证书
-                        </Button>
-                      </div>
-                    </div>
+                    <ClusterCard
+                      key={`${item?.name}_${index}`}
+                      item={item}
+                      deleteItem={deleteItem}
+                      goDetailPage={goDetailPage}
+                      goCertificate={goCertificate}
+                      setLastDetail={setLastDetail}
+                      handleSubmit={handleSubmit}
+                    />
                   )
                 })}
               </div>

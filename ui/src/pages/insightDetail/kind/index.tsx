@@ -178,7 +178,6 @@ const ClusterDetail = () => {
       <div className={styles.module}>
         <SummaryCard auditStat={auditStat} summary={summary} />
         <div className={styles.execption_event}>
-          {/* 异常事件 */}
           <ExecptionList
             auditLoading={auditLoading}
             rescan={rescan}

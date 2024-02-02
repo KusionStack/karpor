@@ -12,6 +12,7 @@ import styles from './style.module.less'
 import { useDispatch } from 'react-redux'
 import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
+import { useSelector } from 'react-redux'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -37,9 +38,9 @@ function getItem(
 
 const LayoutPage = () => {
   const navigate = useNavigate()
-  const location = useLocation()
-  const { pathname } = location
+  const { pathname } = useLocation()
   const dispatch = useDispatch()
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
 
   async function getServerConfigs() {
     const response: any = await axios(`/server-configs`, {
@@ -130,6 +131,11 @@ const LayoutPage = () => {
           />
         </div>
         <div className={styles.right}>
+          {isReadOnlyMode && (
+            <div className={styles.readOnlyMode}>
+              <span>演示模式</span>
+            </div>
+          )}
           <div className={styles.help}>
             <a
               target="_blank"
