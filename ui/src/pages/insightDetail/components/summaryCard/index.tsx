@@ -66,6 +66,7 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
   return (
     <div className={styles.summary_card}>
       <GaugeChart data={(auditStat?.score / 100)?.toFixed(2)} />
+
       <div className={styles.summary}>
         {type === 'resource' && (
           <div className={styles.field_box}>
