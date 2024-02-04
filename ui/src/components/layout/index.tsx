@@ -8,11 +8,12 @@ import {
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
-import styles from './style.module.less'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
-import { useSelector } from 'react-redux'
+import showPng from '@/assets/show.png'
+
+import styles from './style.module.less'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -133,6 +134,7 @@ const LayoutPage = () => {
         <div className={styles.right}>
           {isReadOnlyMode && (
             <div className={styles.readOnlyMode}>
+              <img src={showPng} />
               <span>演示模式</span>
             </div>
           )}
