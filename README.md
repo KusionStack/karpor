@@ -1,7 +1,7 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img height="250px" src="docs/logo.jpg">
+    <img height="250px" src="assets/img/logo.jpg">
 </p>
 <h1>Search smarter, not harder! ⛵️</h1>
 
@@ -32,13 +32,18 @@
 
 # Karbour
 
-Karbour is a Search and Insight platform for Multi-Kubernetes Resources. Search smarter, not harder! ⛵️
+Karbour is a **Multi-Cluster Kubernetes Data Plane focusing on Search and Insight**.
+
+Search smarter, not harder! ⛵️
+
+![](assets/img/karbour-home.png)
 
 ## Key Features
 
 -   `Karbour` runs on compute as low as $15/month.
 -   Lightweight and easy to setup. One `helm` is done.
 -   Self-hosted - Cost-effective, bring your own server, scale when you need.
+-   Read only data plane, non-invasive to user cluster.
 
 <!-- - HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates. -->
 
