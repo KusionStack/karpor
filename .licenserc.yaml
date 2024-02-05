@@ -69,5 +69,6 @@ header:
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
     - 'config/**'
+    - 'charts/**'
   comment: never
   license-location-threshold: 80
