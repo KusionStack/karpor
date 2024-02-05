@@ -283,7 +283,7 @@ const Cluster = () => {
       <div className={styles.actionBar}>
         <div className={styles.title}>集群列表</div>
         {pageData && pageData?.length > 0 && (
-          <Button type="primary" onClick={join}>
+          <Button type="primary" onClick={join} disabled={isReadOnlyMode}>
             接入集群
           </Button>
         )}

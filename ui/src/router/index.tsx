@@ -1,5 +1,5 @@
 import React, { lazy, ReactNode, Suspense } from 'react'
-import { Navigate, Outlet, useRoutes } from 'react-router-dom'
+import { Outlet, useRoutes } from 'react-router-dom'
 import {
   SearchOutlined,
   MacCommandOutlined,
@@ -145,7 +145,7 @@ const router: RouteObject[] = [
       {
         path: '/',
         title: '',
-        element: <Navigate to="/search" replace />,
+        element: lazyLoad(<Search />),
       },
       {
         path: '*',
