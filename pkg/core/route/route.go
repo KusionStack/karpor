@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package server
+package route
 
 import (
 	"expvar"
@@ -39,9 +39,9 @@ import (
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
-// NewCoreServer creates and configures an instance of chi.Mux with the given
+// NewCoreRoute creates and configures an instance of chi.Mux with the given
 // configuration and extra configuration parameters.
-func NewCoreServer(
+func NewCoreRoute(
 	genericConfig *genericapiserver.CompletedConfig,
 	extraConfig *registry.ExtraConfig,
 ) (*chi.Mux, error) {

@@ -22,7 +22,7 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core/server"
+	"github.com/KusionStack/karbour/pkg/core/route"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	clusterstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/cluster"
 	corestorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/core"
@@ -85,8 +85,8 @@ func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
 		return s
 	}
 
-	// Instantiate and set up the core server.
-	if mux, err := server.NewCoreServer(&c.GenericConfig, c.ExtraConfig); err == nil {
+	// Instantiate and set up the core route.
+	if mux, err := route.NewCoreRoute(&c.GenericConfig, c.ExtraConfig); err == nil {
 		s.mux = mux
 	} else {
 		// Capture any errors encountered during core server setup.
