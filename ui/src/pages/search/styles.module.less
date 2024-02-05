@@ -1,76 +1,87 @@
-.search {
+.container {
   display: flex;
-  padding-top: 60px;
-  flex-direction: column;
+  width: 100%;
+  height: 100%;
   justify-content: center;
   align-items: center;
 
-  .title {
+  .search {
     display: flex;
+    padding-top: 60px;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-bottom: 10px;
-    font-size: 28px;
-    font-weight: bold;
-  }
 
-  .subTitle {
-    color: #646566;
-  }
-
-  .searchTab {
-    display: flex;
-    width: 650px;
-    padding: 20px 0;
-    margin-top: 10px;
-    justify-content: center;
-  }
-
-  .examples {
-    width: 800px;
-    padding: 15px;
-    margin-top: 20px;
-    border-radius: 8px;
-
-    .keywords,
-    .sql {
+    .title {
       display: flex;
-      flex-flow: row wrap;
-      margin-top: 7px;
-      color: #000;
       justify-content: center;
+      align-items: center;
+      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: bold;
+    }
 
-      .karbour_tag {
-        // display: inline-block;
-        padding: 4px 8px;
-        margin: 4px;
-        font-size: 12px;
-        font-weight: 500;
-        cursor: pointer;
-        background: rgb(244 244 245);
-        border: 1px solid rgb(228 228 231 / 50%)
-        ;
-        border-radius: 8px;
+    .subTitle {
+      color: #646566;
+    }
 
-        .keyword {
-          // font-weight: bold;
-          // color: #2f54eb;
+    .searchTab {
+      display: flex;
+      width: 650px;
+      padding: 20px 0;
+      margin-top: 10px;
+      justify-content: center;
+    }
+
+    .examples {
+      width: 800px;
+      padding: 15px;
+      margin-top: 20px;
+      border-radius: 8px;
+
+      .keywords,
+      .sql {
+        display: flex;
+        flex-flow: row wrap;
+        margin-top: 7px;
+        color: #000;
+        justify-content: center;
+
+        .karbour_tag {
+          // display: inline-block;
+          padding: 4px 8px;
+          margin: 4px;
+          font-size: 12px;
+          font-weight: 500;
+          cursor: pointer;
+          background: rgb(244 244 245);
+          border: 1px solid rgb(228 228 231 / 50%)
+          ;
+          border-radius: 8px;
+
+          .keyword {
+            // font-weight: bold;
+            // color: #2f54eb;
+          }
         }
-      }
 
-      .toggleButton {
-        width: 750px;
-        margin-top: 10px;
-        font-size: 12px;
-        text-align: center;
+        .toggleButton {
+          width: 750px;
+          margin-top: 10px;
+          font-size: 12px;
+          text-align: center;
+        }
       }
     }
   }
 }
 
+
+
 .option_item {
   display: flex;
   width: 100%;
+  overflow-y: auto;
   justify-content: space-between;
   align-items: center;
 

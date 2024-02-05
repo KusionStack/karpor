@@ -138,163 +138,166 @@ const SearchPage = () => {
   }
 
   return (
-    <div className={styles.search}>
-      <div className={styles.title}>
-        {/* Hi~ 欢迎来到KarBour */}
-        <img src={logoJPG} width="30%" alt="icon" />
-      </div>
-      {/* <div className={styles.subTitle}>
+    <div className={styles.container}>
+      <div className={styles.search}>
+        <div className={styles.title}>
+          {/* Hi~ 欢迎来到KarBour */}
+          <img src={logoJPG} width="30%" alt="icon" />
+        </div>
+        {/* <div className={styles.subTitle}>
         你可以通过搜索，匹配集群及其所有资源，帮你轻松管理
       </div> */}
-      <div className={styles.searchTab}>
-        <KarbourTabs
-          list={tabsList}
-          current={searchType}
-          onChange={handleTabChange}
+        <div className={styles.searchTab}>
+          <KarbourTabs
+            list={tabsList}
+            current={searchType}
+            onChange={handleTabChange}
+          />
+        </div>
+        <SearchInput
+          value={inputValue}
+          handleSearch={handleSearch}
+          handleOnkeyUp={handleOnkeyUp}
+          options={options}
+          handleInputChange={handleInputChange}
         />
-      </div>
-      <SearchInput
-        value={inputValue}
-        handleSearch={handleSearch}
-        handleOnkeyUp={handleOnkeyUp}
-        options={options}
-        handleInputChange={handleInputChange}
-      />
-      <div className={styles.examples}>
-        {searchType === 'keyword' ? (
-          <div className={styles.keywords}>
-            <div className={styles.keywordsTitle}>关键字搜索案例</div>
-            <div className={styles.item}>
-              <Tag style={{ color: '#000' }}>"my-application"</Tag>
-            </div>
-            <div className={styles.item}>
-              <Tag style={{ color: '#000' }}>
-                <span className={styles.keyword}>name:</span>
-                /.*my-application.*/kind:pod
-              </Tag>
-            </div>
-            <div className={styles.item}>
-              <Tag style={{ color: '#000' }}>
-                <span className={styles.keyword}>cluster:</span>xxxkind:service
-              </Tag>
-            </div>
-          </div>
-        ) : (
-          <div className={styles.sql}>
-            <div
-              className={styles.karbour_tag}
-              onClick={() => handleClickSql(`where kind='Namespace'`)}
-            >
-              <span className={styles.keyword}>select</span> *{' '}
-              <span className={styles.keyword}>from</span> resources{' '}
-              <span className={styles.keyword}>where </span>kind='Namespace'
-            </div>
-            <div
-              className={styles.karbour_tag}
-              onClick={() => handleClickSql(`where kind!='Pod'`)}
-            >
-              <span className={styles.keyword}>select</span> *{' '}
-              <span className={styles.keyword}>from</span> resources{' '}
-              <span className={styles.keyword}>where </span>kind!='Pod'
-            </div>
-            <div
-              className={styles.karbour_tag}
-              onClick={() => handleClickSql(`where namespace='default'`)}
-            >
-              <span className={styles.keyword}>select</span> *{' '}
-              <span className={styles.keyword}>from</span> resources{' '}
-              <span className={styles.keyword}>where </span>
-              namespace='default'
-            </div>
-            <div
-              className={styles.karbour_tag}
-              onClick={() =>
-                handleClickSql(`where cluster='democluster' and kind='Pod'`)
-              }
-            >
-              <span className={styles.keyword}>select</span> *{' '}
-              <span className={styles.keyword}>from</span> resources{' '}
-              <span className={styles.keyword}>where </span>
-              cluster='democluster' and kind='Pod'
-            </div>
-            <div
-              className={styles.karbour_tag}
-              onClick={() =>
-                handleClickSql(`where kind not in ('pod','service')`)
-              }
-            >
-              <span className={styles.keyword}>select</span> *{' '}
-              <span className={styles.keyword}>from</span> resources{' '}
-              <span className={styles.keyword}>where </span>kind not in
-              ('pod','service')
-            </div>
-            {!showAll && (
-              <div className={styles.toggleButton} onClick={toggleTags}>
-                <span>
-                  More
-                  <DoubleLeftOutlined
-                    style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
-                  />
-                </span>
+        <div className={styles.examples}>
+          {searchType === 'keyword' ? (
+            <div className={styles.keywords}>
+              <div className={styles.keywordsTitle}>关键字搜索案例</div>
+              <div className={styles.item}>
+                <Tag style={{ color: '#000' }}>"my-application"</Tag>
               </div>
-            )}
-            {/* 当showAll为true时，显示收起按钮 */}
-            {showAll && (
-              <>
-                <div
-                  className={styles.karbour_tag}
-                  onClick={() =>
-                    handleClickSql(
-                      `where kind='Service' order by object.metadata.creationTimestamp desc`,
-                    )
-                  }
-                >
-                  <span className={styles.keyword}>select</span> *{' '}
-                  <span className={styles.keyword}>from</span> resources{' '}
-                  <span className={styles.keyword}>where </span>kind='Service'
-                  order by object.metadata.creationTimestamp desc
-                </div>
-                <div
-                  className={styles.karbour_tag}
-                  onClick={() =>
-                    handleClickSql(
-                      `where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`,
-                    )
-                  }
-                >
-                  <span className={styles.keyword}>select</span> *{' '}
-                  <span className={styles.keyword}>from</span> resources{' '}
-                  <span className={styles.keyword}>where </span>
-                  {`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}
-                </div>
-                <div
-                  className={styles.karbour_tag}
-                  onClick={() =>
-                    handleClickSql(
-                      `where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`,
-                    )
-                  }
-                >
-                  <span className={styles.keyword}>select</span> *{' '}
-                  <span className={styles.keyword}>from</span> resources{' '}
-                  <span className={styles.keyword}>where </span>kind='Pod' and
-                  object.metadata.creationTimestamp between
-                  '2024-01-01T18:00:00Z'
-                  <br /> and '2024-01-11T18:00:00Z' order by
-                  object.metadata.creationTimestamp
-                </div>
+              <div className={styles.item}>
+                <Tag style={{ color: '#000' }}>
+                  <span className={styles.keyword}>name:</span>
+                  /.*my-application.*/kind:pod
+                </Tag>
+              </div>
+              <div className={styles.item}>
+                <Tag style={{ color: '#000' }}>
+                  <span className={styles.keyword}>cluster:</span>
+                  xxxkind:service
+                </Tag>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.sql}>
+              <div
+                className={styles.karbour_tag}
+                onClick={() => handleClickSql(`where kind='Namespace'`)}
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>kind='Namespace'
+              </div>
+              <div
+                className={styles.karbour_tag}
+                onClick={() => handleClickSql(`where kind!='Pod'`)}
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>kind!='Pod'
+              </div>
+              <div
+                className={styles.karbour_tag}
+                onClick={() => handleClickSql(`where namespace='default'`)}
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>
+                namespace='default'
+              </div>
+              <div
+                className={styles.karbour_tag}
+                onClick={() =>
+                  handleClickSql(`where cluster='democluster' and kind='Pod'`)
+                }
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>
+                cluster='democluster' and kind='Pod'
+              </div>
+              <div
+                className={styles.karbour_tag}
+                onClick={() =>
+                  handleClickSql(`where kind not in ('pod','service')`)
+                }
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>kind not in
+                ('pod','service')
+              </div>
+              {!showAll && (
                 <div className={styles.toggleButton} onClick={toggleTags}>
                   <span>
-                    Hide
-                    <DoubleRightOutlined
+                    More
+                    <DoubleLeftOutlined
                       style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
                     />
                   </span>
                 </div>
-              </>
-            )}
-          </div>
-        )}
+              )}
+              {/* 当showAll为true时，显示收起按钮 */}
+              {showAll && (
+                <>
+                  <div
+                    className={styles.karbour_tag}
+                    onClick={() =>
+                      handleClickSql(
+                        `where kind='Service' order by object.metadata.creationTimestamp desc`,
+                      )
+                    }
+                  >
+                    <span className={styles.keyword}>select</span> *{' '}
+                    <span className={styles.keyword}>from</span> resources{' '}
+                    <span className={styles.keyword}>where </span>kind='Service'
+                    order by object.metadata.creationTimestamp desc
+                  </div>
+                  <div
+                    className={styles.karbour_tag}
+                    onClick={() =>
+                      handleClickSql(
+                        `where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`,
+                      )
+                    }
+                  >
+                    <span className={styles.keyword}>select</span> *{' '}
+                    <span className={styles.keyword}>from</span> resources{' '}
+                    <span className={styles.keyword}>where </span>
+                    {`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}
+                  </div>
+                  <div
+                    className={styles.karbour_tag}
+                    onClick={() =>
+                      handleClickSql(
+                        `where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`,
+                      )
+                    }
+                  >
+                    <span className={styles.keyword}>select</span> *{' '}
+                    <span className={styles.keyword}>from</span> resources{' '}
+                    <span className={styles.keyword}>where </span>kind='Pod' and
+                    object.metadata.creationTimestamp between
+                    '2024-01-01T18:00:00Z'
+                    <br /> and '2024-01-11T18:00:00Z' order by
+                    object.metadata.creationTimestamp
+                  </div>
+                  <div className={styles.toggleButton} onClick={toggleTags}>
+                    <span>
+                      Hide
+                      <DoubleRightOutlined
+                        style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
+                      />
+                    </span>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
