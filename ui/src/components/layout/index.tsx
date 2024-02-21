@@ -109,7 +109,7 @@ const LayoutPage = () => {
   }
 
   function goHome() {
-    navigate('/search')
+    navigate('/')
   }
 
   return (
@@ -118,7 +118,7 @@ const LayoutPage = () => {
         <div className={styles.left}>
           <div className={styles.title} onClick={goHome}>
             <div className={styles.subLogo}>K</div>
-            <div className={styles.text}>Karbour 数据门户</div>
+            <div className={styles.text}>Karbour</div>
           </div>
           <div>
             <Divider type="vertical" />
