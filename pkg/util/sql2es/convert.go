@@ -1,4 +1,4 @@
-package sqltoes
+package sql2es
 
 import (
 	"encoding/json"
@@ -25,12 +25,7 @@ func Convert(sql string) (dsl string, table string, err error) {
 		return "", "", fmt.Errorf("only one table supported")
 	}
 
-	dsl, table, err = handleSelect(sel)
-	if err != nil {
-		return "", "", err
-	}
-
-	return dsl, table, nil
+	return handleSelect(sel)
 }
 
 func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) {
