@@ -1,3 +1,17 @@
+// Copyright The Karbour Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package sql2es
 
 import (
@@ -39,14 +53,13 @@ func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) 
 	}
 
 	esType = sqlparser.String(sel.From)
-	esType = strings.Replace(esType, "`", "", -1)
+	esType = strings.ReplaceAll(esType, "`", "")
 
 	queryFrom, querySize := "0", "1"
 
 	aggFlag := false
-	// if the request is to aggregation
-	// then set aggFlag to true, and querySize to 0
-	// to not return any query result
+	// if the request is to aggregation then set aggFlag to true,
+	// and querySize to 0 to not return any query result
 
 	var aggStr string
 	if len(sel.GroupBy) > 0 || checkNeedAgg(sel.SelectExprs) {
@@ -54,12 +67,10 @@ func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) 
 		querySize = "0"
 		aggStr, err = buildAggs(sel)
 		if err != nil {
-			// aggStr = ""
 			return "", "", err
 		}
 	}
 
-	// Handle limit
 	if sel.Limit != nil {
 		if sel.Limit.Offset != nil {
 			queryFrom = sqlparser.String(sel.Limit.Offset)
@@ -67,12 +78,11 @@ func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) 
 		querySize = sqlparser.String(sel.Limit.Rowcount)
 	}
 
-	// Handle order by
-	// when executating aggregations, order by is useless
+	// when executing aggregations, order by is useless
 	var orderByArr []string
-	if aggFlag == false {
+	if !aggFlag {
 		for _, orderByExpr := range sel.OrderBy {
-			orderByStr := fmt.Sprintf(`{"%v": "%v"}`, strings.Replace(sqlparser.String(orderByExpr.Expr), "`", "", -1), orderByExpr.Direction)
+			orderByStr := fmt.Sprintf(`{"%v": "%v"}`, strings.ReplaceAll(sqlparser.String(orderByExpr.Expr), "`", ""), orderByExpr.Direction)
 			orderByArr = append(orderByArr, orderByStr)
 		}
 	}
@@ -91,7 +101,7 @@ func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) 
 		resultMap["sort"] = fmt.Sprintf("[%v]", strings.Join(orderByArr, ","))
 	}
 
-	// keep the travesal in order, avoid unpredicted json
+	// keep the traversal in order, avoid unpredicted json
 	keySlice := []string{"query", "from", "size", "sort", "aggregations"}
 	var resultArr []string
 	for _, mapKey := range keySlice {
@@ -104,7 +114,7 @@ func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) 
 	return dsl, esType, nil
 }
 
-// if the where is empty, need to check whether to agg or not
+// If the where is empty, need to check whether to agg or not
 func checkNeedAgg(sqlSelect sqlparser.SelectExprs) bool {
 	for _, v := range sqlSelect {
 		expr, ok := v.(*sqlparser.AliasedExpr)
@@ -113,7 +123,6 @@ func checkNeedAgg(sqlSelect sqlparser.SelectExprs) bool {
 			continue
 		}
 
-		// TODO more precise
 		if _, ok := expr.Expr.(*sqlparser.FuncExpr); ok {
 			return true
 		}
@@ -125,7 +134,7 @@ func buildNestedFuncStrValue(nestedFunc *sqlparser.FuncExpr) (string, error) {
 	return "", fmt.Errorf("elasticsql: unsupported function" + nestedFunc.Name.String())
 }
 
-func handleSelectWhereAndExpr(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
 	andExpr := (*expr).(*sqlparser.AndExpr)
 	leftExpr := andExpr.Left
 	rightExpr := andExpr.Right
@@ -140,7 +149,6 @@ func handleSelectWhereAndExpr(expr *sqlparser.Expr, topLevel bool, parent *sqlpa
 
 	// not toplevel
 	// if the parent node is also and, then the result can be merged
-
 	var resultStr string
 	if leftStr == "" || rightStr == "" {
 		resultStr = leftStr + rightStr
@@ -154,7 +162,7 @@ func handleSelectWhereAndExpr(expr *sqlparser.Expr, topLevel bool, parent *sqlpa
 	return fmt.Sprintf(`{"bool" : {"must" : [%v]}}`, resultStr), nil
 }
 
-func handleSelectWhereOrExpr(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereOrExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
 	orExpr := (*expr).(*sqlparser.OrExpr)
 	leftExpr := orExpr.Left
 	rightExpr := orExpr.Right
@@ -189,16 +197,14 @@ func buildComparisonExprRightStr(expr sqlparser.Expr) (string, bool, error) {
 	var rightStr string
 	var err error
 	missingCheck := false
-	switch expr.(type) {
+	switch exprImpl := expr.(type) {
 	case *sqlparser.SQLVal:
 		rightStr = sqlparser.String(expr)
 		rightStr = strings.Trim(rightStr, `'`)
 	case *sqlparser.GroupConcatExpr:
 		return "", missingCheck, fmt.Errorf("elasticsql: group_concat not supported")
 	case *sqlparser.FuncExpr:
-		// parse nested
-		funcExpr := expr.(*sqlparser.FuncExpr)
-		rightStr, err = buildNestedFuncStrValue(funcExpr)
+		rightStr, err = buildNestedFuncStrValue(exprImpl)
 		if err != nil {
 			return "", missingCheck, err
 		}
@@ -212,25 +218,25 @@ func buildComparisonExprRightStr(expr sqlparser.Expr) (string, bool, error) {
 	case sqlparser.ValTuple:
 		rightStr = sqlparser.String(expr)
 	default:
-		// cannot reach here
+		return "", missingCheck, fmt.Errorf("type %exprImpl not supported", exprImpl)
 	}
 	return rightStr, missingCheck, err
 }
 
-func unescapeSql(sql, escapeStr string) string {
-	resSql := ""
+func unescapeSQL(sql, escapeStr string) string {
+	resSQL := ""
 	strSegments := strings.Split(sql, escapeStr)
 	for _, segment := range strSegments {
 		if segment == "" {
-			resSql += escapeStr // continuous escapeStr, only remove the first one
+			resSQL += escapeStr // continuous escapeStr, only remove the first one
 		} else {
-			resSql += segment
+			resSQL += segment
 		}
 	}
-	return resSql
+	return resSQL
 }
 
-func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool) (string, error) {
 	comparisonExpr := (*expr).(*sqlparser.ComparisonExpr)
 	colName, ok := comparisonExpr.Left.(*sqlparser.ColName)
 
@@ -239,7 +245,7 @@ func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool, parent
 	}
 
 	colNameStr := sqlparser.String(colName)
-	colNameStr = strings.Replace(colNameStr, "`", "", -1)
+	colNameStr = strings.ReplaceAll(colNameStr, "`", "")
 	rightStr, missingCheck, err := buildComparisonExprRightStr(comparisonExpr.Right)
 	if err != nil {
 		return "", err
@@ -248,7 +254,7 @@ func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool, parent
 	// unescape rightStr
 	escapeStr := sqlparser.String(comparisonExpr.Escape)
 	escapeStr = strings.Trim(escapeStr, "'") // remove quote both sides
-	rightStr = unescapeSql(rightStr, escapeStr)
+	rightStr = unescapeSQL(rightStr, escapeStr)
 	resultStr := ""
 
 	// allow eq empty string
@@ -281,32 +287,31 @@ func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool, parent
 	case "in":
 		// the default valTuple is ('1', '2', '3') like
 		// so need to drop the () and replace ' to "
-		rightStr = strings.Replace(rightStr, `'`, `"`, -1)
+		rightStr = strings.ReplaceAll(rightStr, `'`, `"`)
 		rightStr = strings.Trim(rightStr, "(")
 		rightStr = strings.Trim(rightStr, ")")
 		resultStr = fmt.Sprintf(`{"terms" : {"%v" : [%v]}}`, colNameStr, rightStr)
 	case "like":
-		// rightStr = strings.Replace(rightStr, `%`, ``, -1)
+		// rightStr = strings.ReplaceAll(rightStr, `%`, ``)
 		// resultStr = fmt.Sprintf(`{"match_phrase" : {"%v" : {"query" : "%v"}}}`, colNameStr, rightStr)
-		rightStr = strings.Replace(rightStr, `%`, `*`, -1)
-		rightStr = strings.Replace(rightStr, `_`, `?`, -1)
+		rightStr = strings.ReplaceAll(rightStr, `%`, `*`)
+		rightStr = strings.ReplaceAll(rightStr, `_`, `?`)
 		resultStr = fmt.Sprintf(`{"wildcard" : {"%v" : "%v"}}`, colNameStr, rightStr)
 	case "not like":
-		// rightStr = strings.Replace(rightStr, `%`, ``, -1)
+		// rightStr = strings.ReplaceAll(rightStr, `%`, ``)
 		// resultStr = fmt.Sprintf(`{"bool" : {"must_not" : {"match_phrase" : {"%v" : {"query" : "%v"}}}}}`, colNameStr, rightStr)
-		rightStr = strings.Replace(rightStr, `%`, `*`, -1)
-		rightStr = strings.Replace(rightStr, `_`, `?`, -1)
+		rightStr = strings.ReplaceAll(rightStr, `%`, `*`)
+		rightStr = strings.ReplaceAll(rightStr, `_`, `?`)
 		resultStr = fmt.Sprintf(`{"bool" : {"must_not" : {"wildcard" : {"%v" : "%v"}}}}`, colNameStr, rightStr)
 	case "not in":
 		// the default valTuple is ('1', '2', '3') like
 		// so need to drop the () and replace ' to "
-		rightStr = strings.Replace(rightStr, `'`, `"`, -1)
+		rightStr = strings.ReplaceAll(rightStr, `'`, `"`)
 		rightStr = strings.Trim(rightStr, "(")
 		rightStr = strings.Trim(rightStr, ")")
 		resultStr = fmt.Sprintf(`{"bool" : {"must_not" : {"terms" : {"%v" : [%v]}}}}`, colNameStr, rightStr)
 	}
 
-	// the root node need to have bool and must
 	if topLevel {
 		resultStr = fmt.Sprintf(`{"bool" : {"must" : [%v]}}`, resultStr)
 	}
@@ -321,18 +326,17 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 
 	switch e := (*expr).(type) {
 	case *sqlparser.AndExpr:
-		return handleSelectWhereAndExpr(expr, topLevel, parent)
+		return handleSelectWhereAndExpr(expr, parent)
 
 	case *sqlparser.OrExpr:
-		return handleSelectWhereOrExpr(expr, topLevel, parent)
+		return handleSelectWhereOrExpr(expr, parent)
+
 	case *sqlparser.ComparisonExpr:
-		return handleSelectWhereComparisonExpr(expr, topLevel, parent)
+		return handleSelectWhereComparisonExpr(expr, topLevel)
 
 	case *sqlparser.IsExpr:
 		return "", fmt.Errorf("elasticsql: is expression currently not supported")
 	case *sqlparser.RangeCond:
-		// between a and b
-		// the meaning is equal to range query
 		rangeCond := (*expr).(*sqlparser.RangeCond)
 		colName, ok := rangeCond.Left.(*sqlparser.ColName)
 
@@ -341,7 +345,7 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 		}
 
 		colNameStr := sqlparser.String(colName)
-		colNameStr = strings.Replace(colNameStr, "`", "", -1)
+		colNameStr = strings.ReplaceAll(colNameStr, "`", "")
 		fromStr := strings.Trim(sqlparser.String(rangeCond.From), `'`)
 		toStr := strings.Trim(sqlparser.String(rangeCond.To), `'`)
 
@@ -356,7 +360,6 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 		parentBoolExpr := (*expr).(*sqlparser.ParenExpr)
 		boolExpr := parentBoolExpr.Expr
 
-		// if paren is the top level, bool must is needed
 		isThisTopLevel := false
 		if topLevel {
 			isThisTopLevel = true
@@ -374,7 +377,7 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 
 			var typ, query, fields string
 			for i := 0; i < len(params); i++ {
-				elem := strings.Replace(sqlparser.String(params[i]), "`", "", -1) // a = b
+				elem := strings.ReplaceAll(sqlparser.String(params[i]), "`", "") // a = b
 				kv := strings.Split(elem, "=")
 				if len(kv) != 2 {
 					return "", fmt.Errorf("elasticsql: the param should be query = xxx, field = yyy, type = zzz")
@@ -382,10 +385,10 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 				k, v := strings.TrimSpace(kv[0]), strings.TrimSpace(kv[1])
 				switch k {
 				case "type":
-					typ = strings.Replace(v, "'", "", -1)
+					typ = strings.ReplaceAll(v, "'", "")
 				case "query":
-					query = strings.Replace(v, "`", "", -1)
-					query = strings.Replace(query, "'", "", -1)
+					query = strings.ReplaceAll(v, "`", "")
+					query = strings.ReplaceAll(query, "'", "")
 				case "fields":
 					fieldList := strings.Split(strings.TrimRight(strings.TrimLeft(v, "("), ")"), ",")
 					for idx, field := range fieldList {
@@ -408,14 +411,11 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 	return "", fmt.Errorf("elaticsql: logically cannot reached here")
 }
 
-// msi stands for map[string]interface{}
 type msi map[string]interface{}
 
 func handleFuncInSelectAgg(funcExprArr []*sqlparser.FuncExpr) msi {
 	innerAggMap := make(msi)
 	for _, v := range funcExprArr {
-		// func expressions will use the same parent bucket
-
 		aggName := strings.ToUpper(v.Name.String()) + `(` + sqlparser.String(v.Exprs) + `)`
 		switch v.Name.Lowered() {
 		case "count":
@@ -427,7 +427,6 @@ func handleFuncInSelectAgg(funcExprArr []*sqlparser.FuncExpr) msi {
 					},
 				}
 			} else {
-				// support count(distinct field)
 				if v.Distinct {
 					innerAggMap[aggName] = msi{
 						"cardinality": msi{
@@ -443,15 +442,12 @@ func handleFuncInSelectAgg(funcExprArr []*sqlparser.FuncExpr) msi {
 				}
 			}
 		default:
-			// support min/avg/max/stats
-			// extended_stats/percentiles
 			innerAggMap[aggName] = msi{
 				v.Name.String(): msi{
 					"field": sqlparser.String(v.Exprs),
 				},
 			}
 		}
-
 	}
 
 	return innerAggMap
@@ -462,7 +458,7 @@ func handleGroupByColName(colName *sqlparser.ColName, index int, child msi) msi 
 	if index == 0 {
 		innerMap["terms"] = msi{
 			"field": colName.Name.String(),
-			"size":  200, // this size may need to change ?
+			"size":  200,
 		}
 	} else {
 		innerMap["terms"] = msi{
@@ -480,18 +476,14 @@ func handleGroupByColName(colName *sqlparser.ColName, index int, child msi) msi 
 func handleGroupByFuncExprDateHisto(funcExpr *sqlparser.FuncExpr) (msi, error) {
 	innerMap := make(msi)
 	var (
-		// default
 		field    = ""
 		interval = "1h"
 		format   = "yyyy-MM-dd HH:mm:ss"
 	)
 
-	// get field/interval and format
 	for _, expr := range funcExpr.Exprs {
-		// the expression in date_histogram must be like a = b format
 		switch item := expr.(type) {
 		case *sqlparser.AliasedExpr:
-			// nonStarExpr := expr.(*sqlparser.NonStarExpr)
 			comparisonExpr, ok := item.Expr.(*sqlparser.ComparisonExpr)
 
 			if !ok {
@@ -502,7 +494,7 @@ func handleGroupByFuncExprDateHisto(funcExpr *sqlparser.FuncExpr) (msi, error) {
 				return nil, fmt.Errorf("elaticsql: param error in date_histogram")
 			}
 			rightStr := sqlparser.String(comparisonExpr.Right)
-			rightStr = strings.Replace(rightStr, `'`, ``, -1)
+			rightStr = strings.ReplaceAll(rightStr, `'`, ``)
 			if left.Name.Lowered() == "field" {
 				field = rightStr
 			}
@@ -568,7 +560,6 @@ func handleGroupByFuncExprDateRange(funcExpr *sqlparser.FuncExpr) (msi, error) {
 		case *sqlparser.ComparisonExpr:
 			colName := sqlparser.String(item.Left)
 			equalVal := sqlparser.String(item.Right.(*sqlparser.SQLVal))
-			// fmt.Printf("%#v", sqlparser.String(item.Right))
 			equalVal = strings.Trim(equalVal, `'`)
 
 			switch colName {
@@ -634,16 +625,13 @@ func handleGroupByFuncExpr(funcExpr *sqlparser.FuncExpr, child msi) (msi, error)
 	}
 
 	stripedFuncExpr := sqlparser.String(funcExpr)
-	stripedFuncExpr = strings.Replace(stripedFuncExpr, " ", "", -1)
-	stripedFuncExpr = strings.Replace(stripedFuncExpr, "'", "", -1)
+	stripedFuncExpr = strings.ReplaceAll(stripedFuncExpr, " ", "")
+	stripedFuncExpr = strings.ReplaceAll(stripedFuncExpr, "'", "")
 	return msi{stripedFuncExpr: innerMap}, nil
 }
 
 func handleGroupByAgg(groupBy sqlparser.GroupBy, innerMap msi) (msi, error) {
-	aggMap := make(msi)
-
 	child := innerMap
-
 	for i := len(groupBy) - 1; i >= 0; i-- {
 		v := groupBy[i]
 
@@ -660,55 +648,50 @@ func handleGroupByAgg(groupBy sqlparser.GroupBy, innerMap msi) (msi, error) {
 			child = currentMap
 		}
 	}
-	aggMap = child
-
-	return aggMap, nil
+	return child, nil
 }
 
 func buildAggs(sel *sqlparser.Select) (string, error) {
-	funcExprArr, _, funcErr := extractFuncAndColFromSelect(sel.SelectExprs)
-	innerAggMap := handleFuncInSelectAgg(funcExprArr)
-
-	if funcErr != nil {
+	funcExprArr, _, err := extractFuncAndColFromSelect(sel.SelectExprs)
+	if err != nil {
+		return "", err
 	}
 
+	innerAggMap := handleFuncInSelectAgg(funcExprArr)
 	aggMap, err := handleGroupByAgg(sel.GroupBy, innerAggMap)
 	if err != nil {
 		return "", err
 	}
 
-	mapJSON, _ := json.Marshal(aggMap)
+	mapJSON, err := json.Marshal(aggMap)
+	if err != nil {
+		return "", err
+	}
 
 	return string(mapJSON), nil
 }
 
-// extract func expressions from select exprs
+// Extract func expressions from select exprs
 func extractFuncAndColFromSelect(sqlSelect sqlparser.SelectExprs) ([]*sqlparser.FuncExpr, []*sqlparser.ColName, error) {
 	var colArr []*sqlparser.ColName
 	var funcArr []*sqlparser.FuncExpr
 	for _, v := range sqlSelect {
-		// non star expressioin means column name
-		// or some aggregation functions
+		// non-star expression means column name or some aggregation functions
 		expr, ok := v.(*sqlparser.AliasedExpr)
 		if !ok {
 			// no need to handle, star expression * just skip is ok
 			continue
 		}
 
-		// NonStarExpr start
-		switch expr.Expr.(type) {
+		switch exprImpl := expr.Expr.(type) {
 		case *sqlparser.FuncExpr:
 			funcExpr := expr.Expr.(*sqlparser.FuncExpr)
 			funcArr = append(funcArr, funcExpr)
-
 		case *sqlparser.ColName:
 			continue
 		default:
-			// ignore
+			return nil, nil, fmt.Errorf("type %v not supported", exprImpl)
 		}
-
-		// starExpression like *, table.* should be ignored
-		// 'cause it is meaningless to set fields in elasticsearch aggs
 	}
 	return funcArr, colArr, nil
 }
