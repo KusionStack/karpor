@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:tagliatelle
 package elasticsearch
 
 import (
@@ -19,17 +20,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/http"
 	"strings"
-	"time"
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
-
-type Audit struct {
-	date      time.Time
-	operation string
-}
 
 var _ Client = &esClient{}
 
@@ -46,9 +42,9 @@ func NewClient(config elasticsearch.Config) (Client, error) {
 	return &esClient{client: es}, nil
 }
 
-// Save a new document
-func (e *esClient) Save(ctx context.Context, index string, documentID string, body io.Reader) error {
-	resp, err := e.client.Index(index, body, e.client.Index.WithDocumentID(documentID), e.client.Index.WithContext(ctx))
+// SaveDocument saves a new document
+func (e *esClient) SaveDocument(ctx context.Context, indexName string, documentID string, body io.Reader) error {
+	resp, err := e.client.Index(indexName, body, e.client.Index.WithDocumentID(documentID), e.client.Index.WithContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -62,9 +58,9 @@ func (e *esClient) Save(ctx context.Context, index string, documentID string, bo
 	return nil
 }
 
-// Get a document with the specified ID
-func (e *esClient) Get(ctx context.Context, index string, documentID string) (any, error) {
-	resp, err := e.client.Get(index, documentID, e.client.Get.WithContext(ctx))
+// GetDocument gets a document with the specified ID
+func (e *esClient) GetDocument(ctx context.Context, indexName string, documentID string) ([]byte, error) {
+	resp, err := e.client.Get(indexName, documentID, e.client.Get.WithContext(ctx))
 	if err != nil {
 		return nil, err
 	}
@@ -79,23 +75,23 @@ func (e *esClient) Get(ctx context.Context, index string, documentID string) (an
 		Index  string `json:"_index"`
 		ID     string `json:"_id"`
 		Found  bool   `json:"found"`
-		Source any    `json:"_source"`
+		Source []byte `json:"_source"`
 	}{}
 	if err := json.NewDecoder(resp.Body).Decode(getResp); err != nil {
 		return nil, err
 	}
 	if getResp.Found {
-		return nil, ESErrorNotFound
+		return nil, ErrNotFound
 	}
 	return getResp.Source, nil
 }
 
-// Delete a document with the specified ID
-func (e *esClient) Delete(ctx context.Context, index string, documentID string) error {
-	if _, err := e.Get(ctx, index, documentID); err != nil {
+// DeleteDocument deletes a document with the specified ID
+func (e *esClient) DeleteDocument(ctx context.Context, indexName string, documentID string) error {
+	if _, err := e.GetDocument(ctx, indexName, documentID); err != nil {
 		return err
 	}
-	resp, err := e.client.Delete(index, documentID, e.client.Delete.WithContext(ctx))
+	resp, err := e.client.Delete(indexName, documentID, e.client.Delete.WithContext(ctx))
 	if err != nil {
 		return err
 	}
@@ -109,8 +105,8 @@ func (e *esClient) Delete(ctx context.Context, index string, documentID string) 
 	return nil
 }
 
-// Search performs a search query in the specified index
-func (e *esClient) Search(ctx context.Context, index string, body io.Reader, options ...Option) (*SearchResp, error) {
+// SearchDocument performs a search query in the specified index
+func (e *esClient) SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResp, error) {
 	cfg := &config{}
 	for _, option := range options {
 		if err := option(cfg); err != nil {
@@ -119,7 +115,7 @@ func (e *esClient) Search(ctx context.Context, index string, body io.Reader, opt
 	}
 	opts := []func(*esapi.SearchRequest){
 		e.client.Search.WithContext(ctx),
-		e.client.Search.WithIndex(index),
+		e.client.Search.WithIndex(indexName),
 		e.client.Search.WithBody(body),
 	}
 	if cfg.pagination != nil {
@@ -169,8 +165,8 @@ func (e *esClient) CreateIndex(ctx context.Context, index string, body io.Reader
 	return nil
 }
 
-// ExistIndex checks for the existence of the specified index in Elasticsearch.
-func (e *esClient) ExistIndex(ctx context.Context, index string) (bool, error) {
+// IsIndexExists Check if an index exists in Elasticsearch
+func (e *esClient) IsIndexExists(ctx context.Context, index string) (bool, error) {
 	resp, err := e.client.Indices.Exists([]string{index}, e.client.Indices.Exists.WithContext(ctx))
 	if err != nil {
 		return false, err
@@ -183,9 +179,9 @@ func (e *esClient) ExistIndex(ctx context.Context, index string) (bool, error) {
 		}
 	}
 	// Decide if the index exists based on the response status code
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		return true, nil // Index exists
-	} else if resp.StatusCode == 404 {
+	} else if resp.StatusCode == http.StatusNotFound {
 		return false, nil // Index does not exist
 	} else {
 		// If it's any other status code, return an error

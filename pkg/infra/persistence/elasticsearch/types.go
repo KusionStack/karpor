@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:tagliatelle
 package elasticsearch
 
 import (
@@ -22,12 +23,12 @@ import (
 
 // Client defines the interface for our Elasticsearch operations.
 type Client interface {
-	Get(ctx context.Context, index string, documentID string) (any, error)
-	Save(ctx context.Context, index string, documentID string, body io.Reader) error
-	Delete(ctx context.Context, index string, documentID string) error
-	Search(ctx context.Context, index string, body io.Reader, options ...Option) (*SearchResp, error)
-	CreateIndex(ctx context.Context, index string, body io.Reader) error
-	ExistIndex(ctx context.Context, index string) (bool, error)
+	GetDocument(ctx context.Context, indexName string, documentID string) ([]byte, error)
+	SaveDocument(ctx context.Context, indexName string, documentID string, body io.Reader) error
+	DeleteDocument(ctx context.Context, indexName string, documentID string) error
+	SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResp, error)
+	CreateIndex(ctx context.Context, indexName string, body io.Reader) error
+	IsIndexExists(ctx context.Context, indexName string) (bool, error)
 }
 
 type paginationConfig struct {
@@ -54,7 +55,7 @@ func Pagination(page, pageSize int) Option {
 	}
 }
 
-var ESErrorNotFound = &ESError{
+var ErrNotFound = &ESError{
 	StatusCode: 404,
 	Message:    "Object not found",
 }
@@ -91,5 +92,5 @@ type Hit struct {
 	Index  string  `json:"_index"`
 	ID     string  `json:"_id"`
 	Score  float32 `json:"_score"`
-	Source any     `json:"_source"`
+	Source []byte  `json:"_source"`
 }

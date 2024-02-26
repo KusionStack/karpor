@@ -15,7 +15,9 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -24,25 +26,29 @@ import (
 
 var ErrNotFound = fmt.Errorf("object not found")
 
-func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-	return s.insertObj(ctx, cluster, obj)
+func (e *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
+	id, body, err := generateIndexRequest(cluster, obj)
+	if err != nil {
+		return err
+	}
+	return e.client.SaveDocument(ctx, e.indexName, id, bytes.NewReader(body))
 }
 
-func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
+func (e *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
 		return fmt.Errorf("only support *unstructured.Unstructured type")
 	}
 
-	if err := s.Get(ctx, cluster, unObj); err != nil {
+	if err := e.Get(ctx, cluster, unObj); err != nil {
 		return err
 	}
 
-	return s.deleteByID(ctx, string(unObj.GetUID()))
+	return e.client.DeleteDocument(ctx, e.indexName, string(unObj.GetUID()))
 }
 
-func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
+func (e *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
@@ -50,16 +56,24 @@ func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
 	}
 
 	query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-	sr, err := s.SearchByQuery(ctx, query, nil)
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return err
+	}
+	resp, err := e.client.SearchDocument(ctx, e.indexName, buf)
 	if err != nil {
 		return err
 	}
 
-	resources := sr.GetResources()
+	res, err := Convert(resp)
+	if err != nil {
+		return err
+	}
+
+	resources := res.GetResources()
 	if len(resources) == 0 {
 		return ErrNotFound
 	}
-
-	unObj.SetUnstructuredContent(resources[0].Object)
+	unObj.Object = resources[0].Object
 	return nil
 }

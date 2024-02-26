@@ -15,8 +15,12 @@
 package elasticsearch
 
 import (
+	"context"
+	"strings"
+
+	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/elastic/go-elasticsearch/v8"
+	esv8 "github.com/elastic/go-elasticsearch/v8"
 )
 
 const (
@@ -34,24 +38,22 @@ var (
 )
 
 type ESClient struct {
-	client    *elasticsearch.Client
+	client    elasticsearch.Client
 	indexName string
 }
 
-func NewESClient(cfg elasticsearch.Config) (*ESClient, error) {
+func NewESClient(cfg esv8.Config) (*ESClient, error) {
 	cl, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	indexName := defaultIndexName
-	err = createIndex(cl, defaultMapping, indexName)
-	if err != nil {
+	if err = cl.CreateIndex(context.TODO(), defaultIndexName, strings.NewReader(defaultMapping)); err != nil {
 		return nil, err
 	}
 
 	return &ESClient{
 		client:    cl,
-		indexName: indexName,
+		indexName: defaultIndexName,
 	}, nil
 }

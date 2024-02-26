@@ -15,7 +15,12 @@
 //nolint:tagliatelle
 package elasticsearch
 
-import "github.com/KusionStack/karbour/pkg/infra/search/storage"
+import (
+	"encoding/json"
+
+	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+)
 
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
@@ -51,4 +56,30 @@ func (s *SearchResponse) GetResources() []*storage.Resource {
 		rt[i] = hit.Source
 	}
 	return rt
+}
+
+func Convert(searchResp *elasticsearch.SearchResp) (*SearchResponse, error) {
+	hits := make([]*Hit, len(searchResp.Hits.Hits))
+	for i, hit := range searchResp.Hits.Hits {
+		source := &storage.Resource{}
+		if err := json.Unmarshal(hit.Source, source); err != nil {
+			return nil, err
+		}
+		hits[i] = &Hit{
+			Index:  hit.Index,
+			ID:     hit.ID,
+			Score:  hit.Score,
+			Source: source,
+		}
+	}
+	return &SearchResponse{
+		ScrollID: searchResp.ScrollID,
+		Took:     searchResp.Took,
+		TimeOut:  searchResp.TimeOut,
+		Hits: &Hits{
+			Total:    (*Total)(searchResp.Hits.Total),
+			MaxScore: searchResp.Hits.MaxScore,
+			Hits:     make([]*Hit, len(searchResp.Hits.Hits)),
+		},
+	}, nil
 }

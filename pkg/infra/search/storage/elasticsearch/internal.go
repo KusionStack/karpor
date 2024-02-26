@@ -15,12 +15,9 @@
 package elasticsearch
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
 
 	"github.com/aquasecurity/esquery"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -56,72 +53,4 @@ func generateQuery(cluster, namespace, name string, obj runtime.Object) map[stri
 		esquery.Term(clusterKey, cluster),
 	).Map()
 	return query
-}
-
-func (s *ESClient) insertObj(ctx context.Context, cluster string, obj runtime.Object) error {
-	id, body, err := generateIndexRequest(cluster, obj)
-	if err != nil {
-		return err
-	}
-
-	req := esapi.IndexRequest{
-		DocumentID: id,
-		Body:       bytes.NewReader(body),
-		Index:      s.indexName,
-	}
-	resp, err := req.Do(ctx, s.client)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &ESError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
-}
-
-//nolint:unused
-func (s *ESClient) deleteByQuery(ctx context.Context, query map[string]interface{}) error {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return err
-	}
-	req := esapi.DeleteByQueryRequest{
-		Index: []string{s.indexName},
-		Body:  buf,
-	}
-	resp, err := req.Do(ctx, s.client)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &ESError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
-}
-
-func (s *ESClient) deleteByID(ctx context.Context, id string) error {
-	req := esapi.DeleteRequest{
-		Index:      s.indexName,
-		DocumentID: id,
-	}
-	resp, err := req.Do(ctx, s.client)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &ESError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
 }
