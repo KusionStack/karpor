@@ -23,7 +23,7 @@ import (
 	"strings"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/cch123/elasticsql"
+	"github.com/KusionStack/karbour/pkg/util/sql2es"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/pkg/errors"
 )
@@ -81,7 +81,7 @@ func (s *ESClient) searchByDSL(ctx context.Context, dslStr string, pagination *s
 }
 
 func (s *ESClient) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*SearchResponse, error) {
-	dsl, _, err := elasticsql.Convert(sqlStr)
+	dsl, _, err := sql2es.Convert(sqlStr)
 	if err != nil {
 		return nil, err
 	}
