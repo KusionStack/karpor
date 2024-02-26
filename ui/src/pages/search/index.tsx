@@ -260,20 +260,20 @@ const SearchPage = () => {
                     className={styles.karbour_tag}
                     onClick={() =>
                       handleClickSql(
-                        `where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`,
+                        `where kind='Deployment' and object.metadata.creationTimestamp > '2024-01-01T18:00:00Z'`,
                       )
                     }
                   >
                     <span className={styles.keyword}>select</span> *{' '}
                     <span className={styles.keyword}>from</span> resources{' '}
                     <span className={styles.keyword}>where </span>
-                    {`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}
+                    {`kind='Deployment' and object.metadata.creationTimestamp > '2024-01-01T18:00:00Z'`}
                   </div>
                   <div
                     className={styles.karbour_tag}
                     onClick={() =>
                       handleClickSql(
-                        `where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`,
+                        `where kind='Pod' and object.metadata.creationTimestamp between '2024-02-01T18:00:00Z' and '2024-02-11T18:00:00Z' order by object.metadata.creationTimestamp`,
                       )
                     }
                   >
@@ -281,8 +281,8 @@ const SearchPage = () => {
                     <span className={styles.keyword}>from</span> resources{' '}
                     <span className={styles.keyword}>where </span>kind='Pod' and
                     object.metadata.creationTimestamp between
-                    '2024-01-01T18:00:00Z'
-                    <br /> and '2024-01-11T18:00:00Z' order by
+                    '2024-02-01T18:00:00Z'
+                    <br /> and '2024-02-11T18:00:00Z' order by
                     object.metadata.creationTimestamp
                   </div>
                   <div className={styles.toggleButton} onClick={toggleTags}>
