@@ -34,17 +34,17 @@ type Pagination struct {
 }
 
 func (e *ESClient) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	var res *SearchResponse
+	var sr *storage.SearchResult
 	var err error
 
 	switch patternType {
 	case storage.DSLPatternType:
-		res, err = e.searchByDSL(ctx, queryStr, pagination)
+		sr, err = e.searchByDSL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by DSL failed")
 		}
 	case storage.SQLPatternType:
-		res, err = e.searchBySQL(ctx, queryStr, pagination)
+		sr, err = e.searchBySQL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by SQL failed")
 		}
@@ -52,19 +52,10 @@ func (e *ESClient) Search(ctx context.Context, queryStr string, patternType stri
 		return nil, fmt.Errorf("invalid type %s", patternType)
 	}
 
-	rt := &storage.SearchResult{
-		Total:     res.Hits.Total.Value,
-		Resources: make([]*storage.Resource, len(res.Hits.Hits)),
-	}
-
-	for i, hit := range res.Hits.Hits {
-		rt.Resources[i] = hit.Source
-	}
-
-	return rt, nil
+	return sr, nil
 }
 
-func (e *ESClient) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*SearchResponse, error) {
+func (e *ESClient) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	queries, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
@@ -80,7 +71,7 @@ func (e *ESClient) searchByDSL(ctx context.Context, dslStr string, pagination *s
 	return res, nil
 }
 
-func (e *ESClient) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*SearchResponse, error) {
+func (e *ESClient) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	dsl, _, err := sql2es.Convert(sqlStr)
 	if err != nil {
 		return nil, err
@@ -88,7 +79,7 @@ func (e *ESClient) searchBySQL(ctx context.Context, sqlStr string, pagination *s
 	return e.search(ctx, strings.NewReader(dsl), pagination)
 }
 
-func (e *ESClient) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*SearchResponse, error) {
+func (e *ESClient) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
@@ -96,7 +87,7 @@ func (e *ESClient) SearchByQuery(ctx context.Context, query map[string]interface
 	return e.search(ctx, buf, pagination)
 }
 
-func (e *ESClient) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*SearchResponse, error) {
+func (e *ESClient) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {
 		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
@@ -105,9 +96,15 @@ func (e *ESClient) search(ctx context.Context, body io.Reader, pagination *stora
 	if err != nil {
 		return nil, err
 	}
-	res, err := Convert(resp)
-	if err != nil {
-		return nil, err
+
+	sr := &storage.SearchResult{
+		Total:     resp.Hits.Total.Value,
+		Resources: make([]*storage.Resource, len(resp.Hits.Hits)),
 	}
-	return res, nil
+
+	for i, hit := range resp.Hits.Hits {
+		sr.Resources[i] = storage.Map2Resource(hit.Source)
+	}
+
+	return sr, nil
 }

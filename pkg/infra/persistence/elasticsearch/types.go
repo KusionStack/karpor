@@ -23,10 +23,10 @@ import (
 
 // Client defines the interface for our Elasticsearch operations.
 type Client interface {
-	GetDocument(ctx context.Context, indexName string, documentID string) ([]byte, error)
+	GetDocument(ctx context.Context, indexName string, documentID string) (map[string]interface{}, error)
 	SaveDocument(ctx context.Context, indexName string, documentID string, body io.Reader) error
 	DeleteDocument(ctx context.Context, indexName string, documentID string) error
-	SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResp, error)
+	SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResponse, error)
 	CreateIndex(ctx context.Context, indexName string, body io.Reader) error
 	IsIndexExists(ctx context.Context, indexName string) (bool, error)
 }
@@ -70,7 +70,7 @@ func (e *ESError) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Message)
 }
 
-type SearchResp struct {
+type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
 	Took     int    `json:"took"`
 	TimeOut  bool   `json:"time_out"`
@@ -89,8 +89,8 @@ type Total struct {
 }
 
 type Hit struct {
-	Index  string  `json:"_index"`
-	ID     string  `json:"_id"`
-	Score  float32 `json:"_score"`
-	Source []byte  `json:"_source"`
+	Index  string                 `json:"_index"`
+	ID     string                 `json:"_id"`
+	Score  float32                `json:"_score"`
+	Source map[string]interface{} `json:"_source"`
 }

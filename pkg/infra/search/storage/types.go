@@ -129,3 +129,14 @@ func NewResource(cluster string, b []byte) (*Resource, error) {
 		Object: obj.Object,
 	}, nil
 }
+
+func Map2Resource(in map[string]interface{}) *Resource {
+	out := &Resource{}
+	out.Cluster = in["cluster"].(string)
+	out.APIVersion = in["apiVersion"].(string)
+	out.Kind = in["kind"].(string)
+	out.Namespace = in["namespace"].(string)
+	out.Name = in["name"].(string)
+	out.Object = in["object"].(map[string]interface{})
+	return out
+}

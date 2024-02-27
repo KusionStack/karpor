@@ -58,7 +58,7 @@ func (e *ESImporter) ImportTo(ctx context.Context, store cache.Store) error {
 		return err
 	}
 
-	for _, r := range sr.GetResources() {
+	for _, r := range sr.Resources {
 		obj := &unstructured.Unstructured{}
 		obj.SetUnstructuredContent(r.Object)
 		err = store.Add(obj)

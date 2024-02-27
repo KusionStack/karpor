@@ -15,7 +15,7 @@
 package elasticsearch
 
 const (
-	defaultIndexName = "resources"
+	defaultIndexName = "elastic-default-index"
 	defaultMapping   = `{
   "settings":{
     "index":{

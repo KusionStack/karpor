@@ -20,6 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
@@ -65,15 +66,7 @@ func (e *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
 		return err
 	}
 
-	res, err := Convert(resp)
-	if err != nil {
-		return err
-	}
-
-	resources := res.GetResources()
-	if len(resources) == 0 {
-		return ErrNotFound
-	}
-	unObj.Object = resources[0].Object
+	res := storage.Map2Resource(resp.Hits.Hits[0].Source)
+	unObj.Object = res.Object
 	return nil
 }

@@ -59,7 +59,7 @@ func (e *esClient) SaveDocument(ctx context.Context, indexName string, documentI
 }
 
 // GetDocument gets a document with the specified ID
-func (e *esClient) GetDocument(ctx context.Context, indexName string, documentID string) ([]byte, error) {
+func (e *esClient) GetDocument(ctx context.Context, indexName string, documentID string) (map[string]interface{}, error) {
 	resp, err := e.client.Get(indexName, documentID, e.client.Get.WithContext(ctx))
 	if err != nil {
 		return nil, err
@@ -72,15 +72,15 @@ func (e *esClient) GetDocument(ctx context.Context, indexName string, documentID
 		}
 	}
 	getResp := &struct {
-		Index  string `json:"_index"`
-		ID     string `json:"_id"`
-		Found  bool   `json:"found"`
-		Source []byte `json:"_source"`
+		Index  string                 `json:"_index"`
+		ID     string                 `json:"_id"`
+		Found  bool                   `json:"found"`
+		Source map[string]interface{} `json:"_source"`
 	}{}
 	if err := json.NewDecoder(resp.Body).Decode(getResp); err != nil {
 		return nil, err
 	}
-	if getResp.Found {
+	if !getResp.Found {
 		return nil, ErrNotFound
 	}
 	return getResp.Source, nil
@@ -106,7 +106,7 @@ func (e *esClient) DeleteDocument(ctx context.Context, indexName string, documen
 }
 
 // SearchDocument performs a search query in the specified index
-func (e *esClient) SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResp, error) {
+func (e *esClient) SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResponse, error) {
 	cfg := &config{}
 	for _, option := range options {
 		if err := option(cfg); err != nil {
@@ -139,7 +139,7 @@ func (e *esClient) SearchDocument(ctx context.Context, indexName string, body io
 		}
 	}
 
-	sr := &SearchResp{}
+	sr := &SearchResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
 		return nil, err
 	}
