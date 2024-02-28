@@ -26,7 +26,7 @@ type SearchStorageGetter struct {
 }
 
 func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) {
-	esClient, err := NewESClient(elasticsearch.Config{
+	esClient, err := NewStorage(elasticsearch.Config{
 		Addresses: s.cfg.Addresses,
 		Username:  s.cfg.UserName,
 		Password:  s.cfg.Password,

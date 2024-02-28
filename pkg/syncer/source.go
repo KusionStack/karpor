@@ -188,7 +188,7 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
 	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, transform)
 	// TODO: Use interface instead of struct
-	importer := utils.NewESImporter(s.storage.(*elasticsearch.ESClient), s.cluster, gvr)
+	importer := utils.NewESImporter(s.storage.(*elasticsearch.Storage), s.cluster, gvr)
 	if err = importer.ImportTo(ctx, cache); err != nil {
 		return nil, nil, err
 	}

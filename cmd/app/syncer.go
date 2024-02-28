@@ -72,7 +72,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 	}
 
 	// TODO: add startup parameters to change the type of storage
-	es, err := elasticsearch.NewESClient(esclient.Config{
+	es, err := elasticsearch.NewStorage(esclient.Config{
 		Addresses: options.ElasticSearchAddresses,
 	})
 	if err != nil {

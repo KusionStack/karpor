@@ -30,11 +30,11 @@ var _ k8scache.KeyListerGetter = &ESListerGetter{}
 
 type ESListerGetter struct {
 	cluster  string
-	esClient *elasticsearch.ESClient
+	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
 }
 
-func NewESListerGetter(cluster string, esClient *elasticsearch.ESClient, gvr schema.GroupVersionResource) *ESListerGetter {
+func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr schema.GroupVersionResource) *ESListerGetter {
 	return &ESListerGetter{
 		cluster:  cluster,
 		esClient: esClient,

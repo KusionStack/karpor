@@ -33,16 +33,16 @@ const (
 )
 
 var (
-	_ storage.Storage       = &ESClient{}
-	_ storage.SearchStorage = &ESClient{}
+	_ storage.Storage       = &Storage{}
+	_ storage.SearchStorage = &Storage{}
 )
 
-type ESClient struct {
-	client    elasticsearch.Client
+type Storage struct {
+	client    *elasticsearch.Client
 	indexName string
 }
 
-func NewESClient(cfg esv8.Config) (*ESClient, error) {
+func NewStorage(cfg esv8.Config) (*Storage, error) {
 	cl, err := elasticsearch.NewClient(cfg)
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func NewESClient(cfg esv8.Config) (*ESClient, error) {
 		return nil, err
 	}
 
-	return &ESClient{
+	return &Storage{
 		client:    cl,
 		indexName: defaultIndexName,
 	}, nil

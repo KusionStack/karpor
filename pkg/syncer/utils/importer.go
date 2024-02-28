@@ -32,11 +32,11 @@ var _ Importer = &ESImporter{}
 
 type ESImporter struct {
 	cluster  string
-	esClient *elasticsearch.ESClient
+	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
 }
 
-func NewESImporter(esClient *elasticsearch.ESClient, cluster string, gvr schema.GroupVersionResource) *ESImporter {
+func NewESImporter(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource) *ESImporter {
 	return &ESImporter{
 		cluster:  cluster,
 		esClient: esClient,

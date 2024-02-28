@@ -16,20 +16,8 @@
 package elasticsearch
 
 import (
-	"context"
 	"fmt"
-	"io"
 )
-
-// Client defines the interface for our Elasticsearch operations.
-type Client interface {
-	GetDocument(ctx context.Context, indexName string, documentID string) (map[string]interface{}, error)
-	SaveDocument(ctx context.Context, indexName string, documentID string, body io.Reader) error
-	DeleteDocument(ctx context.Context, indexName string, documentID string) error
-	SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResponse, error)
-	CreateIndex(ctx context.Context, indexName string, body io.Reader) error
-	IsIndexExists(ctx context.Context, indexName string) (bool, error)
-}
 
 type paginationConfig struct {
 	Page     int
