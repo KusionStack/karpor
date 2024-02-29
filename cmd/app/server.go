@@ -33,6 +33,7 @@ import (
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"k8s.io/apiserver/pkg/util/feature"
 
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
@@ -72,12 +73,14 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 	}
 	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
-	// TODO: have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts(
 		"localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")},
 	); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
+	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook", "ValidatingAdmissionPolicy"}
+	o.RecommendedOptions.Authorization.Modes = []string{"RBAC"}
+	feature.DefaultMutableFeatureGate.Set("feature-gates=APIPriorityAndFairness=false")
 	return o, nil
 }
 

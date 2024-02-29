@@ -15,8 +15,6 @@
 package options
 
 import (
-	"fmt"
-
 	"github.com/spf13/pflag"
 
 	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
@@ -27,7 +25,6 @@ import (
 	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
-	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/server"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/apiserver/pkg/server/egressselector"
@@ -35,11 +32,9 @@ import (
 	"k8s.io/apiserver/pkg/server/options"
 	"k8s.io/apiserver/pkg/storage/storagebackend"
 	"k8s.io/apiserver/pkg/util/feature"
-	utilflowcontrol "k8s.io/apiserver/pkg/util/flowcontrol"
 	clientgoinformers "k8s.io/client-go/informers"
 	clientgoclientset "k8s.io/client-go/kubernetes"
 	"k8s.io/component-base/featuregate"
-	"k8s.io/klog/v2"
 	"k8s.io/kube-openapi/pkg/common"
 	kubeoptions "k8s.io/kubernetes/pkg/kubeapiserver/options"
 )
@@ -71,6 +66,7 @@ type RecommendedOptions struct {
 func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptions {
 	sso := options.NewSecureServingOptions()
 	sso.HTTP2MaxStreamsPerConnection = 1000
+	feature.DefaultMutableFeatureGate.Set("feature-gates=APIPriorityAndFairness=false")
 
 	return &RecommendedOptions{
 		ServerRun:     options.NewServerRunOptions(),
@@ -78,17 +74,12 @@ func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptio
 		SecureServing: sso.WithLoopback(),
 		Authentication: kubeoptions.NewBuiltInAuthenticationOptions().
 			WithAnonymous().
-			WithBootstrapToken().
 			WithClientCert().
-			WithOIDC().
-			WithRequestHeader().
-			WithServiceAccounts().
-			WithTokenFile().
-			WithWebHook(),
+			WithRequestHeader(),
 		Authorization:              kubeoptions.NewBuiltInAuthorizationOptions(),
 		Audit:                      options.NewAuditOptions(),
 		Features:                   options.NewFeatureOptions(),
-		FeatureGate:                feature.DefaultFeatureGate,
+		FeatureGate:                feature.DefaultMutableFeatureGate,
 		ExtraAdmissionInitializers: func(c *server.RecommendedConfig) ([]admission.PluginInitializer, error) { return nil, nil },
 		Admission:                  options.NewAdmissionOptions(),
 		EgressSelector:             options.NewEgressSelectorOptions(),
@@ -135,11 +126,6 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	genericConfig.OpenAPIConfig.Info.Title = "Karbour"
 	genericConfig.OpenAPIConfig.Info.Version = "0.1"
-	if feature.DefaultFeatureGate.Enabled(features.OpenAPIV3) {
-		genericConfig.OpenAPIV3Config = genericapiserver.DefaultOpenAPIV3Config(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-		genericConfig.OpenAPIV3Config.Info.Title = "Karbour"
-		genericConfig.OpenAPIV3Config.Info.Version = "0.1"
-	}
 
 	genericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
 		sets.NewString("watch", "proxy"),
@@ -175,21 +161,6 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 		return err
 	} else if err := o.Admission.ApplyTo(genericConfig, config.SharedInformerFactory, config.ClientConfig, o.FeatureGate, initializers...); err != nil {
 		return err
-	}
-	if feature.DefaultFeatureGate.Enabled(features.APIPriorityAndFairness) {
-		if config.ClientConfig != nil {
-			if config.MaxRequestsInFlight+config.MaxMutatingRequestsInFlight <= 0 {
-				return fmt.Errorf("invalid configuration: MaxRequestsInFlight=%d and MaxMutatingRequestsInFlight=%d; they must add up to something positive", config.MaxRequestsInFlight, config.MaxMutatingRequestsInFlight)
-			}
-			config.FlowControl = utilflowcontrol.New(
-				config.SharedInformerFactory,
-				clientgoclientset.NewForConfigOrDie(config.ClientConfig).FlowcontrolV1beta3(),
-				config.MaxRequestsInFlight+config.MaxMutatingRequestsInFlight,
-				config.RequestTimeout/4,
-			)
-		} else {
-			klog.Warningf("Neither kubeconfig is provided nor service-account is mounted, so APIPriorityAndFairness will be disabled")
-		}
 	}
 	return nil
 }
