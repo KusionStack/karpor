@@ -15,7 +15,48 @@
 //nolint:tagliatelle
 package elasticsearch
 
-import "github.com/KusionStack/karbour/pkg/infra/search/storage"
+import (
+	"fmt"
+)
+
+type paginationConfig struct {
+	Page     int
+	PageSize int
+}
+
+type config struct {
+	pagination *paginationConfig
+}
+
+type Option func(*config) error
+
+func Pagination(page, pageSize int) Option {
+	return func(c *config) error {
+		if c == nil {
+			return fmt.Errorf("config can't be nil")
+		}
+		c.pagination = &paginationConfig{
+			Page:     page,
+			PageSize: pageSize,
+		}
+		return nil
+	}
+}
+
+var ErrNotFound = &ESError{
+	StatusCode: 404,
+	Message:    "Object not found",
+}
+
+// ESError is an error type which represents a single ES error
+type ESError struct {
+	StatusCode int
+	Message    string
+}
+
+func (e *ESError) Error() string {
+	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Message)
+}
 
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
@@ -36,19 +77,8 @@ type Total struct {
 }
 
 type Hit struct {
-	Index  string            `json:"_index"`
-	ID     string            `json:"_id"`
-	Score  float32           `json:"_score"`
-	Source *storage.Resource `json:"_source"`
-}
-
-func (s *SearchResponse) GetResources() []*storage.Resource {
-	if s == nil || s.Hits == nil {
-		return nil
-	}
-	rt := make([]*storage.Resource, len(s.Hits.Hits))
-	for i, hit := range s.Hits.Hits {
-		rt[i] = hit.Source
-	}
-	return rt
+	Index  string                 `json:"_index"`
+	ID     string                 `json:"_id"`
+	Score  float32                `json:"_score"`
+	Source map[string]interface{} `json:"_source"`
 }

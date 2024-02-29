@@ -30,11 +30,11 @@ var _ k8scache.KeyListerGetter = &ESListerGetter{}
 
 type ESListerGetter struct {
 	cluster  string
-	esClient *elasticsearch.ESClient
+	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
 }
 
-func NewESListerGetter(cluster string, esClient *elasticsearch.ESClient, gvr schema.GroupVersionResource) *ESListerGetter {
+func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr schema.GroupVersionResource) *ESListerGetter {
 	return &ESListerGetter{
 		cluster:  cluster,
 		esClient: esClient,
@@ -56,7 +56,7 @@ func (e *ESListerGetter) ListKeys() []string {
 		return nil
 	}
 	rt := []string{}
-	for _, r := range sr.GetResources() {
+	for _, r := range sr.Resources {
 		name, _, _ := unstructured.NestedString(r.Object, "metadata", "name")
 		ns, _, _ := unstructured.NestedString(r.Object, "metadata", "namespace")
 		var key string
@@ -98,7 +98,7 @@ func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, e
 	if err != nil {
 		return nil, false, err
 	}
-	resources := sr.GetResources()
+	resources := sr.Resources
 	if len(resources) != 1 {
 		return nil, false, fmt.Errorf("query result expected 1, got %d", len(resources))
 	}

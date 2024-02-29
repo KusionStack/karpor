@@ -15,34 +15,43 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/aquasecurity/esquery"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 )
 
 var ErrNotFound = fmt.Errorf("object not found")
 
-func (s *ESClient) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-	return s.insertObj(ctx, cluster, obj)
+func (e *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) error {
+	id, body, err := generateIndexRequest(cluster, obj)
+	if err != nil {
+		return err
+	}
+	return e.client.SaveDocument(ctx, e.indexName, id, bytes.NewReader(body))
 }
 
-func (s *ESClient) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
+func (e *Storage) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
 		return fmt.Errorf("only support *unstructured.Unstructured type")
 	}
 
-	if err := s.Get(ctx, cluster, unObj); err != nil {
+	if err := e.Get(ctx, cluster, unObj); err != nil {
 		return err
 	}
 
-	return s.deleteByID(ctx, string(unObj.GetUID()))
+	return e.client.DeleteDocument(ctx, e.indexName, string(unObj.GetUID()))
 }
 
-func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) error {
+func (e *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
@@ -50,16 +59,49 @@ func (s *ESClient) Get(ctx context.Context, cluster string, obj runtime.Object) 
 	}
 
 	query := generateQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-	sr, err := s.SearchByQuery(ctx, query, nil)
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return err
+	}
+	resp, err := e.client.SearchDocument(ctx, e.indexName, buf)
 	if err != nil {
 		return err
 	}
 
-	resources := sr.GetResources()
-	if len(resources) == 0 {
-		return ErrNotFound
+	res := storage.Map2Resource(resp.Hits.Hits[0].Source)
+	unObj.Object = res.Object
+	return nil
+}
+
+func generateQuery(cluster, namespace, name string, obj runtime.Object) map[string]interface{} {
+	query := make(map[string]interface{})
+	query["query"] = esquery.Bool().Must(
+		esquery.Term(apiVersionKey, obj.GetObjectKind().GroupVersionKind().GroupVersion().String()),
+		esquery.Term(kindKey, obj.GetObjectKind().GroupVersionKind().Kind),
+		esquery.Term(nameKey, name),
+		esquery.Term(namespaceKey, namespace),
+		esquery.Term(clusterKey, cluster),
+	).Map()
+	return query
+}
+
+func generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
+	metaObj, err := meta.Accessor(obj)
+	if err != nil {
+		return
 	}
 
-	unObj.SetUnstructuredContent(resources[0].Object)
-	return nil
+	body, err = json.Marshal(map[string]interface{}{
+		apiVersionKey: obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
+		kindKey:       obj.GetObjectKind().GroupVersionKind().Kind,
+		nameKey:       metaObj.GetName(),
+		namespaceKey:  metaObj.GetNamespace(),
+		clusterKey:    cluster,
+		objectKey:     metaObj,
+	})
+	if err != nil {
+		return
+	}
+	id = string(metaObj.GetUID())
+	return
 }

@@ -14,15 +14,6 @@
 
 package elasticsearch
 
-import (
-	"context"
-	"fmt"
-	"strings"
-
-	"github.com/elastic/go-elasticsearch/v8"
-	"github.com/elastic/go-elasticsearch/v8/esapi"
-)
-
 const (
 	defaultIndexName = "elastic-default-index"
 	defaultMapping   = `{
@@ -115,23 +106,3 @@ const (
   }
 }`
 )
-
-func createIndex(client *elasticsearch.Client, mapping string, indexName string) error {
-	req := esapi.IndicesCreateRequest{
-		Index: indexName,
-		Body:  strings.NewReader(mapping),
-	}
-	resp, err := req.Do(context.TODO(), client)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		msg := resp.String()
-		if strings.Contains(resp.String(), "resource_already_exists_exception") {
-			return nil
-		}
-		return fmt.Errorf(msg)
-	}
-	return nil
-}
