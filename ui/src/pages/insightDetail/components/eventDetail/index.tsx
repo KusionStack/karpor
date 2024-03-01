@@ -1,8 +1,9 @@
-import { Button, Modal, Tag } from 'antd'
-import styles from './style.module.less'
-import MutiTag from '../mutiTag'
-import { SEVERITY_MAP } from '../../../../utils/constants'
 import React from 'react'
+import { Button, Modal, Tag } from 'antd'
+import MutiTag from '../mutiTag'
+import { SEVERITY_MAP } from '@/utils/constants'
+
+import styles from './style.module.less'
 
 type IProps = {
   open: boolean
@@ -56,10 +57,6 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
                 <div className={styles.value}>{detail?.issue?.message}</div>
               </div>
             </div>
-            {/* <div className={styles.item}>
-              <div className={styles.label}>创建时间：</div>
-              <div className={styles.value}>2023-11-24 20:33</div>
-            </div> */}
           </div>
           <div className={styles.footer}>
             <div className={styles.footer_title}>相关资源：</div>

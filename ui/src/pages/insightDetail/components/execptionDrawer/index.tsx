@@ -189,7 +189,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
                 <div className={styles.value}>{item?.locators?.length}</div>
               </div>
             </div>
-            <div className={`${styles.item} ${styles.rowItem}`}>
+            <div className={`${styles.row_item}`}>
               <div className={styles.label}>描述信息：</div>
               <div className={styles.value}>{item?.issue?.message || '--'}</div>
             </div>

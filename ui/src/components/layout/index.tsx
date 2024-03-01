@@ -117,7 +117,7 @@ const LayoutPage = () => {
       <div className={styles.nav}>
         <div className={styles.left}>
           <div className={styles.title} onClick={goHome}>
-            <div className={styles.subLogo}>K</div>
+            <div className={styles.sub_logo}>K</div>
             <div className={styles.text}>Karbour</div>
           </div>
           <div>
@@ -133,7 +133,7 @@ const LayoutPage = () => {
         </div>
         <div className={styles.right}>
           {isReadOnlyMode && (
-            <div className={styles.readOnlyMode}>
+            <div className={styles.read_only_mode}>
               <img src={showPng} />
               <span>演示模式</span>
             </div>
