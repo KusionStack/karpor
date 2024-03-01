@@ -175,17 +175,17 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 		return err
 	}
 
-	karbourServer, err := config.Complete().New()
+	serv, err := config.Complete().New()
 	if err != nil {
 		return err
 	}
 
-	karbourServer.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
+	serv.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})
 
-	karbourServer.GenericAPIServer.AddPostStartHookOrDie("register-default-config", server.ConfigRegister)
+	serv.GenericAPIServer.AddPostStartHookOrDie("register-default-config", server.ConfigRegister)
 
-	return karbourServer.GenericAPIServer.PrepareRun().Run(stopCh)
+	return serv.GenericAPIServer.PrepareRun().Run(stopCh)
 }

@@ -15,6 +15,8 @@
 package options
 
 import (
+	"fmt"
+
 	"github.com/spf13/pflag"
 
 	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
@@ -25,6 +27,7 @@ import (
 	"k8s.io/apiserver/pkg/admission"
 	"k8s.io/apiserver/pkg/authorization/authorizer"
 	"k8s.io/apiserver/pkg/endpoints/openapi"
+	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/server"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/apiserver/pkg/server/egressselector"
@@ -66,7 +69,7 @@ type RecommendedOptions struct {
 func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptions {
 	sso := options.NewSecureServingOptions()
 	sso.HTTP2MaxStreamsPerConnection = 1000
-	feature.DefaultMutableFeatureGate.Set("feature-gates=APIPriorityAndFairness=false")
+	feature.DefaultMutableFeatureGate.Set(fmt.Sprintf("%s=%v", features.APIPriorityAndFairness, true))
 
 	return &RecommendedOptions{
 		ServerRun:     options.NewServerRunOptions(),
