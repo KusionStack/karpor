@@ -29,11 +29,9 @@ import (
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karbour/pkg/server"
-	"github.com/KusionStack/karbour/pkg/syncer"
 	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilerrors "k8s.io/apimachinery/pkg/util/errors"
 	"k8s.io/apiserver/pkg/endpoints/discovery"
@@ -72,12 +70,14 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 	}
 	o.RecommendedOptions.Etcd.StorageConfig.EncodeVersioner = schema.GroupVersions(scheme.Versions)
 	o.RecommendedOptions.Etcd.StorageConfig.Paging = utilfeature.DefaultFeatureGate.Enabled(features.APIListChunking)
-	// TODO: have a "real" external address
 	if err := o.RecommendedOptions.SecureServing.MaybeDefaultWithSelfSignedCerts(
 		"localhost", o.AlternateDNS, []net.IP{netutils.ParseIPSloppy("127.0.0.1")},
 	); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
+	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook", "ValidatingAdmissionPolicy"}
+	o.RecommendedOptions.Authorization.Modes = []string{"RBAC"}
+	o.RecommendedOptions.ServerRun.CorsAllowedOriginList = []string{".*"}
 	return o, nil
 }
 
@@ -175,17 +175,17 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 		return err
 	}
 
-	server, err := config.Complete().New()
+	serv, err := config.Complete().New()
 	if err != nil {
 		return err
 	}
 
-	server.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
+	serv.GenericAPIServer.AddPostStartHookOrDie("start-server-informers", func(context genericapiserver.PostStartHookContext) error {
 		config.GenericConfig.SharedInformerFactory.Start(context.StopCh)
 		return nil
 	})
 
-	server.GenericAPIServer.AddPostStartHookOrDie("register-default-sync-strategy", syncer.StrategyRegister)
+	serv.GenericAPIServer.AddPostStartHookOrDie("register-default-config", server.ConfigRegister)
 
-	return server.GenericAPIServer.PrepareRun().Run(stopCh)
+	return serv.GenericAPIServer.PrepareRun().Run(stopCh)
 }

@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package syncer
+package server
 
 import (
 	"bufio"
@@ -21,7 +21,7 @@ import (
 	"fmt"
 	"io"
 
-	embedConfig "github.com/KusionStack/karbour/config"
+	"github.com/KusionStack/karbour/config"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	"github.com/pkg/errors"
 
@@ -37,7 +37,7 @@ import (
 	"k8s.io/client-go/restmapper"
 )
 
-func StrategyRegister(hookContext genericapiserver.PostStartHookContext) error {
+func ConfigRegister(hookContext genericapiserver.PostStartHookContext) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
 		<-hookContext.StopCh
@@ -47,7 +47,12 @@ func StrategyRegister(hookContext genericapiserver.PostStartHookContext) error {
 	discoveryClient := discovery.NewDiscoveryClientForConfigOrDie(hookContext.LoopbackClientConfig)
 	cache := memory.NewMemCacheClient(discoveryClient)
 	mapper := restmapper.NewDeferredDiscoveryRESTMapper(cache)
-	return createResources(ctx, client, mapper, embedConfig.DefaultSyncStrategy)
+	for _, data := range config.DefaultConfig {
+		if err := createResources(ctx, client, mapper, data); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func createResources(ctx context.Context, client dynamic.Interface, mapper meta.RESTMapper, data []byte) error {
