@@ -15,7 +15,7 @@
 package elasticsearch
 
 const (
-	defaultIndexName = "elastic-default-index"
+	defaultIndexName = "resources"
 	defaultMapping   = `{
   "settings":{
     "index":{
@@ -57,6 +57,9 @@ const (
       },
       "cluster":{
         "type":"keyword"
+      },
+      "content":{
+        "type":"text"
       },
       "object":{
         "properties":{
