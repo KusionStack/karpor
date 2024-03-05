@@ -440,13 +440,13 @@ const TopologyMap = ({
 
   return (
     <div
-      className={styles.g6Topology}
+      className={styles.g6_topology}
       style={{ height: isResource ? 450 : 400 }}
     >
       {topologyLoading ? (
         <Loading />
       ) : (
-        <div ref={ref} id="overviewContainer" className={styles.overviewG6}>
+        <div ref={ref} id="overviewContainer" className={styles.g6_overview}>
           {tooltipopen ? (
             <OverviewTooltip
               type={type as string}

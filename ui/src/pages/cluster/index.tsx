@@ -244,20 +244,20 @@ const Cluster = () => {
     {
       label: (
         <div style={tabStyle}>
-          <img src={execptionalPng} style={iconStyle} />
-          异常集群<span style={numberStyle}>{summary?.unhealthyCount}</span>
-        </div>
-      ),
-      value: 'exception',
-    },
-    {
-      label: (
-        <div style={tabStyle}>
           <img src={healthPng} style={iconStyle} />
           健康集群<span style={numberStyle}>{summary?.healthyCount}</span>
         </div>
       ),
       value: 'healthy',
+    },
+    {
+      label: (
+        <div style={tabStyle}>
+          <img src={execptionalPng} style={iconStyle} />
+          异常集群<span style={numberStyle}>{summary?.unhealthyCount}</span>
+        </div>
+      ),
+      value: 'exception',
     },
     // { label: <div style={tabStyle}><DeleteRowOutlined style={{ ...iconStyle, background: 'rgba(0,10,26, 0.08)', color: '#000A1A' }} />已删除<span style={numberStyle}>3</span></div>, value: "delete" },
   ]
@@ -280,7 +280,7 @@ const Cluster = () => {
 
   return (
     <div className={styles.container}>
-      <div className={styles.actionBar}>
+      <div className={styles.action_bar}>
         <div className={styles.title}>集群列表</div>
         {pageData && pageData?.length > 0 && (
           <Button type="primary" onClick={join} disabled={isReadOnlyMode}>
@@ -289,12 +289,12 @@ const Cluster = () => {
         )}
       </div>
       {!pageData || !pageData?.length ? (
-        <div className={styles.emptyContent}>
-          <div className={styles.emptyData}>
+        <div className={styles.empty_content}>
+          <div className={styles.empty_data}>
             <div className={styles.left}>
               <div className={styles.nodate}>当前暂无可管理的集群</div>
               <div className={styles.tip}>集群需 KubeConfig 配置文件接入</div>
-              <div className={styles.btnBox}>
+              <div>
                 <Button type="primary" onClick={join}>
                   接入集群
                 </Button>
@@ -315,9 +315,9 @@ const Cluster = () => {
             />
           </div>
           <div
-            className={`${styles.pageContent} ${styles[`pageContent_${triangleLeftOffestIndex}`]}`}
+            className={`${styles.page_content} ${styles[`page_content_${triangleLeftOffestIndex}`]}`}
           >
-            <div className={styles.toolBar}>
+            <div className={styles.tool_bar}>
               <Input
                 value={searchValue}
                 onChange={event => {
@@ -370,7 +370,7 @@ const Cluster = () => {
                 <Loading />
               </div>
             ) : showPageData && showPageData?.length > 0 ? (
-              <div className={styles.pageList}>
+              <div className={styles.page_list}>
                 {showPageData?.map((item: any, index: number) => {
                   return (
                     <ClusterCard

@@ -29,9 +29,9 @@ const Yaml = (props: IProps) => {
   }, [data])
 
   return (
-    <div className={styles.yamlContent} style={{ height: props?.height }}>
+    <div className={styles.yaml_content} style={{ height: props?.height }}>
       <div
-        className={styles.yamlBox}
+        className={styles.yaml_box}
         style={{ height: props?.height }}
         ref={yamlRef as any}
       />

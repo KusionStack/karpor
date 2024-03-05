@@ -22,7 +22,7 @@ const KarbourTabs = ({
   boxStyle,
 }: Props) => {
   return (
-    <div className={styles.tabContainer} style={boxStyle}>
+    <div className={styles.tab_container} style={boxStyle}>
       {list?.map((item, index) => {
         return (
           <div

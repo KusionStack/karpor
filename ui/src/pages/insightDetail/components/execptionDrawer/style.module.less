@@ -68,6 +68,19 @@
       }
     }
 
+    .row_item {
+      display: flex;
+      font-weight: 400;
+
+      .label {
+        color: rgb(0 10 26 / 45%);
+      }
+
+      .value {
+        flex: 1;
+      }
+    }
+
     .header {
       display: flex;
       margin-top: 16px;
@@ -78,17 +91,16 @@
         display: flex;
         align-items: center;
         margin-right: 24px;
+        font-weight: 400;
 
         .label {
           font-size: 14px;
-          font-weight: 400;
           line-height: 24px;
           color: rgb(0 10 26 / 45%);
         }
 
         .value {
           font-size: 14px;
-          font-weight: 400;
           color: rgb(0 10 26 / 89%);
         }
       }
@@ -98,8 +110,5 @@
       }
     }
 
-    .rowItem {
-      display: flex;
-    }
   }
 }

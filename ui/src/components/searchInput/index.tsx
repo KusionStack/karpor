@@ -18,7 +18,7 @@ const SearchInput = (props: IProps) => {
     props
 
   return (
-    <div className={styles.searchBox}>
+    <div className={styles.search_box}>
       <div className={styles.submit} onClick={handleSearch}>
         <img src={arrowRight} />
       </div>
@@ -34,7 +34,7 @@ const SearchInput = (props: IProps) => {
           }}
         />
         <AutoComplete
-          className={styles.customAutoComplete}
+          className={styles.custom_auto_complete}
           size="large"
           onKeyUp={handleOnkeyUp}
           options={options}

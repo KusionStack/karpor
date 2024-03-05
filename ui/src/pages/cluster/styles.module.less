@@ -3,7 +3,7 @@
   height: 100%;
   flex-direction: column;
 
-  .actionBar {
+  .action_bar {
     display: flex;
     margin-bottom: 24px;
     font-weight: bold;
@@ -12,14 +12,14 @@
   }
 
   // 空状态
-  .emptyContent {
+  .empty_content {
     flex: 1;
     display: flex;
     justify-content: center;
     align-items: center;
     background: #fff;
 
-    .emptyData {
+    .empty_data {
       display: flex;
       width: 776px;
       height: 228px;
@@ -62,7 +62,7 @@
       align-items: center;
     }
 
-    .pageContent {
+    .page_content {
       position: relative;
       padding: 20px 25px;
       background: #fff;
@@ -94,41 +94,36 @@
         border-bottom-color: #fff;
       }
 
-      &.pageContent_1 {
+      &.page_content_1 {
         &::before,
         &::after {
           left: 35%;
         }
       }
 
-      &.pageContent_2 {
+      &.page_content_2 {
         &::before,
         &::after {
           left: 60%;
         }
       }
 
-      &.pageContent_3 {
+      &.page_content_3 {
         &::before,
         &::after {
           left: 85%;
         }
       }
 
-      .toolBar {
+      .tool_bar {
         display: flex;
         // justify-content: flex-end;
         align-items: center;
       }
 
-      .pageList {
+      .page_list {
         margin: 24px 0;
         border-radius: 8px;
-      }
-
-      .pagePagination {
-        width: 100%;
-        text-align: right;
       }
     }
   }
