@@ -32,7 +32,7 @@
 
 # Karbour
 
-Karbour is a **Multi-Cluster Kubernetes Data Plane focusing on Search and Insight**.
+Karbour is a **Multi-Cluster Kubernetes Data Plane focusing on Search, Insight and Intelligence**.
 
 Search smarter, not harder! ⛵️
 
@@ -86,3 +86,9 @@ docker pull kusionstack/karbour:latest
 # 🎖︎ Contribution Guide
 
 Karbour is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karbour project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karbour/issues).
+
+<!-- # Contributors -->
+
+<!-- <a href="https://github.com/KusionStack/karbour/graphs/contributors"> -->
+<!--   <img src="https://contrib.rocks/image?repo=KusionStack/karbour" /> -->
+<!-- </a> -->
