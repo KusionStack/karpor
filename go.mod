@@ -24,7 +24,6 @@ require (
 	github.com/swaggo/swag v1.16.2
 	github.com/xwb1989/sqlparser v0.0.0-20171128062118-da747e0c62c4
 	go.uber.org/multierr v1.6.0
-	gopkg.in/yaml.v2 v2.4.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.26.1
 	k8s.io/apiextensions-apiserver v0.26.1
@@ -61,6 +60,8 @@ require (
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3
 	sigs.k8s.io/yaml v1.3.0
 )
+
+require gopkg.in/yaml.v2 v2.4.0 // indirect
 
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect

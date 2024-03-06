@@ -28,13 +28,11 @@ spec:
     spec:
       containers:
         - args:
-            - --feature-gates=APIPriorityAndFairness=false
-            - --disable-admission-plugins=MutatingAdmissionWebhook,NamespaceLifecycle,ValidatingAdmissionWebhook,ValidatingAdmissionPolicy
-            - --cors-allowed-origins=.*
             - --search-storage-type=elasticsearch
             - --elastic-search-addresses=http://elasticsearch.karbour.svc:9200
             - --etcd-servers=http://etcd.karbour.svc:2379
             - --secure-port=7443
+            - --client-ca-file=xxx
           command:
             - /karbour
           image: kusionstack/karbour:latest
