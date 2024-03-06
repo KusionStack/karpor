@@ -404,6 +404,9 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 			}
 			return fmt.Sprintf(`{"multi_match" : {"query" : "%v", "type" : "%v", "fields" : [%v]}}`, query, typ, fields), nil
 		case "contains":
+			if len(e.Exprs) != 2 {
+				return "", fmt.Errorf("expected 2 expressions")
+			}
 			aliasedExpr, ok := e.Exprs[0].(*sqlparser.AliasedExpr)
 			if !ok {
 				return "", fmt.Errorf("expression[0] is not an AliasedExpr")
