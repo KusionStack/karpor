@@ -1,0 +1,16 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: karbour-gen-cert
+spec:
+  template:
+    spec:
+      containers:
+        - name: karbour-gen-cert
+          image: kusionstack/karbour:latest
+          command: ["karbour"]
+          args:
+          - gen-cert
+          - --ca-name=karbour-secret
+          - --kubeconfig-name=karbour-kubeconfig
+      restartPolicy: Never

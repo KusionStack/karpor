@@ -32,10 +32,20 @@ spec:
             - --elastic-search-addresses=http://elasticsearch.karbour.svc:9200
             - --etcd-servers=http://etcd.karbour.svc:2379
             - --secure-port=7443
-            - --client-ca-file=xxx
+            - --client-ca-file=/etc/karbour/ca.crt
+            - --tls-cert-file=/etc/karbour/tls.crt
+            - --tls-private-key-file=/etc/karbour/tls.key
           command:
             - /karbour
           image: kusionstack/karbour:latest
           name: karbour-server
           ports:
             - containerPort: 7443
+          volumeMounts:
+            - mountPath: /etc/karbour/
+              name: karbour-tls-secret
+      volumes:
+        - name: karbour-secret
+          secret:
+            defaultMode: 420
+            secretName: karbour-secret

@@ -7,8 +7,8 @@ import (
 	"github.com/KusionStack/karbour/pkg/certgenerator"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
 )
 
 const (
@@ -35,7 +35,7 @@ func (o *CertOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.KubeConfig, "kubeconfig", o.KubeConfig, "The path of kubeconfig")
 	fs.StringVar(&o.Namespace, "namespace", o.Namespace, "The namespace to store the CA and kubeconfig")
 	fs.StringVar(&o.CertName, "ca-name", o.CertName, "The name of the secret used to store the CA certificate.")
-	fs.StringVar(&o.KubeConfigName, "kubeconfig-name", o.CertName, "The name of the configmap used to store the kubeconfig.")
+	fs.StringVar(&o.KubeConfigName, "kubeconfig-name", o.KubeConfigName, "The name of the configmap used to store the kubeconfig.")
 }
 
 func NewCertGeneratorCommand(ctx context.Context) *cobra.Command {
@@ -52,17 +52,34 @@ func NewCertGeneratorCommand(ctx context.Context) *cobra.Command {
 }
 
 func runGertGenerator(ctx context.Context, options *CertOptions) error {
-	var cs *kubernetes.Clientset
+	var cfg *rest.Config
 	var ns string
 	var err error
-	if options.KubeConfig == "" && options.Namespace == "" {
-		cs, ns, err = getInClusterConfig()
+
+	if options.KubeConfig == "" {
+		cfg, err = rest.InClusterConfig()
+		if err != nil {
+			return err
+		}
+	} else {
+		cfg, err = clientcmd.BuildConfigFromFlags("", options.KubeConfig)
 		if err != nil {
 			return err
 		}
 	}
 
-	generator, err := certgenerator.NewGenerator(cs, ns, options.CertName, options.KubeConfigName)
+	if options.Namespace == "" {
+		var b []byte
+		b, err = os.ReadFile(inClusterNamespace)
+		if err != nil {
+			return err
+		}
+		ns = string(b)
+	} else {
+		ns = options.Namespace
+	}
+
+	generator, err := certgenerator.NewGenerator(cfg, ns, options.CertName, options.KubeConfigName)
 	if err != nil {
 		return err
 	}
@@ -72,22 +89,4 @@ func runGertGenerator(ctx context.Context, options *CertOptions) error {
 		return err
 	}
 	return nil
-}
-
-func getInClusterConfig() (*kubernetes.Clientset, string, error) {
-	cfg, err := rest.InClusterConfig()
-	if err != nil {
-		return nil, "", err
-	}
-
-	cs, err := kubernetes.NewForConfig(cfg)
-	if err != nil {
-		return nil, "", err
-	}
-
-	namespace, err := os.ReadFile(inClusterNamespace)
-	if err != nil {
-		return nil, "", err
-	}
-	return cs, string(namespace), nil
 }
