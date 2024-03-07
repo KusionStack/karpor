@@ -1,4 +1,4 @@
-package cert
+package certgenerator
 
 import (
 	"crypto"
@@ -9,17 +9,11 @@ import (
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
-	"errors"
 	"fmt"
 	"math"
 	"math/big"
 	"net"
-	"os"
-	"path/filepath"
 	"time"
-
-	certutil "k8s.io/client-go/util/cert"
-	"k8s.io/client-go/util/keyutil"
 )
 
 const (
@@ -37,8 +31,6 @@ const (
 
 // Config contains the basic fields required for creating a certificate
 type Config struct {
-	Path         string // write to Dir
-	BaseName     string // write to file name
 	CAName       string // root ca map key
 	CommonName   string
 	Organization []string
@@ -89,11 +81,6 @@ func NewSelfSignedCACert(key crypto.Signer, commonName string, organization []st
 
 // NewCaCertAndKey Create as ca.
 func NewCaCertAndKey(cfg Config) (*x509.Certificate, crypto.Signer, error) {
-	_, err := os.Stat(pathForKey(cfg.Path, cfg.BaseName))
-	if !os.IsNotExist(err) {
-		return LoadCaCertAndKeyFromDisk(cfg)
-	}
-
 	key, err := NewPrivateKey(x509.UnknownPublicKeyAlgorithm)
 	if err != nil {
 		return nil, nil, fmt.Errorf("unable to create private key while generating CA certificate %s", err)
@@ -105,44 +92,7 @@ func NewCaCertAndKey(cfg Config) (*x509.Certificate, crypto.Signer, error) {
 	return cert, key, nil
 }
 
-// LoadCaCertAndKeyFromDisk load ca cert and key form disk.
-func LoadCaCertAndKeyFromDisk(cfg Config) (*x509.Certificate, crypto.Signer, error) {
-	certs, err := certutil.CertsFromFile(pathForCert(cfg.Path, cfg.BaseName))
-	if err != nil {
-		return nil, nil, err
-	}
-	caCert := certs[0]
-
-	cakey, err := TryLoadKeyFromDisk(pathForKey(cfg.Path, cfg.BaseName))
-	if err != nil {
-		return nil, nil, err
-	}
-	return caCert, cakey, nil
-}
-
-// TryLoadKeyFromDisk tries to load the key from the disk and validates that it is valid
-func TryLoadKeyFromDisk(pkiPath string) (crypto.Signer, error) {
-	// Parse the private key from a file
-	privateKey, err := keyutil.PrivateKeyFromFile(pkiPath)
-	if err != nil {
-		return nil, fmt.Errorf("couldn't load the private key file %s", err)
-	}
-
-	// Allow RSA and ECDSA formats only
-	var key crypto.Signer
-	switch k := privateKey.(type) {
-	case *rsa.PrivateKey:
-		key = k
-	case *ecdsa.PrivateKey:
-		key = k
-	default:
-		return nil, fmt.Errorf("couldn't convert the private key file %s", err)
-	}
-
-	return key, nil
-}
-
-// NewCaCertAndKeyFromRoot cmd/kubeadm/app/util/pkiutil/pki_helpers.go NewCertAndKey
+// NewCaCertAndKeyFromRoot create cert and key from root
 func NewCaCertAndKeyFromRoot(cfg Config, caCert *x509.Certificate, caKey crypto.Signer) (*x509.Certificate, crypto.Signer, error) {
 	key, err := NewPrivateKey(x509.UnknownPublicKeyAlgorithm)
 	if err != nil {
@@ -163,10 +113,10 @@ func NewSignedCert(cfg Config, key crypto.Signer, caCert *x509.Certificate, caKe
 		return nil, err
 	}
 	if len(cfg.CommonName) == 0 {
-		return nil, errors.New("must specify a CommonName")
+		return nil, fmt.Errorf("must specify a CommonName")
 	}
 	if len(cfg.Usages) == 0 {
-		return nil, errors.New("must specify at least one ExtKeyUsage")
+		return nil, fmt.Errorf("must specify at least one ExtKeyUsage")
 	}
 
 	var dnsNames []string
@@ -198,29 +148,6 @@ func NewSignedCert(cfg Config, key crypto.Signer, caCert *x509.Certificate, caKe
 	return x509.ParseCertificate(certDERBytes)
 }
 
-// WriteCertAndKey stores certificate and key at the specified location
-func WriteCertAndKey(pkiPath string, name string, cert *x509.Certificate, key crypto.Signer) error {
-	if err := WriteKey(pkiPath, name, key); err != nil {
-		return err
-	}
-
-	return WriteCert(pkiPath, name, cert)
-}
-
-// WriteCert stores the given certificate at the given location
-func WriteCert(pkiPath, name string, cert *x509.Certificate) error {
-	if cert == nil {
-		return errors.New("certificate cannot be nil when writing to file")
-	}
-
-	certificatePath := pathForCert(pkiPath, name)
-	if err := certutil.WriteCert(certificatePath, EncodeCertPEM(cert)); err != nil {
-		return fmt.Errorf("unable to write certificate to file %s %s", certificatePath, err)
-	}
-
-	return nil
-}
-
 // EncodeCertPEM returns PEM-endcoded certificate data
 func EncodeCertPEM(cert *x509.Certificate) []byte {
 	block := pem.Block{
@@ -228,65 +155,4 @@ func EncodeCertPEM(cert *x509.Certificate) []byte {
 		Bytes: cert.Raw,
 	}
 	return pem.EncodeToMemory(&block)
-}
-
-// WriteKey stores the given key at the given location
-func WriteKey(pkiPath, name string, key crypto.Signer) error {
-	if key == nil {
-		return errors.New("private key cannot be nil when writing to file")
-	}
-
-	privateKeyPath := pathForKey(pkiPath, name)
-	encoded, err := keyutil.MarshalPrivateKeyToPEM(key)
-	if err != nil {
-		return fmt.Errorf("unable to marshal private key to PEM %s", err)
-	}
-	if err := keyutil.WriteKey(privateKeyPath, encoded); err != nil {
-		return fmt.Errorf("unable to write private key to file %s %s", privateKeyPath, err)
-	}
-
-	return nil
-}
-
-// WritePublicKey stores the given public key at the given location
-func WritePublicKey(pkiPath, name string, key crypto.PublicKey) error {
-	if key == nil {
-		return errors.New("public key cannot be nil when writing to file")
-	}
-
-	publicKeyBytes, err := EncodePublicKeyPEM(key)
-	if err != nil {
-		return err
-	}
-	publicKeyPath := pathForPublicKey(pkiPath, name)
-	if err := keyutil.WriteKey(publicKeyPath, publicKeyBytes); err != nil {
-		return fmt.Errorf("unable to write public key to file %s %s", publicKeyPath, err)
-	}
-
-	return nil
-}
-
-func pathForPublicKey(pkiPath, name string) string {
-	return filepath.Join(pkiPath, fmt.Sprintf("%s.pub", name))
-}
-
-// EncodePublicKeyPEM returns PEM-encoded public data
-func EncodePublicKeyPEM(key crypto.PublicKey) ([]byte, error) {
-	der, err := x509.MarshalPKIXPublicKey(key)
-	if err != nil {
-		return []byte{}, err
-	}
-	block := pem.Block{
-		Type:  PublicKeyBlockType,
-		Bytes: der,
-	}
-	return pem.EncodeToMemory(&block), nil
-}
-
-func pathForCert(pkiPath, name string) string {
-	return filepath.Join(pkiPath, fmt.Sprintf("%s.crt", name))
-}
-
-func pathForKey(pkiPath, name string) string {
-	return filepath.Join(pkiPath, fmt.Sprintf("%s.key", name))
 }
