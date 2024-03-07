@@ -43,7 +43,7 @@ spec:
             - containerPort: 7443
           volumeMounts:
             - mountPath: /etc/karbour/
-              name: karbour-tls-secret
+              name: karbour-secret
       volumes:
         - name: karbour-secret
           secret:

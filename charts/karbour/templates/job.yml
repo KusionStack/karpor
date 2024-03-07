@@ -13,4 +13,4 @@ spec:
           - gen-cert
           - --ca-name=karbour-secret
           - --kubeconfig-name=karbour-kubeconfig
-      restartPolicy: Never
+      restartPolicy: OnFailure

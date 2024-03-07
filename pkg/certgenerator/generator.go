@@ -1,3 +1,17 @@
+// Copyright The Karbour Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package certgenerator
 
 import (
@@ -7,7 +21,6 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	applycorev1 "k8s.io/client-go/applyconfigurations/core/v1"
 	"k8s.io/client-go/kubernetes"
@@ -121,46 +134,6 @@ func (g *Generator) applyKubeConfigToConfigMap(ctx context.Context, kubeConfig s
 		return err
 	}
 	return nil
-}
-
-// checkConfigExists determines if both the certificate and kubeconfig exist
-func (g *Generator) checkConfigExists() (bool, error) {
-	found1, err := g.checkCertExists()
-	if err != nil {
-		return false, err
-	}
-	found2, err := g.checkKubeConfigExists()
-	if err != nil {
-		return false, err
-	}
-
-	// return true if both the certificate and kubeconfig are found
-	if found1 && found2 {
-		return true, nil
-	}
-	return false, nil
-}
-
-func (g *Generator) checkKubeConfigExists() (bool, error) {
-	_, err := g.clientSet.CoreV1().ConfigMaps(g.namespace).Get(context.TODO(), g.kubeConfigName, metav1.GetOptions{})
-	if err != nil {
-		if !apierrors.IsNotFound(err) {
-			return false, err
-		}
-		return false, nil
-	}
-	return true, nil
-}
-
-func (g *Generator) checkCertExists() (bool, error) {
-	_, err := g.clientSet.CoreV1().Secrets(g.namespace).Get(context.TODO(), g.certName, metav1.GetOptions{})
-	if err != nil {
-		if !apierrors.IsNotFound(err) {
-			return false, err
-		}
-		return false, nil
-	}
-	return true, nil
 }
 
 func generateConfig() (*x509.Certificate, crypto.Signer, string, error) {
