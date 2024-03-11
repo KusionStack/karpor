@@ -1,45 +1,47 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button, Empty, Tag } from 'antd'
-import styles from './style.module.less'
-import ExecptionStat from '../execptionStat'
+import { useTranslation } from 'react-i18next'
+import ExceptionStat from '../exceptionStat'
 import { ArrowRightOutlined } from '@ant-design/icons'
 import Loading from '../../../../components/loading'
 import { SEVERITY_MAP } from '../../../../utils/constants'
-import React from 'react'
+
+import styles from './style.module.less'
 
 type IProps = {
-  execptionList: any
+  exceptionList: any
   rescan: () => void
   showDrawer: () => void
   onItemClick: (val: string) => void
-  execptionStat: any
+  exceptionStat: any
   auditLoading: boolean
 }
 
-const ExecptionList = ({
-  execptionList,
+const ExceptionList = ({
+  exceptionList,
   rescan,
   showDrawer,
   onItemClick,
-  execptionStat,
+  exceptionStat,
   auditLoading,
 }: IProps) => {
   const [selectedEventId, setSelectedEventId] = useState<any>()
   const [top5List, setTop5list] = useState([])
   const [currentKey, setCurrentKey] = useState('All')
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (currentKey === 'All') {
-      const defaultTop5List = execptionList?.issueGroups?.slice(0, 5)
+      const defaultTop5List = exceptionList?.issueGroups?.slice(0, 5)
       setTop5list(defaultTop5List)
     } else {
-      const tmp = execptionList?.issueGroups?.filter(
+      const tmp = exceptionList?.issueGroups?.filter(
         (item: any) => item?.issue?.severity === currentKey,
       )
       const top5Tmp = tmp?.slice(0, 5)
       setTop5list(top5Tmp)
     }
-  }, [currentKey, execptionList?.issueGroups])
+  }, [currentKey, exceptionList?.issueGroups])
 
   function onClickTable(key) {
     setCurrentKey(key)
@@ -48,19 +50,19 @@ const ExecptionList = ({
     <div className={styles.exception}>
       <div className={styles.header}>
         <div className={styles.header_left}>
-          <ExecptionStat
+          <ExceptionStat
             currentKey={currentKey}
             statData={{
-              all: execptionStat?.issuesTotal || 0,
-              high: execptionStat?.severityStatistic?.High || 0,
-              medium: execptionStat?.severityStatistic?.Medium || 0,
-              low: execptionStat?.severityStatistic?.Low || 0,
+              all: exceptionStat?.issuesTotal || 0,
+              high: exceptionStat?.severityStatistic?.High || 0,
+              medium: exceptionStat?.severityStatistic?.Medium || 0,
+              low: exceptionStat?.severityStatistic?.Low || 0,
             }}
             onClickTable={onClickTable}
           />
         </div>
         <div className={styles.header_right}>
-          <Button onClick={rescan}>重新扫描</Button>
+          <Button onClick={rescan}>{t('Rescan')}</Button>
         </div>
       </div>
       <div className={styles.body}>
@@ -81,7 +83,9 @@ const ExecptionList = ({
                   onClick={() => onItemClick(item)}
                 >
                   {selectedEventId === uniqueKey && (
-                    <div className={styles.itme_tip}>查看事件详情</div>
+                    <div className={styles.itme_tip}>
+                      {t('ViewIssueDetail')}
+                    </div>
                   )}
 
                   <div className={styles.top}>
@@ -94,19 +98,19 @@ const ExecptionList = ({
                     <div className={styles.right}>
                       <div>
                         <span>
-                          发生&nbsp;
+                          {t('Occur')}&nbsp;
                           <span
                             style={{ fontWeight: 'bold', color: '#646566' }}
                           >
                             {item?.locators?.length}
                           </span>
-                          &nbsp;次
+                          &nbsp;{t('Times')}
                         </span>
-                        &nbsp;采集自
+                        &nbsp;{t('CollectedFrom')}
                       </div>
                       <div className={styles.tool}>
                         <ArrowRightOutlined />
-                        &nbsp;{item?.issue?.scanner}&nbsp;工具
+                        &nbsp;{item?.issue?.scanner}&nbsp;{t('Tool')}
                       </div>
                     </div>
                   </div>
@@ -119,7 +123,7 @@ const ExecptionList = ({
             })}
             <div className={styles.footer}>
               <span className={styles.btn} onClick={showDrawer}>
-                查看全部异常事件
+                {t('CheckAllIssues')}
                 <ArrowRightOutlined />
               </span>
             </div>
@@ -133,7 +137,7 @@ const ExecptionList = ({
               alignItems: 'center',
             }}
           >
-            <Empty description="无风险异常，再接再厉~" />
+            <Empty description={`${t('NoIssuesFound')}`} />
           </div>
         )}
       </div>
@@ -141,4 +145,4 @@ const ExecptionList = ({
   )
 }
 
-export default ExecptionList
+export default ExceptionList

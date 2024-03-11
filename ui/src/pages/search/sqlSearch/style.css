@@ -1,0 +1,36 @@
+/* 自定义补全菜单项的基本样式 */
+.cm-completionLabel {
+  font-weight: normal !important; /* 更改字体粗细 */
+  color: #555 !important; /* 更改文本颜色 */
+}
+
+/* 针对选中的补全项 */
+.cm-completionList .cm-completionSelected .cm-completionLabel {
+  font-weight: bold !important; /* 更改字体粗细 */
+  color: red !important;
+  background-color: #f1f1f1 !important; /* 更改背景颜色 */
+}
+
+/* 针对不同类型的补全项，比如关键字 */
+.cm-completionLabel.type-keyword {
+  padding: 5px 10px !important;
+  color: red !important;
+  background-color: #f1f1f1 !important; /* 更改背景颜色 */
+}
+
+/* 针对自定义的补全类别，您可能需要添加一个补全类别属性 */
+.cm-completionLabel.type-history {
+  padding: 5px 10px !important;
+  color: red !important;
+}
+
+/* 目标编辑器容器，去除边框 */
+.my-custom-editor {
+  border: none !important;
+}
+
+/* 可能需要更具体的选择器，目标编辑器内部元素 */
+.my-custom-editor .monaco-editor .monaco-editor-background,
+.my-custom-editor .monaco-editor .margin {
+  border: none !important;
+}

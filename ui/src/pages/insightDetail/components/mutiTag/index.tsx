@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Tag, Popover } from 'antd'
+import { useTranslation } from 'react-i18next'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
 import styles from './style.module.less'
@@ -9,6 +10,7 @@ type IProps = {
 }
 
 const MutiTag = ({ allTags }: IProps) => {
+  const { t } = useTranslation()
   // 设置展示全部标签的状态，默认为false
   const [showAll, setShowAll] = useState(false)
   // 默认标签的最大展示数量
@@ -27,23 +29,23 @@ const MutiTag = ({ allTags }: IProps) => {
           const content = (
             <div className={styles.popCard}>
               <div className={styles.item}>
-                <span className={styles.label}>cluster：</span>
+                <span className={styles.label}>cluster: </span>
                 <span className={styles.value}>{tag?.cluster || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>apiVersion：</span>
+                <span className={styles.label}>apiVersion: </span>
                 <span className={styles.value}>{tag?.apiVersion || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>kind：</span>
+                <span className={styles.label}>kind: </span>
                 <span className={styles.value}>{tag?.kind || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>namespace：</span>
+                <span className={styles.label}>namespace: </span>
                 <span className={styles.value}>{tag?.namespace || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>name：</span>
+                <span className={styles.label}>name: </span>
                 <span className={styles.value}>{tag?.name || '--'}</span>
               </div>
             </div>
@@ -60,7 +62,7 @@ const MutiTag = ({ allTags }: IProps) => {
       {allTags.length > defaultMaxCount && !showAll && (
         <div className={styles.toggleButton} onClick={toggleTags}>
           <span>
-            更多
+            {t('More')}
             <DoubleLeftOutlined
               style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
             />
@@ -71,7 +73,7 @@ const MutiTag = ({ allTags }: IProps) => {
       {showAll && (
         <div className={styles.toggleButton} onClick={toggleTags}>
           <span>
-            收起
+            {t('Less')}
             <DoubleRightOutlined
               style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
             />

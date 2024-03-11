@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Popconfirm } from 'antd'
 import { useSelector } from 'react-redux'
+import { useTranslation } from 'react-i18next'
 import { utcDateToLocalDate } from '@/utils/tools'
 import k8sPng from '@/assets/kubernetes.png'
 import EditPopForm from '../editPopForm'
@@ -17,6 +18,7 @@ type IProps = {
 }
 
 const ClusterCard = (props: IProps) => {
+  const { t } = useTranslation()
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const {
     goDetailPage,
@@ -68,20 +70,20 @@ const ClusterCard = (props: IProps) => {
           style={{ margin: '0 16px' }}
           onClick={() => goCertificate(item)}
         >
-          更新证书
+          {t('RotateCertificate')}
         </Button>
         <Popconfirm
           disabled={isReadOnlyMode}
           placement="topLeft"
           title={
             <span style={{ display: 'inline-block', width: 200 }}>
-              删除后，将不会再管控该集群，和更新相关资源。
+              {t('DeleteAndNoLongUpdateResources')}
             </span>
           }
           description=""
           onConfirm={() => deleteItem(item)}
         >
-          <Button disabled={isReadOnlyMode}>删除</Button>
+          <Button disabled={isReadOnlyMode}>{t('Delete')}</Button>
         </Popconfirm>
       </div>
     </div>

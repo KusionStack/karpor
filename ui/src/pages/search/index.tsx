@@ -22,16 +22,13 @@ import {
   DoubleLeftOutlined,
   DoubleRightOutlined,
 } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import KarbourTabs from '@/components/tabs/index'
 import logoJPG from '@/assets/logo.jpg'
 import SearchInput from '@/components/searchInput'
+// import SqlEditor from './sqlSearch/index'
 
 import styles from './styles.module.less'
-
-const tabsList = [
-  { label: '按照关键字搜索', value: 'keyword', disabled: true },
-  { label: '按照 SQL 搜索', value: 'sql' },
-]
 
 const SearchPage = () => {
   const navigate = useNavigate()
@@ -42,6 +39,13 @@ const SearchPage = () => {
   const optionsRef = useRef<any>(getHistoryList())
 
   const [showAll, setShowAll] = useState(false)
+
+  const { t } = useTranslation()
+
+  const tabsList = [
+    { label: t('KeywordSearch'), value: 'keyword', disabled: true },
+    { label: t('SQLSearch'), value: 'sql' },
+  ]
 
   // 创建一个函数来切换展示状态
   const toggleTags = () => {
@@ -140,6 +144,7 @@ const SearchPage = () => {
   return (
     <div className={styles.container}>
       <div className={styles.search}>
+        {/* <SqlEditor /> */}
         <div className={styles.title}>
           {/* Hi~ 欢迎来到KarBour */}
           <img src={logoJPG} width="30%" alt="icon" />
@@ -164,7 +169,7 @@ const SearchPage = () => {
         <div className={styles.examples}>
           {searchType === 'keyword' ? (
             <div className={styles.keywords}>
-              <div className={styles.keywordsTitle}>关键字搜索案例</div>
+              <div className={styles.keywordsTitle}>{t('PopularQueries')}</div>
               <div className={styles.item}>
                 <Tag style={{ color: '#000' }}>"my-application"</Tag>
               </div>
@@ -233,7 +238,7 @@ const SearchPage = () => {
               {!showAll && (
                 <div className={styles.toggleButton} onClick={toggleTags}>
                   <span>
-                    More
+                    {t('More')}
                     <DoubleLeftOutlined
                       style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
                     />
@@ -287,7 +292,7 @@ const SearchPage = () => {
                   </div>
                   <div className={styles.toggleButton} onClick={toggleTags}>
                     <span>
-                      Hide
+                      {t('Less')}
                       <DoubleRightOutlined
                         style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
                       />

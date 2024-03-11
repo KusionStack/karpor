@@ -2,6 +2,7 @@ import React from 'react'
 import { Popover } from 'antd'
 import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
+import { useTranslation } from 'react-i18next'
 import { filterSize, getDataType } from '@/utils/tools'
 import GaugeChart from '../gauge'
 
@@ -61,6 +62,7 @@ type SummaryCardProps = {
   summary: any
 }
 const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
+  const { t } = useTranslation()
   const location = useLocation()
   const { type } = queryString.parse(location?.search)
   return (
@@ -71,28 +73,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
         {type === 'resource' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
-              <div className={styles.label}>apiVersion：</div>
+              <div className={styles.label}>apiVersion: </div>
               <PopoverCard data={summary?.resource?.apiVersion} />
-              {/* <div className={styles.value}>{summary?.resource?.apiVersion || '--'}</div> */}
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>cluster：</div>
-              {/* <div className={styles.value}>{summary?.resource?.cluster || '--'}</div> */}
+              <div className={styles.label}>cluster: </div>
               <PopoverCard data={summary?.resource?.cluster} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>kind：</div>
-              {/* <div className={styles.value}>{summary?.resource?.kind || '--'}</div> */}
+              <div className={styles.label}>kind: </div>
               <PopoverCard data={summary?.resource?.kind} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>namespace：</div>
-              {/* <div className={styles.value}>{summary?.resource?.namespace || '--'}</div> */}
+              <div className={styles.label}>namespace: </div>
               <PopoverCard data={summary?.resource?.namespace} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>name：</div>
-              {/* <div className={styles.value}>{summary?.resource?.name || '--'}</div> */}
+              <div className={styles.label}>name: </div>
               <PopoverCard data={summary?.resource?.name} />
             </div>
           </div>
@@ -100,26 +97,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
         {type === 'kind' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
-              <div className={styles.label}>cluster：</div>
-              {/* <div className={styles.value}>{summary?.cluster || '--'}</div> */}
+              <div className={styles.label}>cluster: </div>
               <PopoverCard data={summary?.cluster} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>kind：</div>
-              {/* <div className={styles.value}>{summary?.kind || '--'}</div> */}
+              <div className={styles.label}>kind: </div>
               <PopoverCard data={summary?.kind} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>group：</div>
+              <div className={styles.label}>group: </div>
               <div className={styles.value}>{summary?.group || '--'}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>count：</div>
+              <div className={styles.label}>count: </div>
               <div className={styles.value}>{summary?.count || '--'}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>version：</div>
-              {/* <div className={styles.value}>{summary?.version || '--'}</div> */}
+              <div className={styles.label}>version: </div>
               <PopoverCard data={summary?.version} />
             </div>
           </div>
@@ -127,13 +121,11 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
         {type === 'namespace' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
-              <div className={styles.label}>cluster：</div>
-              {/* <div className={styles.value}>{summary?.cluster || '--'}</div> */}
+              <div className={styles.label}>cluster: </div>
               <PopoverCard data={summary?.cluster} />
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>namespace：</div>
-              {/* <div className={styles.value}>{summary?.namespace || '--'}</div> */}
+              <div className={styles.label}>namespace: </div>
               <PopoverCard data={summary?.namespace} />
             </div>
             <div className={`${styles.item} ${styles.namespaceStat}`}>
@@ -145,21 +137,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
         {type === 'cluster' && (
           <div className={styles.field_box}>
             <div className={styles.item}>
-              <div className={styles.label}>Node：</div>
+              <div className={styles.label}>Node: </div>
               <div className={styles.value}>{summary?.nodeCount || '--'}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>Pod：</div>
+              <div className={styles.label}>Pod: </div>
               <div className={styles.value}>
                 {summary?.podsCapacity || '--'}
               </div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>CPU 容量：</div>
+              <div className={styles.label}>CPU {t('Capacity')}: </div>
               <div className={styles.value}>{summary?.cpuCapacity || '--'}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>内存容量：</div>
+              <div className={styles.label}>
+                {t('Memory')} {t('Capacity')}:
+              </div>
               <div className={styles.value}>
                 {summary?.memoryCapacity
                   ? filterSize(summary?.memoryCapacity)
@@ -167,8 +161,7 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               </div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>Kubernetes 版本：</div>
-              {/* <div className={styles.value}>{summary?.serverVersion || '--'}</div> */}
+              <div className={styles.label}>Kubernetes {t('Version')}: </div>
               <PopoverCard data={summary?.serverVersion} />
             </div>
           </div>

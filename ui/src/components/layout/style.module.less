@@ -80,6 +80,18 @@
         }
       }
 
+      .language {
+        display: flex;
+        padding: 2px 0;
+        align-items: center;
+        cursor: pointer;
+
+        img {
+          width: 20px;
+          height: 20px;
+        }
+      }
+
       .search {
         margin-right: 10px;
       }
@@ -119,6 +131,19 @@
       .right_content {
         height: calc(100% - 30px);
       }
+    }
+  }
+}
+
+.language_content {
+  .language_content_item {
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 6px;
+
+    &:hover {
+      color: #fff;
+      background: rgb(112 134 222 / 50%);
     }
   }
 }

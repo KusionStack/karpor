@@ -1,10 +1,12 @@
+import React from 'react'
 import { Button, Result } from 'antd'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 import styles from './styles.module.less'
-import React from 'react'
 
 const NotFound = () => {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   function goBack() {
     navigate('/search')
@@ -15,10 +17,10 @@ const NotFound = () => {
       <Result
         status="404"
         title="404"
-        subTitle="对不起，你访问的页面不存在！"
+        subTitle={t('SorryThePageYouVisitedDoesNotExist')}
         extra={
           <Button type="primary" onClick={goBack}>
-            返回首页
+            {t('BackToHome')}
           </Button>
         }
       />
