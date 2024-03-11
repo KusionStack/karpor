@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import { Pagination, Empty, Divider, message, Tooltip } from 'antd'
 import axios from 'axios'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined, CloseOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
 import SearchInput from '@/components/searchInput'
@@ -80,12 +81,8 @@ const ICON_MAP = {
   PodDisruptionBudget: crd,
 }
 
-const tabsList = [
-  { label: '按照关键字搜索', value: 'keyword', disabled: true },
-  { label: '按照 SQL 搜索', value: 'sql' },
-]
-
 const Result = () => {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [pageData, setPageData] = useState<any>()
@@ -117,6 +114,11 @@ const Result = () => {
       localStorage.setItem(`${searchType}History`, JSON.stringify(newList))
     }
   }
+
+  const tabsList = [
+    { label: t('KeywordSearch'), value: 'keyword', disabled: true },
+    { label: t('SQLSearch'), value: 'sql' },
+  ]
 
   function deleteItem(event, value) {
     event.preventDefault()
@@ -185,7 +187,7 @@ const Result = () => {
       const urlString = queryString.stringify(objParams)
       navigate(`${location?.pathname}?${urlString}`, { replace: true })
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
     setLoading(false)
   }
@@ -295,7 +297,10 @@ const Result = () => {
           <>
             {/* 汇总 */}
             <div className={styles.stat}>
-              <div>约&nbsp;{searchParams?.total}&nbsp;条搜索结果</div>
+              <div>
+                {t('AboutInSearchResult')}&nbsp;{searchParams?.total}&nbsp;
+                {t('SearchResult')}
+              </div>
             </div>
             {pageData?.map((item: any, index: number) => {
               return (
@@ -357,7 +362,7 @@ const Result = () => {
                       )}
                       <div className={`${styles.item} ${styles.disable}`}>
                         <ClockCircleOutlined />
-                        <Tooltip title="创建时间">
+                        <Tooltip title={t('CreateTime')}>
                           <span className={styles.label}>
                             {utcDateToLocalDate(
                               item?.object?.metadata?.creationTimestamp,
@@ -374,7 +379,7 @@ const Result = () => {
               <Pagination
                 total={searchParams?.total}
                 showTotal={(total: number, range: any[]) =>
-                  `${range[0]}-${range[1]} 共 ${total} 条`
+                  `${range[0]}-${range[1]} ${t('Total')} ${total} `
                 }
                 pageSize={searchParams?.pageSize}
                 current={searchParams?.page}

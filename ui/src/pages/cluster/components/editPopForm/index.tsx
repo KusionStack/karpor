@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { Popover, Form, Input, Button, Space } from 'antd'
 
 const { TextArea } = Input
@@ -11,6 +12,7 @@ type EditFormProps = {
 
 export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
   const [form] = Form.useForm()
+  const { t } = useTranslation()
 
   useEffect(() => {
     if (lastDetail) {
@@ -36,19 +38,23 @@ export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
   return (
     <div style={{ width: 320, padding: '20px 20px 0 20px' }}>
       <Form form={form} layout="vertical" onFinish={onFinish}>
-        <Form.Item name="name" label="集群名称" rules={[{ required: true }]}>
+        <Form.Item
+          name="name"
+          label={t('ClusterName')}
+          rules={[{ required: true }]}
+        >
           <Input disabled />
         </Form.Item>
         <Form.Item
           name="displayName"
-          label="显示名称"
+          label={t('DisplayName')}
           rules={[{ required: false }]}
         >
           <Input />
         </Form.Item>
         <Form.Item
           name="description"
-          label="集群描述"
+          label={t('Description')}
           rules={[{ required: false }]}
         >
           <TextArea autoSize={{ minRows: 3 }} />
@@ -56,10 +62,10 @@ export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
         <Form.Item style={{ textAlign: 'right' }}>
           <Space>
             <Button htmlType="button" onClick={onCancel}>
-              取消
+              {t('Cancel')}
             </Button>
             <Button type="primary" htmlType="submit">
-              确定
+              {t('OK')}
             </Button>
           </Space>
         </Form.Item>
@@ -85,6 +91,7 @@ const EditPopForm = ({
   lastDetail,
   isDisabled,
 }: IProps) => {
+  const { t } = useTranslation()
   const [open, setOpen] = useState(false)
   const hide = () => {
     setOpen(false)
@@ -103,12 +110,12 @@ const EditPopForm = ({
       open={open}
       onOpenChange={handleOpenChange}
       placement="bottomRight"
-      title={title || '编辑'}
+      title={title || t('Edit')}
       trigger="click"
       content={<EditForm {...formProps} />}
     >
       <Button disabled={isDisabled} type={btnType || 'default'}>
-        编辑
+        {t('Edit')}
       </Button>
     </Popover>
   )

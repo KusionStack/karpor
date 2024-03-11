@@ -16,7 +16,6 @@ export const globalSlice = createSlice({
   initialState,
   reducers: {
     setServerConfigMode: (state, action) => {
-      console.log(state, action, 'sadsadas')
       state.isReadOnlyMode = action.payload
     },
   },

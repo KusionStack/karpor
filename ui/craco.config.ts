@@ -10,7 +10,7 @@ const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 
 const { whenProd } = require('@craco/craco')
 
-// 具体配置见官网：https://craco.js.org/docs/
+// 具体配置见官网: https://craco.js.org/docs/
 module.exports = {
   plugins: [
     {
@@ -57,7 +57,7 @@ module.exports = {
             test: /\.(js|css)$/, // 使用正则给匹配到的文件做压缩，这里是给css、js
             threshold: 10240, //以字节为单位压缩超过此大小的文件，小于10KB就不进行压缩
             minRatio: 0.8, // 最小压缩比率，官方默认0.8
-            //是否删除原有静态资源文件，即只保留压缩后的.gz文件，建议这个置为false，还保留源文件。以防：假如出现访问.gz文件访问不到的时候，还可以访问源文件双重保障
+            //是否删除原有静态资源文件，即只保留压缩后的.gz文件，建议这个置为false，还保留源文件。以防: 假如出现访问.gz文件访问不到的时候，还可以访问源文件双重保障
             deleteOriginalAssets: false,
           }),
 

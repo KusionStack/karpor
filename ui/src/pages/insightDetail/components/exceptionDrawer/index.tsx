@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { Collapse, Drawer, Empty, Input, Pagination, Tag } from 'antd'
-import ExecptionStat from '../execptionStat'
+import ExceptionStat from '../exceptionStat'
 import { CaretRightOutlined, SearchOutlined } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import { truncationPageData } from '../../../../utils/tools'
 
-import styles from './style.module.less'
 import MutiTag from '../mutiTag'
 import { SEVERITY_MAP } from '../../../../utils/constants'
+
+import styles from './style.module.less'
 
 const DEFALUT_PAGE_SIZE = 10
 
 type IProps = {
-  execptionStat?: any
-  execptionList: any
+  exceptionStat?: any
+  exceptionList: any
   onClose: () => void
   open: boolean
 }
 
-const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
+const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
   const [pageParams, setPageParams] = useState({
     pageNo: 1,
     pageSize: DEFALUT_PAGE_SIZE,
@@ -27,14 +29,16 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   const [currentKey, setCurrentKey] = useState('All')
   const [showPageData, setShowPageData] = useState([])
 
+  const { t } = useTranslation()
+
   useEffect(() => {
     if (currentKey === 'All') {
       let tmp: any = []
       if (!searchValue) {
-        tmp = execptionList?.issueGroups
+        tmp = exceptionList?.issueGroups
       } else {
         const newValue = searchValue?.toLowerCase().trim()?.split(' ')
-        const issueGroups = execptionList?.issueGroups
+        const issueGroups = exceptionList?.issueGroups
         if (newValue?.length === 1) {
           issueGroups?.forEach((item: any) => {
             if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
@@ -64,7 +68,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
         total: tmp?.length,
       })
     } else {
-      const tmp = execptionList?.issueGroups?.filter(
+      const tmp = exceptionList?.issueGroups?.filter(
         (item: any) => item?.issue?.severity === currentKey,
       )
       let filterTmp: any = []
@@ -72,7 +76,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
         filterTmp = tmp
       } else {
         const newValue = searchValue?.toLowerCase().trim()?.split(' ')
-        const issueGroups = execptionList?.issueGroups
+        const issueGroups = exceptionList?.issueGroups
         if (newValue?.length === 1) {
           issueGroups?.forEach((item: any) => {
             if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
@@ -105,7 +109,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentKey,
-    execptionList?.issueGroups,
+    exceptionList?.issueGroups,
     pageParams?.pageNo,
     pageParams?.pageSize,
     searchValue,
@@ -114,9 +118,9 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   // useEffect(() => {
   //   let tmp = [];
   //   if (!searchValue) {
-  //     tmp = execptionList?.issueGroups
+  //     tmp = exceptionList?.issueGroups
   //   } else {
-  //     execptionList?.issueGroups?.forEach(item => {
+  //     exceptionList?.issueGroups?.forEach(item => {
   //       if (item?.issue?.title?.includes(searchValue)) {
   //         tmp.push(item)
   //       }
@@ -124,7 +128,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   //   }
   //   const pageList = truncationPageData({ list: tmp, page: pageParams?.pageNo, pageSize: pageParams?.pageSize })
   //   setShowPageData(pageList)
-  // }, [execptionList?.issueGroups, pageParams?.pageNo, pageParams?.pageSize, searchValue]);
+  // }, [exceptionList?.issueGroups, pageParams?.pageNo, pageParams?.pageSize, searchValue]);
 
   function onSearch(event) {
     const val = event.target.value
@@ -170,7 +174,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
               <span className={styles.title}>{item?.issue?.title}</span>
             </div>
             <div className={styles.bottom}>
-              <div className={styles.label}>message：</div>
+              <div className={styles.label}>message: </div>
               <div className={styles.value}>{item?.issue?.message}</div>
             </div>
           </div>
@@ -179,22 +183,22 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
           <div className={styles.collapse_panel_body}>
             <div className={styles.header}>
               <div className={styles.item}>
-                <div className={styles.label}>事件来源：</div>
+                <div className={styles.label}>{t('IssueSource')}: </div>
                 <div className={styles.value}>
                   {item?.issue?.scanner || '--'}
                 </div>
               </div>
               <div className={styles.item}>
-                <div className={styles.label}>发生次数：</div>
+                <div className={styles.label}>{t('NumberOfOccurrences')}: </div>
                 <div className={styles.value}>{item?.locators?.length}</div>
               </div>
             </div>
             <div className={`${styles.row_item}`}>
-              <div className={styles.label}>描述信息：</div>
+              <div className={styles.label}>{t('Description')}: </div>
               <div className={styles.value}>{item?.issue?.message || '--'}</div>
             </div>
             <div className={styles.body}>
-              <div className={styles.label}>相关资源：</div>
+              <div className={styles.label}>{t('RelatedResources')}: </div>
               <div className={styles.value}>
                 <MutiTag allTags={locatorsNames} />
               </div>
@@ -216,22 +220,27 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   }
 
   return (
-    <Drawer width={1000} title="异常事件" open={open} onClose={onClose}>
-      <div className={styles.execption_drawer}>
-        <ExecptionStat
+    <Drawer
+      width={1000}
+      title={t('IssuesDetail')}
+      open={open}
+      onClose={onClose}
+    >
+      <div className={styles.exception_drawer}>
+        <ExceptionStat
           currentKey={currentKey}
           statData={{
-            all: execptionList?.issueTotal,
-            high: execptionList?.bySeverity?.High,
-            medium: execptionList?.bySeverity?.Medium,
-            low: execptionList?.bySeverity?.Low,
+            all: exceptionList?.issueTotal,
+            high: exceptionList?.bySeverity?.High,
+            medium: exceptionList?.bySeverity?.Medium,
+            low: exceptionList?.bySeverity?.Low,
           }}
           onClickTable={onClickTable}
         />
         <div className={styles.tool_bar}>
           <div className={styles.search}>
             <Input
-              placeholder="请输入名称搜索"
+              placeholder={t('FilterByName')}
               suffix={
                 <SearchOutlined
                   className="site-form-item-icon"
@@ -260,7 +269,7 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
               <Pagination
                 total={pageParams?.total}
                 showTotal={(total, range) =>
-                  `${range[0]}-${range[1]} 共 ${total} 条`
+                  `${range[0]}-${range[1]} ${t('Total')} ${total}`
                 }
                 pageSize={pageParams?.pageSize}
                 current={pageParams?.pageNo}
@@ -286,4 +295,4 @@ const ExecptionDrawer = ({ open, onClose, execptionList }: IProps) => {
   )
 }
 
-export default ExecptionDrawer
+export default ExceptionDrawer

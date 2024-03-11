@@ -2,11 +2,11 @@ import { SearchOutlined } from '@ant-design/icons'
 import { Button, Input, Space, Table, message } from 'antd'
 import axios from 'axios'
 import queryString from 'query-string'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 
 import styles from './style.module.less'
-import React from 'react'
 
 type IProps = {
   queryStr: string
@@ -23,6 +23,7 @@ const defaultSearchParams = {
 }
 
 const SourceTable = ({ queryStr, tableName }: IProps) => {
+  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [pageParams, setPageParams] = useState(defaultSearchParams)
@@ -52,7 +53,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     {
       dataIndex: 'name',
       key: 'name',
-      title: '名称',
+      title: t('Name'),
       render: (_, record) => {
         return (
           <Button type="link" onClick={() => goResourcePage(record)}>
@@ -72,7 +73,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     {
       dataIndex: 'apiVersion',
       key: 'apiVersion',
-      title: 'apiVersion',
+      title: 'APIVersion',
       render: (_, record) => {
         return record?.object?.apiVersion
       },
@@ -80,7 +81,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     {
       dataIndex: 'kind',
       key: 'kind',
-      title: 'kind',
+      title: 'Kind',
       // render: (text) => text === 'success' ? <Badge status="success" text="健康" /> : <Badge status="error" text="异常" />
       render: (_, record) => {
         return record?.object?.kind
@@ -125,14 +126,14 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
           {tableName || '--'}
           {urlSearchParams?.type === 'kind' ? null : (
             <span className={styles.tips}>
-              💡 可在上方选择资源后在这里查看对应的详情
+              {t('SelectResourcesAboveToSeeDetailsHere')}
             </span>
           )}
         </div>
         <Space style={{ marginBottom: 10 }}>
           <Input
             disabled
-            placeholder="请输入名称搜索"
+            placeholder={t('FilterByName')}
             suffix={<SearchOutlined />}
           />
         </Space>

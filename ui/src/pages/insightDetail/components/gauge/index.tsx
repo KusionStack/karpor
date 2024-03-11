@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react'
 import { Gauge } from '@antv/g2plot'
 import BigNumber from 'bignumber.js'
+import { useTranslation } from 'react-i18next'
 
 type IProps = {
   data: number | string
 }
 
 const GaugeChart = ({ data }: IProps) => {
+  const { t } = useTranslation()
   useEffect(() => {
     if (!data) {
       return
@@ -50,7 +52,7 @@ const GaugeChart = ({ data }: IProps) => {
       statistic: {
         title: {
           offsetY: -10,
-          formatter: () => '健康分',
+          formatter: () => t('HealthScore'),
           style: {
             color: color,
             fontSize: '16px',
@@ -76,6 +78,7 @@ const GaugeChart = ({ data }: IProps) => {
         gauge.destroy()
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data])
 
   return <div style={{ width: '100%', height: 150 }} id="gaugeConatiner"></div>

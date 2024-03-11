@@ -13,10 +13,11 @@ import {
   ClockCircleOutlined,
   SearchOutlined,
 } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
+import { SEVERITY_MAP } from '../../../../utils/constants'
 import K8sStat from '../k8sStat'
 
 import styles from './style.module.less'
-import { SEVERITY_MAP } from '../../../../utils/constants'
 
 const { RangePicker } = DatePicker
 
@@ -26,6 +27,7 @@ type K8sEventDrawerProps = {
 }
 
 const K8sEventDrawer = ({ open, onClose }: K8sEventDrawerProps) => {
+  const { t } = useTranslation()
   // eslint-disable-next-line @typescript-eslint/no-empty-function
   function onSearch() {}
 
@@ -70,7 +72,7 @@ const K8sEventDrawer = ({ open, onClose }: K8sEventDrawerProps) => {
         children: (
           <div className={styles.collapse_panel_body}>
             <div className={styles.body}>
-              <div className={styles.label}>时间触发时间点：</div>
+              <div className={styles.label}>{t('TriggeredTimestamp')}: </div>
               <div className={styles.value}>
                 {item?.timeList?.map(item => {
                   return (
@@ -89,13 +91,13 @@ const K8sEventDrawer = ({ open, onClose }: K8sEventDrawerProps) => {
   }
 
   return (
-    <Drawer width={1000} title="异常事件" open={open} onClose={onClose}>
-      <div className={styles.execption_drawer}>
+    <Drawer width={1000} title={t('Issues')} open={open} onClose={onClose}>
+      <div className={styles.exception_drawer}>
         <K8sStat statData={{ all: 10, high: 5, medium: 3, low: 2 }} />
         <div className={styles.tool_bar}>
           <div className={styles.search}>
             <Input
-              placeholder="请输入名称搜索"
+              placeholder={t('FilterByName')}
               suffix={
                 <SearchOutlined
                   className="site-form-item-icon"

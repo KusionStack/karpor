@@ -5,6 +5,7 @@ import {
   CaretRightOutlined,
   ClockCircleOutlined,
 } from '@ant-design/icons'
+import { useTranslation } from 'react-i18next'
 import K8sStat from '../k8sStat'
 import { SEVERITY_MAP } from '../../../../utils/constants'
 
@@ -13,6 +14,7 @@ import styles from './style.module.less'
 const { RangePicker } = DatePicker
 
 const K8sEvent = ({ showDrawer }: any) => {
+  const { t } = useTranslation()
   const panelStyle: React.CSSProperties = {
     background: '#fff',
     borderRadius: 8,
@@ -48,7 +50,7 @@ const K8sEvent = ({ showDrawer }: any) => {
         children: (
           <div className={styles.collapse_panel_body}>
             <div className={styles.body}>
-              <div className={styles.label}>时间触发时间点：</div>
+              <div className={styles.label}>{t('TriggeredTimestamp')}: </div>
               <div className={styles.value}>
                 {item?.timeList?.map((item, index) => {
                   return (
@@ -91,7 +93,7 @@ const K8sEvent = ({ showDrawer }: any) => {
         </div>
       </div>
       <div className={styles.footer} onClick={showDrawer}>
-        查看全部事件
+        {t('CheckAllIssues')}
         <ArrowRightOutlined />
       </div>
     </div>

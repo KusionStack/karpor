@@ -8,6 +8,7 @@ import zhCN from 'antd/locale/zh_CN'
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
+import './i18n'
 
 import '@/utils/request'
 

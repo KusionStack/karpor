@@ -1,5 +1,5 @@
 import React, { memo } from 'react'
-import { Divider, Menu } from 'antd'
+import { Divider, Menu, Popover } from 'antd'
 import {
   ClusterOutlined,
   FundOutlined,
@@ -11,7 +11,9 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
+import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
+import languagePng from '@/assets/language.png'
 
 import styles from './style.module.less'
 
@@ -42,6 +44,7 @@ const LayoutPage = () => {
   const { pathname } = useLocation()
   const dispatch = useDispatch()
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
+  const { i18n, t } = useTranslation()
 
   async function getServerConfigs() {
     const response: any = await axios(`/server-configs`, {
@@ -57,13 +60,27 @@ const LayoutPage = () => {
   getServerConfigs()
 
   const menuItems = [
-    getItem('搜索', '/search', <SearchOutlined />),
-    getItem('结果', '/search/result', <SearchOutlined />, null, null, true),
-    getItem('数据洞察', '/insight', <FundOutlined />, null, null, null, true),
-    getItem('集群列表', '/cluster', <ClusterOutlined />),
-    getItem('集群详情', '/insightDetail', <SearchOutlined />, null, null, true),
+    getItem(t('Search'), '/search', <SearchOutlined />),
     getItem(
-      '集群接入',
+      t('SearchResult'),
+      '/search/result',
+      <SearchOutlined />,
+      null,
+      null,
+      true,
+    ),
+    getItem(t('Insight'), '/insight', <FundOutlined />, null, null, null, true),
+    getItem(t('ClusterManagement'), '/cluster', <ClusterOutlined />),
+    getItem(
+      t('ClusterDetail'),
+      '/insightDetail',
+      <SearchOutlined />,
+      null,
+      null,
+      true,
+    ),
+    getItem(
+      'RegisterCluster',
       '/cluster/access',
       <SearchOutlined />,
       null,
@@ -71,14 +88,21 @@ const LayoutPage = () => {
       true,
     ),
     getItem(
-      '更新证书',
+      t('RotateCertificate'),
       '/cluster/certificate',
       <SearchOutlined />,
       null,
       null,
       true,
     ),
-    getItem('回流配置', '/reflux', <SearchOutlined />, null, null, true),
+    getItem(
+      t('DataSyncConfiguration'),
+      '/reflux',
+      <SearchOutlined />,
+      null,
+      null,
+      true,
+    ),
   ]
 
   function getKey() {
@@ -111,6 +135,24 @@ const LayoutPage = () => {
   function goHome() {
     navigate('/')
   }
+  function changeToZh() {
+    localStorage.setItem('lang', 'zh')
+    i18n.changeLanguage('zh')
+  }
+  function changeToEn() {
+    localStorage.setItem('lang', 'en')
+    i18n.changeLanguage('en')
+  }
+  const languageContent = (
+    <div className={styles.language_content}>
+      <div className={styles.language_content_item} onClick={changeToZh}>
+        中文
+      </div>
+      <div className={styles.language_content_item} onClick={changeToEn}>
+        English
+      </div>
+    </div>
+  )
 
   return (
     <div className={styles.wrapper}>
@@ -135,9 +177,16 @@ const LayoutPage = () => {
           {isReadOnlyMode && (
             <div className={styles.read_only_mode}>
               <img src={showPng} />
-              <span>演示模式</span>
+              <span>{t('ReadOnlyMode')}</span>
             </div>
           )}
+          <div className={styles.help}>
+            <Popover content={languageContent} trigger="click">
+              <div className={styles.language}>
+                <img src={languagePng} />
+              </div>
+            </Popover>
+          </div>
           <div className={styles.help}>
             <a
               target="_blank"

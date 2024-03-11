@@ -3,9 +3,10 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import queryString from 'query-string'
 import { Breadcrumb, message } from 'antd'
-import ExecptionDrawer from '../components/execptionDrawer'
+import { useTranslation } from 'react-i18next'
+import ExceptionDrawer from '../components/exceptionDrawer'
 import SourceTable from '../components/sourceTable'
-import ExecptionList from '../components/execptionList'
+import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import SummaryCard from '../components/summaryCard'
 
@@ -30,6 +31,7 @@ const ClusterDetail = () => {
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
+  const { t } = useTranslation()
 
   async function getAudit(isRescan) {
     setAuditLoading(true)
@@ -47,7 +49,7 @@ const ClusterDetail = () => {
     if (response?.success) {
       setAuditList(response?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
   async function getAuditScore() {
@@ -77,7 +79,7 @@ const ClusterDetail = () => {
     if (response?.success) {
       setSummary(response?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -126,12 +128,16 @@ const ClusterDetail = () => {
     let first
     if (from === 'cluster') {
       first = {
-        title: <NavLink to={'/cluster'}>集群管理</NavLink>,
+        title: <NavLink to={'/cluster'}>{t('ClusterManagement')}</NavLink>,
       }
     }
     if (from === 'result') {
       first = {
-        title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
+        title: (
+          <NavLink to={`/search/result?query=${query}`}>
+            {t('SearchResult')}
+          </NavLink>
+        ),
       }
     }
     const middle = []
@@ -164,11 +170,11 @@ const ClusterDetail = () => {
         separator=">"
         items={breadcrumbItems}
       />
-      <ExecptionDrawer
+      <ExceptionDrawer
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
-        execptionList={auditList}
-        execptionStat={auditStat}
+        exceptionList={auditList}
+        exceptionStat={auditStat}
       />
       <EventDetail
         open={modalVisible}
@@ -177,12 +183,12 @@ const ClusterDetail = () => {
       />
       <div className={styles.module}>
         <SummaryCard auditStat={auditStat} summary={summary} />
-        <div className={styles.execption_event}>
-          <ExecptionList
+        <div className={styles.exception_event}>
+          <ExceptionList
             auditLoading={auditLoading}
             rescan={rescan}
-            execptionList={auditList}
-            execptionStat={auditStat}
+            exceptionList={auditList}
+            exceptionStat={auditStat}
             showDrawer={showDrawer}
             onItemClick={onItemClick}
           />

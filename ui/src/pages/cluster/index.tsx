@@ -10,12 +10,13 @@ import {
 } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import KarbourTabs from '../../components/tabs'
 import styles from './styles.module.less'
 import Loading from '../../components/loading'
 import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
-import execptionalPng from '@/assets/execptional.png'
+import exceptionalPng from '@/assets/exceptional.png'
 // import clusterPng from '@/assets/cluster.png'
 import clusterPng from '@/assets/cluster_outlind.png'
 
@@ -30,6 +31,7 @@ const Cluster = () => {
     orderBy: 'name',
     isAsc: true,
   })
+  const { t } = useTranslation()
   const [searchValue, setSearchValue] = useState('')
 
   const [lastDetail, setLastDetail] = useState<any>()
@@ -119,12 +121,12 @@ const Cluster = () => {
       data: values,
     })
     if (response?.success) {
-      message.success('修改成功')
+      message.success(t('UpdateSuccess'))
       callback()
       getClusterSummary()
       getPageData(sortParams)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -207,11 +209,11 @@ const Cluster = () => {
       method: 'DELETE',
     })
     if (response?.success) {
-      message.success('删除成功')
+      message.success(t('DeletedSuccess'))
       getPageData(sortParams)
       getClusterSummary()
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -236,7 +238,8 @@ const Cluster = () => {
       label: (
         <div style={tabStyle}>
           <img src={clusterPng} style={iconStyle} />
-          全部集群<span style={numberStyle}>{summary?.totalCount}</span>
+          {t('AllClusters')}
+          <span style={numberStyle}>{summary?.totalCount}</span>
         </div>
       ),
       value: 'all',
@@ -245,7 +248,8 @@ const Cluster = () => {
       label: (
         <div style={tabStyle}>
           <img src={healthPng} style={iconStyle} />
-          健康集群<span style={numberStyle}>{summary?.healthyCount}</span>
+          {t('HealthyClusters')}
+          <span style={numberStyle}>{summary?.healthyCount}</span>
         </div>
       ),
       value: 'healthy',
@@ -253,8 +257,9 @@ const Cluster = () => {
     {
       label: (
         <div style={tabStyle}>
-          <img src={execptionalPng} style={iconStyle} />
-          异常集群<span style={numberStyle}>{summary?.unhealthyCount}</span>
+          <img src={exceptionalPng} style={iconStyle} />
+          {t('UnhealthyClusters')}
+          <span style={numberStyle}>{summary?.unhealthyCount}</span>
         </div>
       ),
       value: 'exception',
@@ -281,10 +286,10 @@ const Cluster = () => {
   return (
     <div className={styles.container}>
       <div className={styles.action_bar}>
-        <div className={styles.title}>集群列表</div>
+        <div className={styles.title}>{t('ClusterManagement')}</div>
         {pageData && pageData?.length > 0 && (
           <Button type="primary" onClick={join} disabled={isReadOnlyMode}>
-            接入集群
+            {t('RegisterCluster')}
           </Button>
         )}
       </div>
@@ -292,11 +297,13 @@ const Cluster = () => {
         <div className={styles.empty_content}>
           <div className={styles.empty_data}>
             <div className={styles.left}>
-              <div className={styles.nodate}>当前暂无可管理的集群</div>
-              <div className={styles.tip}>集群需 KubeConfig 配置文件接入</div>
+              <div className={styles.nodate}>{t('EmptyCluster')}</div>
+              <div className={styles.tip}>
+                {t('ClusterRequiresKubeConfigConfigurationFileAccess')}
+              </div>
               <div>
                 <Button type="primary" onClick={join}>
-                  接入集群
+                  {t('RegisterCluster')}
                 </Button>
               </div>
             </div>
@@ -324,7 +331,7 @@ const Cluster = () => {
                   setSearchValue(event.target.value)
                 }}
                 style={{ width: 160, marginRight: 16 }}
-                placeholder="请输入搜索关键字"
+                placeholder={t('PleaseEnterKeywords')}
                 allowClear
                 suffix={<SearchOutlined />}
               />
@@ -333,7 +340,7 @@ const Cluster = () => {
                 style={{ color: '#646566' }}
                 onClick={() => handleSort('name')}
               >
-                名称排序
+                {t('SortByName')}
                 {sortParams?.orderBy === 'name' &&
                   (sortParams?.isAsc ? (
                     <SortDescendingOutlined style={orderIconStyle} />
@@ -346,7 +353,7 @@ const Cluster = () => {
                 style={{ color: '#646566' }}
                 onClick={() => handleSort('timestamp')}
               >
-                时间排序
+                {t('SortByTime')}
                 {sortParams?.orderBy === 'timestamp' &&
                   (sortParams?.isAsc ? (
                     <ArrowUpOutlined style={orderIconStyle} />

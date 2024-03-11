@@ -1,8 +1,10 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import styles from './styles.module.less'
 
 const Reflux = () => {
-  return <div className={styles.container}>开发中...</div>
+  const { t } = useTranslation()
+  return <div className={styles.container}>{t('InDevelopment')}...</div>
 }
 
 export default Reflux

@@ -1,5 +1,6 @@
 import React from 'react'
 import { Button, Modal, Tag } from 'antd'
+import { useTranslation } from 'react-i18next'
 import MutiTag from '../mutiTag'
 import { SEVERITY_MAP } from '@/utils/constants'
 
@@ -18,16 +19,17 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
       allName: `${item?.cluster || ''} ${item?.apiVersion || ''} ${item?.kind || ''} ${item?.namespace || ''} ${item?.name || ''} `,
     }
   })
+  const { t } = useTranslation()
   return (
     <Modal
-      title="异常事件详情"
+      title={t('IssuesDetail')}
       open={open}
       destroyOnClose
       maskClosable
       onCancel={cancel}
       footer={[
         <Button key="closebBtn" onClick={cancel}>
-          关闭
+          {t('Close')}
         </Button>,
       ]}
     >
@@ -41,25 +43,29 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
         <div className={styles.content}>
           <div className={styles.desc}>
             <div className={styles.item}>
-              <div className={styles.label}>事件来源：</div>
+              <div className={styles.label}>{t('IssueSource')}:&nbsp;</div>
               <div className={styles.value}>{detail?.issue?.scanner}</div>
             </div>
             <div className={styles.item}>
-              <div className={styles.label}>发生次数：</div>
-              <div className={styles.value}>{detail?.locators?.length}次</div>
+              <div className={styles.label}>
+                {t('NumberOfOccurrences')}:&nbsp;
+              </div>
+              <div className={styles.value}>{detail?.locators?.length}</div>
             </div>
             <div
               className={styles.item}
               style={{ width: '100%', alignItems: 'baseline' }}
             >
-              <div className={styles.label}>描述信息：</div>
+              <div className={styles.label}>{t('Description')}:&nbsp;</div>
               <div className={styles.value}>
                 <div className={styles.value}>{detail?.issue?.message}</div>
               </div>
             </div>
           </div>
           <div className={styles.footer}>
-            <div className={styles.footer_title}>相关资源：</div>
+            <div className={styles.footer_title}>
+              {t('RelatedResources')}:&nbsp;
+            </div>
             <div className={styles.soultion}>
               <MutiTag allTags={locatorsNames} />
             </div>

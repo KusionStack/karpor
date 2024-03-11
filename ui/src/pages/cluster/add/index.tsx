@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
 import { Form, Input, Space, Button, Upload, message } from 'antd'
 import type { UploadProps } from 'antd'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
 import { HOST } from '../../../utils/request'
@@ -12,12 +13,13 @@ import styles from './styles.module.less'
 
 const { TextArea } = Input
 
-const AddCluster = () => {
+const RegisterCluster = () => {
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const [yamlContent, setYamlContent] = useState('')
   const [loading, setLoading] = useState(false)
+  const { t } = useTranslation()
 
   async function onFinish(values: any) {
     if (isReadOnlyMode) {
@@ -41,15 +43,16 @@ const AddCluster = () => {
         data: tmp,
       })
       if (response?.success) {
-        message.success('验证成功并提交，即将跳转到列表页面')
+        message.success(t('VerifiedSuccessfullyAndSubmitted'))
         navigate(-1)
       } else {
-        message.error(response?.message || '验证成功但提交失败')
+        message.error(
+          response?.message || t('VerificationSuccessfulButSubmissionFailed'),
+        )
       }
     } else {
       message.error(
-        validateResponse?.message ||
-          'KubeConfig 不符合要求，请上传合法的证书内容',
+        validateResponse?.message || t('KubeConfigDoesNotMeetTheRequirements'),
       )
       setLoading(false)
     }
@@ -84,7 +87,7 @@ const AddCluster = () => {
     onChange(info) {
       if (info.file.status === 'done') {
         if (info?.file?.response?.success) {
-          message.success(`${info.file.name}上传成功`)
+          message.success(`${info.file.name}${t('UploadSuccessful')}`)
           // setFileList([{
           //   filename: info?.file?.response?.data?.fileName,
           //   uid: '1',
@@ -99,7 +102,7 @@ const AddCluster = () => {
         } else {
           message.error(
             info?.file?.response?.message ||
-              '文件只支持.yaml, .yml, .json, .kubeConfig, .kubeconf',
+              `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeConfig, .kubeconf`,
           )
           // setFileList([])
           // form.setFieldsValue({
@@ -116,7 +119,7 @@ const AddCluster = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <ArrowLeftOutlined style={{ marginRight: 10 }} onClick={goBack} />
-        集群接入
+        {t('RegisterCluster')}
       </div>
       <div className={styles.content}>
         <Form
@@ -128,19 +131,23 @@ const AddCluster = () => {
             type: 'file',
           }}
         >
-          <Form.Item name="name" label="集群名称" rules={[{ required: true }]}>
+          <Form.Item
+            name="name"
+            label={t('ClusterName')}
+            rules={[{ required: true }]}
+          >
             <Input />
           </Form.Item>
           <Form.Item
             name="displayName"
-            label="显示名称"
+            label={t('DisplayName')}
             rules={[{ required: false }]}
           >
             <Input />
           </Form.Item>
           <Form.Item
             name="description"
-            label="集群描述"
+            label={t('Description')}
             rules={[{ required: false }]}
           >
             <TextArea autoSize={{ minRows: 3 }} />
@@ -148,11 +155,16 @@ const AddCluster = () => {
           <Form.Item
             label="kubeConfig"
             name="kubeConfig"
-            rules={[{ required: true, message: '配置文件不能为空' }]}
+            rules={[
+              {
+                required: true,
+                message: t('TheKubeConfigFileCannotBeEmpty'),
+              },
+            ]}
           >
             <Upload {...uploadProps}>
               <Button disabled={isReadOnlyMode} icon={<UploadOutlined />}>
-                上传 KubeConfig 配置文件
+                {t('Upload')} KubeConfig {t('ConfigurationFile')}
               </Button>
             </Upload>
           </Form.Item>
@@ -173,10 +185,10 @@ const AddCluster = () => {
                 htmlType="submit"
                 loading={loading}
               >
-                验证并接入
+                {t('VerifyAndSubmit')}
               </Button>
               <Button htmlType="button" onClick={goBack}>
-                取消
+                {t('Cancel')}
               </Button>
             </Space>
           </Form.Item>
@@ -189,4 +201,4 @@ const AddCluster = () => {
   )
 }
 
-export default AddCluster
+export default RegisterCluster

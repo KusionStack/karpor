@@ -4,12 +4,12 @@ import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
 import { Form, Input, Space, Button, Upload, Radio, message } from 'antd'
 import type { RadioChangeEvent } from 'antd'
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import queryString from 'query-string'
 import { useSelector } from 'react-redux'
 import yaml from 'js-yaml'
 import { yaml2json } from '@/utils/tools'
-// import 'react-diff-viewer-continued/es/styles/index.css';
 import Yaml from '../../../components/yaml'
 import { HOST } from '../../../utils/request'
 
@@ -60,6 +60,7 @@ export const UploadConfig = (props: UploadConfigProps) => {
 }
 
 const ClusterCertificate = () => {
+  const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
@@ -103,7 +104,7 @@ const ClusterCertificate = () => {
       return
     }
     if (!newYamlContent?.content) {
-      message.warning('请上传新的 KubeConfig 配置文件')
+      message.warning(t('PleaseUploadNewKubeConfigFile'))
     } else {
       setLoading(true)
       const validateResponse: any = await axios.post(
@@ -122,7 +123,7 @@ const ClusterCertificate = () => {
         })
         if (response?.success) {
           setLoading(false)
-          message.success('验证成功并提交，3s 后将跳转到集群管理页面')
+          message.success(t('SubmitAnd3STOClusterPage'))
           setTimeout(() => {
             navigate('/cluster')
           }, 3000)
@@ -132,7 +133,8 @@ const ClusterCertificate = () => {
         }
       } else {
         message.error(
-          validateResponse?.message || 'KubeConfig 不符合要求，请验证后上传',
+          validateResponse?.message ||
+            t('KubeConfigDoesNotMeetTheRequirements'),
         )
         setLoading(false)
       }
@@ -171,7 +173,7 @@ const ClusterCertificate = () => {
       }
       if (info.file.status === 'done') {
         if (info?.file?.response?.success) {
-          message.success(`${info.file.name}上传成功`)
+          message.success(`${info.file.name}${t('UploadSuccessful')}`)
           form.setFieldsValue({
             kubeConfig: info?.file?.response?.data?.content,
           })
@@ -183,7 +185,7 @@ const ClusterCertificate = () => {
         } else {
           message.error(
             info?.file?.response?.message ||
-              '文件只支持.yaml, .yml, .json, .kubeconfig, .kubeconf',
+              `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeconfig, .kubeconf`,
           )
           // form.setFieldsValue({
           //   kubeConfig: undefined
@@ -221,7 +223,7 @@ const ClusterCertificate = () => {
           style={{ marginRight: 10 }}
           onClick={() => goBack()}
         />
-        更新证书
+        {t('RotateCertificate')}
       </div>
       <div className={styles.content}>
         <Form
@@ -235,11 +237,16 @@ const ClusterCertificate = () => {
         >
           <Form.Item
             name="kubeConfig"
-            rules={[{ required: true, message: '该配置内容不能为空' }]}
+            rules={[
+              {
+                required: true,
+                message: t('TheKubeConfigFileCannotBeEmpty'),
+              },
+            ]}
           >
             <Upload {...uploadProps}>
               <Button disabled={isReadOnlyMode} icon={<UploadOutlined />}>
-                上传 KubeConfig 配置文件
+                {t('Upload')} KubeConfig {t('ConfigurationFile')}
               </Button>
             </Upload>
           </Form.Item>
@@ -251,10 +258,10 @@ const ClusterCertificate = () => {
                 htmlType="submit"
                 loading={loading}
               >
-                {loading ? '验证提交中' : '验证并更新'}
+                {loading ? t('SubmitAndValidate') : t('SubmitAndUpdate')}
               </Button>
               <Button htmlType="button" onClick={onCancel}>
-                取消
+                {t('Cancel')}
               </Button>
             </Space>
           </Form.Item>
@@ -264,8 +271,8 @@ const ClusterCertificate = () => {
             {/* <div className={styles.title}>左侧为原配置信息，右侧为新配置信息</div> */}
             <div className={styles.diff_container}>
               <ReactDiffViewer
-                leftTitle="原配置信息"
-                rightTitle="新配置信息"
+                leftTitle={t('ExistingConfigurations')}
+                rightTitle={t('NewConfiguration')}
                 styles={newStyles}
                 oldValue={oldYaml}
                 newValue={newYaml}
@@ -277,7 +284,7 @@ const ClusterCertificate = () => {
           </div>
         ) : (
           <div className={styles.config_content}>
-            <div className={styles.title}>原配置信息</div>
+            <div className={styles.title}>{t('ExistingConfigurations')}</div>
             <Yaml data={lastYamlContent} height="100%" />
           </div>
         )}

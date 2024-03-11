@@ -1,13 +1,14 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import queryString from 'query-string'
 import { Breadcrumb, message } from 'antd'
-import ExecptionDrawer from '../components/execptionDrawer'
+import { useTranslation } from 'react-i18next'
+import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import KarbourTabs from '../../../components/tabs'
 import SourceTable from '../components/sourceTable'
-import ExecptionList from '../components/execptionList'
+import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import Yaml from '../../../components/yaml'
 import K8sEvent from '../components/k8sEvent'
@@ -16,7 +17,6 @@ import SummaryCard from '../components/summaryCard'
 import { generateTopologyData } from '../../../utils/tools'
 
 import styles from './styles.module.less'
-import React from 'react'
 
 const ClusterDetail = () => {
   const location = useLocation()
@@ -38,11 +38,12 @@ const ClusterDetail = () => {
   const [currentItem, setCurrentItem] = useState<any>()
   const [topologyData, setTopologyData] = useState<any>()
   const [topologyLoading, setTopologyLoading] = useState(false)
+  const { t } = useTranslation()
 
   const tabsList = [
-    { label: '关联资源', value: 'Topology' },
+    { label: t('ResourceTopology'), value: 'Topology' },
     { label: 'YAML', value: 'YAML' },
-    { label: 'K8s事件', value: 'K8s', disabled: true },
+    { label: t('KubernetesEvents'), value: 'K8s', disabled: true },
   ]
 
   useEffect(() => {
@@ -89,7 +90,7 @@ const ClusterDetail = () => {
     if (response?.success) {
       setAuditList(response?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
   async function getAuditScore() {
@@ -126,7 +127,7 @@ const ClusterDetail = () => {
     if (response?.success) {
       setSummary(response?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -144,7 +145,7 @@ const ClusterDetail = () => {
         const tmpData = generateTopologyData(response?.data)
         setTopologyData(tmpData)
       } else {
-        message.error(response?.message || '请求失败')
+        message.error(response?.message || t('RequestFailedAndTry'))
       }
       setTopologyLoading(false)
     } catch (error) {
@@ -193,12 +194,16 @@ const ClusterDetail = () => {
     let first
     if (from === 'cluster') {
       first = {
-        title: <NavLink to={'/cluster'}>集群管理</NavLink>,
+        title: <NavLink to={'/cluster'}>{t('ClusterManagement')}</NavLink>,
       }
     }
     if (from === 'result') {
       first = {
-        title: <NavLink to={`/search/result?query=${query}`}>搜索结果</NavLink>,
+        title: (
+          <NavLink to={`/search/result?query=${query}`}>
+            {t('SearchResult')}
+          </NavLink>
+        ),
       }
     }
     const result = [
@@ -225,13 +230,13 @@ const ClusterDetail = () => {
       />
       <div className={styles.module}>
         <SummaryCard auditStat={auditStat} summary={summary} />
-        <div className={styles.execption_event}>
-          {/* 异常事件 */}
-          <ExecptionList
+        <div className={styles.exception_event}>
+          {/* 风险 */}
+          <ExceptionList
             auditLoading={auditLoading}
             rescan={rescan}
-            execptionList={auditList}
-            execptionStat={auditStat}
+            exceptionList={auditList}
+            exceptionStat={auditStat}
             showDrawer={showDrawer}
             onItemClick={onItemClick}
           />
@@ -261,17 +266,17 @@ const ClusterDetail = () => {
         {currentTab === 'K8s' && (
           <K8sEvent
             rescan={rescan}
-            execptionList={[1, 2, 3, 4, 5]}
+            exceptionList={[1, 2, 3, 4, 5]}
             showDrawer={showK8sDrawer}
             onItemClick={onItemClick}
           />
         )}
       </div>
-      <ExecptionDrawer
+      <ExceptionDrawer
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
-        execptionList={auditList}
-        execptionStat={auditStat}
+        exceptionList={auditList}
+        exceptionStat={auditStat}
       />
       <K8sEventDrawer
         open={k8sDrawerVisible}
