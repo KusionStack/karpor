@@ -30,8 +30,6 @@ func main() {
 	cmd := app.NewServerCommand(ctx)
 	syncCmd := app.NewSyncerCommand(ctx)
 	cmd.AddCommand(syncCmd)
-	certCmd := app.NewCertGeneratorCommand(ctx)
-	cmd.AddCommand(certCmd)
 
 	code := cli.Run(cmd)
 	os.Exit(code)

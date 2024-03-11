@@ -33,8 +33,6 @@ spec:
             - --etcd-servers=http://etcd.karbour.svc:2379
             - --secure-port=7443
             - --client-ca-file=/etc/karbour/ca.crt
-            - --tls-cert-file=/etc/karbour/tls.crt
-            - --tls-private-key-file=/etc/karbour/tls.key
           command:
             - /karbour
           image: kusionstack/karbour:latest
