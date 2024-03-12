@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import queryString from 'query-string'
-import { Breadcrumb, message } from 'antd'
+import { Breadcrumb, Tooltip, message } from 'antd'
 import { useTranslation } from 'react-i18next'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
-import KarbourTabs from '../../../components/tabs'
+import KarbourTabs from '@/components/tabs'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
-import Yaml from '../../../components/yaml'
+import Yaml from '@/components/yaml'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
-import { generateResourceTopologyData } from '../../../utils/tools'
+import { capitalized, generateResourceTopologyData } from '@/utils/tools'
+import { ICON_MAP } from '@/utils/images'
 
 import styles from './styles.module.less'
-import React from 'react'
 
 const ClusterDetail = () => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
   const urlParams = queryString.parse(location?.search)
@@ -212,17 +212,45 @@ const ClusterDetail = () => {
     }
     const middle = []
     ;['cluster', 'kind', 'namespace', 'name']?.forEach(item => {
-      if (urlParams?.[item]) {
+      const urlParamsItem = urlParams?.[item]
+      if (urlParamsItem) {
+        const iconMap = {
+          cluster: ICON_MAP?.Kubernetes,
+          kind: ICON_MAP?.[urlParamsItem as any] || ICON_MAP.CRD,
+          namespace: ICON_MAP.Namespace,
+        }
+        const iconStyle = {
+          width: 14,
+          height: 14,
+          marginRight: 2,
+        }
         middle.push({
           key: item,
-          label: urlParams?.[item],
-          title: <a onClick={() => replacePage(item)}>{urlParams?.[item]}</a>,
+          label: urlParamsItem,
+          title:
+            item === 'name' ? (
+              <Tooltip title={capitalized(item)}>
+                <a style={{ display: 'flex', alignItems: 'center' }}>
+                  {urlParamsItem}
+                </a>
+              </Tooltip>
+            ) : (
+              <Tooltip title={capitalized(item)}>
+                <a
+                  onClick={() => replacePage(item)}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <img src={iconMap[item]} style={iconStyle} />
+                  {urlParamsItem}
+                </a>
+              </Tooltip>
+            ),
         })
       }
     })
     middle[middle?.length - 1] = {
       label: middle[middle?.length - 1]?.lebel,
-      title: middle[middle?.length - 1]?.label,
+      title: middle[middle?.length - 1]?.title,
     }
     const result = [first, ...middle]
     setBreadcrumbItems(result)
@@ -231,7 +259,7 @@ const ClusterDetail = () => {
   useEffect(() => {
     getBreadcrumbs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name])
+  }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   async function onTopologyNodeClick(node: any) {
     const { locator } = node || {}

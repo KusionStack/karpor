@@ -17,7 +17,6 @@ import Loading from '../../components/loading'
 import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
 import exceptionalPng from '@/assets/exceptional.png'
-// import clusterPng from '@/assets/cluster.png'
 import clusterPng from '@/assets/cluster_outlind.png'
 
 const Cluster = () => {
@@ -96,14 +95,6 @@ const Cluster = () => {
     getPageData(sortParams)
   })
 
-  // function handleChangePage(page: number, pageSize: number) {
-  //   setSearchParams({
-  //     ...searchParams,
-  //     page,
-  //     pageSize,
-  //   });
-  // }
-
   const join = () => {
     if (isReadOnlyMode) {
       return
@@ -131,7 +122,6 @@ const Cluster = () => {
   }
 
   const [currentTab, setCurrentTab] = useState('all')
-  // const [radioValue, setRadioValue] = useState('all');
   const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0)
 
   function handleTabChange(value: string, index: number) {
@@ -189,16 +179,6 @@ const Cluster = () => {
   }
 
   const numberStyle = { paddingLeft: 10, fontSize: 24 }
-
-  // const radioOptions = [
-  //   { label: '全部', value: 'all' },
-  //   { label: '我是Owner', value: 'owner' },
-  // ]
-
-  // function handleChangeRadio(event: any) {
-
-  //   setRadioValue(event.target.value);
-  // }
 
   async function deleteItem(item) {
     if (isReadOnlyMode) {
@@ -264,7 +244,6 @@ const Cluster = () => {
       ),
       value: 'exception',
     },
-    // { label: <div style={tabStyle}><DeleteRowOutlined style={{ ...iconStyle, background: 'rgba(0,10,26, 0.08)', color: '#000A1A' }} />已删除<span style={numberStyle}>3</span></div>, value: "delete" },
   ]
 
   const orderIconStyle = {
@@ -293,7 +272,18 @@ const Cluster = () => {
           </Button>
         )}
       </div>
-      {!pageData || !pageData?.length ? (
+      {loading ? (
+        <div
+          style={{
+            height: 300,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <Loading />
+        </div>
+      ) : !pageData || !pageData?.length ? (
         <div className={styles.empty_content}>
           <div className={styles.empty_data}>
             <div className={styles.left}>
@@ -307,7 +297,9 @@ const Cluster = () => {
                 </Button>
               </div>
             </div>
-            <div className={styles.right}></div>
+            <div className={styles.right}>
+              <Empty />
+            </div>
           </div>
         </div>
       ) : (
@@ -363,20 +355,9 @@ const Cluster = () => {
               </Button>
               {/* <Radio.Group options={radioOptions} onChange={handleChangeRadio} value={radioValue} optionType="button" buttonStyle="solid" /> */}
               {/* <div className={styles.right}>
-                </div> */}
+                    </div> */}
             </div>
-            {loading ? (
-              <div
-                style={{
-                  height: 300,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-              >
-                <Loading />
-              </div>
-            ) : showPageData && showPageData?.length > 0 ? (
+            {showPageData && showPageData?.length > 0 ? (
               <div className={styles.page_list}>
                 {showPageData?.map((item: any, index: number) => {
                   return (

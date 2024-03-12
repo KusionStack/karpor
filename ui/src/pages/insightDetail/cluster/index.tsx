@@ -2,19 +2,20 @@ import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import axios from 'axios'
 import queryString from 'query-string'
-import { Breadcrumb, message } from 'antd'
+import { Breadcrumb, Tooltip, message } from 'antd'
 import { useTranslation } from 'react-i18next'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
-import KarbourTabs from '../../../components/tabs'
+import KarbourTabs from '@/components/tabs'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
-import Yaml from '../../../components/yaml'
+import Yaml from '@/components/yaml'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
-import { generateTopologyData } from '../../../utils/tools'
+import { capitalized, generateTopologyData } from '@/utils/tools'
+import Kubernetes from '@/assets/kubernetes.png'
 
 import styles from './styles.module.less'
 
@@ -38,7 +39,7 @@ const ClusterDetail = () => {
   const [currentItem, setCurrentItem] = useState<any>()
   const [topologyData, setTopologyData] = useState<any>()
   const [topologyLoading, setTopologyLoading] = useState(false)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   const tabsList = [
     { label: t('ResourceTopology'), value: 'Topology' },
@@ -210,7 +211,17 @@ const ClusterDetail = () => {
       first,
       {
         key: cluster,
-        title: cluster,
+        title: (
+          <Tooltip title={capitalized('cluster')}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <img
+                src={Kubernetes}
+                style={{ width: 14, height: 14, marginRight: 2 }}
+              />
+              {cluster}
+            </div>
+          </Tooltip>
+        ),
       },
     ]
     setBreadcrumbItems(result)
@@ -219,7 +230,7 @@ const ClusterDetail = () => {
   useEffect(() => {
     getBreadcrumbs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name])
+  }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   return (
     <div className={styles.container}>

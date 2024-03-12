@@ -167,15 +167,17 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
         key: uniqueKey,
         label: (
           <div className={styles.collapse_panel_title}>
-            <div className={styles.top}>
+            <div>
               <Tag color={SEVERITY_MAP?.[item?.issue?.severity]?.color}>
-                {SEVERITY_MAP?.[item?.issue?.severity]?.text}
+                {t(SEVERITY_MAP?.[item?.issue?.severity]?.text)}
               </Tag>
-              <span className={styles.title}>{item?.issue?.title}</span>
             </div>
-            <div className={styles.bottom}>
-              <div className={styles.label}>message: </div>
-              <div className={styles.value}>{item?.issue?.message}</div>
+            <div className={styles.right}>
+              <div className={styles.title}>{item?.issue?.title}</div>
+              <div className={styles.right_bottom}>
+                <div className={styles.label}>{t('Description')}: </div>
+                <div className={styles.value}>{item?.issue?.message}</div>
+              </div>
             </div>
           </div>
         ),
@@ -183,18 +185,20 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
           <div className={styles.collapse_panel_body}>
             <div className={styles.header}>
               <div className={styles.item}>
-                <div className={styles.label}>{t('IssueSource')}: </div>
+                <div className={styles.label}>{t('IssueSource')}:&nbsp;</div>
                 <div className={styles.value}>
                   {item?.issue?.scanner || '--'}
                 </div>
               </div>
               <div className={styles.item}>
-                <div className={styles.label}>{t('NumberOfOccurrences')}: </div>
+                <div className={styles.label}>
+                  {t('NumberOfOccurrences')}:&nbsp;
+                </div>
                 <div className={styles.value}>{item?.locators?.length}</div>
               </div>
             </div>
             <div className={`${styles.row_item}`}>
-              <div className={styles.label}>{t('Description')}: </div>
+              <div className={styles.label}>{t('Description')}:&nbsp;</div>
               <div className={styles.value}>{item?.issue?.message || '--'}</div>
             </div>
             <div className={styles.body}>

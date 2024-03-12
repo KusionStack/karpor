@@ -43,7 +43,7 @@ const SearchInput = (props: IProps) => {
             option?.value?.toUpperCase().indexOf(inputValue.toUpperCase()) !==
             -1
           }
-          style={{ width: 600, height: 44, fontSize: 24 }}
+          style={{ width: 800, height: 44, fontSize: 24 }}
           value={value}
           allowClear={true}
           onChange={handleInputChange}

@@ -142,7 +142,7 @@ const ClusterCertificate = () => {
   }
 
   function goBack() {
-    navigate(-1)
+    navigate('/cluster')
   }
 
   const uploadProps: any = {
@@ -219,10 +219,9 @@ const ClusterCertificate = () => {
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <ArrowLeftOutlined
-          style={{ marginRight: 10 }}
-          onClick={() => goBack()}
-        />
+        <div className={styles.header_back} onClick={goBack}>
+          <ArrowLeftOutlined style={{ fontSize: 18 }} />
+        </div>
         {t('RotateCertificate')}
       </div>
       <div className={styles.content}>
