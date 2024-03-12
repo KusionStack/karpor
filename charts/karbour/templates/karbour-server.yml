@@ -28,16 +28,22 @@ spec:
     spec:
       containers:
         - args:
-            - --feature-gates=APIPriorityAndFairness=false
-            - --disable-admission-plugins=MutatingAdmissionWebhook,NamespaceLifecycle,ValidatingAdmissionWebhook,ValidatingAdmissionPolicy
-            - --cors-allowed-origins=.*
             - --search-storage-type=elasticsearch
             - --elastic-search-addresses=http://elasticsearch.karbour.svc:9200
             - --etcd-servers=http://etcd.karbour.svc:2379
             - --secure-port=7443
+            - --client-ca-file=/etc/karbour/ca.crt
           command:
             - /karbour
           image: kusionstack/karbour:latest
           name: karbour-server
           ports:
             - containerPort: 7443
+          volumeMounts:
+            - mountPath: /etc/karbour/
+              name: karbour-secret
+      volumes:
+        - name: karbour-secret
+          secret:
+            defaultMode: 420
+            secretName: karbour-secret

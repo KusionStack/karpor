@@ -18,8 +18,8 @@ spec:
       containers:
         - command:
             - /karbour
-            - syncer
           args:
+            - syncer
             - --elastic-search-addresses=http://elasticsearch.karbour.svc:9200
           env:
             - name: KUBECONFIG
