@@ -87,10 +87,10 @@
   "NoIssuesFound": "无风险异常，再接再厉",
   "HealthScore": "健康分",
   "TriggeredTimestamp": "触发时间点",
-  "CheckAllIssues": "查看全部风险",
   "Exception": "异常",
   "Warning": "告警",
   "Normal": "正常",
   "CreateTime": "创建时间",
-  "InDevelopment": "开发中"
+  "InDevelopment": "开发中",
+  "InputClusterName": "请输入集群名称"
 }

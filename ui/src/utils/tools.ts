@@ -154,3 +154,7 @@ export function getDataType(data) {
   const type = Object.prototype.toString.call(data)
   return map.get(type)
 }
+
+export function capitalized(word) {
+  return word.charAt(0).toUpperCase() + word?.slice(1)
+}

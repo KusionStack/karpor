@@ -1,17 +1,18 @@
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import queryString from 'query-string'
-import { Breadcrumb, message } from 'antd'
+import { Breadcrumb, Tooltip, message } from 'antd'
 import { useTranslation } from 'react-i18next'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import SummaryCard from '../components/summaryCard'
+import { ICON_MAP } from '@/utils/images'
 
 import styles from './styles.module.less'
-import React from 'react'
+import { capitalized } from '@/utils/tools'
 
 const ClusterDetail = () => {
   const navigate = useNavigate()
@@ -31,7 +32,7 @@ const ClusterDetail = () => {
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
 
   async function getAudit(isRescan) {
     setAuditLoading(true)
@@ -142,17 +143,45 @@ const ClusterDetail = () => {
     }
     const middle = []
     ;['cluster', 'kind']?.forEach(item => {
-      if (urlParams?.[item]) {
+      const urlParamsItem = urlParams?.[item]
+      if (urlParamsItem) {
+        const iconMap = {
+          cluster: ICON_MAP?.Kubernetes,
+          kind: ICON_MAP?.[urlParamsItem as any] || ICON_MAP.CRD,
+        }
+        const iconStyle = {
+          width: 14,
+          height: 14,
+          marginRight: 2,
+        }
         middle.push({
           key: item,
-          label: urlParams?.[item],
-          title: <a onClick={() => replacePage(item)}>{urlParams?.[item]}</a>,
+          label: urlParamsItem,
+          title:
+            item === 'kind' ? (
+              <Tooltip title={capitalized(item)}>
+                <a style={{ display: 'flex', alignItems: 'center' }}>
+                  <img src={iconMap?.[item]} style={iconStyle} />
+                  {urlParamsItem}
+                </a>
+              </Tooltip>
+            ) : (
+              <Tooltip title={capitalized(item)}>
+                <a
+                  onClick={() => replacePage(item)}
+                  style={{ display: 'flex', alignItems: 'center' }}
+                >
+                  <img src={iconMap?.[item]} style={iconStyle} />
+                  {urlParamsItem}
+                </a>
+              </Tooltip>
+            ),
         })
       }
     })
     middle[middle?.length - 1] = {
       label: middle[middle?.length - 1]?.lebel,
-      title: middle[middle?.length - 1]?.label,
+      title: middle[middle?.length - 1]?.title,
     }
     const result = [first, ...middle]
     setBreadcrumbItems(result)
@@ -161,7 +190,7 @@ const ClusterDetail = () => {
   useEffect(() => {
     getBreadcrumbs()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [from, key, cluster, kind, namespace, name])
+  }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   return (
     <div className={styles.container}>

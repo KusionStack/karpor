@@ -88,35 +88,44 @@ const ExceptionList = ({
                     </div>
                   )}
 
-                  <div className={styles.top}>
+                  <div className={styles.itme_content}>
                     <div className={styles.left}>
                       <Tag color={SEVERITY_MAP?.[item?.issue?.severity]?.color}>
-                        {SEVERITY_MAP?.[item?.issue?.severity]?.text}
+                        {t(SEVERITY_MAP?.[item?.issue?.severity]?.text)}
                       </Tag>
-                      <span className={styles.title}>{item?.issue?.title}</span>
                     </div>
                     <div className={styles.right}>
-                      <div>
-                        <span>
-                          {t('Occur')}&nbsp;
-                          <span
-                            style={{ fontWeight: 'bold', color: '#646566' }}
-                          >
-                            {item?.locators?.length}
+                      <div className={styles.right_top}>
+                        <div>
+                          <span className={styles.title}>
+                            {item?.issue?.title}
                           </span>
-                          &nbsp;{t('Times')}
-                        </span>
-                        &nbsp;{t('CollectedFrom')}
+                          <span>
+                            {t('Occur')}&nbsp;
+                            <span
+                              style={{ fontWeight: 'bold', color: '#646566' }}
+                            >
+                              {item?.locators?.length}
+                            </span>
+                            &nbsp;{t('Times')}
+                          </span>
+                          <span style={{ color: '#000' }}>&nbsp;|</span>
+                          &nbsp;{t('CollectedFrom')}
+                        </div>
+                        <div className={styles.tool}>
+                          <ArrowRightOutlined />
+                          &nbsp;{item?.issue?.scanner}&nbsp;{t('Tool')}
+                        </div>
                       </div>
-                      <div className={styles.tool}>
-                        <ArrowRightOutlined />
-                        &nbsp;{item?.issue?.scanner}&nbsp;{t('Tool')}
+                      <div className={styles.right_bottom}>
+                        <div className={styles.label}>
+                          {t('Description')}:&nbsp;
+                        </div>
+                        <div className={styles.value}>
+                          {item?.issue?.message}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className={styles.bottom}>
-                    <div className={styles.label}>message: </div>
-                    <div className={styles.value}>{item?.issue?.message}</div>
                   </div>
                 </div>
               )

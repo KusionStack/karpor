@@ -8,7 +8,8 @@ type IProps = {
 }
 
 const GaugeChart = ({ data }: IProps) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+
   useEffect(() => {
     if (!data) {
       return
@@ -51,7 +52,7 @@ const GaugeChart = ({ data }: IProps) => {
       },
       statistic: {
         title: {
-          offsetY: -10,
+          offsetY: 10,
           formatter: () => t('HealthScore'),
           style: {
             color: color,
@@ -60,7 +61,7 @@ const GaugeChart = ({ data }: IProps) => {
           },
         },
         content: {
-          offsetY: 10,
+          offsetY: -10,
           formatter: ({ percent }) => `${new BigNumber(percent).times(100)}`,
           style: {
             color: color,
@@ -79,7 +80,7 @@ const GaugeChart = ({ data }: IProps) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data])
+  }, [data, i18n.language])
 
   return <div style={{ width: '100%', height: 150 }} id="gaugeConatiner"></div>
 }

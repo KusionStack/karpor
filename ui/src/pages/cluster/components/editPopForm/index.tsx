@@ -31,7 +31,6 @@ export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
   }
 
   function onCancel() {
-    form.resetFields()
     cancel()
   }
 

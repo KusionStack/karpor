@@ -29,7 +29,7 @@
   "KubernetesEvents": "Kubernetes Events",
   "Name": "Name",
   "Times": "Times",
-  "FilterByName": "Filter By Name",
+  "FilterByName": "Filter by name",
   "SelectResourcesAboveToSeeDetailsHere": "Select Resources Above To See Details Here",
   "Issues": "Issues",
   "Critical": "Critical",
@@ -91,5 +91,6 @@
   "Warning": "Warning",
   "Normal": "Normal",
   "CreateTime": "Creation Timestamp",
-  "InDevelopment": "In development"
+  "InDevelopment": "In development",
+  "InputClusterName": "Input Cluster Name"
 }

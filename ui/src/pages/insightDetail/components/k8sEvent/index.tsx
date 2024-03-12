@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import K8sStat from '../k8sStat'
-import { SEVERITY_MAP } from '../../../../utils/constants'
+import { SEVERITY_MAP } from '@/utils/constants'
 
 import styles from './style.module.less'
 
@@ -30,7 +30,7 @@ const K8sEvent = ({ showDrawer }: any) => {
           <div className={styles.collapse_panel_title}>
             <div className={styles.left}>
               <Tag bordered={false} color={SEVERITY_MAP?.[item?.level]?.color}>
-                {SEVERITY_MAP?.[item?.level]?.text}
+                {t(SEVERITY_MAP?.[item?.level]?.text)}
               </Tag>
             </div>
             <div className={styles.right}>

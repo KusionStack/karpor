@@ -36,7 +36,7 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
       <div className={styles.container}>
         <div className={styles.title}>
           <Tag color={SEVERITY_MAP?.[detail?.issue?.severity]?.color}>
-            {SEVERITY_MAP?.[detail?.issue?.severity]?.text}
+            {t(SEVERITY_MAP?.[detail?.issue?.severity]?.text)}
           </Tag>
           {detail?.issue?.title || '--'}
         </div>

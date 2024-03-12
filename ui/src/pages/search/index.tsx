@@ -26,7 +26,7 @@ import { useTranslation } from 'react-i18next'
 import KarbourTabs from '@/components/tabs/index'
 import logoJPG from '@/assets/logo.jpg'
 import SearchInput from '@/components/searchInput'
-// import SqlEditor from './sqlSearch/index'
+// import SqlEditor from './sqlSearch'
 
 import styles from './styles.module.less'
 

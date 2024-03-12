@@ -152,7 +152,8 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
             </div>
             <div className={styles.item}>
               <div className={styles.label}>
-                {t('Memory')} {t('Capacity')}:
+                {t('Memory')}
+                {t('Capacity')}:
               </div>
               <div className={styles.value}>
                 {summary?.memoryCapacity

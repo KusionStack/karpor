@@ -1,10 +1,11 @@
 import React, { memo } from 'react'
-import { Divider, Menu, Popover } from 'antd'
+import { Divider, Menu, Dropdown } from 'antd'
 import {
   ClusterOutlined,
   FundOutlined,
   QuestionCircleOutlined,
   SearchOutlined,
+  CaretDownOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -13,7 +14,7 @@ import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
-import languagePng from '@/assets/language.png'
+import languagePng from '@/assets/translate_language.svg'
 
 import styles from './style.module.less'
 
@@ -143,16 +144,27 @@ const LayoutPage = () => {
     localStorage.setItem('lang', 'en')
     i18n.changeLanguage('en')
   }
-  const languageContent = (
-    <div className={styles.language_content}>
-      <div className={styles.language_content_item} onClick={changeToZh}>
-        中文
-      </div>
-      <div className={styles.language_content_item} onClick={changeToEn}>
-        English
-      </div>
-    </div>
-  )
+
+  console.log(i18n.language, '===i18n===')
+
+  const languageItems: MenuProps['items'] = [
+    {
+      label: (
+        <div className={styles.language_content_item} onClick={changeToEn}>
+          English
+        </div>
+      ),
+      key: 'English',
+    },
+    {
+      label: (
+        <div className={styles.language_content_item} onClick={changeToZh}>
+          中文
+        </div>
+      ),
+      key: 'Chinese',
+    },
+  ]
 
   return (
     <div className={styles.wrapper}>
@@ -181,11 +193,30 @@ const LayoutPage = () => {
             </div>
           )}
           <div className={styles.help}>
-            <Popover content={languageContent} trigger="click">
-              <div className={styles.language}>
-                <img src={languagePng} />
-              </div>
-            </Popover>
+            <Dropdown menu={{ items: languageItems }}>
+              <a
+                onClick={e => e.preventDefault()}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <img src={languagePng} style={{ width: 16, height: 16 }} />
+                <span
+                  style={{
+                    fontSize: 14,
+                    marginLeft: 6,
+                    marginRight: 3,
+                    color: '#646566',
+                    textAlign: 'right',
+                  }}
+                >
+                  {i18n.language === 'zh' ? '中文' : 'English'}
+                </span>
+                <CaretDownOutlined style={{ color: '#646566' }} />
+              </a>
+            </Dropdown>
           </div>
           <div className={styles.help}>
             <a

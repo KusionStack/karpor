@@ -1,23 +1,23 @@
 export const SEVERITY_MAP = {
   Critical: {
     color: 'purple',
-    text: '严重',
+    text: 'Critical',
   },
   High: {
     color: 'error',
-    text: '高',
+    text: 'High',
   },
   Medium: {
     color: 'warning',
-    text: '中',
+    text: 'Medium',
   },
   Low: {
     color: 'success',
-    text: '低',
+    text: 'Low',
   },
   Safe: {
     color: 'success',
-    text: '安全',
+    text: 'Safe',
   },
 }
 
