@@ -19,6 +19,10 @@ import (
 	"fmt"
 )
 
+const (
+	maxAggSize = 10000
+)
+
 type paginationConfig struct {
 	Page     int
 	PageSize int
@@ -87,4 +91,16 @@ type Hit struct {
 	ID     string                 `json:"_id"`
 	Score  float32                `json:"_score"`
 	Source map[string]interface{} `json:"_source"`
+}
+
+// AggResults is assumed to be a struct that holds aggregation results.
+type AggResults struct {
+	Buckets []Bucket
+	Total   int
+}
+
+// Bucket is assumed to be a struct that holds individual bucket data.
+type Bucket struct {
+	Keys  []string
+	Count int
 }
