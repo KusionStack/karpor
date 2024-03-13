@@ -25,20 +25,31 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/some"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
 )
 
 // Client represents an Elasticsearch client that can perform various operations on the Elasticsearch cluster.
 type Client struct {
-	client *elasticsearch.Client
+	client      *elasticsearch.Client
+	typedClient *elasticsearch.TypedClient
 }
 
 // NewClient creates a new Elasticsearch client instance
 func NewClient(config elasticsearch.Config) (*Client, error) {
-	es, err := elasticsearch.NewClient(config)
+	cl, err := elasticsearch.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{client: es}, nil
+	if err != nil {
+		return nil, err
+	}
+	typed, err := elasticsearch.NewTypedClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return &Client{client: cl, typedClient: typed}, nil
 }
 
 // SaveDocument saves a new document
@@ -237,4 +248,105 @@ func (cl *Client) IsIndexExists(ctx context.Context, index string) (bool, error)
 		// If it's any other status code, return an error
 		return false, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
 	}
+}
+
+// AggregationByTerms performs an aggregation query based on the provided fields.
+func (cl *Client) AggregationByTerms(ctx context.Context, index string, name string, fields []string) (*AggResults, error) {
+	if len(fields) == 0 {
+		return nil, fmt.Errorf("no fields provided for aggregation")
+	}
+	if len(fields) == 1 {
+		// Perform single-term aggregation if only one field is provided.
+		return cl.termsAggSearch(ctx, index, name, fields[0])
+	}
+	// Perform multi-term aggregation if multiple fields are provided.
+	return cl.multiTermsAggSearch(ctx, index, name, fields)
+}
+
+// multiTermsAggSearch executes a multi-term aggregation query on specified fields.
+func (cl *Client) multiTermsAggSearch(ctx context.Context, index string, name string, fields []string) (*AggResults, error) {
+	// Construct the terms for multi-term aggregation based on the fields.
+	terms := make([]types.MultiTermLookup, len(fields))
+	for i := range fields {
+		terms[i] = types.MultiTermLookup{Field: fields[i]}
+	}
+
+	// Execute the search request with the constructed multi-term aggregation.
+	resp, err := cl.typedClient.
+		Search().
+		Index(index).
+		Request(&search.Request{
+			// Set the number of search hits to return to 0 as we only need aggregation data.
+			Size: some.Int(0),
+			Aggregations: map[string]types.Aggregations{
+				name: {
+					MultiTerms: &types.MultiTermsAggregation{
+						Terms: terms,
+						// maxAggSize should be predefined to limit the size of the aggregation.
+						Size: some.Int(maxAggSize),
+					},
+				},
+			},
+		}).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract the buckets from the response and construct the AggResults.
+	buckets := resp.Aggregations[name].(*types.MultiTermsAggregate).Buckets.([]types.MultiTermsBucket)
+	bs := make([]Bucket, len(buckets))
+	for i, b := range buckets {
+		keys := make([]string, len(b.Key))
+		for j, k := range b.Key {
+			keys[j] = fmt.Sprintf("%v", k)
+		}
+		bs[i] = Bucket{
+			Keys:  keys,
+			Count: int(b.DocCount),
+		}
+	}
+	return &AggResults{
+		Buckets: bs,
+		Total:   len(bs),
+	}, nil
+}
+
+// termsAggSearch executes a single-term aggregation query on the specified field.
+func (cl *Client) termsAggSearch(ctx context.Context, index string, name string, field string) (*AggResults, error) {
+	// Execute the search request with the single-term aggregation.
+	resp, err := cl.typedClient.
+		Search().
+		Index(index).
+		Request(&search.Request{
+			// Set the number of search hits to return to 0 as we only need aggregation data.
+			Size: some.Int(0),
+			Aggregations: map[string]types.Aggregations{
+				name: {
+					Terms: &types.TermsAggregation{
+						Field: some.String(field),
+						// maxAggSize should be predefined to limit the size of the aggregation.
+						Size: some.Int(maxAggSize),
+					},
+				},
+			},
+		}).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract the buckets from the response and construct the AggResults.
+	buckets := resp.Aggregations[name].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
+	bs := make([]Bucket, len(buckets))
+	for i, b := range buckets {
+		bs[i] = Bucket{
+			Keys:  []string{fmt.Sprintf("%v", b.Key)},
+			Count: int(b.DocCount),
+		}
+	}
+	return &AggResults{
+		Buckets: bs,
+		Total:   len(bs),
+	}, nil
 }
