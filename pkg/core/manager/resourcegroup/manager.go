@@ -16,30 +16,36 @@ package resourcegroup
 
 import (
 	"context"
+
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 )
 
-type ResourceGroupManager struct{}
-
-func NewResourceGroupManager() *ResourceGroupManager {
-	return &ResourceGroupManager{}
+type ResourceGroupManager struct {
+	search storage.SearchStorage
 }
 
-func (c *ResourceGroupManager) GetResourceGroup(ctx context.Context) error {
+func NewResourceGroupManager(searchStorage storage.SearchStorage) *ResourceGroupManager {
+	return &ResourceGroupManager{
+		search: searchStorage,
+	}
+}
+
+func (c *ResourceGroupManager) GetResourceGroupRule(ctx context.Context) error {
 	panic("need to implement")
 }
 
-func (c *ResourceGroupManager) ListResourceGroup(ctx context.Context) error {
+func (c *ResourceGroupManager) ListResourceGroupRules(ctx context.Context) error {
 	panic("need to implement")
 }
 
-func (c *ResourceGroupManager) CreateResourceGroup(ctx context.Context) error {
+func (c *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context) error {
 	panic("need to implement")
 }
 
-func (c *ResourceGroupManager) UpdateResourceGroup(ctx context.Context) error {
+func (c *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context) error {
 	panic("need to implement")
 }
 
-func (c *ResourceGroupManager) DeleteResourceGroup(ctx context.Context) error {
+func (c *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context) error {
 	panic("need to implement")
 }

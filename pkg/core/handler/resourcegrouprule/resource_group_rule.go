@@ -22,7 +22,6 @@ import (
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
-	"k8s.io/apiserver/pkg/server"
 )
 
 // Get returns an HTTP handler function that reads a resourcegrouprule
@@ -41,7 +40,7 @@ import (
 // @Failure      429     {string}  string                     "Too Many Requests"
 // @Failure      500     {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [get]
-func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.CompletedConfig) http.HandlerFunc {
+func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -71,7 +70,7 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.Complet
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [post]
-func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.CompletedConfig) http.HandlerFunc {
+func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -108,7 +107,7 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.Comp
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule}  [put]
-func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.CompletedConfig) http.HandlerFunc {
+func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -145,7 +144,7 @@ func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.Comp
 // @Failure      429         {string}  string                     "Too Many Requests"
 // @Failure      500         {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rules [get]
-func List(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.CompletedConfig) http.HandlerFunc {
+func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -171,7 +170,7 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.Comple
 // @Failure      429  {string}  string  "Too Many Requests"
 // @Failure      500  {string}  string  "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [delete]
-func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager, c *server.CompletedConfig) http.HandlerFunc {
+func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()

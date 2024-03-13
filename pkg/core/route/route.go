@@ -22,12 +22,15 @@ import (
 	detailhandler "github.com/KusionStack/karbour/pkg/core/handler/detail"
 	endpointhandler "github.com/KusionStack/karbour/pkg/core/handler/endpoint"
 	eventshandler "github.com/KusionStack/karbour/pkg/core/handler/events"
+	resourcegrouphandler "github.com/KusionStack/karbour/pkg/core/handler/resourcegroup"
+	resourcegrouprulehandler "github.com/KusionStack/karbour/pkg/core/handler/resourcegrouprule"
 	scannerhandler "github.com/KusionStack/karbour/pkg/core/handler/scanner"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
 	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karbour/pkg/core/manager/insight"
+	resourcegroupmanager "github.com/KusionStack/karbour/pkg/core/manager/resourcegroup"
 	searchmanager "github.com/KusionStack/karbour/pkg/core/manager/search"
 	appmiddleware "github.com/KusionStack/karbour/pkg/core/middleware"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
@@ -66,12 +69,13 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	resourceGroupMgr := resourcegroupmanager.NewResourceGroupManager(searchStorage)
 	clusterMgr := clustermanager.NewClusterManager()
 	searchMgr := searchmanager.NewSearchManager()
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/rest-api/v1", func(r chi.Router) {
-		setupRestAPIV1(r, clusterMgr, insightMgr, searchMgr, searchStorage, genericConfig)
+		setupRestAPIV1(r, clusterMgr, insightMgr, resourceGroupMgr, searchMgr, searchStorage, genericConfig)
 	})
 
 	// Set up the root routes.
@@ -93,11 +97,12 @@ func setupRestAPIV1(
 	r chi.Router,
 	clusterMgr *clustermanager.ClusterManager,
 	insightMgr *insightmanager.InsightManager,
+	resourceGroupMgr *resourcegroupmanager.ResourceGroupManager,
 	searchMgr *searchmanager.SearchManager,
 	searchStorage storage.SearchStorage,
 	genericConfig *genericapiserver.CompletedConfig,
 ) {
-	// Define API routes for 'cluster', 'search', and 'insight', etc.
+	// Define API routes for 'cluster', 'search', 'resourcegroup' and 'insight', etc.
 	r.Route("/clusters", func(r chi.Router) {
 		r.Get("/", clusterhandler.List(clusterMgr, genericConfig))
 	})
@@ -125,4 +130,15 @@ func setupRestAPIV1(
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
 	})
+
+	r.Route("/resource-group-rule", func(r chi.Router) {
+		r.Route("/{resourceGroupRuleName}", func(r chi.Router) {
+			r.Get("/", resourcegrouprulehandler.Get(resourceGroupMgr))
+			r.Post("/", resourcegrouprulehandler.Create(resourceGroupMgr))
+			r.Put("/", resourcegrouprulehandler.Update(resourceGroupMgr))
+			r.Delete("/", resourcegrouprulehandler.Delete(resourceGroupMgr))
+		})
+	})
+	r.Get("/resource-group/{resourceGroupName}", resourcegrouphandler.Get(resourceGroupMgr))
+	r.Get("/resource-groups/", resourcegrouphandler.List(resourceGroupMgr))
 }
