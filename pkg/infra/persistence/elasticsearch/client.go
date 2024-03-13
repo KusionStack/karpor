@@ -16,6 +16,7 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -23,6 +24,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aquasecurity/esquery"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
@@ -167,18 +169,13 @@ func (cl *Client) SearchDocument(
 			return nil, err
 		}
 	}
+
 	opts := []func(*esapi.SearchRequest){
 		cl.client.Search.WithContext(ctx),
 		cl.client.Search.WithIndex(indexName),
 		cl.client.Search.WithBody(body),
-	}
-	if cfg.pagination != nil {
-		from := (cfg.pagination.Page - 1) * cfg.pagination.PageSize
-		opts = append(
-			opts,
-			cl.client.Search.WithSize(cfg.pagination.PageSize),
-			cl.client.Search.WithFrom(from),
-		)
+		cl.client.Search.WithSize(cfg.pagination.PageSize),
+		cl.client.Search.WithFrom((cfg.pagination.Page - 1) * cfg.pagination.PageSize),
 	}
 
 	resp, err := cl.client.Search(opts...)
@@ -250,21 +247,37 @@ func (cl *Client) IsIndexExists(ctx context.Context, index string) (bool, error)
 	}
 }
 
-// AggregationByTerms performs an aggregation query based on the provided fields.
-func (cl *Client) AggregationByTerms(ctx context.Context, index string, name string, fields []string) (*AggResults, error) {
+// SearchDocumentByTerms constructs a boolean search query with a must term match for each key-value pair in keyAndVal,
+func (cl *Client) SearchDocumentByTerms(ctx context.Context, index string, keysAndValues map[string]any, options ...Option) (*SearchResponse, error) {
+	boolQuery := esquery.Bool()
+	for k, v := range keysAndValues {
+		boolQuery.Must(esquery.Term(k, v))
+	}
+	query := map[string]interface{}{
+		"query": boolQuery.Map(),
+	}
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return nil, err
+	}
+	return cl.SearchDocument(ctx, index, buf, options...)
+}
+
+// AggregateDocumentByTerms performs an aggregation query based on the provided fields.
+func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fields []string) (*AggResults, error) {
 	if len(fields) == 0 {
 		return nil, fmt.Errorf("no fields provided for aggregation")
 	}
 	if len(fields) == 1 {
 		// Perform single-term aggregation if only one field is provided.
-		return cl.termsAggSearch(ctx, index, name, fields[0])
+		return cl.termsAgg(ctx, index, fields[0])
 	}
 	// Perform multi-term aggregation if multiple fields are provided.
-	return cl.multiTermsAggSearch(ctx, index, name, fields)
+	return cl.multiTermsAgg(ctx, index, fields)
 }
 
 // multiTermsAggSearch executes a multi-term aggregation query on specified fields.
-func (cl *Client) multiTermsAggSearch(ctx context.Context, index string, name string, fields []string) (*AggResults, error) {
+func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []string) (*AggResults, error) {
 	// Construct the terms for multi-term aggregation based on the fields.
 	terms := make([]types.MultiTermLookup, len(fields))
 	for i := range fields {
@@ -272,6 +285,7 @@ func (cl *Client) multiTermsAggSearch(ctx context.Context, index string, name st
 	}
 
 	// Execute the search request with the constructed multi-term aggregation.
+	name := strings.Join(fields, "-")
 	resp, err := cl.typedClient.
 		Search().
 		Index(index).
@@ -312,8 +326,8 @@ func (cl *Client) multiTermsAggSearch(ctx context.Context, index string, name st
 	}, nil
 }
 
-// termsAggSearch executes a single-term aggregation query on the specified field.
-func (cl *Client) termsAggSearch(ctx context.Context, index string, name string, field string) (*AggResults, error) {
+// termsAgg executes a single-term aggregation query on the specified field.
+func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*AggResults, error) {
 	// Execute the search request with the single-term aggregation.
 	resp, err := cl.typedClient.
 		Search().
@@ -322,7 +336,7 @@ func (cl *Client) termsAggSearch(ctx context.Context, index string, name string,
 			// Set the number of search hits to return to 0 as we only need aggregation data.
 			Size: some.Int(0),
 			Aggregations: map[string]types.Aggregations{
-				name: {
+				field: {
 					Terms: &types.TermsAggregation{
 						Field: some.String(field),
 						// maxAggSize should be predefined to limit the size of the aggregation.
@@ -337,7 +351,7 @@ func (cl *Client) termsAggSearch(ctx context.Context, index string, name string,
 	}
 
 	// Extract the buckets from the response and construct the AggResults.
-	buckets := resp.Aggregations[name].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
+	buckets := resp.Aggregations[field].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
 	bs := make([]Bucket, len(buckets))
 	for i, b := range buckets {
 		bs[i] = Bucket{
