@@ -23,6 +23,8 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
@@ -70,7 +72,7 @@ func (rgn RelationshipGraphNode) ConvertToMap() map[string]string {
 }
 
 // FindNodeByGVK locates the Node by GVK on a RelationshipGraph. Used to locate parent and child nodes when building the relationship graph
-func (rg RelationshipGraph) FindNodeByGVK(group, version, kind string) (*RelationshipGraphNode, error) {
+func (rg *RelationshipGraph) FindNodeByGVK(group, version, kind string) (*RelationshipGraphNode, error) {
 	for _, item := range rg.RelationshipNodes {
 		if item.Group == group && item.Version == version && item.Kind == kind {
 			return item, nil
@@ -275,4 +277,27 @@ func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.Di
 		}
 	}
 	return false
+}
+
+// CountRelationshipGraphByCustomDimension returns the same RelationshipGraph with the count for each resource
+func (rg *RelationshipGraph) CountRelationshipGraphByCustomDimension(ctx context.Context, cl storage.SearchStorage, customDimension core.CustomDimension, name string) (*RelationshipGraph, error) {
+	log := ctxutil.GetLogger(ctx)
+	for _, node := range rg.RelationshipNodes {
+		kvs := map[string]any{
+			"apiVersion": schema.GroupVersion{Group: node.Group, Version: node.Version}.String(),
+			"kind":       node.Kind,
+			"cluster":    name,
+		}
+		for i := range customDimension.Keys {
+			kvs[customDimension.Keys[i]] = customDimension.Values[i]
+		}
+		sr, err := cl.SearchByTerms(ctx, kvs, nil)
+		if err != nil {
+			return rg, err
+		}
+
+		log.Info("Counted resources for Vertex", "node", node.GetHash(), "count", sr.Total)
+		node.ResourceCount = sr.Total
+	}
+	return rg, nil
 }

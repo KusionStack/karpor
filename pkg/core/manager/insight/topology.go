@@ -16,6 +16,7 @@ package insight
 
 import (
 	"context"
+	"sort"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -225,6 +226,41 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	log.Info("Added to cluster topology cache for locator", "locator", locator)
 
 	return namespaceTopologyMap, nil
+}
+
+// GetTopologyForCustomDimension returns a map that describes topology for custom dimension
+func (i *InsightManager) GetTopologyForCustomDimension(ctx context.Context, client *multicluster.MultiClusterClient, customDimension core.CustomDimension, cluster string, noCache bool) (map[string]ClusterTopology, error) {
+	log := ctxutil.GetLogger(ctx)
+
+	sort.Strings(customDimension.Keys)
+	sort.Strings(customDimension.Values)
+	locator := core.Locator{}
+	// locator := core.Locator{CustomDimension: customDimension}
+
+	// If noCache is set to false, attempt to retrieve the result from cache first
+	if !noCache {
+		if topologyData, exist := i.clusterTopologyCache.Get(locator); exist {
+			log.Info("Cache hit for cluster topology", "locator", locator)
+			return topologyData, nil
+		}
+		log.Info("Cache miss for locator", "locator", locator)
+	}
+
+	log.Info("Calculating topology for cluster...", "cluster", cluster)
+	// Build relationship graph based on GVK
+	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
+	// Count resources in all namespaces
+	log.Info("Retrieving topology for cluster", "clusterName", cluster)
+	rg, err := rg.CountRelationshipGraphByCustomDimension(ctx, i.search, customDimension, cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterTopologyMap := i.ConvertGraphToMap(rg, locator)
+	i.clusterTopologyCache.Set(locator, clusterTopologyMap)
+	log.Info("Added to cluster topology cache for locator", "locator", locator)
+
+	return clusterTopologyMap, nil
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph

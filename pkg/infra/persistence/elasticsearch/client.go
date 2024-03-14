@@ -265,29 +265,29 @@ func (cl *Client) SearchDocumentByTerms(ctx context.Context, index string, keysA
 	return cl.SearchDocument(ctx, index, buf, options...)
 }
 
-// AggregateDocumentByTerms performs an aggregation query based on the provided fields.
-func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fields []string) (*AggResults, error) {
-	if len(fields) == 0 {
+// AggregateDocumentByTerms performs an aggregation query based on the provided keys.
+func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, keys []string) (*AggResults, error) {
+	if len(keys) == 0 {
 		return nil, fmt.Errorf("no fields provided for aggregation")
 	}
-	if len(fields) == 1 {
+	if len(keys) == 1 {
 		// Perform single-term aggregation if only one field is provided.
-		return cl.termsAgg(ctx, index, fields[0])
+		return cl.termsAgg(ctx, index, keys[0])
 	}
 	// Perform multi-term aggregation if multiple fields are provided.
-	return cl.multiTermsAgg(ctx, index, fields)
+	return cl.multiTermsAgg(ctx, index, keys)
 }
 
-// multiTermsAggSearch executes a multi-term aggregation query on specified fields.
-func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []string) (*AggResults, error) {
-	// Construct the terms for multi-term aggregation based on the fields.
-	terms := make([]types.MultiTermLookup, len(fields))
-	for i := range fields {
-		terms[i] = types.MultiTermLookup{Field: fields[i]}
+// multiTermsAggSearch executes a multi-term aggregation query on specified keys.
+func (cl *Client) multiTermsAgg(ctx context.Context, index string, keys []string) (*AggResults, error) {
+	// Construct the terms for multi-term aggregation based on the keys.
+	terms := make([]types.MultiTermLookup, len(keys))
+	for i := range keys {
+		terms[i] = types.MultiTermLookup{Field: keys[i]}
 	}
 
 	// Execute the search request with the constructed multi-term aggregation.
-	name := strings.Join(fields, "-")
+	name := strings.Join(keys, "-")
 	resp, err := cl.typedClient.
 		Search().
 		Index(index).
@@ -328,8 +328,8 @@ func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []stri
 	}, nil
 }
 
-// termsAgg executes a single-term aggregation query on the specified field.
-func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*AggResults, error) {
+// termsAgg executes a single-term aggregation query on the specified key.
+func (cl *Client) termsAgg(ctx context.Context, index string, key string) (*AggResults, error) {
 	// Execute the search request with the single-term aggregation.
 	resp, err := cl.typedClient.
 		Search().
@@ -338,9 +338,9 @@ func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*Ag
 			// Set the number of search hits to return to 0 as we only need aggregation data.
 			Size: some.Int(0),
 			Aggregations: map[string]types.Aggregations{
-				field: {
+				key: {
 					Terms: &types.TermsAggregation{
-						Field: some.String(field),
+						Field: some.String(key),
 						// maxAggSize should be predefined to limit the size of the aggregation.
 						Size: some.Int(maxAggSize),
 					},
@@ -353,7 +353,7 @@ func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*Ag
 	}
 
 	// Extract the buckets from the response and construct the AggResults.
-	buckets := resp.Aggregations[field].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
+	buckets := resp.Aggregations[key].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
 	bs := make([]Bucket, len(buckets))
 	for i, b := range buckets {
 		bs[i] = Bucket{

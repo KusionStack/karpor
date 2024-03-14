@@ -41,6 +41,12 @@ type Locator struct {
 	Kind       string `json:"kind" yaml:"kind"`
 	Namespace  string `json:"namespace" yaml:"namespace"`
 	Name       string `json:"name" yaml:"name"`
+	// CustomDimension CustomDimension `json:"customDimension" yaml:"customDimension"`
+}
+
+type CustomDimension struct {
+	Keys   []string `json:"keys,omitempty" yaml:"keys,omitempty"`
+	Values []string `json:"values,omitempty" yaml:"values,omitempty"`
 }
 
 // NewLocatorFromQuery creates a Locator from an HTTP request query parameters.

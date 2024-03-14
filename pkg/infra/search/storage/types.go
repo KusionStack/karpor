@@ -57,6 +57,8 @@ type Pagination struct {
 // Storage interface defines the basic operations for resource storage.
 type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
+	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
+	AggregateByTerms(ctx context.Context, keys []string) (*AggregateResults, error)
 }
 
 type SearchStorageGetter interface {
@@ -67,6 +69,18 @@ type SearchStorageGetter interface {
 type SearchResult struct {
 	Total     int
 	Resources []*Resource
+}
+
+// AggregateResults is assumed to be a struct that holds aggregation results.
+type AggregateResults struct {
+	Buckets []Bucket
+	Total   int
+}
+
+// Bucket is assumed to be a struct that holds individual bucket data.
+type Bucket struct {
+	Keys  []string
+	Count int
 }
 
 // Overview returns a brief summary of the search result.
