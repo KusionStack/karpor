@@ -30,7 +30,7 @@ import (
 var ErrNotFound = fmt.Errorf("object not found")
 
 func (e *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-	id, body, err := generateIndexRequest(cluster, obj)
+	id, body, err := e.generateIndexRequest(cluster, obj)
 	if err != nil {
 		return err
 	}
@@ -85,9 +85,14 @@ func generateQuery(cluster, namespace, name string, obj runtime.Object) map[stri
 	return query
 }
 
-func generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
+func (e *Storage) generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
 	metaObj, err := meta.Accessor(obj)
 	if err != nil {
+		return
+	}
+
+	buf := bytes.NewBuffer([]byte{})
+	if err = e.objectEncoder.Encode(obj, buf); err != nil {
 		return
 	}
 
@@ -98,6 +103,7 @@ func generateIndexRequest(cluster string, obj runtime.Object) (id string, body [
 		namespaceKey:  metaObj.GetNamespace(),
 		clusterKey:    cluster,
 		objectKey:     metaObj,
+		contentKey:    buf.String(),
 	})
 	if err != nil {
 		return

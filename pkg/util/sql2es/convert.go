@@ -403,8 +403,32 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 				return fmt.Sprintf(`{"multi_match" : {"query" : "%v", "fields" : [%v]}}`, query, fields), nil
 			}
 			return fmt.Sprintf(`{"multi_match" : {"query" : "%v", "type" : "%v", "fields" : [%v]}}`, query, typ, fields), nil
+		case "contains":
+			if len(e.Exprs) != 2 {
+				return "", fmt.Errorf("expected 2 expressions")
+			}
+			aliasedExpr, ok := e.Exprs[0].(*sqlparser.AliasedExpr)
+			if !ok {
+				return "", fmt.Errorf("expression[0] is not an AliasedExpr")
+			}
+			colNameExpr, ok := aliasedExpr.Expr.(*sqlparser.ColName)
+			if !ok {
+				return "", fmt.Errorf("aliased expression[0] is not a ColName")
+			}
+			colName := colNameExpr.Name.String()
+
+			aliasedExpr, ok = e.Exprs[1].(*sqlparser.AliasedExpr)
+			if !ok {
+				return "", fmt.Errorf("expression[1] is not an AliasedExpr")
+			}
+			sqlValExpr, ok := aliasedExpr.Expr.(*sqlparser.SQLVal)
+			if !ok {
+				return "", fmt.Errorf("aliased expression[1] is not a SQLVal")
+			}
+			val := string(sqlValExpr.Val)
+			return fmt.Sprintf(`{"match_phrase": {"%v": "%v"}}`, colName, val), nil
 		default:
-			return "", fmt.Errorf("elaticsql: function in where not supported" + e.Name.Lowered())
+			return "", fmt.Errorf("elaticsql: function in where not supported " + e.Name.Lowered())
 		}
 	}
 

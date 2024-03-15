@@ -20,7 +20,10 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
 	esv8 "github.com/elastic/go-elasticsearch/v8"
+	"k8s.io/apimachinery/pkg/runtime"
+	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
 const (
@@ -30,6 +33,7 @@ const (
 	namespaceKey  = "namespace"
 	clusterKey    = "cluster"
 	objectKey     = "object"
+	contentKey    = "content"
 )
 
 var (
@@ -38,8 +42,9 @@ var (
 )
 
 type Storage struct {
-	client    *elasticsearch.Client
-	indexName string
+	client        *elasticsearch.Client
+	indexName     string
+	objectEncoder runtime.Encoder
 }
 
 func NewStorage(cfg esv8.Config) (*Storage, error) {
@@ -55,5 +60,10 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 	return &Storage{
 		client:    cl,
 		indexName: defaultIndexName,
+		objectEncoder: runtimejson.NewSerializerWithOptions(
+			runtimejson.DefaultMetaFactory,
+			scheme.Scheme,
+			scheme.Scheme,
+			runtimejson.SerializerOptions{Yaml: false, Pretty: true, Strict: true}),
 	}, nil
 }
