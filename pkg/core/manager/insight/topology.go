@@ -16,7 +16,6 @@ package insight
 
 import (
 	"context"
-	"sort"
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -228,14 +227,24 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	return namespaceTopologyMap, nil
 }
 
-// GetTopologyForCustomDimension returns a map that describes topology for custom dimension
-func (i *InsightManager) GetTopologyForCustomDimension(ctx context.Context, client *multicluster.MultiClusterClient, customDimension core.CustomDimension, cluster string, noCache bool) (map[string]ClusterTopology, error) {
+// GetTopologyForCustomResourceGroup returns a map that describes topology for custom resource group
+func (i *InsightManager) GetTopologyForCustomResourceGroup(ctx context.Context, client *multicluster.MultiClusterClient, customResourceGroup string, clusters []string, noCache bool) (map[string]map[string]ClusterTopology, error) {
+	result := map[string]map[string]ClusterTopology{}
+	for _, cluster := range clusters {
+		m, err := i.GetTopologyForCustomResourceGroupSingleCluster(ctx, client, customResourceGroup, cluster, noCache)
+		if err != nil {
+			return nil, err
+		}
+		result[cluster] = m
+	}
+	return result, nil
+}
+
+// GetTopologyForCustomResourceGroupSingleCluster returns a map that describes topology for single cluster custom resource group
+func (i *InsightManager) GetTopologyForCustomResourceGroupSingleCluster(ctx context.Context, client *multicluster.MultiClusterClient, customResourceGroup string, cluster string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	sort.Strings(customDimension.Keys)
-	sort.Strings(customDimension.Values)
-	locator := core.Locator{}
-	// locator := core.Locator{CustomDimension: customDimension}
+	locator := core.Locator{CustomResourceGroup: customResourceGroup, Cluster: cluster}
 
 	// If noCache is set to false, attempt to retrieve the result from cache first
 	if !noCache {
@@ -251,7 +260,7 @@ func (i *InsightManager) GetTopologyForCustomDimension(ctx context.Context, clie
 	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
 	log.Info("Retrieving topology for cluster", "clusterName", cluster)
-	rg, err := rg.CountRelationshipGraphByCustomDimension(ctx, i.search, customDimension, cluster)
+	rg, err := rg.CountRelationshipGraphByCustomResourceGroup(ctx, i.search, customResourceGroup, cluster)
 	if err != nil {
 		return nil, err
 	}

@@ -279,17 +279,21 @@ func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.Di
 	return false
 }
 
-// CountRelationshipGraphByCustomDimension returns the same RelationshipGraph with the count for each resource
-func (rg *RelationshipGraph) CountRelationshipGraphByCustomDimension(ctx context.Context, cl storage.SearchStorage, customDimension core.CustomDimension, name string) (*RelationshipGraph, error) {
+// CountRelationshipGraphByCustomResourceGroup returns the same RelationshipGraph with the count for each custom resource group
+func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx context.Context, cl storage.SearchStorage, customResourceGroup string, name string) (*RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
+	crg, err := core.ParseCustomResourceGroup(customResourceGroup)
+	if err != nil {
+		return nil, err
+	}
 	for _, node := range rg.RelationshipNodes {
 		kvs := map[string]any{
 			"apiVersion": schema.GroupVersion{Group: node.Group, Version: node.Version}.String(),
 			"kind":       node.Kind,
 			"cluster":    name,
 		}
-		for i := range customDimension.Keys {
-			kvs[customDimension.Keys[i]] = customDimension.Values[i]
+		for k, v := range crg {
+			kvs[k] = v
 		}
 		sr, err := cl.SearchByTerms(ctx, kvs, nil)
 		if err != nil {

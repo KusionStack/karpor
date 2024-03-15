@@ -194,6 +194,26 @@ func (c *ClusterManager) ListCluster(
 	return SortUnstructuredList(sanitizedClusterList, orderBy, descending)
 }
 
+func (c *ClusterManager) ListClusterName(ctx context.Context, client *multicluster.MultiClusterClient, orderBy SortCriteria, descending bool) ([]string, error) {
+	unList, err := c.ListCluster(ctx, client, orderBy, descending)
+	if err != nil {
+		return nil, err
+	}
+	var clusters []string
+	err = unList.EachListItem(func(obj runtime.Object) error {
+		unobj, ok := obj.(*unstructured.Unstructured)
+		if !ok {
+			return fmt.Errorf("failed to convert runtime.Object to *unstructured.Unstructured")
+		}
+		clusters = append(clusters, unobj.GetName())
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return clusters, nil
+}
+
 // CountCluster returns the summary of clusters by their health status
 func (c *ClusterManager) CountCluster(
 	ctx context.Context,
