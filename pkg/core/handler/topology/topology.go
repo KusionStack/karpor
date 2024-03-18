@@ -88,13 +88,13 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 			handler.HandleResult(w, r, ctx, err, customResourceTopologyMap)
 		case core.Resource, core.NonNamespacedResource:
 			resourceTopologyMap, err := insightMgr.GetTopologyForResource(ctx, client, &loc, forceNew)
-			handler.HandleResult(w, r, ctx, err, resourceTopologyMap)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ResourceTopology{clusterName: resourceTopologyMap})
 		case core.Cluster:
 			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(ctx, client, clusterName, forceNew)
-			handler.HandleResult(w, r, ctx, err, clusterTopologyMap)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: clusterTopologyMap})
 		case core.Namespace:
 			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(ctx, client, clusterName, loc.Namespace, forceNew)
-			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: namespaceTopologyMap})
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
