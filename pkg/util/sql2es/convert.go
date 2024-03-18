@@ -131,7 +131,7 @@ func checkNeedAgg(sqlSelect sqlparser.SelectExprs) bool {
 }
 
 func buildNestedFuncStrValue(nestedFunc *sqlparser.FuncExpr) (string, error) {
-	return "", fmt.Errorf("elasticsql: unsupported function" + nestedFunc.Name.String())
+	return "", fmt.Errorf("unsupported function " + nestedFunc.Name.String())
 }
 
 func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
@@ -202,7 +202,7 @@ func buildComparisonExprRightStr(expr sqlparser.Expr) (string, bool, error) {
 		rightStr = sqlparser.String(expr)
 		rightStr = strings.Trim(rightStr, `'`)
 	case *sqlparser.GroupConcatExpr:
-		return "", missingCheck, fmt.Errorf("elasticsql: group_concat not supported")
+		return "", missingCheck, fmt.Errorf("group_concat not supported")
 	case *sqlparser.FuncExpr:
 		rightStr, err = buildNestedFuncStrValue(exprImpl)
 		if err != nil {
@@ -214,11 +214,11 @@ func buildComparisonExprRightStr(expr sqlparser.Expr) (string, bool, error) {
 			return "", missingCheck, nil
 		}
 
-		return "", missingCheck, fmt.Errorf("elasticsql: column name on the right side of compare operator is not supported")
+		return "", missingCheck, fmt.Errorf("column name on the right side of compare operator is not supported")
 	case sqlparser.ValTuple:
 		rightStr = sqlparser.String(expr)
 	default:
-		return "", missingCheck, fmt.Errorf("type %exprImpl not supported", exprImpl)
+		return "", missingCheck, fmt.Errorf("the type of expression does not support")
 	}
 	return rightStr, missingCheck, err
 }
@@ -241,7 +241,7 @@ func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool) (strin
 	colName, ok := comparisonExpr.Left.(*sqlparser.ColName)
 
 	if !ok {
-		return "", fmt.Errorf("elasticsql: invalid comparison expression, the left must be a column name")
+		return "", fmt.Errorf("invalid comparison expression, the left must be a column name")
 	}
 
 	colNameStr := sqlparser.String(colName)
@@ -321,7 +321,7 @@ func handleSelectWhereComparisonExpr(expr *sqlparser.Expr, topLevel bool) (strin
 
 func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Expr) (string, error) {
 	if expr == nil {
-		return "", fmt.Errorf("elasticsql: error expression cannot be nil here")
+		return "", fmt.Errorf("error expression cannot be nil here")
 	}
 
 	switch e := (*expr).(type) {
@@ -335,13 +335,13 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 		return handleSelectWhereComparisonExpr(expr, topLevel)
 
 	case *sqlparser.IsExpr:
-		return "", fmt.Errorf("elasticsql: is expression currently not supported")
+		return "", fmt.Errorf("is expression currently not supported")
 	case *sqlparser.RangeCond:
 		rangeCond := (*expr).(*sqlparser.RangeCond)
 		colName, ok := rangeCond.Left.(*sqlparser.ColName)
 
 		if !ok {
-			return "", fmt.Errorf("elasticsql: range column name missing")
+			return "", fmt.Errorf("range column name missing")
 		}
 
 		colNameStr := sqlparser.String(colName)
@@ -366,13 +366,13 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 		}
 		return handleSelectWhere(&boolExpr, isThisTopLevel, parent)
 	case *sqlparser.NotExpr:
-		return "", fmt.Errorf("elasticsql: not expression currently not supported")
+		return "", fmt.Errorf("not expression currently not supported")
 	case *sqlparser.FuncExpr:
 		switch e.Name.Lowered() {
 		case "multi_match":
 			params := e.Exprs
 			if len(params) > 3 || len(params) < 2 {
-				return "", fmt.Errorf("elasticsql: the multi_match must have 2 or 3 params, (query, fields and type) or (query, fields)")
+				return "", fmt.Errorf("the multi_match must have 2 or 3 params, (query, fields and type) or (query, fields)")
 			}
 
 			var typ, query, fields string
@@ -380,7 +380,7 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 				elem := strings.ReplaceAll(sqlparser.String(params[i]), "`", "") // a = b
 				kv := strings.Split(elem, "=")
 				if len(kv) != 2 {
-					return "", fmt.Errorf("elasticsql: the param should be query = xxx, field = yyy, type = zzz")
+					return "", fmt.Errorf("the param should be query = xxx, field = yyy, type = zzz")
 				}
 				k, v := strings.TrimSpace(kv[0]), strings.TrimSpace(kv[1])
 				switch k {
@@ -396,7 +396,7 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 					}
 					fields = strings.Join(fieldList, ",")
 				default:
-					return "", fmt.Errorf("elaticsql: unknow param for multi_match")
+					return "", fmt.Errorf("unknow param for multi_match")
 				}
 			}
 			if typ == "" {
@@ -428,11 +428,11 @@ func handleSelectWhere(expr *sqlparser.Expr, topLevel bool, parent *sqlparser.Ex
 			val := string(sqlValExpr.Val)
 			return fmt.Sprintf(`{"match_phrase": {"%v": "%v"}}`, colName, val), nil
 		default:
-			return "", fmt.Errorf("elaticsql: function in where not supported " + e.Name.Lowered())
+			return "", fmt.Errorf("function in where not supported " + e.Name.Lowered())
 		}
 	}
 
-	return "", fmt.Errorf("elaticsql: logically cannot reached here")
+	return "", fmt.Errorf("logically cannot reached here")
 }
 
 type msi map[string]interface{}
@@ -511,11 +511,11 @@ func handleGroupByFuncExprDateHisto(funcExpr *sqlparser.FuncExpr) (msi, error) {
 			comparisonExpr, ok := item.Expr.(*sqlparser.ComparisonExpr)
 
 			if !ok {
-				return nil, fmt.Errorf("elasticsql: unsupported expression in date_histogram")
+				return nil, fmt.Errorf("unsupported expression in date_histogram")
 			}
 			left, ok := comparisonExpr.Left.(*sqlparser.ColName)
 			if !ok {
-				return nil, fmt.Errorf("elaticsql: param error in date_histogram")
+				return nil, fmt.Errorf("param error in date_histogram")
 			}
 			rightStr := sqlparser.String(comparisonExpr.Right)
 			rightStr = strings.ReplaceAll(rightStr, `'`, ``)
@@ -535,7 +535,7 @@ func handleGroupByFuncExprDateHisto(funcExpr *sqlparser.FuncExpr) (msi, error) {
 				"format":   format,
 			}
 		default:
-			return nil, fmt.Errorf("elasticsql: unsupported expression in date_histogram")
+			return nil, fmt.Errorf("unsupported expression in date_histogram")
 		}
 	}
 	return innerMap, nil
@@ -543,7 +543,7 @@ func handleGroupByFuncExprDateHisto(funcExpr *sqlparser.FuncExpr) (msi, error) {
 
 func handleGroupByFuncExprRange(funcExpr *sqlparser.FuncExpr) (msi, error) {
 	if len(funcExpr.Exprs) < 3 {
-		return nil, fmt.Errorf("elasticsql: length of function range params must be > 3")
+		return nil, fmt.Errorf("length of function range params must be > 3")
 	}
 
 	innerMap := make(msi)
@@ -577,7 +577,7 @@ func handleGroupByFuncExprDateRange(funcExpr *sqlparser.FuncExpr) (msi, error) {
 	for _, expr := range funcExpr.Exprs {
 		nonStarExpr, ok := expr.(*sqlparser.AliasedExpr)
 		if !ok {
-			return nil, fmt.Errorf("elasticsql: unsupported star expression in function date_range")
+			return nil, fmt.Errorf("unsupported star expression in function date_range")
 		}
 
 		switch item := nonStarExpr.Expr.(type) {
@@ -592,18 +592,18 @@ func handleGroupByFuncExprDateRange(funcExpr *sqlparser.FuncExpr) (msi, error) {
 			case "format":
 				format = equalVal
 			default:
-				return nil, fmt.Errorf("elasticsql: unsupported column name " + colName)
+				return nil, fmt.Errorf("unsupported column name " + colName)
 			}
 		case *sqlparser.SQLVal:
 			skippedString := strings.Trim(sqlparser.String(item), "`")
 			rangeList = append(rangeList, skippedString)
 		default:
-			return nil, fmt.Errorf("elasticsql: unsupported expression " + sqlparser.String(expr))
+			return nil, fmt.Errorf("unsupported expression " + sqlparser.String(expr))
 		}
 	}
 
 	if len(field) == 0 {
-		return nil, fmt.Errorf("elasticsql: lack field of date_range")
+		return nil, fmt.Errorf("lack field of date_range")
 	}
 
 	for i := 0; i < len(rangeList)-1; i++ {
@@ -637,7 +637,7 @@ func handleGroupByFuncExpr(funcExpr *sqlparser.FuncExpr, child msi) (msi, error)
 	case "date_range":
 		innerMap, err = handleGroupByFuncExprDateRange(funcExpr)
 	default:
-		return nil, fmt.Errorf("elasticsql: unsupported group by functions" + sqlparser.String(funcExpr))
+		return nil, fmt.Errorf("unsupported group by functions " + sqlparser.String(funcExpr))
 	}
 
 	if err != nil {
@@ -707,14 +707,14 @@ func extractFuncAndColFromSelect(sqlSelect sqlparser.SelectExprs) ([]*sqlparser.
 			continue
 		}
 
-		switch exprImpl := expr.Expr.(type) {
+		switch expr.Expr.(type) {
 		case *sqlparser.FuncExpr:
 			funcExpr := expr.Expr.(*sqlparser.FuncExpr)
 			funcArr = append(funcArr, funcExpr)
 		case *sqlparser.ColName:
 			continue
 		default:
-			return nil, nil, fmt.Errorf("type %v not supported", exprImpl)
+			return nil, nil, fmt.Errorf("the type of expression does not support")
 		}
 	}
 	return funcArr, colArr, nil
