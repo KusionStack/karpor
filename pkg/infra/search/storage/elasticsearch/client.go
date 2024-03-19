@@ -27,13 +27,18 @@ import (
 )
 
 const (
-	apiVersionKey = "apiVersion"
-	kindKey       = "kind"
-	nameKey       = "name"
-	namespaceKey  = "namespace"
-	clusterKey    = "cluster"
-	objectKey     = "object"
-	contentKey    = "content"
+	clusterKey           = "cluster"
+	apiVersionKey        = "apiVersion"
+	kindKey              = "kind"
+	namespaceKey         = "namespace"
+	nameKey              = "name"
+	labelsKey            = "labels"
+	annotationsKey       = "annotations"
+	creationTimestampKey = "creationTimestamp"
+	deletionTimestampKey = "deletionTimestamp"
+	ownerReferencesKey   = "ownerReferences"
+	resourceVersionKey   = "resourceVersion"
+	contentKey           = "content"
 )
 
 var (

@@ -103,7 +103,10 @@ func (e *Storage) search(ctx context.Context, body io.Reader, pagination *storag
 	}
 
 	for i, hit := range resp.Hits.Hits {
-		sr.Resources[i] = storage.Map2Resource(hit.Source)
+		sr.Resources[i], err = storage.Map2Resource(hit.Source)
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return sr, nil

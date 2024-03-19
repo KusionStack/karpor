@@ -68,7 +68,11 @@ func (e *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) e
 		return err
 	}
 
-	res := storage.Map2Resource(resp.Hits.Hits[0].Source)
+	res, err := storage.Map2Resource(resp.Hits.Hits[0].Source)
+	if err != nil {
+		return err
+	}
+
 	unObj.Object = res.Object
 	return nil
 }
@@ -97,13 +101,18 @@ func (e *Storage) generateIndexRequest(cluster string, obj runtime.Object) (id s
 	}
 
 	body, err = json.Marshal(map[string]interface{}{
-		apiVersionKey: obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
-		kindKey:       obj.GetObjectKind().GroupVersionKind().Kind,
-		nameKey:       metaObj.GetName(),
-		namespaceKey:  metaObj.GetNamespace(),
-		clusterKey:    cluster,
-		objectKey:     metaObj,
-		contentKey:    buf.String(),
+		clusterKey:           cluster,
+		apiVersionKey:        obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
+		kindKey:              obj.GetObjectKind().GroupVersionKind().Kind,
+		namespaceKey:         metaObj.GetNamespace(),
+		nameKey:              metaObj.GetName(),
+		labelsKey:            metaObj.GetLabels(),
+		annotationsKey:       metaObj.GetAnnotations(),
+		creationTimestampKey: metaObj.GetCreationTimestamp(),
+		deletionTimestampKey: metaObj.GetDeletionTimestamp(),
+		ownerReferencesKey:   metaObj.GetOwnerReferences(),
+		resourceVersionKey:   metaObj.GetResourceVersion(),
+		contentKey:           buf.String(),
 	})
 	if err != nil {
 		return

@@ -42,6 +42,9 @@ const (
       ]
     },
     "properties":{
+      "cluster":{
+        "type":"keyword"
+      },
       "apiVersion":{
         "type":"keyword"
       },
@@ -49,61 +52,35 @@ const (
         "type":"keyword",
         "normalizer":"lowercase"
       },
-      "name":{
-        "type":"keyword"
-      },
       "namespace":{
         "type":"keyword"
       },
-      "cluster":{
+      "name":{
         "type":"keyword"
+      },
+      "labels":{
+        "type":"flattened"
+      },
+      "annotations":{
+        "type":"flattened"
+      },
+      "creationTimestamp":{
+        "type":"date",
+        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
+      },
+      "deletionTimestamp":{
+        "type":"date",
+        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
+      },
+      "ownerReferences":{
+        "type":"flattened"
+      },
+      "resourceVersion":{
+        "type":"keyword",
+        "ignore_above":256
       },
       "content":{
         "type":"text"
-      },
-      "object":{
-        "properties":{
-          "metadata":{
-            "properties":{
-              "annotations":{
-                "type":"flattened"
-              },
-              "managedFields":{
-                "type":"object",
-                "enabled":false
-              },
-              "creationTimestamp":{
-                "type":"date",
-                "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-              },
-              "deletionTimestamp":{
-                "type":"date",
-                "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-              },
-              "labels":{
-                "type":"flattened"
-              },
-              "name":{
-                "type":"keyword"
-              },
-              "namespace":{
-                "type":"keyword"
-              },
-              "ownerReferences":{
-                "type":"flattened"
-              },
-              "resourceVersion":{
-                "type":"keyword",
-                "ignore_above":256
-              }
-            }
-          },
-          "spec":{
-            "type":"flattened",
-            "ignore_above":1024,
-            "depth_limit":200
-          }
-        }
       }
     }
   }
