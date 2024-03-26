@@ -65,9 +65,6 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 		logger.Info("Getting topology for locator...", "locator", loc)
 
 		clusterName := loc.Cluster
-		if loc.CustomResourceGroup != "" {
-			clusterName = ""
-		}
 		client, err := multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, clusterName)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
@@ -82,6 +79,8 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 
 		switch locType {
 		case core.CustomResourceGroup:
+			client, err = multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, "")
+			handler.HandleResult(w, r, ctx, err, nil)
 			clusterNames, err := clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
 			handler.HandleResult(w, r, ctx, err, nil)
 			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(r.Context(), client, loc.CustomResourceGroup, clusterNames, forceNew)

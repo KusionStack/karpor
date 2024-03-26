@@ -199,7 +199,7 @@ func (c *ClusterManager) ListClusterName(ctx context.Context, client *multiclust
 	if err != nil {
 		return nil, err
 	}
-	var clusters []string
+	clusters := make([]string, 0, len(unList.Items))
 	err = unList.EachListItem(func(obj runtime.Object) error {
 		unobj, ok := obj.(*unstructured.Unstructured)
 		if !ok {
