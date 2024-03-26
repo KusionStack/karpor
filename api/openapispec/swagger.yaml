@@ -33,6 +33,8 @@ definitions:
         type: string
       cluster:
         type: string
+      customResourceGroup:
+        type: string
       kind:
         type: string
       name:
@@ -90,6 +92,17 @@ definitions:
           number of occurrences. It allows for a quick overview of the distribution
           of issues across different severity categories.
         type: object
+    type: object
+  resourcegrouprule.ResourceGroupRulePayload:
+    properties:
+      description:
+        type: string
+      fields:
+        items:
+          type: string
+        type: array
+      name:
+        type: string
     type: object
   scanner.AuditData:
     properties:
@@ -833,7 +846,9 @@ paths:
           description: map from string to resource.ResourceTopology
           schema:
             additionalProperties:
-              $ref: '#/definitions/insight.ResourceTopology'
+              additionalProperties:
+                $ref: '#/definitions/insight.ResourceTopology'
+              type: object
             type: object
         "400":
           description: Bad Request
@@ -863,6 +878,324 @@ paths:
         namespace, cluster, apiVersion and kind.
       tags:
       - insight
+  /rest-api/v1/resource-group-rule/{resourceGroupRule}:
+    delete:
+      description: This endpoint deletes the ResourceGroupRule by name.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Operation status
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Delete removes a ResourceGroupRule by name.
+      tags:
+      - resourcegrouprule
+    get:
+      description: This endpoint returns a ResourceGroupRule by name.
+      parameters:
+      - description: The format of the response. Either in json or yaml
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unstructured object
+          schema:
+            $ref: '#/definitions/unstructured.Unstructured'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get returns a ResourceGroupRule by name.
+      tags:
+      - resourcegrouprule
+    post:
+      consumes:
+      - text/plain
+      - application/json
+      description: This endpoint creates a new ResourceGroupRule using the payload.
+      parameters:
+      - description: resourceGroupRule to create (either plain text or JSON format)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/resourcegrouprule.ResourceGroupRulePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unstructured object
+          schema:
+            $ref: '#/definitions/unstructured.Unstructured'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Create creates a ResourceGroupRule.
+      tags:
+      - resourcegrouprule
+    put:
+      consumes:
+      - text/plain
+      - application/json
+      description: This endpoint updates the display name and description of an existing
+        ResourceGroupRule.
+      parameters:
+      - description: resourceGroupRule to update (either plain text or JSON format)
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/resourcegrouprule.ResourceGroupRulePayload'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unstructured object
+          schema:
+            $ref: '#/definitions/unstructured.Unstructured'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Update updates the ResourceGroupRule metadata by name.
+      tags:
+      - resourcegrouprule
+  /rest-api/v1/resource-group-rules:
+    get:
+      description: This endpoint lists all ResourceGroupRules.
+      parameters:
+      - description: Whether to display summary or not. Default to false
+        in: query
+        name: summary
+        type: boolean
+      - description: The order to list the resourceGroupRule. Default to order by
+          name
+        in: query
+        name: orderBy
+        type: string
+      - description: Whether to sort the list in descending order. Default to false
+        in: query
+        name: descending
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of resourceGroupRule objects
+          schema:
+            items:
+              $ref: '#/definitions/unstructured.Unstructured'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List lists all ResourceGroupRules.
+      tags:
+      - resourcegrouprule
+  /rest-api/v1/resource-group/{resourceGroup}:
+    get:
+      description: This endpoint returns a ResourceGroup by name.
+      parameters:
+      - description: The format of the response. Either in json or yaml
+        in: query
+        name: format
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Unstructured object
+          schema:
+            $ref: '#/definitions/unstructured.Unstructured'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get returns a ResourceGroup by name.
+      tags:
+      - resourcegroup
+  /rest-api/v1/resource-groups:
+    get:
+      description: This endpoint lists all ResourceGroups.
+      parameters:
+      - description: Whether to display summary or not. Default to false
+        in: query
+        name: summary
+        type: boolean
+      - description: The order to list the resourceGroup. Default to order by name
+        in: query
+        name: orderBy
+        type: string
+      - description: Whether to sort the list in descending order. Default to false
+        in: query
+        name: descending
+        type: boolean
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List of resourceGroup objects
+          schema:
+            items:
+              $ref: '#/definitions/unstructured.Unstructured'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: List lists all ResourceGroups.
+      tags:
+      - resourcegroup
   /rest-api/v1/search:
     get:
       description: This endpoint returns an array of Kubernetes runtime Object matched

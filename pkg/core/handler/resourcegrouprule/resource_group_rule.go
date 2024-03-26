@@ -61,7 +61,7 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to create (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to create (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
@@ -98,7 +98,7 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to update (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to update (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
