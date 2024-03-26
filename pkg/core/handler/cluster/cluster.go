@@ -17,7 +17,6 @@ package cluster
 import (
 	"io"
 	"net/http"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -238,7 +237,7 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 }
 
 // @Summary      Upload kubeConfig file for cluster
-// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is "", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf".
+// @Description  Uploads a KubeConfig file for cluster, with a maximum size of 2MB.
 // @Tags         cluster
 // @Accept       multipart/form-data
 // @Produce      plain
@@ -278,13 +277,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		}
 		defer file.Close()
 
-		// Check the file extension.
 		log.Info("Uploaded filename", "filename", fileHeader.Filename)
-		if !isAllowedExtension(fileHeader.Filename) {
-			render.Render(w, r, handler.FailureResponse(
-				ctx, errors.New("invalid file format, only '', .yaml, .yml, .json, .kubeconfig, .kubeconf are allowed.")))
-			return
-		}
 
 		// Read the contents of the file.
 		buf := make([]byte, maxUploadSize)
@@ -384,16 +377,4 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 		}
 	}
-}
-
-// isAllowedExtension checks if the provided file name has a permitted extension.
-func isAllowedExtension(filename string) bool {
-	allowedExtensions := []string{"", ".yaml", ".yml", ".json", ".kubeconfig", ".kubeconf"}
-	ext := strings.ToLower(filepath.Ext(filename))
-	for _, allowedExt := range allowedExtensions {
-		if ext == allowedExt {
-			return true
-		}
-	}
-	return false
 }
