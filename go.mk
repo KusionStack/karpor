@@ -26,16 +26,6 @@ help:  ## This help message :)
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' Makefile | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
 
 
-# If you encounter an error like "panic: permission denied" on MacOS,
-# please visit https://github.com/eisenxp/macos-golink-wrapper to find the solution.
-.PHONY: test
-test:  ## Run the tests
-	go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS)` ${TEST_FLAGS}
-
-.PHONY: cover
-cover:  ## Generates coverage report
-	go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS)` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS}
-
 .PHONY: cover-html
 cover-html:  ## Generates coverage report and displays it in the browser
 	go tool cover -html=$(COVERAGEOUT)
