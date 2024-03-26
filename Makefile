@@ -15,6 +15,17 @@ else
     BUILD_UI =
 endif
 
+# If you encounter an error like "panic: permission denied" on MacOS,
+# please visit https://github.com/eisenxp/macos-golink-wrapper to find the solution.
+.PHONY: test
+test:  ## Run the tests
+	go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -v "internalimport"` ${TEST_FLAGS}
+
+.PHONY: cover
+cover:  ## Generates coverage report
+	go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -v "internalimport"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS}
+
+
 # Target: update-codegen
 # Description: Updates the generated code using the 'hack/update-codegen.sh' script.
 # Example: make update-codegen
@@ -60,6 +71,42 @@ build-linux: $(BUILD_UI) ## Build for Linux
 # Example: make build-windows
 .PHONY: build-windows
 build-windows: $(BUILD_UI) ## Build for Windows
+	-rm -rf ./_build/windows
+	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
+		go build -o ./_build/windows/$(APPROOT).exe \
+		./cmd
+
+# Target: build-server-all
+# Description: Builds server for all supported platforms (Darwin, Linux, Windows).
+# Example: make build-server-all
+.PHONY: build-server-all
+build-server-all: build-server-darwin build-server-linux build-server-windows ## Build server for all platforms
+
+# Target: build-server-darwin
+# Description: Builds server for the macOS platform.
+# Example: make build-server-darwin
+.PHONY: build-server-darwin
+build-server-darwin: ## Build server for MacOS (Darwin)
+	-rm -rf ./_build/darwin
+	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
+		go build -o ./_build/darwin/$(APPROOT) \
+		./cmd
+
+# Target: build-server-linux
+# Description: Builds server for the Linux platform.
+# Example: make build-server-linux
+.PHONY: build-server-linux
+build-server-linux: ## Build server for Linux
+	-rm -rf ./_build/linux
+	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+		go build -o ./_build/linux/$(APPROOT) \
+		./cmd
+
+# Target: build-server-windows
+# Description: Builds server for the Windows platform.
+# Example: make build-server-windows
+.PHONY: build-server-windows
+build-server-windows: ## Build server for Windows
 	-rm -rf ./_build/windows
 	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
 		go build -o ./_build/windows/$(APPROOT).exe \
