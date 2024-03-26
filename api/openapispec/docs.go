@@ -48,7 +48,7 @@ var doc = `{
         },
         "/rest-api/v1/cluster/config/file": {
             "post": {
-                "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB, and the valid file extension is \"\", \".yaml\", \".yml\", \".json\", \".kubeconfig\", \".kubeconf\".",
+                "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB.",
                 "consumes": [
                     "multipart/form-data"
                 ],
