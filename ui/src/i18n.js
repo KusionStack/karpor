@@ -13,7 +13,7 @@ const resources = {
   },
 }
 
-const currentLocale = localStorage.getItem('lang') || 'zh'
+const currentLocale = localStorage.getItem('lang') || 'en'
 
 i18n
   // 将 i18n 实例传递给 react-i18next
