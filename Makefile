@@ -134,12 +134,11 @@ fix-license:  ## Adds missing license header to repo files
 gen-api-spec: ## Generate API Specification with OpenAPI format
 	@which swag > /dev/null || (echo "Installing swag@v1.7.8 ..."; go install github.com/swaggo/swag/cmd/swag@v1.7.8 && echo "Installation complete!\n")
 	# Generate API documentation with OpenAPI format
-	-swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/main.go -o api/openapispec/
+	-swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/main.go -o api/openapispec/ && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
 	# Format swagger comments
-	-swag fmt -g pkg/**/*.go
-	@echo "🎉 Done!"
+	-swag fmt -g pkg/**/*.go && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
 
 .PHONY: gen-api-doc
 gen-api-doc: ## Generate API Documentation by API Specification
 	@which swagger > /dev/null || (echo "Installing swagger@v0.30.5 ..."; go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5 && echo "Installation complete!\n")
-	-swagger generate markdown -f ./api/openapispec/swagger.json && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
+	-swagger generate markdown -f ./api/openapispec/swagger.json && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
