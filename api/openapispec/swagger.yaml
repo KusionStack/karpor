@@ -165,6 +165,12 @@ paths:
   /rest-api/v1/cluster/{clusterName}:
     delete:
       description: This endpoint deletes the cluster resource by name.
+      parameters:
+      - description: The name of the cluster
+        in: path
+        name: clusterName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -202,6 +208,11 @@ paths:
     get:
       description: This endpoint returns a cluster resource by name.
       parameters:
+      - description: The name of the cluster
+        in: path
+        name: clusterName
+        required: true
+        type: string
       - description: The format of the response. Either in json or yaml
         in: query
         name: format
@@ -252,6 +263,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/cluster.ClusterPayload'
+      - description: The name of the cluster
+        in: path
+        name: clusterName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -299,6 +315,11 @@ paths:
         required: true
         schema:
           $ref: '#/definitions/cluster.ClusterPayload'
+      - description: The name of the cluster
+        in: path
+        name: clusterName
+        required: true
+        type: string
       produces:
       - application/json
       responses:
