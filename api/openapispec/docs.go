@@ -189,6 +189,13 @@ var doc = `{
                 "parameters": [
                     {
                         "type": "string",
+                        "description": "The name of the cluster",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
                         "description": "The format of the response. Either in json or yaml",
                         "name": "format",
                         "in": "query"
@@ -261,6 +268,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/cluster.ClusterPayload"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "The name of the cluster",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -330,6 +344,13 @@ var doc = `{
                         "schema": {
                             "$ref": "#/definitions/cluster.ClusterPayload"
                         }
+                    },
+                    {
+                        "type": "string",
+                        "description": "The name of the cluster",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -386,6 +407,15 @@ var doc = `{
                     "cluster"
                 ],
                 "summary": "Delete removes a cluster resource by name.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the cluster",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Operation status",
@@ -1349,11 +1379,11 @@ type swaggerInfo struct {
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = swaggerInfo{
-	Version:     "",
+	Version:     "1.0",
 	Host:        "",
 	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "",
+	Title:       "Karbour",
 	Description: "",
 }
 

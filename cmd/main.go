@@ -24,6 +24,8 @@ import (
 	"k8s.io/component-base/cli"
 )
 
+// @title    Karbour
+// @version  1.0
 func main() {
 	ctx := genericapiserver.SetupSignalContext()
 

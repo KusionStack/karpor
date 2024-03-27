@@ -45,14 +45,15 @@ import (
 // @Description  This endpoint returns a cluster resource by name.
 // @Tags         cluster
 // @Produce      json
-// @Param        format  query     string                     false  "The format of the response. Either in json or yaml"
-// @Success      200     {object}  unstructured.Unstructured  "Unstructured object"
-// @Failure      400     {string}  string                     "Bad Request"
-// @Failure      401     {string}  string                     "Unauthorized"
-// @Failure      404     {string}  string                     "Not Found"
-// @Failure      405     {string}  string                     "Method Not Allowed"
-// @Failure      429     {string}  string                     "Too Many Requests"
-// @Failure      500     {string}  string                     "Internal Server Error"
+// @Param        clusterName  path      string                     true  "The name of the cluster"
+// @Param        format       query     string                     false  "The format of the response. Either in json or yaml"
+// @Success      200          {object}  unstructured.Unstructured  "Unstructured object"
+// @Failure      400          {string}  string                     "Bad Request"
+// @Failure      401          {string}  string                     "Unauthorized"
+// @Failure      404          {string}  string                     "Not Found"
+// @Failure      405          {string}  string                     "Method Not Allowed"
+// @Failure      429          {string}  string                     "Too Many Requests"
+// @Failure      500          {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/cluster/{clusterName} [get]
 func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -88,14 +89,15 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ClusterPayload             true  "cluster to create (either plain text or JSON format)"
-// @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
-// @Failure      400      {string}  string                     "Bad Request"
-// @Failure      401      {string}  string                     "Unauthorized"
-// @Failure      404      {string}  string                     "Not Found"
-// @Failure      405      {string}  string                     "Method Not Allowed"
-// @Failure      429      {string}  string                     "Too Many Requests"
-// @Failure      500      {string}  string                     "Internal Server Error"
+// @Param        request      body      ClusterPayload             true  "cluster to create (either plain text or JSON format)"
+// @Param        clusterName  path      string                     true  "The name of the cluster"
+// @Success      200          {object}  unstructured.Unstructured  "Unstructured object"
+// @Failure      400          {string}  string                     "Bad Request"
+// @Failure      401          {string}  string                     "Unauthorized"
+// @Failure      404          {string}  string                     "Not Found"
+// @Failure      405          {string}  string                     "Method Not Allowed"
+// @Failure      429          {string}  string                     "Too Many Requests"
+// @Failure      500          {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/cluster/{clusterName} [post]
 func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -127,14 +129,15 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ClusterPayload             true  "cluster to update (either plain text or JSON format)"
-// @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
-// @Failure      400      {string}  string                     "Bad Request"
-// @Failure      401      {string}  string                     "Unauthorized"
-// @Failure      404      {string}  string                     "Not Found"
-// @Failure      405      {string}  string                     "Method Not Allowed"
-// @Failure      429      {string}  string                     "Too Many Requests"
-// @Failure      500      {string}  string                     "Internal Server Error"
+// @Param        request      body      ClusterPayload             true  "cluster to update (either plain text or JSON format)"
+// @Param        clusterName  path      string  true  "The name of the cluster"
+// @Success      200          {object}  unstructured.Unstructured  "Unstructured object"
+// @Failure      400          {string}  string                     "Bad Request"
+// @Failure      401          {string}  string                     "Unauthorized"
+// @Failure      404          {string}  string                     "Not Found"
+// @Failure      405          {string}  string                     "Method Not Allowed"
+// @Failure      429          {string}  string                     "Too Many Requests"
+// @Failure      500          {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/cluster/{clusterName}  [put]
 func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -214,13 +217,14 @@ func List(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Ha
 // @Description  This endpoint deletes the cluster resource by name.
 // @Tags         cluster
 // @Produce      json
-// @Success      200  {string}  string  "Operation status"
-// @Failure      400  {string}  string  "Bad Request"
-// @Failure      401  {string}  string  "Unauthorized"
-// @Failure      404  {string}  string  "Not Found"
-// @Failure      405  {string}  string  "Method Not Allowed"
-// @Failure      429  {string}  string  "Too Many Requests"
-// @Failure      500  {string}  string  "Internal Server Error"
+// @Param        clusterName  path      string                     true   "The name of the cluster"
+// @Success      200          {string}  string  "Operation status"
+// @Failure      400          {string}  string  "Bad Request"
+// @Failure      401          {string}  string  "Unauthorized"
+// @Failure      404          {string}  string  "Not Found"
+// @Failure      405          {string}  string  "Method Not Allowed"
+// @Failure      429          {string}  string  "Too Many Requests"
+// @Failure      500          {string}  string  "Internal Server Error"
 // @Router       /rest-api/v1/cluster/{clusterName} [delete]
 func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
