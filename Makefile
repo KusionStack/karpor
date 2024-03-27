@@ -141,4 +141,4 @@ gen-api-spec: ## Generate API Specification with OpenAPI format
 .PHONY: gen-api-doc
 gen-api-doc: ## Generate API Documentation by API Specification
 	@which swagger > /dev/null || (echo "Installing swagger@v0.30.5 ..."; go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5 && echo "Installation complete!\n")
-	-swagger generate markdown -f ./api/openapispec/swagger.json && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+	-swagger generate markdown -f ./api/openapispec/swagger.json --output=docs/api.md && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
