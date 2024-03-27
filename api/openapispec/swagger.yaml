@@ -144,6 +144,8 @@ definitions:
     type: object
 info:
   contact: {}
+  title: Karbour
+  version: "1.0"
 paths:
   /endpoints:
     get:

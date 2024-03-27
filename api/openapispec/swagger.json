@@ -1,7 +1,9 @@
 {
     "swagger": "2.0",
     "info": {
-        "contact": {}
+        "title": "Karbour",
+        "contact": {},
+        "version": "1.0"
     },
     "paths": {
         "/endpoints": {
