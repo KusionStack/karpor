@@ -37,7 +37,7 @@ type Storage interface {
 	Get(ctx context.Context, cluster string, obj runtime.Object) error
 	Save(ctx context.Context, cluster string, obj runtime.Object) error
 	Delete(ctx context.Context, cluster string, obj runtime.Object) error
-	DeleteAllResourcesInCluster(ctx context.Context, cluster string) error
+	DeleteAllResources(ctx context.Context, cluster string) error
 }
 
 type Query struct {

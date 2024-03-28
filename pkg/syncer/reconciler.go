@@ -136,7 +136,7 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 func (r *SyncReconciler) stopCluster(ctx context.Context, clusterName string) error {
 	logger := ctrl.LoggerFrom(ctx)
 	logger.Info("start to stop syncing cluster", "cluster", clusterName)
-	if err := r.storage.DeleteAllResourcesInCluster(ctx, clusterName); err != nil {
+	if err := r.storage.DeleteAllResources(ctx, clusterName); err != nil {
 		return err
 	}
 	r.mgr.Stop(ctx, clusterName)

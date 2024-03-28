@@ -77,7 +77,7 @@ func (s *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) e
 	return nil
 }
 
-func (s *Storage) DeleteAllResourcesInCluster(ctx context.Context, cluster string) error {
+func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error {
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
 		esquery.Term(clusterKey, cluster),
