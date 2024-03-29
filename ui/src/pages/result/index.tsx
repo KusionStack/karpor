@@ -1,16 +1,16 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Pagination, Empty, Divider, message, Tooltip } from 'antd'
 import axios from 'axios'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ClockCircleOutlined, CloseOutlined } from '@ant-design/icons'
+import { ClockCircleOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
-import SearchInput from '@/components/searchInput'
+import SqlEditor from '@/components/sqlSearch'
 import KarbourTabs from '@/components/tabs/index'
-import { searchPrefix } from '@/utils/constants'
 import { utcDateToLocalDate } from '@/utils/tools'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
+import { searchSqlPrefix } from '@/utils/constants'
 
 import styles from './styles.module.less'
 
@@ -27,58 +27,12 @@ const Result = () => {
     query: urlSearchParams?.query || '',
     total: 0,
   })
-  const [options, setOptions] = useState<{ value: string }[]>([])
   const [loading, setLoading] = useState(false)
-  const [optionsCopy, setOptionsCopy] = useState<{ value: string }[]>([])
-  const optionsRef = useRef<any>(getHistoryList())
-
-  function getHistoryList() {
-    const historyList: any = localStorage?.getItem(`${searchType}History`)
-      ? JSON.parse(localStorage?.getItem(`${searchType}History`))
-      : []
-    return historyList
-  }
-
-  function deleteHistoryByItem(searchType: string, val: string) {
-    const lastHistory: any = localStorage.getItem(`${searchType}History`)
-    const tmp = lastHistory ? JSON.parse(lastHistory) : []
-    if (tmp?.length > 0 && tmp?.includes(val)) {
-      const newList = tmp?.filter(item => item !== val)
-      localStorage.setItem(`${searchType}History`, JSON.stringify(newList))
-    }
-  }
 
   const tabsList = [
     { label: t('KeywordSearch'), value: 'keyword', disabled: true },
     { label: t('SQLSearch'), value: 'sql' },
   ]
-
-  function deleteItem(event, value) {
-    event.preventDefault()
-    event.stopPropagation()
-    deleteHistoryByItem(searchType, value)
-    optionsRef.current = getHistoryList()
-    setOptionsCopy(optionsRef.current)
-  }
-
-  useEffect(() => {
-    const tmpOption = optionsRef.current?.map(item => ({
-      label: (
-        <div className={styles.option_item}>
-          <div className={styles.option_item_label}>{item}</div>
-          <div
-            className={styles.option_item_delete}
-            onClick={event => deleteItem(event, item)}
-          >
-            <CloseOutlined style={{ color: '#808080' }} />
-          </div>
-        </div>
-      ),
-      value: item,
-    }))
-    setOptions(tmpOption)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optionsCopy])
 
   function handleTabChange(value: string) {
     setSearchType(value)
@@ -100,7 +54,7 @@ const Result = () => {
         'Content-Type': 'application/json',
       },
       params: {
-        query: `${searchPrefix} ${params?.query || searchParams?.query}`, // encodeURIComponent(searchValue as any),
+        query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`, // encodeURIComponent(searchValue as any),
         ...(searchType === 'sql' ? { pattern: 'sql' } : {}),
         page: params?.page || searchParams?.page,
         pageSize: params?.pageSize || searchParams?.pageSize,
@@ -129,36 +83,14 @@ const Result = () => {
     getPageData(searchParams)
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  function handleInputChange(value: any) {
+  function handleSearch(inputValue) {
     setSearchParams({
       ...searchParams,
-      query: value,
+      query: inputValue,
     })
-  }
-
-  function cacheHistory(searchType: string, val: string) {
-    const lastHistory: any = localStorage.getItem(`${searchType}History`)
-    const tmp = lastHistory ? JSON.parse(lastHistory) : []
-    if (tmp?.length > 0 && tmp?.includes(val)) {
-      return
-    } else {
-      const newList = [val, ...tmp]
-      localStorage.setItem(`${searchType}History`, JSON.stringify(newList))
-      optionsRef.current = getHistoryList()
-      setOptionsCopy(optionsRef.current)
-    }
-  }
-
-  function handleSearch() {
-    // if (!searchParams?.query) {
-    //   message.warning("请输入查询条件")
-    //   return
-    // }
-    if (searchParams?.query) {
-      cacheHistory(searchType, searchParams?.query as any)
-    }
     getPageData({
       ...searchParams,
+      query: inputValue,
       page: 1,
     })
   }
@@ -197,12 +129,6 @@ const Result = () => {
     navigate(`/insightDetail/${nav}?${urlParams}`)
   }
 
-  function handleOnkeyUp(event) {
-    if (event?.code === 'Enter' && event?.keyCode === 13) {
-      handleSearch()
-    }
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.searchTab}>
@@ -212,12 +138,18 @@ const Result = () => {
           onChange={handleTabChange}
         />
       </div>
-      <SearchInput
+      {/* <SearchInput
         value={searchParams?.query as any}
         handleSearch={handleSearch}
         handleOnkeyUp={handleOnkeyUp}
         options={options}
         handleInputChange={handleInputChange}
+      /> */}
+      <SqlEditor
+        sqlEditorValue={
+          (searchParams?.query || urlSearchParams?.query) as string
+        }
+        handleSearch={handleSearch}
       />
       <div className={styles.content}>
         {loading ? (
