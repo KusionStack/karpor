@@ -1,6 +1,6 @@
 import React from 'react'
 import { AutoComplete, Input, Space } from 'antd'
-import { searchPrefix } from '@/utils/constants'
+import { searchSqlPrefix } from '@/utils/constants'
 import arrowRight from '@/assets/arrow-right.png'
 
 import styles from './styles.module.less'
@@ -25,7 +25,7 @@ const SearchInput = (props: IProps) => {
       <Space.Compact>
         <Input
           disabled
-          value={searchPrefix}
+          value={searchSqlPrefix}
           style={{
             width: 200,
             fontSize: 16,

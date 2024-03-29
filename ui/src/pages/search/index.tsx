@@ -14,29 +14,21 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useState } from 'react'
 import { Tag } from 'antd'
-import { useNavigate } from 'react-router-dom'
-import {
-  CloseOutlined,
-  DoubleLeftOutlined,
-  DoubleRightOutlined,
-} from '@ant-design/icons'
+import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import KarbourTabs from '@/components/tabs/index'
 import logoJPG from '@/assets/logo.jpg'
-import SearchInput from '@/components/searchInput'
-// import SqlEditor from './sqlSearch'
+import SqlEditor from '@/components/sqlSearch'
 
 import styles from './styles.module.less'
 
 const SearchPage = () => {
   const navigate = useNavigate()
   const [searchType, setSearchType] = useState<string>('sql')
-  const [inputValue, setInputValue] = useState('')
-  const [options, setOptions] = useState<{ value: string }[]>([])
-  const [optionsCopy, setOptionsCopy] = useState<{ value: string }[]>([])
-  const optionsRef = useRef<any>(getHistoryList())
+  const [sqlEditorValue, setSqlEditorValue] = useState<any>('')
 
   const [showAll, setShowAll] = useState(false)
 
@@ -47,111 +39,28 @@ const SearchPage = () => {
     { label: t('SQLSearch'), value: 'sql' },
   ]
 
-  // 创建一个函数来切换展示状态
   const toggleTags = () => {
     setShowAll(!showAll)
   }
 
-  function getHistoryList() {
-    const historyList: any = localStorage?.getItem(`${searchType}History`)
-      ? JSON.parse(localStorage?.getItem(`${searchType}History`))
-      : []
-    return historyList
-  }
-
-  function deleteHistoryByItem(searchType: string, val: string) {
-    const lastHistory: any = localStorage.getItem(`${searchType}History`)
-    const tmp = lastHistory ? JSON.parse(lastHistory) : []
-    if (tmp?.length > 0 && tmp?.includes(val)) {
-      const newList = tmp?.filter(item => item !== val)
-      localStorage.setItem(`${searchType}History`, JSON.stringify(newList))
-    }
-  }
-
-  function deleteItem(event, value) {
-    event.preventDefault()
-    event.stopPropagation()
-    deleteHistoryByItem(searchType, value)
-    optionsRef.current = getHistoryList()
-    setOptionsCopy(optionsRef.current)
-  }
-
-  useEffect(() => {
-    const tmpOption = optionsRef.current?.map(item => ({
-      label: (
-        <div className={styles.option_item}>
-          <div className={styles.option_item_label}>{item}</div>
-          <div
-            className={styles.option_item_delete}
-            onClick={event => deleteItem(event, item)}
-          >
-            <CloseOutlined style={{ color: '#808080' }} />
-          </div>
-        </div>
-      ),
-      value: item,
-    }))
-    setOptions(tmpOption)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [optionsCopy])
-
-  const handleTabChange = (value: string) => {
+  function handleTabChange(value: string) {
     setSearchType(value)
   }
 
-  function cacheHistory(searchType: string, val: string) {
-    const lastHistory: any = localStorage.getItem(`${searchType}History`)
-    const tmp = lastHistory ? JSON.parse(lastHistory) : []
-    if (tmp?.length > 0 && tmp?.includes(val)) {
-      return
-    } else {
-      const newList = [val, ...tmp]
-      localStorage.setItem(`${searchType}History`, JSON.stringify(newList))
-      optionsRef.current = getHistoryList()
-      setOptionsCopy(optionsRef.current)
-    }
-  }
-
-  const handleSearch = () => {
-    // if (!inputValue) {
-    //   message.warning("请输入查询条件")
-    //   return
-    // }
-    if (inputValue) {
-      cacheHistory(searchType, inputValue)
-    }
-    if (searchType.toLocaleUpperCase() === 'sql') {
-      navigate(`/search/result?query=${inputValue}&pattern=sql`)
-    } else {
-      navigate(`/search/result?query=${inputValue}&pattern=sql`)
-    }
-  }
-
-  const handleInputChange = (value: any) => {
-    setInputValue(value)
-  }
-
   function handleClickSql(str) {
-    setInputValue(str)
+    setSqlEditorValue(str)
   }
 
-  function handleOnkeyUp(event) {
-    if (event?.code === 'Enter' && event?.keyCode === 13) {
-      handleSearch()
-    }
+  function handleSearch(inputValue) {
+    navigate(`/search/result?query=${inputValue}&pattern=sql`)
   }
 
   return (
     <div className={styles.container}>
       <div className={styles.search}>
-        {/* <SqlEditor /> */}
         <div className={styles.title}>
-          {/* Hi~ 欢迎来到KarBour */}
           <img src={logoJPG} width="30%" alt="icon" />
         </div>
-        {/* <div className={styles.subTitle}>
-        你可以通过搜索，匹配集群及其所有资源，帮你轻松管理
-      </div> */}
         <div className={styles.searchTab}>
           <KarbourTabs
             list={tabsList}
@@ -159,12 +68,9 @@ const SearchPage = () => {
             onChange={handleTabChange}
           />
         </div>
-        <SearchInput
-          value={inputValue}
+        <SqlEditor
+          sqlEditorValue={sqlEditorValue}
           handleSearch={handleSearch}
-          handleOnkeyUp={handleOnkeyUp}
-          options={options}
-          handleInputChange={handleInputChange}
         />
         <div className={styles.examples}>
           {searchType === 'keyword' ? (
@@ -179,12 +85,6 @@ const SearchPage = () => {
                   /.*my-application.*/kind:pod
                 </Tag>
               </div>
-              <div className={styles.item}>
-                <Tag style={{ color: '#000' }}>
-                  <span className={styles.keyword}>cluster:</span>
-                  xxxkind:service
-                </Tag>
-              </div>
             </div>
           ) : (
             <div className={styles.sql}>
@@ -194,7 +94,8 @@ const SearchPage = () => {
               >
                 <span className={styles.keyword}>select</span> *{' '}
                 <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>kind='Namespace'
+                <span className={styles.keyword}>where </span>
+                kind='Namespace'
               </div>
               <div
                 className={styles.karbour_tag}
@@ -202,7 +103,8 @@ const SearchPage = () => {
               >
                 <span className={styles.keyword}>select</span> *{' '}
                 <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>kind!='Pod'
+                <span className={styles.keyword}>where </span>
+                kind!='Pod'
               </div>
               <div
                 className={styles.karbour_tag}
@@ -232,69 +134,86 @@ const SearchPage = () => {
               >
                 <span className={styles.keyword}>select</span> *{' '}
                 <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>kind not in
-                ('pod','service')
+                <span className={styles.keyword}>where </span>
+                kind not in ('pod','service')
+              </div>
+              <div
+                className={styles.karbour_tag}
+                onClick={() =>
+                  handleClickSql(
+                    `where ${"`annotations.app.kubernetes.io/name` = 'demoapp'"}`,
+                  )
+                }
+              >
+                <span className={styles.keyword}>select</span> *{' '}
+                <span className={styles.keyword}>from</span> resources{' '}
+                <span className={styles.keyword}>where </span>
+                `annotations.app.kubernetes.io/name` = 'demoapp'
               </div>
               {!showAll && (
                 <div className={styles.toggleButton} onClick={toggleTags}>
                   <span>
                     {t('More')}
                     <DoubleLeftOutlined
-                      style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
+                      style={{
+                        transform: 'rotate(-90deg)',
+                        marginLeft: 5,
+                      }}
                     />
                   </span>
                 </div>
               )}
-              {/* 当showAll为true时，显示收起按钮 */}
               {showAll && (
                 <>
                   <div
                     className={styles.karbour_tag}
                     onClick={() =>
                       handleClickSql(
-                        `where kind='Service' order by object.metadata.creationTimestamp desc`,
-                      )
-                    }
-                  >
-                    <span className={styles.keyword}>select</span> *{' '}
-                    <span className={styles.keyword}>from</span> resources{' '}
-                    <span className={styles.keyword}>where </span>kind='Service'
-                    order by object.metadata.creationTimestamp desc
-                  </div>
-                  <div
-                    className={styles.karbour_tag}
-                    onClick={() =>
-                      handleClickSql(
-                        `where kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`,
+                        `where kind='Service' order by creationTimestamp desc`,
                       )
                     }
                   >
                     <span className={styles.keyword}>select</span> *{' '}
                     <span className={styles.keyword}>from</span> resources{' '}
                     <span className={styles.keyword}>where </span>
-                    {`kind='Deployment' and object.metadata.creationTimestamp < '2024-01-01T18:00:00Z'`}
+                    kind='Service' order by creationTimestamp desc
                   </div>
                   <div
                     className={styles.karbour_tag}
                     onClick={() =>
                       handleClickSql(
-                        `where kind='Pod' and object.metadata.creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by object.metadata.creationTimestamp`,
+                        `where kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`,
                       )
                     }
                   >
                     <span className={styles.keyword}>select</span> *{' '}
                     <span className={styles.keyword}>from</span> resources{' '}
-                    <span className={styles.keyword}>where </span>kind='Pod' and
-                    object.metadata.creationTimestamp between
+                    <span className={styles.keyword}>where </span>
+                    {`kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`}
+                  </div>
+                  <div
+                    className={styles.karbour_tag}
+                    onClick={() =>
+                      handleClickSql(
+                        `where kind='Pod' and creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by creationTimestamp`,
+                      )
+                    }
+                  >
+                    <span className={styles.keyword}>select</span> *{' '}
+                    <span className={styles.keyword}>from</span> resources{' '}
+                    <span className={styles.keyword}>where </span>
+                    kind='Pod' and creationTimestamp between
                     '2024-01-01T18:00:00Z'
-                    <br /> and '2024-01-11T18:00:00Z' order by
-                    object.metadata.creationTimestamp
+                    <br /> and '2024-01-11T18:00:00Z' order by creationTimestamp
                   </div>
                   <div className={styles.toggleButton} onClick={toggleTags}>
                     <span>
                       {t('Less')}
                       <DoubleRightOutlined
-                        style={{ transform: 'rotate(-90deg)', marginLeft: 5 }}
+                        style={{
+                          transform: 'rotate(-90deg)',
+                          marginLeft: 5,
+                        }}
                       />
                     </span>
                   </div>
