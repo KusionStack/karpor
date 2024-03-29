@@ -23,8 +23,8 @@ test:  ## Run the tests
 
 .PHONY: cover
 cover:  ## Generates coverage report
-	@go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -v "internalimport"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
-	(echo "\nCalculate coverage rate:"; go tool cover -func=coverage.out) || (echo "💥 Running go test fail!"; exit 1)
+	@echo "🚀 Executing all unit tests:"; go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -vE "internalimport|generated"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
+	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test fail!"; exit 1)
 
 # Target: update-codegen
 # Description: Updates the generated code using the 'hack/update-codegen.sh' script.
