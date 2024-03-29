@@ -29,29 +29,29 @@ import (
 
 var ErrNotFound = fmt.Errorf("object not found")
 
-func (e *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) error {
-	id, body, err := e.generateIndexRequest(cluster, obj)
+func (s *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) error {
+	id, body, err := s.generateIndexRequest(cluster, obj)
 	if err != nil {
 		return err
 	}
-	return e.client.SaveDocument(ctx, e.indexName, id, bytes.NewReader(body))
+	return s.client.SaveDocument(ctx, s.indexName, id, bytes.NewReader(body))
 }
 
-func (e *Storage) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
+func (s *Storage) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
 		return fmt.Errorf("only support *unstructured.Unstructured type")
 	}
 
-	if err := e.Get(ctx, cluster, unObj); err != nil {
+	if err := s.Get(ctx, cluster, unObj); err != nil {
 		return err
 	}
 
-	return e.client.DeleteDocument(ctx, e.indexName, string(unObj.GetUID()))
+	return s.client.DeleteDocument(ctx, s.indexName, string(unObj.GetUID()))
 }
 
-func (e *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) error {
+func (s *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
 		// TODO: support other implement of runtime.Object
@@ -63,7 +63,7 @@ func (e *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) e
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return err
 	}
-	resp, err := e.client.SearchDocument(ctx, e.indexName, buf)
+	resp, err := s.client.SearchDocument(ctx, s.indexName, buf)
 	if err != nil {
 		return err
 	}
@@ -75,6 +75,18 @@ func (e *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) e
 
 	unObj.Object = res.Object
 	return nil
+}
+
+func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error {
+	query := make(map[string]interface{})
+	query["query"] = esquery.Bool().Must(
+		esquery.Term(clusterKey, cluster),
+	).Map()
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return err
+	}
+	return s.client.DeleteDocumentByQuery(ctx, s.indexName, buf)
 }
 
 func generateQuery(cluster, namespace, name string, obj runtime.Object) map[string]interface{} {
@@ -89,14 +101,14 @@ func generateQuery(cluster, namespace, name string, obj runtime.Object) map[stri
 	return query
 }
 
-func (e *Storage) generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
+func (s *Storage) generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
 	metaObj, err := meta.Accessor(obj)
 	if err != nil {
 		return
 	}
 
 	buf := bytes.NewBuffer([]byte{})
-	if err = e.objectEncoder.Encode(obj, buf); err != nil {
+	if err = s.objectEncoder.Encode(obj, buf); err != nil {
 		return
 	}
 

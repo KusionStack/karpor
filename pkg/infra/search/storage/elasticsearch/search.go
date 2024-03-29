@@ -33,18 +33,18 @@ type Pagination struct {
 	PageSize int
 }
 
-func (e *Storage) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var sr *storage.SearchResult
 	var err error
 
 	switch patternType {
 	case storage.DSLPatternType:
-		sr, err = e.searchByDSL(ctx, queryStr, pagination)
+		sr, err = s.searchByDSL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by DSL failed")
 		}
 	case storage.SQLPatternType:
-		sr, err = e.searchBySQL(ctx, queryStr, pagination)
+		sr, err = s.searchBySQL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by SQL failed")
 		}
@@ -55,7 +55,7 @@ func (e *Storage) Search(ctx context.Context, queryStr string, patternType strin
 	return sr, nil
 }
 
-func (e *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	queries, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
@@ -64,35 +64,35 @@ func (e *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *st
 	if err != nil {
 		return nil, err
 	}
-	res, err := e.SearchByQuery(ctx, esQuery, pagination)
+	res, err := s.SearchByQuery(ctx, esQuery, pagination)
 	if err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
-func (e *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	dsl, _, err := sql2es.Convert(sqlStr)
 	if err != nil {
 		return nil, err
 	}
-	return e.search(ctx, strings.NewReader(dsl), pagination)
+	return s.search(ctx, strings.NewReader(dsl), pagination)
 }
 
-func (e *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
 		return nil, err
 	}
-	return e.search(ctx, buf, pagination)
+	return s.search(ctx, buf, pagination)
 }
 
-func (e *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {
 		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
 	}
-	resp, err := e.client.SearchDocument(ctx, e.indexName, body, opts...)
+	resp, err := s.client.SearchDocument(ctx, s.indexName, body, opts...)
 	if err != nil {
 		return nil, err
 	}

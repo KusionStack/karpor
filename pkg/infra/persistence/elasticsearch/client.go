@@ -103,6 +103,21 @@ func (cl *Client) DeleteDocument(ctx context.Context, indexName string, document
 	return nil
 }
 
+func (cl *Client) DeleteDocumentByQuery(ctx context.Context, indexName string, body io.Reader) error {
+	resp, err := cl.client.DeleteByQuery([]string{indexName}, body, cl.client.DeleteByQuery.WithContext(ctx))
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.IsError() {
+		return &ESError{
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
+		}
+	}
+	return nil
+}
+
 // SearchDocument performs a search query in the specified index
 func (cl *Client) SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResponse, error) {
 	cfg := &config{}
