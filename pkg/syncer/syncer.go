@@ -155,39 +155,53 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 }
 
 func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
-	val, exists, err := s.source.GetByKey(key)
+	op, err := s.syncStorage(ctx, key)
 	if err != nil {
+		s.logger.Error(err, "failed to sync", "key", key, "operation", op)
 		return err
 	}
 
-	var op string
-	if exists {
-		op = "save"
-		obj := val.(*unstructured.Unstructured)
-		err = s.storage.Save(ctx, s.source.Cluster(), obj)
-	} else {
-		op = "delete"
-		obj := genUnObj(s.SyncRule(), key)
-		err = s.storage.Delete(ctx, s.source.Cluster(), obj)
-		if errors.Is(err, elasticsearch.ErrNotFound) {
-			s.logger.Error(err, "failed to sync", "key", key, "op", op)
-			err = nil
-		}
-	}
-
-	if err != nil {
-		s.logger.Error(err, "failed to sync", "key", key, "op", op)
-		return err
-	}
-
-	s.logger.V(1).Info("successfully sync", "key", key, "op", op)
+	s.logger.V(1).Info("successfully sync", "key", key, "operation", op)
 	return nil
 }
 
-func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
+func (s *ResourceSyncer) syncStorage(ctx context.Context, key string) (string, error) {
+	val, exists, err := s.source.GetByKey(key)
+	if err != nil {
+		return "none", err
+	}
+
+	if exists {
+		err = s.storage.Save(ctx, s.source.Cluster(), val.(*unstructured.Unstructured))
+		return "save", err
+	}
+
+	obj, err := genUnObj(s.SyncRule(), key)
+	if err != nil {
+		return "none", err
+	}
+
+	op := "delete"
+	err = s.storage.Delete(ctx, s.source.Cluster(), obj)
+	if err != nil {
+		if errors.Is(err, elasticsearch.ErrNotFound) {
+			return op, nil
+		}
+		return op, err
+	}
+	return op, nil
+}
+
+func genUnObj(sr v1beta1.ResourceSyncRule, key string) (*unstructured.Unstructured, error) {
 	obj := &unstructured.Unstructured{}
 	obj.SetAPIVersion(sr.APIVersion)
+	if len(sr.Resource) == 0 {
+		return nil, fmt.Errorf("resource name is not provided in ResourceSyncRule")
+	}
 	obj.SetKind(sr.Resource[0 : len(sr.Resource)-1])
+	if len(key) == 0 {
+		return nil, fmt.Errorf("key is not provided")
+	}
 	keys := strings.Split(key, "/")
 	if len(keys) == 1 {
 		obj.SetName(keys[0])
@@ -195,5 +209,5 @@ func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructure
 		obj.SetNamespace(keys[0])
 		obj.SetName(keys[1])
 	}
-	return obj
+	return obj, nil
 }
