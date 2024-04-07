@@ -19,12 +19,20 @@ endif
 # please visit https://github.com/eisenxp/macos-golink-wrapper to find the solution.
 .PHONY: test
 test:  ## Run the tests
-	go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -v "internalimport"` ${TEST_FLAGS}
+	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -v "internalimport"` ${TEST_FLAGS}
 
+
+# cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.
+# Usage:
+#   make cover                              # use the default GOSOURCE_PATHS
+#   make cover TARGET_PKG='./pkg/util/...'  # specify a custom package path
 .PHONY: cover
-cover:  ## Generates coverage report
-	@echo "🚀 Executing all unit tests:"; go test -gcflags=all=-l -timeout=10m `go list $(GOSOURCE_PATHS) | grep -vE "internalimport|generated"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
-	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test fail!"; exit 1)
+cover: ## Generates coverage report
+	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
+	echo "🚀 Executing unit tests for $${PKG_LIST}:"; \
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
+	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test failed!"; exit 1)
 
 # Target: update-codegen
 # Description: Updates the generated code using the 'hack/update-codegen.sh' script.
