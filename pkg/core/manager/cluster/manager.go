@@ -84,7 +84,7 @@ func (c *ClusterManager) CreateCluster(ctx context.Context, client *multicluster
 	return client.DynamicClient.Resource(clusterGVR).Create(ctx, unstructuredCluster, metav1.CreateOptions{})
 }
 
-// UpdateCluster updates cluster by name with a full payload
+// UpdateMetadata updates cluster by name with a full payload
 func (c *ClusterManager) UpdateMetadata(ctx context.Context, client *multicluster.MultiClusterClient, name, displayName, description string) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	// Make sure the cluster exists first
@@ -139,7 +139,7 @@ func (c *ClusterManager) DeleteCluster(ctx context.Context, client *multicluster
 	return client.DynamicClient.Resource(clusterGVR).Delete(ctx, name, metav1.DeleteOptions{})
 }
 
-// List returns the full list of clusters in a specific order
+// ListCluster returns the full list of clusters in a specific order
 func (c *ClusterManager) ListCluster(ctx context.Context, client *multicluster.MultiClusterClient, orderBy SortCriteria, descending bool) (*unstructured.UnstructuredList, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	clusterList, err := client.DynamicClient.Resource(clusterGVR).List(ctx, metav1.ListOptions{})
