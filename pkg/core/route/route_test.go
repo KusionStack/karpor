@@ -29,8 +29,11 @@ import (
 	"k8s.io/apiserver/pkg/server"
 )
 
+// mockSearchStorage is an in-memory implementation of the SearchStorage
+// interface for testing purposes.
 type mockSearchStorage struct{}
 
+// Search implements the search operation returning a single mock resource.
 func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	return &storage.SearchResult{
 		Total: 1,
@@ -45,6 +48,8 @@ func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType
 	}, nil
 }
 
+// TestNewCoreRoute will test the NewCoreRoute function with different
+// configurations.
 func TestNewCoreRoute(t *testing.T) {
 	tests := []struct {
 		name         string
@@ -69,6 +74,8 @@ func TestNewCoreRoute(t *testing.T) {
 	// Initialize dummy server config.
 	genericConfig := &server.CompletedConfig{}
 
+	// Mock the NewSearchStorage function to return a mock storage instead of
+	// actual implementation.
 	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
 
 	for _, tt := range tests {
