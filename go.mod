@@ -63,6 +63,8 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
+require github.com/stretchr/objx v0.5.0 // indirect
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect

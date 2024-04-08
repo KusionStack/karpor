@@ -61,37 +61,9 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	controller, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterv1beta1.Cluster{}).
 		Watches(&source.Kind{Type: &searchv1beta1.SyncRegistry{}}, &handler.Funcs{
-			CreateFunc: func(ce event.CreateEvent, queue workqueue.RateLimitingInterface) {
-				registry := ce.Object.(*searchv1beta1.SyncRegistry)
-				for _, clusterName := range r.getMatchedClusters(registry) {
-					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
-				}
-			},
-			UpdateFunc: func(ue event.UpdateEvent, queue workqueue.RateLimitingInterface) {
-				oldRegistry := ue.ObjectOld.(*searchv1beta1.SyncRegistry)
-				newRegistry := ue.ObjectNew.(*searchv1beta1.SyncRegistry)
-
-				if newRegistry.ResourceVersion == oldRegistry.ResourceVersion || reflect.DeepEqual(newRegistry.Spec, oldRegistry.Spec) {
-					return
-				}
-
-				clusters := make(map[string]struct{})
-				for _, clusterName := range r.getMatchedClusters(newRegistry) {
-					clusters[clusterName] = struct{}{}
-				}
-				for _, clusterName := range r.getMatchedClusters(oldRegistry) {
-					clusters[clusterName] = struct{}{}
-				}
-				for clusterName := range clusters {
-					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
-				}
-			},
-			DeleteFunc: func(de event.DeleteEvent, queue workqueue.RateLimitingInterface) {
-				registry := de.Object.(*searchv1beta1.SyncRegistry)
-				for _, clusterName := range r.getMatchedClusters(registry) {
-					queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
-				}
-			},
+			CreateFunc: r.CreateEvent,
+			UpdateFunc: r.UpdateEvent,
+			DeleteFunc: r.DeleteEvent,
 		}).
 		// TODO: watch syncResources & transformRule
 		// Watches(&searchv1beta1.SyncResources{}).
@@ -105,6 +77,40 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	// TODO:
 	r.mgr = NewMultiClusterSyncManager(context.Background(), r.controller, r.storage)
 	return nil
+}
+
+func (r *SyncReconciler) CreateEvent(ce event.CreateEvent, queue workqueue.RateLimitingInterface) {
+	registry := ce.Object.(*searchv1beta1.SyncRegistry)
+	for _, clusterName := range r.getMatchedClusters(registry) {
+		queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
+	}
+}
+
+func (r *SyncReconciler) UpdateEvent(ue event.UpdateEvent, queue workqueue.RateLimitingInterface) {
+	oldRegistry := ue.ObjectOld.(*searchv1beta1.SyncRegistry)
+	newRegistry := ue.ObjectNew.(*searchv1beta1.SyncRegistry)
+
+	if newRegistry.ResourceVersion == oldRegistry.ResourceVersion || reflect.DeepEqual(newRegistry.Spec, oldRegistry.Spec) {
+		return
+	}
+
+	clusters := make(map[string]struct{})
+	for _, clusterName := range r.getMatchedClusters(newRegistry) {
+		clusters[clusterName] = struct{}{}
+	}
+	for _, clusterName := range r.getMatchedClusters(oldRegistry) {
+		clusters[clusterName] = struct{}{}
+	}
+	for clusterName := range clusters {
+		queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
+	}
+}
+
+func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateLimitingInterface) {
+	registry := de.Object.(*searchv1beta1.SyncRegistry)
+	for _, clusterName := range r.getMatchedClusters(registry) {
+		queue.Add(reconcile.Request{NamespacedName: types.NamespacedName{Name: clusterName}})
+	}
 }
 
 func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
