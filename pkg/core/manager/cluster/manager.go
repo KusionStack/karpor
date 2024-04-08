@@ -231,7 +231,7 @@ func (c *ClusterManager) SanitizeKubeConfigWithYAML(ctx context.Context, plain s
 
 	// Convert YAML to KubeConfig struct.
 	if err = yaml.Unmarshal([]byte(plain), &config); err != nil {
-		return "", err
+		return "", errors2.Wrap(err, "failed to parse kubeconfig")
 	}
 
 	// Perform sanitization of the KubeConfig data.
@@ -291,7 +291,7 @@ func (c *ClusterManager) ValidateKubeConfigWithYAML(ctx context.Context, plain s
 
 	// Convert YAML to KubeConfig struct.
 	if err := yaml.Unmarshal([]byte(plain), &config); err != nil {
-		return "", err
+		return "", errors2.Wrap(err, "failed to parse kubeconfig")
 	}
 
 	// Validate the KubeConfig.

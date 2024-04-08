@@ -16,6 +16,8 @@ package cluster
 
 import (
 	"context"
+	"encoding/base64"
+	"fmt"
 	"testing"
 
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -41,13 +43,16 @@ func newUnstructured(apiVersion, kind, name string) *unstructured.Unstructured {
 	}
 }
 
+// newMockKubeConfig generates a mock kubeconfig with sensitive information
+// included.
 func newMockKubeConfig() string {
-	return `apiVersion: v1
+	return fmt.Sprintf(`apiVersion: v1
 kind: Config
 clusters:
 - name: test-cluster
   cluster:
     server: https://127.0.0.1:6443
+    certificate-authority-data: %s
 users:
 - name: test-user
   user:
@@ -57,7 +62,38 @@ contexts:
   context:
     cluster: test-cluster
     user: test-user
-current-context: test-context`
+current-context: test-context
+`, base64.StdEncoding.EncodeToString([]byte("sensitive-certificate-data")))
+}
+
+// newMockCluster is a helper function that creates a mock cluster unstructured
+// object.
+func newMockCluster(name string) *unstructured.Unstructured {
+	// Create the base unstructured object
+	unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", name)
+
+	// Populate the object with the mock data
+	unsanitizedCluster.Object["spec"] = map[string]interface{}{
+		"displayName": "Existing Cluster",
+		"description": "mock-description",
+		"access": map[string]interface{}{
+			"credential": map[string]interface{}{
+				"serviceAccountToken": "sensitive-token",
+				"x509": map[string]interface{}{
+					"certificate": "sensitive-certificate",
+					"privateKey":  "sensitive-private-key",
+				},
+				"caBundle": "sensitive-ca-bundle",
+			},
+		},
+	}
+
+	// Set annotations on the object
+	unsanitizedCluster.SetAnnotations(map[string]string{
+		"kubectl.kubernetes.io/last-applied-configuration": "sensitive-configuration",
+	})
+
+	return unsanitizedCluster
 }
 
 type mockNamespaceableResource struct {
@@ -66,27 +102,20 @@ type mockNamespaceableResource struct {
 
 func (m *mockNamespaceableResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
 	if name == "existing-cluster" {
-		unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", "existing-cluster")
-		unsanitizedCluster.Object["spec"] = map[string]interface{}{
-			"displayName": "Existing Cluster",
-			"description": "mock-description",
-			"access": map[string]interface{}{
-				"credential": map[string]interface{}{
-					"serviceAccountToken": "sensitive-token",
-					"x509": map[string]interface{}{
-						"certificate": "sensitive-certificate",
-						"privateKey":  "sensitive-private-key",
-					},
-					"caBundle": "sensitive-ca-bundle",
-				},
-			},
-		}
-		unsanitizedCluster.SetAnnotations(map[string]string{
-			"kubectl.kubernetes.io/last-applied-configuration": "sensitive-configuration",
-		})
-		return unsanitizedCluster, nil
+		return newMockCluster("existing-cluster"), nil
 	}
 	return nil, errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
+}
+
+func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
+	unsanitizedCluster := newMockCluster("existing-cluster")
+
+	return &unstructured.UnstructuredList{
+		Object: map[string]interface{}{"kind": "List", "apiVersion": "v1"},
+		Items: []unstructured.Unstructured{
+			*unsanitizedCluster,
+		},
+	}, nil
 }
 
 func (m *mockNamespaceableResource) Create(ctx context.Context, obj *unstructured.Unstructured, options metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
@@ -396,6 +425,199 @@ func TestDeleteCluster(t *testing.T) {
 				require.Error(t, err, "Expected an error when deleting non-existing cluster.")
 			} else {
 				require.NoError(t, err, "Did not expect an error when deleting existing cluster.")
+			}
+		})
+	}
+}
+
+// TestListCluster tests the ListCluster method for retrieving a list of
+// clusters.
+func TestListCluster(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name        string
+		orderBy     SortCriteria
+		descending  bool
+		expectError bool
+	}{
+		{
+			name:        "List clusters ordered by Name ascending",
+			orderBy:     ByName,
+			descending:  false,
+			expectError: false,
+		},
+		{
+			name:        "List clusters ordered by CreationDate descending",
+			orderBy:     ByTimestamp,
+			descending:  true,
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			result, err := manager.ListCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.orderBy, tc.descending)
+			if tc.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, result)
+			}
+		})
+	}
+}
+
+// TestGetYAMLForCluster tests the GetYAMLForCluster method.
+func TestGetYAMLForCluster(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name         string
+		clusterName  string
+		expectedErr  bool
+		expectedYAML string
+	}{
+		{
+			name:        "Get YAML for existing cluster",
+			clusterName: "existing-cluster",
+			expectedErr: false,
+			expectedYAML: `apiVersion: cluster.karbour.com/v1beta1
+kind: Cluster
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: '[redacted]'
+  name: existing-cluster
+spec:
+  access:
+    credential:
+      caBundle: sensitive-ca-bundle
+      serviceAccountToken: 0873************************bff6
+      x509:
+        certificate: ZmNjNCoqKioqKioqKioqKioqKioqKioqKioqKmNmMGM=
+        privateKey: M2I5NioqKioqKioqKioqKioqKioqKioqKioqKjY1MzY=
+  description: mock-description
+  displayName: Existing Cluster
+`,
+		},
+		{
+			name:        "Attempt to get YAML for non-existing cluster",
+			clusterName: "non-existing-cluster",
+			expectedErr: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			yamlData, err := manager.GetYAMLForCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+
+			if tc.expectedErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, yamlData, "Expected a non-nil YAML data.")
+				require.Equal(t, tc.expectedYAML, string(yamlData))
+			}
+		})
+	}
+}
+
+// TestSanitizeKubeConfigWithYAML tests the SanitizeKubeConfigWithYAML method.
+func TestSanitizeKubeConfigWithYAML(t *testing.T) {
+	manager := NewClusterManager()
+
+	testCases := []struct {
+		name                        string
+		plainKubeConfig             string
+		expectedSanitizedKubeConfig string
+		expectedErr                 bool
+		expectedErrorMessage        string
+	}{
+		{
+			name:            "Sanitize valid kubeconfig",
+			plainKubeConfig: newMockKubeConfig(),
+			expectedSanitizedKubeConfig: `apiVersion: v1
+kind: Config
+clusters:
+    - name: test-cluster
+      cluster:
+        server: https://127.0.0.1:6443
+        certificate-authority-data: 080a************************929b
+contexts:
+    - name: test-context
+      context:
+        cluster: test-cluster
+        user: test-user
+current-context: test-context
+users:
+    - name: test-user
+      user:
+        token: 6b26************************99af
+`,
+			expectedErr: false,
+		},
+		{
+			name:                 "Attempt to sanitize invalid kubeconfig",
+			plainKubeConfig:      "invalid",
+			expectedErr:          true,
+			expectedErrorMessage: "failed to parse kubeconfig",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			sanitizedConfig, err := manager.SanitizeKubeConfigWithYAML(context.TODO(), tc.plainKubeConfig)
+
+			if tc.expectedErr {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, sanitizedConfig, "Expected a non-nil sanitized config.")
+				require.Equal(t, tc.expectedSanitizedKubeConfig, sanitizedConfig)
+			}
+		})
+	}
+}
+
+// TestValidateKubeConfigWithYAML tests the ValidateKubeConfigWithYAML method.
+func TestValidateKubeConfigWithYAML(t *testing.T) {
+	manager := NewClusterManager()
+
+	testCases := []struct {
+		name                 string
+		plainKubeConfig      string
+		expectedErr          bool
+		expectedErrorMessage string
+	}{
+		{
+			name:                 "Validate unreachable kubeconfig",
+			plainKubeConfig:      newMockKubeConfig(),
+			expectedErr:          true,
+			expectedErrorMessage: ErrClusterServerConnectivity.Error(),
+		},
+		{
+			name:                 "Validate invalid kubeconfig",
+			plainKubeConfig:      "invalid",
+			expectedErr:          true,
+			expectedErrorMessage: "failed to parse kubeconfig",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			validatedVersion, err := manager.ValidateKubeConfigWithYAML(context.TODO(), tc.plainKubeConfig)
+
+			if tc.expectedErr {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, validatedVersion, "Expected a non-nil validated version.")
 			}
 		})
 	}
