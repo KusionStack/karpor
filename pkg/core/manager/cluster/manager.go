@@ -24,6 +24,7 @@ import (
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/KusionStack/karbour/pkg/util/clusterinstall"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	errors2 "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -68,7 +69,7 @@ func (c *ClusterManager) CreateCluster(ctx context.Context, client *multicluster
 	// Create rest.Config from the incoming KubeConfig
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrap(err, "failed to parse kubeconfig")
 	}
 
 	// Convert the rest.Config to Cluster object and create it using dynamic client
@@ -116,7 +117,7 @@ func (c *ClusterManager) UpdateCredential(ctx context.Context, client *multiclus
 	// Create new restConfig from updated kubeconfig
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
 	if err != nil {
-		return nil, err
+		return nil, errors2.Wrap(err, "failed to parse kubeconfig")
 	}
 
 	// Convert the rest.Config to Cluster object and update it using dynamic client

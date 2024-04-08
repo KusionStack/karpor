@@ -105,9 +105,8 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 	return clientConfig, nil
 }
 
-// SanitizeUnstructuredCluster masks sensitive information
-// within a Unstructured cluster object, such as user
-// credentials and certificate data.
+// SanitizeUnstructuredCluster masks sensitive information within a Unstructured
+// cluster object, such as user credentials and certificate data.
 func SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unstructured) (*unstructured.Unstructured, error) {
 	log := ctxutil.GetLogger(ctx)
 

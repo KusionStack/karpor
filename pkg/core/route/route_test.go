@@ -77,6 +77,7 @@ func TestNewCoreRoute(t *testing.T) {
 	// Mock the NewSearchStorage function to return a mock storage instead of
 	// actual implementation.
 	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
+	defer mockey.UnPatchAll()
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

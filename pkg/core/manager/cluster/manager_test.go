@@ -16,9 +16,152 @@ package cluster
 
 import (
 	"context"
-	"errors"
 	"testing"
+
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/client-go/dynamic"
 )
+
+// newUnstructured creates an unstructured object with the provided details.
+func newUnstructured(apiVersion, kind, name string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": apiVersion,
+			"kind":       kind,
+			"metadata": map[string]interface{}{
+				"name": name,
+			},
+		},
+	}
+}
+
+func newMockKubeConfig() string {
+	return `apiVersion: v1
+kind: Config
+clusters:
+- name: test-cluster
+  cluster:
+    server: https://127.0.0.1:6443
+users:
+- name: test-user
+  user:
+    token: fake-token
+contexts:
+- name: test-context
+  context:
+    cluster: test-cluster
+    user: test-user
+current-context: test-context`
+}
+
+type mockNamespaceableResource struct {
+	dynamic.NamespaceableResourceInterface
+}
+
+func (m *mockNamespaceableResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	if name == "existing-cluster" {
+		unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", "existing-cluster")
+		unsanitizedCluster.Object["spec"] = map[string]interface{}{
+			"displayName": "Existing Cluster",
+			"description": "mock-description",
+			"access": map[string]interface{}{
+				"credential": map[string]interface{}{
+					"serviceAccountToken": "sensitive-token",
+					"x509": map[string]interface{}{
+						"certificate": "sensitive-certificate",
+						"privateKey":  "sensitive-private-key",
+					},
+					"caBundle": "sensitive-ca-bundle",
+				},
+			},
+		}
+		unsanitizedCluster.SetAnnotations(map[string]string{
+			"kubectl.kubernetes.io/last-applied-configuration": "sensitive-configuration",
+		})
+		return unsanitizedCluster, nil
+	}
+	return nil, errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
+}
+
+func (m *mockNamespaceableResource) Create(ctx context.Context, obj *unstructured.Unstructured, options metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	return obj, nil
+}
+
+func (m *mockNamespaceableResource) Update(ctx context.Context, obj *unstructured.Unstructured, options metav1.UpdateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	return obj, nil
+}
+
+func (m *mockNamespaceableResource) Delete(ctx context.Context, name string, options metav1.DeleteOptions, subresources ...string) error {
+	if name == "existing-cluster" {
+		return nil
+	}
+	return errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
+}
+
+func getByteSliceFieldValue(obj *unstructured.Unstructured, fields ...string) string {
+	if nestedField, found, _ := unstructured.NestedFieldNoCopy(obj.Object, fields...); found {
+		if bytes, ok := nestedField.([]byte); ok {
+			return string(bytes)
+		}
+	}
+	return ""
+}
+
+// TestGetCluster tests the GetCluster method of the ClusterManager for various scenarios.
+func TestGetCluster(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name        string
+		clusterName string
+		expectError bool
+	}{
+		{
+			name:        "Sanitize existing cluster",
+			clusterName: "existing-cluster",
+			expectError: false,
+		},
+		{
+			name:        "Attempt to get non-existing cluster",
+			clusterName: "non-existing-cluster",
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			cluster, err := manager.GetCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+			if tc.expectError {
+				require.Error(t, err, "Expected an error when getting non-existing cluster.")
+			} else {
+				require.NoError(t, err, "Did not expect an error when getting existing cluster.")
+				require.NotNil(t, cluster, "Expected a non-nil sanitized cluster.")
+
+				// Assert the sensitive value is sanitized
+				realSensitiveValue, _, _ := unstructured.NestedString(cluster.Object, "spec", "access", "credential", "serviceAccountToken")
+				require.Contains(t, realSensitiveValue, "***", "Expected the serviceAccountToken to be sanitized.")
+
+				realSensitiveValue, _, _ = unstructured.NestedString(cluster.Object, "metadata", "annotations", "kubectl.kubernetes.io/last-applied-configuration")
+				require.Equal(t, "[redacted]", realSensitiveValue, "Expected the spec.metadata.annotations.kubectl.kubernetes.io/last-applied-configuration to be sanitized.")
+
+				realSensitiveValue = getByteSliceFieldValue(cluster, "spec", "access", "credential", "x509", "certificate")
+				require.Contains(t, realSensitiveValue, "***", "Expected the spec.access.credential.x509.certificate to be sanitized.")
+
+				realSensitiveValue = getByteSliceFieldValue(cluster, "spec", "access", "credential", "x509", "privateKey")
+				require.Contains(t, realSensitiveValue, "***", "Expected the spec.access.credential.x509.privateKey to be sanitized.")
+
+			}
+		})
+	}
+}
 
 // TestValidateKubeConfigFor tests the ValidateKubeConfigFor method.
 func TestValidateKubeConfigFor(t *testing.T) {
@@ -50,8 +193,209 @@ func TestValidateKubeConfigFor(t *testing.T) {
 			clusterManager := &ClusterManager{}
 			_, err := clusterManager.ValidateKubeConfigFor(context.Background(), test.inputConfig)
 
-			if !errors.Is(err, test.expectedErr) {
-				t.Errorf("Test case '%s' failed. Expected error: %v, Got error: %v", test.name, test.expectedErr, err)
+			require.ErrorIs(t, err, test.expectedErr)
+		})
+	}
+}
+
+func TestCreateCluster(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name                 string
+		clusterName          string
+		displayName          string
+		description          string
+		kubeconfig           string
+		expectError          bool
+		expectedErrorMessage string
+	}{
+		{
+			name:        "Create new cluster successfully",
+			clusterName: "new-cluster",
+			displayName: "New Cluster",
+			description: "This is a new cluster.",
+			kubeconfig:  newMockKubeConfig(),
+			expectError: false,
+		},
+		{
+			name:                 "Attempt to create an existing cluster",
+			clusterName:          "existing-cluster",
+			displayName:          "Existing Cluster",
+			description:          "This cluster already exists.",
+			kubeconfig:           newMockKubeConfig(),
+			expectError:          true,
+			expectedErrorMessage: "cluster existing-cluster already exists. Try updating it instead",
+		},
+		{
+			name:                 "Invalid kubeconfig",
+			clusterName:          "invalid-kubeconfig-cluster",
+			displayName:          "Invalid KubeConfig Cluster",
+			description:          "This cluster has invalid kubeconfig.",
+			kubeconfig:           "invalid",
+			expectError:          true,
+			expectedErrorMessage: "failed to parse kubeconfig",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			cluster, err := manager.CreateCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.displayName, tc.description, tc.kubeconfig)
+
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, cluster, "Expected a non-nil cluster object.")
+				require.Equal(t, tc.clusterName, cluster.GetName(), "Cluster name mismatch.")
+			}
+		})
+	}
+}
+
+// TestUpdateMetadata tests the UpdateMetadata method of the ClusterManager for
+// various scenarios.
+func TestUpdateMetadata(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name          string
+		clusterName   string
+		displayName   string
+		description   string
+		expectError   bool
+		expectedError string
+	}{
+		{
+			name:        "Update metadata successfully",
+			clusterName: "existing-cluster",
+			displayName: "Updated Cluster",
+			description: "This cluster has been updated.",
+			expectError: false,
+		},
+		{
+			name:          "Attempt to update non-existing cluster",
+			clusterName:   "non-existing-cluster",
+			displayName:   "Updated Cluster",
+			description:   "This cluster has been updated.",
+			expectError:   true,
+			expectedError: "\"non-existing-cluster\" not found",
+		},
+		{
+			name:        "Update metadata with empty display name",
+			clusterName: "existing-cluster",
+			displayName: "",
+			description: "Updated Cluster",
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			updatedCluster, err := manager.UpdateMetadata(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.displayName, tc.description)
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expectedError, "Unexpected error message received.")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, updatedCluster, "Expected a non-nil updated cluster object.")
+				if len(tc.displayName) == 0 {
+					require.Equal(t, tc.clusterName, updatedCluster.Object["spec"].(map[string]interface{})["displayName"].(string), "Display name mismatch.")
+				} else {
+					require.Equal(t, tc.displayName, updatedCluster.Object["spec"].(map[string]interface{})["displayName"].(string), "Display name mismatch.")
+				}
+				require.Equal(t, tc.description, updatedCluster.Object["spec"].(map[string]interface{})["description"], "Description mismatch.")
+			}
+		})
+	}
+}
+
+// TestUpdateCredential tests the UpdateCredential method of the ClusterManager
+// for various scenarios.
+func TestUpdateCredential(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name          string
+		clusterName   string
+		kubeconfig    string
+		expectError   bool
+		expectedError string
+	}{
+		{
+			name:        "Update credential successfully",
+			clusterName: "existing-cluster",
+			kubeconfig:  newMockKubeConfig(),
+			expectError: false,
+		},
+		{
+			name:          "Attempt to update credential for non-existing cluster",
+			clusterName:   "non-existing-cluster",
+			kubeconfig:    newMockKubeConfig(),
+			expectError:   true,
+			expectedError: "\"non-existing-cluster\" not found",
+		},
+		{
+			name:          "Update credential with invalid kubeconfig",
+			clusterName:   "existing-cluster",
+			kubeconfig:    "invalid-kubeconfig",
+			expectError:   true,
+			expectedError: "failed to parse kubeconfig",
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			updatedCluster, err := manager.UpdateCredential(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.kubeconfig)
+			if tc.expectError {
+				require.Error(t, err)
+				require.Contains(t, err.Error(), tc.expectedError, "Unexpected error message received.")
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, updatedCluster, "Expected a non-nil updated cluster object.")
+			}
+		})
+	}
+}
+
+// TestDeleteCluster tests the DeleteCluster method of the ClusterManager for
+// various scenarios.
+func TestDeleteCluster(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name        string
+		clusterName string
+		expectError bool
+	}{
+		{
+			name:        "Delete existing cluster successfully",
+			clusterName: "existing-cluster",
+			expectError: false,
+		},
+		{
+			name:        "Attempt to delete non-existing cluster",
+			clusterName: "non-existing-cluster",
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			err := manager.DeleteCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+			if tc.expectError {
+				require.Error(t, err, "Expected an error when deleting non-existing cluster.")
+			} else {
+				require.NoError(t, err, "Did not expect an error when deleting existing cluster.")
 			}
 		})
 	}
