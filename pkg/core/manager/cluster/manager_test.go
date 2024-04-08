@@ -30,119 +30,8 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
-// newUnstructured creates an unstructured object with the provided details.
-func newUnstructured(apiVersion, kind, name string) *unstructured.Unstructured {
-	return &unstructured.Unstructured{
-		Object: map[string]interface{}{
-			"apiVersion": apiVersion,
-			"kind":       kind,
-			"metadata": map[string]interface{}{
-				"name": name,
-			},
-		},
-	}
-}
-
-// newMockKubeConfig generates a mock kubeconfig with sensitive information
-// included.
-func newMockKubeConfig() string {
-	return fmt.Sprintf(`apiVersion: v1
-kind: Config
-clusters:
-- name: test-cluster
-  cluster:
-    server: https://127.0.0.1:6443
-    certificate-authority-data: %s
-users:
-- name: test-user
-  user:
-    token: fake-token
-contexts:
-- name: test-context
-  context:
-    cluster: test-cluster
-    user: test-user
-current-context: test-context
-`, base64.StdEncoding.EncodeToString([]byte("sensitive-certificate-data")))
-}
-
-// newMockCluster is a helper function that creates a mock cluster unstructured
-// object.
-func newMockCluster(name string) *unstructured.Unstructured {
-	// Create the base unstructured object
-	unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", name)
-
-	// Populate the object with the mock data
-	unsanitizedCluster.Object["spec"] = map[string]interface{}{
-		"displayName": "Existing Cluster",
-		"description": "mock-description",
-		"access": map[string]interface{}{
-			"credential": map[string]interface{}{
-				"serviceAccountToken": "sensitive-token",
-				"x509": map[string]interface{}{
-					"certificate": "sensitive-certificate",
-					"privateKey":  "sensitive-private-key",
-				},
-				"caBundle": "sensitive-ca-bundle",
-			},
-		},
-	}
-
-	// Set annotations on the object
-	unsanitizedCluster.SetAnnotations(map[string]string{
-		"kubectl.kubernetes.io/last-applied-configuration": "sensitive-configuration",
-	})
-
-	return unsanitizedCluster
-}
-
-type mockNamespaceableResource struct {
-	dynamic.NamespaceableResourceInterface
-}
-
-func (m *mockNamespaceableResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
-	if name == "existing-cluster" {
-		return newMockCluster("existing-cluster"), nil
-	}
-	return nil, errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
-}
-
-func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
-	unsanitizedCluster := newMockCluster("existing-cluster")
-
-	return &unstructured.UnstructuredList{
-		Object: map[string]interface{}{"kind": "List", "apiVersion": "v1"},
-		Items: []unstructured.Unstructured{
-			*unsanitizedCluster,
-		},
-	}, nil
-}
-
-func (m *mockNamespaceableResource) Create(ctx context.Context, obj *unstructured.Unstructured, options metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
-	return obj, nil
-}
-
-func (m *mockNamespaceableResource) Update(ctx context.Context, obj *unstructured.Unstructured, options metav1.UpdateOptions, subresources ...string) (*unstructured.Unstructured, error) {
-	return obj, nil
-}
-
-func (m *mockNamespaceableResource) Delete(ctx context.Context, name string, options metav1.DeleteOptions, subresources ...string) error {
-	if name == "existing-cluster" {
-		return nil
-	}
-	return errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
-}
-
-func getByteSliceFieldValue(obj *unstructured.Unstructured, fields ...string) string {
-	if nestedField, found, _ := unstructured.NestedFieldNoCopy(obj.Object, fields...); found {
-		if bytes, ok := nestedField.([]byte); ok {
-			return string(bytes)
-		}
-	}
-	return ""
-}
-
-// TestGetCluster tests the GetCluster method of the ClusterManager for various scenarios.
+// TestGetCluster tests the GetCluster method of the ClusterManager for various
+// scenarios.
 func TestGetCluster(t *testing.T) {
 	manager := NewClusterManager()
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
@@ -227,6 +116,8 @@ func TestValidateKubeConfigFor(t *testing.T) {
 	}
 }
 
+// TestCreateCluster tests the CreateCluster method of the ClusterManager for
+// various scenarios.
 func TestCreateCluster(t *testing.T) {
 	manager := NewClusterManager()
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
@@ -621,4 +512,125 @@ func TestValidateKubeConfigWithYAML(t *testing.T) {
 			}
 		})
 	}
+}
+
+// newUnstructured creates an unstructured object with the provided details.
+func newUnstructured(apiVersion, kind, name string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": apiVersion,
+			"kind":       kind,
+			"metadata": map[string]interface{}{
+				"name": name,
+			},
+		},
+	}
+}
+
+// newMockKubeConfig generates a mock kubeconfig with sensitive information
+// included.
+func newMockKubeConfig() string {
+	return fmt.Sprintf(`apiVersion: v1
+kind: Config
+clusters:
+- name: test-cluster
+  cluster:
+    server: https://127.0.0.1:6443
+    certificate-authority-data: %s
+users:
+- name: test-user
+  user:
+    token: fake-token
+contexts:
+- name: test-context
+  context:
+    cluster: test-cluster
+    user: test-user
+current-context: test-context
+`, base64.StdEncoding.EncodeToString([]byte("sensitive-certificate-data")))
+}
+
+// newMockCluster is a helper function that creates a mock cluster unstructured
+// object.
+func newMockCluster(name string) *unstructured.Unstructured {
+	// Create the base unstructured object
+	unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", name)
+
+	// Populate the object with the mock data
+	unsanitizedCluster.Object["spec"] = map[string]interface{}{
+		"displayName": "Existing Cluster",
+		"description": "mock-description",
+		"access": map[string]interface{}{
+			"credential": map[string]interface{}{
+				"serviceAccountToken": "sensitive-token",
+				"x509": map[string]interface{}{
+					"certificate": "sensitive-certificate",
+					"privateKey":  "sensitive-private-key",
+				},
+				"caBundle": "sensitive-ca-bundle",
+			},
+		},
+	}
+
+	// Set annotations on the object
+	unsanitizedCluster.SetAnnotations(map[string]string{
+		"kubectl.kubernetes.io/last-applied-configuration": "sensitive-configuration",
+	})
+
+	return unsanitizedCluster
+}
+
+// getByteSliceFieldValue retrieves a byte slice field value from the
+// unstructured object.
+func getByteSliceFieldValue(obj *unstructured.Unstructured, fields ...string) string {
+	if nestedField, found, _ := unstructured.NestedFieldNoCopy(obj.Object, fields...); found {
+		if bytes, ok := nestedField.([]byte); ok {
+			return string(bytes)
+		}
+	}
+	return ""
+}
+
+// mockNamespaceableResource is a mock implementation of
+// dynamic.NamespaceableResourceInterface.
+type mockNamespaceableResource struct {
+	dynamic.NamespaceableResourceInterface
+}
+
+// Get retrieves the cluster with the provided name.
+func (m *mockNamespaceableResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	if name == "existing-cluster" {
+		return newMockCluster("existing-cluster"), nil
+	}
+	return nil, errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
+}
+
+// List retrieves a list of clusters.
+func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
+	unsanitizedCluster := newMockCluster("existing-cluster")
+
+	return &unstructured.UnstructuredList{
+		Object: map[string]interface{}{"kind": "List", "apiVersion": "v1"},
+		Items: []unstructured.Unstructured{
+			*unsanitizedCluster,
+		},
+	}, nil
+}
+
+// Create creates a new cluster.
+func (m *mockNamespaceableResource) Create(ctx context.Context, obj *unstructured.Unstructured, options metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	return obj, nil
+}
+
+// Update updates an existing cluster.
+func (m *mockNamespaceableResource) Update(ctx context.Context, obj *unstructured.Unstructured, options metav1.UpdateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	return obj, nil
+}
+
+// Delete deletes the cluster with the provided name.
+func (m *mockNamespaceableResource) Delete(ctx context.Context, name string, options metav1.DeleteOptions, subresources ...string) error {
+	if name == "existing-cluster" {
+		return nil
+	}
+	return errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
 }
