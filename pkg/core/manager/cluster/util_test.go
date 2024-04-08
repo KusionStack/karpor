@@ -64,6 +64,7 @@ func TestCheckEndpointConnectivity(t *testing.T) {
 	// Setup mock to return a mock connection and nil error for the DialTimeout
 	// call.
 	mockey.Mock(net.DialTimeout).Return(&mockConn{}, nil).Build()
+	defer mockey.UnPatchAll()
 
 	testCases := []struct {
 		name        string
