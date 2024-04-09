@@ -19,7 +19,6 @@ import (
 	"testing"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/dynamic"
@@ -67,7 +66,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResourceSummary method
-			result, err := manager.GetResourceSummary(context.Background(), &multicluster.MultiClusterClient{}, tc.loc)
+			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
 
 			// Check error expectation
 			if tc.expectError {
@@ -124,7 +123,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetGVKSummary method
-			result, err := manager.GetGVKSummary(context.Background(), &multicluster.MultiClusterClient{}, tc.loc)
+			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.loc)
 
 			// Check error expectation
 			if tc.expectError {
@@ -167,7 +166,7 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 				Cluster:   "existing-cluster",
 				Namespace: "default",
 				CountByGVK: map[string]int{
-					"ConfigMap.v1": 1,
+					"Pod.v1": 1,
 				},
 			},
 			expectError: false,
@@ -178,7 +177,7 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetNamespaceSummary method
-			result, err := manager.GetNamespaceSummary(context.Background(), &multicluster.MultiClusterClient{}, tc.loc)
+			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
 
 			// Check error expectation
 			if tc.expectError {

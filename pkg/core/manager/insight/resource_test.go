@@ -20,7 +20,6 @@ import (
 	"testing"
 
 	"github.com/KusionStack/karbour/pkg/core"
-	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -81,7 +80,7 @@ func TestGetResource(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResource method
-			resource, err := manager.GetResource(context.TODO(), &multicluster.MultiClusterClient{}, tc.loc)
+			resource, err := manager.GetResource(context.TODO(), mockMultiClusterClient(), tc.loc)
 
 			// Check error expectation
 			if tc.expectError {
@@ -150,7 +149,7 @@ metadata:
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetYAMLForResource method
-			yamlData, err := manager.GetYAMLForResource(context.Background(), &multicluster.MultiClusterClient{}, tc.loc)
+			yamlData, err := manager.GetYAMLForResource(context.Background(), mockMultiClusterClient(), tc.loc)
 
 			// Check error expectation
 			if tc.expectError {
