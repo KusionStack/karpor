@@ -20,7 +20,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/middleware"
 	"github.com/go-logr/logr"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/klog/v2"
 )
 
@@ -50,7 +50,7 @@ func TestGetLogger(t *testing.T) {
 			logger := GetLogger(tt.ctx)
 			// Check if the returned logger type matches the expected logger
 			// type.
-			assert.IsType(t, tt.expectedLogger, logger)
+			require.IsType(t, tt.expectedLogger, logger)
 		})
 	}
 }

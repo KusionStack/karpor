@@ -25,7 +25,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
 	"github.com/bytedance/mockey"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/apiserver/pkg/server"
 )
 
@@ -83,16 +83,16 @@ func TestNewCoreRoute(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			router, err := NewCoreRoute(genericConfig, &tt.extraConfig)
 			if tt.expectError {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 				for _, route := range tt.expectRoutes {
 					req := httptest.NewRequest(http.MethodGet, route, nil)
 					rr := httptest.NewRecorder()
 					router.ServeHTTP(rr, req)
 
 					// Assert status code is not 404 to ensure the route exists.
-					assert.NotEqual(t, http.StatusNotFound, rr.Code, "Route should exist: %s", route)
+					require.NotEqual(t, http.StatusNotFound, rr.Code, "Route should exist: %s", route)
 				}
 			}
 		})

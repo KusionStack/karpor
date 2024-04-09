@@ -17,7 +17,6 @@ package sql2es
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/xwb1989/sqlparser"
 )
@@ -176,13 +175,13 @@ func TestConvert(t *testing.T) {
 			dsl, table, err := Convert(tt.sql)
 
 			if tt.expectedErr != "" {
-				assert.EqualError(t, err, tt.expectedErr)
-				assert.Empty(t, dsl)
-				assert.Empty(t, table)
+				require.EqualError(t, err, tt.expectedErr)
+				require.Empty(t, dsl)
+				require.Empty(t, table)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.expectedDSL, dsl)
-				assert.Equal(t, tt.expectedTable, table)
+				require.NoError(t, err)
+				require.Equal(t, tt.expectedDSL, dsl)
+				require.Equal(t, tt.expectedTable, table)
 			}
 		})
 	}
@@ -231,11 +230,11 @@ func TestBuildComparisonExprRightStr(t *testing.T) {
 			rightStr, missingCheck, err := buildComparisonExprRightStr(tt.expr)
 
 			if tt.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.Equal(t, tt.wantStr, rightStr)
-				assert.Equal(t, tt.wantMissing, missingCheck)
+				require.NoError(t, err)
+				require.Equal(t, tt.wantStr, rightStr)
+				require.Equal(t, tt.wantMissing, missingCheck)
 			}
 		})
 	}
@@ -296,10 +295,10 @@ func TestHandleGroupByAgg(t *testing.T) {
 			aggMap, err := handleGroupByAgg(tc.groupBy, tc.innerMap)
 
 			if tc.wantError {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				assert.Equal(t, tc.wantAgg, aggMap)
+				require.Equal(t, tc.wantAgg, aggMap)
 			}
 		})
 	}

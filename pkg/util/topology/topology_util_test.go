@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -44,7 +44,7 @@ func TestIsMapSubset(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("IsMapSubset", func(t *testing.T) {
 			result := IsMapSubset(tt.m, tt.sub)
-			assert.Equal(t, tt.want, result)
+			require.Equal(t, tt.want, result)
 		})
 	}
 }
@@ -100,11 +100,11 @@ func TestJSONPathMatch(t *testing.T) {
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("JSONPathMatch-%d", i), func(t *testing.T) {
 			match, err := JSONPathMatch(*tt.source, *tt.target, tt.criteriaSet)
-			assert.Equal(t, tt.wantMatch, match)
+			require.Equal(t, tt.wantMatch, match)
 			if tt.wantErr != nil {
-				assert.NotNil(t, err)
+				require.NotNil(t, err)
 			} else {
-				assert.Nil(t, err)
+				require.Nil(t, err)
 			}
 		})
 	}
@@ -129,11 +129,11 @@ func TestGetGVRFromGVK(t *testing.T) {
 	for _, tt := range tests {
 		t.Run("GetGVRFromGVK", func(t *testing.T) {
 			gvr, err := GetGVRFromGVK(tt.apiVersion, tt.kind)
-			assert.Equal(t, tt.wantGVR, gvr)
+			require.Equal(t, tt.wantGVR, gvr)
 			if tt.wantErr {
-				assert.NotNil(t, err)
+				require.NotNil(t, err)
 			} else {
-				assert.Nil(t, err)
+				require.Nil(t, err)
 			}
 		})
 	}
@@ -196,8 +196,8 @@ func TestOwnerReferencesMatch(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			match, err := OwnerReferencesMatch(tt.parent, tt.child)
-			assert.NoError(t, err)
-			assert.Equal(t, tt.wantMatch, match)
+			require.NoError(t, err)
+			require.Equal(t, tt.wantMatch, match)
 		})
 	}
 }
@@ -247,11 +247,11 @@ func TestLabelSelectorsMatch(t *testing.T) {
 
 			match, err := LabelSelectorsMatch(*selectorUnstructured, *selectedUnstructured, tt.selectorPath)
 			if tt.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
+				require.NoError(t, err)
 			}
-			assert.Equal(t, tt.wantMatch, match)
+			require.Equal(t, tt.wantMatch, match)
 		})
 	}
 }

@@ -17,12 +17,10 @@ package cache
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestIsNewer(t *testing.T) {
-	assert := assert.New(t)
-
 	cache := NewResourceCache()
 	u1 := makeUnstructured("default", "test",
 		map[string]interface{}{
@@ -39,13 +37,11 @@ func TestIsNewer(t *testing.T) {
 			"f2":                       "bar",
 		})
 	newer, err := cache.IsNewer(u2)
-	assert.NoError(err)
-	assert.True(newer)
+	require.NoError(t, err)
+	require.True(t, newer)
 }
 
 func TestIsNewer_MapOrderShouldNotMatter(t *testing.T) {
-	assert := assert.New(t)
-
 	cache := NewResourceCache()
 	u1 := makeUnstructured("default", "test",
 		map[string]interface{}{
@@ -61,13 +57,11 @@ func TestIsNewer_MapOrderShouldNotMatter(t *testing.T) {
 			"f1": "foo",
 		})
 	newer, err := cache.IsNewer(u2)
-	assert.NoError(err)
-	assert.False(newer, "map with different order should be taken as same")
+	require.NoError(t, err)
+	require.False(t, newer, "map with different order should be taken as same")
 }
 
 func TestIsNewer_ResourceVersionIsExcluded(t *testing.T) {
-	assert := assert.New(t)
-
 	cache := NewResourceCache()
 	u1 := makeUnstructured("default", "test",
 		map[string]interface{}{
@@ -82,6 +76,6 @@ func TestIsNewer_ResourceVersionIsExcluded(t *testing.T) {
 		})
 
 	newer, err := cache.IsNewer(u2)
-	assert.NoError(err)
-	assert.False(newer, "resource version should be excluded from hash caculation")
+	require.NoError(t, err)
+	require.False(t, newer, "resource version should be excluded from hash caculation")
 }

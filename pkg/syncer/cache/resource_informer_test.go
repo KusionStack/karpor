@@ -23,6 +23,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/syncer/utils"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
@@ -102,8 +103,6 @@ func (r *ResourceRecorder) resourceHandler() ResourceHandler {
 }
 
 func TestInformerWithSelectors(t *testing.T) {
-	assert := assert.New(t)
-
 	objs := []runtime.Object{
 		makeUnstructured("default", "pod1", map[string]interface{}{"metadata.labels.foo": "bar1", "status.phase": "RUNNING"}),
 		makeUnstructured("default", "pod2", map[string]interface{}{"metadata.labels.foo": "bar2"}),
@@ -177,14 +176,12 @@ func TestInformerWithSelectors(t *testing.T) {
 		wait.Poll(100*time.Millisecond, wait.ForeverTestTimeout, func() (bool, error) {
 			return informer.HasSynced(), nil
 		})
-		assert.True(informer.HasSynced(), "Expected HasSynced() to return true after the initial sync")
-		assert.EqualValues(tt.expected, recorder.List())
+		require.True(t, informer.HasSynced(), "Expected HasSynced() to return true after the initial sync")
+		require.EqualValues(t, tt.expected, recorder.List())
 	}
 }
 
 func TestInformerWithTransformer(t *testing.T) {
-	assert := assert.New(t)
-
 	objs := []runtime.Object{
 		makeUnstructured("default", "pod1", map[string]interface{}{
 			"metadata.resourceVersion": "1",
@@ -283,7 +280,7 @@ func TestInformerWithTransformer(t *testing.T) {
 		wait.Poll(100*time.Millisecond, wait.ForeverTestTimeout, func() (bool, error) {
 			return informer.HasSynced(), nil
 		})
-		assert.True(informer.HasSynced(), "Expected HasSynced() to return true after the initial sync")
+		require.True(t, informer.HasSynced(), "Expected HasSynced() to return true after the initial sync")
 
 		for _, e := range tt.updates {
 			switch e.action {
@@ -295,17 +292,17 @@ func TestInformerWithTransformer(t *testing.T) {
 				client.Resource(gvr).Namespace(obj.GetNamespace()).Update(context.TODO(), obj, metav1.UpdateOptions{})
 			case "delete":
 				key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(e.data)
-				assert.NoError(err)
+				require.NoError(t, err)
 				parts := strings.Split(key, ",")
-				assert.Equal(len(parts), 2)
+				require.Equal(t, len(parts), 2)
 				client.Resource(gvr).Namespace(parts[0]).Delete(context.TODO(), parts[1], metav1.DeleteOptions{})
 			}
 		}
 		assert.Eventually(
-			func() bool {
-				return assert.EqualValues(tt.expected, recorder.List())
-			},
-			100*time.Millisecond, 10*time.Millisecond)
+			t, func() bool {
+				return assert.EqualValues(t, tt.expected, recorder.List())
+			}, 100*time.Millisecond, 10*time.Millisecond,
+		)
 	}
 }
 
