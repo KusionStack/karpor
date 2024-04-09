@@ -1,0 +1,250 @@
+// Copyright The Karbour Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+package insight
+
+import (
+	"context"
+	"reflect"
+	"testing"
+
+	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/bytedance/mockey"
+	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/dynamic"
+)
+
+// TestGetResource tests the TestGetResource method of the InsightManager for
+// various scenarios.
+func TestGetResource(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		loc            *core.Locator
+		expectError    bool
+		expectSanitize bool
+	}{
+		{
+			name: "Success - Existing ConfigMap",
+			loc: &core.Locator{
+				Cluster:    "existing-cluster",
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+				Namespace:  "default",
+				Name:       "existing-configmap",
+			},
+			expectError:    false,
+			expectSanitize: false, // Not a Secret kind, so no sanitization expected
+		},
+		{
+			name:           "Error - Non-existing cluster",
+			loc:            &core.Locator{},
+			expectError:    true,
+			expectSanitize: false, // Not applicable as there is an error
+		},
+		{
+			name: "Success - Existing Secret",
+			loc: &core.Locator{
+				Cluster:    "existing-cluster",
+				APIVersion: "v1",
+				Kind:       "Secret",
+				Namespace:  "default",
+				Name:       "existing-secret",
+			},
+			expectError:    false,
+			expectSanitize: true, // Expecting data sanitization for Secret kind
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResource method
+			resource, err := manager.GetResource(context.TODO(), &multicluster.MultiClusterClient{}, tc.loc)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Nil(t, resource, "Expected nil resource on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.NotNil(t, resource, "Expected non-nil resource")
+
+				// Check if data is sanitized for Secret kind
+				if tc.expectSanitize {
+					data, found, err := unstructured.NestedString(resource.Object, "data")
+					require.NoError(t, err, "Did not expect error")
+					require.True(t, found, "Expected 'data' field in Secret")
+					require.Equal(t, "[redacted]", data, "Expected data to be redacted in Secret")
+				}
+			}
+		})
+	}
+}
+
+func TestInsightManager_GetYAMLForResource(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	testCases := []struct {
+		name         string
+		loc          *core.Locator
+		expectedYAML []byte
+		expectError  bool
+	}{
+		{
+			name: "Success - Existing ConfigMap",
+			loc: &core.Locator{
+				Cluster:    "existing-cluster",
+				APIVersion: "v1",
+				Kind:       "ConfigMap",
+				Namespace:  "default",
+				Name:       "existing-configmap",
+			},
+			expectedYAML: []byte(`apiVersion: v1
+data:
+  key1: value1
+  key2: value2
+kind: ConfigMap
+metadata:
+  name: existing-configmap
+  namespace: default
+`),
+			expectError: false,
+		},
+		{
+			name:        "Error - Non-existing cluster",
+			loc:         &core.Locator{},
+			expectError: true,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetYAMLForResource method
+			yamlData, err := manager.GetYAMLForResource(context.Background(), &multicluster.MultiClusterClient{}, tc.loc)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Nil(t, yamlData, "Expected nil YAML data on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.NotNil(t, yamlData, "Expected non-nil YAML data")
+
+				// Compare YAML data
+				require.True(t, reflect.DeepEqual(tc.expectedYAML, yamlData), "YAML data does not match expected")
+			}
+		})
+	}
+}
+
+// mockNamespaceableResource is a mock implementation of
+// dynamic.NamespaceableResourceInterface.
+type mockNamespaceableResource struct {
+	dynamic.NamespaceableResourceInterface
+}
+
+func (m *mockNamespaceableResource) Namespace(namespace string) dynamic.ResourceInterface {
+	return &mockResource{}
+}
+
+// mockResource is a mock implementation of dynamic.ResourceInterface.
+type mockResource struct {
+	dynamic.ResourceInterface
+}
+
+func (m *mockResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
+	if name == "existing-configmap" {
+		return newMockConfigmap("default", name), nil
+	}
+	if name == "existing-secret" {
+		return newMockSecret("default", name), nil
+	}
+	return nil, errors.NewNotFound(schema.GroupResource{Group: "", Resource: ""}, name)
+}
+
+// mockSearchStorage is an in-memory implementation of the SearchStorage
+// interface for testing purposes.
+type mockSearchStorage struct{}
+
+// Search implements the search operation returning a single mock resource.
+func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	return &storage.SearchResult{
+		Total: 1,
+		Resources: []*storage.Resource{{
+			Locator: core.Locator{
+				Cluster:   "mock-cluster",
+				Namespace: "mock-namespace",
+				Name:      "mock-name",
+			},
+			Object: map[string]interface{}{},
+		}},
+	}, nil
+}
+
+func newMockConfigmap(namespace, name string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "v1",
+			"kind":       "ConfigMap",
+			"metadata": map[string]interface{}{
+				"name":      name,
+				"namespace": namespace,
+			},
+			"data": map[string]interface{}{
+				"key1": "value1",
+				"key2": "value2",
+			},
+		},
+	}
+}
+
+func newMockSecret(namespace, name string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"apiVersion": "v1",
+			"kind":       "Secret",
+			"metadata": map[string]interface{}{
+				"name":      name,
+				"namespace": namespace,
+			},
+			"data": map[string]interface{}{
+				"key1": "sensitive-value1",
+				"key2": "sensitive-value2",
+			},
+		},
+	}
+}

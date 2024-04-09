@@ -26,7 +26,7 @@ import (
 	k8syaml "sigs.k8s.io/yaml"
 )
 
-// GetResource returns the unstructured cluster object for a given cluster
+// GetResource returns the unstructured cluster object for a given cluster.
 func (i *InsightManager) GetResource(
 	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator,
 ) (*unstructured.Unstructured, error) {
