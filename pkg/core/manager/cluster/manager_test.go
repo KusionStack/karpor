@@ -75,7 +75,6 @@ func TestGetCluster(t *testing.T) {
 
 				realSensitiveValue = getByteSliceFieldValue(cluster, "spec", "access", "credential", "x509", "privateKey")
 				require.Contains(t, realSensitiveValue, "***", "Expected the spec.access.credential.x509.privateKey to be sanitized.")
-
 			}
 		})
 	}
