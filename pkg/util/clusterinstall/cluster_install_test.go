@@ -18,7 +18,7 @@ import (
 	"testing"
 
 	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/rest"
 )
 
@@ -98,32 +98,32 @@ func TestConvertKubeconfigToCluster(t *testing.T) {
 			cluster, err := ConvertKubeconfigToCluster(tc.name, tc.displayName, tc.description, tc.cfg)
 			// Assert that an error occurred when expected
 			if tc.wantErr {
-				assert.Error(t, err)
+				require.Error(t, err)
 			} else {
-				assert.NoError(t, err)
-				assert.NotNil(t, cluster)
+				require.NoError(t, err)
+				require.NotNil(t, cluster)
 				// Assert the cluster fields are what we expect
-				assert.Equal(t, tc.name, cluster.Name)
-				assert.Equal(t, tc.description, cluster.Spec.Description)
+				require.Equal(t, tc.name, cluster.Name)
+				require.Equal(t, tc.description, cluster.Spec.Description)
 				wantDisplayName := tc.displayName
 				if wantDisplayName == "" {
 					wantDisplayName = tc.name
 				}
-				assert.Equal(t, wantDisplayName, cluster.Spec.DisplayName)
-				assert.Equal(t, tc.cfg.Host, cluster.Spec.Access.Endpoint)
+				require.Equal(t, wantDisplayName, cluster.Spec.DisplayName)
+				require.Equal(t, tc.cfg.Host, cluster.Spec.Access.Endpoint)
 				if tc.cfg.Insecure {
-					assert.True(t, *cluster.Spec.Access.Insecure)
+					require.True(t, *cluster.Spec.Access.Insecure)
 				}
 				if tc.cfg.CAData != nil {
-					assert.Equal(t, tc.cfg.CAData, cluster.Spec.Access.CABundle)
+					require.Equal(t, tc.cfg.CAData, cluster.Spec.Access.CABundle)
 				}
 				if tc.cfg.CertData != nil && tc.cfg.KeyData != nil {
-					assert.Equal(t, clusterv1beta1.CredentialTypeX509Certificate, cluster.Spec.Access.Credential.Type)
-					assert.Equal(t, tc.cfg.CertData, cluster.Spec.Access.Credential.X509.Certificate)
-					assert.Equal(t, tc.cfg.KeyData, cluster.Spec.Access.Credential.X509.PrivateKey)
+					require.Equal(t, clusterv1beta1.CredentialTypeX509Certificate, cluster.Spec.Access.Credential.Type)
+					require.Equal(t, tc.cfg.CertData, cluster.Spec.Access.Credential.X509.Certificate)
+					require.Equal(t, tc.cfg.KeyData, cluster.Spec.Access.Credential.X509.PrivateKey)
 				} else if tc.cfg.BearerToken != "" {
-					assert.Equal(t, clusterv1beta1.CredentialTypeServiceAccountToken, cluster.Spec.Access.Credential.Type)
-					assert.Equal(t, tc.cfg.BearerToken, cluster.Spec.Access.Credential.ServiceAccountToken)
+					require.Equal(t, clusterv1beta1.CredentialTypeServiceAccountToken, cluster.Spec.Access.Credential.Type)
+					require.Equal(t, tc.cfg.BearerToken, cluster.Spec.Access.Credential.ServiceAccountToken)
 				}
 			}
 		})

@@ -20,7 +20,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // TestWithCluster tests the WithCluster function.
@@ -52,8 +52,8 @@ func TestWithCluster(t *testing.T) {
 			cluster, ok := ClusterFrom(ctx)
 
 			// Assert
-			assert.Equal(t, tt.expected, cluster)
-			assert.True(t, ok)
+			require.Equal(t, tt.expected, cluster)
+			require.True(t, ok)
 		})
 	}
 }
@@ -86,8 +86,8 @@ func TestClusterFrom(t *testing.T) {
 			cluster, ok := ClusterFrom(tt.ctx)
 
 			// Assert
-			assert.Equal(t, tt.expected, cluster)
-			assert.Equal(t, tt.ok, ok)
+			require.Equal(t, tt.expected, cluster)
+			require.Equal(t, tt.ok, ok)
 		})
 	}
 }
@@ -116,7 +116,7 @@ func TestWithProxyByCluster(t *testing.T) {
 			// Setup
 			handler := http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 				// Assert
-				assert.Equal(t, tt.expectedPath, req.URL.Path)
+				require.Equal(t, tt.expectedPath, req.URL.Path)
 			})
 
 			// Execute
