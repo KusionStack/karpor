@@ -51,6 +51,11 @@ func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType
 // TestNewCoreRoute will test the NewCoreRoute function with different
 // configurations.
 func TestNewCoreRoute(t *testing.T) {
+	// Mock the NewSearchStorage function to return a mock storage instead of
+	// actual implementation.
+	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
+	defer mockey.UnPatchAll()
+
 	tests := []struct {
 		name         string
 		extraConfig  registry.ExtraConfig
@@ -71,17 +76,9 @@ func TestNewCoreRoute(t *testing.T) {
 		},
 	}
 
-	// Initialize dummy server config.
-	genericConfig := &server.CompletedConfig{}
-
-	// Mock the NewSearchStorage function to return a mock storage instead of
-	// actual implementation.
-	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
-	defer mockey.UnPatchAll()
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			router, err := NewCoreRoute(genericConfig, &tt.extraConfig)
+			router, err := NewCoreRoute(&server.CompletedConfig{}, &tt.extraConfig)
 			if tt.expectError {
 				require.Error(t, err)
 			} else {
