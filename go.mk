@@ -30,11 +30,6 @@ help:  ## This help message :)
 cover-html:  ## Generates coverage report and displays it in the browser
 	go tool cover -html=$(COVERAGEOUT)
 
-.PHONY: format
-format:  ## Format source code
-	@which $(GOFORMATER) > /dev/null || (echo "Installing $(GOFORMATER)@$(GOFORMATER_VERSION) ..."; go install mvdan.cc/gofumpt@$(GOFORMATER_VERSION) && echo -e "Installation complete!\n")
-	@for path in $(GOSOURCE_PATHS); do ${GOFORMATER} -l -w -e `echo $${path} | cut -b 3- | rev | cut -b 5- | rev`; done;
-
 .PHONY: lint
 lint:  ## Lint, will not fix but sets exit code on error
 	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")

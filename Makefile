@@ -6,6 +6,9 @@ GOSOURCE_PATHS = ./pkg/...
 LICENSE_CHECKER ?= license-eye
 LICENSE_CHECKER_VERSION ?= main
 
+# Front-End tools
+UIFORMATER			?= prettier
+
 # Check if the SKIP_UI_BUILD flag is set to control the UI building process.
 # If the flag is not set, the BUILD_UI variable is assigned the value 'build-ui'.
 # If the flag is set, the BUILD_UI variable remains empty.
@@ -33,6 +36,15 @@ cover: ## Generates coverage report
 	echo "🚀 Executing unit tests for $${PKG_LIST}:"; \
 	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
 	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test failed!"; exit 1)
+
+
+.PHONY: format
+format:  ## Format source code of frontend and backend
+	@which $(GOFORMATER) > /dev/null || (echo "Installing $(GOFORMATER)@$(GOFORMATER_VERSION) ..."; go install mvdan.cc/gofumpt@$(GOFORMATER_VERSION) && echo -e "Installation complete!\n")
+	@for path in $(GOSOURCE_PATHS); do ${GOFORMATER} -l -w -e `echo $${path} | cut -b 3- | rev | cut -b 5- | rev`; done;
+	@which $(UIFORMATER) > /dev/null || (echo "Installing $(UIFORMATER) ..."; npm install -g prettier && echo -e "Installation complete!\n")
+	@cd ui && npx prettier --write .
+
 
 # Target: update-codegen
 # Description: Updates the generated code using the 'hack/update-codegen.sh' script.
