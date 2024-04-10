@@ -707,9 +707,9 @@ func extractFuncAndColFromSelect(sqlSelect sqlparser.SelectExprs) ([]*sqlparser.
 			continue
 		}
 
-		switch expr.Expr.(type) {
+		switch exprExpr := expr.Expr.(type) {
 		case *sqlparser.FuncExpr:
-			funcExpr := expr.Expr.(*sqlparser.FuncExpr)
+			funcExpr := exprExpr
 			funcArr = append(funcArr, funcExpr)
 		case *sqlparser.ColName:
 			continue
