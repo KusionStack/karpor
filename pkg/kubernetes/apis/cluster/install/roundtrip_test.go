@@ -26,5 +26,6 @@ import (
 func TestRoundTripTypes(t *testing.T) {
 	roundtrip.RoundTripTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
 	// TODO: enable protobuf generation for the karbour-apiserver
-	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, clusterfuzzer.Funcs)
+	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install,
+	// clusterfuzzer.Funcs)
 }

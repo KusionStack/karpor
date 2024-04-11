@@ -153,6 +153,7 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 	return resourceGraph, nil
 }
 
+// ConvertResourceGraphToMap converts a resource graph to a map of ResourceTopology based on the given graph and locator.
 func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode], loc core.Locator) map[string]ResourceTopology {
 	rtm := make(map[string]ResourceTopology)
 	if g == nil {
