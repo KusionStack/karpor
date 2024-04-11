@@ -45,8 +45,16 @@ func (p RESTStorageProvider) GroupName() string {
 	return search.GroupName
 }
 
-func (p RESTStorageProvider) NewRESTStorage(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(search.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
+func (p RESTStorageProvider) NewRESTStorage(
+	apiResourceConfigSource serverstorage.APIResourceConfigSource,
+	restOptionsGetter generic.RESTOptionsGetter,
+) (genericapiserver.APIGroupInfo, error) {
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
+		search.GroupName,
+		scheme.Scheme,
+		scheme.ParameterCodec,
+		scheme.Codecs,
+	)
 
 	storageMap, err := p.v1beta1Storage(restOptionsGetter)
 	if err != nil {
@@ -57,10 +65,14 @@ func (p RESTStorageProvider) NewRESTStorage(apiResourceConfigSource serverstorag
 	return apiGroupInfo, nil
 }
 
-func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOptionsGetter) (map[string]rest.Storage, error) {
+func (p RESTStorageProvider) v1beta1Storage(
+	restOptionsGetter generic.RESTOptionsGetter,
+) (map[string]rest.Storage, error) {
 	v1beta1Storage := map[string]rest.Storage{}
 
-	syncClusterResources, syncClusterResourcesStatus, err := syncclusterresources.NewREST(restOptionsGetter)
+	syncClusterResources, syncClusterResourcesStatus, err := syncclusterresources.NewREST(
+		restOptionsGetter,
+	)
 	if err != nil {
 		return map[string]rest.Storage{}, err
 	}
@@ -79,7 +91,11 @@ func (p RESTStorageProvider) v1beta1Storage(restOptionsGetter generic.RESTOption
 func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter, error) {
 	switch p.SearchStorageType {
 	case "elasticsearch":
-		return elasticsearch.NewSearchStorageGetter(p.ElasticSearchAddresses, p.ElasticSearchName, p.ElasticSearchPassword), nil
+		return elasticsearch.NewSearchStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
 	default:
 		return nil, fmt.Errorf("invalid search storage type %s", p.SearchStorageType)
 	}

@@ -101,8 +101,10 @@ func TestBuildClientConfigFromKubeConfig(t *testing.T) {
 					{
 						Name: "cluster1",
 						Cluster: Cluster{
-							Server:                   "https://example.com",
-							CertificateAuthorityData: base64.StdEncoding.EncodeToString([]byte("certificate_authority_data")),
+							Server: "https://example.com",
+							CertificateAuthorityData: base64.StdEncoding.EncodeToString(
+								[]byte("certificate_authority_data"),
+							),
 						},
 					},
 				},
@@ -110,10 +112,14 @@ func TestBuildClientConfigFromKubeConfig(t *testing.T) {
 					{
 						Name: "user1",
 						User: User{
-							Username:              "username",
-							Password:              "password",
-							ClientCertificateData: base64.StdEncoding.EncodeToString([]byte("client_certificate_data")),
-							ClientKeyData:         base64.StdEncoding.EncodeToString([]byte("client_key_data")),
+							Username: "username",
+							Password: "password",
+							ClientCertificateData: base64.StdEncoding.EncodeToString(
+								[]byte("client_certificate_data"),
+							),
+							ClientKeyData: base64.StdEncoding.EncodeToString(
+								[]byte("client_key_data"),
+							),
 						},
 					},
 				},
@@ -220,7 +226,8 @@ func TestSortUnstructuredList(t *testing.T) {
 					{
 						Object: map[string]interface{}{
 							"metadata": map[string]interface{}{
-								"creationTimestamp": time.Now().Add(time.Duration(time.Minute.Minutes())),
+								"creationTimestamp": time.Now().
+									Add(time.Duration(time.Minute.Minutes())),
 							},
 						},
 					},

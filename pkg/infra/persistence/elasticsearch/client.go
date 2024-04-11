@@ -41,8 +41,18 @@ func NewClient(config elasticsearch.Config) (*Client, error) {
 }
 
 // SaveDocument saves a new document
-func (cl *Client) SaveDocument(ctx context.Context, indexName string, documentID string, body io.Reader) error {
-	resp, err := cl.client.Index(indexName, body, cl.client.Index.WithDocumentID(documentID), cl.client.Index.WithContext(ctx))
+func (cl *Client) SaveDocument(
+	ctx context.Context,
+	indexName string,
+	documentID string,
+	body io.Reader,
+) error {
+	resp, err := cl.client.Index(
+		indexName,
+		body,
+		cl.client.Index.WithDocumentID(documentID),
+		cl.client.Index.WithContext(ctx),
+	)
 	if err != nil {
 		return err
 	}
@@ -57,7 +67,11 @@ func (cl *Client) SaveDocument(ctx context.Context, indexName string, documentID
 }
 
 // GetDocument gets a document with the specified ID
-func (cl *Client) GetDocument(ctx context.Context, indexName string, documentID string) (map[string]interface{}, error) {
+func (cl *Client) GetDocument(
+	ctx context.Context,
+	indexName string,
+	documentID string,
+) (map[string]interface{}, error) {
 	resp, err := cl.client.Get(indexName, documentID, cl.client.Get.WithContext(ctx))
 	if err != nil {
 		return nil, err
@@ -103,8 +117,16 @@ func (cl *Client) DeleteDocument(ctx context.Context, indexName string, document
 	return nil
 }
 
-func (cl *Client) DeleteDocumentByQuery(ctx context.Context, indexName string, body io.Reader) error {
-	resp, err := cl.client.DeleteByQuery([]string{indexName}, body, cl.client.DeleteByQuery.WithContext(ctx))
+func (cl *Client) DeleteDocumentByQuery(
+	ctx context.Context,
+	indexName string,
+	body io.Reader,
+) error {
+	resp, err := cl.client.DeleteByQuery(
+		[]string{indexName},
+		body,
+		cl.client.DeleteByQuery.WithContext(ctx),
+	)
 	if err != nil {
 		return err
 	}
@@ -119,7 +141,12 @@ func (cl *Client) DeleteDocumentByQuery(ctx context.Context, indexName string, b
 }
 
 // SearchDocument performs a search query in the specified index
-func (cl *Client) SearchDocument(ctx context.Context, indexName string, body io.Reader, options ...Option) (*SearchResponse, error) {
+func (cl *Client) SearchDocument(
+	ctx context.Context,
+	indexName string,
+	body io.Reader,
+	options ...Option,
+) (*SearchResponse, error) {
 	cfg := &config{}
 	for _, option := range options {
 		if err := option(cfg); err != nil {
@@ -161,7 +188,11 @@ func (cl *Client) SearchDocument(ctx context.Context, indexName string, body io.
 
 // CreateIndex creates a new index with the specified settings and mappings
 func (cl *Client) CreateIndex(ctx context.Context, index string, body io.Reader) error {
-	resp, err := cl.client.Indices.Create(index, cl.client.Indices.Create.WithBody(body), cl.client.Indices.Create.WithContext(ctx))
+	resp, err := cl.client.Indices.Create(
+		index,
+		cl.client.Indices.Create.WithBody(body),
+		cl.client.Indices.Create.WithContext(ctx),
+	)
 	if err != nil {
 		return err
 	}
@@ -180,7 +211,10 @@ func (cl *Client) CreateIndex(ctx context.Context, index string, body io.Reader)
 
 // IsIndexExists Check if an index exists in Elasticsearch
 func (cl *Client) IsIndexExists(ctx context.Context, index string) (bool, error) {
-	resp, err := cl.client.Indices.Exists([]string{index}, cl.client.Indices.Exists.WithContext(ctx))
+	resp, err := cl.client.Indices.Exists(
+		[]string{index},
+		cl.client.Indices.Exists.WithContext(ctx),
+	)
 	if err != nil {
 		return false, err
 	}

@@ -56,13 +56,17 @@ func NewStorage(optsGetter generic.RESTOptionsGetter) (PodStorage, error) {
 		ResetFieldsStrategy: registrypod.Strategy,
 		ReturnDeletedObject: true,
 
-		TableConvertor: printerstorage.TableConvertor{TableGenerator: printers.NewTableGenerator().With(printersinternal.AddHandlers)},
+		TableConvertor: printerstorage.TableConvertor{
+			TableGenerator: printers.NewTableGenerator().With(printersinternal.AddHandlers),
+		},
 	}
 	options := &generic.StoreOptions{
 		RESTOptions: optsGetter,
 		AttrFunc:    registrypod.GetAttrs,
-		TriggerFunc: map[string]storage.IndexerFunc{"spec.nodeName": registrypod.NodeNameTriggerFunc},
-		Indexers:    registrypod.Indexers(),
+		TriggerFunc: map[string]storage.IndexerFunc{
+			"spec.nodeName": registrypod.NodeNameTriggerFunc,
+		},
+		Indexers: registrypod.Indexers(),
 	}
 	if err := store.CompleteWithOptions(options); err != nil {
 		return PodStorage{}, err
@@ -78,12 +82,14 @@ func NewStorage(optsGetter generic.RESTOptionsGetter) (PodStorage, error) {
 	}, nil
 }
 
-// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a resource.
+// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a
+// resource.
 func (r *REST) ShortNames() []string {
 	return []string{"po"}
 }
 
-// Categories implements the CategoriesProvider interface. Returns a list of categories a resource is part of.
+// Categories implements the CategoriesProvider interface. Returns a list of categories a resource
+// is part of.
 func (r *REST) Categories() []string {
 	return []string{"all"}
 }
@@ -105,14 +111,26 @@ func (r *StatusREST) Destroy() {
 }
 
 // Get retrieves the object from the storage. It is required to support Patch.
-func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+func (r *StatusREST) Get(
+	ctx context.Context,
+	name string,
+	options *metav1.GetOptions,
+) (runtime.Object, error) {
 	return r.store.Get(ctx, name, options)
 }
 
 // Update alters the status subset of an object.
-func (r *StatusREST) Update(ctx context.Context, name string, objInfo rest.UpdatedObjectInfo, createValidation rest.ValidateObjectFunc, updateValidation rest.ValidateObjectUpdateFunc, forceAllowCreate bool, options *metav1.UpdateOptions) (runtime.Object, bool, error) {
-	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage because
-	// subresources should never allow create on update.
+func (r *StatusREST) Update(
+	ctx context.Context,
+	name string,
+	objInfo rest.UpdatedObjectInfo,
+	createValidation rest.ValidateObjectFunc,
+	updateValidation rest.ValidateObjectUpdateFunc,
+	forceAllowCreate bool,
+	options *metav1.UpdateOptions,
+) (runtime.Object, bool, error) {
+	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage
+	// because subresources should never allow create on update.
 	return r.store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
 }
 
@@ -121,6 +139,10 @@ func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
 	return r.store.GetResetFields()
 }
 
-func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
+func (r *StatusREST) ConvertToTable(
+	ctx context.Context,
+	object runtime.Object,
+	tableOptions runtime.Object,
+) (*metav1.Table, error) {
 	return r.store.ConvertToTable(ctx, object, tableOptions)
 }

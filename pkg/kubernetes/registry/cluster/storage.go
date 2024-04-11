@@ -71,7 +71,8 @@ type REST struct {
 	*genericregistry.Store
 }
 
-// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a resource.
+// ShortNames implements the ShortNamesProvider interface. Returns a list of short names for a
+// resource.
 func (r *REST) ShortNames() []string {
 	return []string{"cl"}
 }

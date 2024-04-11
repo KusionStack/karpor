@@ -48,7 +48,11 @@ func (r *StatusREST) Destroy() {
 }
 
 // Get retrieves the object from the storage. It is required to support Patch.
-func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOptions) (runtime.Object, error) {
+func (r *StatusREST) Get(
+	ctx context.Context,
+	name string,
+	options *metav1.GetOptions,
+) (runtime.Object, error) {
 	sanitized := &unstructured.Unstructured{}
 	cluster, err := r.Store.Get(ctx, name, options)
 	if err != nil {
@@ -65,9 +69,17 @@ func (r *StatusREST) Get(ctx context.Context, name string, options *metav1.GetOp
 }
 
 // Update alters the status subset of an object.
-func (r *StatusREST) Update(ctx context.Context, name string, objInfo rest.UpdatedObjectInfo, createValidation rest.ValidateObjectFunc, updateValidation rest.ValidateObjectUpdateFunc, forceAllowCreate bool, options *metav1.UpdateOptions) (runtime.Object, bool, error) {
-	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage because
-	// subresources should never allow create on update.
+func (r *StatusREST) Update(
+	ctx context.Context,
+	name string,
+	objInfo rest.UpdatedObjectInfo,
+	createValidation rest.ValidateObjectFunc,
+	updateValidation rest.ValidateObjectUpdateFunc,
+	forceAllowCreate bool,
+	options *metav1.UpdateOptions,
+) (runtime.Object, bool, error) {
+	// We are explicitly setting forceAllowCreate to false in the call to the underlying storage
+	// because subresources should never allow create on update.
 	return r.Store.Update(ctx, name, objInfo, createValidation, updateValidation, false, options)
 }
 
@@ -76,6 +88,10 @@ func (r *StatusREST) GetResetFields() map[fieldpath.APIVersion]*fieldpath.Set {
 	return r.Store.GetResetFields()
 }
 
-func (r *StatusREST) ConvertToTable(ctx context.Context, object runtime.Object, tableOptions runtime.Object) (*metav1.Table, error) {
+func (r *StatusREST) ConvertToTable(
+	ctx context.Context,
+	object runtime.Object,
+	tableOptions runtime.Object,
+) (*metav1.Table, error) {
 	return r.Store.ConvertToTable(ctx, object, tableOptions)
 }

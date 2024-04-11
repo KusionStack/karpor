@@ -34,7 +34,8 @@ import (
 
 var Strategy = clusterStrategy{scheme.Scheme, names.SimpleNameGenerator}
 
-// GetAttrs returns labels.Set, fields.Set, and error in case the given runtime.Object is not a Fischer
+// GetAttrs returns labels.Set, fields.Set, and error in case the given runtime.Object is not a
+// Fischer
 func GetAttrs(obj runtime.Object) (labels.Set, fields.Set, error) {
 	apiserver, ok := obj.(*cluster.Cluster)
 	if !ok {
@@ -80,7 +81,12 @@ func (clusterStrategy) Validate(ctx context.Context, obj runtime.Object) field.E
 }
 
 // WarningsOnCreate returns warnings for the creation of the given object.
-func (clusterStrategy) WarningsOnCreate(ctx context.Context, obj runtime.Object) []string { return nil }
+func (clusterStrategy) WarningsOnCreate(
+	ctx context.Context,
+	obj runtime.Object,
+) []string {
+	return nil
+}
 
 func (clusterStrategy) AllowCreateOnUpdate() bool {
 	return false
@@ -93,7 +99,10 @@ func (clusterStrategy) AllowUnconditionalUpdate() bool {
 func (clusterStrategy) Canonicalize(obj runtime.Object) {
 }
 
-func (clusterStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
+func (clusterStrategy) ValidateUpdate(
+	ctx context.Context,
+	obj, old runtime.Object,
+) field.ErrorList {
 	return field.ErrorList{}
 }
 
@@ -114,11 +123,17 @@ func (clusterStatusStrategy) PrepareForUpdate(ctx context.Context, obj, old runt
 }
 
 // ValidateUpdate is the default update validation for an end user updating status
-func (clusterStatusStrategy) ValidateUpdate(ctx context.Context, obj, old runtime.Object) field.ErrorList {
+func (clusterStatusStrategy) ValidateUpdate(
+	ctx context.Context,
+	obj, old runtime.Object,
+) field.ErrorList {
 	return field.ErrorList{}
 }
 
 // WarningsOnUpdate returns warnings for the given update.
-func (clusterStatusStrategy) WarningsOnUpdate(ctx context.Context, obj, old runtime.Object) []string {
+func (clusterStatusStrategy) WarningsOnUpdate(
+	ctx context.Context,
+	obj, old runtime.Object,
+) []string {
 	return nil
 }

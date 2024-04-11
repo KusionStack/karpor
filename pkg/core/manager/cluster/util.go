@@ -80,7 +80,11 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 		cluster := config.Clusters[0].Cluster
 		clientConfig.Host = cluster.Server
 		if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
-			return nil, errors.Wrapf(err, "invalid certificate-authority-data for cluster %s", config.Clusters[0].Name)
+			return nil, errors.Wrapf(
+				err,
+				"invalid certificate-authority-data for cluster %s",
+				config.Clusters[0].Name,
+			)
 		} else {
 			clientConfig.CAData = plain
 		}
@@ -91,12 +95,20 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 		clientConfig.Username = user.Username
 		clientConfig.Password = user.Password
 		if plain, err := base64.StdEncoding.DecodeString(user.ClientCertificateData); err != nil {
-			return nil, fmt.Errorf("invalid client-certificate-data for user %s: %v", config.Users[0].Name, err)
+			return nil, fmt.Errorf(
+				"invalid client-certificate-data for user %s: %v",
+				config.Users[0].Name,
+				err,
+			)
 		} else {
 			clientConfig.CertData = plain
 		}
 		if plain, err := base64.StdEncoding.DecodeString(user.ClientKeyData); err != nil {
-			return nil, fmt.Errorf("invalid client-key-data for user %s: %v", config.Users[0].Name, err)
+			return nil, fmt.Errorf(
+				"invalid client-key-data for user %s: %v",
+				config.Users[0].Name,
+				err,
+			)
 		} else {
 			clientConfig.KeyData = plain
 		}
@@ -107,21 +119,33 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 
 // SanitizeUnstructuredCluster masks sensitive information within a Unstructured
 // cluster object, such as user credentials and certificate data.
-func SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+func SanitizeUnstructuredCluster(
+	ctx context.Context,
+	cluster *unstructured.Unstructured,
+) (*unstructured.Unstructured, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// Inform that the unmarshaling process has started.
 	log.Info("Sanitizing unstructured cluster...")
 	sanitized := cluster
 	if token, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"]; ok {
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"] = maskContent(token.(string))
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["serviceAccountToken"] = maskContent(
+			token.(string),
+		)
 	}
-	if x509, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok && x509 != nil {
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = []byte(maskContent(x509.(map[string]interface{})["certificate"].(string)))
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = []byte(maskContent(x509.(map[string]interface{})["privateKey"].(string)))
+	if x509, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"]; ok &&
+		x509 != nil {
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["certificate"] = []byte(
+			maskContent(x509.(map[string]interface{})["certificate"].(string)),
+		)
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = []byte(
+			maskContent(x509.(map[string]interface{})["privateKey"].(string)),
+		)
 	}
 	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
-		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = []byte(maskContent(caBundle.(string)))
+		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = []byte(
+			maskContent(caBundle.(string)),
+		)
 	}
 	if _, ok := sanitized.Object["metadata"].(map[string]interface{})["annotations"]; ok {
 		sanitized.Object["metadata"].(map[string]interface{})["annotations"].(map[string]interface{})["kubectl.kubernetes.io/last-applied-configuration"] = "[redacted]"
@@ -130,12 +154,18 @@ func SanitizeUnstructuredCluster(ctx context.Context, cluster *unstructured.Unst
 }
 
 // SortUnstructuredList returns a sorted unstructured.UnstructuredList based on criteria
-func SortUnstructuredList(unList *unstructured.UnstructuredList, criteria SortCriteria, descending bool) (*unstructured.UnstructuredList, error) {
+func SortUnstructuredList(
+	unList *unstructured.UnstructuredList,
+	criteria SortCriteria,
+	descending bool,
+) (*unstructured.UnstructuredList, error) {
 	switch criteria {
 	case ByTimestamp:
 		sort.Slice(unList.Items, func(i, j int) bool {
 			if descending {
-				return unList.Items[i].GetCreationTimestamp().UTC().After(unList.Items[j].GetCreationTimestamp().UTC())
+				return unList.Items[i].GetCreationTimestamp().
+					UTC().
+					After(unList.Items[j].GetCreationTimestamp().UTC())
 			} else {
 				return unList.Items[i].GetCreationTimestamp().UTC().Before(unList.Items[j].GetCreationTimestamp().UTC())
 			}

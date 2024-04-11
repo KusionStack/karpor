@@ -86,7 +86,8 @@ type ResourceSyncRule struct {
 	// Resource is the the target resource.
 	Resource string
 
-	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
+	// Namespace specifies the namespace in which the ListWatch of the target resources is limited
+	// to.
 	Namespace string
 
 	// ResynPeriod is the period to resync
@@ -98,7 +99,8 @@ type ResourceSyncRule struct {
 	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
 	Selectors []Selector
 
-	// Transform is the rule applied to the original resource to transform it to the desired target resource.
+	// Transform is the rule applied to the original resource to transform it to the desired target
+	// resource.
 	Transform *TransformRuleSpec
 
 	// TransformRefName is the name of the TransformRule
@@ -109,7 +111,8 @@ type ResourceSyncRule struct {
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// TransformRule is used to define the rule to transform the original resource into the desired target resource.
+// TransformRule is used to define the rule to transform the original resource into the desired
+// target resource.
 type TransformRule struct {
 	metav1.TypeMeta
 	metav1.ObjectMeta
@@ -149,7 +152,8 @@ type Selector struct {
 // FieldSelector is a field filter.
 type FieldSelector struct {
 	// MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
-	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
+	// map means that the specified field should have an exact match with the specified value.
+	// Multiple entries are ANDed.
 	MatchFields map[string]string
 	// ServerSupported specifies whether the field selection is supported in api server side
 	ServerSupported bool

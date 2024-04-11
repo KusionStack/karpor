@@ -26,9 +26,11 @@ var (
 	ErrMissingCertificateAuthority = errors.New("certificate-authority-data is required")
 	ErrInvalidCertificateAuthority = errors.New("certificate-authority-data is invalid")
 	ErrClusterServerConnectivity   = errors.New("cannot connect to the cluster server")
-	ErrBuildClientConfig           = errors.New("failed to create client config from provided KubeConfig")
-	ErrCreateClientSet             = errors.New("failed to create clientset")
-	ErrGetServerVersion            = errors.New("failed to connect to the cluster")
+	ErrBuildClientConfig           = errors.New(
+		"failed to create client config from provided KubeConfig",
+	)
+	ErrCreateClientSet  = errors.New("failed to create clientset")
+	ErrGetServerVersion = errors.New("failed to connect to the cluster")
 )
 
 type SortCriteria int
