@@ -30,6 +30,7 @@ type config struct {
 
 type Option func(*config) error
 
+// Pagination is a functional option to set the pagination configuration.
 func Pagination(page, pageSize int) Option {
 	return func(c *config) error {
 		if c == nil {
@@ -54,10 +55,12 @@ type ESError struct {
 	Message    string
 }
 
+// Error() method implementation for ESError, which returns the error message in a string format.
 func (e *ESError) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Message)
 }
 
+// SearchResponse represents the response structure for a search operation.
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
 	Took     int    `json:"took"`
@@ -65,17 +68,20 @@ type SearchResponse struct {
 	Hits     *Hits  `json:"hits"`
 }
 
+// Hits contains the hit documents and metadata from a search operation.
 type Hits struct {
 	Total    *Total  `json:"total"`
 	MaxScore float32 `json:"max_score"`
 	Hits     []*Hit  `json:"hits"`
 }
 
+// Total provides information about the total number of documents matching the search query.
 type Total struct {
 	Value    int    `json:"value,omitempty"`
 	Relation string `json:"relation,omitempty"`
 }
 
+// Hit represents a single hit document from a search operation, containing index, ID, score, and source data.
 type Hit struct {
 	Index  string                 `json:"_index"`
 	ID     string                 `json:"_id"`
