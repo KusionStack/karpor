@@ -47,6 +47,7 @@ const (
 	defaultResyncPeriod = 1 * time.Hour
 )
 
+// SyncSource defines the interface for sources that can be synced, including methods for interacting with the Kubernetes API and cache.
 type SyncSource interface {
 	source.Source
 	clientgocache.Store
@@ -56,6 +57,7 @@ type SyncSource interface {
 	HasSynced() bool
 }
 
+// informerSource is a struct that implements the SyncSource interface, providing functionality for syncing resources using informers.
 type informerSource struct {
 	cluster string
 	v1beta1.ResourceSyncRule
@@ -106,6 +108,7 @@ func (s *informerSource) Resync() error {
 	return s.cache.Resync()
 }
 
+// NewSource creates a new instance of informerSource with the provided parameters, including cluster name, Kubernetes client, sync rule, and storage.
 func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) SyncSource {
 	return &informerSource{
 		cluster:          cluster,
@@ -124,6 +127,7 @@ func (s *informerSource) SyncRule() v1beta1.ResourceSyncRule {
 	return s.ResourceSyncRule
 }
 
+// Start initializes and starts the informerSource, setting up informers and handlers for resource syncing based on the provided context, event handler, workqueue, and predicates.
 func (s *informerSource) Start(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) error {
 	cache, informer, err := s.createInformer(ctx, handler, queue, predicates...)
 	if err != nil {
@@ -141,6 +145,7 @@ func (s *informerSource) Start(ctx context.Context, handler ctrlhandler.EventHan
 	return nil
 }
 
+// Stop gracefully shuts down the informerSource, stopping informers and canceling the context.
 func (s *informerSource) Stop(ctx context.Context) error {
 	s.cancel()
 
@@ -155,6 +160,7 @@ func (s *informerSource) Stop(ctx context.Context) error {
 	}
 }
 
+// createInformer sets up and returns the informer and controller for the informerSource, using the provided context, event handler, workqueue, and predicates.
 func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
@@ -199,6 +205,7 @@ func (s *informerSource) HasSynced() bool {
 	return s.informer.HasSynced()
 }
 
+// parseGVR extracts and returns the GroupVersionResource information from the provided ResourceSyncRule.
 func parseGVR(rsr *v1beta1.ResourceSyncRule) (schema.GroupVersionResource, error) {
 	gv, err := schema.ParseGroupVersion(rsr.APIVersion)
 	if err != nil {
@@ -207,6 +214,7 @@ func parseGVR(rsr *v1beta1.ResourceSyncRule) (schema.GroupVersionResource, error
 	return gv.WithResource(rsr.Resource), nil
 }
 
+// parseSelectors extracts and returns the list of Selectors from the provided ResourceSyncRule.
 func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 	if len(rsr.Selectors) == 0 {
 		return nil, nil
@@ -233,6 +241,7 @@ func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 	return selectors, nil
 }
 
+// parseTransformer creates and returns a transformation function for the informerSource based on the ResourceSyncRule's transformers.
 func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error) {
 	t := s.ResourceSyncRule.Transform
 	if t == nil {
@@ -270,6 +279,7 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 	}, nil
 }
 
+// newTemplate creates and returns a new text template from the provided string, which can be used for processing templates in the syncer.
 func newTemplate(tmpl string) (*template.Template, error) {
 	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Parse(tmpl)
 }

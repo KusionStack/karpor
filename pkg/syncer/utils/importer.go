@@ -24,18 +24,21 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+// Importer defines the interface for importing data to a specified storage.
 type Importer interface {
 	ImportTo(ctx context.Context, store cache.Store) error
 }
 
 var _ Importer = &ESImporter{}
 
+// ESImporter is the struct responsible for importing data to an Elasticsearch storage.
 type ESImporter struct {
 	cluster  string
 	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
 }
 
+// NewESImporter creates a new instance of the ESImporter struct with the provided Elasticsearch client, cluster name, and GroupVersionResource.
 func NewESImporter(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource) *ESImporter {
 	return &ESImporter{
 		cluster:  cluster,
@@ -44,6 +47,7 @@ func NewESImporter(esClient *elasticsearch.Storage, cluster string, gvr schema.G
 	}
 }
 
+// ImportTo implements the Importer interface by importing data to the specified cache.Store within the given context. The method should be implemented to perform the actual data import.
 func (e *ESImporter) ImportTo(ctx context.Context, store cache.Store) error {
 	resource := e.gvr.Resource
 	kind := resource[0 : len(resource)-1]

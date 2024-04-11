@@ -31,33 +31,41 @@ func init() {
 	Register("replace", Replace)
 }
 
+// TransformFunc is a type definition for transformation functions that take an original data structure and a transformation string, and return a transformed data structure and an error.
 type TransformFunc func(original interface{}, transformText string) (target interface{}, err error)
 
+// Register function registers a transformation function with the given type.
 func Register(tType string, transFunc TransformFunc) {
 	defaultRegistry.Register(tType, transFunc)
 }
 
+// GetTransformFunc retrieves a registered transformation function by type.
 func GetTransformFunc(transformerType string) (TransformFunc, bool) {
 	return defaultRegistry.Get(transformerType)
 }
 
+// TransformFuncRegistry is a struct that holds a map of transformation functions.
 type TransformFuncRegistry struct {
 	transformers map[string]TransformFunc
 }
 
+// NewRegistry creates and returns a new instance of TransformFuncRegistry.
 func NewRegistry() *TransformFuncRegistry {
 	return &TransformFuncRegistry{transformers: make(map[string]TransformFunc)}
 }
 
+// Register method of TransformFuncRegistry registers a transformation function with the given type.
 func (r *TransformFuncRegistry) Register(tType string, transFunc TransformFunc) {
 	r.transformers[tType] = transFunc
 }
 
+// Get method of TransformFuncRegistry retrieves a registered transformation function by type.
 func (r *TransformFuncRegistry) Get(transformerType string) (transFunc TransformFunc, found bool) {
 	transFunc, found = r.transformers[transformerType]
 	return
 }
 
+// Patch function applies a JSON patch to the original data structure.
 func Patch(original interface{}, patchText string) (interface{}, error) {
 	patch, err := jsonpatch.DecodePatch([]byte(patchText))
 	if err != nil {
@@ -87,6 +95,7 @@ func Patch(original interface{}, patchText string) (interface{}, error) {
 	return &dest, nil
 }
 
+// Replace function replaces the original data structure with the new one derived from the JSON string.
 func Replace(original interface{}, jsonString string) (interface{}, error) {
 	var dest unstructured.Unstructured
 	if err := json.Unmarshal([]byte(jsonString), &dest); err != nil {
