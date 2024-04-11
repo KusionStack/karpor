@@ -76,14 +76,17 @@ func NewFilteredClusterInformer(client versioned.Interface, resyncPeriod time.Du
 	)
 }
 
+// defaultInformer provides a default implementation for the cluster informer using the given client and resync period.
 func (f *clusterInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 	return NewFilteredClusterInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
+// Informer returns the SharedIndexInformer for the cluster informer.
 func (f *clusterInformer) Informer() cache.SharedIndexInformer {
 	return f.factory.InformerFor(&clusterv1beta1.Cluster{}, f.defaultInformer)
 }
 
+// Lister returns the ClusterLister for the cluster informer.
 func (f *clusterInformer) Lister() v1beta1.ClusterLister {
 	return v1beta1.NewClusterLister(f.Informer().GetIndexer())
 }
