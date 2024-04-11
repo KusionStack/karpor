@@ -31,6 +31,7 @@ import (
 	metricsv1beta1 "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
+// MultiClusterClient represents the client used to interact with multiple Kubernetes clusters.
 type MultiClusterClient struct {
 	ClientSet     *kubernetes.Clientset
 	DynamicClient *dynamic.DynamicClient
@@ -56,6 +57,7 @@ func BuildMultiClusterClient(ctx context.Context, hubConfig *restclient.Config, 
 	return client, nil
 }
 
+// BuildHubClients creates a MultiClusterClient for the hub cluster.
 func BuildHubClients(ctx context.Context, hubConfig *restclient.Config) (*MultiClusterClient, error) {
 	// Create a Kubernetes core client
 	hubClientSet, err := kubernetes.NewForConfig(hubConfig)

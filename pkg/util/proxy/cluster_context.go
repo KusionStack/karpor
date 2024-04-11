@@ -43,6 +43,7 @@ func ClusterFrom(ctx context.Context) (string, bool) {
 	return cluster, true
 }
 
+// WithProxyByCluster returns a new http.Handler that provides proxy functionality based on the cluster information in the context.
 func WithProxyByCluster(handler http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
 		cluster, ok := ClusterFrom(req.Context())

@@ -161,6 +161,7 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resou
 	}
 }
 
+// scanManifestFor is a method that is likely intended for internal use within the kubeauditScanner. It scans the provided manifest for issues and returns the scan result.
 func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storage.Resource, manifest []byte) (scanner.ScanResult, error) {
 	// Extract the context and logger from the request.
 	log := ctxutil.GetLogger(ctx)

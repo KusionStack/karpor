@@ -29,6 +29,7 @@ import (
 
 var ErrNotFound = fmt.Errorf("object not found")
 
+// Save stores an object in the Elasticsearch storage for the specified cluster.
 func (s *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) error {
 	id, body, err := s.generateIndexRequest(cluster, obj)
 	if err != nil {
@@ -37,6 +38,7 @@ func (s *Storage) Save(ctx context.Context, cluster string, obj runtime.Object) 
 	return s.client.SaveDocument(ctx, s.indexName, id, bytes.NewReader(body))
 }
 
+// Delete removes an object from the Elasticsearch storage for the specified cluster.
 func (s *Storage) Delete(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
@@ -51,6 +53,7 @@ func (s *Storage) Delete(ctx context.Context, cluster string, obj runtime.Object
 	return s.client.DeleteDocument(ctx, s.indexName, string(unObj.GetUID()))
 }
 
+// Get retrieves an object from the Elasticsearch storage for the specified cluster.
 func (s *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
 	if !ok {
@@ -77,6 +80,7 @@ func (s *Storage) Get(ctx context.Context, cluster string, obj runtime.Object) e
 	return nil
 }
 
+// DeleteAllResources removes all resources from the Elasticsearch storage for the specified cluster.
 func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error {
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
@@ -89,6 +93,7 @@ func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error 
 	return s.client.DeleteDocumentByQuery(ctx, s.indexName, buf)
 }
 
+// generateQuery creates a query to search for an object in Elasticsearch based on its cluster, namespace, and name.
 func generateQuery(cluster, namespace, name string, obj runtime.Object) map[string]interface{} {
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
@@ -101,6 +106,7 @@ func generateQuery(cluster, namespace, name string, obj runtime.Object) map[stri
 	return query
 }
 
+// generateIndexRequest creates an index request for Elasticsearch with the specified cluster and object.
 func (s *Storage) generateIndexRequest(cluster string, obj runtime.Object) (id string, body []byte, err error) {
 	metaObj, err := meta.Accessor(obj)
 	if err != nil {

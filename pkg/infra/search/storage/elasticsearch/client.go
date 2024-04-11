@@ -46,12 +46,14 @@ var (
 	_ storage.SearchStorage = &Storage{}
 )
 
+// Storage is the struct that holds the necessary fields for interacting with the Elasticsearch cluster.
 type Storage struct {
 	client        *elasticsearch.Client
 	indexName     string
 	objectEncoder runtime.Encoder
 }
 
+// NewStorage creates and returns a new instance of the Storage struct with the provided Elasticsearch configuration.
 func NewStorage(cfg esv8.Config) (*Storage, error) {
 	cl, err := elasticsearch.NewClient(cfg)
 	if err != nil {
