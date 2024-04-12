@@ -33,6 +33,7 @@ const (
 	SQLPatternType = "sql"
 )
 
+// Storage interface defines the basic operations for resource storage.
 type Storage interface {
 	Get(ctx context.Context, cluster string, obj runtime.Object) error
 	Save(ctx context.Context, cluster string, obj runtime.Object) error
@@ -40,17 +41,20 @@ type Storage interface {
 	DeleteAllResources(ctx context.Context, cluster string) error
 }
 
+// Query represents the query parameters for searching resources.
 type Query struct {
 	Key      string
 	Values   []string
 	Operator string
 }
 
+// Pagination defines the parameters for pagination in search results.
 type Pagination struct {
 	Page     int
 	PageSize int
 }
 
+// Storage interface defines the basic operations for resource storage.
 type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
 }
@@ -59,11 +63,13 @@ type SearchStorageGetter interface {
 	GetSearchStorage() (SearchStorage, error)
 }
 
+// SearchResult contains the search results and total count.
 type SearchResult struct {
 	Total     int
 	Resources []*Resource
 }
 
+// Overview returns a brief summary of the search result.
 func (r *SearchResult) Overview() string {
 	var sb strings.Builder
 
@@ -77,6 +83,7 @@ func (r *SearchResult) Overview() string {
 	return sb.String()
 }
 
+// ToYAML returns the search result in YAML format.
 func (r *SearchResult) ToYAML() (string, error) {
 	if len(r.Resources) == 0 {
 		return "", nil
@@ -95,6 +102,7 @@ func (r *SearchResult) ToYAML() (string, error) {
 	return yamlString, nil
 }
 
+// Resource represents a Kubernetes resource with additional metadata.
 type Resource struct {
 	core.Locator `json:",inline" yaml:",inline"`
 	Object       map[string]interface{} `json:"object"`
@@ -131,6 +139,7 @@ func NewResource(cluster string, b []byte) (*Resource, error) {
 	}, nil
 }
 
+// Map2Resource converts a map to a Resource object.
 func Map2Resource(in map[string]interface{}) (*Resource, error) {
 	out := &Resource{}
 	out.Cluster = in["cluster"].(string)

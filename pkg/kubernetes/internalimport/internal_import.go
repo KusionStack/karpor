@@ -14,7 +14,8 @@
 
 package internalimport
 
-// To use k8s.io/kubernetes as a library, it is required to import the relevant packages related to k8s and specify the specific version in go.mod.
+// To use k8s.io/kubernetes as a library, it is required to import the relevant packages related to
+// k8s and specify the specific version in go.mod.
 import (
 	_ "k8s.io/api"
 	_ "k8s.io/apimachinery"

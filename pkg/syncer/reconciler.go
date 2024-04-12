@@ -45,6 +45,7 @@ const (
 	anyCluster = "*"
 )
 
+// SyncReconciler is the main structure that holds the state and dependencies for the multi-cluster syncer reconciler.
 type SyncReconciler struct {
 	storage storage.Storage
 
@@ -53,10 +54,12 @@ type SyncReconciler struct {
 	mgr        MultiClusterSyncManager
 }
 
+// NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
 func NewSyncReconciler(storage storage.Storage) *SyncReconciler {
 	return &SyncReconciler{storage: storage}
 }
 
+// SetupWithManager sets up the SyncReconciler with the given manager and registers it as a controller.
 func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	controller, err := ctrl.NewControllerManagedBy(mgr).
 		For(&clusterv1beta1.Cluster{}).
@@ -113,6 +116,7 @@ func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateL
 	}
 }
 
+// Reconcile is the main entry point for the syncer reconciler, which is called whenever there is a change in the watched resources.
 func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
 	logger := ctrl.LoggerFrom(ctx)
 
@@ -139,6 +143,7 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy())
 }
 
+// stopCluster stops the reconciliation process for the given cluster.
 func (r *SyncReconciler) stopCluster(ctx context.Context, clusterName string) error {
 	logger := ctrl.LoggerFrom(ctx)
 	logger.Info("start to stop syncing cluster", "cluster", clusterName)
@@ -150,6 +155,7 @@ func (r *SyncReconciler) stopCluster(ctx context.Context, clusterName string) er
 	return nil
 }
 
+// startCluster starts the reconciliation process for the given cluster.
 func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) error {
 	logger := ctrl.LoggerFrom(ctx)
 
@@ -157,6 +163,7 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 	return r.mgr.Start(ctx, clusterName)
 }
 
+// handleClusterAddOrUpdate is responsible for handling the addition or update of a cluster resource.
 func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
 	logger := ctrl.LoggerFrom(ctx)
 
@@ -200,6 +207,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 	return nil
 }
 
+// getResources retrieves the list of resource sync rules for the given cluster.
 func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, error) {
 	registries, err := r.getRegistries(ctx, cluster)
 	if err != nil {
@@ -224,6 +232,7 @@ func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1bet
 	return allResources, nil
 }
 
+// getNormalizedResources retrieves the normalized resource sync rules from the given sync registry.
 func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *searchv1beta1.SyncRegistry) (map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule, error) {
 	var resources []searchv1beta1.ResourceSyncRule
 
@@ -256,6 +265,7 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 	return ret, nil
 }
 
+// getRegistries retrieves the list of sync registries for the given cluster.
 func (r *SyncReconciler) getRegistries(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]searchv1beta1.SyncRegistry, error) {
 	var syncRegistriesList searchv1beta1.SyncRegistryList
 	if err := r.client.List(ctx, &syncRegistriesList); err != nil {
@@ -275,6 +285,7 @@ func (r *SyncReconciler) getRegistries(ctx context.Context, cluster *clusterv1be
 	return ret, nil
 }
 
+// getMatchedClusters returns the list of matched cluster names from the given sync registry.
 func (r *SyncReconciler) getMatchedClusters(registry *searchv1beta1.SyncRegistry) []string {
 	var ret []string
 
@@ -292,6 +303,7 @@ func (r *SyncReconciler) getMatchedClusters(registry *searchv1beta1.SyncRegistry
 	return ret
 }
 
+// isMatched checks if the given cluster matches the criteria specified in the sync registry.
 func isMatched(registry *searchv1beta1.SyncRegistry, cluster *clusterv1beta1.Cluster) (bool, error) {
 	for _, name := range registry.Spec.Clusters {
 		if name == anyCluster || name == cluster.Name {
@@ -311,6 +323,7 @@ func isMatched(registry *searchv1beta1.SyncRegistry, cluster *clusterv1beta1.Clu
 	return false, nil
 }
 
+// getNormalizedResource retrieves the normalized resource sync rule for the given resource sync rule.
 func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.ResourceSyncRule, error) {
 	if rsr.TransformRefName == "" {
 		return rsr.DeepCopy(), nil
@@ -332,6 +345,7 @@ func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv
 	return normalized, nil
 }
 
+// buildClusterConfig creates a rest.Config object for the given cluster.
 func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 	access := cluster.Spec.Access
 	if len(access.Endpoint) == 0 {

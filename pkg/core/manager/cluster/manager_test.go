@@ -56,7 +56,11 @@ func TestGetCluster(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cluster, err := manager.GetCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+			cluster, err := manager.GetCluster(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+			)
 			if tc.expectError {
 				require.Error(t, err, "Expected an error when getting non-existing cluster.")
 			} else {
@@ -161,11 +165,23 @@ func TestCreateCluster(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			cluster, err := manager.CreateCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.displayName, tc.description, tc.kubeconfig)
+			cluster, err := manager.CreateCluster(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+				tc.displayName,
+				tc.description,
+				tc.kubeconfig,
+			)
 
 			if tc.expectError {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+				require.Contains(
+					t,
+					err.Error(),
+					tc.expectedErrorMessage,
+					"Unexpected error message received.",
+				)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, cluster, "Expected a non-nil cluster object.")
@@ -216,10 +232,21 @@ func TestUpdateMetadata(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			updatedCluster, err := manager.UpdateMetadata(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.displayName, tc.description)
+			updatedCluster, err := manager.UpdateMetadata(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+				tc.displayName,
+				tc.description,
+			)
 			if tc.expectError {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expectedError, "Unexpected error message received.")
+				require.Contains(
+					t,
+					err.Error(),
+					tc.expectedError,
+					"Unexpected error message received.",
+				)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, updatedCluster, "Expected a non-nil updated cluster object.")
@@ -272,10 +299,20 @@ func TestUpdateCredential(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			updatedCluster, err := manager.UpdateCredential(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName, tc.kubeconfig)
+			updatedCluster, err := manager.UpdateCredential(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+				tc.kubeconfig,
+			)
 			if tc.expectError {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expectedError, "Unexpected error message received.")
+				require.Contains(
+					t,
+					err.Error(),
+					tc.expectedError,
+					"Unexpected error message received.",
+				)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, updatedCluster, "Expected a non-nil updated cluster object.")
@@ -310,7 +347,11 @@ func TestDeleteCluster(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			err := manager.DeleteCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+			err := manager.DeleteCluster(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+			)
 			if tc.expectError {
 				require.Error(t, err, "Expected an error when deleting non-existing cluster.")
 			} else {
@@ -349,7 +390,12 @@ func TestListCluster(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			result, err := manager.ListCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.orderBy, tc.descending)
+			result, err := manager.ListCluster(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.orderBy,
+				tc.descending,
+			)
 			if tc.expectError {
 				require.Error(t, err)
 			} else {
@@ -403,7 +449,11 @@ spec:
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			yamlData, err := manager.GetYAMLForCluster(context.TODO(), &multicluster.MultiClusterClient{}, tc.clusterName)
+			yamlData, err := manager.GetYAMLForCluster(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.clusterName,
+			)
 
 			if tc.expectedErr {
 				require.Error(t, err)
@@ -460,11 +510,19 @@ users:
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			sanitizedConfig, err := manager.SanitizeKubeConfigWithYAML(context.TODO(), tc.plainKubeConfig)
+			sanitizedConfig, err := manager.SanitizeKubeConfigWithYAML(
+				context.TODO(),
+				tc.plainKubeConfig,
+			)
 
 			if tc.expectedErr {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+				require.Contains(
+					t,
+					err.Error(),
+					tc.expectedErrorMessage,
+					"Unexpected error message received.",
+				)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, sanitizedConfig, "Expected a non-nil sanitized config.")
@@ -500,11 +558,19 @@ func TestValidateKubeConfigWithYAML(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			validatedVersion, err := manager.ValidateKubeConfigWithYAML(context.TODO(), tc.plainKubeConfig)
+			validatedVersion, err := manager.ValidateKubeConfigWithYAML(
+				context.TODO(),
+				tc.plainKubeConfig,
+			)
 
 			if tc.expectedErr {
 				require.Error(t, err)
-				require.Contains(t, err.Error(), tc.expectedErrorMessage, "Unexpected error message received.")
+				require.Contains(
+					t,
+					err.Error(),
+					tc.expectedErrorMessage,
+					"Unexpected error message received.",
+				)
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, validatedVersion, "Expected a non-nil validated version.")
@@ -553,7 +619,11 @@ current-context: test-context
 // object.
 func newMockCluster(name string) *unstructured.Unstructured {
 	// Create the base unstructured object
-	unsanitizedCluster := newUnstructured(clusterv1beta1.SchemeGroupVersion.String(), "Cluster", name)
+	unsanitizedCluster := newUnstructured(
+		clusterv1beta1.SchemeGroupVersion.String(),
+		"Cluster",
+		name,
+	)
 
 	// Populate the object with the mock data
 	unsanitizedCluster.Object["spec"] = map[string]interface{}{
@@ -597,7 +667,12 @@ type mockNamespaceableResource struct {
 }
 
 // Get retrieves the cluster with the provided name.
-func (m *mockNamespaceableResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
+func (m *mockNamespaceableResource) Get(
+	ctx context.Context,
+	name string,
+	options metav1.GetOptions,
+	subresources ...string,
+) (*unstructured.Unstructured, error) {
 	if name == "existing-cluster" {
 		return newMockCluster("existing-cluster"), nil
 	}
@@ -605,7 +680,10 @@ func (m *mockNamespaceableResource) Get(ctx context.Context, name string, option
 }
 
 // List retrieves a list of clusters.
-func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
+func (m *mockNamespaceableResource) List(
+	ctx context.Context,
+	opts metav1.ListOptions,
+) (*unstructured.UnstructuredList, error) {
 	unsanitizedCluster := newMockCluster("existing-cluster")
 
 	return &unstructured.UnstructuredList{
@@ -617,17 +695,32 @@ func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOp
 }
 
 // Create creates a new cluster.
-func (m *mockNamespaceableResource) Create(ctx context.Context, obj *unstructured.Unstructured, options metav1.CreateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+func (m *mockNamespaceableResource) Create(
+	ctx context.Context,
+	obj *unstructured.Unstructured,
+	options metav1.CreateOptions,
+	subresources ...string,
+) (*unstructured.Unstructured, error) {
 	return obj, nil
 }
 
 // Update updates an existing cluster.
-func (m *mockNamespaceableResource) Update(ctx context.Context, obj *unstructured.Unstructured, options metav1.UpdateOptions, subresources ...string) (*unstructured.Unstructured, error) {
+func (m *mockNamespaceableResource) Update(
+	ctx context.Context,
+	obj *unstructured.Unstructured,
+	options metav1.UpdateOptions,
+	subresources ...string,
+) (*unstructured.Unstructured, error) {
 	return obj, nil
 }
 
 // Delete deletes the cluster with the provided name.
-func (m *mockNamespaceableResource) Delete(ctx context.Context, name string, options metav1.DeleteOptions, subresources ...string) error {
+func (m *mockNamespaceableResource) Delete(
+	ctx context.Context,
+	name string,
+	options metav1.DeleteOptions,
+	subresources ...string,
+) error {
 	if name == "existing-cluster" {
 		return nil
 	}

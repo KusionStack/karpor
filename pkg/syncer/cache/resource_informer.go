@@ -27,35 +27,42 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// ResourceHandler defines the interface for handling resource events.
 type ResourceHandler interface {
 	OnAdd(obj interface{}) error
 	OnUpdate(newObj interface{}) error
 	OnDelete(obj interface{}) error
 }
 
+// ResourceHandlerFuncs is a struct that implements the ResourceHandler interface by wrapping functions.
 type ResourceHandlerFuncs struct {
 	AddFunc    func(obj interface{}) error
 	UpdateFunc func(newObj interface{}) error
 	DeleteFunc func(obj interface{}) error
 }
 
+// OnAdd calls the AddFunc field of ResourceHandlerFuncs, handling the add event.
 func (r ResourceHandlerFuncs) OnAdd(obj interface{}) error {
 	return r.AddFunc(obj)
 }
 
+// OnUpdate calls the UpdateFunc field of ResourceHandlerFuncs, handling the update event.
 func (r ResourceHandlerFuncs) OnUpdate(newObj interface{}) error {
 	return r.UpdateFunc(newObj)
 }
 
+// OnDelete calls the DeleteFunc field of ResourceHandlerFuncs, handling the delete event.
 func (r ResourceHandlerFuncs) OnDelete(obj interface{}) error {
 	return r.DeleteFunc(obj)
 }
 
+// ResourceSelector defines the interface for selecting resources based on certain criteria.
 type ResourceSelector interface {
 	ApplyToList(*metav1.ListOptions)
 	Predicate(interface{}) bool
 }
 
+// NewResourceInformer creates a new informer that watches for resource events and handles them using the provided ResourceHandler.
 func NewResourceInformer(lw cache.ListerWatcher,
 	selector ResourceSelector,
 	transform cache.TransformFunc,

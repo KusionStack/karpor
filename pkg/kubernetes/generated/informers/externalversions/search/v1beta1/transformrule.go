@@ -76,14 +76,17 @@ func NewFilteredTransformRuleInformer(client versioned.Interface, resyncPeriod t
 	)
 }
 
+// defaultInformer provides a default implementation for the SharedIndexInformer interface.
 func (f *transformRuleInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 	return NewFilteredTransformRuleInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
+// Informer returns the SharedIndexInformer for TransformRule resources.
 func (f *transformRuleInformer) Informer() cache.SharedIndexInformer {
 	return f.factory.InformerFor(&searchv1beta1.TransformRule{}, f.defaultInformer)
 }
 
+// Lister returns the TransformRuleLister for TransformRule resources.
 func (f *transformRuleInformer) Lister() v1beta1.TransformRuleLister {
 	return v1beta1.NewTransformRuleLister(f.Informer().GetIndexer())
 }

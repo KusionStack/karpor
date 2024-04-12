@@ -19,11 +19,14 @@ const (
 	ChildTypeKey  = "child"
 )
 
+// RelationshipGraph represents the graph structure containing the relationships between nodes.
+//
 //nolint:tagliatelle
 type RelationshipGraph struct {
 	RelationshipNodes []*RelationshipGraphNode `json:"relationship,omitempty" yaml:"relationship,omitempty"`
 }
 
+// RelationshipGraphNode represents a node in the relationship graph.
 type RelationshipGraphNode struct {
 	Group         string          `json:"group,omitempty" yaml:"group,omitempty"`
 	Version       string          `json:"version,omitempty" yaml:"version,omitempty"`
@@ -33,6 +36,7 @@ type RelationshipGraphNode struct {
 	ResourceCount int             `json:"resourceCount,omitempty" yaml:"resourceCount,omitempty"`
 }
 
+// Relationship represents a connection between parent and child nodes in the relationship graph.
 type Relationship struct {
 	ParentNode    *RelationshipGraphNode
 	ChildNode     *RelationshipGraphNode
@@ -46,6 +50,7 @@ type Relationship struct {
 	JSONPath      []map[string]string `json:"jsonPath,omitempty" yaml:"jsonPath,omitempty"`
 }
 
+// ResourceGraphNode represents a node in the resource graph, containing resource-specific information.
 type ResourceGraphNode struct {
 	Name      string
 	Namespace string

@@ -37,6 +37,7 @@ import (
 	"k8s.io/client-go/restmapper"
 )
 
+// ConfigRegister is a function that registers the server configuration.
 func ConfigRegister(hookContext genericapiserver.PostStartHookContext) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -55,7 +56,12 @@ func ConfigRegister(hookContext genericapiserver.PostStartHookContext) error {
 	return nil
 }
 
-func createResources(ctx context.Context, client dynamic.Interface, mapper meta.RESTMapper, data []byte) error {
+func createResources(
+	ctx context.Context,
+	client dynamic.Interface,
+	mapper meta.RESTMapper,
+	data []byte,
+) error {
 	if len(data) == 0 {
 		return nil
 	}
@@ -77,20 +83,34 @@ func createResources(ctx context.Context, client dynamic.Interface, mapper meta.
 	return nil
 }
 
-func createResource(ctx context.Context, client dynamic.Interface, mapper meta.RESTMapper, data []byte) error {
-	obj, gvk, err := scheme.Codecs.UniversalDeserializer().Decode(data, nil, &unstructured.Unstructured{})
+// createResource is a function that creates a single Kubernetes resource based
+// on the provided data.
+func createResource(
+	ctx context.Context,
+	client dynamic.Interface,
+	mapper meta.RESTMapper,
+	data []byte,
+) error {
+	obj, gvk, err := scheme.Codecs.UniversalDeserializer().
+		Decode(data, nil, &unstructured.Unstructured{})
 	if err != nil {
 		return fmt.Errorf("could not decode data: %v", err)
 	}
 	u, ok := obj.(*unstructured.Unstructured)
 	if !ok {
-		return fmt.Errorf("decoded into incorrect type, got %T, wanted %T", obj, &unstructured.Unstructured{})
+		return fmt.Errorf(
+			"decoded into incorrect type, got %T, wanted %T",
+			obj,
+			&unstructured.Unstructured{},
+		)
 	}
 	m, err := mapper.RESTMapping(gvk.GroupKind(), gvk.Version)
 	if err != nil {
 		return fmt.Errorf("could not get REST mapping for %s: %v", gvk, err)
 	}
-	_, err = client.Resource(m.Resource).Namespace(u.GetNamespace()).Create(ctx, u, metav1.CreateOptions{})
+	_, err = client.Resource(m.Resource).
+		Namespace(u.GetNamespace()).
+		Create(ctx, u, metav1.CreateOptions{})
 	if err != nil {
 		if !apierrors.IsAlreadyExists(err) {
 			return err

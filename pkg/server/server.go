@@ -70,7 +70,10 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 	}
 	apiResourceConfigSource := serverstorage.NewResourceConfig()
 	apiResourceConfigSource.EnableVersions(scheme.Versions...)
-	err = s.InstallAPIs(apiResourceConfigSource, c.GenericConfig.RESTOptionsGetter, restStorageProviders...)
+	err = s.InstallAPIs(
+		apiResourceConfigSource,
+		c.GenericConfig.RESTOptionsGetter,
+		restStorageProviders...)
 	if err != nil {
 		s.err = err
 	}
@@ -113,7 +116,10 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 	// filesystem.
 	webRootFS, err := fs.Sub(ui.Embedded, "build")
 	if err != nil {
-		klog.Warningf("Failed to get web root directory from embedded filesystem as %s", err.Error())
+		klog.Warningf(
+			"Failed to get web root directory from embedded filesystem as %s",
+			err.Error(),
+		)
 	}
 	staticFS, err := fs.Sub(ui.Embedded, "build/static")
 	if err != nil {
@@ -124,7 +130,10 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 	s.mux.NotFound(func(w http.ResponseWriter, r *http.Request) {
 		indexFile, err := webRootFS.Open("index.html")
 		if err != nil {
-			klog.Warningf("Failed to open dashboard index.html from embedded filesystem as %s", err.Error())
+			klog.Warningf(
+				"Failed to open dashboard index.html from embedded filesystem as %s",
+				err.Error(),
+			)
 			http.Error(w, "File not found", http.StatusNotFound)
 			return
 		}
@@ -155,6 +164,7 @@ func (s *KarbourServer) Error() error {
 	return s.err
 }
 
+// InstallLegacyAPI installs legacy API groups and resources into the server.
 func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
 	// Installing core API group
 	coreProvider := corestorage.RESTStorageProvider{}
@@ -170,11 +180,18 @@ func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGe
 	return nil
 }
 
-func (s *KarbourServer) InstallAPIs(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter, restStorageProviders ...registry.RESTStorageProvider) error {
+func (s *KarbourServer) InstallAPIs(
+	apiResourceConfigSource serverstorage.APIResourceConfigSource,
+	restOptionsGetter generic.RESTOptionsGetter,
+	restStorageProviders ...registry.RESTStorageProvider,
+) error {
 	apiGroupsInfo := []*genericapiserver.APIGroupInfo{}
 	for _, restStorageProvider := range restStorageProviders {
 		groupName := restStorageProvider.GroupName()
-		apiGroupInfo, err := restStorageProvider.NewRESTStorage(apiResourceConfigSource, restOptionsGetter)
+		apiGroupInfo, err := restStorageProvider.NewRESTStorage(
+			apiResourceConfigSource,
+			restOptionsGetter,
+		)
 		if err != nil {
 			return fmt.Errorf("problem initializing API group %q: %v", groupName, err)
 		}

@@ -28,11 +28,13 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Pagination defines the struct for pagination which contains page number and page size.
 type Pagination struct {
 	Page     int
 	PageSize int
 }
 
+// Search performs a search operation with the given query string, pattern type, and pagination settings.
 func (s *Storage) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var sr *storage.SearchResult
 	var err error
@@ -55,6 +57,7 @@ func (s *Storage) Search(ctx context.Context, queryStr string, patternType strin
 	return sr, nil
 }
 
+// searchByDSL performs a search operation using a DSL (Domain Specific Language) string and pagination settings.
 func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	queries, err := Parse(dslStr)
 	if err != nil {
@@ -71,6 +74,7 @@ func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *st
 	return res, nil
 }
 
+// searchBySQL performs a search operation using an SQL string and pagination settings.
 func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	dsl, _, err := sql2es.Convert(sqlStr)
 	if err != nil {
@@ -79,6 +83,7 @@ func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *st
 	return s.search(ctx, strings.NewReader(dsl), pagination)
 }
 
+// SearchByQuery performs a search operation using a query map and pagination settings.
 func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
@@ -87,6 +92,7 @@ func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{
 	return s.search(ctx, buf, pagination)
 }
 
+// search performs a search operation using an io.Reader as the query body and pagination settings.
 func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {

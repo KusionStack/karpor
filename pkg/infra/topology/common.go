@@ -27,6 +27,7 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
+// GetByJSONPath retrieves related resources based on JSON path from a given list of unstructured resources.
 func GetByJSONPath(
 	ctx context.Context,
 	relatedResList *unstructured.UnstructuredList,
@@ -85,6 +86,7 @@ func GetByJSONPath(
 	return resourceGraph, nil
 }
 
+// GetByLabelSelector retrieves related resources based on label selectors from a given list of unstructured resources.
 func GetByLabelSelector(
 	ctx context.Context,
 	relatedResList *unstructured.UnstructuredList,

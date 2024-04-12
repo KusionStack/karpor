@@ -21,16 +21,19 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+// Selectable defines the interface for objects that can be selected by labels and fields.
 type Selectable interface {
 	GetLabels() labels.Labels
 	GetFields() fields.Fields
 }
 
+// Selector represents a selection based on labels and fields.
 type Selector struct {
 	Label labels.Selector
 	Field FieldsSelector
 }
 
+// ServerSupported checks if the server supports the fields and labels specified in the Selector.
 func (s Selector) ServerSupported() bool {
 	if !s.Field.Empty() && !s.Field.ServerSupported {
 		return false
@@ -38,11 +41,13 @@ func (s Selector) ServerSupported() bool {
 	return true
 }
 
+// FieldsSelector represents a selection based on fields.
 type FieldsSelector struct {
 	fields.Selector
 	ServerSupported bool
 }
 
+// Empty checks if the FieldsSelector is empty, meaning no fields are specified for selection.
 func (fs FieldsSelector) Empty() bool {
 	if fs.Selector == nil {
 		return true
@@ -50,6 +55,7 @@ func (fs FieldsSelector) Empty() bool {
 	return fs.Selector.Empty()
 }
 
+// Matches checks if the provided Selectable object matches the selection criteria specified by the Selector.
 func (s Selector) Matches(obj Selectable) bool {
 	if s.Label != nil &&
 		!s.Label.Matches(obj.GetLabels()) {
@@ -62,8 +68,10 @@ func (s Selector) Matches(obj Selectable) bool {
 	return true
 }
 
+// MultiSelectors is a slice of Selectors, allowing for multiple selection criteria to be combined.
 type MultiSelectors []Selector
 
+// Matches checks if the provided Selectable object matches any of the selection criteria specified in the MultiSelectors.
 func (m MultiSelectors) Matches(obj Selectable) bool {
 	for _, s := range m {
 		if s.Matches(obj) {
@@ -73,6 +81,7 @@ func (m MultiSelectors) Matches(obj Selectable) bool {
 	return false
 }
 
+// ApplyToList applies the MultiSelectors to the provided metav1.ListOptions for use in Kubernetes API list requests.
 func (m MultiSelectors) ApplyToList(options *metav1.ListOptions) {
 	if len(m) == 0 || !m.canApplyToListWatch() {
 		return
@@ -87,6 +96,7 @@ func (m MultiSelectors) ApplyToList(options *metav1.ListOptions) {
 	}
 }
 
+// canApplyToListWatch checks if the MultiSelectors can be applied to list and watch Kubernetes API requests.
 func (m MultiSelectors) canApplyToListWatch() bool {
 	if len(m) > 1 {
 		return false
@@ -97,6 +107,7 @@ func (m MultiSelectors) canApplyToListWatch() bool {
 	return true
 }
 
+// Predicate returns a function that implements the Predicate interface, allowing the MultiSelectors to be used as a go-restful Predicate.
 func (m MultiSelectors) Predicate(obj interface{}) bool {
 	if len(m) == 0 || m.canApplyToListWatch() {
 		// no filtering after list/watch
@@ -110,15 +121,18 @@ func (m MultiSelectors) Predicate(obj interface{}) bool {
 	return m.Matches(selectableUnstructured{Unstructured: u, parser: DefaultJSONPathParser})
 }
 
+// selectableUnstructured is a wrapper around unstructured.Unstructured for implementing the Selectable interface.
 type selectableUnstructured struct {
 	*unstructured.Unstructured
 	parser *JSONPathParser
 }
 
+// GetLabels retrieves the labels from the wrapped unstructured.Unstructured object.
 func (w selectableUnstructured) GetLabels() labels.Labels {
 	return labels.Set(w.Unstructured.GetLabels())
 }
 
+// GetFields retrieves the fields from the wrapped unstructured.Unstructured object using the embedded JSONPathParser.
 func (w selectableUnstructured) GetFields() fields.Fields {
 	return NewJSONPathFields(w.parser, w.UnstructuredContent())
 }

@@ -42,6 +42,7 @@ func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr sche
 	}
 }
 
+// ListKeys returns a list of keys for the resources managed by the ESListerGetter.
 func (e *ESListerGetter) ListKeys() []string {
 	resource := e.gvr.Resource
 	kind := resource[0 : len(resource)-1]
@@ -72,6 +73,7 @@ func (e *ESListerGetter) ListKeys() []string {
 	return rt
 }
 
+// GetByKey retrieves the value associated with the provided key from the managed resources.
 func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, err error) {
 	s := strings.Split(key, "/")
 	var name, ns string

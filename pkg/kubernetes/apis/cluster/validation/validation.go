@@ -19,6 +19,8 @@ import (
 	"k8s.io/apimachinery/pkg/util/validation/field"
 )
 
+// ValidateCluster is a function that takes a pointer to a Karbor Cluster
+// resource and returns a list of validation errors, if any.
 func ValidateCluster(f *cluster.Cluster) field.ErrorList {
 	allErrs := field.ErrorList{}
 	return allErrs

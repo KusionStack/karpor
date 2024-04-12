@@ -32,8 +32,16 @@ func (p RESTStorageProvider) GroupName() string {
 	return cluster.GroupName
 }
 
-func (p RESTStorageProvider) NewRESTStorage(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
-	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(cluster.GroupName, scheme.Scheme, scheme.ParameterCodec, scheme.Codecs)
+func (p RESTStorageProvider) NewRESTStorage(
+	apiResourceConfigSource serverstorage.APIResourceConfigSource,
+	restOptionsGetter generic.RESTOptionsGetter,
+) (genericapiserver.APIGroupInfo, error) {
+	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
+		cluster.GroupName,
+		scheme.Scheme,
+		scheme.ParameterCodec,
+		scheme.Codecs,
+	)
 
 	v1beta1 := map[string]rest.Storage{}
 	clusterStorage, err := NewREST(restOptionsGetter)

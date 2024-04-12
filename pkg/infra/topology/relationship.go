@@ -36,18 +36,22 @@ import (
 	"k8s.io/klog/v2"
 )
 
+// GetHash method returns the hash of the resource graph node.
 func (rgn ResourceGraphNode) GetHash() string {
 	return rgn.Group + "/" + rgn.Version + "." + rgn.Kind + ":" + rgn.Namespace + "." + rgn.Name
 }
 
+// GetHash method returns the hash of the relationship graph node.
 func (rgn RelationshipGraphNode) GetHash() string {
 	return rgn.Group + "." + rgn.Version + "." + rgn.Kind
 }
 
+// GetHash method returns the hash of the relationship.
 func (r Relationship) GetHash() string {
 	return r.Group + "." + r.Version + "." + r.Kind
 }
 
+// ConvertToMap method converts the relationship graph node to a map[string]string.
 func (rgn RelationshipGraphNode) ConvertToMap() map[string]string {
 	m := make(map[string]string, 0)
 	for _, p := range rgn.Parent {

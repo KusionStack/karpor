@@ -23,16 +23,19 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
+// ResourceCache is the main struct that holds the cache storage and key function.
 type ResourceCache struct {
 	cacheStorage cache.ThreadSafeStore
 	keyFunc      cache.KeyFunc
 }
 
+// ResourcecHash represents the resource version and hash of a Kubernetes resource.
 type ResourcecHash struct {
 	ResourceVersion string
 	Hash            string
 }
 
+// NewResourceCache creates and returns a new instance of ResourceCache.
 func NewResourceCache() *ResourceCache {
 	return &ResourceCache{
 		keyFunc:      cache.DeletionHandlingMetaNamespaceKeyFunc,
@@ -40,6 +43,7 @@ func NewResourceCache() *ResourceCache {
 	}
 }
 
+// Add adds a new object to the cache.
 func (c *ResourceCache) Add(obj interface{}) error {
 	key, err := c.keyFunc(obj)
 	if err != nil {
@@ -54,6 +58,7 @@ func (c *ResourceCache) Add(obj interface{}) error {
 	}
 }
 
+// Update updates an existing object in the cache.
 func (c *ResourceCache) Update(obj interface{}) error {
 	key, err := c.keyFunc(obj)
 	if err != nil {
@@ -68,6 +73,7 @@ func (c *ResourceCache) Update(obj interface{}) error {
 	}
 }
 
+// Delete removes an object from the cache.
 func (c *ResourceCache) Delete(obj interface{}) error {
 	key, err := c.keyFunc(obj)
 	if err != nil {
@@ -78,14 +84,17 @@ func (c *ResourceCache) Delete(obj interface{}) error {
 	return nil
 }
 
+// List returns a list of all objects in the cache.
 func (c *ResourceCache) List() []interface{} {
 	return c.cacheStorage.List()
 }
 
+// ListKeys returns a list of all keys in the cache.
 func (c *ResourceCache) ListKeys() []string {
 	return c.cacheStorage.ListKeys()
 }
 
+// Get retrieves an object from the cache by its reference.
 func (c *ResourceCache) Get(obj interface{}) (item interface{}, exists bool, err error) {
 	key, err := c.keyFunc(obj)
 	if err != nil {
@@ -95,11 +104,13 @@ func (c *ResourceCache) Get(obj interface{}) (item interface{}, exists bool, err
 	return
 }
 
+// GetByKey retrieves an object from the cache by its key.
 func (c *ResourceCache) GetByKey(key string) (item interface{}, exists bool, err error) {
 	item, exists = c.cacheStorage.Get(key)
 	return
 }
 
+// Replace replaces multiple objects in the cache with the provided resource version.
 func (c *ResourceCache) Replace(objs []interface{}, resourceVersion string) error {
 	items := make(map[string]interface{})
 	for _, obj := range objs {
@@ -118,11 +129,13 @@ func (c *ResourceCache) Replace(objs []interface{}, resourceVersion string) erro
 	return nil
 }
 
+// Resync refreshes the cache with the latest data from Kubernetes.
 func (c *ResourceCache) Resync() error {
 	// Nothing to do
 	return nil
 }
 
+// newCacheItem creates a new ResourcecHash item for the cache.
 func (c *ResourceCache) newCacheItem(obj interface{}) (*ResourcecHash, error) {
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
@@ -145,6 +158,7 @@ func (c *ResourceCache) newCacheItem(obj interface{}) (*ResourcecHash, error) {
 	}, nil
 }
 
+// hash calculates the hash of a Kubernetes resource.
 func (c *ResourceCache) hash(obj interface{}) (string, error) {
 	hash, err := hashstructure.Hash(obj, hashstructure.FormatV2, nil)
 	if err != nil {
@@ -153,6 +167,7 @@ func (c *ResourceCache) hash(obj interface{}) (string, error) {
 	return strconv.FormatUint(hash, 10), nil
 }
 
+// IsNewer checks if the provided object is newer than the cached version.
 func (c *ResourceCache) IsNewer(obj interface{}) (bool, error) {
 	cachedItem, exist, err := c.Get(obj)
 	if err != nil {
@@ -180,6 +195,7 @@ func (c *ResourceCache) IsNewer(obj interface{}) (bool, error) {
 	return newItem.Hash != rh.Hash, nil
 }
 
+// CompareResourverVersion compares the resource version of an object with the provided resource version.
 func CompareResourverVersion(obj interface{}, resourceVersion string) (int, error) {
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
@@ -200,6 +216,7 @@ func CompareResourverVersion(obj interface{}, resourceVersion string) (int, erro
 	return 1, nil
 }
 
+// parseResourceVersion parses the resource version string and returns its numeric representation.
 func parseResourceVersion(resourceVersion string) (uint64, error) {
 	if resourceVersion == "" || resourceVersion == "0" {
 		return 0, nil

@@ -21,10 +21,12 @@ import (
 
 var _ storage.SearchStorageGetter = &SearchStorageGetter{}
 
+// SearchStorageGetter represents a structure for getting search storage instances.
 type SearchStorageGetter struct {
 	cfg *Config
 }
 
+// GetSearchStorage retrieves and returns a search storage instance based on the provided configuration.
 func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) {
 	esClient, err := NewStorage(elasticsearch.Config{
 		Addresses: s.cfg.Addresses,
@@ -37,12 +39,14 @@ func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) 
 	return esClient, nil
 }
 
+// Config defines the configuration structure for Elasticsearch storage.
 type Config struct {
 	Addresses []string `env:"ES_ADDRESSES"`
 	UserName  string   `env:"ES_USER"`
 	Password  string   `env:"ES_PASSWORD"`
 }
 
+// NewSearchStorageGetter creates a new instance of the SearchStorageGetter with the given Elasticsearch addresses, user name, and password.
 func NewSearchStorageGetter(addresses []string, userName, password string) *SearchStorageGetter {
 	cfg := &Config{
 		Addresses: addresses,
