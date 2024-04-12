@@ -26,7 +26,10 @@ import (
 const GroupName = "cluster.karbour.com"
 
 // SchemeGroupVersion is group version used to register these objects
-var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1beta1"}
+var SchemeGroupVersion = schema.GroupVersion{
+	Group:   GroupName,
+	Version: "v1beta1",
+}
 
 var (
 	// SchemeBuilder allows to add this group to a scheme.
@@ -57,7 +60,8 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 	return nil
 }
 
-// Resource takes an unqualified resource and returns a Group qualified GroupResource
+// Resource takes an unqualified resource and returns a Group qualified
+// GroupResource
 func Resource(resource string) schema.GroupResource {
 	return SchemeGroupVersion.WithResource(resource).GroupResource()
 }

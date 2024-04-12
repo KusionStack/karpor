@@ -16,6 +16,7 @@ import (
 	"k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
+// mockMultiClusterClient returns a mock MultiClusterClient for testing purposes.
 func mockMultiClusterClient() *multicluster.MultiClusterClient {
 	return &multicluster.MultiClusterClient{
 		ClientSet: &kubernetes.Clientset{
@@ -32,10 +33,12 @@ type mockNamespaceableResource struct {
 	dynamic.NamespaceableResourceInterface
 }
 
+// Namespace sets the namespace on the mock NamespaceableResource.
 func (m *mockNamespaceableResource) Namespace(namespace string) dynamic.ResourceInterface {
 	return &mockResource{}
 }
 
+// List retrieves a list of unstructured resources from the mock NamespaceableResource.
 func (m *mockNamespaceableResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
 	return &unstructured.UnstructuredList{
 		Object: map[string]interface{}{"kind": "List", "apiVersion": "v1"},
@@ -50,6 +53,7 @@ type mockResource struct {
 	dynamic.ResourceInterface
 }
 
+// Get retrieves a single unstructured resource from the mock ResourceInterface.
 func (m *mockResource) Get(ctx context.Context, name string, options metav1.GetOptions, subresources ...string) (*unstructured.Unstructured, error) {
 	if name == "existing-configmap" {
 		return newMockConfigmap("default", name), nil
@@ -63,6 +67,7 @@ func (m *mockResource) Get(ctx context.Context, name string, options metav1.GetO
 	return nil, errors.NewNotFound(schema.GroupResource{Group: "", Resource: ""}, name)
 }
 
+// List retrieves a list of unstructured resources from the mock ResourceInterface.
 func (m *mockResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
 	return &unstructured.UnstructuredList{
 		Object: map[string]interface{}{"kind": "List", "apiVersion": "v1"},
@@ -93,6 +98,7 @@ func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType
 	}, nil
 }
 
+// newMockConfigmap creates a mock Unstructured object representing a ConfigMap resource.
 func newMockConfigmap(namespace, name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -110,6 +116,7 @@ func newMockConfigmap(namespace, name string) *unstructured.Unstructured {
 	}
 }
 
+// newMockSecret creates a mock Unstructured object representing a Secret resource.
 func newMockSecret(namespace, name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -127,6 +134,7 @@ func newMockSecret(namespace, name string) *unstructured.Unstructured {
 	}
 }
 
+// newMockPod creates a mock Unstructured object representing a Pod resource.
 func newMockPod(namespace, name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
 		Object: map[string]interface{}{
@@ -148,6 +156,7 @@ func newMockPod(namespace, name string) *unstructured.Unstructured {
 	}
 }
 
+// mockClusterTopologyMapForCluster returns a mock map of ClusterTopology for testing purposes.
 func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 	return map[string]ClusterTopology{
 		".v1.Node": {
@@ -283,6 +292,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 	}
 }
 
+// mockClusterTopologyMapForClusterNamespace returns a mock map of ClusterTopology for testing purposes, focused on cluster namespaces.
 func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 	return map[string]ClusterTopology{
 		".v1.Node": {

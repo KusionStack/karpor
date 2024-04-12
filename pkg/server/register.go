@@ -37,6 +37,7 @@ import (
 	"k8s.io/client-go/restmapper"
 )
 
+// ConfigRegister is a function that registers the server configuration.
 func ConfigRegister(hookContext genericapiserver.PostStartHookContext) error {
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -82,6 +83,8 @@ func createResources(
 	return nil
 }
 
+// createResource is a function that creates a single Kubernetes resource based
+// on the provided data.
 func createResource(
 	ctx context.Context,
 	client dynamic.Interface,

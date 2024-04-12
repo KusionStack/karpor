@@ -24,6 +24,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 )
 
+// MultiClusterSyncManager defines the interface for synchronizing across multiple clusters.
 type MultiClusterSyncManager interface {
 	Create(ctx context.Context, clusterName string, config *rest.Config) (SingleClusterSyncManager, error)
 	Start(ctx context.Context, clusterName string) error
@@ -31,6 +32,7 @@ type MultiClusterSyncManager interface {
 	GetForCluster(clusterName string) (SingleClusterSyncManager, bool)
 }
 
+// multiClusterSyncManager is the concrete implementation of the MultiClusterSyncManager interface.
 type multiClusterSyncManager struct {
 	storage    storage.Storage
 	controller controller.Controller
@@ -39,6 +41,7 @@ type multiClusterSyncManager struct {
 	sync.RWMutex
 }
 
+// NewMultiClusterSyncManager creates a new MultiClusterSyncManager instance with the given context, controller and storage.
 func NewMultiClusterSyncManager(baseContext context.Context, controller controller.Controller, storage storage.Storage) MultiClusterSyncManager {
 	return &multiClusterSyncManager{
 		managers:   make(map[string]SingleClusterSyncManager),
@@ -47,6 +50,7 @@ func NewMultiClusterSyncManager(baseContext context.Context, controller controll
 	}
 }
 
+// Create creates a SingleClusterSyncManager for the specified cluster using the provided context and configuration.
 func (s *multiClusterSyncManager) Create(ctx context.Context, clusterName string, config *rest.Config) (SingleClusterSyncManager, error) {
 	mgr, ok := s.GetForCluster(clusterName)
 	if ok {
@@ -65,6 +69,7 @@ func (s *multiClusterSyncManager) Create(ctx context.Context, clusterName string
 	return mgr, nil
 }
 
+// Start starts the synchronization process for the specified cluster within the given context.
 func (s *multiClusterSyncManager) Start(ctx context.Context, clusterName string) error {
 	mgr, ok := s.GetForCluster(clusterName)
 	if !ok {
@@ -73,6 +78,7 @@ func (s *multiClusterSyncManager) Start(ctx context.Context, clusterName string)
 	return mgr.Start(ctx)
 }
 
+// Stop stops the synchronization process for the specified cluster.
 func (s *multiClusterSyncManager) Stop(ctx context.Context, clusterName string) {
 	mgr, found := s.GetForCluster(clusterName)
 	if !found {
@@ -86,6 +92,7 @@ func (s *multiClusterSyncManager) Stop(ctx context.Context, clusterName string) 
 	delete(s.managers, clusterName)
 }
 
+// GetForCluster retrieves the SingleClusterSyncManager instance for the specified cluster if it exists.
 func (s *multiClusterSyncManager) GetForCluster(clusterName string) (SingleClusterSyncManager, bool) {
 	s.RLock()
 	defer s.RUnlock()

@@ -87,6 +87,7 @@ func (i *InsightManager) Score(ctx context.Context, locator core.Locator, noCach
 	}, nil
 }
 
+// scanFor is a helper function that performs the actual scanning for the given locator using the context and returns the scan result and error.
 func (i *InsightManager) scanFor(ctx context.Context, locator core.Locator, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)

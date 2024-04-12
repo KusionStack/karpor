@@ -37,10 +37,12 @@ import (
 
 const defaultWorkers = 10
 
+// deleted is a type that represents a deleted Kubernetes object.
 type deleted struct {
 	client.Object
 }
 
+// ResourceSyncer is the main struct that holds the necessary fields and methods for the resource syncer component.
 type ResourceSyncer struct {
 	source  SyncSource
 	storage storage.Storage
@@ -52,6 +54,7 @@ type ResourceSyncer struct {
 	logger logr.Logger
 }
 
+// NewResourceSyncer creates a new instance of the ResourceSyncer with the given parameters.
 func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) *ResourceSyncer {
 	source := NewSource(cluster, dynamicClient, rsr, storage)
 	return &ResourceSyncer{
@@ -62,14 +65,17 @@ func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1be
 	}
 }
 
+// Source returns the SyncSource associated with the ResourceSyncer.
 func (s *ResourceSyncer) Source() SyncSource {
 	return s.source
 }
 
+// SyncRule returns the ResourceSyncRule associated with the ResourceSyncer.
 func (s *ResourceSyncer) SyncRule() v1beta1.ResourceSyncRule {
 	return s.source.SyncRule()
 }
 
+// Stop stops the ResourceSyncer and cleans up resources.
 func (s *ResourceSyncer) Stop(ctx context.Context) error {
 	if err := s.source.Stop(ctx); err != nil {
 		return errors.Wrap(err, "failed to stop the source")
@@ -78,27 +84,33 @@ func (s *ResourceSyncer) Stop(ctx context.Context) error {
 	return nil
 }
 
+// OnAdd handles the addition of a Kubernetes object.
 func (s *ResourceSyncer) OnAdd(obj client.Object) {
 	s.enqueue(obj)
 }
 
+// OnUpdate handles updates to a Kubernetes object.
 func (s *ResourceSyncer) OnUpdate(obj client.Object) {
 	s.enqueue(obj)
 }
 
+// OnDelete handles the deletion of a Kubernetes object.
 func (s *ResourceSyncer) OnDelete(obj client.Object) {
 	s.enqueue(deleted{Object: obj})
 }
 
+// OnGeneric handles generic events for a Kubernetes object.
 func (s *ResourceSyncer) OnGeneric(obj client.Object) {
 	s.enqueue(obj)
 }
 
+// enqueue adds a Kubernetes object to the work queue for processing.
 func (s *ResourceSyncer) enqueue(obj client.Object) {
 	key, _ := clientgocache.MetaNamespaceKeyFunc(obj)
 	s.queue.Add(key)
 }
 
+// Run starts the ResourceSyncer and its workers to process Kubernetes object events.
 func (s *ResourceSyncer) Run(ctx context.Context) error {
 	s.ctx, s.cancel = context.WithCancel(ctx)
 
@@ -131,11 +143,13 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 	return nil
 }
 
+// runWorker is the main worker loop for the ResourceSyncer, processing items from the work queue.
 func (s *ResourceSyncer) runWorker(ctx context.Context) {
 	for s.processNextWorkItem(ctx) {
 	}
 }
 
+// processNextWorkItem processes the next work item from the queue, returning true if work continues.
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	item, shutdown := s.queue.Get()
 	if shutdown {
@@ -154,6 +168,7 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	return true
 }
 
+// sync synchronizes the specified resource based on the key provided.
 func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	val, exists, err := s.source.GetByKey(key)
 	if err != nil {
@@ -184,6 +199,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	return nil
 }
 
+// genUnObj creates a new unstructured.Unstructured object based on the ResourceSyncRule and key.
 func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{}
 	obj.SetAPIVersion(sr.APIVersion)

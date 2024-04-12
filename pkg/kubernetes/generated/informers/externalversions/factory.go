@@ -113,6 +113,7 @@ func NewSharedInformerFactoryWithOptions(client versioned.Interface, defaultResy
 	return factory
 }
 
+// Start starts all informers in the factory and waits for the stop channel to close before exiting.
 func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
 	f.lock.Lock()
 	defer f.lock.Unlock()
@@ -137,6 +138,7 @@ func (f *sharedInformerFactory) Start(stopCh <-chan struct{}) {
 	}
 }
 
+// Shutdown stops all running informers in the factory.
 func (f *sharedInformerFactory) Shutdown() {
 	f.lock.Lock()
 	f.shuttingDown = true
@@ -146,6 +148,7 @@ func (f *sharedInformerFactory) Shutdown() {
 	f.wg.Wait()
 }
 
+// WaitForCacheSync waits for all started informers to sync with the cluster state.
 func (f *sharedInformerFactory) WaitForCacheSync(stopCh <-chan struct{}) map[reflect.Type]bool {
 	informers := func() map[reflect.Type]cache.SharedIndexInformer {
 		f.lock.Lock()
@@ -248,10 +251,12 @@ type SharedInformerFactory interface {
 	Search() search.Interface
 }
 
+// Cluster returns the cluster informer.
 func (f *sharedInformerFactory) Cluster() cluster.Interface {
 	return cluster.New(f, f.namespace, f.tweakListOptions)
 }
 
+// Search returns the search informer.
 func (f *sharedInformerFactory) Search() search.Interface {
 	return search.New(f, f.namespace, f.tweakListOptions)
 }

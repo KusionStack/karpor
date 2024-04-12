@@ -27,6 +27,7 @@ import (
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 )
 
+// Client represents an Elasticsearch client that can perform various operations on the Elasticsearch cluster.
 type Client struct {
 	client *elasticsearch.Client
 }
@@ -117,6 +118,8 @@ func (cl *Client) DeleteDocument(ctx context.Context, indexName string, document
 	return nil
 }
 
+// DeleteDocumentByQuery deletes documents from the specified index based on the
+// provided query in the body.
 func (cl *Client) DeleteDocumentByQuery(
 	ctx context.Context,
 	indexName string,

@@ -31,6 +31,7 @@ import (
 	metricsv1beta1 "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
+// MultiClusterClient represents the client used to interact with multiple Kubernetes clusters.
 type MultiClusterClient struct {
 	ClientSet     *kubernetes.Clientset
 	DynamicClient *dynamic.DynamicClient

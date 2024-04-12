@@ -23,6 +23,7 @@ import (
 	"github.com/aquasecurity/esquery"
 )
 
+// Parse takes a query string and returns a slice of storage.Query and an error if any.
 func Parse(queryString string) ([]storage.Query, error) {
 	parts := splitTerms(queryString)
 	sort.StringSlice(parts).Sort()
@@ -87,6 +88,7 @@ func splitTerm(term string) (lhs, op, rhs string, ok bool) {
 	return "", "", "", false
 }
 
+// ParseQueries takes a slice of storage.Query and returns a map of interface{} representing the parsed queries and an error if any.
 func ParseQueries(queries []storage.Query) (map[string]interface{}, error) {
 	boolQuery := esquery.Bool()
 	for _, query := range queries {

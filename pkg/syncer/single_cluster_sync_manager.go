@@ -38,6 +38,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 )
 
+// SingleClusterSyncManager defines the interface for managing synchronization of resources across a single cluster.
 type SingleClusterSyncManager interface {
 	Start(context.Context) error
 	Started() bool
@@ -48,6 +49,7 @@ type SingleClusterSyncManager interface {
 	ClusterConfig() *rest.Config
 }
 
+// singleClusterSyncManager is the concrete implementation of the SingleClusterSyncManager interface.
 type singleClusterSyncManager struct {
 	clusterName   string
 	clusterConfig *rest.Config
@@ -69,6 +71,7 @@ type singleClusterSyncManager struct {
 	logger logr.Logger
 }
 
+// NewSingleClusterSyncManager creates a new instance of the singleClusterSyncManager with the given context, cluster name, config, controller, and storage.
 func NewSingleClusterSyncManager(baseContext context.Context,
 	clusterName string,
 	config *rest.Config,
@@ -96,18 +99,21 @@ func NewSingleClusterSyncManager(baseContext context.Context,
 	return mgr, nil
 }
 
+// Started returns whether the singleClusterSyncManager has been started.
 func (s *singleClusterSyncManager) Started() bool {
 	s.startLock.RLock()
 	defer s.startLock.RUnlock()
 	return s.started
 }
 
+// Stopped returns whether the singleClusterSyncManager has been stopped.
 func (s *singleClusterSyncManager) Stopped() bool {
 	s.startLock.RLock()
 	defer s.startLock.RUnlock()
 	return s.stopped
 }
 
+// Start starts the singleClusterSyncManager and its associated resources.
 func (s *singleClusterSyncManager) Start(ctx context.Context) error {
 	s.startOnce.Do(func() {
 		s.logger.Info("start sync manager")
@@ -121,6 +127,7 @@ func (s *singleClusterSyncManager) Start(ctx context.Context) error {
 	return nil
 }
 
+// Stop stops the singleClusterSyncManager and its associated resources.
 func (s *singleClusterSyncManager) Stop(ctx context.Context) {
 	s.stopOnce.Do(func() {
 		s.logger.Info("start to stop the single cluster sync manager")
@@ -140,6 +147,7 @@ func (s *singleClusterSyncManager) Stop(ctx context.Context) {
 	})
 }
 
+// UpdateSyncResources updates the sync resources for the singleClusterSyncManager based on the provided list of ResourceSyncRule.
 func (s *singleClusterSyncManager) UpdateSyncResources(ctx context.Context, syncResources []*searchv1beta1.ResourceSyncRule) error {
 	if s.Stopped() {
 		return nil
@@ -165,6 +173,7 @@ func (s *singleClusterSyncManager) UpdateSyncResources(ctx context.Context, sync
 	return nil
 }
 
+// process is an internal method that handles the main logic for processing synchronization of resources.
 func (s *singleClusterSyncManager) process() {
 	for {
 		select {
@@ -186,6 +195,7 @@ func (s *singleClusterSyncManager) process() {
 	}
 }
 
+// handleSyncResourcesUpdate is an internal method that handles updates to the sync resources for the singleClusterSyncManager.
 func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context) error {
 	var merr error
 
@@ -224,6 +234,7 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 	return merr
 }
 
+// startResource is an internal method that starts the synchronization for a specific resource based on the provided GroupVersionResource and ResourceSyncRule.
 func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
@@ -251,20 +262,24 @@ func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.G
 	})
 }
 
+// stopResource is an internal method that stops the synchronization for a specific resource syncer.
 func (s *singleClusterSyncManager) stopResource(ctx context.Context, syncer *ResourceSyncer) error {
 	s.logger.Info("start to stop resource", "rsr", syncer.SyncRule())
 	return syncer.Stop(ctx)
 }
 
+// ClusterConfig returns the rest.Config for the singleClusterSyncManager's cluster.
 func (s *singleClusterSyncManager) ClusterConfig() *rest.Config {
 	return rest.CopyConfig(s.clusterConfig)
 }
 
+// HasSyncResource checks if the singleClusterSyncManager is configured to synchronize the provided GroupVersionResource.
 func (s *singleClusterSyncManager) HasSyncResource(gvr schema.GroupVersionResource) bool {
 	_, found := s.getSyncer(gvr)
 	return found
 }
 
+// getSyncer retrieves the ResourceSyncer for the provided GroupVersionResource if it exists.
 func (s *singleClusterSyncManager) getSyncer(gvr schema.GroupVersionResource) (*ResourceSyncer, bool) {
 	val, ok := s.syncers.Load(gvr)
 	if !ok {

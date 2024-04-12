@@ -23,6 +23,7 @@ import (
 	"k8s.io/client-go/util/jsonpath"
 )
 
+// JSONPathParser is a struct that holds a cache of parsed JSONPath expressions for efficient reuse.
 type JSONPathParser struct {
 	sync.Mutex
 	cache map[string]*jsonpath.JSONPath
@@ -30,12 +31,14 @@ type JSONPathParser struct {
 
 var DefaultJSONPathParser = NewJSONPathParser()
 
+// NewJSONPathParser creates and returns a new instance of JSONPathParser with an empty cache.
 func NewJSONPathParser() *JSONPathParser {
 	return &JSONPathParser{
 		cache: make(map[string]*jsonpath.JSONPath),
 	}
 }
 
+// Parse takes a JSONPath expression string and returns a parsed JSONPath object or an error if the expression is invalid.
 func (j *JSONPathParser) Parse(path string) (*jsonpath.JSONPath, error) {
 	j.Lock()
 	defer j.Unlock()
@@ -52,11 +55,13 @@ func (j *JSONPathParser) Parse(path string) (*jsonpath.JSONPath, error) {
 	return p, nil
 }
 
+// JSONPathFields is a struct that holds a JSONPathParser instance and the data to be queried by JSONPath expressions.
 type JSONPathFields struct {
 	jpParser *JSONPathParser
 	data     interface{}
 }
 
+// NewJSONPathFields creates and returns a new instance of JSONPathFields with the given parser and data.
 func NewJSONPathFields(jpParser *JSONPathParser, data interface{}) *JSONPathFields {
 	return &JSONPathFields{
 		jpParser: jpParser,
@@ -64,6 +69,7 @@ func NewJSONPathFields(jpParser *JSONPathParser, data interface{}) *JSONPathFiel
 	}
 }
 
+// Has checks if the given JSONPath expression exists in the data, returning a boolean indicating its existence.
 func (fs JSONPathFields) Has(fieldPath string) (exists bool) {
 	jp, err := fs.jpParser.Parse(fieldPath)
 	if err != nil {
@@ -76,6 +82,7 @@ func (fs JSONPathFields) Has(fieldPath string) (exists bool) {
 	return len(vals) > 0
 }
 
+// Get retrieves the value at the specified JSONPath expression from the data and returns it as a string.
 func (fs JSONPathFields) Get(fieldPath string) (value string) {
 	fieldPath, err := RelaxedJSONPathExpression(fieldPath)
 	if err != nil {

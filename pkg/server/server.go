@@ -164,6 +164,7 @@ func (s *KarbourServer) Error() error {
 	return s.err
 }
 
+// InstallLegacyAPI installs legacy API groups and resources into the server.
 func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
 	// Installing core API group
 	coreProvider := corestorage.RESTStorageProvider{}

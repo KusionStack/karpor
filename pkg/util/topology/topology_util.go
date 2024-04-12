@@ -122,6 +122,7 @@ func GetNestedValue(obj unstructured.Unstructured, criteria string) (interface{}
 	return res, nil
 }
 
+// GetGVRFromGVK retrieves the GroupVersionResource for a given API version and kind.
 func GetGVRFromGVK(apiVersion, kind string) (schema.GroupVersionResource, error) {
 	gv, _ := schema.ParseGroupVersion(apiVersion)
 	gvk := gv.WithKind(kind)
