@@ -116,7 +116,7 @@ func Test_singleClusterSyncManager_UpdateSyncResources(t *testing.T) {
 		wantErr       bool
 	}{
 		{
-			name: "test1",
+			name: "test no error",
 			syncResources: []*searchv1beta1.ResourceSyncRule{
 				{APIVersion: "v1", Resource: "pods"},
 			},
@@ -150,7 +150,7 @@ func Test_singleClusterSyncManager_Start(t *testing.T) {
 		started bool
 	}{
 		{
-			"test1",
+			"test no error",
 			false,
 			true,
 		},
@@ -176,7 +176,7 @@ func Test_singleClusterSyncManager_Stop(t *testing.T) {
 		stopped bool
 	}{
 		{
-			"test1",
+			"test stop",
 			true,
 		},
 	}
@@ -202,14 +202,14 @@ func Test_singleClusterSyncManager_process(t *testing.T) {
 		called   bool
 	}{
 		{
-			"test1",
+			"test cancel",
 			func(s *singleClusterSyncManager) {
 				s.cancel()
 			},
 			false,
 		},
 		{
-			"test2",
+			"test close",
 			func(s *singleClusterSyncManager) {
 				close(s.ch)
 			},
@@ -246,7 +246,7 @@ func Test_singleClusterSyncManager_handleSyncResourcesUpdate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			gvr:  schema.GroupVersionResource{Group: "", Version: "v1", Resource: "pods"},
 			rsr:  &searchv1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "pods"},
 		},

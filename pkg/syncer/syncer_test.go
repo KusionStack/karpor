@@ -154,7 +154,7 @@ func TestResourceSyncer_OnAdd(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			args: args{
 				name:      "ns1",
 				namespace: "name1",
@@ -186,7 +186,7 @@ func TestResourceSyncer_OnUpdate(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			args: args{
 				name:      "ns1",
 				namespace: "name1",
@@ -218,7 +218,7 @@ func TestResourceSyncer_OnGeneric(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			args: args{
 				name:      "ns1",
 				namespace: "name1",
@@ -250,7 +250,7 @@ func TestResourceSyncer_OnDelete(t *testing.T) {
 		args args
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			args: args{
 				name:      "ns1",
 				namespace: "name1",

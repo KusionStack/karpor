@@ -47,13 +47,13 @@ func Test_buildClusterConfig(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test1",
+			"test error",
 			&clusterv1beta1.Cluster{},
 			nil,
 			true,
 		},
 		{
-			name: "test2",
+			name: "test no error",
 			cluster: &clusterv1beta1.Cluster{
 				Spec: clusterv1beta1.ClusterSpec{
 					Access: clusterv1beta1.ClusterAccess{
@@ -110,7 +110,7 @@ func TestSyncReconciler_SetupWithManager(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name:    "test1",
+			name:    "test error",
 			wantErr: true,
 		},
 	}
@@ -134,7 +134,7 @@ func TestSyncReconciler_CreateEvent(t *testing.T) {
 		want reconcile.Request
 	}{
 		{
-			name: "test1",
+			name: "test normal",
 			ce: event.CreateEvent{
 				Object: &searchv1beta1.SyncRegistry{
 					Spec: searchv1beta1.SyncRegistrySpec{
@@ -227,7 +227,7 @@ func TestSyncReconciler_DeleteEvent(t *testing.T) {
 		want reconcile.Request
 	}{
 		{
-			name: "test1",
+			name: "test normally",
 			de: event.DeleteEvent{
 				Object: &searchv1beta1.SyncRegistry{
 					Spec: searchv1beta1.SyncRegistrySpec{
@@ -260,7 +260,7 @@ func TestSyncReconciler_Reconcile(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test1",
+			"test no error",
 			&clusterv1beta1.Cluster{ObjectMeta: metav1.ObjectMeta{Name: "cluster1"}},
 			reconcile.Request{NamespacedName: types.NamespacedName{Name: "cluster1"}},
 			false,
@@ -429,7 +429,7 @@ func TestSyncReconciler_getRegistries(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test1",
+			"test no error",
 			&clusterv1beta1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "cluster1",
@@ -479,11 +479,11 @@ func TestNewSyncReconciler(t *testing.T) {
 		storage storage.Storage
 	}{
 		{
-			"test1",
+			"test nil",
 			nil,
 		},
 		{
-			"test2",
+			"test not nil",
 			&elasticsearch.Storage{},
 		},
 	}
@@ -557,7 +557,7 @@ func TestSyncReconciler_getResources(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "test1",
+			name: "test no error",
 			cluster: &clusterv1beta1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "cluster1",
@@ -601,7 +601,7 @@ func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			name: "test1",
+			name: "test exist",
 			cluster: &clusterv1beta1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "cluster1",
@@ -642,7 +642,7 @@ func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
 			exist: true,
 		},
 		{
-			name: "test1",
+			name: "test not exist",
 			cluster: &clusterv1beta1.Cluster{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: "cluster1",

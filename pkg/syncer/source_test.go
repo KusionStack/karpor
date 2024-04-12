@@ -193,7 +193,7 @@ func (f *fakeCache) Resync() error {
 }
 
 func Test_informerSource_Start(t *testing.T) {
-	t.Run("test1", func(t *testing.T) {
+	t.Run("test no error", func(t *testing.T) {
 		mockey.Mock((*utils.ESImporter).ImportTo).Return(nil).Build()
 		informer := &controllertest.FakeInformer{}
 		mockey.Mock(clientgocache.NewTransformingInformer).Return(clientgocache.NewStore(clientgocache.DeletionHandlingMetaNamespaceKeyFunc), informer).Build()

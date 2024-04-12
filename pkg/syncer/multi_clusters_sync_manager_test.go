@@ -63,7 +63,7 @@ func Test_multiClusterSyncManager_Create(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"test1",
+			"test no error",
 			&rest.Config{},
 			false,
 		},
@@ -82,7 +82,7 @@ func Test_multiClusterSyncManager_Create(t *testing.T) {
 }
 
 func Test_multiClusterSyncManager_Start(t *testing.T) {
-	t.Run("test1", func(t *testing.T) {
+	t.Run("test function called", func(t *testing.T) {
 		ctx := context.TODO()
 		cluster := "cluster1"
 		m := &mock.Mock{}
@@ -99,7 +99,7 @@ func Test_multiClusterSyncManager_Start(t *testing.T) {
 }
 
 func Test_multiClusterSyncManager_Stop(t *testing.T) {
-	t.Run("test1", func(t *testing.T) {
+	t.Run("test function called", func(t *testing.T) {
 		ctx := context.TODO()
 		cluster := "cluster1"
 		m := &mock.Mock{}
