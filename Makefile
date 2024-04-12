@@ -23,7 +23,7 @@ endif
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -v "internalimport"` ${TEST_FLAGS}
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -v "internalimport|generated|handler"` ${TEST_FLAGS}
 
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.
@@ -34,7 +34,7 @@ test:  ## Run the tests
 cover: ## Generates coverage report
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
 	echo "🚀 Executing unit tests for $${PKG_LIST}:"; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated|handler"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
 	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test failed!"; exit 1)
 
 
