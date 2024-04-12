@@ -56,7 +56,12 @@ func (r *ProxyREST) ConnectMethods() []string {
 	return proxyMethods
 }
 
-func (r *ProxyREST) Connect(ctx context.Context, id string, options runtime.Object, responder rest.Responder) (http.Handler, error) {
+func (r *ProxyREST) Connect(
+	ctx context.Context,
+	id string,
+	options runtime.Object,
+	responder rest.Responder,
+) (http.Handler, error) {
 	proxyOpts, ok := options.(*cluster.ClusterProxyOptions)
 	if !ok {
 		return nil, fmt.Errorf("invalid options object: %#v", options)
@@ -75,23 +80,41 @@ func (r *ProxyREST) Connect(ctx context.Context, id string, options runtime.Obje
 			return
 		}
 
-		proxyHandler := proxy.NewUpgradeAwareHandler(location, transport, false, false, proxy.NewErrorResponder(responder))
+		proxyHandler := proxy.NewUpgradeAwareHandler(
+			location,
+			transport,
+			false,
+			false,
+			proxy.NewErrorResponder(responder),
+		)
 		proxyHandler.UseLocationHost = true
 		proxyHandler.ServeHTTP(w, r)
 	}), nil
 }
 
-func resourceLocation(clusterExtension *cluster.Cluster, path string, request *http.Request) (location *url.URL, transport http.RoundTripper, err error) {
+func resourceLocation(
+	clusterExtension *cluster.Cluster,
+	path string,
+	request *http.Request,
+) (location *url.URL, transport http.RoundTripper, err error) {
 	location, err = getEndpointURL(clusterExtension)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "failed to parsing endpoint for cluster %s", clusterExtension.Name)
+		return nil, nil, errors.Wrapf(
+			err,
+			"failed to parsing endpoint for cluster %s",
+			clusterExtension.Name,
+		)
 	}
 	location.Path = path
 	location.RawQuery = request.URL.RawQuery
 
 	cfg, err := NewConfigFromCluster(clusterExtension)
 	if err != nil {
-		return nil, nil, errors.Wrapf(err, "failed to create cluster proxy client config %s", clusterExtension.Name)
+		return nil, nil, errors.Wrapf(
+			err,
+			"failed to create cluster proxy client config %s",
+			clusterExtension.Name,
+		)
 	}
 
 	userAgent := request.UserAgent()
@@ -139,7 +162,12 @@ func getEndpointURL(c *cluster.Cluster) (*url.URL, error) {
 
 	urlAddr, err := url.Parse(c.Spec.Access.Endpoint)
 	if err != nil {
-		return nil, errors.Wrapf(err, "failed to parsing url from cluster %s invalid value %s", c.Name, c.Spec.Access.Endpoint)
+		return nil, errors.Wrapf(
+			err,
+			"failed to parsing url from cluster %s invalid value %s",
+			c.Name,
+			c.Spec.Access.Endpoint,
+		)
 	}
 	return urlAddr, nil
 }

@@ -39,13 +39,18 @@ type MultiClusterClient struct {
 }
 
 // BuildMultiClusterClient returns a MultiClusterClient based on the cluster name in the request
-func BuildMultiClusterClient(ctx context.Context, hubConfig *restclient.Config, name string) (*MultiClusterClient, error) {
+func BuildMultiClusterClient(
+	ctx context.Context,
+	hubConfig *restclient.Config,
+	name string,
+) (*MultiClusterClient, error) {
 	// Create the hub clients using loopback hubConfig for Karbour apiserver
 	hubClient, err := BuildHubClients(ctx, hubConfig)
 	if err != nil {
 		return nil, err
 	}
-	// If name is empty, return the MultiClusterClient for the hub cluster containing clients for hub cluster
+	// If name is empty, return the MultiClusterClient for the hub cluster containing clients for
+	// hub cluster
 	if name == "" {
 		return hubClient, nil
 	}
@@ -57,8 +62,10 @@ func BuildMultiClusterClient(ctx context.Context, hubConfig *restclient.Config, 
 	return client, nil
 }
 
-// BuildHubClients creates a MultiClusterClient for the hub cluster.
-func BuildHubClients(ctx context.Context, hubConfig *restclient.Config) (*MultiClusterClient, error) {
+func BuildHubClients(
+	ctx context.Context,
+	hubConfig *restclient.Config,
+) (*MultiClusterClient, error) {
 	// Create a Kubernetes core client
 	hubClientSet, err := kubernetes.NewForConfig(hubConfig)
 	if err != nil {
@@ -82,10 +89,16 @@ func BuildHubClients(ctx context.Context, hubConfig *restclient.Config) (*MultiC
 	}, nil
 }
 
-// BuildSpokeClients returns a MultiClusterClient for the spoke cluster based on the cluster name in the request
-func BuildSpokeClients(ctx context.Context, hubDynamicClient *dynamic.DynamicClient, name string) (*MultiClusterClient, error) {
+// BuildSpokeClients returns a MultiClusterClient for the spoke cluster based on the cluster name in
+// the request
+func BuildSpokeClients(
+	ctx context.Context,
+	hubDynamicClient *dynamic.DynamicClient,
+	name string,
+) (*MultiClusterClient, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
-	spokeUnstructured, err := hubDynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	spokeUnstructured, err := hubDynamicClient.Resource(clusterGVR).
+		Get(ctx, name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -136,7 +149,8 @@ func UnstructuredToRuntimeObject(u *unstructured.Unstructured) (runtime.Object, 
 	return obj, nil
 }
 
-// NewConfigFromCluster takes in a v1beta1.Cluster object and return the corresponding restclient.Config object for client-go
+// NewConfigFromCluster takes in a v1beta1.Cluster object and return the corresponding
+// restclient.Config object for client-go
 func NewConfigFromCluster(c *clusterv1beta1.Cluster) (*restclient.Config, error) {
 	cfg := &restclient.Config{}
 	cfg.Host = c.Spec.Access.Endpoint

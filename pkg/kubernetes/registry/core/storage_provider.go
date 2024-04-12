@@ -33,7 +33,9 @@ func (p RESTStorageProvider) GroupName() string {
 	return GroupName
 }
 
-func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, error) {
+func (p RESTStorageProvider) NewRESTStorage(
+	restOptionsGetter generic.RESTOptionsGetter,
+) (genericapiserver.APIGroupInfo, error) {
 	apiGroupInfo := genericapiserver.APIGroupInfo{
 		PrioritizedVersions:          scheme.Scheme.PrioritizedVersionsForGroup(""),
 		VersionedResourcesStorageMap: map[string]map[string]rest.Storage{},
@@ -43,7 +45,9 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	}
 	storage := map[string]rest.Storage{}
 
-	namespaceStorage, namespaceStatusStorage, namespaceFinalizeStorage, err := namespacestore.NewREST(restOptionsGetter)
+	namespaceStorage, namespaceStatusStorage, namespaceFinalizeStorage, err := namespacestore.NewREST(
+		restOptionsGetter,
+	)
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}
@@ -57,7 +61,15 @@ func (p RESTStorageProvider) NewRESTStorage(restOptionsGetter generic.RESTOption
 	}
 	storage["secrets"] = secretStorage
 
-	serviceAccountStorage, err := serviceaccountstore.NewREST(restOptionsGetter, nil, nil, 0, nil, nil, false)
+	serviceAccountStorage, err := serviceaccountstore.NewREST(
+		restOptionsGetter,
+		nil,
+		nil,
+		0,
+		nil,
+		nil,
+		false,
+	)
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}

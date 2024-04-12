@@ -99,7 +99,8 @@ type ResourceSyncRule struct {
 	// +required
 	Resource string `json:"resource"`
 
-	// Namespace specifies the namespace in which the ListWatch of the target resources is limited to.
+	// Namespace specifies the namespace in which the ListWatch of the target resources is limited
+	// to.
 	// +optional
 	Namespace string `json:"namespace,omitempty"`
 
@@ -114,7 +115,8 @@ type ResourceSyncRule struct {
 	// +optional
 	Selectors []Selector `json:"selectors,omitempty"`
 
-	// Transform is the rule applied to the original resource to transform it to the desired target resource.
+	// Transform is the rule applied to the original resource to transform it to the desired target
+	// resource.
 	// +optional
 	Transform *TransformRuleSpec `json:"transform,omitempty"`
 
@@ -127,7 +129,8 @@ type ResourceSyncRule struct {
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
-// TransformRule is used to define the rule to transform the original resource into the desired target resource.
+// TransformRule is used to define the rule to transform the original resource into the desired
+// target resource.
 type TransformRule struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
@@ -173,7 +176,8 @@ type Selector struct {
 // FieldSelector is a field filter.
 type FieldSelector struct {
 	// MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
-	// map means that the specified field should have an exact match with the specified value. Multiple entries are ANDed.
+	// map means that the specified field should have an exact match with the specified value.
+	// Multiple entries are ANDed.
 	// +optional
 	MatchFields map[string]string `json:"matchFields,omitempty"`
 	// ServerSupported indicates whether the matchFields is supported by the API server.

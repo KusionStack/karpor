@@ -49,7 +49,10 @@ type CompletedConfig struct {
 
 // New returns a new instance of APIServer from the given config.
 func (c *CompletedConfig) New() (*KarbourServer, error) {
-	genericServer, err := c.GenericConfig.New("karbour-apiserver", genericapiserver.NewEmptyDelegate())
+	genericServer, err := c.GenericConfig.New(
+		"karbour-apiserver",
+		genericapiserver.NewEmptyDelegate(),
+	)
 	if err != nil {
 		return nil, err
 	}
