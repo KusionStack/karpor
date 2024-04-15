@@ -69,7 +69,16 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
-	resourceGroupMgr := resourcegroupmanager.NewResourceGroupManager(searchStorage)
+
+	resourceGroupMgr, _ := resourcegroupmanager.NewResourceGroupManager()
+	// resourceGroupMgr := resourcegroupmanager.NewResourceGroupManager(elasticsearch.Config{
+	// 	// Addresses: s.cfg.Addresses,
+	// 	// Username:  s.cfg.UserName,
+	// 	// Password:  s.cfg.Password,
+	// 	Addresses: extraConfig.ElasticSearchAddresses,
+	// 	Username:  extraConfig.ElasticSearchUsername,
+	// 	Password:  extraConfig.ElasticSearchPassword,
+	// })
 	clusterMgr := clustermanager.NewClusterManager()
 	searchMgr := searchmanager.NewSearchManager()
 

@@ -15,8 +15,8 @@
 package elasticsearch
 
 const (
-	defaultIndexName = "resources"
-	defaultMapping   = `{
+	defaultResourceIndexName = "resources"
+	defaultResourceMapping   = `{
   "settings":{
     "index":{
       "max_result_window": "1000000",
@@ -81,6 +81,61 @@ const (
       },
       "content":{
         "type":"text"
+      }
+    }
+  }
+}`
+	defaultResourceGroupRuleIndexName = "resource_group_rules"
+	defaultResourceGroupRuleMapping   = `{
+  "settings":{
+    "index":{
+      "max_result_window": "1000000",
+      "number_of_shards":1,
+      "auto_expand_replicas":"0-1",
+      "number_of_replicas":0
+    },
+    "analysis":{
+      "normalizer":{
+        "lowercase":{
+          "type":"custom",
+          "filter":[
+            "lowercase"
+          ]
+        }
+      }
+    }
+  },
+  "mappings":{
+    "_source":{
+      "excludes":[
+        "custom"
+      ]
+    },
+    "properties":{
+      "id": {
+        "type": "keyword",
+        "ignore_above": 256
+      },
+      "name": {
+        "type": "text"
+      },
+      "description": {
+        "type": "text"
+      },
+      "fields": {
+        "type": "flattened"
+      },
+      "createdAt": {
+        "type": "date",
+        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
+      },
+      "updatedAt": {
+        "type": "date",
+        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
+      }
+      "deletedAt": {
+        "type": "date",
+        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
       }
     }
   }

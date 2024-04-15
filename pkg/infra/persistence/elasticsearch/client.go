@@ -61,11 +61,16 @@ func (cl *Client) SaveDocument(
 	documentID string,
 	body io.Reader,
 ) error {
+	opts := []func(*esapi.IndexRequest){
+		cl.client.Index.WithContext(ctx),
+	}
+	if len(documentID) > 0 {
+		opts = append(opts, cl.client.Index.WithDocumentID(documentID))
+	}
 	resp, err := cl.client.Index(
 		indexName,
 		body,
-		cl.client.Index.WithDocumentID(documentID),
-		cl.client.Index.WithContext(ctx),
+		opts...,
 	)
 	if err != nil {
 		return err

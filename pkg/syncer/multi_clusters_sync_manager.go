@@ -34,7 +34,7 @@ type MultiClusterSyncManager interface {
 
 // multiClusterSyncManager is the concrete implementation of the MultiClusterSyncManager interface.
 type multiClusterSyncManager struct {
-	storage    storage.Storage
+	storage    storage.ResourceStorage
 	controller controller.Controller
 
 	managers map[string]SingleClusterSyncManager
@@ -42,7 +42,7 @@ type multiClusterSyncManager struct {
 }
 
 // NewMultiClusterSyncManager creates a new MultiClusterSyncManager instance with the given context, controller and storage.
-func NewMultiClusterSyncManager(baseContext context.Context, controller controller.Controller, storage storage.Storage) MultiClusterSyncManager {
+func NewMultiClusterSyncManager(baseContext context.Context, controller controller.Controller, storage storage.ResourceStorage) MultiClusterSyncManager {
 	return &multiClusterSyncManager{
 		managers:   make(map[string]SingleClusterSyncManager),
 		controller: controller,

@@ -57,6 +57,15 @@ func (s *Storage) Search(ctx context.Context, queryStr string, patternType strin
 	return sr, nil
 }
 
+// SearchByQuery performs a search operation using a query map and pagination settings.
+func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return nil, err
+	}
+	return s.search(ctx, buf, pagination)
+}
+
 // searchByDSL performs a search operation using a DSL (Domain Specific Language) string and pagination settings.
 func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	queries, err := Parse(dslStr)
@@ -83,22 +92,13 @@ func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *st
 	return s.search(ctx, strings.NewReader(dsl), pagination)
 }
 
-// SearchByQuery performs a search operation using a query map and pagination settings.
-func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-	return s.search(ctx, buf, pagination)
-}
-
 // search performs a search operation using an io.Reader as the query body and pagination settings.
 func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {
 		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
 	}
-	resp, err := s.client.SearchDocument(ctx, s.indexName, body, opts...)
+	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, body, opts...)
 	if err != nil {
 		return nil, err
 	}

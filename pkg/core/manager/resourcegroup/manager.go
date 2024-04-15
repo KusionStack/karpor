@@ -17,17 +17,23 @@ package resourcegroup
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/core/repository"
 )
 
 type ResourceGroupManager struct {
-	search storage.SearchStorage
+	repo repository.ResourceGroupRuleRepository
 }
 
-func NewResourceGroupManager(searchStorage storage.SearchStorage) *ResourceGroupManager {
-	return &ResourceGroupManager{
-		search: searchStorage,
-	}
+func NewResourceGroupManager() (*ResourceGroupManager, error) {
+	// func NewResourceGroupManager(config elasticsearch.Config) (*ResourceGroupManager, error) {
+	// repo, err := elasticsearch.NewResourceGroupRuleRepository(config)
+	// if err != nil {
+	// 	return nil, err
+	// }
+	// return &ResourceGroupManager{
+	// 	repo: repo,
+	// }, nil
+	panic("need to implement")
 }
 
 func (c *ResourceGroupManager) GetResourceGroupRule(ctx context.Context) error {

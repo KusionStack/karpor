@@ -66,7 +66,7 @@ type singleClusterSyncManager struct {
 	syncResources atomic.Value // map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule
 	ch            chan struct{}
 	syncers       sync.Map // map[schema.GroupVersionResource]*ResourceSyncer
-	storage       storage.Storage
+	storage       storage.ResourceStorage
 
 	logger logr.Logger
 }
@@ -76,7 +76,7 @@ func NewSingleClusterSyncManager(baseContext context.Context,
 	clusterName string,
 	config *rest.Config,
 	controller controller.Controller,
-	storage storage.Storage,
+	storage storage.ResourceStorage,
 ) (SingleClusterSyncManager, error) {
 	config = rest.CopyConfig(config)
 	dynamicClient, err := dynamic.NewForConfig(config)
