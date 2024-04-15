@@ -141,13 +141,12 @@ func setupRestAPIV1(
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {
-		r.Route("/{resourceGroupRuleName}", func(r chi.Router) {
-			r.Get("/", resourcegrouprulehandler.Get(resourceGroupMgr))
-			r.Post("/", resourcegrouprulehandler.Create(resourceGroupMgr))
-			r.Put("/", resourcegrouprulehandler.Update(resourceGroupMgr))
-			r.Delete("/", resourcegrouprulehandler.Delete(resourceGroupMgr))
-		})
+		r.Get("/{resourceGroupRuleName}", resourcegrouprulehandler.Get(resourceGroupMgr))
+		r.Post("/", resourcegrouprulehandler.Create(resourceGroupMgr))
+		r.Put("/", resourcegrouprulehandler.Update(resourceGroupMgr))
+		r.Delete("/{resourceGroupRuleName}", resourcegrouprulehandler.Delete(resourceGroupMgr))
 	})
+	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-group/{resourceGroupName}", resourcegrouphandler.Get(resourceGroupMgr))
 	r.Get("/resource-groups/", resourcegrouphandler.List(resourceGroupMgr))
 }

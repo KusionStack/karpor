@@ -40,14 +40,14 @@ import (
 // @Failure      405     {string}  string                     "Method Not Allowed"
 // @Failure      429     {string}  string                     "Too Many Requests"
 // @Failure      500     {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [get]
+// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [get]
 func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		name := chi.URLParam(r, "resourceGroupRule")
+		name := chi.URLParam(r, "resourceGroupRuleName")
 		if len(name) == 0 {
 			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
 			return
@@ -220,14 +220,14 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 // @Failure      405  {string}  string  "Method Not Allowed"
 // @Failure      429  {string}  string  "Too Many Requests"
 // @Failure      500  {string}  string  "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [delete]
+// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [delete]
 func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		name := chi.URLParam(r, "resourceGroupRule")
+		name := chi.URLParam(r, "resourceGroupRuleName")
 		if len(name) == 0 {
 			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
 			return
