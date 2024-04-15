@@ -16,8 +16,11 @@ package resourcegroup
 
 import (
 	"context"
+	"errors"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 )
 
 type ResourceGroupManager struct {
@@ -30,22 +33,72 @@ func NewResourceGroupManager(rgrStorage storage.ResourceGroupRuleStorage) (*Reso
 	}, nil
 }
 
-func (c *ResourceGroupManager) GetResourceGroupRule(ctx context.Context) error {
-	panic("need to implement")
+func (m *ResourceGroupManager) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
+	if len(name) == 0 {
+		return nil, errors.New("resource group rule name cannot be empty")
+	}
+	return m.rgrStorage.GetResourceGroupRule(ctx, name)
 }
 
-func (c *ResourceGroupManager) ListResourceGroupRules(ctx context.Context) error {
-	panic("need to implement")
+func (m *ResourceGroupManager) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
+	return m.rgrStorage.ListResourceGroupRules(ctx)
 }
 
-func (c *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context) error {
-	panic("need to implement")
+// CreateResourceGroupRule creates a new resource group rule.
+func (m *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context, rgr *entity.ResourceGroupRule) error {
+	if rgr == nil {
+		return errors.New("resource group rule cannot be nil")
+	}
+	if rgr.Name == "" {
+		return errors.New("resource group rule name cannot be empty")
+	}
+
+	// Check if the rule already exists to prevent duplicates.
+	existingRGR, err := m.GetResourceGroupRule(ctx, rgr.Name)
+	if err == nil && existingRGR != nil {
+		return errors.New("resource group rule already exists")
+	} else if !errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
+		return err
+	}
+
+	// Save the new rule to the storage.
+	return m.rgrStorage.SaveResourceGroupRule(ctx, rgr)
 }
 
-func (c *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context) error {
-	panic("need to implement")
+// UpdateResourceGroupRule updates an existing resource group rule.
+func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name string, rgr *entity.ResourceGroupRule) error {
+	if name == "" {
+		return errors.New("resource group rule name cannot be empty")
+	}
+	if rgr == nil {
+		return errors.New("resource group rule cannot be nil")
+	}
+	if rgr.Name == "" {
+		return errors.New("resource group rule name cannot be empty")
+	}
+
+	// Get the existing rule.
+	existingRGR, err := m.GetResourceGroupRule(ctx, name)
+	if err != nil {
+		return err
+	}
+	if existingRGR == nil {
+		return errors.New("resource group rule does not exist")
+	}
+
+	// Update the fields of the existing rule with the new values.
+	*existingRGR = *rgr
+
+	// Save the updated rule to the storage.
+	return m.rgrStorage.SaveResourceGroupRule(ctx, existingRGR)
 }
 
-func (c *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context) error {
-	panic("need to implement")
+// DeleteResourceGroupRule deletes a resource group rule by name.
+func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name string) error {
+	if name == "" {
+		return errors.New("resource group rule name cannot be empty")
+	}
+
+	// Delete the rule from the storage.
+	return m.rgrStorage.DeleteResourceGroupRule(ctx, name)
 }
