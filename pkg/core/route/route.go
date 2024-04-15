@@ -147,6 +147,5 @@ func setupRestAPIV1(
 		r.Delete("/{resourceGroupRuleName}", resourcegrouprulehandler.Delete(resourceGroupMgr))
 	})
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
-	r.Get("/resource-group/{resourceGroupName}", resourcegrouphandler.Get(resourceGroupMgr))
-	r.Get("/resource-groups/", resourcegrouphandler.List(resourceGroupMgr))
+	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
 }

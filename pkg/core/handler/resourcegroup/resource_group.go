@@ -19,36 +19,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/manager/resourcegroup"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-	"github.com/go-chi/chi/v5"
 )
-
-// Get returns an HTTP handler function that reads a resourcegroup
-// detail. It utilizes a ResourceGroupManager to execute the logic.
-//
-// @Summary      Get returns a ResourceGroup by name.
-// @Description  This endpoint returns a ResourceGroup by name.
-// @Tags         resourcegroup
-// @Produce      json
-// @Param        format  query     string                     false  "The format of the response. Either in json or yaml"
-// @Success      200     {object}  unstructured.Unstructured  "Unstructured object"
-// @Failure      400     {string}  string                     "Bad Request"
-// @Failure      401     {string}  string                     "Unauthorized"
-// @Failure      404     {string}  string                     "Not Found"
-// @Failure      405     {string}  string                     "Method Not Allowed"
-// @Failure      429     {string}  string                     "Too Many Requests"
-// @Failure      500     {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-group/{resourceGroup} [get]
-func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		// Extract the context and logger from the request.
-		ctx := r.Context()
-		logger := ctxutil.GetLogger(ctx)
-		resourceGroup := chi.URLParam(r, "resourceGroup")
-		logger.Info("Getting resourceGroup...", "resourceGroup", resourceGroup)
-
-		// TODO: need to implement
-	}
-}
 
 // List returns an HTTP handler function that lists all ResourceGroup
 // resources. It utilizes a ResourceGroupManager to execute the logic.
@@ -67,13 +38,13 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 // @Failure      405         {string}  string                     "Method Not Allowed"
 // @Failure      429         {string}  string                     "Too Many Requests"
 // @Failure      500         {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-groups [get]
+// @Router       /rest-api/v1/resource-groups/{resourceGroupRuleName} [get]
 func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		logger.Info("Listing resourceGroups...")
+		logger.Info("Listing resourceGroups by resourceGroupRule ...")
 
 		// TODO: need to implement
 	}
