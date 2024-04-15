@@ -35,7 +35,7 @@ func NewResourceGroupManager(rgrStorage storage.ResourceGroupRuleStorage) (*Reso
 
 func (m *ResourceGroupManager) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
 	if len(name) == 0 {
-		return nil, errors.New("resource group rule name cannot be empty")
+		return nil, ErrMissingResourceGroupRuleName
 	}
 	return m.rgrStorage.GetResourceGroupRule(ctx, name)
 }
@@ -47,18 +47,18 @@ func (m *ResourceGroupManager) ListResourceGroupRules(ctx context.Context) ([]*e
 // CreateResourceGroupRule creates a new resource group rule.
 func (m *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context, rgr *entity.ResourceGroupRule) error {
 	if rgr == nil {
-		return errors.New("resource group rule cannot be nil")
+		return ErrNilResourceGroupRule
 	}
-	if rgr.Name == "" {
-		return errors.New("resource group rule name cannot be empty")
+	if len(rgr.Name) == 0 {
+		return ErrMissingResourceGroupRuleName
 	}
 
 	// Check if the rule already exists to prevent duplicates.
 	existingRGR, err := m.GetResourceGroupRule(ctx, rgr.Name)
 	if err == nil && existingRGR != nil {
-		return errors.New("resource group rule already exists")
+		return ErrResourceGroupRuleAlreadyExists
 	} else if !errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
-		return err
+		return ErrResourceGroupRuleNotFound
 	}
 
 	// Save the new rule to the storage.
@@ -67,14 +67,14 @@ func (m *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context, rgr 
 
 // UpdateResourceGroupRule updates an existing resource group rule.
 func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name string, rgr *entity.ResourceGroupRule) error {
-	if name == "" {
-		return errors.New("resource group rule name cannot be empty")
+	if len(name) == 0 {
+		return ErrMissingResourceGroupRuleName
 	}
 	if rgr == nil {
-		return errors.New("resource group rule cannot be nil")
+		return ErrNilResourceGroupRule
 	}
-	if rgr.Name == "" {
-		return errors.New("resource group rule name cannot be empty")
+	if name != rgr.Name {
+		return ErrResourceGroupRuleNameCannotModify
 	}
 
 	// Get the existing rule.
@@ -83,7 +83,7 @@ func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name
 		return err
 	}
 	if existingRGR == nil {
-		return errors.New("resource group rule does not exist")
+		return ErrResourceGroupRuleNotFound
 	}
 
 	// Update the fields of the existing rule with the new values.
@@ -95,8 +95,8 @@ func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name
 
 // DeleteResourceGroupRule deletes a resource group rule by name.
 func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name string) error {
-	if name == "" {
-		return errors.New("resource group rule name cannot be empty")
+	if len(name) == 0 {
+		return ErrMissingResourceGroupRuleName
 	}
 
 	// Delete the rule from the storage.

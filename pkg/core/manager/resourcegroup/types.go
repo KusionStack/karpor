@@ -16,4 +16,10 @@ package resourcegroup
 
 import "errors"
 
-var ErrMissingResourceGroupRuleName = errors.New("resource group rule name is required")
+var (
+	ErrNilResourceGroupRule              = errors.New("resource group rule cannot be nil")
+	ErrMissingResourceGroupRuleName      = errors.New("resource group rule name is required")
+	ErrResourceGroupRuleAlreadyExists    = errors.New("resource group rule already exists")
+	ErrResourceGroupRuleNotFound         = errors.New("resource group rule not found")
+	ErrResourceGroupRuleNameCannotModify = errors.New("resource group rule name cannot be modified")
+)
