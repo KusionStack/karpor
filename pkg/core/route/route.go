@@ -65,20 +65,20 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
-	insightMgr, err := insightmanager.NewInsightManager(searchStorage)
+	resourceGroupRuleStorage, err := search.NewResourceGroupRuleStorage(*extraConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	resourceGroupMgr, _ := resourcegroupmanager.NewResourceGroupManager()
-	// resourceGroupMgr := resourcegroupmanager.NewResourceGroupManager(elasticsearch.Config{
-	// 	// Addresses: s.cfg.Addresses,
-	// 	// Username:  s.cfg.UserName,
-	// 	// Password:  s.cfg.Password,
-	// 	Addresses: extraConfig.ElasticSearchAddresses,
-	// 	Username:  extraConfig.ElasticSearchUsername,
-	// 	Password:  extraConfig.ElasticSearchPassword,
-	// })
+	insightMgr, err := insightmanager.NewInsightManager(searchStorage)
+	if err != nil {
+		return nil, err
+	}
+	resourceGroupMgr, err := resourcegroupmanager.NewResourceGroupManager(resourceGroupRuleStorage)
+	if err != nil {
+		return nil, err
+	}
+
 	clusterMgr := clustermanager.NewClusterManager()
 	searchMgr := searchmanager.NewSearchManager()
 

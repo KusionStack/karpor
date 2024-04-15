@@ -27,6 +27,7 @@ import (
 )
 
 var (
+	_ storage.Storage                  = &Storage{}
 	_ storage.ResourceStorage          = &Storage{}
 	_ storage.ResourceGroupRuleStorage = &Storage{}
 	_ storage.SearchStorage            = &Storage{}

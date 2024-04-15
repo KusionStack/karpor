@@ -100,3 +100,16 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 		return nil, fmt.Errorf("invalid search storage type %s", p.SearchStorageType)
 	}
 }
+
+func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceGroupRuleStorageGetter, error) {
+	switch p.SearchStorageType {
+	case "elasticsearch":
+		return elasticsearch.NewResourceGroupRuleStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
+	default:
+		return nil, fmt.Errorf("invalid resource group rule storage type %s", p.SearchStorageType)
+	}
+}

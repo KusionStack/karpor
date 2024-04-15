@@ -35,6 +35,13 @@ const (
 	SQLPatternType = "sql"
 )
 
+// ResourceStorage interface defines the basic operations for storage.
+type Storage interface {
+	ResourceStorage
+	ResourceGroupRuleStorage
+	SearchStorage
+}
+
 // ResourceStorage interface defines the basic operations for resource storage.
 type ResourceStorage interface {
 	GetResource(ctx context.Context, cluster string, obj runtime.Object) error
@@ -58,6 +65,10 @@ type SearchStorage interface {
 
 type SearchStorageGetter interface {
 	GetSearchStorage() (SearchStorage, error)
+}
+
+type ResourceGroupRuleStorageGetter interface {
+	GetResourceGroupRuleStorage() (ResourceGroupRuleStorage, error)
 }
 
 // Query represents the query parameters for searching resources.
