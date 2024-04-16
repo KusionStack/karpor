@@ -27,9 +27,9 @@ import (
 type InsightManager struct {
 	search                storage.SearchStorage
 	scanner               scanner.KubeScanner
-	scanCache             *cache.Cache[core.Locator, scanner.ScanResult]
-	clusterTopologyCache  *cache.Cache[core.Locator, map[string]ClusterTopology]
-	resourceTopologyCache *cache.Cache[core.Locator, map[string]ResourceTopology]
+	scanCache             *cache.Cache[core.ResourceGroup, scanner.ScanResult]
+	clusterTopologyCache  *cache.Cache[core.ResourceGroup, map[string]ClusterTopology]
+	resourceTopologyCache *cache.Cache[core.ResourceGroup, map[string]ResourceTopology]
 }
 
 // NewInsightManager returns a new InsightManager object
@@ -45,8 +45,8 @@ func NewInsightManager(searchStorage storage.SearchStorage) (*InsightManager, er
 	return &InsightManager{
 		scanner:               kubeauditScanner,
 		search:                searchStorage,
-		scanCache:             cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
-		clusterTopologyCache:  cache.NewCache[core.Locator, map[string]ClusterTopology](defaultExpiration),
-		resourceTopologyCache: cache.NewCache[core.Locator, map[string]ResourceTopology](defaultExpiration),
+		scanCache:             cache.NewCache[core.ResourceGroup, scanner.ScanResult](defaultExpiration),
+		clusterTopologyCache:  cache.NewCache[core.ResourceGroup, map[string]ClusterTopology](defaultExpiration),
+		resourceTopologyCache: cache.NewCache[core.ResourceGroup, map[string]ResourceTopology](defaultExpiration),
 	}, nil
 }

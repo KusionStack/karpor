@@ -58,12 +58,12 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 		logger.Info("Getting resources...")
 		outputFormat := r.URL.Query().Get("format")
 
-		loc, err := core.NewLocatorFromQuery(r)
+		loc, err := core.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting resource detail for locator...", "locator", loc)
+		logger.Info("Getting resource detail for resourceGroup...", "resourceGroup", loc)
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
 		if err != nil {
@@ -73,7 +73,7 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 
 		locType, ok := loc.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
@@ -95,7 +95,7 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 				handler.HandleResult(w, r, ctx, err, namespace)
 			}
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

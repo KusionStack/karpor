@@ -543,14 +543,14 @@ var doc = `{
         },
         "/rest-api/v1/insight/audit": {
             "get": {
-                "description": "This endpoint audits based on the specified locator.",
+                "description": "This endpoint audits based on the specified resource group.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "insight"
                 ],
-                "summary": "Audit based on locator.",
+                "summary": "Audit based on resource group.",
                 "parameters": [
                     {
                         "type": "string",
@@ -1216,7 +1216,7 @@ var doc = `{
                 }
             }
         },
-        "core.Locator": {
+        "core.ResourceGroup": {
             "type": "object",
             "properties": {
                 "apiVersion": {
@@ -1243,7 +1243,7 @@ var doc = `{
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/core.Locator"
+                    "$ref": "#/definitions/core.ResourceGroup"
                 },
                 "resourceVersion": {
                     "type": "string"
@@ -1262,8 +1262,8 @@ var doc = `{
                         "type": "string"
                     }
                 },
-                "locator": {
-                    "$ref": "#/definitions/core.Locator"
+                "resourceGroup": {
+                    "$ref": "#/definitions/core.ResourceGroup"
                 },
                 "parents": {
                     "type": "array",
@@ -1347,10 +1347,10 @@ var doc = `{
                 "issue": {
                     "$ref": "#/definitions/scanner.Issue"
                 },
-                "locators": {
+                "resourceGroups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/core.Locator"
+                        "$ref": "#/definitions/core.ResourceGroup"
                     }
                 }
             }

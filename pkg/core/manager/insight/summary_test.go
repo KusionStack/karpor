@@ -36,13 +36,13 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		loc            *core.ResourceGroup
 		expectedResult *ResourceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -50,7 +50,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 				Name:       "existing-configmap",
 			},
 			expectedResult: &ResourceSummary{
-				Resource: core.Locator{
+				Resource: core.ResourceGroup{
 					Name:       "existing-configmap",
 					Namespace:  "default",
 					APIVersion: "v1",
@@ -95,13 +95,13 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		loc            *core.ResourceGroup
 		expectedResult *GVKSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -152,13 +152,13 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		loc            *core.ResourceGroup
 		expectedResult *NamespaceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing Namespace",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:   "existing-cluster",
 				Namespace: "default",
 			},

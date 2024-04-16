@@ -53,12 +53,12 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		loc, err := core.NewLocatorFromQuery(r)
+		loc, err := core.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting summary for locator...", "locator", loc)
+		logger.Info("Getting summary for resourceGroup...", "resourceGroup", loc)
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
 		if err != nil {
@@ -68,7 +68,7 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 
 		locType, ok := loc.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
@@ -86,7 +86,7 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &loc)
 			handler.HandleResult(w, r, ctx, err, gvkSummary)
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

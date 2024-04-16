@@ -28,8 +28,8 @@ type AuditData struct {
 	IssueGroups   []*IssueGroup  `json:"issueGroups"`
 }
 
-// IssueGroup represents a group of locators tied to a specific issue.
+// IssueGroup represents a group of resourceGroups tied to a specific issue.
 type IssueGroup struct {
-	Issue    scanner.Issue  `json:"issue"`
-	Locators []core.Locator `json:"locators"`
+	Issue    scanner.Issue        `json:"issue"`
+	ResourceGroups []core.ResourceGroup `json:"resourceGroups"`
 }

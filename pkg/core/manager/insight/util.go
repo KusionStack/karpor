@@ -56,10 +56,10 @@ func CalculateScore(p, s int) float64 {
 	return 100 * math.Exp(param)
 }
 
-// CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using core.Locator
-func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (int, error) {
+// CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using core.ResourceGroup
+func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup) (int, error) {
 	if loc.Cluster == "" || loc.APIVersion == "" || loc.Kind == "" {
-		return 0, fmt.Errorf("cluster, APIVersion and Kind in locator cannot be empty")
+		return 0, fmt.Errorf("cluster, APIVersion and Kind in resourceGroup cannot be empty")
 	}
 	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
 	if err != nil {
@@ -73,11 +73,11 @@ func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multic
 }
 
 // CountResourcesByGVK returns a map from string to int
-func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (map[string]int, error) {
+func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup) (map[string]int, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	if loc.Cluster == "" || loc.Namespace == "" {
-		return nil, fmt.Errorf("cluster and Namespace in locator cannot be empty")
+		return nil, fmt.Errorf("cluster and Namespace in resourceGroup cannot be empty")
 	}
 	counts := make(map[string]int)
 	// Another option here is to retrieve the list of API resources and iterate over each using dynamic client

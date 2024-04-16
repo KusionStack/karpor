@@ -21,12 +21,12 @@ import (
 	"strings"
 )
 
-// LocatorType represents the type of a Locator.
-type LocatorType int
+// ResourceGroupType represents the type of a ResourceGroup.
+type ResourceGroupType int
 
-// Enumerated constants representing different types of Locators.
+// Enumerated constants representing different types of ResourceGroups.
 const (
-	Cluster LocatorType = iota
+	Cluster ResourceGroupType = iota
 	GVK
 	Namespace
 	ClusterGVKNamespace
@@ -34,8 +34,8 @@ const (
 	NonNamespacedResource
 )
 
-// Locator represents information required to locate a resource.
-type Locator struct {
+// ResourceGroup represents information required to locate a resource.
+type ResourceGroup struct {
 	Cluster    string `json:"cluster" yaml:"cluster"`
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
 	Kind       string `json:"kind" yaml:"kind"`
@@ -43,11 +43,11 @@ type Locator struct {
 	Name       string `json:"name" yaml:"name"`
 }
 
-// NewLocatorFromQuery creates a Locator from an HTTP request query parameters.
-func NewLocatorFromQuery(r *http.Request) (Locator, error) {
+// NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
+func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 	cluster := r.URL.Query().Get("cluster")
 	if cluster == "" {
-		return Locator{}, fmt.Errorf("cluster cannot be empty")
+		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
 	}
 
 	apiVersion := r.URL.Query().Get("apiVersion")
@@ -55,7 +55,7 @@ func NewLocatorFromQuery(r *http.Request) (Locator, error) {
 		apiVersion, _ = url.PathUnescape(apiVersion)
 	}
 
-	return Locator{
+	return ResourceGroup{
 		Cluster:    cluster,
 		APIVersion: apiVersion,
 		Kind:       r.URL.Query().Get("kind"),
@@ -64,8 +64,8 @@ func NewLocatorFromQuery(r *http.Request) (Locator, error) {
 	}, nil
 }
 
-// ToSQL generates a SQL query string based on the Locator.
-func (c *Locator) ToSQL() string {
+// ToSQL generates a SQL query string based on the ResourceGroup.
+func (c *ResourceGroup) ToSQL() string {
 	var conditions []string
 
 	if c.Cluster != "" {
@@ -91,8 +91,8 @@ func (c *Locator) ToSQL() string {
 	}
 }
 
-// GetType returns the type of Locator and a boolean indicating success.
-func (c *Locator) GetType() (LocatorType, bool) {
+// GetType returns the type of ResourceGroup and a boolean indicating success.
+func (c *ResourceGroup) GetType() (ResourceGroupType, bool) {
 	if c.Cluster == "" {
 		return -1, false
 	}

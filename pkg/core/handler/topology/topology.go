@@ -56,12 +56,12 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		logger := ctxutil.GetLogger(ctx)
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
-		loc, err := core.NewLocatorFromQuery(r)
+		loc, err := core.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting topology for locator...", "locator", loc)
+		logger.Info("Getting topology for resourceGroup...", "resourceGroup", loc)
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
 		if err != nil {
@@ -71,7 +71,7 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 
 		locType, ok := loc.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
@@ -86,7 +86,7 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace, forceNew)
 			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

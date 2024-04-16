@@ -27,17 +27,17 @@ var _ scanner.ScanResult = &scanResult{}
 // scanResult implements the scanner.ScanResult interface and represents the
 // result of scanning Kubernetes resources.
 type scanResult struct {
-	issueResourceMap  map[scanner.Issue]scanner.ResourceList // Map of issues to resources
-	resourceIssueMap  map[core.Locator]scanner.IssueList     // Map of resources to issues
-	locatorMap        map[core.Locator]*storage.Resource     // Map of locators to resources
-	relationshipExist map[relationship]struct{}              // Map to track relationships
-	lock              sync.RWMutex                           // Mutex for concurrent access
+	issueResourceMap  map[scanner.Issue]scanner.ResourceList   // Map of issues to resources
+	resourceIssueMap  map[core.ResourceGroup]scanner.IssueList // Map of resources to issues
+	resourceGroupMap  map[core.ResourceGroup]*storage.Resource // Map of resourceGroup to resources
+	relationshipExist map[relationship]struct{}                // Map to track relationships
+	lock              sync.RWMutex                             // Mutex for concurrent access
 }
 
-// relationship represents the relationship between an issue and a locator.
+// relationship represents the relationship between an issue and a resourceGroups.
 type relationship struct {
 	scanner.Issue
-	core.Locator
+	core.ResourceGroup
 }
 
 // NewScanResult creates a new instance of scanResult.
@@ -49,8 +49,8 @@ func NewScanResult() scanner.ScanResult {
 func newScanResult() *scanResult {
 	return &scanResult{
 		issueResourceMap:  make(map[scanner.Issue]scanner.ResourceList),
-		resourceIssueMap:  make(map[core.Locator]scanner.IssueList),
-		locatorMap:        make(map[core.Locator]*storage.Resource),
+		resourceIssueMap:  make(map[core.ResourceGroup]scanner.IssueList),
+		resourceGroupMap:  make(map[core.ResourceGroup]*storage.Resource),
 		relationshipExist: map[relationship]struct{}{},
 		lock:              sync.RWMutex{},
 	}
@@ -62,7 +62,7 @@ func (sr *scanResult) ByIssue() map[scanner.Issue]scanner.ResourceList {
 }
 
 // ByResource returns the map of resources to issues.
-func (sr *scanResult) ByResource() map[core.Locator]scanner.IssueList {
+func (sr *scanResult) ByResource() map[core.ResourceGroup]scanner.IssueList {
 	return sr.resourceIssueMap
 }
 
@@ -106,8 +106,8 @@ func (sr *scanResult) MergeFrom(result scanner.ScanResult) {
 		sr = newScanResult()
 	}
 
-	for locator, issues := range newResult.resourceIssueMap {
-		if resource, exist := newResult.locatorMap[locator]; exist {
+	for resourceGroup, issues := range newResult.resourceIssueMap {
+		if resource, exist := newResult.resourceGroupMap[resourceGroup]; exist {
 			sr.add(resource, issues)
 		}
 	}
@@ -126,12 +126,12 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issues = make([]*scanner.Issue, 0)
 	}
 
-	if _, exist := sr.locatorMap[resource.Locator]; !exist {
-		sr.locatorMap[resource.Locator] = resource
+	if _, exist := sr.resourceGroupMap[resource.ResourceGroup]; !exist {
+		sr.resourceGroupMap[resource.ResourceGroup] = resource
 	}
 
-	if _, ok := sr.resourceIssueMap[resource.Locator]; !ok {
-		sr.resourceIssueMap[resource.Locator] = make([]*scanner.Issue, 0)
+	if _, ok := sr.resourceIssueMap[resource.ResourceGroup]; !ok {
+		sr.resourceIssueMap[resource.ResourceGroup] = make([]*scanner.Issue, 0)
 	}
 
 	for _, issue := range issues {
@@ -144,15 +144,15 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issue := issues[i]
 
 		rel := relationship{
-			Issue:   *issue,
-			Locator: resource.Locator,
+			Issue:         *issue,
+			ResourceGroup: resource.ResourceGroup,
 		}
 
 		if _, exist := sr.relationshipExist[rel]; exist {
 			continue
 		}
 
-		sr.resourceIssueMap[resource.Locator] = append(sr.resourceIssueMap[resource.Locator], issue)
+		sr.resourceIssueMap[resource.ResourceGroup] = append(sr.resourceIssueMap[resource.ResourceGroup], issue)
 		sr.issueResourceMap[*issue] = append(sr.issueResourceMap[*issue], resource)
 		sr.relationshipExist[rel] = struct{}{}
 	}

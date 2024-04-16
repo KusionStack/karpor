@@ -104,6 +104,6 @@ func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name
 	return m.rgrStorage.DeleteResourceGroupRule(ctx, name)
 }
 
-func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, resourceGroupRuleName string) ([]*core.Locator, error) {
+func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, resourceGroupRuleName string) ([]*core.ResourceGroup, error) {
 	panic("unimplement")
 }

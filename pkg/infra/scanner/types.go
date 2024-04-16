@@ -45,7 +45,7 @@ type KubeScanner interface {
 // ScanResult defines the interface for the result of a scan.
 type ScanResult interface {
 	ByIssue() map[Issue]ResourceList
-	ByResource() map[core.Locator]IssueList
+	ByResource() map[core.ResourceGroup]IssueList
 	IssueTotal() int
 	MergeFrom(result ScanResult)
 }

@@ -38,7 +38,7 @@ func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType
 	return &storage.SearchResult{
 		Total: 1,
 		Resources: []*storage.Resource{{
-			Locator: core.Locator{
+			ResourceGroup: core.ResourceGroup{
 				Cluster:   "mock-cluster",
 				Namespace: "mock-namespace",
 				Name:      "mock-name",

@@ -103,14 +103,14 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name        string
-		loc         *core.Locator
+		loc         *core.ResourceGroup
 		noCache     bool
 		expectedMap map[string]ResourceTopology
 		expectError bool
 	}{
 		{
 			name: "Success - Existing Pod",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -120,7 +120,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 			noCache: true,
 			expectedMap: map[string]ResourceTopology{
 				"/v1.Pod:default.existing-pod": {
-					Locator: core.Locator{
+					ResourceGroup: core.ResourceGroup{
 						Cluster:    "existing-cluster",
 						APIVersion: "v1",
 						Kind:       "Pod",
@@ -135,7 +135,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 		},
 		{
 			name:        "Error - Non-existing cluster",
-			loc:         &core.Locator{},
+			loc:         &core.ResourceGroup{},
 			noCache:     true,
 			expectError: true,
 		},

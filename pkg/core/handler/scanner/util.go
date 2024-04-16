@@ -32,13 +32,13 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 	for issue, resources := range sr.ByIssue() {
 		issueGroup := &IssueGroup{
 			Issue:    issue,
-			Locators: []core.Locator{},
+			ResourceGroups: []core.ResourceGroup{},
 		}
 
-		// For each resource tied to the issue, create a Locator and increment
+		// For each resource tied to the issue, create a ResourceGroup and increment
 		// severity count.
 		for _, resource := range resources {
-			issueGroup.Locators = append(issueGroup.Locators, resource.Locator)
+			issueGroup.ResourceGroups = append(issueGroup.ResourceGroups, resource.ResourceGroup)
 			bySeverity[issue.Severity.String()]++
 		}
 		issueGroups = append(issueGroups, issueGroup)
@@ -53,9 +53,9 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 			return false
 		}
 
-		// If Severities are equal, sort by Locators array size from high to
+		// If Severities are equal, sort by ResourceGroups array size from high to
 		// low.
-		return len(issueGroups[i].Locators) > len(issueGroups[j].Locators)
+		return len(issueGroups[i].ResourceGroups) > len(issueGroups[j].ResourceGroups)
 	})
 
 	// Construct the AuditData structure.

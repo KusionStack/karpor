@@ -25,23 +25,23 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Audit performs the audit on Kubernetes manifests with the specified locator
+// Audit performs the audit on Kubernetes manifests with the specified resourceGroup
 // and returns the issues found during the audit.
-func (i *InsightManager) Audit(ctx context.Context, locator core.Locator, noCache bool) (scanner.ScanResult, error) {
+func (i *InsightManager) Audit(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
 
 	if noCache {
-		log.Info("Scan without cache for locator", "locator", locator)
-		return i.scanFor(ctx, locator, true)
+		log.Info("Scan without cache for resourceGroup", "resourceGroup", resourceGroup)
+		return i.scanFor(ctx, resourceGroup, true)
 	} else {
-		if auditData, exist := i.scanCache.Get(locator); exist {
-			log.Info("Cache hit for locator", "locator", locator)
+		if auditData, exist := i.scanCache.Get(resourceGroup); exist {
+			log.Info("Cache hit for resourceGroup", "resourceGroup", resourceGroup)
 			return auditData, nil
 		} else {
-			log.Info("Cache miss for locator", "locator", locator)
-			return i.scanFor(ctx, locator, false)
+			log.Info("Cache miss for resourceGroup", "resourceGroup", resourceGroup)
+			return i.scanFor(ctx, resourceGroup, false)
 		}
 	}
 }
@@ -49,12 +49,12 @@ func (i *InsightManager) Audit(ctx context.Context, locator core.Locator, noCach
 // Score calculates a score based on the severity and total number of issues
 // identified during the audit. It aggregates statistics on different severity
 // levels and generates a cumulative score.
-func (i *InsightManager) Score(ctx context.Context, locator core.Locator, noCache bool) (*ScoreData, error) {
+func (i *InsightManager) Score(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (*ScoreData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting calculate score with specified issues list in AuditManager ...")
 
-	scanResult, err := i.Audit(ctx, locator, noCache)
+	scanResult, err := i.Audit(ctx, resourceGroup, noCache)
 	if err != nil {
 		return nil, err
 	}
@@ -87,12 +87,12 @@ func (i *InsightManager) Score(ctx context.Context, locator core.Locator, noCach
 	}, nil
 }
 
-// scanFor is a helper function that performs the actual scanning for the given locator using the context and returns the scan result and error.
-func (i *InsightManager) scanFor(ctx context.Context, locator core.Locator, noCache bool) (scanner.ScanResult, error) {
+// scanFor is a helper function that performs the actual scanning for the given resourceGroup using the context and returns the scan result and error.
+func (i *InsightManager) scanFor(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 
-	searchQuery := locator.ToSQL()
+	searchQuery := resourceGroup.ToSQL()
 	searchPattern := storage.SQLPatternType
 	pageSizeIteration := 100
 	pageIteration := 1
@@ -126,8 +126,8 @@ func (i *InsightManager) scanFor(ctx context.Context, locator core.Locator, noCa
 		pageIteration++
 	}
 
-	i.scanCache.Set(locator, result)
-	log.Info("Added data to cache for locator", "locator", locator)
+	i.scanCache.Set(resourceGroup, result)
+	log.Info("Added data to cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return result, nil
 }

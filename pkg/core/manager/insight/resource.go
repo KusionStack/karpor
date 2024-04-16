@@ -28,7 +28,7 @@ import (
 
 // GetResource returns the unstructured cluster object for a given cluster.
 func (i *InsightManager) GetResource(
-	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator,
+	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup,
 ) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
 	if err != nil {
@@ -49,7 +49,7 @@ func (i *InsightManager) GetResource(
 
 // GetYAMLForResource returns the yaml byte array for a given cluster
 func (i *InsightManager) GetYAMLForResource(
-	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator,
+	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup,
 ) ([]byte, error) {
 	obj, err := i.GetResource(ctx, client, loc)
 	if err != nil {

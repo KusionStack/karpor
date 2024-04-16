@@ -40,13 +40,13 @@ func TestGetResource(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		loc            *core.ResourceGroup
 		expectError    bool
 		expectSanitize bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -58,13 +58,13 @@ func TestGetResource(t *testing.T) {
 		},
 		{
 			name:           "Error - Non-existing cluster",
-			loc:            &core.Locator{},
+			loc:            &core.ResourceGroup{},
 			expectError:    true,
 			expectSanitize: false, // Not applicable as there is an error
 		},
 		{
 			name: "Success - Existing Secret",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Secret",
@@ -114,13 +114,13 @@ func TestInsightManager_GetYAMLForResource(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name         string
-		loc          *core.Locator
+		loc          *core.ResourceGroup
 		expectedYAML []byte
 		expectError  bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			loc: &core.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -140,7 +140,7 @@ metadata:
 		},
 		{
 			name:        "Error - Non-existing cluster",
-			loc:         &core.Locator{},
+			loc:         &core.ResourceGroup{},
 			expectError: true,
 		},
 	}

@@ -48,14 +48,14 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
+func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup) (*ResourceSummary, error) {
 	obj, err := i.GetResource(ctx, client, loc)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ResourceSummary{
-		Resource: core.Locator{
+		Resource: core.ResourceGroup{
 			Name:       obj.GetName(),
 			Namespace:  obj.GetNamespace(),
 			APIVersion: obj.GetAPIVersion(),
@@ -69,7 +69,7 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 }
 
 // GetGVKSummary returns the unstructured cluster object summary for a given GVK. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*GVKSummary, error) {
+func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup) (*GVKSummary, error) {
 	gvkCount, err := i.CountResourcesByGVK(ctx, client, loc)
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster
 }
 
 // GetNamespaceSummary returns the unstructured cluster object summary for a given namespace. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*NamespaceSummary, error) {
+func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup) (*NamespaceSummary, error) {
 	namespaceCount, err := i.CountResourcesByNamespace(ctx, client, loc)
 	if err != nil {
 		return nil, err
