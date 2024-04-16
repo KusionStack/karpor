@@ -103,6 +103,13 @@ func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name
 	return m.rgrStorage.DeleteResourceGroupRule(ctx, name)
 }
 
-func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, resourceGroupRuleName string) ([]*entity.ResourceGroup, error) {
-	panic("unimplement")
+// ListResourceGroupsBy lists all resource groups by specified resource group
+// rule name.
+func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error) {
+	if len(ruleName) == 0 {
+		return nil, ErrMissingResourceGroupRuleName
+	}
+
+	// List the resource groups by specified rule.
+	return m.rgrStorage.ListResourceGroupsBy(ctx, ruleName)
 }

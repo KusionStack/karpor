@@ -17,14 +17,18 @@ package resourcegroup
 import (
 	"net/http"
 
+	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/resourcegroup"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/render"
+	"github.com/pkg/errors"
 )
 
-// List returns an HTTP handler function that lists all ResourceGroup
-// resources. It utilizes a ResourceGroupManager to execute the logic.
+// List returns an HTTP handler function that lists all ResourceGroup by
+// specified rule. It utilizes a ResourceGroupManager to execute the logic.
 //
-// @Summary      List lists all ResourceGroups.
+// @Summary      List lists all ResourceGroups by rule name.
 // @Description  This endpoint lists all ResourceGroups.
 // @Tags         resourcegroup
 // @Produce      json
@@ -42,8 +46,23 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		logger.Info("Listing resourceGroups by resourceGroupRule ...")
 
-		// TODO: need to implement
+		name := chi.URLParam(r, "resourceGroupRuleName")
+		if len(name) == 0 {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			return
+		}
+
+		logger.Info("Listing resourceGroups by resourceGroupRule ...", "resourceGroupRule", name)
+
+		// Use the ResourceGroupManager to list resource groups by specified rule.
+		rgs, err := resourceGroupMgr.ListResourceGroupsBy(ctx, name)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Render the list of resource groups.
+		render.JSON(w, r, handler.SuccessResponse(ctx, rgs))
 	}
 }

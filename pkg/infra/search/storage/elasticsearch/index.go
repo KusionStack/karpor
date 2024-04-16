@@ -117,10 +117,10 @@ const (
         "ignore_above": 256
       },
       "name": {
-        "type": "text"
+        "type": "keyword"
       },
       "description": {
-        "type": "text"
+        "type": "keyword"
       },
       "fields": {
         "type": "flattened"

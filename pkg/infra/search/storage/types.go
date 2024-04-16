@@ -56,6 +56,7 @@ type ResourceGroupRuleStorage interface {
 	SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error
 	DeleteResourceGroupRule(ctx context.Context, name string) error
 	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
+	ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error)
 }
 
 // Storage interface defines the basic operations for resource storage.
