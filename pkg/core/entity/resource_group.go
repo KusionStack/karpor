@@ -15,10 +15,14 @@
 package entity
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
+	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // ResourceGroupType represents the type of a ResourceGroup.
@@ -32,15 +36,17 @@ const (
 	ClusterGVKNamespace
 	Resource
 	NonNamespacedResource
+	CustomResourceGroup
 )
 
 // ResourceGroup represents information required to locate a resource or multi resources.
 type ResourceGroup struct {
-	Cluster    string `json:"cluster" yaml:"cluster"`
-	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
-	Kind       string `json:"kind" yaml:"kind"`
-	Namespace  string `json:"namespace" yaml:"namespace"`
-	Name       string `json:"name" yaml:"name"`
+	Cluster             string `json:"cluster" yaml:"cluster"`
+	APIVersion          string `json:"apiVersion" yaml:"apiVersion"`
+	Kind                string `json:"kind" yaml:"kind"`
+	Namespace           string `json:"namespace" yaml:"namespace"`
+	Name                string `json:"name" yaml:"name"`
+	CustomResourceGroup string `json:"customResourceGroup" yaml:"customResourceGroup"`
 }
 
 // NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
@@ -55,12 +61,31 @@ func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 		apiVersion, _ = url.PathUnescape(apiVersion)
 	}
 
+	customResourceGroup := r.URL.Query().Get("customResourceGroup")
+	if customResourceGroup != "" {
+		crg, err := ParseCustomResourceGroup(customResourceGroup)
+		if err != nil {
+			return ResourceGroup{}, errors.Wrap(err, "failed to parse custom resource group")
+		}
+		// The custom resource group will be used as the key for caching, so it needs to be sorted to ensure uniqueness.
+		customResourceGroup, err = SortCustomResourceGroup(crg)
+		if err != nil {
+			return ResourceGroup{}, errors.Wrap(err, "failed to sort custom resource group")
+		}
+	}
+
+	cluster := r.URL.Query().Get("cluster")
+	if customResourceGroup == "" && cluster == "" {
+		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
+	}
+
 	return ResourceGroup{
-		Cluster:    cluster,
-		APIVersion: apiVersion,
-		Kind:       r.URL.Query().Get("kind"),
-		Namespace:  r.URL.Query().Get("namespace"),
-		Name:       r.URL.Query().Get("name"),
+		APIVersion:          apiVersion,
+		Cluster:             cluster,
+		Kind:                r.URL.Query().Get("kind"),
+		Namespace:           r.URL.Query().Get("namespace"),
+		Name:                r.URL.Query().Get("name"),
+		CustomResourceGroup: customResourceGroup,
 	}, nil
 }
 
@@ -93,20 +118,62 @@ func (c *ResourceGroup) ToSQL() string {
 
 // GetType returns the type of ResourceGroup and a boolean indicating success.
 func (c *ResourceGroup) GetType() (ResourceGroupType, bool) {
+	if c.CustomResourceGroup != "" {
+		return CustomResourceGroup, true
+	}
 	if c.Cluster == "" {
 		return -1, false
 	}
 	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" && c.Name != "" {
 		return Resource, true
-	} else if c.APIVersion != "" && c.Kind != "" && c.Name != "" {
+	}
+	if c.APIVersion != "" && c.Kind != "" && c.Name != "" {
 		return NonNamespacedResource, true
-	} else if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" {
+	}
+	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" {
 		return ClusterGVKNamespace, true
-	} else if c.APIVersion != "" && c.Kind != "" {
+	}
+	if c.APIVersion != "" && c.Kind != "" {
 		return GVK, true
-	} else if c.Namespace != "" {
+	}
+	if c.Namespace != "" {
 		// TODO: what if only apiversion is present but kind is not?
 		return Namespace, true
 	}
 	return Cluster, true
+}
+
+// ParseCustomResourceGroup deserialize the input JSON string to a map
+func ParseCustomResourceGroup(jsonStr string) (map[string]any, error) {
+	var m map[string]interface{}
+	if err := json.Unmarshal([]byte(jsonStr), &m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
+// SortCustomResourceGroup takes a map[string]interface{} and returns a JSON string with sorted keys.
+func SortCustomResourceGroup(m map[string]any) (string, error) {
+	// Extract all keys from the map
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+
+	// Sort the keys
+	sort.Strings(keys)
+
+	// Create a sorted map
+	sortedMap := make(map[string]any, len(m))
+	for _, k := range keys {
+		sortedMap[k] = m[k]
+	}
+
+	// Serialize the sorted map to a JSON string
+	sortedJSON, err := json.Marshal(sortedMap)
+	if err != nil {
+		return "", err
+	}
+
+	return string(sortedJSON), nil
 }

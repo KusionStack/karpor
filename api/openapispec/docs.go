@@ -1044,7 +1044,10 @@ var doc = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/insight.ResourceTopology"
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/definitions/insight.ResourceTopology"
+                                }
                             }
                         }
                     },
@@ -1638,6 +1641,9 @@ var doc = `{
                     "type": "string"
                 },
                 "cluster": {
+                    "type": "string"
+                },
+                "customResourceGroup": {
                     "type": "string"
                 },
                 "kind": {

@@ -33,6 +33,8 @@ definitions:
         type: string
       cluster:
         type: string
+      customResourceGroup:
+        type: string
       kind:
         type: string
       name:
@@ -844,7 +846,9 @@ paths:
           description: map from string to resource.ResourceTopology
           schema:
             additionalProperties:
-              $ref: '#/definitions/insight.ResourceTopology'
+              additionalProperties:
+                $ref: '#/definitions/insight.ResourceTopology'
+              type: object
             type: object
         "400":
           description: Bad Request

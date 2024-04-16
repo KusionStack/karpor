@@ -168,7 +168,9 @@ func (cl *Client) SearchDocument(
 	body io.Reader,
 	options ...Option,
 ) (*SearchResponse, error) {
-	cfg := &config{}
+	cfg := &config{
+		pagination: &paginationConfig{Page: 1, PageSize: maxHitsSize},
+	}
 	for _, option := range options {
 		if err := option(cfg); err != nil {
 			return nil, err

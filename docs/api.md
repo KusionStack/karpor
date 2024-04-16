@@ -2065,6 +2065,7 @@ Status: Internal Server Error
 |------|------|---------|:--------:| ------- |-------------|---------|
 | apiVersion | string| `string` |  | |  |  |
 | cluster | string| `string` |  | |  |  |
+| customResourceGroup | string| `string` |  | |  |  |
 | kind | string| `string` |  | |  |  |
 | name | string| `string` |  | |  |  |
 | namespace | string| `string` |  | |  |  |

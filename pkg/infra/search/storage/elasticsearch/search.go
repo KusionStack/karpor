@@ -103,17 +103,55 @@ func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storag
 		return nil, err
 	}
 
-	sr := &storage.SearchResult{
-		Total:     resp.Hits.Total.Value,
-		Resources: make([]*storage.Resource, len(resp.Hits.Hits)),
+	return convertSearchResult(resp)
+}
+
+func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	var opts []elasticsearch.Option
+	if pagination != nil {
+		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
+	}
+	resp, err := s.client.SearchDocumentByTerms(ctx, s.resourceIndexName, keysAndValues, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return convertSearchResult(resp)
+}
+
+func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResult, error) {
+	out := &storage.SearchResult{
+		Total:     in.Hits.Total.Value,
+		Resources: make([]*storage.Resource, len(in.Hits.Hits)),
 	}
 
-	for i, hit := range resp.Hits.Hits {
-		sr.Resources[i], err = storage.Map2Resource(hit.Source)
-		if err != nil {
+	for i, hit := range in.Hits.Hits {
+		var err error
+
+		if out.Resources[i], err = storage.Map2Resource(hit.Source); err != nil {
 			return nil, err
 		}
 	}
+	return out, nil
+}
 
-	return sr, nil
+func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateResults {
+	buckets := make([]storage.Bucket, len(in.Buckets))
+	for i := range in.Buckets {
+		buckets[i] = storage.Bucket{
+			Keys:  in.Buckets[i].Keys,
+			Count: in.Buckets[i].Count,
+		}
+	}
+	return &storage.AggregateResults{
+		Buckets: buckets,
+		Total:   in.Total,
+	}
+}
+
+func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage.AggregateResults, error) {
+	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceIndexName, keys)
+	if err != nil {
+		return nil, err
+	}
+	return convertAggregationResult(resp), nil
 }

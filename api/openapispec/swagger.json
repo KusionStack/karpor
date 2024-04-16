@@ -1027,7 +1027,10 @@
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/insight.ResourceTopology"
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/definitions/insight.ResourceTopology"
+                                }
                             }
                         }
                     },
@@ -1621,6 +1624,9 @@
                     "type": "string"
                 },
                 "cluster": {
+                    "type": "string"
+                },
+                "customResourceGroup": {
                     "type": "string"
                 },
                 "kind": {
