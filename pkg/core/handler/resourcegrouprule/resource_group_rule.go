@@ -32,14 +32,14 @@ import (
 // @Description  This endpoint returns a ResourceGroupRule by name.
 // @Tags         resourcegrouprule
 // @Produce      json
-// @Param        format  query     string                     false  "The format of the response. Either in json or yaml"
-// @Success      200     {object}  unstructured.Unstructured  "Unstructured object"
-// @Failure      400     {string}  string                     "Bad Request"
-// @Failure      401     {string}  string                     "Unauthorized"
-// @Failure      404     {string}  string                     "Not Found"
-// @Failure      405     {string}  string                     "Method Not Allowed"
-// @Failure      429     {string}  string                     "Too Many Requests"
-// @Failure      500     {string}  string                     "Internal Server Error"
+// @Param        resourceGroupRuleName  path      string                     true  "The name of the resource group rule"
+// @Success      200                    {object}  unstructured.Unstructured  "Unstructured object"
+// @Failure      400                    {string}  string                     "Bad Request"
+// @Failure      401                    {string}  string                     "Unauthorized"
+// @Failure      404                    {string}  string                     "Not Found"
+// @Failure      405                    {string}  string                     "Method Not Allowed"
+// @Failure      429                    {string}  string                     "Too Many Requests"
+// @Failure      500                    {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [get]
 func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -76,7 +76,7 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to create (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to create (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
@@ -128,7 +128,7 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to update (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to update (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
@@ -213,13 +213,14 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 // @Description  This endpoint deletes the ResourceGroupRule by name.
 // @Tags         resourcegrouprule
 // @Produce      json
-// @Success      200  {string}  string  "Operation status"
-// @Failure      400  {string}  string  "Bad Request"
-// @Failure      401  {string}  string  "Unauthorized"
-// @Failure      404  {string}  string  "Not Found"
-// @Failure      405  {string}  string  "Method Not Allowed"
-// @Failure      429  {string}  string  "Too Many Requests"
-// @Failure      500  {string}  string  "Internal Server Error"
+// @Param        resourceGroupRuleName  path      string  true  "The name of the resource group rule"
+// @Success      200                    {string}  string  "Operation status"
+// @Failure      400                    {string}  string  "Bad Request"
+// @Failure      401                    {string}  string  "Unauthorized"
+// @Failure      404                    {string}  string  "Not Found"
+// @Failure      405                    {string}  string  "Method Not Allowed"
+// @Failure      429                    {string}  string  "Too Many Requests"
+// @Failure      500                    {string}  string  "Internal Server Error"
 // @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [delete]
 func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
