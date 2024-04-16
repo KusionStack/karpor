@@ -134,7 +134,7 @@ func setupRestAPIV1(
 	r.Route("/insight", func(r chi.Router) {
 		r.Get("/audit", scannerhandler.Audit(insightMgr))
 		r.Get("/score", scannerhandler.Score(insightMgr))
-		r.Get("/topology", topologyhandler.GetTopology(insightMgr, genericConfig))
+		r.Get("/topology", topologyhandler.GetTopology(clusterMgr, insightMgr, genericConfig))
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))

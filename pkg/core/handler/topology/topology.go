@@ -21,6 +21,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/handler"
+	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
@@ -35,21 +36,21 @@ import (
 // @Description  This endpoint returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind.
 // @Tags         insight
 // @Produce      json
-// @Param        cluster     query     string                               false  "The specified cluster name, such as 'example-cluster'"
-// @Param        apiVersion  query     string                               false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
-// @Param        kind        query     string                               false  "The specified kind, such as 'Deployment'"
-// @Param        namespace   query     string                               false  "The specified namespace, such as 'default'"
-// @Param        name        query     string                               false  "The specified resource name, such as 'foo'"
-// @Param        forceNew    query     bool                                 false  "Force re-generating the topology, default is 'false'"
-// @Success      200         {object}  map[string]insight.ResourceTopology  "map from string to resource.ResourceTopology"
-// @Failure      400         {string}  string                               "Bad Request"
-// @Failure      401         {string}  string                               "Unauthorized"
-// @Failure      404         {string}  string                               "Not Found"
-// @Failure      405         {string}  string                               "Method Not Allowed"
-// @Failure      429         {string}  string                               "Too Many Requests"
-// @Failure      500         {string}  string                               "Internal Server Error"
+// @Param        cluster     query     string                                          false  "The specified cluster name, such as 'example-cluster'"
+// @Param        apiVersion  query     string                                          false  "The specified apiVersion, such as 'apps/v1'. Should be percent-encoded"
+// @Param        kind        query     string                                          false  "The specified kind, such as 'Deployment'"
+// @Param        namespace   query     string                                          false  "The specified namespace, such as 'default'"
+// @Param        name        query     string                                          false  "The specified resource name, such as 'foo'"
+// @Param        forceNew    query     bool                                            false  "Force re-generating the topology, default is 'false'"
+// @Success      200         {object}  map[string]map[string]insight.ResourceTopology  "map from string to resource.ResourceTopology"
+// @Failure      400         {string}  string                                          "Bad Request"
+// @Failure      401         {string}  string                                          "Unauthorized"
+// @Failure      404         {string}  string                                          "Not Found"
+// @Failure      405         {string}  string                                          "Method Not Allowed"
+// @Failure      429         {string}  string                                          "Too Many Requests"
+// @Failure      500         {string}  string                                          "Internal Server Error"
 // @Router       /rest-api/v1/insight/topology [get]
-func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
+func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -63,7 +64,8 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		}
 		logger.Info("Getting topology for locator...", "locator", loc)
 
-		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
+		clusterName := loc.Cluster
+		client, err := multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, clusterName)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -76,15 +78,22 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		}
 
 		switch locType {
+		case core.CustomResourceGroup:
+			client, err = multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, "")
+			handler.HandleResult(w, r, ctx, err, nil)
+			clusterNames, err := clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
+			handler.HandleResult(w, r, ctx, err, nil)
+			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(r.Context(), client, loc.CustomResourceGroup, clusterNames, forceNew)
+			handler.HandleResult(w, r, ctx, err, customResourceTopologyMap)
 		case core.Resource, core.NonNamespacedResource:
-			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc, forceNew)
-			handler.HandleResult(w, r, ctx, err, resourceTopologyMap)
+			resourceTopologyMap, err := insightMgr.GetTopologyForResource(ctx, client, &loc, forceNew)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ResourceTopology{clusterName: resourceTopologyMap})
 		case core.Cluster:
-			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster, forceNew)
-			handler.HandleResult(w, r, ctx, err, clusterTopologyMap)
+			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(ctx, client, clusterName, forceNew)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: clusterTopologyMap})
 		case core.Namespace:
-			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace, forceNew)
-			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
+			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(ctx, client, clusterName, loc.Namespace, forceNew)
+			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: namespaceTopologyMap})
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
 		}
