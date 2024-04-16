@@ -16,7 +16,9 @@ package resourcegrouprule
 
 import (
 	"net/http"
+	"time"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
@@ -34,13 +36,13 @@ type ResourceGroupRulePayload struct {
 
 // decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
-func (payload *ResourceGroupRulePayload) Decode(r *http.Request) error {
+func (p *ResourceGroupRulePayload) Decode(r *http.Request) error {
 	// Check if the content type is plain text, read it as such.
 	contentType := render.GetRequestContentType(r)
 	switch contentType {
 	case render.ContentTypeJSON:
 		// For non-plain text, decode the JSON body into the payload.
-		if err := render.DecodeJSON(r.Body, payload); err != nil {
+		if err := render.DecodeJSON(r.Body, p); err != nil {
 			return err
 		}
 	default:
@@ -48,4 +50,14 @@ func (payload *ResourceGroupRulePayload) Decode(r *http.Request) error {
 	}
 
 	return nil
+}
+
+func (p *ResourceGroupRulePayload) ToEntity() *entity.ResourceGroupRule {
+	return &entity.ResourceGroupRule{
+		Name:        p.Name,
+		Description: p.Description,
+		Fields:      p.Fields,
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
 }

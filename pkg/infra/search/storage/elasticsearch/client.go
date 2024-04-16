@@ -26,31 +26,19 @@ import (
 	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
 
-const (
-	clusterKey           = "cluster"
-	apiVersionKey        = "apiVersion"
-	kindKey              = "kind"
-	namespaceKey         = "namespace"
-	nameKey              = "name"
-	labelsKey            = "labels"
-	annotationsKey       = "annotations"
-	creationTimestampKey = "creationTimestamp"
-	deletionTimestampKey = "deletionTimestamp"
-	ownerReferencesKey   = "ownerReferences"
-	resourceVersionKey   = "resourceVersion"
-	contentKey           = "content"
-)
-
 var (
-	_ storage.Storage       = &Storage{}
-	_ storage.SearchStorage = &Storage{}
+	_ storage.Storage                  = &Storage{}
+	_ storage.ResourceStorage          = &Storage{}
+	_ storage.ResourceGroupRuleStorage = &Storage{}
+	_ storage.SearchStorage            = &Storage{}
 )
 
 // Storage is the struct that holds the necessary fields for interacting with the Elasticsearch cluster.
 type Storage struct {
-	client        *elasticsearch.Client
-	indexName     string
-	objectEncoder runtime.Encoder
+	client                     *elasticsearch.Client
+	resourceIndexName          string
+	resourceGroupRuleIndexName string
+	objectEncoder              runtime.Encoder
 }
 
 // NewStorage creates and returns a new instance of the Storage struct with the provided Elasticsearch configuration.
@@ -60,13 +48,18 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 		return nil, err
 	}
 
-	if err = cl.CreateIndex(context.TODO(), defaultIndexName, strings.NewReader(defaultMapping)); err != nil {
+	if err = cl.CreateIndex(context.TODO(), defaultResourceIndexName, strings.NewReader(defaultResourceMapping)); err != nil {
+		return nil, err
+	}
+
+	if err = cl.CreateIndex(context.TODO(), defaultResourceGroupRuleIndexName, strings.NewReader(defaultResourceGroupRuleMapping)); err != nil {
 		return nil, err
 	}
 
 	return &Storage{
-		client:    cl,
-		indexName: defaultIndexName,
+		client:                     cl,
+		resourceIndexName:          defaultResourceIndexName,
+		resourceGroupRuleIndexName: defaultResourceGroupRuleIndexName,
 		objectEncoder: runtimejson.NewSerializerWithOptions(
 			runtimejson.DefaultMetaFactory,
 			scheme.Scheme,

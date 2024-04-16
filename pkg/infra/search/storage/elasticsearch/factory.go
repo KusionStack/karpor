@@ -19,7 +19,10 @@ import (
 	"github.com/elastic/go-elasticsearch/v8"
 )
 
-var _ storage.SearchStorageGetter = &SearchStorageGetter{}
+var (
+	_ storage.SearchStorageGetter            = &SearchStorageGetter{}
+	_ storage.ResourceGroupRuleStorageGetter = &ResourceGroupRuleStorageGetter{}
+)
 
 // SearchStorageGetter represents a structure for getting search storage instances.
 type SearchStorageGetter struct {
@@ -39,6 +42,26 @@ func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) 
 	return esClient, nil
 }
 
+// ResourceGroupRuleStorageGetter represents a structure for getting resource
+// group rule storage instances.
+type ResourceGroupRuleStorageGetter struct {
+	cfg *Config
+}
+
+// GetResourceGroupRuleStorage retrieves and returns a resource group rule
+// storage instance based on the provided configuration.
+func (s *ResourceGroupRuleStorageGetter) GetResourceGroupRuleStorage() (storage.ResourceGroupRuleStorage, error) {
+	esClient, err := NewStorage(elasticsearch.Config{
+		Addresses: s.cfg.Addresses,
+		Username:  s.cfg.UserName,
+		Password:  s.cfg.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return esClient, nil
+}
+
 // Config defines the configuration structure for Elasticsearch storage.
 type Config struct {
 	Addresses []string `env:"ES_ADDRESSES"`
@@ -46,7 +69,8 @@ type Config struct {
 	Password  string   `env:"ES_PASSWORD"`
 }
 
-// NewSearchStorageGetter creates a new instance of the SearchStorageGetter with the given Elasticsearch addresses, user name, and password.
+// NewSearchStorageGetter creates a new instance of the SearchStorageGetter with
+// the given Elasticsearch addresses, user name, and password.
 func NewSearchStorageGetter(addresses []string, userName, password string) *SearchStorageGetter {
 	cfg := &Config{
 		Addresses: addresses,
@@ -55,6 +79,21 @@ func NewSearchStorageGetter(addresses []string, userName, password string) *Sear
 	}
 
 	return &SearchStorageGetter{
+		cfg,
+	}
+}
+
+// NewResourceGroupRuleStorageGetter creates a new instance of the
+// ResourceGroupRuleStorageGetter with the given Elasticsearch addresses, user
+// name, and password.
+func NewResourceGroupRuleStorageGetter(addresses []string, userName, password string) *ResourceGroupRuleStorageGetter {
+	cfg := &Config{
+		Addresses: addresses,
+		UserName:  userName,
+		Password:  password,
+	}
+
+	return &ResourceGroupRuleStorageGetter{
 		cfg,
 	}
 }

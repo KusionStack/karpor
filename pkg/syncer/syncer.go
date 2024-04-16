@@ -45,7 +45,7 @@ type deleted struct {
 // ResourceSyncer is the main struct that holds the necessary fields and methods for the resource syncer component.
 type ResourceSyncer struct {
 	source  SyncSource
-	storage storage.Storage
+	storage storage.ResourceStorage
 
 	queue  workqueue.RateLimitingInterface
 	ctx    context.Context
@@ -55,7 +55,7 @@ type ResourceSyncer struct {
 }
 
 // NewResourceSyncer creates a new instance of the ResourceSyncer with the given parameters.
-func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) *ResourceSyncer {
+func NewResourceSyncer(cluster string, dynamicClient dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.ResourceStorage) *ResourceSyncer {
 	source := NewSource(cluster, dynamicClient, rsr, storage)
 	return &ResourceSyncer{
 		source:  source,
@@ -179,11 +179,11 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	if exists {
 		op = "save"
 		obj := val.(*unstructured.Unstructured)
-		err = s.storage.Save(ctx, s.source.Cluster(), obj)
+		err = s.storage.SaveResource(ctx, s.source.Cluster(), obj)
 	} else {
 		op = "delete"
 		obj := genUnObj(s.SyncRule(), key)
-		err = s.storage.Delete(ctx, s.source.Cluster(), obj)
+		err = s.storage.DeleteResource(ctx, s.source.Cluster(), obj)
 		if errors.Is(err, elasticsearch.ErrNotFound) {
 			s.logger.Error(err, "failed to sync", "key", key, "op", op)
 			err = nil

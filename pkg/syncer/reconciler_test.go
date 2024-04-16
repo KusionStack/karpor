@@ -95,7 +95,7 @@ func Test_buildClusterConfig(t *testing.T) {
 
 func TestSyncReconciler_SetupWithManager(t *testing.T) {
 	type fields struct {
-		storage    storage.Storage
+		storage    storage.ResourceStorage
 		client     client.Client
 		controller controller.Controller
 		mgr        MultiClusterSyncManager
@@ -476,7 +476,7 @@ func TestSyncReconciler_getRegistries(t *testing.T) {
 func TestNewSyncReconciler(t *testing.T) {
 	tests := []struct {
 		name    string
-		storage storage.Storage
+		storage storage.ResourceStorage
 	}{
 		{
 			"test nil",

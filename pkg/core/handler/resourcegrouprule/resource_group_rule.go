@@ -22,6 +22,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
+	"github.com/pkg/errors"
 )
 
 // Get returns an HTTP handler function that reads a resourcegrouprule
@@ -39,16 +40,30 @@ import (
 // @Failure      405     {string}  string                     "Method Not Allowed"
 // @Failure      429     {string}  string                     "Too Many Requests"
 // @Failure      500     {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [get]
+// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [get]
 func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		resourceGroupRule := chi.URLParam(r, "resourceGroupRule")
-		logger.Info("Getting resourceGroupRule...", "resourceGroupRule", resourceGroupRule)
 
-		// TODO: need to implement
+		name := chi.URLParam(r, "resourceGroupRuleName")
+		if len(name) == 0 {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			return
+		}
+
+		logger.Info("Getting resourceGroupRule...", "resourceGroupRule", name)
+
+		// Use the ResourceGroupManager to get the resource group rule.
+		data, err := resourceGroupMgr.GetResourceGroupRule(ctx, name)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Render the response in the requested format.
+		render.JSON(w, r, handler.SuccessResponse(ctx, data))
 	}
 }
 
@@ -61,7 +76,7 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to create (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to create (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
@@ -69,23 +84,38 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 // @Failure      405      {string}  string                     "Method Not Allowed"
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [post]
+// @Router       /rest-api/v1/resource-group-rule [post]
 func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		resourceGroupRule := chi.URLParam(r, "resourceGroupRule")
-		logger.Info("Creating resourceGroupRule...", "resourceGroupRule", resourceGroupRule)
 
 		// Decode the request body into the payload.
-		payload := &ResourceGroupRulePayload{}
+		var payload ResourceGroupRulePayload
 		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		// TODO: need to implement
+		if payload.Name == "" {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			return
+		}
+
+		logger.Info("Creating resourceGroupRule...", "resourceGroupRule", payload.Name)
+
+		// Use the ResourceGroupManager to create the resource group rule.
+		rgr := payload.ToEntity()
+		if err := resourceGroupMgr.CreateResourceGroupRule(ctx, rgr); err != nil {
+			if !errors.Is(err, resourcegroup.ErrResourceGroupRuleAlreadyExists) {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
+		}
+
+		// Render the created resource group rule.
+		render.JSON(w, r, handler.SuccessResponse(ctx, payload))
 	}
 }
 
@@ -98,7 +128,7 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 // @Accept       plain
 // @Accept       json
 // @Produce      json
-// @Param        request  body      ResourceGroupRulePayload   true  "resourceGroupRule to update (either plain text or JSON format)"
+// @Param        request  body      ResourceGroupRulePayload             true  "resourceGroupRule to update (either plain text or JSON format)"
 // @Success      200      {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400      {string}  string                     "Bad Request"
 // @Failure      401      {string}  string                     "Unauthorized"
@@ -106,23 +136,35 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 // @Failure      405      {string}  string                     "Method Not Allowed"
 // @Failure      429      {string}  string                     "Too Many Requests"
 // @Failure      500      {string}  string                     "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule}  [put]
+// @Router       /rest-api/v1/resource-group-rule [put]
 func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		resourceGroupRule := chi.URLParam(r, "resourceGroupRule")
-		logger.Info("Updating resourceGroupRule metadata...", "resourceGroupRule", resourceGroupRule)
 
 		// Decode the request body into the payload.
-		payload := &ResourceGroupRulePayload{}
+		var payload ResourceGroupRulePayload
 		if err := payload.Decode(r); err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
+		if payload.Name == "" {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			return
+		}
 
-		// TODO: need to implement
+		logger.Info("Updating resourceGroupRule metadata...", "resourceGroupRule", payload.Name)
+
+		// Use the ResourceGroupManager to update the resource group rule.
+		rgr := payload.ToEntity()
+		if err := resourceGroupMgr.UpdateResourceGroupRule(ctx, rgr.Name, rgr); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Render the updated resource group rule.
+		render.JSON(w, r, handler.SuccessResponse(ctx, payload))
 	}
 }
 
@@ -149,9 +191,18 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
+
 		logger.Info("Listing resourceGroupRules...")
 
-		// TODO: need to implement
+		// Use the ResourceGroupManager to list resource group rules.
+		rules, err := resourceGroupMgr.ListResourceGroupRules(ctx)
+		if err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Render the list of resource group rules.
+		render.JSON(w, r, handler.SuccessResponse(ctx, rules))
 	}
 }
 
@@ -169,15 +220,28 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 // @Failure      405  {string}  string  "Method Not Allowed"
 // @Failure      429  {string}  string  "Too Many Requests"
 // @Failure      500  {string}  string  "Internal Server Error"
-// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRule} [delete]
+// @Router       /rest-api/v1/resource-group-rule/{resourceGroupRuleName} [delete]
 func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
-		resourceGroupRule := chi.URLParam(r, "resourceGroupRule")
-		logger.Info("Deleting resourceGroupRule...", "resourceGroupRule", resourceGroupRule)
 
-		// TODO: need to implement
+		name := chi.URLParam(r, "resourceGroupRuleName")
+		if len(name) == 0 {
+			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			return
+		}
+
+		logger.Info("Deleting resourceGroupRule...", "resourceGroupRule", name)
+
+		// Use the ResourceGroupManager to delete the resource group rule.
+		if err := resourceGroupMgr.DeleteResourceGroupRule(ctx, name); err != nil {
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
+		}
+
+		// Render a success response.
+		render.JSON(w, r, handler.SuccessResponse(ctx, "ResourceGroupRule deleted successfully"))
 	}
 }

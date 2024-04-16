@@ -47,7 +47,7 @@ const (
 
 // SyncReconciler is the main structure that holds the state and dependencies for the multi-cluster syncer reconciler.
 type SyncReconciler struct {
-	storage storage.Storage
+	storage storage.ResourceStorage
 
 	client     client.Client
 	controller controller.Controller
@@ -55,7 +55,7 @@ type SyncReconciler struct {
 }
 
 // NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
-func NewSyncReconciler(storage storage.Storage) *SyncReconciler {
+func NewSyncReconciler(storage storage.ResourceStorage) *SyncReconciler {
 	return &SyncReconciler{storage: storage}
 }
 

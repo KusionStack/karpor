@@ -19,8 +19,10 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -33,12 +35,41 @@ const (
 	SQLPatternType = "sql"
 )
 
-// Storage interface defines the basic operations for resource storage.
+// ResourceStorage interface defines the basic operations for storage.
 type Storage interface {
-	Get(ctx context.Context, cluster string, obj runtime.Object) error
-	Save(ctx context.Context, cluster string, obj runtime.Object) error
-	Delete(ctx context.Context, cluster string, obj runtime.Object) error
+	ResourceStorage
+	ResourceGroupRuleStorage
+	SearchStorage
+}
+
+// ResourceStorage interface defines the basic operations for resource storage.
+type ResourceStorage interface {
+	GetResource(ctx context.Context, cluster string, obj runtime.Object) error
+	SaveResource(ctx context.Context, cluster string, obj runtime.Object) error
+	DeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
 	DeleteAllResources(ctx context.Context, cluster string) error
+}
+
+// ResourceGroupRuleStorage interface defines the basic operations for resource
+// group rule storage.
+type ResourceGroupRuleStorage interface {
+	GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error)
+	SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error
+	DeleteResourceGroupRule(ctx context.Context, name string) error
+	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
+}
+
+// Storage interface defines the basic operations for resource storage.
+type SearchStorage interface {
+	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
+}
+
+type SearchStorageGetter interface {
+	GetSearchStorage() (SearchStorage, error)
+}
+
+type ResourceGroupRuleStorageGetter interface {
+	GetResourceGroupRuleStorage() (ResourceGroupRuleStorage, error)
 }
 
 // Query represents the query parameters for searching resources.
@@ -52,17 +83,6 @@ type Query struct {
 type Pagination struct {
 	Page     int
 	PageSize int
-}
-
-// Storage interface defines the basic operations for resource storage.
-type SearchStorage interface {
-	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
-	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
-	AggregateByTerms(ctx context.Context, keys []string) (*AggregateResults, error)
-}
-
-type SearchStorageGetter interface {
-	GetSearchStorage() (SearchStorage, error)
 }
 
 // SearchResult contains the search results and total count.
@@ -169,5 +189,18 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 		return nil, err
 	}
 	out.Object = obj.Object
+	return out, nil
+}
+
+// Map2ResourceGroupRule converts a map to a ResourceGroupRule object.
+func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule, error) {
+	out := &entity.ResourceGroupRule{}
+	out.ID = in["id"].(string)
+	out.Name = in["name"].(string)
+	out.Description = in["description"].(string)
+	out.Fields = in["fields"].([]string)
+	out.CreatedAt = in["createdAt"].(time.Time)
+	out.DeletedAt = in["deletedAt"].(time.Time)
+	out.UpdatedAt = in["updatedAt"].(time.Time)
 	return out, nil
 }

@@ -65,11 +65,20 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	resourceGroupRuleStorage, err := search.NewResourceGroupRuleStorage(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
+
 	insightMgr, err := insightmanager.NewInsightManager(searchStorage)
 	if err != nil {
 		return nil, err
 	}
-	resourceGroupMgr := resourcegroupmanager.NewResourceGroupManager(searchStorage)
+	resourceGroupMgr, err := resourcegroupmanager.NewResourceGroupManager(resourceGroupRuleStorage)
+	if err != nil {
+		return nil, err
+	}
+
 	clusterMgr := clustermanager.NewClusterManager()
 	searchMgr := searchmanager.NewSearchManager()
 
@@ -132,13 +141,11 @@ func setupRestAPIV1(
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {
-		r.Route("/{resourceGroupRuleName}", func(r chi.Router) {
-			r.Get("/", resourcegrouprulehandler.Get(resourceGroupMgr))
-			r.Post("/", resourcegrouprulehandler.Create(resourceGroupMgr))
-			r.Put("/", resourcegrouprulehandler.Update(resourceGroupMgr))
-			r.Delete("/", resourcegrouprulehandler.Delete(resourceGroupMgr))
-		})
+		r.Get("/{resourceGroupRuleName}", resourcegrouprulehandler.Get(resourceGroupMgr))
+		r.Post("/", resourcegrouprulehandler.Create(resourceGroupMgr))
+		r.Put("/", resourcegrouprulehandler.Update(resourceGroupMgr))
+		r.Delete("/{resourceGroupRuleName}", resourcegrouprulehandler.Delete(resourceGroupMgr))
 	})
-	r.Get("/resource-group/{resourceGroupName}", resourcegrouphandler.Get(resourceGroupMgr))
-	r.Get("/resource-groups/", resourcegrouphandler.List(resourceGroupMgr))
+	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
+	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
 }
