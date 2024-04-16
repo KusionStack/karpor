@@ -51,11 +51,6 @@ type ResourceGroup struct {
 
 // NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
 func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
-	cluster := r.URL.Query().Get("cluster")
-	if cluster == "" {
-		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
-	}
-
 	apiVersion := r.URL.Query().Get("apiVersion")
 	if r.URL.RawPath != "" {
 		apiVersion, _ = url.PathUnescape(apiVersion)

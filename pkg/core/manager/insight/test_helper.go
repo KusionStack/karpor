@@ -93,7 +93,9 @@ func (m *mockResource) List(ctx context.Context, opts metav1.ListOptions) (*unst
 
 // mockSearchStorage is an in-memory implementation of the SearchStorage
 // interface for testing purposes.
-type mockSearchStorage struct{}
+type mockSearchStorage struct {
+	storage.SearchStorage
+}
 
 // Search implements the search operation returning a single mock resource.
 func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
