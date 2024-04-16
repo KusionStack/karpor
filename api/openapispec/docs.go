@@ -1446,7 +1446,7 @@ var doc = `{
                 "tags": [
                     "resourcegroup"
                 ],
-                "summary": "List lists all ResourceGroups.",
+                "summary": "List lists all ResourceGroups by rule name.",
                 "parameters": [
                     {
                         "type": "string",

@@ -69,7 +69,7 @@
 
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
-| GET | /rest-api/v1/resource-groups/{resourceGroupRuleName} | [get rest API v1 resource groups resource group rule name](#get-rest-api-v1-resource-groups-resource-group-rule-name) | List lists all ResourceGroups. |
+| GET | /rest-api/v1/resource-groups/{resourceGroupRuleName} | [get rest API v1 resource groups resource group rule name](#get-rest-api-v1-resource-groups-resource-group-rule-name) | List lists all ResourceGroups by rule name. |
   
 
 
@@ -1267,7 +1267,7 @@ Status: Internal Server Error
 
 
 
-### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name"></span> List lists all ResourceGroups. (*GetRestAPIV1ResourceGroupsResourceGroupRuleName*)
+### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name"></span> List lists all ResourceGroups by rule name. (*GetRestAPIV1ResourceGroupsResourceGroupRuleName*)
 
 ```
 GET /rest-api/v1/resource-groups/{resourceGroupRuleName}

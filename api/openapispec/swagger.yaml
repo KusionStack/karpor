@@ -1158,7 +1158,7 @@ paths:
           description: Internal Server Error
           schema:
             type: string
-      summary: List lists all ResourceGroups.
+      summary: List lists all ResourceGroups by rule name.
       tags:
       - resourcegroup
   /rest-api/v1/search:
