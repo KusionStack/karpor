@@ -29,14 +29,20 @@ definitions:
     type: object
   entity.ResourceGroup:
     properties:
+      annotations:
+        additionalProperties:
+          type: string
+        type: object
       apiVersion:
         type: string
       cluster:
         type: string
-      customResourceGroup:
-        type: string
       kind:
         type: string
+      labels:
+        additionalProperties:
+          type: string
+        type: object
       name:
         type: string
       namespace:

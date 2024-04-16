@@ -2063,10 +2063,11 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| annotations | map of string| `map[string]string` |  | |  |  |
 | apiVersion | string| `string` |  | |  |  |
 | cluster | string| `string` |  | |  |  |
-| customResourceGroup | string| `string` |  | |  |  |
 | kind | string| `string` |  | |  |  |
+| labels | map of string| `map[string]string` |  | |  |  |
 | name | string| `string` |  | |  |  |
 | namespace | string| `string` |  | |  |  |
 

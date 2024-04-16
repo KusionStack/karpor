@@ -1637,17 +1637,26 @@ var doc = `{
         "entity.ResourceGroup": {
             "type": "object",
             "properties": {
+                "annotations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "apiVersion": {
                     "type": "string"
                 },
                 "cluster": {
                     "type": "string"
                 },
-                "customResourceGroup": {
-                    "type": "string"
-                },
                 "kind": {
                     "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "name": {
                     "type": "string"
