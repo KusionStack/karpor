@@ -36,7 +36,7 @@ func (i *InsightManager) Audit(ctx context.Context, resourceGroup entity.Resourc
 		log.Info("Scan without cache for resourceGroup", "resourceGroup", resourceGroup)
 		return i.scanFor(ctx, resourceGroup, true)
 	} else {
-		if auditData, exist := i.scanCache.Get(resourceGroup); exist {
+		if auditData, exist := i.scanCache.Get(resourceGroup.Hash()); exist {
 			log.Info("Cache hit for resourceGroup", "resourceGroup", resourceGroup)
 			return auditData, nil
 		} else {
@@ -126,7 +126,7 @@ func (i *InsightManager) scanFor(ctx context.Context, resourceGroup entity.Resou
 		pageIteration++
 	}
 
-	i.scanCache.Set(resourceGroup, result)
+	i.scanCache.Set(resourceGroup.Hash(), result)
 	log.Info("Added data to cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return result, nil

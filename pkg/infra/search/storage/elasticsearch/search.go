@@ -20,8 +20,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/sql2es"
@@ -154,4 +156,29 @@ func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage
 		return nil, err
 	}
 	return convertAggregationResult(resp), nil
+}
+
+// ConvertResourceGroup2Map converts a ResourceGroup to a map[string]any.
+func ConvertResourceGroup2Map(rg *entity.ResourceGroup) map[string]any {
+	result := make(map[string]interface{})
+	v := reflect.ValueOf(rg).Elem()
+
+	// Iterate through the fields of the struct.
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Type().Field(i)
+		value := v.Field(i).Interface()
+
+		switch fieldValue := value.(type) {
+		case map[string]string:
+			// Handle the map field by iterating its keys and values.
+			for key, val := range fieldValue {
+				result[field.Name+"."+key] = val
+			}
+		default:
+			// For non-map fields, directly add them to the result map.
+			result[field.Name] = value
+		}
+	}
+
+	return result
 }

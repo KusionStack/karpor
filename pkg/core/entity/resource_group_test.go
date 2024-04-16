@@ -16,29 +16,82 @@ package entity
 
 import "testing"
 
-func TestSortCustomResourceGroup(t *testing.T) {
+func TestResourceGroupHash(t *testing.T) {
 	tests := []struct {
-		name    string
-		in      map[string]any
-		exp     string
-		wantErr bool
+		name         string
+		rg           ResourceGroup
+		wantHash     string
+		wantEqual    []ResourceGroup
+		wantNotEqual []ResourceGroup
 	}{
 		{
-			name:    "test1",
-			in:      map[string]any{"banana": 3, "apple": 5, "pear": 6, "orange": 2},
-			exp:     `{"apple":5,"banana":3,"orange":2,"pear":6}`,
-			wantErr: false,
+			name: "SingleResourceGroup",
+			rg: ResourceGroup{
+				Cluster:     "test-cluster",
+				APIVersion:  "v1",
+				Kind:        "Pod",
+				Namespace:   "default",
+				Name:        "test-pod",
+				Labels:      map[string]string{"app": "myapp", "env": "dev"},
+				Annotations: map[string]string{"note": "test"},
+			},
+			wantHash: "test-clusterv1Poddefaulttest-podappmyappenvdevnotetest",
+		},
+		{
+			name: "ResourceGroupWithDifferentLabels",
+			rg: ResourceGroup{
+				Cluster:     "test-cluster",
+				APIVersion:  "v1",
+				Kind:        "Pod",
+				Namespace:   "default",
+				Name:        "test-pod",
+				Labels:      map[string]string{"env": "prod", "app": "myapp"},
+				Annotations: map[string]string{"note": "test"},
+			},
+			wantHash: "test-clusterv1Poddefaulttest-podappmyappenvprodnotetest",
+			wantEqual: []ResourceGroup{
+				{
+					Cluster:     "test-cluster",
+					APIVersion:  "v1",
+					Kind:        "Pod",
+					Namespace:   "default",
+					Name:        "test-pod",
+					Labels:      map[string]string{"app": "myapp", "env": "prod"},
+					Annotations: map[string]string{"note": "test"},
+				},
+			},
+			wantNotEqual: []ResourceGroup{
+				{
+					Cluster:     "test-cluster",
+					APIVersion:  "v1",
+					Kind:        "Pod",
+					Namespace:   "default",
+					Name:        "test-pod",
+					Labels:      map[string]string{"env": "staging"},
+					Annotations: map[string]string{"note": "test"},
+				},
+			},
 		},
 	}
+
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := SortCustomResourceGroup(tt.in)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("SortCustomResourceGroup() error = %v, wantErr %v", err, tt.wantErr)
-				return
+			gotHash := tt.rg.Hash()
+
+			if string(gotHash) != tt.wantHash {
+				t.Errorf("Hash() = %v, want %v", gotHash, tt.wantHash)
 			}
-			if got != tt.exp {
-				t.Errorf("SortCustomResourceGroup() got = %v, want %v", got, tt.exp)
+
+			for _, equalRg := range tt.wantEqual {
+				if gotHash != equalRg.Hash() {
+					t.Errorf("Hash() of %v should be equal to %v", equalRg, tt.rg)
+				}
+			}
+
+			for _, notEqualRg := range tt.wantNotEqual {
+				if gotHash == notEqualRg.Hash() {
+					t.Errorf("Hash() of %v should not be equal to %v", notEqualRg, tt.rg)
+				}
 			}
 		})
 	}

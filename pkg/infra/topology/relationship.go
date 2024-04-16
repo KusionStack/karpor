@@ -25,6 +25,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
@@ -280,21 +281,21 @@ func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.Di
 }
 
 // CountRelationshipGraphByCustomResourceGroup returns the same RelationshipGraph with the count for each custom resource group
-func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx context.Context, cl storage.SearchStorage, customResourceGroup string, name string) (*RelationshipGraph, error) {
+func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx context.Context, cl storage.SearchStorage, resourceGroup *entity.ResourceGroup, name string) (*RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
-	crg, err := entity.ParseCustomResourceGroup(customResourceGroup)
-	if err != nil {
-		return nil, err
+	if len(resourceGroup.Kind) != 0 {
+		return &RelationshipGraph{
+			RelationshipNodes: []*RelationshipGraphNode{},
+		}, nil
+	}
+	if len(resourceGroup.APIVersion) != 0 {
+		return nil, errors.New("apiVersion should be empty")
 	}
 	for _, node := range rg.RelationshipNodes {
-		kvs := map[string]any{
-			"apiVersion": schema.GroupVersion{Group: node.Group, Version: node.Version}.String(),
-			"kind":       node.Kind,
-			"cluster":    name,
-		}
-		for k, v := range crg {
-			kvs[k] = v
-		}
+		kvs := elasticsearch.ConvertResourceGroup2Map(resourceGroup)
+		kvs["apiVersion"] = schema.GroupVersion{Group: node.Group, Version: node.Version}.String()
+		kvs["kind"] = node.Kind
+		kvs["cluster"] = name
 		sr, err := cl.SearchByTerms(ctx, kvs, nil)
 		if err != nil {
 			return rg, err

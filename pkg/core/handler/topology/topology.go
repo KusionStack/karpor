@@ -78,12 +78,17 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 		}
 
 		switch resourceGroupType {
-		case entity.CustomResourceGroup:
+		case entity.Custom:
 			client, err = multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, "")
 			handler.HandleResult(w, r, ctx, err, nil)
-			clusterNames, err := clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
+			var clusterNames []string
+			if len(resourceGroup.Cluster) == 0 {
+				clusterNames, err = clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
+			} else {
+				clusterNames = []string{resourceGroup.Cluster}
+			}
 			handler.HandleResult(w, r, ctx, err, nil)
-			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(r.Context(), client, resourceGroup.CustomResourceGroup, clusterNames, forceNew)
+			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(ctx, client, &resourceGroup, clusterNames, forceNew)
 			handler.HandleResult(w, r, ctx, err, customResourceTopologyMap)
 		case entity.Resource, entity.NonNamespacedResource:
 			resourceTopologyMap, err := insightMgr.GetTopologyForResource(ctx, client, &resourceGroup, forceNew)

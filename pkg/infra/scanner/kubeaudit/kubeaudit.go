@@ -47,7 +47,7 @@ var _ scanner.KubeScanner = &kubeauditScanner{}
 type kubeauditScanner struct {
 	kubeAuditor    *kubeauditpkg.Kubeaudit
 	attentionLevel scanner.IssueSeverityLevel
-	c              *cache.Cache[entity.ResourceGroup, scanner.ScanResult]
+	c              *cache.Cache[entity.ResourceGroupHash, scanner.ScanResult]
 }
 
 // New creates a new instance of a kubeaudit-based scanner with the specified
@@ -80,7 +80,7 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	return &kubeauditScanner{
 		kubeAuditor:    kubeAuditor,
 		attentionLevel: attentionLevel,
-		c:              cache.NewCache[entity.ResourceGroup, scanner.ScanResult](defaultExpiration),
+		c:              cache.NewCache[entity.ResourceGroupHash, scanner.ScanResult](defaultExpiration),
 	}, nil
 }
 
@@ -153,7 +153,7 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resou
 	if noCache {
 		return s.scanManifestFor(ctx, resource, manifest)
 	} else {
-		if scanResult, exist := s.c.Get(resource.ResourceGroup); exist {
+		if scanResult, exist := s.c.Get(resource.ResourceGroup.Hash()); exist {
 			return scanResult, nil
 		} else {
 			return s.scanManifestFor(ctx, resource, manifest)
@@ -187,7 +187,7 @@ func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storag
 		}
 	}
 	r.add(resource, issues)
-	s.c.Set(resource.ResourceGroup, r)
+	s.c.Set(resource.ResourceGroup.Hash(), r)
 
 	return r, nil
 }

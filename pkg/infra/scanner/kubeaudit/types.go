@@ -27,17 +27,17 @@ var _ scanner.ScanResult = &scanResult{}
 // scanResult implements the scanner.ScanResult interface and represents the
 // result of scanning Kubernetes resources.
 type scanResult struct {
-	issueResourceMap  map[scanner.Issue]scanner.ResourceList   // Map of issues to resources
-	resourceIssueMap  map[entity.ResourceGroup]scanner.IssueList // Map of resources to issues
-	resourceGroupMap  map[entity.ResourceGroup]*storage.Resource // Map of resourceGroup to resources
-	relationshipExist map[relationship]struct{}                // Map to track relationships
-	lock              sync.RWMutex                             // Mutex for concurrent access
+	issueResourceMap  map[scanner.Issue]scanner.ResourceList         // Map of issues to resources
+	resourceIssueMap  map[entity.ResourceGroupHash]scanner.IssueList // Map of resources to issues
+	resourceGroupMap  map[entity.ResourceGroupHash]*storage.Resource // Map of resourceGroup to resources
+	relationshipExist map[relationship]struct{}                      // Map to track relationships
+	lock              sync.RWMutex                                   // Mutex for concurrent access
 }
 
 // relationship represents the relationship between an issue and a resourceGroups.
 type relationship struct {
 	scanner.Issue
-	entity.ResourceGroup
+	entity.ResourceGroupHash
 }
 
 // NewScanResult creates a new instance of scanResult.
@@ -49,8 +49,8 @@ func NewScanResult() scanner.ScanResult {
 func newScanResult() *scanResult {
 	return &scanResult{
 		issueResourceMap:  make(map[scanner.Issue]scanner.ResourceList),
-		resourceIssueMap:  make(map[entity.ResourceGroup]scanner.IssueList),
-		resourceGroupMap:  make(map[entity.ResourceGroup]*storage.Resource),
+		resourceIssueMap:  make(map[entity.ResourceGroupHash]scanner.IssueList),
+		resourceGroupMap:  make(map[entity.ResourceGroupHash]*storage.Resource),
 		relationshipExist: map[relationship]struct{}{},
 		lock:              sync.RWMutex{},
 	}
@@ -62,7 +62,7 @@ func (sr *scanResult) ByIssue() map[scanner.Issue]scanner.ResourceList {
 }
 
 // ByResource returns the map of resources to issues.
-func (sr *scanResult) ByResource() map[entity.ResourceGroup]scanner.IssueList {
+func (sr *scanResult) ByResource() map[entity.ResourceGroupHash]scanner.IssueList {
 	return sr.resourceIssueMap
 }
 
@@ -126,12 +126,12 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issues = make([]*scanner.Issue, 0)
 	}
 
-	if _, exist := sr.resourceGroupMap[resource.ResourceGroup]; !exist {
-		sr.resourceGroupMap[resource.ResourceGroup] = resource
+	if _, exist := sr.resourceGroupMap[resource.ResourceGroup.Hash()]; !exist {
+		sr.resourceGroupMap[resource.ResourceGroup.Hash()] = resource
 	}
 
-	if _, ok := sr.resourceIssueMap[resource.ResourceGroup]; !ok {
-		sr.resourceIssueMap[resource.ResourceGroup] = make([]*scanner.Issue, 0)
+	if _, ok := sr.resourceIssueMap[resource.ResourceGroup.Hash()]; !ok {
+		sr.resourceIssueMap[resource.ResourceGroup.Hash()] = make([]*scanner.Issue, 0)
 	}
 
 	for _, issue := range issues {
@@ -144,15 +144,15 @@ func (sr *scanResult) add(resource *storage.Resource, issues []*scanner.Issue) {
 		issue := issues[i]
 
 		rel := relationship{
-			Issue:         *issue,
-			ResourceGroup: resource.ResourceGroup,
+			Issue:             *issue,
+			ResourceGroupHash: resource.ResourceGroup.Hash(),
 		}
 
 		if _, exist := sr.relationshipExist[rel]; exist {
 			continue
 		}
 
-		sr.resourceIssueMap[resource.ResourceGroup] = append(sr.resourceIssueMap[resource.ResourceGroup], issue)
+		sr.resourceIssueMap[resource.ResourceGroup.Hash()] = append(sr.resourceIssueMap[resource.ResourceGroup.Hash()], issue)
 		sr.issueResourceMap[*issue] = append(sr.issueResourceMap[*issue], resource)
 		sr.relationshipExist[rel] = struct{}{}
 	}

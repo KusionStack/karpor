@@ -15,18 +15,19 @@
 package entity
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/url"
 	"sort"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
-// ResourceGroupType represents the type of a ResourceGroup.
-type ResourceGroupType int
+type (
+	// ResourceGroupType represents the type of a ResourceGroup.
+	ResourceGroupType int
+	// ResourceGroupType represents the hash value of a ResourceGroup.
+	ResourceGroupHash string
+)
 
 // Enumerated constants representing different types of ResourceGroups.
 const (
@@ -36,72 +37,82 @@ const (
 	ClusterGVKNamespace
 	Resource
 	NonNamespacedResource
-	CustomResourceGroup
+	Custom
 )
 
 // ResourceGroup represents information required to locate a resource or multi resources.
 type ResourceGroup struct {
-	Cluster             string `json:"cluster" yaml:"cluster"`
-	APIVersion          string `json:"apiVersion" yaml:"apiVersion"`
-	Kind                string `json:"kind" yaml:"kind"`
-	Namespace           string `json:"namespace" yaml:"namespace"`
-	Name                string `json:"name" yaml:"name"`
-	CustomResourceGroup string `json:"customResourceGroup" yaml:"customResourceGroup"`
+	Cluster     string            `json:"cluster,omitempty" yaml:"cluster,omitempty"`
+	APIVersion  string            `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
+	Kind        string            `json:"kind,omitempty" yaml:"kind,omitempty"`
+	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
+	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
-// NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
-func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
-	apiVersion := r.URL.Query().Get("apiVersion")
-	if r.URL.RawPath != "" {
-		apiVersion, _ = url.PathUnescape(apiVersion)
+// Hash returns a unique string representation of the ResourceGroup that can be
+// used as a cache key.
+func (rg *ResourceGroup) Hash() ResourceGroupHash {
+	// Create a slice of keys from the Labels map and sort them to ensure
+	// consistent ordering.
+	var labelKeys []string
+	for k := range rg.Labels {
+		labelKeys = append(labelKeys, k)
+	}
+	sort.Strings(labelKeys)
+
+	// Create a slice of keys from the Annotations map and sort them to ensure
+	// consistent ordering.
+	var annotationKeys []string
+	for k := range rg.Annotations {
+		annotationKeys = append(annotationKeys, k)
+	}
+	sort.Strings(annotationKeys)
+
+	// Create a hash from the sorted keys and values of Labels and Annotations.
+	var hash strings.Builder
+	hash.WriteString(rg.Cluster)
+	hash.WriteString(rg.APIVersion)
+	hash.WriteString(rg.Kind)
+	hash.WriteString(rg.Namespace)
+	hash.WriteString(rg.Name)
+	for _, k := range labelKeys {
+		hash.WriteString(k)
+		hash.WriteString(rg.Labels[k])
+	}
+	for _, k := range annotationKeys {
+		hash.WriteString(k)
+		hash.WriteString(rg.Annotations[k])
 	}
 
-	customResourceGroup := r.URL.Query().Get("customResourceGroup")
-	if customResourceGroup != "" {
-		crg, err := ParseCustomResourceGroup(customResourceGroup)
-		if err != nil {
-			return ResourceGroup{}, errors.Wrap(err, "failed to parse custom resource group")
-		}
-		// The custom resource group will be used as the key for caching, so it needs to be sorted to ensure uniqueness.
-		customResourceGroup, err = SortCustomResourceGroup(crg)
-		if err != nil {
-			return ResourceGroup{}, errors.Wrap(err, "failed to sort custom resource group")
-		}
-	}
-
-	cluster := r.URL.Query().Get("cluster")
-	if customResourceGroup == "" && cluster == "" {
-		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
-	}
-
-	return ResourceGroup{
-		APIVersion:          apiVersion,
-		Cluster:             cluster,
-		Kind:                r.URL.Query().Get("kind"),
-		Namespace:           r.URL.Query().Get("namespace"),
-		Name:                r.URL.Query().Get("name"),
-		CustomResourceGroup: customResourceGroup,
-	}, nil
+	return ResourceGroupHash(hash.String())
 }
 
 // ToSQL generates a SQL query string based on the ResourceGroup.
-func (c *ResourceGroup) ToSQL() string {
+func (rg *ResourceGroup) ToSQL() string {
 	var conditions []string
 
-	if c.Cluster != "" {
-		conditions = append(conditions, fmt.Sprintf("cluster='%s'", c.Cluster))
+	if rg.Cluster != "" {
+		conditions = append(conditions, fmt.Sprintf("cluster='%s'", rg.Cluster))
 	}
-	if c.APIVersion != "" {
-		conditions = append(conditions, fmt.Sprintf("apiVersion='%s'", c.APIVersion))
+	if rg.APIVersion != "" {
+		conditions = append(conditions, fmt.Sprintf("apiVersion='%s'", rg.APIVersion))
 	}
-	if c.Kind != "" {
-		conditions = append(conditions, fmt.Sprintf("kind='%s'", c.Kind))
+	if rg.Kind != "" {
+		conditions = append(conditions, fmt.Sprintf("kind='%s'", rg.Kind))
 	}
-	if c.Namespace != "" {
-		conditions = append(conditions, fmt.Sprintf("namespace='%s'", c.Namespace))
+	if rg.Namespace != "" {
+		conditions = append(conditions, fmt.Sprintf("namespace='%s'", rg.Namespace))
 	}
-	if c.Name != "" {
-		conditions = append(conditions, fmt.Sprintf("name='%s'", c.Name))
+	if rg.Name != "" {
+		conditions = append(conditions, fmt.Sprintf("name='%s'", rg.Name))
+	}
+	for k, v := range rg.Annotations {
+		conditions = append(conditions, fmt.Sprintf("`annotations.%s`='%s'", k, v))
+	}
+	for k, v := range rg.Labels {
+		conditions = append(conditions, fmt.Sprintf("`labels.%s`='%s'", k, v))
 	}
 
 	if len(conditions) > 0 {
@@ -112,63 +123,79 @@ func (c *ResourceGroup) ToSQL() string {
 }
 
 // GetType returns the type of ResourceGroup and a boolean indicating success.
-func (c *ResourceGroup) GetType() (ResourceGroupType, bool) {
-	if c.CustomResourceGroup != "" {
-		return CustomResourceGroup, true
+func (rg *ResourceGroup) GetType() (ResourceGroupType, bool) {
+	if len(rg.Labels) != 0 || len(rg.Annotations) != 0 {
+		return Custom, true
 	}
-	if c.Cluster == "" {
+	if rg.Cluster == "" {
 		return -1, false
 	}
-	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" && c.Name != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace != "" && rg.Name != "" {
 		return Resource, true
 	}
-	if c.APIVersion != "" && c.Kind != "" && c.Name != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Name != "" {
 		return NonNamespacedResource, true
 	}
-	if c.APIVersion != "" && c.Kind != "" && c.Namespace != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace != "" {
 		return ClusterGVKNamespace, true
 	}
-	if c.APIVersion != "" && c.Kind != "" {
+	if rg.APIVersion != "" && rg.Kind != "" {
 		return GVK, true
 	}
-	if c.Namespace != "" {
+	if rg.Namespace != "" {
 		// TODO: what if only apiversion is present but kind is not?
 		return Namespace, true
 	}
 	return Cluster, true
 }
 
-// ParseCustomResourceGroup deserialize the input JSON string to a map
-func ParseCustomResourceGroup(jsonStr string) (map[string]any, error) {
-	var m map[string]interface{}
-	if err := json.Unmarshal([]byte(jsonStr), &m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-// SortCustomResourceGroup takes a map[string]interface{} and returns a JSON string with sorted keys.
-func SortCustomResourceGroup(m map[string]any) (string, error) {
-	// Extract all keys from the map
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
+// NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
+//
+// Examples:
+// - url?apiVersion=v1&kind=Pod&labels=app.kubernetes.io/name=mockapp,env=prod
+func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
+	// Parse the query parameters.
+	labelsRaw := r.URL.Query().Get("labels")
+	annotationsRaw := r.URL.Query().Get("annotations")
+	cluster := r.URL.Query().Get("cluster")
+	apiVersion := r.URL.Query().Get("apiVersion")
+	if r.URL.RawPath != "" {
+		apiVersion, _ = url.PathUnescape(apiVersion)
 	}
 
-	// Sort the keys
-	sort.Strings(keys)
-
-	// Create a sorted map
-	sortedMap := make(map[string]any, len(m))
-	for _, k := range keys {
-		sortedMap[k] = m[k]
+	// Convert the raw query parameters to maps.
+	var labels map[string]string
+	var annotations map[string]string
+	if len(labelsRaw) > 0 {
+		labels = make(map[string]string)
+		// Each label is expected to be in the format "key=value".
+		parts := strings.SplitN(labelsRaw, "=", 2)
+		if len(parts) == 2 {
+			labels[parts[0]] = parts[1]
+		}
+	}
+	if len(annotationsRaw) > 0 {
+		annotations = make(map[string]string)
+		// Each annotation is expected to be in the format "key=value".
+		parts := strings.SplitN(annotationsRaw, "=", 2)
+		if len(parts) == 2 {
+			annotations[parts[0]] = parts[1]
+		}
 	}
 
-	// Serialize the sorted map to a JSON string
-	sortedJSON, err := json.Marshal(sortedMap)
-	if err != nil {
-		return "", err
+	// Construct a resource group instance.
+	rg := ResourceGroup{
+		Cluster:     cluster,
+		APIVersion:  apiVersion,
+		Kind:        r.URL.Query().Get("kind"),
+		Namespace:   r.URL.Query().Get("namespace"),
+		Name:        r.URL.Query().Get("name"),
+		Labels:      labels,
+		Annotations: annotations,
 	}
 
-	return string(sortedJSON), nil
+	if rgType, _ := rg.GetType(); rgType == Custom && cluster == "" {
+		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
+	}
+	return rg, nil
 }

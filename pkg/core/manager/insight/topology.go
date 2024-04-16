@@ -32,13 +32,13 @@ import (
 func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	resourceGroup := entity.ResourceGroup{
+	resourceGroup := &entity.ResourceGroup{
 		Cluster: name,
 	}
 
 	// If noCache is set to false, attempt to retrieve the result from cache first
 	if !noCache {
-		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup); exist {
+		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup.Hash()); exist {
 			log.Info("Cache hit for cluster topology", "resourceGroup", resourceGroup)
 			return topologyData, nil
 		}
@@ -56,7 +56,7 @@ func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 	}
 
 	clusterTopologyMap := i.ConvertGraphToMap(rg, resourceGroup)
-	i.clusterTopologyCache.Set(resourceGroup, clusterTopologyMap)
+	i.clusterTopologyCache.Set(resourceGroup.Hash(), clusterTopologyMap)
 	log.Info("Added to cluster topology cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return clusterTopologyMap, nil
@@ -68,7 +68,7 @@ func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 
 	// If noCache is set to false, attempt to retrieve the result from cache first
 	if !noCache {
-		if topologyData, exist := i.resourceTopologyCache.Get(*resourceGroup); exist {
+		if topologyData, exist := i.resourceTopologyCache.Get(resourceGroup.Hash()); exist {
 			log.Info("Cache hit for resource topology", "resourceGroup", resourceGroup)
 			return topologyData, nil
 		}
@@ -107,7 +107,7 @@ func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *mul
 	}
 
 	topologyMap := i.ConvertResourceGraphToMap(g, *resourceGroup)
-	i.resourceTopologyCache.Set(*resourceGroup, topologyMap)
+	i.resourceTopologyCache.Set(resourceGroup.Hash(), topologyMap)
 	log.Info("Added to resource topology cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return topologyMap, nil
@@ -197,13 +197,13 @@ func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	resourceGroup := entity.ResourceGroup{
+	resourceGroup := &entity.ResourceGroup{
 		Cluster:   cluster,
 		Namespace: namespace,
 	}
 
 	if !noCache {
-		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup); exist {
+		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup.Hash()); exist {
 			log.Info("Cache hit for cluster topology", "resourceGroup", resourceGroup)
 			return topologyData, nil
 		}
@@ -221,17 +221,17 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 	}
 
 	namespaceTopologyMap := i.ConvertGraphToMap(rg, resourceGroup)
-	i.clusterTopologyCache.Set(resourceGroup, namespaceTopologyMap)
+	i.clusterTopologyCache.Set(resourceGroup.Hash(), namespaceTopologyMap)
 	log.Info("Added to cluster topology cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return namespaceTopologyMap, nil
 }
 
 // GetTopologyForCustomResourceGroup returns a map that describes topology for custom resource group
-func (i *InsightManager) GetTopologyForCustomResourceGroup(ctx context.Context, client *multicluster.MultiClusterClient, customResourceGroup string, clusters []string, noCache bool) (map[string]map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForCustomResourceGroup(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup, clusters []string, noCache bool) (map[string]map[string]ClusterTopology, error) {
 	result := map[string]map[string]ClusterTopology{}
 	for _, cluster := range clusters {
-		m, err := i.GetTopologyForCustomResourceGroupSingleCluster(ctx, client, customResourceGroup, cluster, noCache)
+		m, err := i.GetTopologyForCustomResourceGroupSingleCluster(ctx, client, resourceGroup, cluster, noCache)
 		if err != nil {
 			return nil, err
 		}
@@ -241,14 +241,12 @@ func (i *InsightManager) GetTopologyForCustomResourceGroup(ctx context.Context, 
 }
 
 // GetTopologyForCustomResourceGroupSingleCluster returns a map that describes topology for single cluster custom resource group
-func (i *InsightManager) GetTopologyForCustomResourceGroupSingleCluster(ctx context.Context, client *multicluster.MultiClusterClient, customResourceGroup string, cluster string, noCache bool) (map[string]ClusterTopology, error) {
+func (i *InsightManager) GetTopologyForCustomResourceGroupSingleCluster(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup, cluster string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
-
-	resourceGroup := entity.ResourceGroup{CustomResourceGroup: customResourceGroup, Cluster: cluster}
 
 	// If noCache is set to false, attempt to retrieve the result from cache first
 	if !noCache {
-		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup); exist {
+		if topologyData, exist := i.clusterTopologyCache.Get(resourceGroup.Hash()); exist {
 			log.Info("Cache hit for cluster topology", "resourceGroup", resourceGroup)
 			return topologyData, nil
 		}
@@ -260,31 +258,31 @@ func (i *InsightManager) GetTopologyForCustomResourceGroupSingleCluster(ctx cont
 	_, rg, _ := topology.BuildRelationshipGraph(ctx, client.DynamicClient)
 	// Count resources in all namespaces
 	log.Info("Retrieving topology for cluster", "clusterName", cluster)
-	rg, err := rg.CountRelationshipGraphByCustomResourceGroup(ctx, i.search, customResourceGroup, cluster)
+	rg, err := rg.CountRelationshipGraphByCustomResourceGroup(ctx, i.search, resourceGroup, cluster)
 	if err != nil {
 		return nil, err
 	}
 
 	clusterTopologyMap := i.ConvertGraphToMap(rg, resourceGroup)
-	i.clusterTopologyCache.Set(resourceGroup, clusterTopologyMap)
+	i.clusterTopologyCache.Set(resourceGroup.Hash(), clusterTopologyMap)
 	log.Info("Added to cluster topology cache for resourceGroup", "resourceGroup", resourceGroup)
 
 	return clusterTopologyMap, nil
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
-func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph, resourceGroup entity.ResourceGroup) map[string]ClusterTopology {
+func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph, resourceGroup *entity.ResourceGroup) map[string]ClusterTopology {
 	ctm := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {
 		rgnMap := rgn.ConvertToMap()
-		resourceGroup := entity.ResourceGroup{
+		newRG := entity.ResourceGroup{
 			Cluster:    resourceGroup.Cluster,
 			APIVersion: schema.GroupVersion{Group: rgn.Group, Version: rgn.Version}.String(),
 			Kind:       rgn.Kind,
 			Namespace:  resourceGroup.Namespace,
 		}
 		ctm[rgn.GetHash()] = ClusterTopology{
-			ResourceGroup: resourceGroup,
+			ResourceGroup: newRG,
 			Count:         rgn.ResourceCount,
 			Relationship:  rgnMap,
 		}
