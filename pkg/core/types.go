@@ -34,7 +34,7 @@ const (
 	NonNamespacedResource
 )
 
-// ResourceGroup represents information required to locate a resource.
+// ResourceGroup represents information required to locate a resource or multi resources.
 type ResourceGroup struct {
 	Cluster    string `json:"cluster" yaml:"cluster"`
 	APIVersion string `json:"apiVersion" yaml:"apiVersion"`
