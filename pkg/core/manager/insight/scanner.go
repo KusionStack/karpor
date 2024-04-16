@@ -18,7 +18,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
@@ -27,7 +27,7 @@ import (
 
 // Audit performs the audit on Kubernetes manifests with the specified resourceGroup
 // and returns the issues found during the audit.
-func (i *InsightManager) Audit(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
+func (i *InsightManager) Audit(ctx context.Context, resourceGroup entity.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting audit with specified condition in AuditManager ...")
@@ -49,7 +49,7 @@ func (i *InsightManager) Audit(ctx context.Context, resourceGroup core.ResourceG
 // Score calculates a score based on the severity and total number of issues
 // identified during the audit. It aggregates statistics on different severity
 // levels and generates a cumulative score.
-func (i *InsightManager) Score(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (*ScoreData, error) {
+func (i *InsightManager) Score(ctx context.Context, resourceGroup entity.ResourceGroup, noCache bool) (*ScoreData, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 	log.Info("Starting calculate score with specified issues list in AuditManager ...")
@@ -88,7 +88,7 @@ func (i *InsightManager) Score(ctx context.Context, resourceGroup core.ResourceG
 }
 
 // scanFor is a helper function that performs the actual scanning for the given resourceGroup using the context and returns the scan result and error.
-func (i *InsightManager) scanFor(ctx context.Context, resourceGroup core.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
+func (i *InsightManager) scanFor(ctx context.Context, resourceGroup entity.ResourceGroup, noCache bool) (scanner.ScanResult, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
 

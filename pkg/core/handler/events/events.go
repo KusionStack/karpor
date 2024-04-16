@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -53,40 +53,40 @@ func GetEvents(insightMgr *insight.InsightManager, c *server.CompletedConfig) ht
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		loc, err := core.NewResourceGroupFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting events for resourceGroup...", "resourceGroup", loc)
+		logger.Info("Getting events for resourceGroup...", "resourceGroup", resourceGroup)
 
-		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, resourceGroup.Cluster)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		locType, ok := loc.GetType()
+		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
-		switch locType {
-		case core.Resource, core.NonNamespacedResource:
-			resourceEvents, err := insightMgr.GetResourceEvents(r.Context(), client, &loc)
+		switch resourceGroupType {
+		case entity.Resource, entity.NonNamespacedResource:
+			resourceEvents, err := insightMgr.GetResourceEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, resourceEvents)
-		case core.Cluster:
-			clusterEvents, err := insightMgr.GetClusterEvents(r.Context(), client, &loc)
+		case entity.Cluster:
+			clusterEvents, err := insightMgr.GetClusterEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, clusterEvents)
-		case core.ClusterGVKNamespace:
-			clusterGVKEvents, err := insightMgr.GetNamespaceGVKEvents(r.Context(), client, &loc)
+		case entity.ClusterGVKNamespace:
+			clusterGVKEvents, err := insightMgr.GetNamespaceGVKEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, clusterGVKEvents)
-		case core.Namespace:
-			namespaceEvents, err := insightMgr.GetNamespaceEvents(r.Context(), client, &loc)
+		case entity.Namespace:
+			namespaceEvents, err := insightMgr.GetNamespaceEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, namespaceEvents)
-		case core.GVK:
-			gvkEvents, err := insightMgr.GetGVKEvents(r.Context(), client, &loc)
+		case entity.GVK:
+			gvkEvents, err := insightMgr.GetGVKEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, gvkEvents)
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))

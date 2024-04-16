@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/stretchr/testify/require"
 )
 
@@ -30,14 +30,14 @@ func TestInsightManager_Audit(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name          string
-		resourceGroup core.ResourceGroup
+		resourceGroup entity.ResourceGroup
 		noCache       bool
 		expectError   bool
 		expectedCount int
 	}{
 		{
 			name: "Audit with Cache Enabled",
-			resourceGroup: core.ResourceGroup{
+			resourceGroup: entity.ResourceGroup{
 				Cluster:    "test-cluster",
 				Namespace:  "test-namespace",
 				APIVersion: "v1",
@@ -50,7 +50,7 @@ func TestInsightManager_Audit(t *testing.T) {
 		},
 		{
 			name: "Audit with Cache Disabled",
-			resourceGroup: core.ResourceGroup{
+			resourceGroup: entity.ResourceGroup{
 				Cluster:    "test-cluster",
 				Namespace:  "test-namespace",
 				APIVersion: "v1",
@@ -92,7 +92,7 @@ func TestInsightManager_Score(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name                      string
-		resourceGroup             core.ResourceGroup
+		resourceGroup             entity.ResourceGroup
 		noCache                   bool
 		expectScore               int
 		expectResourceTotal       int
@@ -104,7 +104,7 @@ func TestInsightManager_Score(t *testing.T) {
 	}{
 		{
 			name:                      "Score Calculation with Cache Enabled",
-			resourceGroup:             core.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
+			resourceGroup:             entity.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
 			noCache:                   false,
 			expectScore:               17,
 			expectResourceTotal:       1,
@@ -116,7 +116,7 @@ func TestInsightManager_Score(t *testing.T) {
 		},
 		{
 			name:                      "Score Calculation with Cache Disabled",
-			resourceGroup:             core.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
+			resourceGroup:             entity.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
 			noCache:                   true,
 			expectScore:               17,
 			expectResourceTotal:       1,

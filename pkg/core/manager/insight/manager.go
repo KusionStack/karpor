@@ -17,7 +17,7 @@ package insight
 import (
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/scanner/kubeaudit"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
@@ -27,9 +27,9 @@ import (
 type InsightManager struct {
 	search                storage.SearchStorage
 	scanner               scanner.KubeScanner
-	scanCache             *cache.Cache[core.ResourceGroup, scanner.ScanResult]
-	clusterTopologyCache  *cache.Cache[core.ResourceGroup, map[string]ClusterTopology]
-	resourceTopologyCache *cache.Cache[core.ResourceGroup, map[string]ResourceTopology]
+	scanCache             *cache.Cache[entity.ResourceGroup, scanner.ScanResult]
+	clusterTopologyCache  *cache.Cache[entity.ResourceGroup, map[string]ClusterTopology]
+	resourceTopologyCache *cache.Cache[entity.ResourceGroup, map[string]ResourceTopology]
 }
 
 // NewInsightManager returns a new InsightManager object
@@ -45,8 +45,8 @@ func NewInsightManager(searchStorage storage.SearchStorage) (*InsightManager, er
 	return &InsightManager{
 		scanner:               kubeauditScanner,
 		search:                searchStorage,
-		scanCache:             cache.NewCache[core.ResourceGroup, scanner.ScanResult](defaultExpiration),
-		clusterTopologyCache:  cache.NewCache[core.ResourceGroup, map[string]ClusterTopology](defaultExpiration),
-		resourceTopologyCache: cache.NewCache[core.ResourceGroup, map[string]ResourceTopology](defaultExpiration),
+		scanCache:             cache.NewCache[entity.ResourceGroup, scanner.ScanResult](defaultExpiration),
+		clusterTopologyCache:  cache.NewCache[entity.ResourceGroup, map[string]ClusterTopology](defaultExpiration),
+		resourceTopologyCache: cache.NewCache[entity.ResourceGroup, map[string]ResourceTopology](defaultExpiration),
 	}, nil
 }

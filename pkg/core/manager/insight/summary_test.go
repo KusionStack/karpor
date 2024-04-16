@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/dynamic"
@@ -36,13 +36,13 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.ResourceGroup
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *ResourceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.ResourceGroup{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -50,7 +50,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 				Name:       "existing-configmap",
 			},
 			expectedResult: &ResourceSummary{
-				Resource: core.ResourceGroup{
+				Resource: entity.ResourceGroup{
 					Name:       "existing-configmap",
 					Namespace:  "default",
 					APIVersion: "v1",
@@ -66,7 +66,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResourceSummary method
-			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
@@ -95,13 +95,13 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.ResourceGroup
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *GVKSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.ResourceGroup{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -123,7 +123,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetGVKSummary method
-			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
@@ -152,13 +152,13 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.ResourceGroup
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *NamespaceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing Namespace",
-			loc: &core.ResourceGroup{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:   "existing-cluster",
 				Namespace: "default",
 			},
@@ -177,7 +177,7 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetNamespaceSummary method
-			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {

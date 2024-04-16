@@ -17,7 +17,7 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/infra/topology"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
@@ -32,7 +32,7 @@ import (
 func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	resourceGroup := core.ResourceGroup{
+	resourceGroup := entity.ResourceGroup{
 		Cluster: name,
 	}
 
@@ -63,7 +63,7 @@ func (i *InsightManager) GetTopologyForCluster(ctx context.Context, client *mult
 }
 
 // GetTopologyForResource returns a map that describes topology for a given cluster
-func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *core.ResourceGroup, noCache bool) (map[string]ResourceTopology, error) {
+func (i *InsightManager) GetTopologyForResource(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup, noCache bool) (map[string]ResourceTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// If noCache is set to false, attempt to retrieve the result from cache first
@@ -154,7 +154,7 @@ func (i *InsightManager) GetResourceRelationship(ctx context.Context, client *mu
 }
 
 // ConvertResourceGraphToMap converts a resource graph to a map of ResourceTopology based on the given graph and resourceGroup.
-func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode], loc core.ResourceGroup) map[string]ResourceTopology {
+func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topology.ResourceGraphNode], resourceGroup entity.ResourceGroup) map[string]ResourceTopology {
 	rtm := make(map[string]ResourceTopology)
 	if g == nil {
 		return rtm
@@ -166,16 +166,16 @@ func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 			childList = append(childList, edgeTarget)
 		}
 		vertex, _ := g.Vertex(key)
-		resourceGroup := core.ResourceGroup{
-			Cluster:    loc.Cluster,
+		resourceGroup := entity.ResourceGroup{
+			Cluster:    resourceGroup.Cluster,
 			APIVersion: schema.GroupVersion{Group: vertex.Group, Version: vertex.Version}.String(),
 			Kind:       vertex.Kind,
 			Namespace:  vertex.Namespace,
 			Name:       vertex.Name,
 		}
 		rtm[key] = ResourceTopology{
-			ResourceGroup:  resourceGroup,
-			Children: childList,
+			ResourceGroup: resourceGroup,
+			Children:      childList,
 		}
 	}
 
@@ -197,7 +197,7 @@ func (i *InsightManager) ConvertResourceGraphToMap(g graph.Graph[string, topolog
 func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, client *multicluster.MultiClusterClient, cluster, namespace string, noCache bool) (map[string]ClusterTopology, error) {
 	log := ctxutil.GetLogger(ctx)
 
-	resourceGroup := core.ResourceGroup{
+	resourceGroup := entity.ResourceGroup{
 		Cluster:   cluster,
 		Namespace: namespace,
 	}
@@ -228,15 +228,15 @@ func (i *InsightManager) GetTopologyForClusterNamespace(ctx context.Context, cli
 }
 
 // ConvertGraphToMap returns a map[string]ClusterTopology for a given relationship.RelationshipGraph
-func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph, loc core.ResourceGroup) map[string]ClusterTopology {
+func (i *InsightManager) ConvertGraphToMap(rg *topology.RelationshipGraph, resourceGroup entity.ResourceGroup) map[string]ClusterTopology {
 	ctm := make(map[string]ClusterTopology)
 	for _, rgn := range rg.RelationshipNodes {
 		rgnMap := rgn.ConvertToMap()
-		resourceGroup := core.ResourceGroup{
-			Cluster:    loc.Cluster,
+		resourceGroup := entity.ResourceGroup{
+			Cluster:    resourceGroup.Cluster,
 			APIVersion: schema.GroupVersion{Group: rgn.Group, Version: rgn.Version}.String(),
 			Kind:       rgn.Kind,
-			Namespace:  loc.Namespace,
+			Namespace:  resourceGroup.Namespace,
 		}
 		ctm[rgn.GetHash()] = ClusterTopology{
 			ResourceGroup: resourceGroup,

@@ -18,7 +18,7 @@ import (
 	"context"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -28,14 +28,14 @@ import (
 
 // GetResource returns the unstructured cluster object for a given cluster.
 func (i *InsightManager) GetResource(
-	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup,
+	ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup,
 ) (*unstructured.Unstructured, error) {
-	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
+	resourceGVR, err := topologyutil.GetGVRFromGVK(resourceGroup.APIVersion, resourceGroup.Kind)
 	if err != nil {
 		return nil, err
 	}
-	if strings.EqualFold(loc.Kind, "Secret") {
-		secret, err := client.DynamicClient.Resource(resourceGVR).Namespace(loc.Namespace).Get(ctx, loc.Name, metav1.GetOptions{})
+	if strings.EqualFold(resourceGroup.Kind, "Secret") {
+		secret, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
 		if err != nil {
 			return nil, err
 		}
@@ -43,15 +43,15 @@ func (i *InsightManager) GetResource(
 	}
 	return client.DynamicClient.
 		Resource(resourceGVR).
-		Namespace(loc.Namespace).
-		Get(ctx, loc.Name, metav1.GetOptions{})
+		Namespace(resourceGroup.Namespace).
+		Get(ctx, resourceGroup.Name, metav1.GetOptions{})
 }
 
 // GetYAMLForResource returns the yaml byte array for a given cluster
 func (i *InsightManager) GetYAMLForResource(
-	ctx context.Context, client *multicluster.MultiClusterClient, loc *core.ResourceGroup,
+	ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup,
 ) ([]byte, error) {
-	obj, err := i.GetResource(ctx, client, loc)
+	obj, err := i.GetResource(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}

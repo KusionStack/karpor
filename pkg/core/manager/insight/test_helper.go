@@ -17,7 +17,7 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -100,7 +100,7 @@ func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType
 	return &storage.SearchResult{
 		Total: 1,
 		Resources: []*storage.Resource{{
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -174,7 +174,7 @@ func newMockPod(namespace, name string) *unstructured.Unstructured {
 func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 	return map[string]ClusterTopology{
 		".v1.Node": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Node",
@@ -185,7 +185,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		".v1.PersistentVolume": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "PersistentVolume",
@@ -196,7 +196,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		".v1.PersistentVolumeClaim": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "PersistentVolumeClaim",
@@ -208,7 +208,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		".v1.Pod": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -225,7 +225,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		".v1.Secret": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Secret",
@@ -236,7 +236,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		".v1.Service": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Service",
@@ -247,7 +247,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
 				Kind:       "CafeDeployment",
@@ -258,7 +258,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
 				Kind:       "InPlaceSet",
@@ -270,7 +270,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		"apps.v1.Deployment": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps/v1",
 				Kind:       "Deployment",
@@ -281,7 +281,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		"apps.v1.ReplicaSet": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps/v1",
 				Kind:       "ReplicaSet",
@@ -293,7 +293,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 		},
 		"policy.v1beta1.PodDisruptionBudget": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "policy/v1beta1",
 				Kind:       "PodDisruptionBudget",
@@ -310,7 +310,7 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 	return map[string]ClusterTopology{
 		".v1.Node": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Node",
@@ -322,7 +322,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		".v1.PersistentVolume": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "PersistentVolume",
@@ -334,7 +334,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		".v1.PersistentVolumeClaim": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "PersistentVolumeClaim",
@@ -347,7 +347,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		".v1.Pod": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -365,7 +365,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		".v1.Secret": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Secret",
@@ -377,7 +377,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		".v1.Service": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Service",
@@ -389,7 +389,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
 				Kind:       "CafeDeployment",
@@ -401,7 +401,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
 				Kind:       "InPlaceSet",
@@ -414,7 +414,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		"apps.v1.Deployment": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps/v1",
 				Kind:       "Deployment",
@@ -426,7 +426,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		"apps.v1.ReplicaSet": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "apps/v1",
 				Kind:       "ReplicaSet",
@@ -439,7 +439,7 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 		"policy.v1beta1.PodDisruptionBudget": {
-			ResourceGroup: core.ResourceGroup{
+			ResourceGroup: entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "policy/v1beta1",
 				Kind:       "PodDisruptionBudget",

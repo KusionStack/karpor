@@ -21,7 +21,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
@@ -102,15 +102,15 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 
 	// Test cases
 	testCases := []struct {
-		name        string
-		loc         *core.ResourceGroup
-		noCache     bool
-		expectedMap map[string]ResourceTopology
-		expectError bool
+		name          string
+		resourceGroup *entity.ResourceGroup
+		noCache       bool
+		expectedMap   map[string]ResourceTopology
+		expectError   bool
 	}{
 		{
 			name: "Success - Existing Pod",
-			loc: &core.ResourceGroup{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -120,7 +120,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 			noCache: true,
 			expectedMap: map[string]ResourceTopology{
 				"/v1.Pod:default.existing-pod": {
-					ResourceGroup: core.ResourceGroup{
+					ResourceGroup: entity.ResourceGroup{
 						Cluster:    "existing-cluster",
 						APIVersion: "v1",
 						Kind:       "Pod",
@@ -134,10 +134,10 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "Error - Non-existing cluster",
-			loc:         &core.ResourceGroup{},
-			noCache:     true,
-			expectError: true,
+			name:          "Error - Non-existing cluster",
+			resourceGroup: &entity.ResourceGroup{},
+			noCache:       true,
+			expectError:   true,
 		},
 	}
 
@@ -145,7 +145,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetTopologyForResource method
-			topologyMap, err := manager.GetTopologyForResource(context.Background(), mockMultiClusterClient(), tc.loc, tc.noCache)
+			topologyMap, err := manager.GetTopologyForResource(context.Background(), mockMultiClusterClient(), tc.resourceGroup, tc.noCache)
 
 			// Check error expectation
 			if tc.expectError {

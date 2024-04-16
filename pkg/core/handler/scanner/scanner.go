@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	_ "github.com/KusionStack/karbour/pkg/infra/scanner"
@@ -55,7 +55,7 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 		log.Info("Starting audit with specified resourceGroup in handler ...")
 
 		// Decode the query parameters into the resourceGroup.
-		resourceGroup, err := core.NewResourceGroupFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -109,7 +109,7 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 		log.Info("Starting calculate score with specified resourceGroup in handler...")
 
 		// Decode the query parameters into the resourceGroup.
-		resourceGroup, err := core.NewResourceGroupFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return

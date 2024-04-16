@@ -17,7 +17,7 @@ package kubeaudit
 import (
 	"sync"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 )
@@ -28,8 +28,8 @@ var _ scanner.ScanResult = &scanResult{}
 // result of scanning Kubernetes resources.
 type scanResult struct {
 	issueResourceMap  map[scanner.Issue]scanner.ResourceList   // Map of issues to resources
-	resourceIssueMap  map[core.ResourceGroup]scanner.IssueList // Map of resources to issues
-	resourceGroupMap  map[core.ResourceGroup]*storage.Resource // Map of resourceGroup to resources
+	resourceIssueMap  map[entity.ResourceGroup]scanner.IssueList // Map of resources to issues
+	resourceGroupMap  map[entity.ResourceGroup]*storage.Resource // Map of resourceGroup to resources
 	relationshipExist map[relationship]struct{}                // Map to track relationships
 	lock              sync.RWMutex                             // Mutex for concurrent access
 }
@@ -37,7 +37,7 @@ type scanResult struct {
 // relationship represents the relationship between an issue and a resourceGroups.
 type relationship struct {
 	scanner.Issue
-	core.ResourceGroup
+	entity.ResourceGroup
 }
 
 // NewScanResult creates a new instance of scanResult.
@@ -49,8 +49,8 @@ func NewScanResult() scanner.ScanResult {
 func newScanResult() *scanResult {
 	return &scanResult{
 		issueResourceMap:  make(map[scanner.Issue]scanner.ResourceList),
-		resourceIssueMap:  make(map[core.ResourceGroup]scanner.IssueList),
-		resourceGroupMap:  make(map[core.ResourceGroup]*storage.Resource),
+		resourceIssueMap:  make(map[entity.ResourceGroup]scanner.IssueList),
+		resourceGroupMap:  make(map[entity.ResourceGroup]*storage.Resource),
 		relationshipExist: map[relationship]struct{}{},
 		lock:              sync.RWMutex{},
 	}
@@ -62,7 +62,7 @@ func (sr *scanResult) ByIssue() map[scanner.Issue]scanner.ResourceList {
 }
 
 // ByResource returns the map of resources to issues.
-func (sr *scanResult) ByResource() map[core.ResourceGroup]scanner.IssueList {
+func (sr *scanResult) ByResource() map[entity.ResourceGroup]scanner.IssueList {
 	return sr.resourceIssueMap
 }
 

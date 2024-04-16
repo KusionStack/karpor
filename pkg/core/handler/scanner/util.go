@@ -17,7 +17,7 @@ package scanner
 import (
 	"sort"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 )
 
@@ -31,8 +31,8 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 	// IssueGroup entries.
 	for issue, resources := range sr.ByIssue() {
 		issueGroup := &IssueGroup{
-			Issue:    issue,
-			ResourceGroups: []core.ResourceGroup{},
+			Issue:          issue,
+			ResourceGroups: []entity.ResourceGroup{},
 		}
 
 		// For each resource tied to the issue, create a ResourceGroup and increment

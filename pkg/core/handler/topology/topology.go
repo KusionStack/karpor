@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -56,34 +56,34 @@ func GetTopology(insightMgr *insight.InsightManager, c *server.CompletedConfig) 
 		logger := ctxutil.GetLogger(ctx)
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
-		loc, err := core.NewResourceGroupFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting topology for resourceGroup...", "resourceGroup", loc)
+		logger.Info("Getting topology for resourceGroup...", "resourceGroup", resourceGroup)
 
-		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, resourceGroup.Cluster)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		locType, ok := loc.GetType()
+		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
-		switch locType {
-		case core.Resource, core.NonNamespacedResource:
-			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &loc, forceNew)
+		switch resourceGroupType {
+		case entity.Resource, entity.NonNamespacedResource:
+			resourceTopologyMap, err := insightMgr.GetTopologyForResource(r.Context(), client, &resourceGroup, forceNew)
 			handler.HandleResult(w, r, ctx, err, resourceTopologyMap)
-		case core.Cluster:
-			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, loc.Cluster, forceNew)
+		case entity.Cluster:
+			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(r.Context(), client, resourceGroup.Cluster, forceNew)
 			handler.HandleResult(w, r, ctx, err, clusterTopologyMap)
-		case core.Namespace:
-			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, loc.Cluster, loc.Namespace, forceNew)
+		case entity.Namespace:
+			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(r.Context(), client, resourceGroup.Cluster, resourceGroup.Namespace, forceNew)
 			handler.HandleResult(w, r, ctx, err, namespaceTopologyMap)
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))

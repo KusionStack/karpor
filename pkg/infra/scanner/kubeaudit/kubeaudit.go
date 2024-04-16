@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
@@ -47,7 +47,7 @@ var _ scanner.KubeScanner = &kubeauditScanner{}
 type kubeauditScanner struct {
 	kubeAuditor    *kubeauditpkg.Kubeaudit
 	attentionLevel scanner.IssueSeverityLevel
-	c              *cache.Cache[core.ResourceGroup, scanner.ScanResult]
+	c              *cache.Cache[entity.ResourceGroup, scanner.ScanResult]
 }
 
 // New creates a new instance of a kubeaudit-based scanner with the specified
@@ -80,7 +80,7 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	return &kubeauditScanner{
 		kubeAuditor:    kubeAuditor,
 		attentionLevel: attentionLevel,
-		c:              cache.NewCache[core.ResourceGroup, scanner.ScanResult](defaultExpiration),
+		c:              cache.NewCache[entity.ResourceGroup, scanner.ScanResult](defaultExpiration),
 	}, nil
 }
 

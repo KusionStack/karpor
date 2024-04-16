@@ -15,7 +15,7 @@
 package insight
 
 import (
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -23,14 +23,14 @@ import (
 // Resource-related
 
 type ResourceSummary struct {
-	Resource          core.ResourceGroup `json:"resource"`
+	Resource          entity.ResourceGroup `json:"resource"`
 	CreationTimestamp metav1.Time        `json:"creationTimestamp"`
 	ResourceVersion   string             `json:"resourceVersion"`
 	UID               types.UID          `json:"uid"`
 }
 
 type ResourceEvents struct {
-	Resource       core.ResourceGroup `json:"resource"`
+	Resource       entity.ResourceGroup `json:"resource"`
 	Count          int                `json:"count"`
 	Reason         string             `json:"reason"`
 	Source         string             `json:"source"`
@@ -40,7 +40,7 @@ type ResourceEvents struct {
 }
 
 type ResourceTopology struct {
-	ResourceGroup  core.ResourceGroup `json:"resourceGroup"`
+	ResourceGroup  entity.ResourceGroup `json:"resourceGroup"`
 	Parents  []string           `json:"parents"`
 	Children []string           `json:"children"`
 }
@@ -48,7 +48,7 @@ type ResourceTopology struct {
 // Cluster-related
 
 type ClusterTopology struct {
-	ResourceGroup core.ResourceGroup `json:"resourceGroup"`
+	ResourceGroup entity.ResourceGroup `json:"resourceGroup"`
 	Count         int                `json:"count"`
 	Relationship  map[string]string  `json:"relationship"`
 }

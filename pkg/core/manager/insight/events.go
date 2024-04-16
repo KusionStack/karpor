@@ -18,18 +18,18 @@ import (
 	"context"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
-// GetResourceEvents returns the list of events specified by core.ResourceGroup.
+// GetResourceEvents returns the list of events specified by entity.ResourceGroup.
 func (i *InsightManager) GetResourceEvents(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	resourceGroup *core.ResourceGroup,
+	resourceGroup *entity.ResourceGroup,
 ) ([]unstructured.Unstructured, error) {
 	// Retrieve the list of events for the specific resource
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
@@ -78,11 +78,11 @@ func (i *InsightManager) GetResourceEvents(
 func (i *InsightManager) GetNamespaceGVKEvents(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	loc *core.ResourceGroup,
+	resourceGroup *entity.ResourceGroup,
 ) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	eventList, err := client.DynamicClient.Resource(eventGVR).
-		Namespace(loc.Namespace).
+		Namespace(resourceGroup.Namespace).
 		List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
@@ -100,8 +100,8 @@ func (i *InsightManager) GetNamespaceGVKEvents(
 			"kind",
 		)
 		if foundAPIVersion && foundKind &&
-			strings.EqualFold(involvedObjectAPIVersion, loc.APIVersion) &&
-			strings.EqualFold(involvedObjectKind, loc.Kind) {
+			strings.EqualFold(involvedObjectAPIVersion, resourceGroup.APIVersion) &&
+			strings.EqualFold(involvedObjectKind, resourceGroup.Kind) {
 			filteredList = append(filteredList, event)
 		}
 	}
@@ -112,7 +112,7 @@ func (i *InsightManager) GetNamespaceGVKEvents(
 func (i *InsightManager) GetNamespaceEvents(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	resourceGroup *core.ResourceGroup,
+	resourceGroup *entity.ResourceGroup,
 ) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	// Another option is to add .Namespace(loc.Namespace) here
@@ -154,7 +154,7 @@ func (i *InsightManager) GetNamespaceEvents(
 func (i *InsightManager) GetGVKEvents(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	loc *core.ResourceGroup,
+	resourceGroup *entity.ResourceGroup,
 ) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	eventList, err := client.DynamicClient.Resource(eventGVR).List(ctx, metav1.ListOptions{})
@@ -174,8 +174,8 @@ func (i *InsightManager) GetGVKEvents(
 			"kind",
 		)
 		if foundAPIVersion && foundKind &&
-			strings.EqualFold(involvedObjectAPIVersion, loc.APIVersion) &&
-			strings.EqualFold(involvedObjectKind, loc.Kind) {
+			strings.EqualFold(involvedObjectAPIVersion, resourceGroup.APIVersion) &&
+			strings.EqualFold(involvedObjectKind, resourceGroup.Kind) {
 			filteredList = append(filteredList, event)
 		}
 	}
@@ -186,7 +186,7 @@ func (i *InsightManager) GetGVKEvents(
 func (i *InsightManager) GetClusterEvents(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	loc *core.ResourceGroup,
+	resourceGroup *entity.ResourceGroup,
 ) ([]unstructured.Unstructured, error) {
 	eventGVR := schema.GroupVersionResource{Group: "", Version: "v1", Resource: "events"}
 	eventList, err := client.DynamicClient.Resource(eventGVR).List(ctx, metav1.ListOptions{})

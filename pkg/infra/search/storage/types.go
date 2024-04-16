@@ -21,7 +21,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -126,8 +125,8 @@ func (r *SearchResult) ToYAML() (string, error) {
 
 // Resource represents a Kubernetes resource with additional metadata.
 type Resource struct {
-	core.ResourceGroup `json:",inline" yaml:",inline"`
-	Object             map[string]interface{} `json:"object"`
+	entity.ResourceGroup `json:",inline" yaml:",inline"`
+	Object               map[string]interface{} `json:"object"`
 }
 
 // NewResource creates a new Resource instance based on the provided bytes
@@ -150,7 +149,7 @@ func NewResource(cluster string, b []byte) (*Resource, error) {
 
 	// Build and return the Resource object with decoded data and cluster info.
 	return &Resource{
-		ResourceGroup: core.ResourceGroup{
+		ResourceGroup: entity.ResourceGroup{
 			Cluster:    cluster,
 			Namespace:  obj.GetNamespace(),
 			APIVersion: obj.GetAPIVersion(),

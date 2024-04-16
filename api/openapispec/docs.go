@@ -1216,7 +1216,7 @@ var doc = `{
                 }
             }
         },
-        "core.ResourceGroup": {
+        "entity.ResourceGroup": {
             "type": "object",
             "properties": {
                 "apiVersion": {
@@ -1243,7 +1243,7 @@ var doc = `{
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/core.ResourceGroup"
+                    "$ref": "#/definitions/entity.ResourceGroup"
                 },
                 "resourceVersion": {
                     "type": "string"
@@ -1263,7 +1263,7 @@ var doc = `{
                     }
                 },
                 "resourceGroup": {
-                    "$ref": "#/definitions/core.ResourceGroup"
+                    "$ref": "#/definitions/entity.ResourceGroup"
                 },
                 "parents": {
                     "type": "array",
@@ -1350,7 +1350,7 @@ var doc = `{
                 "resourceGroups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/core.ResourceGroup"
+                        "$ref": "#/definitions/entity.ResourceGroup"
                     }
                 }
             }
