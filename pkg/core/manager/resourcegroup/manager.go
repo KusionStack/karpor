@@ -18,7 +18,6 @@ import (
 	"context"
 	"errors"
 
-	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
@@ -104,6 +103,6 @@ func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name
 	return m.rgrStorage.DeleteResourceGroupRule(ctx, name)
 }
 
-func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, resourceGroupRuleName string) ([]*core.Locator, error) {
+func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, resourceGroupRuleName string) ([]*entity.ResourceGroup, error) {
 	panic("unimplement")
 }

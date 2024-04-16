@@ -23,7 +23,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
@@ -282,7 +282,7 @@ func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.Di
 // CountRelationshipGraphByCustomResourceGroup returns the same RelationshipGraph with the count for each custom resource group
 func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx context.Context, cl storage.SearchStorage, customResourceGroup string, name string) (*RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
-	crg, err := core.ParseCustomResourceGroup(customResourceGroup)
+	crg, err := entity.ParseCustomResourceGroup(customResourceGroup)
 	if err != nil {
 		return nil, err
 	}

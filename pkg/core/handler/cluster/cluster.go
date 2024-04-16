@@ -45,7 +45,7 @@ import (
 // @Description  This endpoint returns a cluster resource by name.
 // @Tags         cluster
 // @Produce      json
-// @Param        clusterName  path      string                     true  "The name of the cluster"
+// @Param        clusterName  path      string  true  "The name of the cluster"
 // @Param        format       query     string                     false  "The format of the response. Either in json or yaml"
 // @Success      200          {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400          {string}  string                     "Bad Request"
@@ -130,7 +130,7 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Accept       json
 // @Produce      json
 // @Param        request      body      ClusterPayload             true  "cluster to update (either plain text or JSON format)"
-// @Param        clusterName  path      string  true  "The name of the cluster"
+// @Param        clusterName  path      string                     true  "The name of the cluster"
 // @Success      200          {object}  unstructured.Unstructured  "Unstructured object"
 // @Failure      400          {string}  string                     "Bad Request"
 // @Failure      401          {string}  string                     "Unauthorized"

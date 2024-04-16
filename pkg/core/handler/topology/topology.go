@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
@@ -57,45 +57,45 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 		logger := ctxutil.GetLogger(ctx)
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
-		loc, err := core.NewLocatorFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting topology for locator...", "locator", loc)
+		logger.Info("Getting topology for resourceGroup...", "resourceGroup", resourceGroup)
 
-		clusterName := loc.Cluster
+		clusterName := resourceGroup.Cluster
 		client, err := multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, clusterName)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		locType, ok := loc.GetType()
+		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
-		switch locType {
-		case core.CustomResourceGroup:
+		switch resourceGroupType {
+		case entity.CustomResourceGroup:
 			client, err = multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, "")
 			handler.HandleResult(w, r, ctx, err, nil)
 			clusterNames, err := clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
 			handler.HandleResult(w, r, ctx, err, nil)
-			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(r.Context(), client, loc.CustomResourceGroup, clusterNames, forceNew)
+			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(r.Context(), client, resourceGroup.CustomResourceGroup, clusterNames, forceNew)
 			handler.HandleResult(w, r, ctx, err, customResourceTopologyMap)
-		case core.Resource, core.NonNamespacedResource:
-			resourceTopologyMap, err := insightMgr.GetTopologyForResource(ctx, client, &loc, forceNew)
+		case entity.Resource, entity.NonNamespacedResource:
+			resourceTopologyMap, err := insightMgr.GetTopologyForResource(ctx, client, &resourceGroup, forceNew)
 			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ResourceTopology{clusterName: resourceTopologyMap})
-		case core.Cluster:
+		case entity.Cluster:
 			clusterTopologyMap, err := insightMgr.GetTopologyForCluster(ctx, client, clusterName, forceNew)
 			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: clusterTopologyMap})
-		case core.Namespace:
-			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(ctx, client, clusterName, loc.Namespace, forceNew)
+		case entity.Namespace:
+			namespaceTopologyMap, err := insightMgr.GetTopologyForClusterNamespace(ctx, client, clusterName, resourceGroup.Namespace, forceNew)
 			handler.HandleResult(w, r, ctx, err, map[string]map[string]insight.ClusterTopology{clusterName: namespaceTopologyMap})
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

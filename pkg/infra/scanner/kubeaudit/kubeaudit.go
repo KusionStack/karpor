@@ -23,7 +23,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
@@ -47,7 +47,7 @@ var _ scanner.KubeScanner = &kubeauditScanner{}
 type kubeauditScanner struct {
 	kubeAuditor    *kubeauditpkg.Kubeaudit
 	attentionLevel scanner.IssueSeverityLevel
-	c              *cache.Cache[core.Locator, scanner.ScanResult]
+	c              *cache.Cache[entity.ResourceGroup, scanner.ScanResult]
 }
 
 // New creates a new instance of a kubeaudit-based scanner with the specified
@@ -80,7 +80,7 @@ func New(attentionLevel scanner.IssueSeverityLevel) (scanner.KubeScanner, error)
 	return &kubeauditScanner{
 		kubeAuditor:    kubeAuditor,
 		attentionLevel: attentionLevel,
-		c:              cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
+		c:              cache.NewCache[entity.ResourceGroup, scanner.ScanResult](defaultExpiration),
 	}, nil
 }
 
@@ -153,7 +153,7 @@ func (s *kubeauditScanner) scanManifest(ctx context.Context, noCache bool, resou
 	if noCache {
 		return s.scanManifestFor(ctx, resource, manifest)
 	} else {
-		if scanResult, exist := s.c.Get(resource.Locator); exist {
+		if scanResult, exist := s.c.Get(resource.ResourceGroup); exist {
 			return scanResult, nil
 		} else {
 			return s.scanManifestFor(ctx, resource, manifest)
@@ -187,7 +187,7 @@ func (s *kubeauditScanner) scanManifestFor(ctx context.Context, resource *storag
 		}
 	}
 	r.add(resource, issues)
-	s.c.Set(resource.Locator, r)
+	s.c.Set(resource.ResourceGroup, r)
 
 	return r, nil
 }

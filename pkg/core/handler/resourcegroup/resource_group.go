@@ -28,16 +28,14 @@ import (
 // @Description  This endpoint lists all ResourceGroups.
 // @Tags         resourcegroup
 // @Produce      json
-// @Param        summary     query     bool                       false  "Whether to display summary or not. Default to false"
-// @Param        orderBy     query     string                     false  "The order to list the resourceGroup. Default to order by name"
-// @Param        descending  query     bool                       false  "Whether to sort the list in descending order. Default to false"
-// @Success      200         {array}   unstructured.Unstructured  "List of resourceGroup objects"
-// @Failure      400         {string}  string                     "Bad Request"
-// @Failure      401         {string}  string                     "Unauthorized"
-// @Failure      404         {string}  string                     "Not Found"
-// @Failure      405         {string}  string                     "Method Not Allowed"
-// @Failure      429         {string}  string                     "Too Many Requests"
-// @Failure      500         {string}  string                     "Internal Server Error"
+// @Param        resourceGroupRuleName  path      string                     true  "The name of the resource group rule"
+// @Success      200                    {array}   unstructured.Unstructured  "List of resourceGroup objects"
+// @Failure      400                    {string}  string                     "Bad Request"
+// @Failure      401                    {string}  string                     "Unauthorized"
+// @Failure      404                    {string}  string                     "Not Found"
+// @Failure      405                    {string}  string                     "Method Not Allowed"
+// @Failure      429                    {string}  string                     "Too Many Requests"
+// @Failure      500                    {string}  string                     "Internal Server Error"
 // @Router       /rest-api/v1/resource-groups/{resourceGroupRuleName} [get]
 func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

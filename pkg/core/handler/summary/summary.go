@@ -18,7 +18,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
@@ -53,40 +53,40 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		loc, err := core.NewLocatorFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting summary for locator...", "locator", loc)
+		logger.Info("Getting summary for resourceGroup...", "resourceGroup", resourceGroup)
 
-		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, resourceGroup.Cluster)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		locType, ok := loc.GetType()
+		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
-		switch locType {
-		case core.Resource, core.NonNamespacedResource:
-			resourceSummary, err := insightMgr.GetResourceSummary(r.Context(), client, &loc)
+		switch resourceGroupType {
+		case entity.Resource, entity.NonNamespacedResource:
+			resourceSummary, err := insightMgr.GetResourceSummary(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, resourceSummary)
-		case core.Cluster:
-			clusterDetail, err := insightMgr.GetDetailsForCluster(r.Context(), client, loc.Cluster)
+		case entity.Cluster:
+			clusterDetail, err := insightMgr.GetDetailsForCluster(r.Context(), client, resourceGroup.Cluster)
 			handler.HandleResult(w, r, ctx, err, clusterDetail)
-		case core.Namespace:
-			namespaceSummary, err := insightMgr.GetNamespaceSummary(r.Context(), client, &loc)
+		case entity.Namespace:
+			namespaceSummary, err := insightMgr.GetNamespaceSummary(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, namespaceSummary)
-		case core.GVK:
-			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &loc)
+		case entity.GVK:
+			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, gvkSummary)
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

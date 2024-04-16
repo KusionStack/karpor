@@ -19,7 +19,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
@@ -58,44 +58,44 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 		logger.Info("Getting resources...")
 		outputFormat := r.URL.Query().Get("format")
 
-		loc, err := core.NewLocatorFromQuery(r)
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
-		logger.Info("Getting resource detail for locator...", "locator", loc)
+		logger.Info("Getting resource detail for resourceGroup...", "resourceGroup", resourceGroup)
 
-		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, loc.Cluster)
+		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, resourceGroup.Cluster)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
 
-		locType, ok := loc.GetType()
+		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine locator type")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
 			return
 		}
 
-		switch locType {
-		case core.Resource, core.NonNamespacedResource:
+		switch resourceGroupType {
+		case entity.Resource, entity.NonNamespacedResource:
 			if strings.ToLower(outputFormat) == "yaml" {
-				resourceYAML, err := insightMgr.GetYAMLForResource(r.Context(), client, &loc)
+				resourceYAML, err := insightMgr.GetYAMLForResource(r.Context(), client, &resourceGroup)
 				handler.HandleResult(w, r, ctx, err, string(resourceYAML))
 			} else {
-				resourceUnstructured, err := insightMgr.GetResource(r.Context(), client, &loc)
+				resourceUnstructured, err := insightMgr.GetResource(r.Context(), client, &resourceGroup)
 				handler.HandleResult(w, r, ctx, err, resourceUnstructured)
 			}
-		case core.Namespace:
+		case entity.Namespace:
 			if strings.ToLower(outputFormat) == "yaml" {
-				namespaceYAML, err := clusterMgr.GetNamespaceYAML(r.Context(), client, loc.Namespace)
+				namespaceYAML, err := clusterMgr.GetNamespaceYAML(r.Context(), client, resourceGroup.Namespace)
 				handler.HandleResult(w, r, ctx, err, string(namespaceYAML))
 			} else {
-				namespace, err := clusterMgr.GetNamespace(r.Context(), client, loc.Namespace)
+				namespace, err := clusterMgr.GetNamespace(r.Context(), client, resourceGroup.Namespace)
 				handler.HandleResult(w, r, ctx, err, namespace)
 			}
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable locator type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
 		}
 	}
 }

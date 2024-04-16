@@ -21,7 +21,7 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 )
 
@@ -45,7 +45,7 @@ type KubeScanner interface {
 // ScanResult defines the interface for the result of a scan.
 type ScanResult interface {
 	ByIssue() map[Issue]ResourceList
-	ByResource() map[core.Locator]IssueList
+	ByResource() map[entity.ResourceGroup]IssueList
 	IssueTotal() int
 	MergeFrom(result ScanResult)
 }

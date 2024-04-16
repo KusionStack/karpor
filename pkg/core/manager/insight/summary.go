@@ -17,7 +17,7 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -48,18 +48,18 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 }
 
 // GetResourceSummary returns the unstructured cluster object summary for a given cluster. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*ResourceSummary, error) {
-	obj, err := i.GetResource(ctx, client, loc)
+func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (*ResourceSummary, error) {
+	obj, err := i.GetResource(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}
 
 	return &ResourceSummary{
-		Resource: core.Locator{
+		Resource: entity.ResourceGroup{
 			Name:       obj.GetName(),
 			Namespace:  obj.GetNamespace(),
 			APIVersion: obj.GetAPIVersion(),
-			Cluster:    loc.Cluster,
+			Cluster:    resourceGroup.Cluster,
 			Kind:       obj.GetKind(),
 		},
 		CreationTimestamp: obj.GetCreationTimestamp(),
@@ -69,34 +69,34 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 }
 
 // GetGVKSummary returns the unstructured cluster object summary for a given GVK. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*GVKSummary, error) {
-	gvkCount, err := i.CountResourcesByGVK(ctx, client, loc)
+func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (*GVKSummary, error) {
+	gvkCount, err := i.CountResourcesByGVK(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}
-	gv, err := schema.ParseGroupVersion(loc.APIVersion)
+	gv, err := schema.ParseGroupVersion(resourceGroup.APIVersion)
 	if err != nil {
 		return nil, err
 	}
 	return &GVKSummary{
-		Cluster: loc.Cluster,
+		Cluster: resourceGroup.Cluster,
 		Group:   gv.Group,
 		Version: gv.Version,
-		Kind:    loc.Kind,
+		Kind:    resourceGroup.Kind,
 		Count:   gvkCount,
 	}, nil
 }
 
 // GetNamespaceSummary returns the unstructured cluster object summary for a given namespace. Possibly will add more metrics to it in the future.
-func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (*NamespaceSummary, error) {
-	namespaceCount, err := i.CountResourcesByNamespace(ctx, client, loc)
+func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (*NamespaceSummary, error) {
+	namespaceCount, err := i.CountResourcesByNamespace(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}
 	topFiveCount := GetTopResultsFromMap(namespaceCount)
 	return &NamespaceSummary{
-		Cluster:    loc.Cluster,
-		Namespace:  loc.Namespace,
+		Cluster:    resourceGroup.Cluster,
+		Namespace:  resourceGroup.Namespace,
 		CountByGVK: topFiveCount,
 	}, nil
 }

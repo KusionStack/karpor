@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package core
+package entity
 
 import (
 	"encoding/json"
@@ -25,22 +25,22 @@ import (
 	"github.com/pkg/errors"
 )
 
-// LocatorType represents the type of a Locator.
-type LocatorType int
+// ResourceGroupType represents the type of a ResourceGroup.
+type ResourceGroupType int
 
-// Enumerated constants representing different types of Locators.
+// Enumerated constants representing different types of ResourceGroups.
 const (
-	CustomResourceGroup LocatorType = iota
-	Cluster
+	Cluster ResourceGroupType = iota
 	GVK
 	Namespace
 	ClusterGVKNamespace
 	Resource
 	NonNamespacedResource
+	CustomResourceGroup
 )
 
-// Locator represents information required to locate a resource.
-type Locator struct {
+// ResourceGroup represents information required to locate a resource or multi resources.
+type ResourceGroup struct {
 	Cluster             string `json:"cluster" yaml:"cluster"`
 	APIVersion          string `json:"apiVersion" yaml:"apiVersion"`
 	Kind                string `json:"kind" yaml:"kind"`
@@ -49,8 +49,8 @@ type Locator struct {
 	CustomResourceGroup string `json:"customResourceGroup" yaml:"customResourceGroup"`
 }
 
-// NewLocatorFromQuery creates a Locator from an HTTP request query parameters.
-func NewLocatorFromQuery(r *http.Request) (Locator, error) {
+// NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
+func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 	apiVersion := r.URL.Query().Get("apiVersion")
 	if r.URL.RawPath != "" {
 		apiVersion, _ = url.PathUnescape(apiVersion)
@@ -60,32 +60,32 @@ func NewLocatorFromQuery(r *http.Request) (Locator, error) {
 	if customResourceGroup != "" {
 		crg, err := ParseCustomResourceGroup(customResourceGroup)
 		if err != nil {
-			return Locator{}, errors.Wrap(err, "failed to parse custom resource group")
+			return ResourceGroup{}, errors.Wrap(err, "failed to parse custom resource group")
 		}
 		// The custom resource group will be used as the key for caching, so it needs to be sorted to ensure uniqueness.
 		customResourceGroup, err = SortCustomResourceGroup(crg)
 		if err != nil {
-			return Locator{}, errors.Wrap(err, "failed to sort custom resource group")
+			return ResourceGroup{}, errors.Wrap(err, "failed to sort custom resource group")
 		}
 	}
 
 	cluster := r.URL.Query().Get("cluster")
 	if customResourceGroup == "" && cluster == "" {
-		return Locator{}, fmt.Errorf("cluster cannot be empty")
+		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
 	}
 
-	return Locator{
-		CustomResourceGroup: customResourceGroup,
+	return ResourceGroup{
 		APIVersion:          apiVersion,
 		Cluster:             cluster,
 		Kind:                r.URL.Query().Get("kind"),
 		Namespace:           r.URL.Query().Get("namespace"),
 		Name:                r.URL.Query().Get("name"),
+		CustomResourceGroup: customResourceGroup,
 	}, nil
 }
 
-// ToSQL generates a SQL query string based on the Locator.
-func (c *Locator) ToSQL() string {
+// ToSQL generates a SQL query string based on the ResourceGroup.
+func (c *ResourceGroup) ToSQL() string {
 	var conditions []string
 
 	if c.Cluster != "" {
@@ -111,8 +111,8 @@ func (c *Locator) ToSQL() string {
 	}
 }
 
-// GetType returns the type of Locator and a boolean indicating success.
-func (c *Locator) GetType() (LocatorType, bool) {
+// GetType returns the type of ResourceGroup and a boolean indicating success.
+func (c *ResourceGroup) GetType() (ResourceGroupType, bool) {
 	if c.CustomResourceGroup != "" {
 		return CustomResourceGroup, true
 	}
