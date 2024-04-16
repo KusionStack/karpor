@@ -111,7 +111,7 @@ func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]an
 	if pagination != nil {
 		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
 	}
-	resp, err := s.client.SearchDocumentByTerms(ctx, s.indexName, keysAndValues, opts...)
+	resp, err := s.client.SearchDocumentByTerms(ctx, s.resourceIndexName, keysAndValues, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -149,7 +149,7 @@ func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateRe
 }
 
 func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage.AggregateResults, error) {
-	resp, err := s.client.AggregateDocumentByTerms(ctx, s.indexName, keys)
+	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceIndexName, keys)
 	if err != nil {
 		return nil, err
 	}

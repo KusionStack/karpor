@@ -62,6 +62,8 @@ type ResourceGroupRuleStorage interface {
 // Storage interface defines the basic operations for resource storage.
 type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
+	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
+	AggregateByTerms(ctx context.Context, keys []string) (*AggregateResults, error)
 }
 
 type SearchStorageGetter interface {
