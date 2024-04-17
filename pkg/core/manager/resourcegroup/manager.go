@@ -27,12 +27,14 @@ type ResourceGroupManager struct {
 	rgrStorage storage.ResourceGroupRuleStorage
 }
 
+// NewResourceGroupManager creates a new instance of ResourceGroupManager with the given storage.
 func NewResourceGroupManager(rgrStorage storage.ResourceGroupRuleStorage) (*ResourceGroupManager, error) {
 	return &ResourceGroupManager{
 		rgrStorage: rgrStorage,
 	}, nil
 }
 
+// GetResourceGroupRule retrieves a specific resource group rule by its name.
 func (m *ResourceGroupManager) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
 	if len(name) == 0 {
 		return nil, ErrMissingResourceGroupRuleName
@@ -40,6 +42,7 @@ func (m *ResourceGroupManager) GetResourceGroupRule(ctx context.Context, name st
 	return m.rgrStorage.GetResourceGroupRule(ctx, name)
 }
 
+// ListResourceGroupRules returns a list of all resource group rules.
 func (m *ResourceGroupManager) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
 	return m.rgrStorage.ListResourceGroupRules(ctx)
 }

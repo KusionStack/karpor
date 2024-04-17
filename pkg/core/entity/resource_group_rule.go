@@ -51,6 +51,7 @@ func (e *ResourceGroupRule) Validate() error {
 	return nil
 }
 
+// UUID() returns a randomly generated UUID string.
 func UUID() string {
 	uuid := uuid.New()
 	return uuid.String()

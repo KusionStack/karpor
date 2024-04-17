@@ -41,6 +41,7 @@ var (
 	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
 )
 
+// DeleteResourceGroupRule deletes a resource group rule based on the given name.
 func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) error {
 	if rgr, err := s.GetResourceGroupRule(ctx, name); err != nil {
 		return err
@@ -49,6 +50,7 @@ func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) erro
 	}
 }
 
+// GetResourceGroupRule retrieves a resource group rule based on the given name.
 func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
 	query := generateResourceGroupRuleQuery(name)
 	buf := &bytes.Buffer{}
@@ -176,6 +178,7 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) ([]
 	return rgList, nil
 }
 
+// SaveResourceGroupRule saves a resource group rule to the storage.
 func (s *Storage) SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error {
 	id, body, err := s.generateResourceGroupRuleDocument(data)
 	if err != nil {

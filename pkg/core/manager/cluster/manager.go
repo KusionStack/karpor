@@ -194,6 +194,7 @@ func (c *ClusterManager) ListCluster(
 	return SortUnstructuredList(sanitizedClusterList, orderBy, descending)
 }
 
+// ListClusterName retrieves a list of cluster names based on the specified sorting criteria and order.
 func (c *ClusterManager) ListClusterName(ctx context.Context, client *multicluster.MultiClusterClient, orderBy SortCriteria, descending bool) ([]string, error) {
 	unList, err := c.ListCluster(ctx, client, orderBy, descending)
 	if err != nil {

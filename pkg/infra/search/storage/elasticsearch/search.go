@@ -108,6 +108,7 @@ func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storag
 	return convertSearchResult(resp)
 }
 
+// SearchByTerms performs a search operation with a map of keys and values and pagination information.
 func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {
@@ -120,6 +121,7 @@ func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]an
 	return convertSearchResult(resp)
 }
 
+// convertSearchResult converts an elasticsearch.SearchResponse to a storage.SearchResult.
 func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResult, error) {
 	out := &storage.SearchResult{
 		Total:     in.Hits.Total.Value,
@@ -136,6 +138,7 @@ func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResul
 	return out, nil
 }
 
+// convertAggregationResult converts an elasticsearch.AggResults to a storage.AggregateResults.
 func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateResults {
 	buckets := make([]storage.Bucket, len(in.Buckets))
 	for i := range in.Buckets {
@@ -150,6 +153,7 @@ func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateRe
 	}
 }
 
+// AggregateByTerms performs an aggregation operation using the provided list of keys and returns the results.
 func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage.AggregateResults, error) {
 	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceIndexName, keys)
 	if err != nil {

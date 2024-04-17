@@ -52,6 +52,7 @@ func (p *ResourceGroupRulePayload) Decode(r *http.Request) error {
 	return nil
 }
 
+// ToEntity converts the payload struct to the corresponding entity struct.
 func (p *ResourceGroupRulePayload) ToEntity() *entity.ResourceGroupRule {
 	return &entity.ResourceGroupRule{
 		Name:        p.Name,

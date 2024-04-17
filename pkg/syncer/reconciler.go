@@ -82,6 +82,7 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return nil
 }
 
+// CreateEvent handles the creation event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) CreateEvent(ce event.CreateEvent, queue workqueue.RateLimitingInterface) {
 	registry := ce.Object.(*searchv1beta1.SyncRegistry)
 	for _, clusterName := range r.getMatchedClusters(registry) {
@@ -89,6 +90,7 @@ func (r *SyncReconciler) CreateEvent(ce event.CreateEvent, queue workqueue.RateL
 	}
 }
 
+// UpdateEvent handles the update event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) UpdateEvent(ue event.UpdateEvent, queue workqueue.RateLimitingInterface) {
 	oldRegistry := ue.ObjectOld.(*searchv1beta1.SyncRegistry)
 	newRegistry := ue.ObjectNew.(*searchv1beta1.SyncRegistry)
@@ -109,6 +111,7 @@ func (r *SyncReconciler) UpdateEvent(ue event.UpdateEvent, queue workqueue.RateL
 	}
 }
 
+// DeleteEvent handles the deletion event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateLimitingInterface) {
 	registry := de.Object.(*searchv1beta1.SyncRegistry)
 	for _, clusterName := range r.getMatchedClusters(registry) {
