@@ -41,6 +41,7 @@ type RESTStorageProvider struct {
 	ElasticSearchPassword  string
 }
 
+// GroupName returns the group name for the REST storage provider.
 func (p RESTStorageProvider) GroupName() string {
 	return search.GroupName
 }
@@ -88,6 +89,7 @@ func (p RESTStorageProvider) v1beta1Storage(
 	return v1beta1Storage, nil
 }
 
+// SearchStorageGetter returns the search storage getter for the provider.
 func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter, error) {
 	switch p.SearchStorageType {
 	case "elasticsearch":
@@ -101,6 +103,7 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 	}
 }
 
+// ResourceGroupRuleStorageGetter returns the resource group rule storage getter for the provider.
 func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceGroupRuleStorageGetter, error) {
 	switch p.SearchStorageType {
 	case "elasticsearch":

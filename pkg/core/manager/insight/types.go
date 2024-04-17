@@ -24,33 +24,33 @@ import (
 
 type ResourceSummary struct {
 	Resource          entity.ResourceGroup `json:"resource"`
-	CreationTimestamp metav1.Time        `json:"creationTimestamp"`
-	ResourceVersion   string             `json:"resourceVersion"`
-	UID               types.UID          `json:"uid"`
+	CreationTimestamp metav1.Time          `json:"creationTimestamp"`
+	ResourceVersion   string               `json:"resourceVersion"`
+	UID               types.UID            `json:"uid"`
 }
 
 type ResourceEvents struct {
 	Resource       entity.ResourceGroup `json:"resource"`
-	Count          int                `json:"count"`
-	Reason         string             `json:"reason"`
-	Source         string             `json:"source"`
-	Type           string             `json:"type"`
-	LastTimestamp  metav1.Time        `json:"lastTimestamp"`
-	FirstTimestamp metav1.Time        `json:"firstTimestamp"`
+	Count          int                  `json:"count"`
+	Reason         string               `json:"reason"`
+	Source         string               `json:"source"`
+	Type           string               `json:"type"`
+	LastTimestamp  metav1.Time          `json:"lastTimestamp"`
+	FirstTimestamp metav1.Time          `json:"firstTimestamp"`
 }
 
 type ResourceTopology struct {
-	ResourceGroup  entity.ResourceGroup `json:"resourceGroup"`
-	Parents  []string           `json:"parents"`
-	Children []string           `json:"children"`
+	ResourceGroup entity.ResourceGroup `json:"resourceGroup"`
+	Parents       []string             `json:"parents"`
+	Children      []string             `json:"children"`
 }
 
 // Cluster-related
 
 type ClusterTopology struct {
 	ResourceGroup entity.ResourceGroup `json:"resourceGroup"`
-	Count         int                `json:"count"`
-	Relationship  map[string]string  `json:"relationship"`
+	Count         int                  `json:"count"`
+	Relationship  map[string]string    `json:"relationship"`
 }
 
 type ClusterDetail struct {
