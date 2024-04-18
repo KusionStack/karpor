@@ -19,6 +19,7 @@ import (
 	"context"
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
@@ -215,26 +216,33 @@ func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule
 	for i, field := range fields {
 		out.Fields[i] = toString(field)
 	}
-	out.CreatedAt = toTime(in["createdAt"])
-	out.DeletedAt = toTime(in["deleteAt"])
-	out.UpdatedAt = toTime(in["updateAt"])
+
+	var err error
+	if out.CreatedAt, err = toTime(in["createdAt"]); err != nil {
+		return nil, err
+	}
+	if out.UpdatedAt, err = toTime(in["updatedAt"]); err != nil {
+		return nil, err
+	}
+	if out.DeletedAt, err = toTime(in["deletedAt"]); err != nil {
+		return nil, err
+	}
 	return out, nil
 }
 
-func toTime(in interface{}) *metav1.Time {
+func toTime(in interface{}) (*metav1.Time, error) {
 	if in == nil {
-		return nil
+		return nil, nil
 	}
 	s, ok := in.(string)
 	if !ok {
-		return nil
+		return nil, fmt.Errorf("expected input to be a string, got %T", in)
 	}
-	t := &metav1.Time{}
-	err := t.UnmarshalJSON([]byte(s))
+	t, err := time.ParseInLocation(time.RFC3339, s, time.UTC)
 	if err != nil {
-		return nil
+		return nil, err
 	}
-	return t
+	return &metav1.Time{Time: t}, nil
 }
 
 func toString(in interface{}) string {
