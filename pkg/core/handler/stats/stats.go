@@ -30,13 +30,13 @@ import (
 // @Description  This endpoint returns a global statistics info.
 // @Tags         insight
 // @Produce      json
-// @Success      200         {object}  insight.Statistics "Global statistics info"
-// @Failure      400         {string}  string                   "Bad Request"
-// @Failure      401         {string}  string                   "Unauthorized"
-// @Failure      404         {string}  string                   "Not Found"
-// @Failure      405         {string}  string                   "Method Not Allowed"
-// @Failure      429         {string}  string                   "Too Many Requests"
-// @Failure      500         {string}  string                   "Internal Server Error"
+// @Success      200  {object}  insight.Statistics  "Global statistics info"
+// @Failure      400  {string}  string              "Bad Request"
+// @Failure      401  {string}  string              "Unauthorized"
+// @Failure      404  {string}  string              "Not Found"
+// @Failure      405  {string}  string              "Method Not Allowed"
+// @Failure      429  {string}  string              "Too Many Requests"
+// @Failure      500  {string}  string              "Internal Server Error"
 // @Router       /rest-api/v1/insight/stats [get]
 func GetStatistics(insightMgr *insight.InsightManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

@@ -902,6 +902,62 @@ var doc = `{
                 }
             }
         },
+        "/rest-api/v1/insight/stats": {
+            "get": {
+                "description": "This endpoint returns a global statistics info.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Get returns a global statistics info.",
+                "responses": {
+                    "200": {
+                        "description": "Global statistics info",
+                        "schema": {
+                            "$ref": "#/definitions/insight.Statistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/rest-api/v1/insight/summary": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
@@ -1724,6 +1780,20 @@ var doc = `{
                     "additionalProperties": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "insight.Statistics": {
+            "type": "object",
+            "properties": {
+                "clusterCount": {
+                    "type": "integer"
+                },
+                "resourceCount": {
+                    "type": "integer"
+                },
+                "resourceGroupRuleCount": {
+                    "type": "integer"
                 }
             }
         },

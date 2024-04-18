@@ -60,6 +60,7 @@
 | GET | /rest-api/v1/insight/detail | [get rest API v1 insight detail](#get-rest-api-v1-insight-detail) | GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/events | [get rest API v1 insight events](#get-rest-api-v1-insight-events) | GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/score | [get rest API v1 insight score](#get-rest-api-v1-insight-score) | ScoreHandler calculates a score for the audited manifest. |
+| GET | /rest-api/v1/insight/stats | [get rest API v1 insight stats](#get-rest-api-v1-insight-stats) | Get returns a global statistics info. |
 | GET | /rest-api/v1/insight/summary | [get rest API v1 insight summary](#get-rest-api-v1-insight-summary) | Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
   
@@ -875,6 +876,94 @@ Status: Too Many Requests
 Status: Internal Server Error
 
 ###### <span id="get-rest-api-v1-insight-score-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-rest-api-v1-insight-stats"></span> Get returns a global statistics info. (*GetRestAPIV1InsightStats*)
+
+```
+GET /rest-api/v1/insight/stats
+```
+
+This endpoint returns a global statistics info.
+
+#### Produces
+  * application/json
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-insight-stats-200) | OK | Global statistics info |  | [schema](#get-rest-api-v1-insight-stats-200-schema) |
+| [400](#get-rest-api-v1-insight-stats-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-insight-stats-400-schema) |
+| [401](#get-rest-api-v1-insight-stats-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-insight-stats-401-schema) |
+| [404](#get-rest-api-v1-insight-stats-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-insight-stats-404-schema) |
+| [405](#get-rest-api-v1-insight-stats-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-rest-api-v1-insight-stats-405-schema) |
+| [429](#get-rest-api-v1-insight-stats-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-insight-stats-429-schema) |
+| [500](#get-rest-api-v1-insight-stats-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-insight-stats-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-insight-stats-200"></span> 200 - Global statistics info
+Status: OK
+
+###### <span id="get-rest-api-v1-insight-stats-200-schema"></span> Schema
+   
+  
+
+[InsightStatistics](#insight-statistics)
+
+##### <span id="get-rest-api-v1-insight-stats-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-insight-stats-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-insight-stats-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-insight-stats-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-rest-api-v1-insight-stats-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-insight-stats-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-insight-stats-500-schema"></span> Schema
    
   
 
@@ -2129,6 +2218,23 @@ of the security posture of the resources in the manifest. |  |
 | severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective
 number of occurrences. It allows for a quick overview of the distribution
 of issues across different severity categories. |  |
+
+
+
+### <span id="insight-statistics"></span> insight.Statistics
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| clusterCount | integer| `int64` |  | |  |  |
+| resourceCount | integer| `int64` |  | |  |  |
+| resourceGroupRuleCount | integer| `int64` |  | |  |  |
 
 
 
