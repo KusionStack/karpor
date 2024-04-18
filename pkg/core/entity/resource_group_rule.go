@@ -16,7 +16,6 @@ package entity
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -30,11 +29,11 @@ type ResourceGroupRule struct {
 	Description string   `yaml:"description,omitempty" json:"description,omitempty"`
 	Fields      []string `yaml:"fields,omitempty" json:"fields,omitempty"`
 	// CreatedAt is the timestamp of the created for the resourceGroupRule.
-	CreatedAt time.Time `yaml:"createdAt,omitempty" json:"createdAt,omitempty"`
+	CreatedAt string `yaml:"createdAt,omitempty" json:"createdAt,omitempty"`
 	// CreatedAt is the timestamp of the updated for the resourceGroupRule.
-	UpdatedAt time.Time `yaml:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	UpdatedAt string `yaml:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 	// DeletedAt is the timestamp of the deleted for the resourceGroupRule.
-	DeletedAt time.Time `yaml:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	DeletedAt string `yaml:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
 // Validate checks if the resourceGroupRule is valid.

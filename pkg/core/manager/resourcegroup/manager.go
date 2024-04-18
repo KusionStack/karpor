@@ -57,13 +57,13 @@ func (m *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context, rgr 
 	}
 
 	// Check if the rule already exists to prevent duplicates.
-	existingRGR, err := m.GetResourceGroupRule(ctx, rgr.Name)
-	if err == nil && existingRGR != nil {
+	_, err := m.GetResourceGroupRule(ctx, rgr.Name)
+	if err == nil {
 		return ErrResourceGroupRuleAlreadyExists
-	} else if !errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
-		return ErrResourceGroupRuleNotFound
 	}
-
+	if !errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
+		return err
+	}
 	// Save the new rule to the storage.
 	return m.rgrStorage.SaveResourceGroupRule(ctx, rgr)
 }
@@ -90,10 +90,17 @@ func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name
 	}
 
 	// Update the fields of the existing rule with the new values.
-	*existingRGR = *rgr
-
+	newRGR := &entity.ResourceGroupRule{
+		ID:          existingRGR.ID,
+		Name:        existingRGR.Name,
+		Description: rgr.Description,
+		Fields:      rgr.Fields,
+		CreatedAt:   existingRGR.CreatedAt,
+		UpdatedAt:   rgr.UpdatedAt,
+		DeletedAt:   "",
+	}
 	// Save the updated rule to the storage.
-	return m.rgrStorage.SaveResourceGroupRule(ctx, existingRGR)
+	return m.rgrStorage.SaveResourceGroupRule(ctx, newRGR)
 }
 
 // DeleteResourceGroupRule deletes a resource group rule by name.

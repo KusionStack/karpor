@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
@@ -202,12 +201,23 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 // Map2ResourceGroupRule converts a map to a ResourceGroupRule object.
 func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule, error) {
 	out := &entity.ResourceGroupRule{}
-	out.ID = in["id"].(string)
-	out.Name = in["name"].(string)
-	out.Description = in["description"].(string)
-	out.Fields = in["fields"].([]string)
-	out.CreatedAt = in["createdAt"].(time.Time)
-	out.DeletedAt = in["deletedAt"].(time.Time)
-	out.UpdatedAt = in["updatedAt"].(time.Time)
+	out.ID = toString(in["id"])
+	out.Name = toString(in["name"])
+	out.Description = toString(in["description"])
+	fields := in["fields"].([]interface{})
+	out.Fields = make([]string, len(fields))
+	for i, field := range fields {
+		out.Fields[i] = toString(field)
+	}
+	out.CreatedAt = toString(in["createdAt"])
+	out.DeletedAt = toString(in["deleteAt"])
+	out.UpdatedAt = toString(in["updateAt"])
 	return out, nil
+}
+
+func toString(in interface{}) string {
+	if in == nil {
+		return ""
+	}
+	return in.(string)
 }

@@ -34,7 +34,7 @@ type ResourceGroupRulePayload struct {
 	Fields      []string `json:"fields"`
 }
 
-// decode detects the correct decoder for use on an HTTP request and
+// Decode detects the correct decoder for use on an HTTP request and
 // marshals into a given interface.
 func (p *ResourceGroupRulePayload) Decode(r *http.Request) error {
 	// Check if the content type is plain text, read it as such.
@@ -58,7 +58,7 @@ func (p *ResourceGroupRulePayload) ToEntity() *entity.ResourceGroupRule {
 		Name:        p.Name,
 		Description: p.Description,
 		Fields:      p.Fields,
-		CreatedAt:   time.Now(),
-		UpdatedAt:   time.Now(),
+		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
+		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
 	}
 }

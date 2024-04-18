@@ -197,7 +197,7 @@ func (s *Storage) CountResourceGroupRules(ctx context.Context) (int, error) {
 	}
 }
 
-// generateResourceGroupRuleDocument creates an resource group rule document for
+// generateResourceGroupRuleDocument creates a resource group rule document for
 // Elasticsearch with the specified name, description etc.
 func (s *Storage) generateResourceGroupRuleDocument(data *entity.ResourceGroupRule) (id string, body []byte, err error) {
 	if len(data.ID) == 0 {

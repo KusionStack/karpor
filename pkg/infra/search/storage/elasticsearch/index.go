@@ -123,7 +123,7 @@ const (
         "type": "keyword"
       },
       "fields": {
-        "type": "flattened"
+        "type": "keyword"
       },
       "createdAt": {
         "type": "date",
@@ -132,7 +132,7 @@ const (
       "updatedAt": {
         "type": "date",
         "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      }
+      },
       "deletedAt": {
         "type": "date",
         "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
