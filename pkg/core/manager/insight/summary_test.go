@@ -21,12 +21,14 @@ import (
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
 )
 
 func TestInsightManager_GetResourceSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -85,7 +87,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 
 func TestInsightManager_GetGVKSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -142,7 +144,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 
 func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client

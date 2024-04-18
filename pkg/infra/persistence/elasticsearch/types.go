@@ -67,6 +67,11 @@ func (e *ESError) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Message)
 }
 
+// CountResponse represents the response structure for a count operation.
+type CountResponse struct {
+	Count int64 `json:"count"`
+}
+
 // SearchResponse represents the response structure for a search operation.
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`

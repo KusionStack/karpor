@@ -25,6 +25,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -39,7 +40,7 @@ func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 	defer mockey.UnPatchAll()
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases
@@ -93,7 +94,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	defer os.Unsetenv("KARBOUR_RELATIONSHIP_FILE")
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -173,7 +174,7 @@ func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 	defer mockey.UnPatchAll()
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases

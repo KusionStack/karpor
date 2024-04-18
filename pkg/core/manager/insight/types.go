@@ -20,6 +20,13 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 )
 
+// Global-related
+type Statistics struct {
+	ClusterCount           int `json:"clusterCount"`
+	ResourceCount          int `json:"resourceCount"`
+	ResourceGroupRuleCount int `json:"resourceGroupRuleCount"`
+}
+
 // Resource-related
 
 type ResourceSummary struct {

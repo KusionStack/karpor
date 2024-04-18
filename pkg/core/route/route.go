@@ -26,6 +26,7 @@ import (
 	resourcegrouprulehandler "github.com/KusionStack/karbour/pkg/core/handler/resourcegrouprule"
 	scannerhandler "github.com/KusionStack/karbour/pkg/core/handler/scanner"
 	searchhandler "github.com/KusionStack/karbour/pkg/core/handler/search"
+	statshandler "github.com/KusionStack/karbour/pkg/core/handler/stats"
 	summaryhandler "github.com/KusionStack/karbour/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karbour/pkg/core/handler/topology"
 	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
@@ -65,12 +66,16 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	resourceStorage, err := search.NewResourceStorage(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
 	resourceGroupRuleStorage, err := search.NewResourceGroupRuleStorage(*extraConfig)
 	if err != nil {
 		return nil, err
 	}
 
-	insightMgr, err := insightmanager.NewInsightManager(searchStorage)
+	insightMgr, err := insightmanager.NewInsightManager(searchStorage, resourceStorage, resourceGroupRuleStorage, genericConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +89,13 @@ func NewCoreRoute(
 
 	// Set up the API routes for version 1 of the API.
 	router.Route("/rest-api/v1", func(r chi.Router) {
-		setupRestAPIV1(r, clusterMgr, insightMgr, resourceGroupMgr, searchMgr, searchStorage, genericConfig)
+		setupRestAPIV1(r,
+			clusterMgr,
+			insightMgr,
+			resourceGroupMgr,
+			searchMgr,
+			searchStorage,
+			genericConfig)
 	})
 
 	// Set up the root routes.
@@ -132,6 +143,7 @@ func setupRestAPIV1(
 	})
 
 	r.Route("/insight", func(r chi.Router) {
+		r.Get("/stats", statshandler.GetStatistics(insightMgr))
 		r.Get("/audit", scannerhandler.Audit(insightMgr))
 		r.Get("/score", scannerhandler.Score(insightMgr))
 		r.Get("/topology", topologyhandler.GetTopology(clusterMgr, insightMgr, genericConfig))

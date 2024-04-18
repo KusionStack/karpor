@@ -21,6 +21,7 @@ import (
 
 var (
 	_ storage.SearchStorageGetter            = &SearchStorageGetter{}
+	_ storage.ResourceStorageGetter          = &ResourceStorageGetter{}
 	_ storage.ResourceGroupRuleStorageGetter = &ResourceGroupRuleStorageGetter{}
 )
 
@@ -31,6 +32,26 @@ type SearchStorageGetter struct {
 
 // GetSearchStorage retrieves and returns a search storage instance based on the provided configuration.
 func (s *SearchStorageGetter) GetSearchStorage() (storage.SearchStorage, error) {
+	esClient, err := NewStorage(elasticsearch.Config{
+		Addresses: s.cfg.Addresses,
+		Username:  s.cfg.UserName,
+		Password:  s.cfg.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return esClient, nil
+}
+
+// ResourceStorageGetter represents a structure for getting resource storage
+// instances.
+type ResourceStorageGetter struct {
+	cfg *Config
+}
+
+// GetResourceStorage retrieves and returns a resource storage instance based on
+// the provided configuration.
+func (s *ResourceStorageGetter) GetResourceStorage() (storage.ResourceStorage, error) {
 	esClient, err := NewStorage(elasticsearch.Config{
 		Addresses: s.cfg.Addresses,
 		Username:  s.cfg.UserName,
@@ -79,6 +100,20 @@ func NewSearchStorageGetter(addresses []string, userName, password string) *Sear
 	}
 
 	return &SearchStorageGetter{
+		cfg,
+	}
+}
+
+// NewResourceStorageGetter creates a new instance of the ResourceStorageGetter
+// with the given Elasticsearch addresses, user name, and password.
+func NewResourceStorageGetter(addresses []string, userName, password string) *ResourceStorageGetter {
+	cfg := &Config{
+		Addresses: addresses,
+		UserName:  userName,
+		Password:  password,
+	}
+
+	return &ResourceStorageGetter{
 		cfg,
 	}
 }

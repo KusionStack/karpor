@@ -187,6 +187,16 @@ func (s *Storage) SaveResourceGroupRule(ctx context.Context, data *entity.Resour
 	return s.client.SaveDocument(ctx, s.resourceGroupRuleIndexName, id, bytes.NewReader(body))
 }
 
+// CountResourceGroupRules return a count of resource group rules in the
+// Elasticsearch storage.
+func (s *Storage) CountResourceGroupRules(ctx context.Context) (int, error) {
+	if resp, err := s.client.Count(ctx, s.resourceGroupRuleIndexName); err != nil {
+		return 0, err
+	} else {
+		return int(resp.Count), nil
+	}
+}
+
 // generateResourceGroupRuleDocument creates an resource group rule document for
 // Elasticsearch with the specified name, description etc.
 func (s *Storage) generateResourceGroupRuleDocument(data *entity.ResourceGroupRule) (id string, body []byte, err error) {

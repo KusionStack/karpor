@@ -97,6 +97,18 @@ type mockSearchStorage struct {
 	storage.SearchStorage
 }
 
+// mockResourceStorage is an in-memory implementation of the ResourceStorage
+// interface for testing purposes.
+type mockResourceStorage struct {
+	storage.ResourceStorage
+}
+
+// mockResourceGroupRuleStorage is an in-memory implementation of the
+// ResourceGroupRuleStorage interface for testing purposes.
+type mockResourceGroupRuleStorage struct {
+	storage.ResourceGroupRuleStorage
+}
+
 // Search implements the search operation returning a single mock resource.
 func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	return &storage.SearchResult{

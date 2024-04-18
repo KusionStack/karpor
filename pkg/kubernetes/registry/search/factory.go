@@ -35,6 +35,22 @@ func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 	return searchStorageGetter.GetSearchStorage()
 }
 
+func NewResourceStorage(c registry.ExtraConfig) (storage.ResourceStorage, error) {
+	storage := RESTStorageProvider{
+		SearchStorageType:      c.SearchStorageType,
+		ElasticSearchAddresses: c.ElasticSearchAddresses,
+		ElasticSearchName:      c.ElasticSearchUsername,
+		ElasticSearchPassword:  c.ElasticSearchPassword,
+	}
+
+	resourceStorageGetter, err := storage.ResourceStorageGetter()
+	if err != nil {
+		return nil, err
+	}
+
+	return resourceStorageGetter.GetResourceStorage()
+}
+
 func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupRuleStorage, error) {
 	storage := RESTStorageProvider{
 		SearchStorageType:      c.SearchStorageType,
