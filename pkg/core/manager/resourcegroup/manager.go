@@ -97,7 +97,7 @@ func (m *ResourceGroupManager) UpdateResourceGroupRule(ctx context.Context, name
 		Fields:      rgr.Fields,
 		CreatedAt:   existingRGR.CreatedAt,
 		UpdatedAt:   rgr.UpdatedAt,
-		DeletedAt:   "",
+		DeletedAt:   nil,
 	}
 	// Save the updated rule to the storage.
 	return m.rgrStorage.SaveResourceGroupRule(ctx, newRGR)

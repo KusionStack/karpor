@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 type ResourceGroupRule struct {
@@ -29,11 +30,11 @@ type ResourceGroupRule struct {
 	Description string   `yaml:"description,omitempty" json:"description,omitempty"`
 	Fields      []string `yaml:"fields,omitempty" json:"fields,omitempty"`
 	// CreatedAt is the timestamp of the created for the resourceGroupRule.
-	CreatedAt string `yaml:"createdAt,omitempty" json:"createdAt,omitempty"`
+	CreatedAt *metav1.Time `yaml:"createdAt,omitempty" json:"createdAt,omitempty"`
 	// CreatedAt is the timestamp of the updated for the resourceGroupRule.
-	UpdatedAt string `yaml:"updatedAt,omitempty" json:"updatedAt,omitempty"`
+	UpdatedAt *metav1.Time `yaml:"updatedAt,omitempty" json:"updatedAt,omitempty"`
 	// DeletedAt is the timestamp of the deleted for the resourceGroupRule.
-	DeletedAt string `yaml:"deletedAt,omitempty" json:"deletedAt,omitempty"`
+	DeletedAt *metav1.Time `yaml:"deletedAt,omitempty" json:"deletedAt,omitempty"`
 }
 
 // Validate checks if the resourceGroupRule is valid.

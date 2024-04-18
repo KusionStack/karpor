@@ -16,12 +16,12 @@ package resourcegrouprule
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 // Ensure that ResourceGroupRulePayload implements the handler.Payload
@@ -54,11 +54,12 @@ func (p *ResourceGroupRulePayload) Decode(r *http.Request) error {
 
 // ToEntity converts the payload struct to the corresponding entity struct.
 func (p *ResourceGroupRulePayload) ToEntity() *entity.ResourceGroupRule {
+	t := metav1.Now()
 	return &entity.ResourceGroupRule{
 		Name:        p.Name,
 		Description: p.Description,
 		Fields:      p.Fields,
-		CreatedAt:   time.Now().UTC().Format(time.RFC3339),
-		UpdatedAt:   time.Now().UTC().Format(time.RFC3339),
+		CreatedAt:   &t,
+		UpdatedAt:   &t,
 	}
 }

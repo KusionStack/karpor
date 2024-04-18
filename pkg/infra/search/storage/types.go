@@ -22,6 +22,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
@@ -214,10 +215,26 @@ func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule
 	for i, field := range fields {
 		out.Fields[i] = toString(field)
 	}
-	out.CreatedAt = toString(in["createdAt"])
-	out.DeletedAt = toString(in["deleteAt"])
-	out.UpdatedAt = toString(in["updateAt"])
+	out.CreatedAt = toTime(in["createdAt"])
+	out.DeletedAt = toTime(in["deleteAt"])
+	out.UpdatedAt = toTime(in["updateAt"])
 	return out, nil
+}
+
+func toTime(in interface{}) *metav1.Time {
+	if in == nil {
+		return nil
+	}
+	s, ok := in.(string)
+	if !ok {
+		return nil
+	}
+	t := &metav1.Time{}
+	err := t.UnmarshalJSON([]byte(s))
+	if err != nil {
+		return nil
+	}
+	return t
 }
 
 func toString(in interface{}) string {
