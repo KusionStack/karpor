@@ -47,6 +47,7 @@ type ResourceStorage interface {
 	SaveResource(ctx context.Context, cluster string, obj runtime.Object) error
 	DeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
 	DeleteAllResources(ctx context.Context, cluster string) error
+	CountResources(ctx context.Context) (int, error)
 }
 
 // ResourceGroupRuleStorage interface defines the basic operations for resource
@@ -57,6 +58,7 @@ type ResourceGroupRuleStorage interface {
 	DeleteResourceGroupRule(ctx context.Context, name string) error
 	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
 	ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error)
+	CountResourceGroupRules(ctx context.Context) (int, error)
 }
 
 // Storage interface defines the basic operations for resource storage.
@@ -68,6 +70,9 @@ type SearchStorage interface {
 
 type SearchStorageGetter interface {
 	GetSearchStorage() (SearchStorage, error)
+}
+type ResourceStorageGetter interface {
+	GetResourceStorage() (ResourceStorage, error)
 }
 
 type ResourceGroupRuleStorageGetter interface {

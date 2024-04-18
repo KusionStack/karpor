@@ -33,6 +33,12 @@ type mockSearchStorage struct {
 	storage.SearchStorage
 }
 
+// mockResourceStorage is an in-memory implementation of the ResourceStorage
+// interface for testing purposes.
+type mockResourceStorage struct {
+	storage.ResourceStorage
+}
+
 // mockResourceGroupRuleStorage is an in-memory implementation of the
 // ResourceGroupRuleStorage interface for testing purposes.
 type mockResourceGroupRuleStorage struct {
@@ -45,6 +51,7 @@ func TestNewCoreRoute(t *testing.T) {
 	// Mock the NewSearchStorage and NewResourceGroupRuleStorage function to
 	// return a mock storage instead of actual implementation.
 	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
+	mockey.Mock(search.NewResourceStorage).Return(&mockResourceStorage{}, nil).Build()
 	mockey.Mock(search.NewResourceGroupRuleStorage).Return(&mockResourceGroupRuleStorage{}, nil).Build()
 	defer mockey.UnPatchAll()
 

@@ -103,6 +103,20 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 	}
 }
 
+// ResourceStorageGetter returns the resource storage getter for the provider.
+func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGetter, error) {
+	switch p.SearchStorageType {
+	case "elasticsearch":
+		return elasticsearch.NewResourceStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
+	default:
+		return nil, fmt.Errorf("invalid resource storage type %s", p.SearchStorageType)
+	}
+}
+
 // ResourceGroupRuleStorageGetter returns the resource group rule storage getter for the provider.
 func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceGroupRuleStorageGetter, error) {
 	switch p.SearchStorageType {

@@ -204,6 +204,35 @@ func (cl *Client) SearchDocument(
 	return sr, nil
 }
 
+// Count performs a count query in the specified index.
+func (cl *Client) Count(
+	ctx context.Context,
+	indexName string,
+) (*CountResponse, error) {
+	opts := []func(*esapi.CountRequest){
+		cl.client.Count.WithContext(ctx),
+		cl.client.Count.WithIndex(indexName),
+	}
+
+	resp, err := cl.client.Count(opts...)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.IsError() {
+		return nil, &ESError{
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
+		}
+	}
+
+	sr := &CountResponse{}
+	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
+		return nil, err
+	}
+	return sr, nil
+}
+
 // CreateIndex creates a new index with the specified settings and mappings
 func (cl *Client) CreateIndex(ctx context.Context, index string, body io.Reader) error {
 	resp, err := cl.client.Indices.Create(

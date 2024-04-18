@@ -95,6 +95,15 @@ func (s *Storage) GetResource(ctx context.Context, cluster string, obj runtime.O
 	return nil
 }
 
+// CountResources return a count of resources in the Elasticsearch storage.
+func (s *Storage) CountResources(ctx context.Context) (int, error) {
+	if resp, err := s.client.Count(ctx, s.resourceIndexName); err != nil {
+		return 0, err
+	} else {
+		return int(resp.Count), nil
+	}
+}
+
 // DeleteAllResources removes all resources from the Elasticsearch storage for the specified cluster.
 func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error {
 	query := make(map[string]interface{})

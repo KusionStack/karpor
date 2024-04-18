@@ -19,6 +19,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 )
 
+// NewSearchStorage creates a new instance of a search storage component using the provided extra configuration.
 func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 	storage := RESTStorageProvider{
 		SearchStorageType:      c.SearchStorageType,
@@ -35,6 +36,24 @@ func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 	return searchStorageGetter.GetSearchStorage()
 }
 
+// NewResourceStorage creates a new instance of a resource storage component using the provided extra configuration.
+func NewResourceStorage(c registry.ExtraConfig) (storage.ResourceStorage, error) {
+	storage := RESTStorageProvider{
+		SearchStorageType:      c.SearchStorageType,
+		ElasticSearchAddresses: c.ElasticSearchAddresses,
+		ElasticSearchName:      c.ElasticSearchUsername,
+		ElasticSearchPassword:  c.ElasticSearchPassword,
+	}
+
+	resourceStorageGetter, err := storage.ResourceStorageGetter()
+	if err != nil {
+		return nil, err
+	}
+
+	return resourceStorageGetter.GetResourceStorage()
+}
+
+// NewResourceGroupRuleStorage creates a new instance of a resource group rule storage component using the provided extra configuration.
 func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupRuleStorage, error) {
 	storage := RESTStorageProvider{
 		SearchStorageType:      c.SearchStorageType,

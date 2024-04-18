@@ -99,6 +99,15 @@ definitions:
           of issues across different severity categories.
         type: object
     type: object
+  insight.Statistics:
+    properties:
+      clusterCount:
+        type: integer
+      resourceCount:
+        type: integer
+      resourceGroupRuleCount:
+        type: integer
+    type: object
   resourcegrouprule.ResourceGroupRulePayload:
     properties:
       description:
@@ -754,6 +763,43 @@ paths:
           schema:
             type: string
       summary: ScoreHandler calculates a score for the audited manifest.
+      tags:
+      - insight
+  /rest-api/v1/insight/stats:
+    get:
+      description: This endpoint returns a global statistics info.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Global statistics info
+          schema:
+            $ref: '#/definitions/insight.Statistics'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get returns a global statistics info.
       tags:
       - insight
   /rest-api/v1/insight/summary:
