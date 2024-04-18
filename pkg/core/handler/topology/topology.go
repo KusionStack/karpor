@@ -87,7 +87,6 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 			} else {
 				clusterNames = []string{resourceGroup.Cluster}
 			}
-			handler.HandleResult(w, r, ctx, err, nil)
 			customResourceTopologyMap, err := insightMgr.GetTopologyForCustomResourceGroup(ctx, client, &resourceGroup, clusterNames, forceNew)
 			handler.HandleResult(w, r, ctx, err, customResourceTopologyMap)
 		case entity.Resource, entity.NonNamespacedResource:

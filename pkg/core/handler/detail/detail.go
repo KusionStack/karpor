@@ -95,7 +95,7 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 				handler.HandleResult(w, r, ctx, err, namespace)
 			}
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unsupported resource group type: %v", resourceGroupType)))
 		}
 	}
 }

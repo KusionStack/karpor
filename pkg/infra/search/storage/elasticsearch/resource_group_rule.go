@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
@@ -115,13 +114,13 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 
 // ListResourceGroupsBy lists all resource groups by specified resource group
 // rule name.
-func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error) {
+func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
 	rgr, err := s.GetResourceGroupRule(ctx, ruleName)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceGroupRuleIndexName, rgr.Fields)
+	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceIndexName, rgr.Fields)
 	if err != nil {
 		return nil, err
 	}
@@ -131,51 +130,10 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) ([]
 		return nil, ErrResourceGroupNotFound
 	}
 
-	// Initialize a slice to hold the resource group rules.
-	var rgList []*entity.ResourceGroup
-
-	// Iterate over the search hits and map each hit to a ResourceGroupRule entity.
-	for _, bucket := range resp.Buckets {
-		if len(rgr.Fields) != len(bucket.Keys) {
-			return nil, fmt.Errorf("mismatched number of fields: expected %d, got %d", len(rgr.Fields), len(bucket.Keys))
-		}
-		// Convert the current bucket to a resource group.
-		rg := &entity.ResourceGroup{}
-		for i, v := range bucket.Keys {
-			field := rgr.Fields[i]
-			switch field {
-			case "cluster":
-				rg.Cluster = v
-			case "apiVersion":
-				rg.APIVersion = v
-			case "kind":
-				rg.Kind = v
-			case "namespace":
-				rg.Namespace = v
-			case "name":
-				rg.Name = v
-			default:
-				if strings.HasPrefix(field, "annotations.") {
-					annoKey := strings.TrimPrefix(field, "annotations.")
-					if rg.Annotations == nil {
-						rg.Annotations = map[string]string{annoKey: v}
-					} else {
-						rg.Annotations[annoKey] = v
-					}
-				} else if strings.HasPrefix(field, "labels.") {
-					labelKey := strings.TrimPrefix(field, "labels.")
-					if rg.Labels == nil {
-						rg.Labels = map[string]string{labelKey: v}
-					} else {
-						rg.Labels[labelKey] = v
-					}
-				}
-			}
-		}
-		rgList = append(rgList, rg)
-	}
-
-	return rgList, nil
+	return &storage.ResourceGroupResult{
+		AggregateResults: convertAggregationResult(resp),
+		Keys:             rgr.Fields,
+	}, nil
 }
 
 // SaveResourceGroupRule saves a resource group rule to the storage.

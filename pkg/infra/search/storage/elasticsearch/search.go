@@ -140,16 +140,16 @@ func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResul
 
 // convertAggregationResult converts an elasticsearch.AggResults to a storage.AggregateResults.
 func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateResults {
-	buckets := make([]storage.Bucket, len(in.Buckets))
+	buckets := make([]storage.Group, len(in.Buckets))
 	for i := range in.Buckets {
-		buckets[i] = storage.Bucket{
-			Keys:  in.Buckets[i].Keys,
-			Count: in.Buckets[i].Count,
+		buckets[i] = storage.Group{
+			Values: in.Buckets[i].Keys,
+			Count:  in.Buckets[i].Count,
 		}
 	}
 	return &storage.AggregateResults{
-		Buckets: buckets,
-		Total:   in.Total,
+		Groups: buckets,
+		Total:  in.Total,
 	}
 }
 

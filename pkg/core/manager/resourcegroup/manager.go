@@ -115,7 +115,7 @@ func (m *ResourceGroupManager) DeleteResourceGroupRule(ctx context.Context, name
 
 // ListResourceGroupsBy lists all resource groups by specified resource group
 // rule name.
-func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error) {
+func (m *ResourceGroupManager) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
 	if len(ruleName) == 0 {
 		return nil, ErrMissingResourceGroupRuleName
 	}

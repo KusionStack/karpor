@@ -56,11 +56,11 @@ type ResourceGroupRuleStorage interface {
 	SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error
 	DeleteResourceGroupRule(ctx context.Context, name string) error
 	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
-	ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error)
 	CountResourceGroupRules(ctx context.Context) (int, error)
+	ListResourceGroupsBy(ctx context.Context, ruleName string) (*ResourceGroupResult, error)
 }
 
-// Storage interface defines the basic operations for resource storage.
+// SearchStorage interface defines the basic operations for search storage.
 type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
 	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
@@ -97,16 +97,21 @@ type SearchResult struct {
 	Resources []*Resource
 }
 
-// AggregateResults is assumed to be a struct that holds aggregation results.
-type AggregateResults struct {
-	Buckets []Bucket
-	Total   int
+// Group is assumed to be a struct that holds individual bucket data.
+type Group struct {
+	Values []string `json:"values" yaml:"values"`
+	Count  int      `json:"count" yaml:"count"`
 }
 
-// Bucket is assumed to be a struct that holds individual bucket data.
-type Bucket struct {
-	Keys  []string
-	Count int
+// AggregateResults is assumed to be a struct that holds aggregation results.
+type AggregateResults struct {
+	Groups []Group `json:"groups" yaml:"groups"`
+	Total  int     `json:"total" yaml:"total"`
+}
+
+type ResourceGroupResult struct {
+	*AggregateResults `json:",inline" yaml:",inline"`
+	Keys              []string `json:"keys" yaml:"keys"`
 }
 
 // Overview returns a brief summary of the search result.
@@ -219,5 +224,9 @@ func toString(in interface{}) string {
 	if in == nil {
 		return ""
 	}
-	return in.(string)
+	rt, ok := in.(string)
+	if !ok {
+		return ""
+	}
+	return rt
 }

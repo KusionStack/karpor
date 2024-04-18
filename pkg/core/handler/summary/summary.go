@@ -86,7 +86,7 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, gvkSummary)
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unsupported resource group type: %v", resourceGroupType)))
 		}
 	}
 }

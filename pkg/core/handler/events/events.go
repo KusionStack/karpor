@@ -89,7 +89,7 @@ func GetEvents(insightMgr *insight.InsightManager, c *server.CompletedConfig) ht
 			gvkEvents, err := insightMgr.GetGVKEvents(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, gvkEvents)
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("no applicable resource group type found")))
+			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unsupported resource group type: %v", resourceGroupType)))
 		}
 	}
 }
