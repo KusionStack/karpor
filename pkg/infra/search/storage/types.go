@@ -23,6 +23,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"gopkg.in/yaml.v2"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	yamlutil "k8s.io/apimachinery/pkg/util/yaml"
@@ -34,7 +35,7 @@ const (
 	SQLPatternType = "sql"
 )
 
-// ResourceStorage interface defines the basic operations for storage.
+// Storage interface defines the basic operations for storage.
 type Storage interface {
 	ResourceStorage
 	ResourceGroupRuleStorage
@@ -57,11 +58,11 @@ type ResourceGroupRuleStorage interface {
 	SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error
 	DeleteResourceGroupRule(ctx context.Context, name string) error
 	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
-	ListResourceGroupsBy(ctx context.Context, ruleName string) ([]*entity.ResourceGroup, error)
 	CountResourceGroupRules(ctx context.Context) (int, error)
+	ListResourceGroupsBy(ctx context.Context, ruleName string) (*ResourceGroupResult, error)
 }
 
-// Storage interface defines the basic operations for resource storage.
+// SearchStorage interface defines the basic operations for search storage.
 type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
 	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
@@ -108,6 +109,11 @@ type AggregateResults struct {
 type Bucket struct {
 	Keys  []string
 	Count int
+}
+
+type ResourceGroupResult struct {
+	Groups []*entity.ResourceGroup `json:"groups" yaml:"groups"`
+	Fields []string                `json:"fields" yaml:"keys"`
 }
 
 // Overview returns a brief summary of the search result.
@@ -202,12 +208,50 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 // Map2ResourceGroupRule converts a map to a ResourceGroupRule object.
 func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule, error) {
 	out := &entity.ResourceGroupRule{}
-	out.ID = in["id"].(string)
-	out.Name = in["name"].(string)
-	out.Description = in["description"].(string)
-	out.Fields = in["fields"].([]string)
-	out.CreatedAt = in["createdAt"].(time.Time)
-	out.DeletedAt = in["deletedAt"].(time.Time)
-	out.UpdatedAt = in["updatedAt"].(time.Time)
+	out.ID = toString(in["id"])
+	out.Name = toString(in["name"])
+	out.Description = toString(in["description"])
+	fields := in["fields"].([]interface{})
+	out.Fields = make([]string, len(fields))
+	for i, field := range fields {
+		out.Fields[i] = toString(field)
+	}
+
+	var err error
+	if out.CreatedAt, err = toTime(in["createdAt"]); err != nil {
+		return nil, err
+	}
+	if out.UpdatedAt, err = toTime(in["updatedAt"]); err != nil {
+		return nil, err
+	}
+	if out.DeletedAt, err = toTime(in["deletedAt"]); err != nil {
+		return nil, err
+	}
 	return out, nil
+}
+
+func toTime(in interface{}) (*metav1.Time, error) {
+	if in == nil {
+		return nil, nil
+	}
+	s, ok := in.(string)
+	if !ok {
+		return nil, fmt.Errorf("expected input to be a string, got %T", in)
+	}
+	t, err := time.ParseInLocation(time.RFC3339, s, time.UTC)
+	if err != nil {
+		return nil, err
+	}
+	return &metav1.Time{Time: t}, nil
+}
+
+func toString(in interface{}) string {
+	if in == nil {
+		return ""
+	}
+	rt, ok := in.(string)
+	if !ok {
+		return ""
+	}
+	return rt
 }

@@ -124,29 +124,30 @@ func (rg *ResourceGroup) ToSQL() string {
 
 // GetType returns the type of ResourceGroup and a boolean indicating success.
 func (rg *ResourceGroup) GetType() (ResourceGroupType, bool) {
-	if len(rg.Labels) != 0 || len(rg.Annotations) != 0 {
+	if rg.Cluster == "" || len(rg.Labels) != 0 || len(rg.Annotations) != 0 {
 		return Custom, true
 	}
-	if rg.Cluster == "" {
-		return -1, false
-	}
+
+	// Cluster is not empty
 	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace != "" && rg.Name != "" {
 		return Resource, true
 	}
-	if rg.APIVersion != "" && rg.Kind != "" && rg.Name != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace == "" && rg.Name != "" {
 		return NonNamespacedResource, true
 	}
-	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace != "" && rg.Name == "" {
 		return ClusterGVKNamespace, true
 	}
-	if rg.APIVersion != "" && rg.Kind != "" {
+	if rg.APIVersion != "" && rg.Kind != "" && rg.Namespace == "" && rg.Name == "" {
 		return GVK, true
 	}
-	if rg.Namespace != "" {
-		// TODO: what if only apiversion is present but kind is not?
+	if rg.APIVersion == "" && rg.Kind == "" && rg.Namespace != "" && rg.Name == "" {
 		return Namespace, true
 	}
-	return Cluster, true
+	if rg.APIVersion == "" && rg.Kind == "" && rg.Namespace == "" && rg.Name == "" {
+		return Cluster, true
+	}
+	return Custom, true
 }
 
 // NewResourceGroupFromQuery creates a ResourceGroup from an HTTP request query parameters.
@@ -194,8 +195,5 @@ func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 		Annotations: annotations,
 	}
 
-	if rgType, _ := rg.GetType(); rgType == Custom && cluster == "" {
-		return ResourceGroup{}, fmt.Errorf("cluster cannot be empty")
-	}
 	return rg, nil
 }

@@ -4,6 +4,13 @@ metadata:
   name: anonymous
 rules:
   - nonResourceURLs:
+      - /rest-api/v1/resource-group-rule
+      - /rest-api/v1/resource-group-rule/*
+      - /rest-api/v1/cluster
+      - /rest-api/v1/cluster/*
+    verbs:
+      - '*'
+  - nonResourceURLs:
       - /
       - /rest-api/*
       - /endpoints

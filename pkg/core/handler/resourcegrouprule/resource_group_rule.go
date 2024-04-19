@@ -108,10 +108,8 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 		// Use the ResourceGroupManager to create the resource group rule.
 		rgr := payload.ToEntity()
 		if err := resourceGroupMgr.CreateResourceGroupRule(ctx, rgr); err != nil {
-			if !errors.Is(err, resourcegroup.ErrResourceGroupRuleAlreadyExists) {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
-				return
-			}
+			render.Render(w, r, handler.FailureResponse(ctx, err))
+			return
 		}
 
 		// Render the created resource group rule.
