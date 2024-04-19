@@ -35,7 +35,7 @@ const (
 	SQLPatternType = "sql"
 )
 
-// ResourceStorage interface defines the basic operations for storage.
+// Storage interface defines the basic operations for storage.
 type Storage interface {
 	ResourceStorage
 	ResourceGroupRuleStorage
@@ -99,21 +99,21 @@ type SearchResult struct {
 	Resources []*Resource
 }
 
-// Group is assumed to be a struct that holds individual bucket data.
-type Group struct {
-	Values []string `json:"values" yaml:"values"`
-	Count  int      `json:"count" yaml:"count"`
-}
-
 // AggregateResults is assumed to be a struct that holds aggregation results.
 type AggregateResults struct {
-	Groups []Group `json:"groups" yaml:"groups"`
-	Total  int     `json:"total" yaml:"total"`
+	Buckets []Bucket
+	Total   int
+}
+
+// Bucket is assumed to be a struct that holds individual bucket data.
+type Bucket struct {
+	Keys  []string
+	Count int
 }
 
 type ResourceGroupResult struct {
-	*AggregateResults `json:",inline" yaml:",inline"`
-	Keys              []string `json:"keys" yaml:"keys"`
+	Groups []*entity.ResourceGroup `json:"groups" yaml:"groups"`
+	Fields []string                `json:"fields" yaml:"keys"`
 }
 
 // Overview returns a brief summary of the search result.
