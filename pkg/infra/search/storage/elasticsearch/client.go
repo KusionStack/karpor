@@ -84,6 +84,10 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 
 // createResourceGroupRuleIfNotExists checks if a resource group rule exists and creates it if it does not.
 func createResourceGroupRuleIfNotExists(cl *elasticsearch.Client, ruleName string) error {
+	if err := cl.Refresh(context.Background(), defaultResourceGroupRuleIndexName); err != nil {
+		return err
+	}
+
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
 		esquery.Term(resourceKeyName, ruleName),

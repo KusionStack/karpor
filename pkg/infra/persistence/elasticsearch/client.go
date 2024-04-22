@@ -312,6 +312,23 @@ func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fi
 	return cl.multiTermsAgg(ctx, index, fields)
 }
 
+// Refresh refresh specified index in Elasticsearch.
+func (cl *Client) Refresh(
+	ctx context.Context,
+	indexName string,
+) error {
+	opts := []func(*esapi.IndicesRefreshRequest){
+		cl.client.Indices.Refresh.WithContext(ctx),
+		cl.client.Indices.Refresh.WithIndex(indexName),
+	}
+
+	_, err := cl.client.Indices.Refresh(opts...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 // multiTermsAggSearch executes a multi-term aggregation query on specified fields.
 func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []string) (*AggResults, error) {
 	// Construct the terms for multi-term aggregation based on the fields.
