@@ -15,13 +15,19 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
 	"strings"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/aquasecurity/esquery"
 	esv8 "github.com/elastic/go-elasticsearch/v8"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 )
@@ -56,6 +62,14 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 		return nil, err
 	}
 
+	// Check if the default resource group rule exists, if not, create it.
+	if err = createResourceGroupRuleIfNotExists(cl, "kind"); err != nil {
+		return nil, err
+	}
+	if err = createResourceGroupRuleIfNotExists(cl, "namespace"); err != nil {
+		return nil, err
+	}
+
 	return &Storage{
 		client:                     cl,
 		resourceIndexName:          defaultResourceIndexName,
@@ -66,4 +80,38 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 			scheme.Scheme,
 			runtimejson.SerializerOptions{Yaml: false, Pretty: true, Strict: true}),
 	}, nil
+}
+
+func createResourceGroupRuleIfNotExists(cl *elasticsearch.Client, ruleName string) error {
+	query := make(map[string]interface{})
+	query["query"] = esquery.Bool().Must(
+		esquery.Term(resourceKeyName, ruleName),
+	).Map()
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return err
+	}
+	resp, err := cl.SearchDocument(context.TODO(), defaultResourceGroupRuleIndexName, buf)
+	if err != nil {
+		return err
+	}
+
+	if resp.Hits.Total.Value == 0 {
+		// If specified resource group rule not found, create it
+		id := entity.UUID()
+		nowTime := metav1.Now()
+		body, err := json.Marshal(map[string]interface{}{
+			resourceGroupRuleKeyID:          id,
+			resourceGroupRuleKeyName:        ruleName,
+			resourceGroupRuleKeyDescription: fmt.Sprintf("Default resource group rule for %s", ruleName),
+			resourceGroupRuleKeyFields:      []string{ruleName},
+			resourceGroupRuleKeyCreatedAt:   &nowTime,
+			resourceGroupRuleKeyUpdatedAt:   &nowTime,
+		})
+		err = cl.SaveDocument(context.TODO(), defaultResourceGroupRuleIndexName, id, bytes.NewReader(body))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
