@@ -20,7 +20,7 @@ import (
 	"strings"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/aquasecurity/esquery"
+	"github.com/elliotxx/esquery"
 )
 
 // Parse takes a query string and returns a slice of storage.Query and an error if any.
