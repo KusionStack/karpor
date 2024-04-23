@@ -21,7 +21,7 @@ import (
 	"fmt"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/aquasecurity/esquery"
+	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"

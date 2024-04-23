@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/aquasecurity/esquery"
+	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/tools/cache"
