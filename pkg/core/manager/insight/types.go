@@ -111,6 +111,12 @@ type NamespaceSummary struct {
 	CountByGVK map[string]int `json:"countByGVK"`
 }
 
+// ResourceGroup-related
+type ResourceGroupSummary struct {
+	*entity.ResourceGroup
+	CountByGVK map[string]int `json:"countByGVK"`
+}
+
 type KeyValuePair struct {
 	key   string
 	value int

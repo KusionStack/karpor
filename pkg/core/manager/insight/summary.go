@@ -89,7 +89,7 @@ func (i *InsightManager) GetGVKSummary(ctx context.Context, client *multicluster
 
 // GetNamespaceSummary returns the unstructured cluster object summary for a given namespace. Possibly will add more metrics to it in the future.
 func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (*NamespaceSummary, error) {
-	namespaceCount, err := i.CountResourcesByNamespace(ctx, client, resourceGroup)
+	namespaceCount, err := i.CountByResourceGroup(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}
@@ -98,5 +98,18 @@ func (i *InsightManager) GetNamespaceSummary(ctx context.Context, client *multic
 		Cluster:    resourceGroup.Cluster,
 		Namespace:  resourceGroup.Namespace,
 		CountByGVK: topFiveCount,
+	}, nil
+}
+
+// GetResourceGroupSummary returns a summary of a resource group, including details about its resources and their distribution.
+func (i *InsightManager) GetResourceGroupSummary(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (*ResourceGroupSummary, error) {
+	count, err := i.CountByResourceGroup(ctx, client, resourceGroup)
+	if err != nil {
+		return nil, err
+	}
+	topFiveCount := GetTopResultsFromMap(count)
+	return &ResourceGroupSummary{
+		ResourceGroup: resourceGroup,
+		CountByGVK:    topFiveCount,
 	}, nil
 }

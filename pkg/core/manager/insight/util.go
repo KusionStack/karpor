@@ -73,13 +73,9 @@ func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multic
 }
 
 // CountResourcesByGVK returns a map from string to int
-func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (map[string]int, error) {
+func (i *InsightManager) CountByResourceGroup(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (map[string]int, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
-	if resourceGroup.Cluster == "" || resourceGroup.Namespace == "" {
-		return nil, fmt.Errorf("cluster and Namespace in resourceGroup cannot be empty")
-	}
-	counts := make(map[string]int)
 	// Another option here is to retrieve the list of API resources and iterate over each using dynamic client
 	// That will create more pressure on the spoke cluster and cause unexpected and unnecessary amount of time
 	// We opted to use Elastic search as the source of the count
@@ -91,6 +87,7 @@ func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *
 	log.Info("Starting search in InsightManager ...",
 		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
+	counts := make(map[string]int)
 	for {
 		res, err := i.search.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: pageIteration, PageSize: pageSizeIteration})
 		if err != nil {

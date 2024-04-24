@@ -85,6 +85,9 @@ func GetSummary(insightMgr *insight.InsightManager, c *server.CompletedConfig) h
 		case entity.GVK:
 			gvkSummary, err := insightMgr.GetGVKSummary(r.Context(), client, &resourceGroup)
 			handler.HandleResult(w, r, ctx, err, gvkSummary)
+		case entity.Custom:
+			rgSummary, err := insightMgr.GetResourceGroupSummary(r.Context(), client, &resourceGroup)
+			handler.HandleResult(w, r, ctx, err, rgSummary)
 		default:
 			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unsupported resource group type: %v", resourceGroupType)))
 		}
