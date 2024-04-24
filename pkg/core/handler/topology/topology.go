@@ -80,7 +80,10 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 		switch resourceGroupType {
 		case entity.Custom:
 			client, err = multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, "")
-			handler.HandleResult(w, r, ctx, err, nil)
+			if err != nil {
+				render.Render(w, r, handler.FailureResponse(ctx, err))
+				return
+			}
 			var clusterNames []string
 			if len(resourceGroup.Cluster) == 0 {
 				clusterNames, err = clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
