@@ -23,7 +23,7 @@ import (
 
 	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/aquasecurity/esquery"
+	"github.com/elliotxx/esquery"
 )
 
 const (

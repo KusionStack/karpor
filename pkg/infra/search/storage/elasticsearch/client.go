@@ -25,7 +25,7 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
-	"github.com/aquasecurity/esquery"
+	"github.com/elliotxx/esquery"
 	esv8 "github.com/elastic/go-elasticsearch/v8"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
