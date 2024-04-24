@@ -43,6 +43,12 @@ var (
 
 // DeleteResourceGroupRule deletes a resource group rule based on the given name.
 func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) error {
+	// Refresh the index before searching to ensure real-time data.
+	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
+	if err != nil {
+		return err
+	}
+
 	if rgr, err := s.GetResourceGroupRule(ctx, name); err != nil {
 		return err
 	} else {
@@ -52,6 +58,12 @@ func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) erro
 
 // GetResourceGroupRule retrieves a resource group rule based on the given name.
 func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
+	// Refresh the index before searching to ensure real-time data.
+	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
+	if err != nil {
+		return nil, err
+	}
+
 	query := generateResourceGroupRuleQuery(name)
 	buf := &bytes.Buffer{}
 	if err := json.NewEncoder(buf).Encode(query); err != nil {
@@ -77,6 +89,12 @@ func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entit
 // ListResourceGroupRules lists all resource group rules by searching the entire
 // index.
 func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
+	// Refresh the index before searching to ensure real-time data.
+	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create a query to search for all resource group rules.
 	query := generateResourceGroupRuleQueryForAll()
 
@@ -116,6 +134,12 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 // ListResourceGroupsBy lists all resource groups by specified resource group
 // rule name.
 func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
+	// Refresh the index before searching to ensure real-time data.
+	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
+	if err != nil {
+		return nil, err
+	}
+
 	rgr, err := s.GetResourceGroupRule(ctx, ruleName)
 	if err != nil {
 		return nil, err
