@@ -25,8 +25,8 @@ import (
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
-	"github.com/elliotxx/esquery"
 	esv8 "github.com/elastic/go-elasticsearch/v8"
+	"github.com/elliotxx/esquery"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -84,6 +84,7 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 
 // createResourceGroupRuleIfNotExists checks if a resource group rule exists and creates it if it does not.
 func createResourceGroupRuleIfNotExists(cl *elasticsearch.Client, ruleName string) error {
+	// Refresh the index before searching to ensure real-time data.
 	if err := cl.Refresh(context.Background(), defaultResourceGroupRuleIndexName); err != nil {
 		return err
 	}
