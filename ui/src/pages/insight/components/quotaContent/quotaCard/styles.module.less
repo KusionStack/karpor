@@ -1,0 +1,41 @@
+.wrapper {
+  position: relative;
+  display: flex;
+  height: 100%;
+  padding: 20px 20px 0;
+  overflow: hidden;
+  background: #fff;
+  border-radius: 10px;
+  flex-direction: column;
+  box-sizing: border-box;
+
+  .top {
+    font-size: 18px;
+    font-weight: 400;
+    color: rgb(0 0 0 / 89%);
+  }
+
+  .bottom {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    .icon {
+      margin-top: 5px;
+      margin-left: -10px;
+    }
+
+    .status {
+      position: absolute;
+      right: 20px;
+      bottom: 15px;
+      font-size: 36px;
+      color: rgb(0 10 26 / 89%);
+
+      .num {
+        font-weight: 700;
+      }
+    }
+  }
+}

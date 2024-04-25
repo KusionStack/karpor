@@ -3,7 +3,7 @@ import React from 'react'
 
 const TextCopy: any = Text
 
-const PointButton = (pointButtonProps: {
+const NodeLabel = (NodeLabelProps: {
   width: number
   color?: string
   children?: string
@@ -22,7 +22,7 @@ const PointButton = (pointButtonProps: {
     onMouseOver,
     onMouseLeave,
     disabled = false,
-  } = pointButtonProps
+  } = NodeLabelProps
   return (
     <TextCopy
       style={{
@@ -41,4 +41,4 @@ const PointButton = (pointButtonProps: {
   )
 }
 
-export default PointButton
+export default NodeLabel

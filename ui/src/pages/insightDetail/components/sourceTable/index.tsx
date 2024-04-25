@@ -82,7 +82,6 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       dataIndex: 'kind',
       key: 'kind',
       title: 'Kind',
-      // render: (text) => text === 'success' ? <Badge status="success" text="健康" /> : <Badge status="error" text="异常" />
       render: (_, record) => {
         return record?.object?.kind
       },

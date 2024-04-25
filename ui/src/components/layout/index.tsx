@@ -70,7 +70,7 @@ const LayoutPage = () => {
       null,
       true,
     ),
-    getItem(t('Insight'), '/insight', <FundOutlined />, null, null, null, true),
+    getItem(t('Insight'), '/insight', <FundOutlined />),
     getItem(t('ClusterManagement'), '/cluster', <ClusterOutlined />),
     getItem(
       t('ClusterDetail'),
@@ -145,8 +145,6 @@ const LayoutPage = () => {
     i18n.changeLanguage('en')
   }
 
-  console.log(i18n.language, '===i18n===')
-
   const languageItems: MenuProps['items'] = [
     {
       label: (
@@ -196,22 +194,10 @@ const LayoutPage = () => {
             <Dropdown menu={{ items: languageItems }}>
               <a
                 onClick={e => e.preventDefault()}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  cursor: 'pointer',
-                }}
+                className={styles.help_container}
               >
-                <img src={languagePng} style={{ width: 16, height: 16 }} />
-                <span
-                  style={{
-                    fontSize: 14,
-                    marginLeft: 6,
-                    marginRight: 3,
-                    color: '#646566',
-                    textAlign: 'right',
-                  }}
-                >
+                <img src={languagePng} />
+                <span className={styles.help_text}>
                   {i18n.language === 'zh' ? '中文' : 'English'}
                 </span>
                 <CaretDownOutlined style={{ color: '#646566' }} />
@@ -224,7 +210,7 @@ const LayoutPage = () => {
               href="https://github.com/KusionStack/karbour"
               rel="noreferrer"
             >
-              <QuestionCircleOutlined style={{ color: '#999' }} />
+              <QuestionCircleOutlined style={{ color: '#646566' }} />
             </a>
           </div>
         </div>

@@ -4,15 +4,12 @@ type InitialState = {
   isReadOnlyMode: any
 }
 
-//该store分库的初始值
 const initialState: InitialState = {
   isReadOnlyMode: undefined,
 }
 
 export const globalSlice = createSlice({
-  // store分库名称
   name: 'globalSlice',
-  // store分库初始值
   initialState,
   reducers: {
     setServerConfigMode: (state, action) => {

@@ -14,6 +14,7 @@ const Cluster = lazy(() => import('@/pages/cluster'))
 const ClusterAdd = lazy(() => import('@/pages/cluster/add'))
 const ClusterCertificate = lazy(() => import('@/pages/cluster/certificate'))
 const InsightDetailCluster = lazy(() => import('@/pages/insightDetail/cluster'))
+const InsightDetailGroupRule = lazy(() => import('@/pages/insightDetail/group'))
 const InsightDetailKind = lazy(() => import('@/pages/insightDetail/kind'))
 const InsightDetailNamespace = lazy(
   () => import('@/pages/insightDetail/namespace'),
@@ -56,13 +57,13 @@ const router: RouteObject[] = [
         children: [
           {
             index: true,
-            title: '搜索',
+            title: 'Search',
             element: lazyLoad(<Search />),
           },
           {
             key: 'result',
             path: 'result',
-            title: '结果',
+            title: 'Result',
             element: lazyLoad(<Result />),
           },
         ],
@@ -89,7 +90,6 @@ const router: RouteObject[] = [
             <Outlet />
           </>
         ),
-        // element: lazyLoad(<InsightDetail />),
         children: [
           {
             key: 'cluster',
@@ -111,6 +111,11 @@ const router: RouteObject[] = [
             path: 'resource',
             element: lazyLoad(<InsightDetailResource />),
           },
+          {
+            key: 'group',
+            path: 'group',
+            element: lazyLoad(<InsightDetailGroupRule />),
+          },
         ],
       },
       {
@@ -125,19 +130,19 @@ const router: RouteObject[] = [
         children: [
           {
             index: true,
-            title: '集群列表',
+            title: 'Cluster',
             element: lazyLoad(<Cluster />),
           },
           {
             key: 'access',
             path: 'access',
-            title: '集群接入',
+            title: 'ClusterAdd',
             element: lazyLoad(<ClusterAdd />),
           },
           {
             key: 'certificate',
             path: 'certificate',
-            title: '更新证书',
+            title: 'ClusterCertificate',
             element: lazyLoad(<ClusterCertificate />),
           },
         ],

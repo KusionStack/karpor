@@ -45,6 +45,7 @@
   "Less": "Hide",
   "Capacity": "Capacity",
   "Memory": "Memory",
+  "MemoryCapacity": "Memory Capacity",
   "Version": "Version",
   "SorryThePageYouVisitedDoesNotExist": "Sorry The Page You Visited Does Not Exist",
   "BackToHome": "Back To Homepage",
@@ -92,5 +93,13 @@
   "Normal": "Normal",
   "CreateTime": "Creation Timestamp",
   "InDevelopment": "In development",
-  "InputClusterName": "Input Cluster Name"
+  "InputClusterName": "Input Cluster Name",
+  "YAML": "YAML",
+  "Yesterday": "Yesterday",
+  "Collapse": "Collapse",
+  "Show": "Show",
+  "Detail": "Detail",
+  "Check": "Check",
+  "AllTags": "All Tags",
+  "DuplicateData": "Duplicate data, please recheck"
 }

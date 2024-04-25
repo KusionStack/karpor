@@ -14,6 +14,7 @@ import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 import { capitalized, generateResourceTopologyData } from '@/utils/tools'
+import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
 
 import styles from './styles.module.less'
@@ -36,14 +37,10 @@ const ClusterDetail = () => {
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
-  const [topologyData, setTopologyData] = useState<any>()
+  const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [topologyLoading, setTopologyLoading] = useState(false)
-
-  const tabsList = [
-    { label: t('ResourceTopology'), value: 'Topology' },
-    { label: 'YAML', value: 'YAML' },
-    { label: t('KubernetesEvents'), value: 'K8s', disabled: true },
-  ]
+  const [selectedCluster, setSelectedCluster] = useState<any>()
+  const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
   async function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -136,8 +133,7 @@ const ClusterDetail = () => {
         },
       })
       if (response?.success) {
-        const tmpData = generateResourceTopologyData(response?.data)
-        setTopologyData(tmpData)
+        setMultiTopologyData(response?.data)
       } else {
         message.error(response?.message || t('RequestFailedAndTry'))
       }
@@ -262,19 +258,67 @@ const ClusterDetail = () => {
   }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   async function onTopologyNodeClick(node: any) {
-    const { locator } = node || {}
+    const { resourceGroup } = node || {}
     const paramsObj = {
-      apiVersion: locator?.apiVersion,
-      cluster: locator?.cluster,
-      kind: locator?.kind,
-      namespace: locator?.namespace,
-      name: locator?.name,
+      apiVersion: resourceGroup?.apiVersion,
+      cluster: resourceGroup?.cluster,
+      kind: resourceGroup?.kind,
+      namespace: resourceGroup?.namespace,
+      name: resourceGroup?.name,
       from,
       query,
       type: 'resource',
     }
     const urlString = queryString.stringify(paramsObj)
     navigate(`/insightDetail/resource?${urlString}`, { replace: true })
+  }
+
+  useEffect(() => {
+    if (multiTopologyData) {
+      const clusterKeys = Object.keys(multiTopologyData)
+      setClusterOptions(clusterKeys)
+      setSelectedCluster(clusterKeys?.[0])
+    }
+  }, [multiTopologyData])
+
+  function handleChangeCluster(val) {
+    setSelectedCluster(val)
+  }
+
+  function renderTabPane() {
+    if (currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateResourceTopologyData(multiTopologyData?.[selectedCluster])
+      if (topologyData?.nodes?.length > 0) {
+        return (
+          <TopologyMap
+            tableName={name as string}
+            isResource={true}
+            selectedCluster={selectedCluster}
+            handleChangeCluster={handleChangeCluster}
+            clusterOptions={clusterOptions}
+            topologyData={topologyData}
+            topologyLoading={topologyLoading}
+            onTopologyNodeClick={onTopologyNodeClick}
+          />
+        )
+      }
+    }
+    if (currentTab === 'YAML') {
+      return <Yaml data={yamlData || ''} />
+    }
+    if (currentTab === 'K8s') {
+      return (
+        <K8sEvent
+          rescan={rescan}
+          exceptionList={[1, 2, 3, 4, 5]}
+          showDrawer={showK8sDrawer}
+          onItemClick={onItemClick}
+        />
+      )
+    }
   }
 
   return (
@@ -287,7 +331,6 @@ const ClusterDetail = () => {
       <div className={styles.module}>
         <SummaryCard auditStat={auditStat} summary={summary} />
         <div className={styles.exception_event}>
-          {/* 风险 */}
           <ExceptionList
             auditLoading={auditLoading}
             rescan={rescan}
@@ -299,33 +342,15 @@ const ClusterDetail = () => {
         </div>
       </div>
 
-      {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarbourTabs
-            list={tabsList}
+            list={insightTabsList}
             current={currentTab}
             onChange={handleTabChange}
           />
         </div>
-        {currentTab === 'Topology' && (
-          <TopologyMap
-            tableName={name as string}
-            isResource={true}
-            topologyData={topologyData}
-            topologyLoading={topologyLoading}
-            onTopologyNodeClick={onTopologyNodeClick}
-          />
-        )}
-        {currentTab === 'YAML' && <Yaml data={yamlData} />}
-        {currentTab === 'K8s' && (
-          <K8sEvent
-            rescan={rescan}
-            exceptionList={[1, 2, 3, 4, 5]}
-            showDrawer={showK8sDrawer}
-            onItemClick={onItemClick}
-          />
-        )}
+        {renderTabPane()}
       </div>
       <ExceptionDrawer
         open={drawerVisible}

@@ -15,6 +15,7 @@ type IProps = {
   goCertificate: (val) => void
   setLastDetail: (val) => void
   handleSubmit: (values: any, callback: () => void) => void
+  customStyle: React.CSSProperties
 }
 
 const ClusterCard = (props: IProps) => {
@@ -27,9 +28,10 @@ const ClusterCard = (props: IProps) => {
     goCertificate,
     setLastDetail,
     handleSubmit,
+    customStyle,
   } = props
   return (
-    <div className={styles.card}>
+    <div className={styles.card} style={customStyle}>
       <div className={styles.left} onClick={() => goDetailPage(item)}>
         <div className={styles.score}>
           <img src={k8sPng} alt="icon" />
@@ -58,7 +60,6 @@ const ClusterCard = (props: IProps) => {
         </div>
       </div>
       <div className={styles.right}>
-        {/* TODO: 非owner用户不能操作，所有按钮置灰 */}
         <EditPopForm
           isDisabled={isReadOnlyMode}
           submit={handleSubmit}

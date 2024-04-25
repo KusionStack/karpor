@@ -6,8 +6,8 @@ import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { useSelector } from 'react-redux'
-import { HOST } from '../../../utils/request'
-import Yaml from '../../../components/yaml'
+import { HOST } from '@/utils/request'
+import Yaml from '@/components/yaml'
 
 import styles from './styles.module.less'
 
@@ -28,7 +28,6 @@ const RegisterCluster = () => {
     const tmp = {
       ...values,
     }
-    // /rest-api/v1/cluster/config/validate
     setLoading(true)
     const validateResponse: any = await axios.post(
       '/rest-api/v1/cluster/config/validate',
@@ -62,22 +61,15 @@ const RegisterCluster = () => {
     navigate(-1)
   }
 
-  // const [radioValue, setRadioValue] = useState("file")
-  // const onRadioChange = (e: RadioChangeEvent) => {
-  //   setRadioValue(e.target.value);
-  // };
-
   const uploadProps: UploadProps = {
     disabled: isReadOnlyMode,
     name: 'file',
-    accept: '.yaml,.yml,.json,.kubeconfig,.kubeconf',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
       authorization: 'authorization-text',
     },
     withCredentials: true,
     maxCount: 1,
-    // fileList: fileList,
     showUploadList: {
       showRemoveIcon: false,
       removeIcon: false,
@@ -88,13 +80,6 @@ const RegisterCluster = () => {
       if (info.file.status === 'done') {
         if (info?.file?.response?.success) {
           message.success(`${info.file.name}${t('UploadSuccessful')}`)
-          // setFileList([{
-          //   filename: info?.file?.response?.data?.fileName,
-          //   uid: '1',
-          //   name: info?.file?.response?.data?.fileName,
-          //   status: 'done',
-          //   url: info?.file?.response?.data?.fileName
-          // }])
           form.setFieldsValue({
             kubeConfig: info?.file?.response?.data?.content,
           })
@@ -104,11 +89,6 @@ const RegisterCluster = () => {
             info?.file?.response?.message ||
               `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeConfig, .kubeconf`,
           )
-          // setFileList([])
-          // form.setFieldsValue({
-          //   kubeConfig: undefined
-          // })
-          // setYamlContent('')
         }
       } else if (info.file.status === 'error') {
       }

@@ -10,9 +10,9 @@ import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import SummaryCard from '../components/summaryCard'
 import { ICON_MAP } from '@/utils/images'
+import { capitalized } from '@/utils/tools'
 
 import styles from './styles.module.less'
-import { capitalized } from '@/utils/tools'
 
 const ClusterDetail = () => {
   const navigate = useNavigate()

@@ -9,14 +9,11 @@ type IProps = {
   allTags: any
 }
 
-const MutiTag = ({ allTags }: IProps) => {
+const MultiTag = ({ allTags }: IProps) => {
   const { t } = useTranslation()
-  // 设置展示全部标签的状态，默认为false
   const [showAll, setShowAll] = useState(false)
-  // 默认标签的最大展示数量
   const defaultMaxCount = 5
 
-  // 创建一个函数来切换展示状态
   const toggleTags = () => {
     setShowAll(!showAll)
   }
@@ -24,28 +21,28 @@ const MutiTag = ({ allTags }: IProps) => {
   return (
     <div className={styles.appContainer}>
       {allTags
-        .slice(0, showAll ? allTags.length : defaultMaxCount)
-        .map((tag: any) => {
+        ?.slice(0, showAll ? allTags?.length : defaultMaxCount)
+        ?.map((tag: any) => {
           const content = (
             <div className={styles.popCard}>
               <div className={styles.item}>
-                <span className={styles.label}>cluster: </span>
+                <span className={styles.label}>Cluster: </span>
                 <span className={styles.value}>{tag?.cluster || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>apiVersion: </span>
+                <span className={styles.label}>APIVersion: </span>
                 <span className={styles.value}>{tag?.apiVersion || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>kind: </span>
+                <span className={styles.label}>Kind: </span>
                 <span className={styles.value}>{tag?.kind || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>namespace: </span>
+                <span className={styles.label}>Namespace: </span>
                 <span className={styles.value}>{tag?.namespace || '--'}</span>
               </div>
               <div className={styles.item}>
-                <span className={styles.label}>name: </span>
+                <span className={styles.label}>Name: </span>
                 <span className={styles.value}>{tag?.name || '--'}</span>
               </div>
             </div>
@@ -58,8 +55,7 @@ const MutiTag = ({ allTags }: IProps) => {
             </div>
           )
         })}
-      {/* 当标签数多于5个且showAll为false时，显示更多按钮 */}
-      {allTags.length > defaultMaxCount && !showAll && (
+      {allTags?.length > defaultMaxCount && !showAll && (
         <div className={styles.toggleButton} onClick={toggleTags}>
           <span>
             {t('More')}
@@ -69,7 +65,6 @@ const MutiTag = ({ allTags }: IProps) => {
           </span>
         </div>
       )}
-      {/* 当showAll为true时，显示收起按钮 */}
       {showAll && (
         <div className={styles.toggleButton} onClick={toggleTags}>
           <span>
@@ -84,4 +79,4 @@ const MutiTag = ({ allTags }: IProps) => {
   )
 }
 
-export default MutiTag
+export default MultiTag

@@ -81,3 +81,25 @@ export const defaultKeywords = [
   'or',
   'and',
 ]
+
+export const tabsList = [
+  { label: 'KeywordSearch', value: 'keyword', disabled: true },
+  { label: 'SQLSearch', value: 'sql' },
+]
+
+export const insightTabsList = [
+  { label: 'ResourceTopology', value: 'Topology' },
+  { label: 'YAML', value: 'YAML' },
+  { label: 'KubernetesEvents', value: 'K8s', disabled: true },
+]
+
+export const defaultSqlExamples = [
+  `kind='Namespace'`,
+  `kind!='Pod'`,
+  `namespace='default'`,
+  `cluster='democluster' and kind='Pod'`,
+  `kind not in ('pod','service')`,
+  `${"`annotations.app.kubernetes.io/name` = 'demoapp'"}`,
+]
+
+export const DEFALUT_PAGE_SIZE_10 = 10

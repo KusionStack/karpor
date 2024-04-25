@@ -1,6 +1,8 @@
 import React, { memo } from 'react'
 import classNames from 'classnames'
 import styles from './style.module.less'
+import { getDataType } from '@/utils/tools'
+import { useTranslation } from 'react-i18next'
 
 type Props = {
   current: string
@@ -21,6 +23,7 @@ const KarbourTabs = ({
   itemStyle,
   boxStyle,
 }: Props) => {
+  const { t } = useTranslation()
   return (
     <div className={styles.tab_container} style={boxStyle}>
       {list?.map((item, index) => {
@@ -44,7 +47,9 @@ const KarbourTabs = ({
                 item?.disabled ? { color: '#999', cursor: 'not-allowed' } : {}
               }
             >
-              {item.label}
+              {getDataType(item?.label) === 'String'
+                ? t(item?.label as string)
+                : item?.label}
             </div>
           </div>
         )

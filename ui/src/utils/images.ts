@@ -31,7 +31,6 @@ import nodeIcon from '@/assets/labeled/node-128.png'
 import crd from '@/assets/labeled/crd-128.png'
 import kubernetes from '@/assets/kubernetes.png'
 
-// crd 用来做所有用户自定义的非原生的资源图标
 export const ICON_MAP = {
   ClusterRole: cRole,
   ConfigMap: cm,

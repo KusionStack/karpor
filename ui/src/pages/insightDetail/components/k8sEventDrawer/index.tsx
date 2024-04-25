@@ -138,9 +138,6 @@ const K8sEventDrawer = ({ open, onClose }: K8sEventDrawerProps) => {
         <div style={{ textAlign: 'right', marginTop: 16 }}>
           <Pagination
             total={1000}
-            // showTotal={(total, range) =>
-            //   `${range[0]}-${range[1]} 共 ${total} 条`
-            // }
             pageSize={20}
             current={1}
             onChange={handleChangePage}

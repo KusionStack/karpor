@@ -1,28 +1,27 @@
 .summary_card {
-  position: relative;
-  width: 300px;
-  height: 475px;
-  padding: 20px 0;
-  margin-right: 10px;
+  display: flex;
+  align-items: center;
+  padding: 20px;
   background: #fff;
   border-radius: 8px;
   box-sizing: border-box;
 }
 
 .summary {
-  position: relative;
+  display: flex;
   padding: 20px;
-  background: #fff;
-  border-radius: 8px;
+  margin-left: 20px;
+  flex: 1;
+  align-items: center;
   box-sizing: border-box;
 
   .field_box {
+    display: flex;
+
     .item {
-      display: flex;
-      margin-right: 24px;
+      margin-right: 30px;
       margin-bottom: 12px;
-      font-size: 14px;
-      // flex-direction: column;
+      font-size: 16px;
       font-weight: 400;
       line-height: 22px;
 
@@ -32,16 +31,16 @@
 
       .label {
         margin-right: 5px;
+        margin-bottom: 10px;
         color: rgb(0 0 0 / 48%);
-        // width: 120px;
       }
 
       .value {
         overflow: hidden;
+        font-size: 18px;
         color: rgb(0 0 0 / 89%);
         text-overflow: ellipsis;
         white-space: nowrap;
-        flex: 1;
       }
     }
   }

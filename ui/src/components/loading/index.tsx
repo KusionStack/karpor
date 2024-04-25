@@ -1,4 +1,5 @@
-import React, { Spin } from 'antd'
+import React from 'react'
+import { Spin } from 'antd'
 import styles from './style.module.less'
 
 const Loading = () => {

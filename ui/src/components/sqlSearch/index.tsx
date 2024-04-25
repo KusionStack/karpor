@@ -90,7 +90,7 @@ const focusHandlerExtension = EditorView.domEventHandlers({
   },
 })
 
-type SqlEditorIProps = {
+type SqlSearchIProps = {
   sqlEditorValue: string
   handleSearch: (val: string) => void
 }
@@ -111,7 +111,7 @@ function deleteHistoryByItem(val: string) {
   }
 }
 
-const SqlEditor = ({ sqlEditorValue, handleSearch }: SqlEditorIProps) => {
+const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   const editorRef = useRef<any>(null)
   const { t } = useTranslation()
   const clusterListRef = useRef<any>(null)
@@ -430,7 +430,7 @@ const SqlEditor = ({ sqlEditorValue, handleSearch }: SqlEditorIProps) => {
       <div className={styles.karbour_editor}>
         <div className={styles.karbour_editor_prefix}>{searchSqlPrefix}</div>
         <div
-          style={{ width: '100%' }}
+          style={{ width: '100%', flex: 1 }}
           ref={editorRef}
           className={css`
             .cm-editor .cm-scroller {
@@ -516,4 +516,4 @@ const SqlEditor = ({ sqlEditorValue, handleSearch }: SqlEditorIProps) => {
   )
 }
 
-export default SqlEditor
+export default SqlSearch

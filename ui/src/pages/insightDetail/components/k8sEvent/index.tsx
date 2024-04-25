@@ -6,8 +6,8 @@ import {
   ClockCircleOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import K8sStat from '../k8sStat'
 import { SEVERITY_MAP } from '@/utils/constants'
+import K8sStat from '../k8sStat'
 
 import styles from './style.module.less'
 

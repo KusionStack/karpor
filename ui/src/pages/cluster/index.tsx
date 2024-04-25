@@ -11,13 +11,14 @@ import {
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import KarbourTabs from '../../components/tabs'
-import styles from './styles.module.less'
-import Loading from '../../components/loading'
+import KarbourTabs from '@/components/tabs'
+import Loading from '@/components/loading'
 import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
 import exceptionalPng from '@/assets/exceptional.png'
 import clusterPng from '@/assets/cluster_outlind.png'
+
+import styles from './styles.module.less'
 
 const Cluster = () => {
   const navigate = useNavigate()
@@ -248,7 +249,6 @@ const Cluster = () => {
 
   const orderIconStyle = {
     marginLeft: 0,
-    // color: '#2f54eb'
   }
 
   function handleSort(key) {
@@ -369,21 +369,19 @@ const Cluster = () => {
                       goCertificate={goCertificate}
                       setLastDetail={setLastDetail}
                       handleSubmit={handleSubmit}
+                      customStyle={
+                        showPageData?.length - 1 === index
+                          ? {}
+                          : {
+                              borderBottom: '1px solid rgb(0 10 26 / 5%)',
+                            }
+                      }
                     />
                   )
                 })}
               </div>
             ) : (
-              <div
-                style={{
-                  background: '#fff',
-                  borderRadius: 8,
-                  height: 500,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+              <div className={styles.empty_data}>
                 <Empty />
               </div>
             )}

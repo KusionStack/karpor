@@ -15,6 +15,7 @@ import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 import { capitalized, generateTopologyData } from '@/utils/tools'
+import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
 
 import styles from './styles.module.less'
@@ -39,18 +40,15 @@ const ClusterDetail = () => {
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
-  const [topologyData, setTopologyData] = useState<any>()
+  const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [topologyLoading, setTopologyLoading] = useState(false)
-
-  const tabsList = [
-    { label: t('ResourceTopology'), value: 'Topology' },
-    { label: 'YAML', value: 'YAML' },
-    { label: t('KubernetesEvents'), value: 'K8s', disabled: true },
-  ]
+  const [selectedCluster, setSelectedCluster] = useState<any>()
+  const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
   useEffect(() => {
-    if (topologyData?.nodes && topologyData?.nodes?.length > 0) {
-      const tmp = topologyData?.nodes?.find((item: any) => {
+    if (selectedCluster) {
+      const result = generateTopologyData(multiTopologyData?.[selectedCluster])
+      const tmp = result?.nodes?.find((item: any) => {
         if (item?.id) {
           const kindTmp = item?.id?.split('.')
           const len = kindTmp?.length
@@ -73,7 +71,7 @@ const ClusterDetail = () => {
         setTableQueryStr(queryStr)
       }
     }
-  }, [topologyData, cluster, apiVersion, namespace])
+  }, [multiTopologyData, cluster, apiVersion, namespace, selectedCluster])
 
   async function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -151,8 +149,7 @@ const ClusterDetail = () => {
         },
       })
       if (response?.success) {
-        const tmpData = generateTopologyData(response?.data)
-        setTopologyData(tmpData)
+        setMultiTopologyData(response?.data)
       } else {
         message.error(response?.message || t('RequestFailedAndTry'))
       }
@@ -161,6 +158,14 @@ const ClusterDetail = () => {
       setTopologyLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (multiTopologyData) {
+      const clusterKeys = Object.keys(multiTopologyData)
+      setClusterOptions(clusterKeys)
+      setSelectedCluster(clusterKeys?.[0])
+    }
+  }, [multiTopologyData])
 
   useEffect(() => {
     getClusterDetail()
@@ -190,9 +195,9 @@ const ClusterDetail = () => {
   }
 
   async function onTopologyNodeClick(node) {
-    const { locator } = node?.data || {}
-    setTableName(locator?.kind)
-    const sqlStr = `select * from resources where cluster = '${cluster}' and namespace = '${namespace}' and apiVersion = '${locator?.apiVersion}' and kind = '${locator?.kind}'`
+    const { resourceGroup } = node?.data || {}
+    setTableName(resourceGroup?.kind)
+    const sqlStr = `select * from resources where cluster = '${cluster}' and namespace = '${namespace}' and apiVersion = '${resourceGroup?.apiVersion}' and kind = '${resourceGroup?.kind}'`
     setTableQueryStr(sqlStr)
   }
 
@@ -281,6 +286,48 @@ const ClusterDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
+  function handleChangeCluster(val) {
+    setSelectedCluster(val)
+  }
+
+  function renderTabPane() {
+    if (currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateTopologyData(multiTopologyData?.[selectedCluster])
+      if (topologyData?.nodes?.length > 0) {
+        return (
+          <>
+            <TopologyMap
+              tableName={tableName}
+              selectedCluster={selectedCluster}
+              handleChangeCluster={handleChangeCluster}
+              clusterOptions={clusterOptions}
+              topologyData={topologyData}
+              topologyLoading={topologyLoading}
+              onTopologyNodeClick={onTopologyNodeClick}
+            />
+            <SourceTable queryStr={tableQueryStr} tableName={tableName} />
+          </>
+        )
+      }
+    }
+    if (currentTab === 'YAML') {
+      return <Yaml data={yamlData || ''} />
+    }
+    if (currentTab === 'K8s') {
+      return (
+        <K8sEvent
+          rescan={rescan}
+          exceptionList={[1, 2, 3, 4, 5]}
+          showDrawer={showK8sDrawer}
+          onItemClick={onItemClick}
+        />
+      )
+    }
+  }
+
   return (
     <div className={styles.container}>
       <Breadcrumb
@@ -307,31 +354,12 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarbourTabs
-            list={tabsList}
+            list={insightTabsList}
             current={currentTab}
             onChange={handleTabChange}
           />
         </div>
-        {currentTab === 'Topology' && (
-          <>
-            <TopologyMap
-              tableName={tableName}
-              topologyData={topologyData}
-              topologyLoading={topologyLoading}
-              onTopologyNodeClick={onTopologyNodeClick}
-            />
-            <SourceTable queryStr={tableQueryStr} tableName={tableName} />
-          </>
-        )}
-        {currentTab === 'YAML' && <Yaml data={yamlData} />}
-        {currentTab === 'K8s' && (
-          <K8sEvent
-            rescan={rescan}
-            exceptionList={[1, 2, 3, 4, 5]}
-            showDrawer={showK8sDrawer}
-            onItemClick={onItemClick}
-          />
-        )}
+        {renderTabPane()}
       </div>
       <ExceptionDrawer
         open={drawerVisible}

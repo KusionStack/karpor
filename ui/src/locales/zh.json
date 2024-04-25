@@ -45,6 +45,7 @@
   "Less": "收起",
   "Capacity": "容量",
   "Memory": "内存",
+  "MemoryCapacity": "内存容量",
   "Version": "版本",
   "SorryThePageYouVisitedDoesNotExist": "对不起，你访问的页面不存在！",
   "BackToHome": "返回首页",
@@ -92,5 +93,13 @@
   "Normal": "正常",
   "CreateTime": "创建时间",
   "InDevelopment": "开发中",
-  "InputClusterName": "请输入集群名称"
+  "InputClusterName": "请输入集群名称",
+  "YAML": "YAML",
+  "Yesterday": "昨天",
+  "Collapse": "折叠",
+  "Show": "展开",
+  "Detail": "详情",
+  "Check": "查看",
+  "AllTags": "所有标签",
+  "DuplicateData": "数据重复，请重新检查"
 }
