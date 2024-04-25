@@ -1,15 +1,13 @@
 module.exports = {
   processors: [],
-  plugins: ['stylelint-order'], // 添加规则插件
+  plugins: ['stylelint-order'],
   extends: ['stylelint-config-standard', 'stylelint-less'],
-  // 不同格式的文件指定自定义语法
   overrides: [
     {
       files: ['**/*.(less|css)'],
-      customSyntax: 'postcss-less', // 处理.less文件时使用postcss-less语法解析器
+      customSyntax: 'postcss-less',
     },
   ],
-  // 忽略检测文件
   ignoreFiles: [
     '**/*.js',
     '**/*.jsx',
@@ -19,17 +17,12 @@ module.exports = {
     '**/*.md',
     '**/*.yaml',
   ],
-  // 自定义配置规则
   rules: {
     'no-empty-source': null,
-    // 禁止空块
     'block-no-empty': null,
-    // 指定类选择器的模式
     'selector-class-pattern': null,
     'selector-id-pattern': null,
-    // 不验证@未知的名字，为了兼容scss的函数
     'at-rule-no-unknown': null,
-    // 指定样式的排序 修复后会帮我们自动整理CSS样式的顺序
     'order/properties-order': [
       'position',
       'top',

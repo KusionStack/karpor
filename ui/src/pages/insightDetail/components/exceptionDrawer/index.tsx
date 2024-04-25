@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { Collapse, Drawer, Empty, Input, Pagination, Tag } from 'antd'
-import ExceptionStat from '../exceptionStat'
 import { CaretRightOutlined, SearchOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { truncationPageData } from '../../../../utils/tools'
-
-import MutiTag from '../mutiTag'
-import { SEVERITY_MAP } from '../../../../utils/constants'
+import { truncationPageData } from '@/utils/tools'
+import { DEFALUT_PAGE_SIZE_10, SEVERITY_MAP } from '@/utils/constants'
+import ExceptionStat from '../exceptionStat'
+import MultiTag from '../multiTag'
 
 import styles from './style.module.less'
-
-const DEFALUT_PAGE_SIZE = 10
 
 type IProps = {
   exceptionStat?: any
@@ -22,7 +19,7 @@ type IProps = {
 const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
   const [pageParams, setPageParams] = useState({
     pageNo: 1,
-    pageSize: DEFALUT_PAGE_SIZE,
+    pageSize: DEFALUT_PAGE_SIZE_10,
     total: 0,
   })
   const [searchValue, setSearchValue] = useState('')
@@ -115,21 +112,6 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
     searchValue,
   ])
 
-  // useEffect(() => {
-  //   let tmp = [];
-  //   if (!searchValue) {
-  //     tmp = exceptionList?.issueGroups
-  //   } else {
-  //     exceptionList?.issueGroups?.forEach(item => {
-  //       if (item?.issue?.title?.includes(searchValue)) {
-  //         tmp.push(item)
-  //       }
-  //     })
-  //   }
-  //   const pageList = truncationPageData({ list: tmp, page: pageParams?.pageNo, pageSize: pageParams?.pageSize })
-  //   setShowPageData(pageList)
-  // }, [exceptionList?.issueGroups, pageParams?.pageNo, pageParams?.pageSize, searchValue]);
-
   function onSearch(event) {
     const val = event.target.value
     setSearchValue(val)
@@ -157,7 +139,7 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
   function getItems() {
     return showPageData?.map(item => {
       const uniqueKey = `${item?.issue?.title}_${item?.issue?.message}_${item?.issue?.scanner}_${item?.issue?.severity}`
-      const locatorsNames = item?.locators?.map(item => {
+      const resourceGroupsNames = item?.resourceGroups?.map(item => {
         return {
           ...item,
           allName: `${item?.cluster || ''} ${item?.apiVersion || ''} ${item?.kind || ''} ${item?.namespace || ''} ${item?.name || ''} `,
@@ -194,7 +176,9 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
                 <div className={styles.label}>
                   {t('NumberOfOccurrences')}:&nbsp;
                 </div>
-                <div className={styles.value}>{item?.locators?.length}</div>
+                <div className={styles.value}>
+                  {item?.resourceGroups?.length}
+                </div>
               </div>
             </div>
             <div className={`${styles.row_item}`}>
@@ -204,7 +188,7 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
             <div className={styles.body}>
               <div className={styles.label}>{t('RelatedResources')}: </div>
               <div className={styles.value}>
-                <MutiTag allTags={locatorsNames} />
+                <MultiTag allTags={resourceGroupsNames} />
               </div>
             </div>
           </div>

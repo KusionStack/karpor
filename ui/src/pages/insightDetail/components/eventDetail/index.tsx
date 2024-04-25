@@ -1,8 +1,8 @@
 import React from 'react'
 import { Button, Modal, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
-import MutiTag from '../mutiTag'
 import { SEVERITY_MAP } from '@/utils/constants'
+import MultiTag from '../multiTag'
 
 import styles from './style.module.less'
 
@@ -13,7 +13,7 @@ type IProps = {
 }
 
 const EventDetail = ({ open, detail, cancel }: IProps) => {
-  const locatorsNames = detail?.locators?.map(item => {
+  const resourceGroupsNames = detail?.resourceGroups?.map(item => {
     return {
       ...item,
       allName: `${item?.cluster || ''} ${item?.apiVersion || ''} ${item?.kind || ''} ${item?.namespace || ''} ${item?.name || ''} `,
@@ -50,7 +50,9 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
               <div className={styles.label}>
                 {t('NumberOfOccurrences')}:&nbsp;
               </div>
-              <div className={styles.value}>{detail?.locators?.length}</div>
+              <div className={styles.value}>
+                {detail?.resourceGroups?.length}
+              </div>
             </div>
             <div
               className={styles.item}
@@ -67,7 +69,7 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
               {t('RelatedResources')}:&nbsp;
             </div>
             <div className={styles.soultion}>
-              <MutiTag allTags={locatorsNames} />
+              <MultiTag allTags={resourceGroupsNames} />
             </div>
           </div>
         </div>

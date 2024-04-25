@@ -34,14 +34,22 @@
         transform: scale(0.8);
       }
     }
+
+    .header_right {
+      display: flex;
+      align-items: center;
+
+      .header_right_action {
+        margin-left: 10px;
+        color: #646566;
+        cursor: pointer;
+      }
+    }
   }
 
   .body {
-    min-height: 371px;
-
     .loading_box {
       display: flex;
-      height: 371px;
       align-items: center;
     }
 
@@ -100,7 +108,6 @@
 
       .itme_content {
         display: flex;
-        // align-items: center;
 
         .left {
           overflow: hidden;
@@ -167,6 +174,12 @@
         0 3px 6px 0 rgb(0 0 0 / 12%),
         0 5px 12px 4px rgb(0 0 0 / 9%);
       border-radius: 8px;
+    }
+
+    .content_empty {
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
   }
 

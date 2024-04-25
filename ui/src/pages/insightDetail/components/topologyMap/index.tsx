@@ -1,4 +1,5 @@
 import React, { memo, useLayoutEffect, useRef, useState } from 'react'
+import { Select } from 'antd'
 import ReactDOM from 'react-dom'
 import G6 from '@antv/g6'
 import type { IAbstractGraph, IG6GraphEvent } from '@antv/g6'
@@ -13,21 +14,19 @@ import {
   Image,
   Text,
 } from '@antv/g6-react-node'
-import Loading from '../../../../components/loading'
-import transferPng from '../../../../assets/transfer.png'
-import PointButton from './PointButton'
+import Loading from '@/components/loading'
+import transferPng from '@/assets/transfer.png'
+import NodeLabel from './nodeLabel'
 
 import styles from './style.module.less'
 
 const TextCopy: any = Text
 
-// 获取文本的长度
 function getTextSize(str: string, maxWidth: number, fontSize: number) {
   const width = G6.Util.getTextSize(str, fontSize)[0]
   return width > maxWidth ? maxWidth : width
 }
 
-// 文本超出隐藏 (字段, 最大长度, 字体大小)
 function fittingString(str: any, maxWidth: number, fontSize: number) {
   const ellipsis = '...'
   const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0]
@@ -66,7 +65,7 @@ const OverviewTooltip = memo((props: propsType) => {
     border: '1px solid #f5f5f5',
     position: 'absolute',
     top: props?.hiddenButtonInfo?.y - 20 || -500,
-    left: props?.hiddenButtonInfo?.x + (props?.itemWidth || 100) / 2 || -500, //居中
+    left: props?.hiddenButtonInfo?.x + (props?.itemWidth || 100) / 2 || -500,
     zIndex: 5,
     padding: 10,
     borderRadius: 8,
@@ -81,7 +80,6 @@ const OverviewTooltip = memo((props: propsType) => {
       <div style={itemStyle}>
         {props?.type === 'cluster' ? model?.label : model?.id}
       </div>
-      {/* <div style={itemStyle}>{model?.label}</div> */}
     </div>
   )
 })
@@ -92,6 +90,9 @@ type IProps = {
   onTopologyNodeClick?: (node: any) => void
   isResource?: boolean
   tableName?: string
+  handleChangeCluster?: (val: any) => void
+  selectedCluster?: string
+  clusterOptions?: string[]
 }
 
 const TopologyMap = ({
@@ -100,6 +101,9 @@ const TopologyMap = ({
   topologyLoading,
   isResource,
   tableName,
+  selectedCluster,
+  clusterOptions,
+  handleChangeCluster,
 }: IProps) => {
   const ref = useRef(null)
   const graphRef = useRef<any>()
@@ -107,8 +111,8 @@ const TopologyMap = ({
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
   const navigate = useNavigate()
-  const [tooltipopen, setTooltipopen] = useState(false) //悬停是否显示
-  const [itemWidth, setItemWidth] = useState<number>(100) //节点宽
+  const [tooltipopen, setTooltipopen] = useState(false)
+  const [itemWidth, setItemWidth] = useState<number>(100)
   const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
     x: number
     y: number
@@ -123,25 +127,21 @@ const TopologyMap = ({
       const leftLast = leftList?.[leftListLength - 1]
       return `${leftLast}:${right}`
     }
-    if (type === 'cluster' || type === 'namespace') {
-      const list = cfg?.label?.split('.')
-      const len = list?.length
-      return list?.[len - 1]
-    }
+    const list = cfg?.label?.split('.')
+    const len = list?.length
+    return list?.[len - 1]
   }
 
   function handleTransfer(evt, cfg) {
     evt.defaultPrevented = true
     evt.stopPropagation()
-    // const model = evt?.item?.get('model');
-    const locator = cfg?.data?.locator
-    // 跳转到kind详情页
+    const resourceGroup = cfg?.data?.resourceGroup
     const objParams = {
       from,
       type: 'kind',
-      cluster: locator?.cluster,
-      apiVersion: locator?.apiVersion,
-      kind: locator?.kind,
+      cluster: resourceGroup?.cluster,
+      apiVersion: resourceGroup?.apiVersion,
+      kind: resourceGroup?.kind,
       query,
     }
     const urlStr = queryString.stringify(objParams)
@@ -173,7 +173,7 @@ const TopologyMap = ({
 
     const isHighLight =
       type === 'resource'
-        ? cfg?.locator?.name === tableName
+        ? cfg?.resourceGroup?.name === tableName
         : displayName === tableName
     return (
       <Group draggable>
@@ -212,14 +212,14 @@ const TopologyMap = ({
                   margin: [0, 10, 10, 0],
                 }}
               >
-                <PointButton
+                <NodeLabel
                   onClick={() => handleClickNode(cfg)}
                   onMouseOver={evt => handleMouseEnter(evt)}
                   onMouseLeave={evt => handleMouseLeave(evt)}
                   width={getTextSize(getName(cfg), 190, 16)}
                 >
                   {displayName}
-                </PointButton>
+                </NodeLabel>
               </Rect>
               {(type === 'cluster' || type === 'namespace') && (
                 <Rect>
@@ -279,7 +279,6 @@ const TopologyMap = ({
           attrs: {
             ...style,
             lineWidth: 8,
-            // color: '#2F54EB',
             opacity: 0.3,
           },
           name: 'edge-halo',
@@ -316,7 +315,6 @@ const TopologyMap = ({
         const height = container?.scrollHeight || 400
         const toolbar = new G6.ToolBar()
         if (!graph) {
-          // const minimap = new G6.Minimap({});
           // eslint-disable-next-line
           graphRef.current = graph = new G6.Graph({
             // eslint-disable-next-line react/no-find-dom-node
@@ -325,12 +323,10 @@ const TopologyMap = ({
             height,
             fitCenter: true,
             fitView: true,
-            // renderer: 'svg',
             fitViewPadding: 20,
             plugins: [toolbar],
             enabledStack: true,
             modes: {
-              // drag-canvas 拖拽画布  drag-node 拖拽节点 zoom-canvas 可缩放  click-select 点选节点  'scroll-canvas' 左右 上下滚动
               default: ['drag-canvas', 'drag-node', 'click-select'],
             },
             layout: {
@@ -349,7 +345,6 @@ const TopologyMap = ({
               type: 'polyline',
               sourceAnchor: 1,
               targetAnchor: 0,
-              //线条样式
               style: {
                 radius: 10,
                 offset: 20,
@@ -393,14 +388,13 @@ const TopologyMap = ({
             const model = evt?.item?.get('model')
             evt.defaultPrevented = true
             evt.stopPropagation()
-            const locator = model?.data?.locator
-            // 跳转到kind详情页
+            const resourceGroup = model?.data?.resourceGroup
             const objParams = {
               from,
               type: 'kind',
-              cluster: locator?.cluster,
-              apiVersion: locator?.apiVersion,
-              kind: locator?.kind,
+              cluster: resourceGroup?.cluster,
+              apiVersion: resourceGroup?.apiVersion,
+              kind: resourceGroup?.kind,
               query,
             }
             const urlStr = queryString.stringify(objParams)
@@ -430,7 +424,7 @@ const TopologyMap = ({
     return () => {
       try {
         if (graph) {
-          graph.destroy() //清除画布;
+          graph.destroy()
           graphRef.current = null
         }
       } catch (error) {}
@@ -447,6 +441,17 @@ const TopologyMap = ({
         <Loading />
       ) : (
         <div ref={ref} id="overviewContainer" className={styles.g6_overview}>
+          <div className={styles.cluster_select}>
+            <Select
+              placeholder=""
+              value={selectedCluster}
+              onChange={handleChangeCluster}
+            >
+              {clusterOptions?.map(item => {
+                return <Select.Option key={item}>{item}</Select.Option>
+              })}
+            </Select>
+          </div>
           {tooltipopen ? (
             <OverviewTooltip
               type={type as string}

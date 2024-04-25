@@ -25,9 +25,7 @@ const GaugeChart = ({ data }: IProps) => {
         ticks: [0, 3 / 5, 4 / 5, 1],
         color: ['#F4664A', '#FAAD14', '#30BF78'],
       },
-      gaugeStyle: {
-        // lineCap: 'round',
-      },
+      gaugeStyle: {},
       indicator: {
         pointer: {
           style: {

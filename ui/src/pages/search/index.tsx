@@ -21,23 +21,17 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import KarbourTabs from '@/components/tabs/index'
 import logoJPG from '@/assets/logo.jpg'
-import SqlEditor from '@/components/sqlSearch'
+import SqlSearch from '@/components/sqlSearch'
+import { defaultSqlExamples, tabsList } from '@/utils/constants'
 
 import styles from './styles.module.less'
 
 const SearchPage = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const [searchType, setSearchType] = useState<string>('sql')
   const [sqlEditorValue, setSqlEditorValue] = useState<any>('')
-
   const [showAll, setShowAll] = useState(false)
-
-  const { t } = useTranslation()
-
-  const tabsList = [
-    { label: t('KeywordSearch'), value: 'keyword', disabled: true },
-    { label: t('SQLSearch'), value: 'sql' },
-  ]
 
   const toggleTags = () => {
     setShowAll(!showAll)
@@ -55,6 +49,29 @@ const SearchPage = () => {
     navigate(`/search/result?query=${inputValue}&pattern=sql`)
   }
 
+  function renderSqlExamples(data: string[] | null) {
+    const sqlExamples = data || defaultSqlExamples
+    return sqlExamples?.map(item => (
+      <div
+        key={item}
+        className={styles.karbour_tag}
+        onClick={() => handleClickSql(`where ${item}`)}
+      >
+        <span className={styles.keyword}>select</span> *{' '}
+        <span className={styles.keyword}>from</span> resources{' '}
+        <span className={styles.keyword}>where </span>
+        {item}
+      </div>
+    ))
+  }
+  function renderMoreSqlExamples() {
+    const sqlExamples = [
+      `kind='Service' order by creationTimestamp desc`,
+      `kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`,
+    ]
+    return renderSqlExamples(sqlExamples)
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.search}>
@@ -68,14 +85,14 @@ const SearchPage = () => {
             onChange={handleTabChange}
           />
         </div>
-        <SqlEditor
+        <SqlSearch
           sqlEditorValue={sqlEditorValue}
           handleSearch={handleSearch}
         />
         <div className={styles.examples}>
           {searchType === 'keyword' ? (
             <div className={styles.keywords}>
-              <div className={styles.keywordsTitle}>{t('PopularQueries')}</div>
+              <div>{t('PopularQueries')}</div>
               <div className={styles.item}>
                 <Tag style={{ color: '#000' }}>"my-application"</Tag>
               </div>
@@ -88,109 +105,18 @@ const SearchPage = () => {
             </div>
           ) : (
             <div className={styles.sql}>
-              <div
-                className={styles.karbour_tag}
-                onClick={() => handleClickSql(`where kind='Namespace'`)}
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                kind='Namespace'
-              </div>
-              <div
-                className={styles.karbour_tag}
-                onClick={() => handleClickSql(`where kind!='Pod'`)}
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                kind!='Pod'
-              </div>
-              <div
-                className={styles.karbour_tag}
-                onClick={() => handleClickSql(`where namespace='default'`)}
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                namespace='default'
-              </div>
-              <div
-                className={styles.karbour_tag}
-                onClick={() =>
-                  handleClickSql(`where cluster='democluster' and kind='Pod'`)
-                }
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                cluster='democluster' and kind='Pod'
-              </div>
-              <div
-                className={styles.karbour_tag}
-                onClick={() =>
-                  handleClickSql(`where kind not in ('pod','service')`)
-                }
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                kind not in ('pod','service')
-              </div>
-              <div
-                className={styles.karbour_tag}
-                onClick={() =>
-                  handleClickSql(
-                    `where ${"`annotations.app.kubernetes.io/name` = 'demoapp'"}`,
-                  )
-                }
-              >
-                <span className={styles.keyword}>select</span> *{' '}
-                <span className={styles.keyword}>from</span> resources{' '}
-                <span className={styles.keyword}>where </span>
-                `annotations.app.kubernetes.io/name` = 'demoapp'
-              </div>
+              {renderSqlExamples(null)}
               {!showAll && (
-                <div className={styles.toggleButton} onClick={toggleTags}>
+                <div className={styles.toggle_button} onClick={toggleTags}>
                   <span>
                     {t('More')}
-                    <DoubleLeftOutlined
-                      style={{
-                        transform: 'rotate(-90deg)',
-                        marginLeft: 5,
-                      }}
-                    />
+                    <DoubleLeftOutlined className={styles.toggle_icon} />
                   </span>
                 </div>
               )}
               {showAll && (
                 <>
-                  <div
-                    className={styles.karbour_tag}
-                    onClick={() =>
-                      handleClickSql(
-                        `where kind='Service' order by creationTimestamp desc`,
-                      )
-                    }
-                  >
-                    <span className={styles.keyword}>select</span> *{' '}
-                    <span className={styles.keyword}>from</span> resources{' '}
-                    <span className={styles.keyword}>where </span>
-                    kind='Service' order by creationTimestamp desc
-                  </div>
-                  <div
-                    className={styles.karbour_tag}
-                    onClick={() =>
-                      handleClickSql(
-                        `where kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`,
-                      )
-                    }
-                  >
-                    <span className={styles.keyword}>select</span> *{' '}
-                    <span className={styles.keyword}>from</span> resources{' '}
-                    <span className={styles.keyword}>where </span>
-                    {`kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`}
-                  </div>
+                  {renderMoreSqlExamples()}
                   <div
                     className={styles.karbour_tag}
                     onClick={() =>
@@ -206,15 +132,10 @@ const SearchPage = () => {
                     '2024-01-01T18:00:00Z'
                     <br /> and '2024-01-11T18:00:00Z' order by creationTimestamp
                   </div>
-                  <div className={styles.toggleButton} onClick={toggleTags}>
+                  <div className={styles.toggle_button} onClick={toggleTags}>
                     <span>
                       {t('Less')}
-                      <DoubleRightOutlined
-                        style={{
-                          transform: 'rotate(-90deg)',
-                          marginLeft: 5,
-                        }}
-                      />
+                      <DoubleRightOutlined className={styles.toggle_icon} />
                     </span>
                   </div>
                 </>

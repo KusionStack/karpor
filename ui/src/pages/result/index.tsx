@@ -5,12 +5,12 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
-import SqlEditor from '@/components/sqlSearch'
+import SqlSearch from '@/components/sqlSearch'
 import KarbourTabs from '@/components/tabs/index'
 import { utcDateToLocalDate } from '@/utils/tools'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
-import { searchSqlPrefix } from '@/utils/constants'
+import { searchSqlPrefix, tabsList } from '@/utils/constants'
 
 import styles from './styles.module.less'
 
@@ -28,11 +28,6 @@ const Result = () => {
     total: 0,
   })
   const [loading, setLoading] = useState(false)
-
-  const tabsList = [
-    { label: t('KeywordSearch'), value: 'keyword', disabled: true },
-    { label: t('SQLSearch'), value: 'sql' },
-  ]
 
   function handleTabChange(value: string) {
     setSearchType(value)
@@ -138,14 +133,7 @@ const Result = () => {
           onChange={handleTabChange}
         />
       </div>
-      {/* <SearchInput
-        value={searchParams?.query as any}
-        handleSearch={handleSearch}
-        handleOnkeyUp={handleOnkeyUp}
-        options={options}
-        handleInputChange={handleInputChange}
-      /> */}
-      <SqlEditor
+      <SqlSearch
         sqlEditorValue={
           (searchParams?.query || urlSearchParams?.query) as string
         }
@@ -154,7 +142,11 @@ const Result = () => {
       <div className={styles.content}>
         {loading ? (
           <div
-            style={{ height: 500, display: 'flex', justifyContent: 'center' }}
+            style={{
+              height: 500,
+              display: 'flex',
+              justifyContent: 'center',
+            }}
           >
             <Loading />
           </div>
@@ -163,7 +155,8 @@ const Result = () => {
             {/* 汇总 */}
             <div className={styles.stat}>
               <div>
-                {t('AboutInSearchResult')}&nbsp;{searchParams?.total}&nbsp;
+                {t('AboutInSearchResult')}&nbsp;
+                {searchParams?.total}&nbsp;
                 {t('SearchResult')}
               </div>
             </div>

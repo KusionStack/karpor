@@ -10,8 +10,8 @@ import queryString from 'query-string'
 import { useSelector } from 'react-redux'
 import yaml from 'js-yaml'
 import { yaml2json } from '@/utils/tools'
-import Yaml from '../../../components/yaml'
-import { HOST } from '../../../utils/request'
+import Yaml from '@/components/yaml'
+import { HOST } from '@/utils/request'
 
 import styles from './styles.module.less'
 
@@ -148,7 +148,6 @@ const ClusterCertificate = () => {
   const uploadProps: any = {
     disabled: isReadOnlyMode,
     name: 'file',
-    accept: '.yaml,.yml,.json,.kubeconfig,.kubeconf',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
       authorization: 'authorization-text',
@@ -161,7 +160,6 @@ const ClusterCertificate = () => {
     },
     withCredentials: true,
     maxCount: 1,
-    // fileList: fileList,
     showUploadList: {
       showRemoveIcon: false,
       removeIcon: false,
@@ -187,10 +185,6 @@ const ClusterCertificate = () => {
             info?.file?.response?.message ||
               `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeconfig, .kubeconf`,
           )
-          // form.setFieldsValue({
-          //   kubeConfig: undefined
-          // })
-          // setNewYamlContent('')
         }
       } else if (info.file.status === 'error') {
         message.error(`${info.file.name} file upload failed.`)
