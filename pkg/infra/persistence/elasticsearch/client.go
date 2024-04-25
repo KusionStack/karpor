@@ -24,12 +24,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/elliotxx/esquery"
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/some"
 	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	"github.com/elliotxx/esquery"
 )
 
 // Client represents an Elasticsearch client that can perform various operations on the Elasticsearch cluster.

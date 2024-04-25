@@ -30,6 +30,6 @@ type AuditData struct {
 
 // IssueGroup represents a group of resourceGroups tied to a specific issue.
 type IssueGroup struct {
-	Issue    scanner.Issue        `json:"issue"`
+	Issue          scanner.Issue          `json:"issue"`
 	ResourceGroups []entity.ResourceGroup `json:"resourceGroups"`
 }
