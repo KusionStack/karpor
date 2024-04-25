@@ -18,7 +18,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/core/handler"
 	"github.com/KusionStack/karbour/pkg/core/manager/insight"
 	_ "github.com/KusionStack/karbour/pkg/infra/scanner"
@@ -26,10 +26,10 @@ import (
 	"github.com/go-chi/render"
 )
 
-// Audit handles the auditing process based on the specified locator.
+// Audit handles the auditing process based on the specified resource group.
 //
-// @Summary      Audit based on locator.
-// @Description  This endpoint audits based on the specified locator.
+// @Summary      Audit based on resource group.
+// @Description  This endpoint audits based on the specified resource group.
 // @Tags         insight
 // @Produce      json
 // @Param        cluster     query     string     false  "The specified cluster name, such as 'example-cluster'"
@@ -52,10 +52,10 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 		log := ctxutil.GetLogger(ctx)
 
 		// Begin the auditing process, logging the start.
-		log.Info("Starting audit with specified locator in handler ...")
+		log.Info("Starting audit with specified resourceGroup in handler ...")
 
-		// Decode the query parameters into the locator.
-		locator, err := core.NewLocatorFromQuery(r)
+		// Decode the query parameters into the resourceGroup.
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -63,10 +63,10 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
 		// Log successful decoding of the request body.
-		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
+		log.Info("Successfully decoded the query parameters to resourceGroup", "resourceGroup", resourceGroup)
 
 		// Perform the audit using the manager and the provided manifest.
-		scanResult, err := insight.Audit(ctx, locator, forceNew)
+		scanResult, err := insight.Audit(ctx, resourceGroup, forceNew)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -106,10 +106,10 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 		log := ctxutil.GetLogger(ctx)
 
 		// Begin the auditing process, logging the start.
-		log.Info("Starting calculate score with specified locator in handler...")
+		log.Info("Starting calculate score with specified resourceGroup in handler...")
 
-		// Decode the query parameters into the locator.
-		locator, err := core.NewLocatorFromQuery(r)
+		// Decode the query parameters into the resourceGroup.
+		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
@@ -117,10 +117,10 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
 
 		// Log successful decoding of the request body.
-		log.Info("Successfully decoded the query parameters to locator", "locator", locator)
+		log.Info("Successfully decoded the query parameters to resourceGroup", "resourceGroup", resourceGroup)
 
 		// Calculate score using the audit issues.
-		data, err := insightMgr.Score(ctx, locator, forceNew)
+		data, err := insightMgr.Score(ctx, resourceGroup, forceNew)
 		if err != nil {
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return

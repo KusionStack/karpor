@@ -17,23 +17,32 @@ package insight
 import (
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/scanner/kubeaudit"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/cache"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
 type InsightManager struct {
 	search                storage.SearchStorage
+	resource              storage.ResourceStorage
+	resourceGroupRule     storage.ResourceGroupRuleStorage
 	scanner               scanner.KubeScanner
-	scanCache             *cache.Cache[core.Locator, scanner.ScanResult]
-	clusterTopologyCache  *cache.Cache[core.Locator, map[string]ClusterTopology]
-	resourceTopologyCache *cache.Cache[core.Locator, map[string]ResourceTopology]
+	scanCache             *cache.Cache[entity.ResourceGroupHash, scanner.ScanResult]
+	clusterTopologyCache  *cache.Cache[entity.ResourceGroupHash, map[string]ClusterTopology]
+	resourceTopologyCache *cache.Cache[entity.ResourceGroupHash, map[string]ResourceTopology]
+	genericConfig         *genericapiserver.CompletedConfig
 }
 
 // NewInsightManager returns a new InsightManager object
-func NewInsightManager(searchStorage storage.SearchStorage) (*InsightManager, error) {
+func NewInsightManager(
+	searchStorage storage.SearchStorage,
+	resourceStorage storage.ResourceStorage,
+	resourceGroupRuleStorage storage.ResourceGroupRuleStorage,
+	genericConfig *genericapiserver.CompletedConfig,
+) (*InsightManager, error) {
 	const defaultExpiration = 10 * time.Minute
 
 	// Create a new Kubernetes scanner instance.
@@ -43,10 +52,13 @@ func NewInsightManager(searchStorage storage.SearchStorage) (*InsightManager, er
 	}
 
 	return &InsightManager{
-		scanner:               kubeauditScanner,
 		search:                searchStorage,
-		scanCache:             cache.NewCache[core.Locator, scanner.ScanResult](defaultExpiration),
-		clusterTopologyCache:  cache.NewCache[core.Locator, map[string]ClusterTopology](defaultExpiration),
-		resourceTopologyCache: cache.NewCache[core.Locator, map[string]ResourceTopology](defaultExpiration),
+		resource:              resourceStorage,
+		resourceGroupRule:     resourceGroupRuleStorage,
+		scanner:               kubeauditScanner,
+		scanCache:             cache.NewCache[entity.ResourceGroupHash, scanner.ScanResult](defaultExpiration),
+		clusterTopologyCache:  cache.NewCache[entity.ResourceGroupHash, map[string]ClusterTopology](defaultExpiration),
+		resourceTopologyCache: cache.NewCache[entity.ResourceGroupHash, map[string]ResourceTopology](defaultExpiration),
+		genericConfig:         genericConfig,
 	}, nil
 }

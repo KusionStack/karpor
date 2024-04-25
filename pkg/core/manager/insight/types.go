@@ -15,42 +15,49 @@
 package insight
 
 import (
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
+// Global-related
+type Statistics struct {
+	ClusterCount           int `json:"clusterCount"`
+	ResourceCount          int `json:"resourceCount"`
+	ResourceGroupRuleCount int `json:"resourceGroupRuleCount"`
+}
+
 // Resource-related
 
 type ResourceSummary struct {
-	Resource          core.Locator `json:"resource"`
-	CreationTimestamp metav1.Time  `json:"creationTimestamp"`
-	ResourceVersion   string       `json:"resourceVersion"`
-	UID               types.UID    `json:"uid"`
+	Resource          entity.ResourceGroup `json:"resource"`
+	CreationTimestamp metav1.Time          `json:"creationTimestamp"`
+	ResourceVersion   string               `json:"resourceVersion"`
+	UID               types.UID            `json:"uid"`
 }
 
 type ResourceEvents struct {
-	Resource       core.Locator `json:"resource"`
-	Count          int          `json:"count"`
-	Reason         string       `json:"reason"`
-	Source         string       `json:"source"`
-	Type           string       `json:"type"`
-	LastTimestamp  metav1.Time  `json:"lastTimestamp"`
-	FirstTimestamp metav1.Time  `json:"firstTimestamp"`
+	Resource       entity.ResourceGroup `json:"resource"`
+	Count          int                  `json:"count"`
+	Reason         string               `json:"reason"`
+	Source         string               `json:"source"`
+	Type           string               `json:"type"`
+	LastTimestamp  metav1.Time          `json:"lastTimestamp"`
+	FirstTimestamp metav1.Time          `json:"firstTimestamp"`
 }
 
 type ResourceTopology struct {
-	Locator  core.Locator `json:"locator"`
-	Parents  []string     `json:"parents"`
-	Children []string     `json:"children"`
+	ResourceGroup entity.ResourceGroup `json:"resourceGroup"`
+	Parents       []string             `json:"parents"`
+	Children      []string             `json:"children"`
 }
 
 // Cluster-related
 
 type ClusterTopology struct {
-	Locator      core.Locator      `json:"locator"`
-	Count        int               `json:"count"`
-	Relationship map[string]string `json:"relationship"`
+	ResourceGroup entity.ResourceGroup `json:"resourceGroup"`
+	Count         int                  `json:"count"`
+	Relationship  map[string]string    `json:"relationship"`
 }
 
 type ClusterDetail struct {
@@ -101,6 +108,14 @@ type GVKSummary struct {
 type NamespaceSummary struct {
 	Cluster    string         `json:"cluster"`
 	Namespace  string         `json:"namespace"`
+	CountByGVK map[string]int `json:"countByGVK"`
+}
+
+// ResourceGroup-related
+//
+//nolint:tagliatelle
+type ResourceGroupSummary struct {
+	*entity.ResourceGroup
 	CountByGVK map[string]int `json:"countByGVK"`
 }
 

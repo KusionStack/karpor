@@ -20,7 +20,7 @@ import (
 	"math"
 	"sort"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/multicluster"
 	"github.com/KusionStack/karbour/pkg/infra/scanner"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
@@ -56,12 +56,12 @@ func CalculateScore(p, s int) float64 {
 	return 100 * math.Exp(param)
 }
 
-// CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using core.Locator
-func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (int, error) {
-	if loc.Cluster == "" || loc.APIVersion == "" || loc.Kind == "" {
-		return 0, fmt.Errorf("cluster, APIVersion and Kind in locator cannot be empty")
+// CountResourcesByGVK returns an int that corresponds to the count of a resource GVK defined using entity.ResourceGroup
+func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (int, error) {
+	if resourceGroup.Cluster == "" || resourceGroup.APIVersion == "" || resourceGroup.Kind == "" {
+		return 0, fmt.Errorf("cluster, APIVersion and Kind in resourceGroup cannot be empty")
 	}
-	resourceGVR, err := topologyutil.GetGVRFromGVK(loc.APIVersion, loc.Kind)
+	resourceGVR, err := topologyutil.GetGVRFromGVK(resourceGroup.APIVersion, resourceGroup.Kind)
 	if err != nil {
 		return 0, err
 	}
@@ -73,17 +73,13 @@ func (i *InsightManager) CountResourcesByGVK(ctx context.Context, client *multic
 }
 
 // CountResourcesByGVK returns a map from string to int
-func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *multicluster.MultiClusterClient, loc *core.Locator) (map[string]int, error) {
+func (i *InsightManager) CountByResourceGroup(ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup) (map[string]int, error) {
 	// Retrieve logger from context and log the start of the audit.
 	log := ctxutil.GetLogger(ctx)
-	if loc.Cluster == "" || loc.Namespace == "" {
-		return nil, fmt.Errorf("cluster and Namespace in locator cannot be empty")
-	}
-	counts := make(map[string]int)
 	// Another option here is to retrieve the list of API resources and iterate over each using dynamic client
 	// That will create more pressure on the spoke cluster and cause unexpected and unnecessary amount of time
 	// We opted to use Elastic search as the source of the count
-	searchQuery := loc.ToSQL()
+	searchQuery := resourceGroup.ToSQL()
 	searchPattern := storage.SQLPatternType
 	pageSizeIteration := 100
 	pageIteration := 1
@@ -91,6 +87,7 @@ func (i *InsightManager) CountResourcesByNamespace(ctx context.Context, client *
 	log.Info("Starting search in InsightManager ...",
 		"searchQuery", searchQuery, "searchPattern", searchPattern, "searchPageSize", pageSizeIteration, "searchPage", pageIteration)
 
+	counts := make(map[string]int)
 	for {
 		res, err := i.search.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: pageIteration, PageSize: pageSizeIteration})
 		if err != nil {

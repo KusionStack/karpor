@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:goconst
 package syncer
 
 import (
@@ -70,7 +71,7 @@ func Test_multiClusterSyncManager_Create(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := NewMultiClusterSyncManager(nil, nil, nil)
+			s := NewMultiClusterSyncManager(context.TODO(), nil, nil)
 			_, err := s.Create(context.TODO(), "cluster1", tt.config)
 			if tt.wantErr {
 				require.Error(t, err)

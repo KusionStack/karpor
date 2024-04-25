@@ -543,14 +543,14 @@ var doc = `{
         },
         "/rest-api/v1/insight/audit": {
             "get": {
-                "description": "This endpoint audits based on the specified locator.",
+                "description": "This endpoint audits based on the specified resource group.",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "insight"
                 ],
-                "summary": "Audit based on locator.",
+                "summary": "Audit based on resource group.",
                 "parameters": [
                     {
                         "type": "string",
@@ -902,6 +902,62 @@ var doc = `{
                 }
             }
         },
+        "/rest-api/v1/insight/stats": {
+            "get": {
+                "description": "This endpoint returns a global statistics info.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Get returns a global statistics info.",
+                "responses": {
+                    "200": {
+                        "description": "Global statistics info",
+                        "schema": {
+                            "$ref": "#/definitions/insight.Statistics"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/rest-api/v1/insight/summary": {
             "get": {
                 "description": "This endpoint returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind.",
@@ -1044,7 +1100,425 @@ var doc = `{
                         "schema": {
                             "type": "object",
                             "additionalProperties": {
-                                "$ref": "#/definitions/insight.ResourceTopology"
+                                "type": "object",
+                                "additionalProperties": {
+                                    "$ref": "#/definitions/insight.ResourceTopology"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/resource-group-rule": {
+            "put": {
+                "description": "This endpoint updates the display name and description of an existing ResourceGroupRule.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegrouprule"
+                ],
+                "summary": "Update updates the ResourceGroupRule metadata by name.",
+                "parameters": [
+                    {
+                        "description": "resourceGroupRule to update (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/resourcegrouprule.ResourceGroupRulePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "This endpoint creates a new ResourceGroupRule using the payload.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegrouprule"
+                ],
+                "summary": "Create creates a ResourceGroupRule.",
+                "parameters": [
+                    {
+                        "description": "resourceGroupRule to create (either plain text or JSON format)",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/resourcegrouprule.ResourceGroupRulePayload"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/resource-group-rule/{resourceGroupRuleName}": {
+            "get": {
+                "description": "This endpoint returns a ResourceGroupRule by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegrouprule"
+                ],
+                "summary": "Get returns a ResourceGroupRule by name.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the resource group rule",
+                        "name": "resourceGroupRuleName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Unstructured object",
+                        "schema": {
+                            "$ref": "#/definitions/unstructured.Unstructured"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "This endpoint deletes the ResourceGroupRule by name.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegrouprule"
+                ],
+                "summary": "Delete removes a ResourceGroupRule by name.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the resource group rule",
+                        "name": "resourceGroupRuleName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Operation status",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/resource-group-rules": {
+            "get": {
+                "description": "This endpoint lists all ResourceGroupRules.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegrouprule"
+                ],
+                "summary": "List lists all ResourceGroupRules.",
+                "parameters": [
+                    {
+                        "type": "boolean",
+                        "description": "Whether to display summary or not. Default to false",
+                        "name": "summary",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The order to list the resourceGroupRule. Default to order by name",
+                        "name": "orderBy",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Whether to sort the list in descending order. Default to false",
+                        "name": "descending",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of resourceGroupRule objects",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/unstructured.Unstructured"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/resource-groups/{resourceGroupRuleName}": {
+            "get": {
+                "description": "This endpoint lists all ResourceGroups.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "resourcegroup"
+                ],
+                "summary": "List lists all ResourceGroups by rule name.",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the resource group rule",
+                        "name": "resourceGroupRuleName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "List of resourceGroup objects",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/unstructured.Unstructured"
                             }
                         }
                     },
@@ -1216,9 +1690,15 @@ var doc = `{
                 }
             }
         },
-        "core.Locator": {
+        "entity.ResourceGroup": {
             "type": "object",
             "properties": {
+                "annotations": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
+                },
                 "apiVersion": {
                     "type": "string"
                 },
@@ -1227,6 +1707,12 @@ var doc = `{
                 },
                 "kind": {
                     "type": "string"
+                },
+                "labels": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "string"
+                    }
                 },
                 "name": {
                     "type": "string"
@@ -1243,7 +1729,7 @@ var doc = `{
                     "type": "string"
                 },
                 "resource": {
-                    "$ref": "#/definitions/core.Locator"
+                    "$ref": "#/definitions/entity.ResourceGroup"
                 },
                 "resourceVersion": {
                     "type": "string"
@@ -1262,14 +1748,14 @@ var doc = `{
                         "type": "string"
                     }
                 },
-                "locator": {
-                    "$ref": "#/definitions/core.Locator"
-                },
                 "parents": {
                     "type": "array",
                     "items": {
                         "type": "string"
                     }
+                },
+                "resourceGroup": {
+                    "$ref": "#/definitions/entity.ResourceGroup"
                 }
             }
         },
@@ -1294,6 +1780,37 @@ var doc = `{
                     "additionalProperties": {
                         "type": "integer"
                     }
+                }
+            }
+        },
+        "insight.Statistics": {
+            "type": "object",
+            "properties": {
+                "clusterCount": {
+                    "type": "integer"
+                },
+                "resourceCount": {
+                    "type": "integer"
+                },
+                "resourceGroupRuleCount": {
+                    "type": "integer"
+                }
+            }
+        },
+        "resourcegrouprule.ResourceGroupRulePayload": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "name": {
+                    "type": "string"
                 }
             }
         },
@@ -1347,10 +1864,10 @@ var doc = `{
                 "issue": {
                     "$ref": "#/definitions/scanner.Issue"
                 },
-                "locators": {
+                "resourceGroups": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/core.Locator"
+                        "$ref": "#/definitions/entity.ResourceGroup"
                     }
                 }
             }

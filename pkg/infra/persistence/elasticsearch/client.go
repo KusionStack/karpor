@@ -16,6 +16,7 @@
 package elasticsearch
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -25,20 +26,32 @@ import (
 
 	"github.com/elastic/go-elasticsearch/v8"
 	"github.com/elastic/go-elasticsearch/v8/esapi"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/some"
+	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
+	"github.com/elliotxx/esquery"
 )
 
 // Client represents an Elasticsearch client that can perform various operations on the Elasticsearch cluster.
 type Client struct {
-	client *elasticsearch.Client
+	client      *elasticsearch.Client
+	typedClient *elasticsearch.TypedClient
 }
 
 // NewClient creates a new Elasticsearch client instance
 func NewClient(config elasticsearch.Config) (*Client, error) {
-	es, err := elasticsearch.NewClient(config)
+	cl, err := elasticsearch.NewClient(config)
 	if err != nil {
 		return nil, err
 	}
-	return &Client{client: es}, nil
+	if err != nil {
+		return nil, err
+	}
+	typed, err := elasticsearch.NewTypedClient(config)
+	if err != nil {
+		return nil, err
+	}
+	return &Client{client: cl, typedClient: typed}, nil
 }
 
 // SaveDocument saves a new document
@@ -48,11 +61,16 @@ func (cl *Client) SaveDocument(
 	documentID string,
 	body io.Reader,
 ) error {
+	opts := []func(*esapi.IndexRequest){
+		cl.client.Index.WithContext(ctx),
+	}
+	if len(documentID) > 0 {
+		opts = append(opts, cl.client.Index.WithDocumentID(documentID))
+	}
 	resp, err := cl.client.Index(
 		indexName,
 		body,
-		cl.client.Index.WithDocumentID(documentID),
-		cl.client.Index.WithContext(ctx),
+		opts...,
 	)
 	if err != nil {
 		return err
@@ -150,24 +168,21 @@ func (cl *Client) SearchDocument(
 	body io.Reader,
 	options ...Option,
 ) (*SearchResponse, error) {
-	cfg := &config{}
+	cfg := &config{
+		pagination: &paginationConfig{Page: 1, PageSize: maxHitsSize},
+	}
 	for _, option := range options {
 		if err := option(cfg); err != nil {
 			return nil, err
 		}
 	}
+
 	opts := []func(*esapi.SearchRequest){
 		cl.client.Search.WithContext(ctx),
 		cl.client.Search.WithIndex(indexName),
 		cl.client.Search.WithBody(body),
-	}
-	if cfg.pagination != nil {
-		from := (cfg.pagination.Page - 1) * cfg.pagination.PageSize
-		opts = append(
-			opts,
-			cl.client.Search.WithSize(cfg.pagination.PageSize),
-			cl.client.Search.WithFrom(from),
-		)
+		cl.client.Search.WithSize(cfg.pagination.PageSize),
+		cl.client.Search.WithFrom((cfg.pagination.Page - 1) * cfg.pagination.PageSize),
 	}
 
 	resp, err := cl.client.Search(opts...)
@@ -183,6 +198,35 @@ func (cl *Client) SearchDocument(
 	}
 
 	sr := &SearchResponse{}
+	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
+		return nil, err
+	}
+	return sr, nil
+}
+
+// Count performs a count query in the specified index.
+func (cl *Client) Count(
+	ctx context.Context,
+	indexName string,
+) (*CountResponse, error) {
+	opts := []func(*esapi.CountRequest){
+		cl.client.Count.WithContext(ctx),
+		cl.client.Count.WithIndex(indexName),
+	}
+
+	resp, err := cl.client.Count(opts...)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	if resp.IsError() {
+		return nil, &ESError{
+			StatusCode: resp.StatusCode,
+			Message:    resp.String(),
+		}
+	}
+
+	sr := &CountResponse{}
 	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
 		return nil, err
 	}
@@ -237,4 +281,139 @@ func (cl *Client) IsIndexExists(ctx context.Context, index string) (bool, error)
 		// If it's any other status code, return an error
 		return false, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
 	}
+}
+
+// SearchDocumentByTerms constructs a boolean search query with a must term match for each key-value pair in keyAndVal,
+func (cl *Client) SearchDocumentByTerms(ctx context.Context, index string, keysAndValues map[string]any, options ...Option) (*SearchResponse, error) {
+	boolQuery := esquery.Bool()
+	for k, v := range keysAndValues {
+		boolQuery.Must(esquery.Term(k, v))
+	}
+	query := map[string]interface{}{
+		"query": boolQuery.Map(),
+	}
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return nil, err
+	}
+	return cl.SearchDocument(ctx, index, buf, options...)
+}
+
+// AggregateDocumentByTerms performs an aggregation query based on the provided fields.
+func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fields []string) (*AggResults, error) {
+	if len(fields) == 0 {
+		return nil, fmt.Errorf("no fields provided for aggregation")
+	}
+	if len(fields) == 1 {
+		// Perform single-term aggregation if only one field is provided.
+		return cl.termsAgg(ctx, index, fields[0])
+	}
+	// Perform multi-term aggregation if multiple fields are provided.
+	return cl.multiTermsAgg(ctx, index, fields)
+}
+
+// Refresh refresh specified index in Elasticsearch.
+func (cl *Client) Refresh(
+	ctx context.Context,
+	indexName string,
+) error {
+	opts := []func(*esapi.IndicesRefreshRequest){
+		cl.client.Indices.Refresh.WithContext(ctx),
+		cl.client.Indices.Refresh.WithIndex(indexName),
+	}
+
+	_, err := cl.client.Indices.Refresh(opts...)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// multiTermsAggSearch executes a multi-term aggregation query on specified fields.
+func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []string) (*AggResults, error) {
+	// Construct the terms for multi-term aggregation based on the fields.
+	terms := make([]types.MultiTermLookup, len(fields))
+	for i := range fields {
+		terms[i] = types.MultiTermLookup{Field: fields[i]}
+	}
+
+	// Execute the search request with the constructed multi-term aggregation.
+	name := strings.Join(fields, "-")
+	resp, err := cl.typedClient.
+		Search().
+		Index(index).
+		Request(&search.Request{
+			// Set the number of search hits to return to 0 as we only need aggregation data.
+			Size: some.Int(0),
+			Aggregations: map[string]types.Aggregations{
+				name: {
+					MultiTerms: &types.MultiTermsAggregation{
+						Terms: terms,
+						// maxAggSize should be predefined to limit the size of the aggregation.
+						Size: some.Int(maxAggSize),
+					},
+				},
+			},
+		}).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract the buckets from the response and construct the AggResults.
+	buckets := resp.Aggregations[name].(*types.MultiTermsAggregate).Buckets.([]types.MultiTermsBucket)
+	bs := make([]Bucket, len(buckets))
+	for i, b := range buckets {
+		keys := make([]string, len(b.Key))
+		for j, k := range b.Key {
+			keys[j] = fmt.Sprintf("%v", k)
+		}
+		bs[i] = Bucket{
+			Keys:  keys,
+			Count: int(b.DocCount),
+		}
+	}
+	return &AggResults{
+		Buckets: bs,
+		Total:   len(bs),
+	}, nil
+}
+
+// termsAgg executes a single-term aggregation query on the specified field.
+func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*AggResults, error) {
+	// Execute the search request with the single-term aggregation.
+	resp, err := cl.typedClient.
+		Search().
+		Index(index).
+		Request(&search.Request{
+			// Set the number of search hits to return to 0 as we only need aggregation data.
+			Size: some.Int(0),
+			Aggregations: map[string]types.Aggregations{
+				field: {
+					Terms: &types.TermsAggregation{
+						Field: some.String(field),
+						// maxAggSize should be predefined to limit the size of the aggregation.
+						Size: some.Int(maxAggSize),
+					},
+				},
+			},
+		}).
+		Do(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract the buckets from the response and construct the AggResults.
+	buckets := resp.Aggregations[field].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
+	bs := make([]Bucket, len(buckets))
+	for i, b := range buckets {
+		bs[i] = Bucket{
+			Keys:  []string{fmt.Sprintf("%v", b.Key)},
+			Count: int(b.DocCount),
+		}
+	}
+	return &AggResults{
+		Buckets: bs,
+		Total:   len(bs),
+	}, nil
 }

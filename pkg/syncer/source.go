@@ -61,7 +61,7 @@ type SyncSource interface {
 type informerSource struct {
 	cluster string
 	v1beta1.ResourceSyncRule
-	storage storage.Storage
+	storage storage.ResourceStorage
 
 	client   dynamic.Interface
 	cache    clientgocache.Store
@@ -109,7 +109,7 @@ func (s *informerSource) Resync() error {
 }
 
 // NewSource creates a new instance of informerSource with the provided parameters, including cluster name, Kubernetes client, sync rule, and storage.
-func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.Storage) SyncSource {
+func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyncRule, storage storage.ResourceStorage) SyncSource {
 	return &informerSource{
 		cluster:          cluster,
 		storage:          storage,

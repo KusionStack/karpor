@@ -47,7 +47,7 @@ const (
 
 // SyncReconciler is the main structure that holds the state and dependencies for the multi-cluster syncer reconciler.
 type SyncReconciler struct {
-	storage storage.Storage
+	storage storage.ResourceStorage
 
 	client     client.Client
 	controller controller.Controller
@@ -55,7 +55,7 @@ type SyncReconciler struct {
 }
 
 // NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
-func NewSyncReconciler(storage storage.Storage) *SyncReconciler {
+func NewSyncReconciler(storage storage.ResourceStorage) *SyncReconciler {
 	return &SyncReconciler{storage: storage}
 }
 
@@ -82,6 +82,7 @@ func (r *SyncReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return nil
 }
 
+// CreateEvent handles the creation event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) CreateEvent(ce event.CreateEvent, queue workqueue.RateLimitingInterface) {
 	registry := ce.Object.(*searchv1beta1.SyncRegistry)
 	for _, clusterName := range r.getMatchedClusters(registry) {
@@ -89,6 +90,7 @@ func (r *SyncReconciler) CreateEvent(ce event.CreateEvent, queue workqueue.RateL
 	}
 }
 
+// UpdateEvent handles the update event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) UpdateEvent(ue event.UpdateEvent, queue workqueue.RateLimitingInterface) {
 	oldRegistry := ue.ObjectOld.(*searchv1beta1.SyncRegistry)
 	newRegistry := ue.ObjectNew.(*searchv1beta1.SyncRegistry)
@@ -109,6 +111,7 @@ func (r *SyncReconciler) UpdateEvent(ue event.UpdateEvent, queue workqueue.RateL
 	}
 }
 
+// DeleteEvent handles the deletion event for a resource and enqueues it for reconciliation.
 func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateLimitingInterface) {
 	registry := de.Object.(*searchv1beta1.SyncRegistry)
 	for _, clusterName := range r.getMatchedClusters(registry) {

@@ -19,6 +19,13 @@ import (
 	"fmt"
 )
 
+const (
+	// maxAggSize defines the maximum number of aggregation buckets that can be returned in an aggregation query.
+	maxAggSize = 10000
+	// maxHitsSize defines the maximum number of search hits to be returned in a search query response.
+	maxHitsSize = 1000
+)
+
 type paginationConfig struct {
 	Page     int
 	PageSize int
@@ -60,6 +67,11 @@ func (e *ESError) Error() string {
 	return fmt.Sprintf("Error %d: %s", e.StatusCode, e.Message)
 }
 
+// CountResponse represents the response structure for a count operation.
+type CountResponse struct {
+	Count int64 `json:"count"`
+}
+
 // SearchResponse represents the response structure for a search operation.
 type SearchResponse struct {
 	ScrollID string `json:"_scroll_id"`
@@ -87,4 +99,16 @@ type Hit struct {
 	ID     string                 `json:"_id"`
 	Score  float32                `json:"_score"`
 	Source map[string]interface{} `json:"_source"`
+}
+
+// AggResults is assumed to be a struct that holds aggregation results.
+type AggResults struct {
+	Buckets []Bucket
+	Total   int
+}
+
+// Bucket is assumed to be a struct that holds individual bucket data.
+type Bucket struct {
+	Keys  []string
+	Count int
 }

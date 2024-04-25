@@ -103,8 +103,8 @@ func TestResourceSyncer_sync(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewResourceSyncer("cluster1", nil, v1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "services"}, &elasticsearch.Storage{})
 			m1 := mockey.Mock((*informerSource).GetByKey).Return(tt.item, tt.exist, nil).Build()
-			m2 := mockey.Mock((*elasticsearch.Storage).Save).Return(nil).Build()
-			m3 := mockey.Mock((*elasticsearch.Storage).Delete).Return(nil).Build()
+			m2 := mockey.Mock((*elasticsearch.Storage).SaveResource).Return(nil).Build()
+			m3 := mockey.Mock((*elasticsearch.Storage).DeleteResource).Return(nil).Build()
 			defer m3.UnPatch()
 			defer m2.UnPatch()
 			defer m1.UnPatch()
@@ -133,7 +133,8 @@ func TestResourceSyncer_Run(t *testing.T) {
 			s := NewResourceSyncer("cluster1", nil, v1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "services"}, &elasticsearch.Storage{})
 			m := mockey.Mock((*informerSource).HasSynced).Return(true).Build()
 			defer m.UnPatch()
-			ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
+			ctx, cancel := context.WithTimeout(context.TODO(), 1*time.Second)
+			defer cancel()
 			err := s.Run(ctx)
 			if tt.wantErr {
 				require.Error(t, err)

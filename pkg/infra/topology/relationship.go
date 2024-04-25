@@ -23,6 +23,9 @@ import (
 	"os"
 	"reflect"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/util/ctxutil"
 	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
 	"github.com/dominikbraun/graph"
@@ -70,7 +73,7 @@ func (rgn RelationshipGraphNode) ConvertToMap() map[string]string {
 }
 
 // FindNodeByGVK locates the Node by GVK on a RelationshipGraph. Used to locate parent and child nodes when building the relationship graph
-func (rg RelationshipGraph) FindNodeByGVK(group, version, kind string) (*RelationshipGraphNode, error) {
+func (rg *RelationshipGraph) FindNodeByGVK(group, version, kind string) (*RelationshipGraphNode, error) {
 	for _, item := range rg.RelationshipNodes {
 		if item.Group == group && item.Version == version && item.Kind == kind {
 			return item, nil
@@ -275,4 +278,31 @@ func GVRNamespaced(gvr schema.GroupVersionResource, discoveryClient discovery.Di
 		}
 	}
 	return false
+}
+
+// CountRelationshipGraphByCustomResourceGroup returns the same RelationshipGraph with the count for each custom resource group
+func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx context.Context, cl storage.SearchStorage, resourceGroup *entity.ResourceGroup, name string) (*RelationshipGraph, error) {
+	log := ctxutil.GetLogger(ctx)
+	if len(resourceGroup.Kind) != 0 {
+		return &RelationshipGraph{
+			RelationshipNodes: []*RelationshipGraphNode{},
+		}, nil
+	}
+	if len(resourceGroup.APIVersion) != 0 {
+		return nil, errors.New("apiVersion should be empty")
+	}
+	for _, node := range rg.RelationshipNodes {
+		kvs := elasticsearch.ConvertResourceGroup2Map(resourceGroup)
+		kvs["apiVersion"] = schema.GroupVersion{Group: node.Group, Version: node.Version}.String()
+		kvs["kind"] = node.Kind
+		kvs["cluster"] = name
+		sr, err := cl.SearchByTerms(ctx, kvs, nil)
+		if err != nil {
+			return rg, err
+		}
+
+		log.Info("Counted resources for Vertex", "node", node.GetHash(), "count", sr.Total)
+		node.ResourceCount = sr.Total
+	}
+	return rg, nil
 }

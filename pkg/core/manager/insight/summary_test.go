@@ -18,15 +18,17 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
 )
 
 func TestInsightManager_GetResourceSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -36,13 +38,13 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *ResourceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -50,7 +52,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 				Name:       "existing-configmap",
 			},
 			expectedResult: &ResourceSummary{
-				Resource: core.Locator{
+				Resource: entity.ResourceGroup{
 					Name:       "existing-configmap",
 					Namespace:  "default",
 					APIVersion: "v1",
@@ -66,7 +68,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResourceSummary method
-			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
@@ -85,7 +87,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 
 func TestInsightManager_GetGVKSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -95,13 +97,13 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *GVKSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -123,7 +125,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetGVKSummary method
-			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
@@ -142,7 +144,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 
 func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -152,13 +154,13 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		resourceGroup  *entity.ResourceGroup
 		expectedResult *NamespaceSummary
 		expectError    bool
 	}{
 		{
 			name: "Success - Existing Namespace",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:   "existing-cluster",
 				Namespace: "default",
 			},
@@ -177,7 +179,7 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetNamespaceSummary method
-			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.loc)
+			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {

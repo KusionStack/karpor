@@ -32,6 +32,10 @@ import (
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 )
 
+const (
+	elasticSearchType = "elasticsearch"
+)
+
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
 
 type RESTStorageProvider struct {
@@ -41,6 +45,7 @@ type RESTStorageProvider struct {
 	ElasticSearchPassword  string
 }
 
+// GroupName returns the group name for the REST storage provider.
 func (p RESTStorageProvider) GroupName() string {
 	return search.GroupName
 }
@@ -88,9 +93,10 @@ func (p RESTStorageProvider) v1beta1Storage(
 	return v1beta1Storage, nil
 }
 
+// SearchStorageGetter returns the search storage getter for the provider.
 func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter, error) {
 	switch p.SearchStorageType {
-	case "elasticsearch":
+	case elasticSearchType:
 		return elasticsearch.NewSearchStorageGetter(
 			p.ElasticSearchAddresses,
 			p.ElasticSearchName,
@@ -98,5 +104,33 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 		), nil
 	default:
 		return nil, fmt.Errorf("invalid search storage type %s", p.SearchStorageType)
+	}
+}
+
+// ResourceStorageGetter returns the resource storage getter for the provider.
+func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGetter, error) {
+	switch p.SearchStorageType {
+	case elasticSearchType:
+		return elasticsearch.NewResourceStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
+	default:
+		return nil, fmt.Errorf("invalid resource storage type %s", p.SearchStorageType)
+	}
+}
+
+// ResourceGroupRuleStorageGetter returns the resource group rule storage getter for the provider.
+func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceGroupRuleStorageGetter, error) {
+	switch p.SearchStorageType {
+	case elasticSearchType:
+		return elasticsearch.NewResourceGroupRuleStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
+	default:
+		return nil, fmt.Errorf("invalid resource group rule storage type %s", p.SearchStorageType)
 	}
 }

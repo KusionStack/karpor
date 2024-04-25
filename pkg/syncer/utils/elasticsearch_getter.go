@@ -34,6 +34,7 @@ type ESListerGetter struct {
 	gvr      schema.GroupVersionResource
 }
 
+// NewESListerGetter creates a new instance of the ESListerGetter with the provided cluster name, Elasticsearch client, and GroupVersionResource.
 func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr schema.GroupVersionResource) *ESListerGetter {
 	return &ESListerGetter{
 		cluster:  cluster,

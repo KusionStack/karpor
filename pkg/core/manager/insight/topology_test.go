@@ -21,10 +21,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -39,7 +40,7 @@ func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 	defer mockey.UnPatchAll()
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases
@@ -93,7 +94,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	defer os.Unsetenv("KARBOUR_RELATIONSHIP_FILE")
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -102,15 +103,15 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 
 	// Test cases
 	testCases := []struct {
-		name        string
-		loc         *core.Locator
-		noCache     bool
-		expectedMap map[string]ResourceTopology
-		expectError bool
+		name          string
+		resourceGroup *entity.ResourceGroup
+		noCache       bool
+		expectedMap   map[string]ResourceTopology
+		expectError   bool
 	}{
 		{
 			name: "Success - Existing Pod",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Pod",
@@ -120,7 +121,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 			noCache: true,
 			expectedMap: map[string]ResourceTopology{
 				"/v1.Pod:default.existing-pod": {
-					Locator: core.Locator{
+					ResourceGroup: entity.ResourceGroup{
 						Cluster:    "existing-cluster",
 						APIVersion: "v1",
 						Kind:       "Pod",
@@ -134,10 +135,10 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 			expectError: false,
 		},
 		{
-			name:        "Error - Non-existing cluster",
-			loc:         &core.Locator{},
-			noCache:     true,
-			expectError: true,
+			name:          "Error - Non-existing cluster",
+			resourceGroup: &entity.ResourceGroup{},
+			noCache:       true,
+			expectError:   true,
 		},
 	}
 
@@ -145,7 +146,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetTopologyForResource method
-			topologyMap, err := manager.GetTopologyForResource(context.Background(), mockMultiClusterClient(), tc.loc, tc.noCache)
+			topologyMap, err := manager.GetTopologyForResource(context.Background(), mockMultiClusterClient(), tc.resourceGroup, tc.noCache)
 
 			// Check error expectation
 			if tc.expectError {
@@ -173,7 +174,7 @@ func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 	defer mockey.UnPatchAll()
 
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases

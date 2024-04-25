@@ -19,10 +19,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
 )
 
@@ -30,7 +31,7 @@ import (
 // various scenarios.
 func TestGetResource(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -40,13 +41,13 @@ func TestGetResource(t *testing.T) {
 	// Test cases
 	testCases := []struct {
 		name           string
-		loc            *core.Locator
+		resourceGroup  *entity.ResourceGroup
 		expectError    bool
 		expectSanitize bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -58,13 +59,13 @@ func TestGetResource(t *testing.T) {
 		},
 		{
 			name:           "Error - Non-existing cluster",
-			loc:            &core.Locator{},
+			resourceGroup:  &entity.ResourceGroup{},
 			expectError:    true,
 			expectSanitize: false, // Not applicable as there is an error
 		},
 		{
 			name: "Success - Existing Secret",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "Secret",
@@ -80,7 +81,7 @@ func TestGetResource(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResource method
-			resource, err := manager.GetResource(context.TODO(), mockMultiClusterClient(), tc.loc)
+			resource, err := manager.GetResource(context.TODO(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
@@ -104,7 +105,7 @@ func TestGetResource(t *testing.T) {
 
 func TestInsightManager_GetYAMLForResource(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
@@ -113,14 +114,14 @@ func TestInsightManager_GetYAMLForResource(t *testing.T) {
 
 	// Test cases
 	testCases := []struct {
-		name         string
-		loc          *core.Locator
-		expectedYAML []byte
-		expectError  bool
+		name          string
+		resourceGroup *entity.ResourceGroup
+		expectedYAML  []byte
+		expectError   bool
 	}{
 		{
 			name: "Success - Existing ConfigMap",
-			loc: &core.Locator{
+			resourceGroup: &entity.ResourceGroup{
 				Cluster:    "existing-cluster",
 				APIVersion: "v1",
 				Kind:       "ConfigMap",
@@ -139,9 +140,9 @@ metadata:
 			expectError: false,
 		},
 		{
-			name:        "Error - Non-existing cluster",
-			loc:         &core.Locator{},
-			expectError: true,
+			name:          "Error - Non-existing cluster",
+			resourceGroup: &entity.ResourceGroup{},
+			expectError:   true,
 		},
 	}
 
@@ -149,7 +150,7 @@ metadata:
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetYAMLForResource method
-			yamlData, err := manager.GetYAMLForResource(context.Background(), mockMultiClusterClient(), tc.loc)
+			yamlData, err := manager.GetYAMLForResource(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {

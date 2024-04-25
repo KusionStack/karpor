@@ -20,8 +20,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"reflect"
 	"strings"
 
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/util/sql2es"
@@ -57,6 +59,15 @@ func (s *Storage) Search(ctx context.Context, queryStr string, patternType strin
 	return sr, nil
 }
 
+// SearchByQuery performs a search operation using a query map and pagination settings.
+func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	buf := &bytes.Buffer{}
+	if err := json.NewEncoder(buf).Encode(query); err != nil {
+		return nil, err
+	}
+	return s.search(ctx, buf, pagination)
+}
+
 // searchByDSL performs a search operation using a DSL (Domain Specific Language) string and pagination settings.
 func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	queries, err := Parse(dslStr)
@@ -83,37 +94,95 @@ func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *st
 	return s.search(ctx, strings.NewReader(dsl), pagination)
 }
 
-// SearchByQuery performs a search operation using a query map and pagination settings.
-func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-	return s.search(ctx, buf, pagination)
-}
-
 // search performs a search operation using an io.Reader as the query body and pagination settings.
 func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var opts []elasticsearch.Option
 	if pagination != nil {
 		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
 	}
-	resp, err := s.client.SearchDocument(ctx, s.indexName, body, opts...)
+	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, body, opts...)
 	if err != nil {
 		return nil, err
 	}
 
-	sr := &storage.SearchResult{
-		Total:     resp.Hits.Total.Value,
-		Resources: make([]*storage.Resource, len(resp.Hits.Hits)),
+	return convertSearchResult(resp)
+}
+
+// SearchByTerms performs a search operation with a map of keys and values and pagination information.
+func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	var opts []elasticsearch.Option
+	if pagination != nil {
+		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
+	}
+	resp, err := s.client.SearchDocumentByTerms(ctx, s.resourceIndexName, keysAndValues, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return convertSearchResult(resp)
+}
+
+// convertSearchResult converts an elasticsearch.SearchResponse to a storage.SearchResult.
+func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResult, error) {
+	out := &storage.SearchResult{
+		Total:     in.Hits.Total.Value,
+		Resources: make([]*storage.Resource, len(in.Hits.Hits)),
 	}
 
-	for i, hit := range resp.Hits.Hits {
-		sr.Resources[i], err = storage.Map2Resource(hit.Source)
-		if err != nil {
+	for i, hit := range in.Hits.Hits {
+		var err error
+
+		if out.Resources[i], err = storage.Map2Resource(hit.Source); err != nil {
 			return nil, err
 		}
 	}
+	return out, nil
+}
 
-	return sr, nil
+// convertAggregationResult converts an elasticsearch.AggResults to a storage.AggregateResults.
+func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateResults {
+	buckets := make([]storage.Bucket, len(in.Buckets))
+	for i := range in.Buckets {
+		buckets[i] = storage.Bucket{
+			Keys:  in.Buckets[i].Keys,
+			Count: in.Buckets[i].Count,
+		}
+	}
+	return &storage.AggregateResults{
+		Buckets: buckets,
+		Total:   in.Total,
+	}
+}
+
+// AggregateByTerms performs an aggregation operation using the provided list of keys and returns the results.
+func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage.AggregateResults, error) {
+	resp, err := s.client.AggregateDocumentByTerms(ctx, s.resourceIndexName, keys)
+	if err != nil {
+		return nil, err
+	}
+	return convertAggregationResult(resp), nil
+}
+
+// ConvertResourceGroup2Map converts a ResourceGroup to a map[string]any.
+func ConvertResourceGroup2Map(rg *entity.ResourceGroup) map[string]any {
+	result := make(map[string]interface{})
+	v := reflect.ValueOf(rg).Elem()
+
+	// Iterate through the fields of the struct.
+	for i := 0; i < v.NumField(); i++ {
+		field := v.Type().Field(i)
+		value := v.Field(i).Interface()
+
+		switch fieldValue := value.(type) {
+		case map[string]string:
+			// Handle the map field by iterating its keys and values.
+			for key, val := range fieldValue {
+				result[field.Name+"."+key] = val
+			}
+		default:
+			// For non-map fields, directly add them to the result map.
+			result[field.Name] = value
+		}
+	}
+
+	return result
 }

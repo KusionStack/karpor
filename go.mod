@@ -15,6 +15,7 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
+	github.com/google/uuid v1.3.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
@@ -97,7 +98,6 @@ require (
 	github.com/google/cel-go v0.12.6 // indirect
 	github.com/google/gnostic v0.5.7-v3refs // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/google/uuid v1.3.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181017120253-0766667cb4d1 // indirect
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.7.0 // indirect

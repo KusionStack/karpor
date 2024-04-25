@@ -18,26 +18,27 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
+	"github.com/KusionStack/karbour/pkg/core/entity"
 	"github.com/stretchr/testify/require"
+	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
 func TestInsightManager_Audit(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases
 	testCases := []struct {
 		name          string
-		locator       core.Locator
+		resourceGroup entity.ResourceGroup
 		noCache       bool
 		expectError   bool
 		expectedCount int
 	}{
 		{
 			name: "Audit with Cache Enabled",
-			locator: core.Locator{
+			resourceGroup: entity.ResourceGroup{
 				Cluster:    "test-cluster",
 				Namespace:  "test-namespace",
 				APIVersion: "v1",
@@ -50,7 +51,7 @@ func TestInsightManager_Audit(t *testing.T) {
 		},
 		{
 			name: "Audit with Cache Disabled",
-			locator: core.Locator{
+			resourceGroup: entity.ResourceGroup{
 				Cluster:    "test-cluster",
 				Namespace:  "test-namespace",
 				APIVersion: "v1",
@@ -67,7 +68,7 @@ func TestInsightManager_Audit(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call Audit method
-			result, err := manager.Audit(context.Background(), tc.locator, tc.noCache)
+			result, err := manager.Audit(context.Background(), tc.resourceGroup, tc.noCache)
 
 			// Check for errors
 			if tc.expectError {
@@ -86,13 +87,13 @@ func TestInsightManager_Audit(t *testing.T) {
 
 func TestInsightManager_Score(t *testing.T) {
 	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{})
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Test cases
 	testCases := []struct {
 		name                      string
-		locator                   core.Locator
+		resourceGroup             entity.ResourceGroup
 		noCache                   bool
 		expectScore               int
 		expectResourceTotal       int
@@ -104,7 +105,7 @@ func TestInsightManager_Score(t *testing.T) {
 	}{
 		{
 			name:                      "Score Calculation with Cache Enabled",
-			locator:                   core.Locator{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
+			resourceGroup:             entity.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
 			noCache:                   false,
 			expectScore:               17,
 			expectResourceTotal:       1,
@@ -116,7 +117,7 @@ func TestInsightManager_Score(t *testing.T) {
 		},
 		{
 			name:                      "Score Calculation with Cache Disabled",
-			locator:                   core.Locator{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
+			resourceGroup:             entity.ResourceGroup{Cluster: "existing-cluster", APIVersion: "v1", Kind: "Pod", Namespace: "default", Name: "existing-pod"},
 			noCache:                   true,
 			expectScore:               17,
 			expectResourceTotal:       1,
@@ -132,7 +133,7 @@ func TestInsightManager_Score(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call Score method
-			scoreData, err := manager.Score(context.Background(), tc.locator, tc.noCache)
+			scoreData, err := manager.Score(context.Background(), tc.resourceGroup, tc.noCache)
 
 			// Check for errors
 			if tc.expectError {

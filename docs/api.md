@@ -56,12 +56,33 @@
 
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
-| GET | /rest-api/v1/insight/audit | [get rest API v1 insight audit](#get-rest-api-v1-insight-audit) | Audit based on locator. |
+| GET | /rest-api/v1/insight/audit | [get rest API v1 insight audit](#get-rest-api-v1-insight-audit) | Audit based on resource group. |
 | GET | /rest-api/v1/insight/detail | [get rest API v1 insight detail](#get-rest-api-v1-insight-detail) | GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/events | [get rest API v1 insight events](#get-rest-api-v1-insight-events) | GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/score | [get rest API v1 insight score](#get-rest-api-v1-insight-score) | ScoreHandler calculates a score for the audited manifest. |
+| GET | /rest-api/v1/insight/stats | [get rest API v1 insight stats](#get-rest-api-v1-insight-stats) | Get returns a global statistics info. |
 | GET | /rest-api/v1/insight/summary | [get rest API v1 insight summary](#get-rest-api-v1-insight-summary) | Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
+  
+
+
+###  resourcegroup
+
+| Method  | URI     | Name   | Summary |
+|---------|---------|--------|---------|
+| GET | /rest-api/v1/resource-groups/{resourceGroupRuleName} | [get rest API v1 resource groups resource group rule name](#get-rest-api-v1-resource-groups-resource-group-rule-name) | List lists all ResourceGroups by rule name. |
+  
+
+
+###  resourcegrouprule
+
+| Method  | URI     | Name   | Summary |
+|---------|---------|--------|---------|
+| DELETE | /rest-api/v1/resource-group-rule/{resourceGroupRuleName} | [delete rest API v1 resource group rule resource group rule name](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name) | Delete removes a ResourceGroupRule by name. |
+| GET | /rest-api/v1/resource-group-rule/{resourceGroupRuleName} | [get rest API v1 resource group rule resource group rule name](#get-rest-api-v1-resource-group-rule-resource-group-rule-name) | Get returns a ResourceGroupRule by name. |
+| GET | /rest-api/v1/resource-group-rules | [get rest API v1 resource group rules](#get-rest-api-v1-resource-group-rules) | List lists all ResourceGroupRules. |
+| POST | /rest-api/v1/resource-group-rule | [post rest API v1 resource group rule](#post-rest-api-v1-resource-group-rule) | Create creates a ResourceGroupRule. |
+| PUT | /rest-api/v1/resource-group-rule | [put rest API v1 resource group rule](#put-rest-api-v1-resource-group-rule) | Update updates the ResourceGroupRule metadata by name. |
   
 
 
@@ -164,6 +185,100 @@ Status: Too Many Requests
 Status: Internal Server Error
 
 ###### <span id="delete-rest-api-v1-cluster-cluster-name-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name"></span> Delete removes a ResourceGroupRule by name. (*DeleteRestAPIV1ResourceGroupRuleResourceGroupRuleName*)
+
+```
+DELETE /rest-api/v1/resource-group-rule/{resourceGroupRuleName}
+```
+
+This endpoint deletes the ResourceGroupRule by name.
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| resourceGroupRuleName | `path` | string | `string` |  | ✓ |  | The name of the resource group rule |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-200) | OK | Operation status |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-200-schema) |
+| [400](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-400) | Bad Request | Bad Request |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-400-schema) |
+| [401](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-401) | Unauthorized | Unauthorized |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-401-schema) |
+| [404](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-404) | Not Found | Not Found |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-404-schema) |
+| [405](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-405) | Method Not Allowed | Method Not Allowed |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-405-schema) |
+| [429](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-429) | Too Many Requests | Too Many Requests |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-429-schema) |
+| [500](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-500) | Internal Server Error | Internal Server Error |  | [schema](#delete-rest-api-v1-resource-group-rule-resource-group-rule-name-500-schema) |
+
+#### Responses
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-200"></span> 200 - Operation status
+Status: OK
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-200-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="delete-rest-api-v1-resource-group-rule-resource-group-rule-name-500-schema"></span> Schema
    
   
 
@@ -391,13 +506,13 @@ Status: Internal Server Error
 
 
 
-### <span id="get-rest-api-v1-insight-audit"></span> Audit based on locator. (*GetRestAPIV1InsightAudit*)
+### <span id="get-rest-api-v1-insight-audit"></span> Audit based on resource group. (*GetRestAPIV1InsightAudit*)
 
 ```
 GET /rest-api/v1/insight/audit
 ```
 
-This endpoint audits based on the specified locator.
+This endpoint audits based on the specified resource group.
 
 #### Produces
   * application/json
@@ -766,6 +881,94 @@ Status: Internal Server Error
 
 
 
+### <span id="get-rest-api-v1-insight-stats"></span> Get returns a global statistics info. (*GetRestAPIV1InsightStats*)
+
+```
+GET /rest-api/v1/insight/stats
+```
+
+This endpoint returns a global statistics info.
+
+#### Produces
+  * application/json
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-insight-stats-200) | OK | Global statistics info |  | [schema](#get-rest-api-v1-insight-stats-200-schema) |
+| [400](#get-rest-api-v1-insight-stats-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-insight-stats-400-schema) |
+| [401](#get-rest-api-v1-insight-stats-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-insight-stats-401-schema) |
+| [404](#get-rest-api-v1-insight-stats-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-insight-stats-404-schema) |
+| [405](#get-rest-api-v1-insight-stats-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-rest-api-v1-insight-stats-405-schema) |
+| [429](#get-rest-api-v1-insight-stats-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-insight-stats-429-schema) |
+| [500](#get-rest-api-v1-insight-stats-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-insight-stats-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-insight-stats-200"></span> 200 - Global statistics info
+Status: OK
+
+###### <span id="get-rest-api-v1-insight-stats-200-schema"></span> Schema
+   
+  
+
+[InsightStatistics](#insight-statistics)
+
+##### <span id="get-rest-api-v1-insight-stats-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-insight-stats-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-insight-stats-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-insight-stats-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-rest-api-v1-insight-stats-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-insight-stats-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-insight-stats-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-insight-stats-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="get-rest-api-v1-insight-summary"></span> Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind. (*GetRestAPIV1InsightSummary*)
 
 ```
@@ -958,6 +1161,290 @@ Status: Too Many Requests
 Status: Internal Server Error
 
 ###### <span id="get-rest-api-v1-insight-topology-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name"></span> Get returns a ResourceGroupRule by name. (*GetRestAPIV1ResourceGroupRuleResourceGroupRuleName*)
+
+```
+GET /rest-api/v1/resource-group-rule/{resourceGroupRuleName}
+```
+
+This endpoint returns a ResourceGroupRule by name.
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| resourceGroupRuleName | `path` | string | `string` |  | ✓ |  | The name of the resource group rule |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-200) | OK | Unstructured object |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-200-schema) |
+| [400](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-400-schema) |
+| [401](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-401-schema) |
+| [404](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-404-schema) |
+| [405](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-405-schema) |
+| [429](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-429-schema) |
+| [500](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-resource-group-rule-resource-group-rule-name-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-200"></span> 200 - Unstructured object
+Status: OK
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-200-schema"></span> Schema
+   
+  
+
+[UnstructuredUnstructured](#unstructured-unstructured)
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-resource-group-rule-resource-group-rule-name-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-rest-api-v1-resource-group-rules"></span> List lists all ResourceGroupRules. (*GetRestAPIV1ResourceGroupRules*)
+
+```
+GET /rest-api/v1/resource-group-rules
+```
+
+This endpoint lists all ResourceGroupRules.
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| descending | `query` | boolean | `bool` |  |  |  | Whether to sort the list in descending order. Default to false |
+| orderBy | `query` | string | `string` |  |  |  | The order to list the resourceGroupRule. Default to order by name |
+| summary | `query` | boolean | `bool` |  |  |  | Whether to display summary or not. Default to false |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-resource-group-rules-200) | OK | List of resourceGroupRule objects |  | [schema](#get-rest-api-v1-resource-group-rules-200-schema) |
+| [400](#get-rest-api-v1-resource-group-rules-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-resource-group-rules-400-schema) |
+| [401](#get-rest-api-v1-resource-group-rules-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-resource-group-rules-401-schema) |
+| [404](#get-rest-api-v1-resource-group-rules-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-resource-group-rules-404-schema) |
+| [405](#get-rest-api-v1-resource-group-rules-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-rest-api-v1-resource-group-rules-405-schema) |
+| [429](#get-rest-api-v1-resource-group-rules-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-resource-group-rules-429-schema) |
+| [500](#get-rest-api-v1-resource-group-rules-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-resource-group-rules-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-200"></span> 200 - List of resourceGroupRule objects
+Status: OK
+
+###### <span id="get-rest-api-v1-resource-group-rules-200-schema"></span> Schema
+   
+  
+
+[][UnstructuredUnstructured](#unstructured-unstructured)
+
+##### <span id="get-rest-api-v1-resource-group-rules-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-resource-group-rules-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-resource-group-rules-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-resource-group-rules-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-rest-api-v1-resource-group-rules-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-resource-group-rules-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-group-rules-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-resource-group-rules-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name"></span> List lists all ResourceGroups by rule name. (*GetRestAPIV1ResourceGroupsResourceGroupRuleName*)
+
+```
+GET /rest-api/v1/resource-groups/{resourceGroupRuleName}
+```
+
+This endpoint lists all ResourceGroups.
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| resourceGroupRuleName | `path` | string | `string` |  | ✓ |  | The name of the resource group rule |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-resource-groups-resource-group-rule-name-200) | OK | List of resourceGroup objects |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-200-schema) |
+| [400](#get-rest-api-v1-resource-groups-resource-group-rule-name-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-400-schema) |
+| [401](#get-rest-api-v1-resource-groups-resource-group-rule-name-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-401-schema) |
+| [404](#get-rest-api-v1-resource-groups-resource-group-rule-name-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-404-schema) |
+| [405](#get-rest-api-v1-resource-groups-resource-group-rule-name-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-405-schema) |
+| [429](#get-rest-api-v1-resource-groups-resource-group-rule-name-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-429-schema) |
+| [500](#get-rest-api-v1-resource-groups-resource-group-rule-name-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-resource-groups-resource-group-rule-name-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-200"></span> 200 - List of resourceGroup objects
+Status: OK
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-200-schema"></span> Schema
+   
+  
+
+[][UnstructuredUnstructured](#unstructured-unstructured)
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-resource-groups-resource-group-rule-name-500-schema"></span> Schema
    
   
 
@@ -1307,6 +1794,104 @@ Status: Internal Server Error
 
 
 
+### <span id="post-rest-api-v1-resource-group-rule"></span> Create creates a ResourceGroupRule. (*PostRestAPIV1ResourceGroupRule*)
+
+```
+POST /rest-api/v1/resource-group-rule
+```
+
+This endpoint creates a new ResourceGroupRule using the payload.
+
+#### Consumes
+  * application/json
+  * text/plain
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [ResourcegroupruleResourceGroupRulePayload](#resourcegrouprule-resource-group-rule-payload) | `models.ResourcegroupruleResourceGroupRulePayload` | | ✓ | | resourceGroupRule to create (either plain text or JSON format) |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-rest-api-v1-resource-group-rule-200) | OK | Unstructured object |  | [schema](#post-rest-api-v1-resource-group-rule-200-schema) |
+| [400](#post-rest-api-v1-resource-group-rule-400) | Bad Request | Bad Request |  | [schema](#post-rest-api-v1-resource-group-rule-400-schema) |
+| [401](#post-rest-api-v1-resource-group-rule-401) | Unauthorized | Unauthorized |  | [schema](#post-rest-api-v1-resource-group-rule-401-schema) |
+| [404](#post-rest-api-v1-resource-group-rule-404) | Not Found | Not Found |  | [schema](#post-rest-api-v1-resource-group-rule-404-schema) |
+| [405](#post-rest-api-v1-resource-group-rule-405) | Method Not Allowed | Method Not Allowed |  | [schema](#post-rest-api-v1-resource-group-rule-405-schema) |
+| [429](#post-rest-api-v1-resource-group-rule-429) | Too Many Requests | Too Many Requests |  | [schema](#post-rest-api-v1-resource-group-rule-429-schema) |
+| [500](#post-rest-api-v1-resource-group-rule-500) | Internal Server Error | Internal Server Error |  | [schema](#post-rest-api-v1-resource-group-rule-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-200"></span> 200 - Unstructured object
+Status: OK
+
+###### <span id="post-rest-api-v1-resource-group-rule-200-schema"></span> Schema
+   
+  
+
+[UnstructuredUnstructured](#unstructured-unstructured)
+
+##### <span id="post-rest-api-v1-resource-group-rule-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-rest-api-v1-resource-group-rule-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="post-rest-api-v1-resource-group-rule-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="post-rest-api-v1-resource-group-rule-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="post-rest-api-v1-resource-group-rule-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="post-rest-api-v1-resource-group-rule-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-rest-api-v1-resource-group-rule-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-rest-api-v1-resource-group-rule-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="put-rest-api-v1-cluster-cluster-name"></span> Update updates the cluster metadata by name. (*PutRestAPIV1ClusterClusterName*)
 
 ```
@@ -1406,6 +1991,104 @@ Status: Internal Server Error
 
 
 
+### <span id="put-rest-api-v1-resource-group-rule"></span> Update updates the ResourceGroupRule metadata by name. (*PutRestAPIV1ResourceGroupRule*)
+
+```
+PUT /rest-api/v1/resource-group-rule
+```
+
+This endpoint updates the display name and description of an existing ResourceGroupRule.
+
+#### Consumes
+  * application/json
+  * text/plain
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [ResourcegroupruleResourceGroupRulePayload](#resourcegrouprule-resource-group-rule-payload) | `models.ResourcegroupruleResourceGroupRulePayload` | | ✓ | | resourceGroupRule to update (either plain text or JSON format) |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#put-rest-api-v1-resource-group-rule-200) | OK | Unstructured object |  | [schema](#put-rest-api-v1-resource-group-rule-200-schema) |
+| [400](#put-rest-api-v1-resource-group-rule-400) | Bad Request | Bad Request |  | [schema](#put-rest-api-v1-resource-group-rule-400-schema) |
+| [401](#put-rest-api-v1-resource-group-rule-401) | Unauthorized | Unauthorized |  | [schema](#put-rest-api-v1-resource-group-rule-401-schema) |
+| [404](#put-rest-api-v1-resource-group-rule-404) | Not Found | Not Found |  | [schema](#put-rest-api-v1-resource-group-rule-404-schema) |
+| [405](#put-rest-api-v1-resource-group-rule-405) | Method Not Allowed | Method Not Allowed |  | [schema](#put-rest-api-v1-resource-group-rule-405-schema) |
+| [429](#put-rest-api-v1-resource-group-rule-429) | Too Many Requests | Too Many Requests |  | [schema](#put-rest-api-v1-resource-group-rule-429-schema) |
+| [500](#put-rest-api-v1-resource-group-rule-500) | Internal Server Error | Internal Server Error |  | [schema](#put-rest-api-v1-resource-group-rule-500-schema) |
+
+#### Responses
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-200"></span> 200 - Unstructured object
+Status: OK
+
+###### <span id="put-rest-api-v1-resource-group-rule-200-schema"></span> Schema
+   
+  
+
+[UnstructuredUnstructured](#unstructured-unstructured)
+
+##### <span id="put-rest-api-v1-resource-group-rule-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="put-rest-api-v1-resource-group-rule-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="put-rest-api-v1-resource-group-rule-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="put-rest-api-v1-resource-group-rule-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="put-rest-api-v1-resource-group-rule-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="put-rest-api-v1-resource-group-rule-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="put-rest-api-v1-resource-group-rule-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="put-rest-api-v1-resource-group-rule-500-schema"></span> Schema
+   
+  
+
+
+
 ## Models
 
 ### <span id="cluster-cluster-payload"></span> cluster.ClusterPayload
@@ -1458,7 +2141,7 @@ Status: Internal Server Error
 
 
 
-### <span id="core-locator"></span> core.Locator
+### <span id="entity-resource-group"></span> entity.ResourceGroup
 
 
   
@@ -1469,9 +2152,11 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| annotations | map of string| `map[string]string` |  | |  |  |
 | apiVersion | string| `string` |  | |  |  |
 | cluster | string| `string` |  | |  |  |
 | kind | string| `string` |  | |  |  |
+| labels | map of string| `map[string]string` |  | |  |  |
 | name | string| `string` |  | |  |  |
 | namespace | string| `string` |  | |  |  |
 
@@ -1489,7 +2174,7 @@ Status: Internal Server Error
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | creationTimestamp | string| `string` |  | |  |  |
-| resource | [CoreLocator](#core-locator)| `CoreLocator` |  | |  |  |
+| resource | [EntityResourceGroup](#entity-resource-group)| `EntityResourceGroup` |  | |  |  |
 | resourceVersion | string| `string` |  | |  |  |
 | uid | string| `string` |  | |  |  |
 
@@ -1507,8 +2192,8 @@ Status: Internal Server Error
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | children | []string| `[]string` |  | |  |  |
-| locator | [CoreLocator](#core-locator)| `CoreLocator` |  | |  |  |
 | parents | []string| `[]string` |  | |  |  |
+| resourceGroup | [EntityResourceGroup](#entity-resource-group)| `EntityResourceGroup` |  | |  |  |
 
 
 
@@ -1533,6 +2218,40 @@ of the security posture of the resources in the manifest. |  |
 | severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective
 number of occurrences. It allows for a quick overview of the distribution
 of issues across different severity categories. |  |
+
+
+
+### <span id="insight-statistics"></span> insight.Statistics
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| clusterCount | integer| `int64` |  | |  |  |
+| resourceCount | integer| `int64` |  | |  |  |
+| resourceGroupRuleCount | integer| `int64` |  | |  |  |
+
+
+
+### <span id="resourcegrouprule-resource-group-rule-payload"></span> resourcegrouprule.ResourceGroupRulePayload
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| description | string| `string` |  | |  |  |
+| fields | []string| `[]string` |  | |  |  |
+| name | string| `string` |  | |  |  |
 
 
 
@@ -1584,7 +2303,7 @@ of issues across different severity categories. |  |
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | issue | [ScannerIssue](#scanner-issue)| `ScannerIssue` |  | |  |  |
-| locators | [][CoreLocator](#core-locator)| `[]*CoreLocator` |  | |  |  |
+| resourceGroups | [][EntityResourceGroup](#entity-resource-group)| `[]*EntityResourceGroup` |  | |  |  |
 
 
 

@@ -15,12 +15,10 @@
 package route
 
 import (
-	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core"
 	"github.com/KusionStack/karbour/pkg/infra/search/storage"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
 	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
@@ -31,29 +29,30 @@ import (
 
 // mockSearchStorage is an in-memory implementation of the SearchStorage
 // interface for testing purposes.
-type mockSearchStorage struct{}
+type mockSearchStorage struct {
+	storage.SearchStorage
+}
 
-// Search implements the search operation returning a single mock resource.
-func (m *mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	return &storage.SearchResult{
-		Total: 1,
-		Resources: []*storage.Resource{{
-			Locator: core.Locator{
-				Cluster:   "mock-cluster",
-				Namespace: "mock-namespace",
-				Name:      "mock-name",
-			},
-			Object: map[string]interface{}{},
-		}},
-	}, nil
+// mockResourceStorage is an in-memory implementation of the ResourceStorage
+// interface for testing purposes.
+type mockResourceStorage struct {
+	storage.ResourceStorage
+}
+
+// mockResourceGroupRuleStorage is an in-memory implementation of the
+// ResourceGroupRuleStorage interface for testing purposes.
+type mockResourceGroupRuleStorage struct {
+	storage.ResourceGroupRuleStorage
 }
 
 // TestNewCoreRoute will test the NewCoreRoute function with different
 // configurations.
 func TestNewCoreRoute(t *testing.T) {
-	// Mock the NewSearchStorage function to return a mock storage instead of
-	// actual implementation.
+	// Mock the NewSearchStorage and NewResourceGroupRuleStorage function to
+	// return a mock storage instead of actual implementation.
 	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
+	mockey.Mock(search.NewResourceStorage).Return(&mockResourceStorage{}, nil).Build()
+	mockey.Mock(search.NewResourceGroupRuleStorage).Return(&mockResourceGroupRuleStorage{}, nil).Build()
 	defer mockey.UnPatchAll()
 
 	tests := []struct {
