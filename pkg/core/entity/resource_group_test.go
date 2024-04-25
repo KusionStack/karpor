@@ -35,7 +35,7 @@ func TestResourceGroupHash(t *testing.T) {
 				Labels:      map[string]string{"app": "myapp", "env": "dev"},
 				Annotations: map[string]string{"note": "test"},
 			},
-			wantHash: "test-clusterv1Poddefaulttest-podappmyappenvdevnotetest",
+			wantHash: "test-cluster-v1-Pod-default-test-pod-app:myapp-env:dev-note:test-",
 		},
 		{
 			name: "ResourceGroupWithDifferentLabels",
@@ -48,7 +48,7 @@ func TestResourceGroupHash(t *testing.T) {
 				Labels:      map[string]string{"env": "prod", "app": "myapp"},
 				Annotations: map[string]string{"note": "test"},
 			},
-			wantHash: "test-clusterv1Poddefaulttest-podappmyappenvprodnotetest",
+			wantHash: "test-cluster-v1-Pod-default-test-pod-app:myapp-env:prod-note:test-",
 			wantEqual: []ResourceGroup{
 				{
 					Cluster:     "test-cluster",
