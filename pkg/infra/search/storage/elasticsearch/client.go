@@ -63,9 +63,6 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 	}
 
 	// Check if the default resource group rule exists, if not, create it.
-	if err = createResourceGroupRuleIfNotExists(cl, "kind"); err != nil {
-		return nil, err
-	}
 	if err = createResourceGroupRuleIfNotExists(cl, "namespace"); err != nil {
 		return nil, err
 	}
