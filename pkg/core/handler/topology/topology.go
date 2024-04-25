@@ -87,6 +87,10 @@ func GetTopology(clusterMgr *cluster.ClusterManager, insightMgr *insight.Insight
 			var clusterNames []string
 			if len(resourceGroup.Cluster) == 0 {
 				clusterNames, err = clusterMgr.ListClusterName(ctx, client, cluster.ByName, false)
+				if err != nil {
+					render.Render(w, r, handler.FailureResponse(ctx, err))
+					return
+				}
 			} else {
 				clusterNames = []string{resourceGroup.Cluster}
 			}

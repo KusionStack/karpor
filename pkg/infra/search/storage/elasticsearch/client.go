@@ -111,6 +111,9 @@ func createResourceGroupRuleIfNotExists(cl *elasticsearch.Client, ruleName strin
 			resourceGroupRuleKeyCreatedAt:   &nowTime,
 			resourceGroupRuleKeyUpdatedAt:   &nowTime,
 		})
+		if err != nil {
+			return err
+		}
 		err = cl.SaveDocument(context.TODO(), defaultResourceGroupRuleIndexName, id, bytes.NewReader(body))
 		if err != nil {
 			return err

@@ -112,6 +112,8 @@ type NamespaceSummary struct {
 }
 
 // ResourceGroup-related
+//
+//nolint:tagliatelle
 type ResourceGroupSummary struct {
 	*entity.ResourceGroup
 	CountByGVK map[string]int `json:"countByGVK"`

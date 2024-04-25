@@ -113,7 +113,7 @@ type Bucket struct {
 
 type ResourceGroupResult struct {
 	Groups []*entity.ResourceGroup `json:"groups" yaml:"groups"`
-	Fields []string                `json:"fields" yaml:"keys"`
+	Fields []string                `json:"fields" yaml:"fields"`
 }
 
 // Overview returns a brief summary of the search result.
@@ -230,6 +230,7 @@ func Map2ResourceGroupRule(in map[string]interface{}) (*entity.ResourceGroupRule
 	return out, nil
 }
 
+//nolint:nilnil
 func toTime(in interface{}) (*metav1.Time, error) {
 	if in == nil {
 		return nil, nil
