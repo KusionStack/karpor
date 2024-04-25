@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { message } from 'antd'
 
-export const HOST = 'https://karbour.elastic.svc.eu95.alipay.net:7443'
+export const HOST = ''
 axios.defaults.baseURL = HOST
 
 axios.interceptors.request.use(
