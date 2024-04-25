@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:govet
 package syncer
 
 import (
@@ -21,7 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/go-logr/logr"
@@ -56,7 +56,6 @@ func (f *fakeSingleClusterSyncManager) Started() bool {
 
 func (f *fakeSingleClusterSyncManager) Stop(ctx context.Context) {
 	f.mock.Called(ctx)
-	return
 }
 
 func (f *fakeSingleClusterSyncManager) Stopped() bool {
@@ -64,7 +63,7 @@ func (f *fakeSingleClusterSyncManager) Stopped() bool {
 	return args.Bool(0)
 }
 
-func (f *fakeSingleClusterSyncManager) UpdateSyncResources(ctx context.Context, rules []*v1beta1.ResourceSyncRule) error {
+func (f *fakeSingleClusterSyncManager) UpdateSyncResources(ctx context.Context, rules []*searchv1beta1.ResourceSyncRule) error {
 	args := f.mock.Called(ctx, rules)
 	return args.Error(0)
 }

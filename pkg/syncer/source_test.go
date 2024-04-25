@@ -268,7 +268,8 @@ func Test_informerSource_Stop(t *testing.T) {
 			ctx:     ctx,
 			cancel:  cancel,
 		}
-		ctx2, _ := context.WithTimeout(context.TODO(), 1*time.Second)
+		ctx2, cancel := context.WithTimeout(context.TODO(), 1*time.Second)
+		defer cancel()
 		err := s.Stop(ctx2)
 		require.Error(t, err)
 	})
@@ -295,7 +296,8 @@ func Test_informerSource_Stop(t *testing.T) {
 			ctx:     ctx,
 			cancel:  cancel,
 		}
-		ctx2, _ := context.WithCancel(context.TODO())
+		ctx2, cancel := context.WithCancel(context.TODO())
+		defer cancel()
 		go func() {
 			time.AfterFunc(1*time.Second, func() {
 				close(s.stopped)
