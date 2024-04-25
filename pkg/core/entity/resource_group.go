@@ -72,18 +72,18 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 
 	// Create a hash from the sorted keys and values of Labels and Annotations.
 	var hash strings.Builder
-	hash.WriteString(rg.Cluster)
-	hash.WriteString(rg.APIVersion)
-	hash.WriteString(rg.Kind)
-	hash.WriteString(rg.Namespace)
-	hash.WriteString(rg.Name)
+	hash.WriteString(rg.Cluster + "-")
+	hash.WriteString(rg.APIVersion + "-")
+	hash.WriteString(rg.Kind + "-")
+	hash.WriteString(rg.Namespace + "-")
+	hash.WriteString(rg.Name + "-")
 	for _, k := range labelKeys {
-		hash.WriteString(k)
-		hash.WriteString(rg.Labels[k])
+		hash.WriteString(k + ":")
+		hash.WriteString(rg.Labels[k] + "-")
 	}
 	for _, k := range annotationKeys {
-		hash.WriteString(k)
-		hash.WriteString(rg.Annotations[k])
+		hash.WriteString(k + ":")
+		hash.WriteString(rg.Annotations[k] + "-")
 	}
 
 	return ResourceGroupHash(hash.String())
