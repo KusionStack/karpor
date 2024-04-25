@@ -133,7 +133,8 @@ func TestResourceSyncer_Run(t *testing.T) {
 			s := NewResourceSyncer("cluster1", nil, v1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "services"}, &elasticsearch.Storage{})
 			m := mockey.Mock((*informerSource).HasSynced).Return(true).Build()
 			defer m.UnPatch()
-			ctx, _ := context.WithTimeout(context.TODO(), 1*time.Second)
+			ctx, cancel := context.WithTimeout(context.TODO(), 1*time.Second)
+			defer cancel()
 			err := s.Run(ctx)
 			if tt.wantErr {
 				require.Error(t, err)

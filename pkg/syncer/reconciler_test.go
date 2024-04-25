@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:dupl
 package syncer
 
 import (
@@ -31,10 +32,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
-	controllerruntime "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
@@ -94,19 +92,8 @@ func Test_buildClusterConfig(t *testing.T) {
 }
 
 func TestSyncReconciler_SetupWithManager(t *testing.T) {
-	type fields struct {
-		storage    storage.ResourceStorage
-		client     client.Client
-		controller controller.Controller
-		mgr        MultiClusterSyncManager
-	}
-	type args struct {
-		mgr controllerruntime.Manager
-	}
 	tests := []struct {
 		name    string
-		fields  fields
-		args    args
 		wantErr bool
 	}{
 		{
@@ -511,7 +498,7 @@ func TestSyncReconciler_getNormalizedResources(t *testing.T) {
 				},
 			},
 			want: map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule{
-				{"", "v1", "pods"}: {APIVersion: "v1", Resource: "pods"},
+				{Group: "", Version: "v1", Resource: "pods"}: {APIVersion: "v1", Resource: "pods"},
 			},
 			wantErr: false,
 		},

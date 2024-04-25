@@ -65,8 +65,9 @@ type singleClusterSyncManager struct {
 
 	syncResources atomic.Value // map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule
 	ch            chan struct{}
-	syncers       sync.Map // map[schema.GroupVersionResource]*ResourceSyncer
-	storage       storage.ResourceStorage
+	// TODO: use pointer
+	syncers sync.Map // map[schema.GroupVersionResource]*ResourceSyncer
+	storage storage.ResourceStorage
 
 	logger logr.Logger
 }

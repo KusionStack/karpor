@@ -32,6 +32,10 @@ import (
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 )
 
+const (
+	elasticSearchType = "elasticsearch"
+)
+
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
 
 type RESTStorageProvider struct {
@@ -92,7 +96,7 @@ func (p RESTStorageProvider) v1beta1Storage(
 // SearchStorageGetter returns the search storage getter for the provider.
 func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter, error) {
 	switch p.SearchStorageType {
-	case "elasticsearch":
+	case elasticSearchType:
 		return elasticsearch.NewSearchStorageGetter(
 			p.ElasticSearchAddresses,
 			p.ElasticSearchName,
@@ -106,7 +110,7 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 // ResourceStorageGetter returns the resource storage getter for the provider.
 func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGetter, error) {
 	switch p.SearchStorageType {
-	case "elasticsearch":
+	case elasticSearchType:
 		return elasticsearch.NewResourceStorageGetter(
 			p.ElasticSearchAddresses,
 			p.ElasticSearchName,
@@ -120,7 +124,7 @@ func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGet
 // ResourceGroupRuleStorageGetter returns the resource group rule storage getter for the provider.
 func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceGroupRuleStorageGetter, error) {
 	switch p.SearchStorageType {
-	case "elasticsearch":
+	case elasticSearchType:
 		return elasticsearch.NewResourceGroupRuleStorageGetter(
 			p.ElasticSearchAddresses,
 			p.ElasticSearchName,
