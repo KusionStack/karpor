@@ -56,7 +56,7 @@ type ResourceGroup struct {
 func (rg *ResourceGroup) Hash() ResourceGroupHash {
 	// Create a slice of keys from the Labels map and sort them to ensure
 	// consistent ordering.
-	var labelKeys []string
+	labelKeys := make([]string, len(rg.Labels))
 	for k := range rg.Labels {
 		labelKeys = append(labelKeys, k)
 	}
@@ -64,7 +64,7 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 
 	// Create a slice of keys from the Annotations map and sort them to ensure
 	// consistent ordering.
-	var annotationKeys []string
+	annotationKeys := make([]string, len(rg.Annotations))
 	for k := range rg.Annotations {
 		annotationKeys = append(annotationKeys, k)
 	}
@@ -91,7 +91,7 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 
 // ToSQL generates a SQL query string based on the ResourceGroup.
 func (rg *ResourceGroup) ToSQL() string {
-	var conditions []string
+	conditions := []string{}
 
 	if rg.Cluster != "" {
 		conditions = append(conditions, fmt.Sprintf("cluster='%s'", rg.Cluster))

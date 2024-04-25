@@ -29,7 +29,7 @@ import (
 
 const (
 	resourceKeyCluster           = "cluster"
-	resourceKeyApiVersion        = "apiVersion"
+	resourceKeyAPIVersion        = "apiVersion"
 	resourceKeyKind              = "kind"
 	resourceKeyNamespace         = "namespace"
 	resourceKeyName              = "name"
@@ -132,7 +132,7 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 
 	body, err = json.Marshal(map[string]interface{}{
 		resourceKeyCluster:           cluster,
-		resourceKeyApiVersion:        obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
+		resourceKeyAPIVersion:        obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
 		resourceKeyKind:              obj.GetObjectKind().GroupVersionKind().Kind,
 		resourceKeyNamespace:         metaObj.GetNamespace(),
 		resourceKeyName:              metaObj.GetName(),
@@ -156,7 +156,7 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 func generateResourceQuery(cluster, namespace, name string, obj runtime.Object) map[string]interface{} {
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
-		esquery.Term(resourceKeyApiVersion, obj.GetObjectKind().GroupVersionKind().GroupVersion().String()),
+		esquery.Term(resourceKeyAPIVersion, obj.GetObjectKind().GroupVersionKind().GroupVersion().String()),
 		esquery.Term(resourceKeyKind, obj.GetObjectKind().GroupVersionKind().Kind),
 		esquery.Term(resourceKeyName, name),
 		esquery.Term(resourceKeyNamespace, namespace),
