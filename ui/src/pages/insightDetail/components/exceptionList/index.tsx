@@ -79,7 +79,7 @@ const ExceptionList = ({
               </span>
             ) : (
               <span>
-                {t('Show')}
+                {t('Expand')}
                 <DownOutlined style={iconStyle} />
               </span>
             )}
