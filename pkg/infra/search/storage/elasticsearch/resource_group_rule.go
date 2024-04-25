@@ -116,7 +116,7 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 	}
 
 	// Initialize a slice to hold the resource group rules.
-	rgrList := make([]*entity.ResourceGroupRule, len(resp.Hits.Hits))
+	rgrList := make([]*entity.ResourceGroupRule, 0, len(resp.Hits.Hits))
 
 	// Iterate over the search hits and map each hit to a ResourceGroupRule entity.
 	for _, hit := range resp.Hits.Hits {
@@ -156,7 +156,7 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*s
 	}
 
 	// Initialize a slice to hold the resource group rules.
-	rgList := make([]*entity.ResourceGroup, len(resp.Buckets))
+	rgList := make([]*entity.ResourceGroup, 0, len(resp.Buckets))
 
 	// Iterate over the search hits and map each hit to a ResourceGroupRule entity.
 	for _, bucket := range resp.Buckets {

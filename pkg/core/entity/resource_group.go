@@ -56,7 +56,7 @@ type ResourceGroup struct {
 func (rg *ResourceGroup) Hash() ResourceGroupHash {
 	// Create a slice of keys from the Labels map and sort them to ensure
 	// consistent ordering.
-	labelKeys := make([]string, len(rg.Labels))
+	labelKeys := make([]string, 0, len(rg.Labels))
 	for k := range rg.Labels {
 		labelKeys = append(labelKeys, k)
 	}
@@ -64,7 +64,7 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 
 	// Create a slice of keys from the Annotations map and sort them to ensure
 	// consistent ordering.
-	annotationKeys := make([]string, len(rg.Annotations))
+	annotationKeys := make([]string, 0, len(rg.Annotations))
 	for k := range rg.Annotations {
 		annotationKeys = append(annotationKeys, k)
 	}
