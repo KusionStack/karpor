@@ -64,7 +64,7 @@ const CardContent = ({ allTags, handleClick, group }) => {
           className={styles.btn_item}
           onClick={() => handleClick(group, title)}
         >
-          {t('Check')}
+          {t('View')}
         </div>
       </div>
     </div>
