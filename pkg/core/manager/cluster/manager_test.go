@@ -422,7 +422,7 @@ func TestGetYAMLForCluster(t *testing.T) {
 			name:        "Get YAML for existing cluster",
 			clusterName: "existing-cluster",
 			expectedErr: false,
-			expectedYAML: `apiVersion: cluster.karpor.com/v1beta1
+			expectedYAML: `apiVersion: cluster.karpor.io/v1beta1
 kind: Cluster
 metadata:
   annotations:

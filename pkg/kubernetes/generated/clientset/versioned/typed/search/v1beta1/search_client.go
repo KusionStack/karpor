@@ -33,7 +33,7 @@ type SearchV1beta1Interface interface {
 	TransformRulesGetter
 }
 
-// SearchV1beta1Client is used to interact with features provided by the search.karpor.com group.
+// SearchV1beta1Client is used to interact with features provided by the search.karpor.io group.
 type SearchV1beta1Client struct {
 	restClient rest.Interface
 }

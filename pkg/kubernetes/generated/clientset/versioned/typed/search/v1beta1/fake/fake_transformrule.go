@@ -35,9 +35,9 @@ type FakeTransformRules struct {
 	Fake *FakeSearchV1beta1
 }
 
-var transformrulesResource = schema.GroupVersionResource{Group: "search.karpor.com", Version: "v1beta1", Resource: "transformrules"}
+var transformrulesResource = schema.GroupVersionResource{Group: "search.karpor.io", Version: "v1beta1", Resource: "transformrules"}
 
-var transformrulesKind = schema.GroupVersionKind{Group: "search.karpor.com", Version: "v1beta1", Kind: "TransformRule"}
+var transformrulesKind = schema.GroupVersionKind{Group: "search.karpor.io", Version: "v1beta1", Kind: "TransformRule"}
 
 // Get takes name of the transformRule, and returns the corresponding transformRule object, and an error if there is any.
 func (c *FakeTransformRules) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.TransformRule, err error) {

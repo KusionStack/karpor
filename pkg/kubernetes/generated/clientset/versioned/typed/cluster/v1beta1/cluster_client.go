@@ -31,7 +31,7 @@ type ClusterV1beta1Interface interface {
 	ClustersGetter
 }
 
-// ClusterV1beta1Client is used to interact with features provided by the cluster.karpor.com group.
+// ClusterV1beta1Client is used to interact with features provided by the cluster.karpor.io group.
 type ClusterV1beta1Client struct {
 	restClient rest.Interface
 }

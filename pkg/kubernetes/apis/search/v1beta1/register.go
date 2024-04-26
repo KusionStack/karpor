@@ -23,7 +23,7 @@ import (
 )
 
 // GroupName holds the API group name.
-const GroupName = "search.karpor.com"
+const GroupName = "search.karpor.io"
 
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{Group: GroupName, Version: "v1beta1"}

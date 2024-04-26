@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=search.karpor.com
+// +groupName=search.karpor.io
 
 // Package search is the internal version of the API.
 package search // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/search"

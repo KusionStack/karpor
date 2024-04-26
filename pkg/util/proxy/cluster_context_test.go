@@ -102,7 +102,7 @@ func TestWithProxyByCluster(t *testing.T) {
 		{
 			name:         "With valid cluster context",
 			ctx:          WithCluster(context.Background(), "test-cluster"),
-			expectedPath: "/apis/cluster.karpor.com/v1beta1/clusters/test-cluster/proxy/test-path",
+			expectedPath: "/apis/cluster.karpor.io/v1beta1/clusters/test-cluster/proxy/test-path",
 		},
 		{
 			name:         "Without cluster context",

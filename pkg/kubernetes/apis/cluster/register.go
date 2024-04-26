@@ -22,7 +22,7 @@ import (
 )
 
 // GroupName is the group name used in this package
-const GroupName = "cluster.karpor.com"
+const GroupName = "cluster.karpor.io"
 
 // SchemeGroupVersion is group version used to register these objects
 var SchemeGroupVersion = schema.GroupVersion{

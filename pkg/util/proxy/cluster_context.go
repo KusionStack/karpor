@@ -26,7 +26,7 @@ type clusterKey int
 const (
 	// clusterKey is the context key for the request namespace.
 	clusterContextKey clusterKey = iota
-	ClusterProxyURL              = "/apis/cluster.karpor.com/v1beta1/clusters/%s/proxy/"
+	ClusterProxyURL              = "/apis/cluster.karpor.io/v1beta1/clusters/%s/proxy/"
 )
 
 // WithCluster returns a context that describes the nested cluster context.

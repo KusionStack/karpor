@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=cluster.karpor.com
+// +groupName=cluster.karpor.io
 
 // Package cluster is the internal version of the API.
 package cluster // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"

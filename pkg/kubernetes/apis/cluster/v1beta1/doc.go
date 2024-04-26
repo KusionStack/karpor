@@ -18,7 +18,7 @@ limitations under the License.
 // +k8s:deepcopy-gen=package
 // +k8s:conversion-gen=github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=cluster.karpor.com
+// +groupName=cluster.karpor.io
 
 // Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
 package v1beta1 // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"

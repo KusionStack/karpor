@@ -18,7 +18,7 @@ limitations under the License.
 // +k8s:deepcopy-gen=package
 // +k8s:conversion-gen=github.com/KusionStack/karpor/pkg/kubernetes/apis/search
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=search.karpor.com
+// +groupName=search.karpor.io
 
 // Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
 package v1beta1 // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"

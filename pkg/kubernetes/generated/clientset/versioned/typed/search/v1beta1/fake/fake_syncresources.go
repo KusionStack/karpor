@@ -35,9 +35,9 @@ type FakeSyncResourceses struct {
 	Fake *FakeSearchV1beta1
 }
 
-var syncresourcesesResource = schema.GroupVersionResource{Group: "search.karpor.com", Version: "v1beta1", Resource: "syncresourceses"}
+var syncresourcesesResource = schema.GroupVersionResource{Group: "search.karpor.io", Version: "v1beta1", Resource: "syncresourceses"}
 
-var syncresourcesesKind = schema.GroupVersionKind{Group: "search.karpor.com", Version: "v1beta1", Kind: "SyncResources"}
+var syncresourcesesKind = schema.GroupVersionKind{Group: "search.karpor.io", Version: "v1beta1", Kind: "SyncResources"}
 
 // Get takes name of the syncResources, and returns the corresponding syncResources object, and an error if there is any.
 func (c *FakeSyncResourceses) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.SyncResources, err error) {
