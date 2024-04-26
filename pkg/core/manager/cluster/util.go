@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"

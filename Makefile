@@ -1,7 +1,7 @@
 include go.mk
 
 # Override the variables in the go.mk
-APPROOT=karbour
+APPROOT=karpor
 GOSOURCE_PATHS = ./pkg/...
 LICENSE_CHECKER ?= license-eye
 LICENSE_CHECKER_VERSION ?= main
@@ -23,7 +23,7 @@ endif
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -v "internalimport|generated|handler"` ${TEST_FLAGS}
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated|handler"` ${TEST_FLAGS}
 
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.

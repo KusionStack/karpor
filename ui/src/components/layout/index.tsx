@@ -170,7 +170,7 @@ const LayoutPage = () => {
         <div className={styles.left}>
           <div className={styles.title} onClick={goHome}>
             <div className={styles.sub_logo}>K</div>
-            <div className={styles.text}>Karbour</div>
+            <div className={styles.text}>Karpor</div>
           </div>
           <div>
             <Divider type="vertical" />
@@ -207,7 +207,7 @@ const LayoutPage = () => {
           <div className={styles.help}>
             <a
               target="_blank"
-              href="https://github.com/KusionStack/karbour"
+              href="https://github.com/KusionStack/karpor"
               rel="noreferrer"
             >
               <QuestionCircleOutlined style={{ color: '#646566' }} />

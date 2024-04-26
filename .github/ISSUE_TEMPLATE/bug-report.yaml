@@ -1,5 +1,5 @@
 name: Bug Report
-description: Report a bug encountered while operating Karbour
+description: Report a bug encountered while operating Karpor
 labels: kind/bug
 body:
   - type: textarea
@@ -31,14 +31,14 @@ body:
       label: Anything else we need to know?
 
   - type: textarea
-    id: KarbourVersion
+    id: KarporVersion
     attributes:
-      label: Karbour version
+      label: Karpor version
       value: |
         <details>
 
         ```console
-        $ karbour -V
+        $ karpor -V
         # paste output here
         ```
 

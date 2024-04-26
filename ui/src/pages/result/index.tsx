@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
 import SqlSearch from '@/components/sqlSearch'
-import KarbourTabs from '@/components/tabs/index'
+import KarporTabs from '@/components/tabs/index'
 import { utcDateToLocalDate } from '@/utils/tools'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
@@ -127,7 +127,7 @@ const Result = () => {
   return (
     <div className={styles.container}>
       <div className={styles.searchTab}>
-        <KarbourTabs
+        <KarporTabs
           list={tabsList}
           current={searchType}
           onChange={handleTabChange}

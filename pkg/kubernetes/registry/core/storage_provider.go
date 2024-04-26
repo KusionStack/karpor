@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 package core
 
 import (
-	podstore "github.com/KusionStack/karbour/pkg/kubernetes/registry/core/pod"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	podstore "github.com/KusionStack/karpor/pkg/kubernetes/registry/core/pod"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"

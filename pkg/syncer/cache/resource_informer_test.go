@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/syncer/utils"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

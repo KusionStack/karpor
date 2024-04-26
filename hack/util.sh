@@ -18,7 +18,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-KARBOUR_GO_PACKAGE="github.com/KusionStack/karbour"
+KARPOR_GO_PACKAGE="github.com/KusionStack/karpor"
 
 # util::create_gopath_tree create the GOPATH tree
 # Parameters:
@@ -28,7 +28,7 @@ function util:create_gopath_tree() {
   local repo_root=$1
   local go_path=$2
 
-  local go_pkg_dir="${go_path}/${KARBOUR_GO_PACKAGE}"
+  local go_pkg_dir="${go_path}/${KARPOR_GO_PACKAGE}"
   go_pkg_dir=$(dirname "${go_pkg_dir}")
 
   mkdir -p "${go_pkg_dir}"

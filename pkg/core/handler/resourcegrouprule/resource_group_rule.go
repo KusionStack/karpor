@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package resourcegrouprule
 import (
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/resourcegroup"
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"

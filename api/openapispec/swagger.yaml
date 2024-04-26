@@ -172,7 +172,7 @@ definitions:
     type: object
 info:
   contact: {}
-  title: Karbour
+  title: Karpor
   version: "1.0"
 paths:
   /endpoints:

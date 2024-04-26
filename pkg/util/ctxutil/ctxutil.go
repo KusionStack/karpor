@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ package ctxutil
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/core/middleware"
+	"github.com/KusionStack/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"
 )

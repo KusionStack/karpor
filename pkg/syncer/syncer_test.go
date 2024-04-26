@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"

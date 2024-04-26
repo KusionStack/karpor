@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,11 +19,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

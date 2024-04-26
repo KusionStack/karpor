@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/elliotxx/safe"
 	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"

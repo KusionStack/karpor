@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ package install
 import (
 	"testing"
 
-	searchfuzzer "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/fuzzer"
+	searchfuzzer "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/fuzzer"
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 
 func TestRoundTripTypes(t *testing.T) {
 	roundtrip.RoundTripTestForAPIGroup(t, Install, searchfuzzer.Funcs)
-	// TODO: enable protobuf generation for the karbour-apiserver
+	// TODO: enable protobuf generation for the karpor-apiserver
 	// roundtrip.RoundTripProtobufTestForAPIGroup(t, Install, searchfuzzer.Funcs)
 }

@@ -1,4 +1,4 @@
-module github.com/KusionStack/karbour
+module github.com/KusionStack/karpor
 
 go 1.19
 

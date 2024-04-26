@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@ type clusterKey int
 const (
 	// clusterKey is the context key for the request namespace.
 	clusterContextKey clusterKey = iota
-	ClusterProxyURL              = "/apis/cluster.karbour.com/v1beta1/clusters/%s/proxy/"
+	ClusterProxyURL              = "/apis/cluster.karpor.com/v1beta1/clusters/%s/proxy/"
 )
 
 // WithCluster returns a context that describes the nested cluster context.

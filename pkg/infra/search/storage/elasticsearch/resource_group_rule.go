@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/core/entity"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 )
 

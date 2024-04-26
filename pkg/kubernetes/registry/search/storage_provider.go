@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,13 +19,13 @@ package search
 import (
 	"fmt"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search/syncclusterresources"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry/search/transformrule"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/syncclusterresources"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/transformrule"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"

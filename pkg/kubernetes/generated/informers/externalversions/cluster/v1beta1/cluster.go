@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,10 +22,10 @@ import (
 	"context"
 	time "time"
 
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	versioned "github.com/KusionStack/karbour/pkg/kubernetes/generated/clientset/versioned"
-	internalinterfaces "github.com/KusionStack/karbour/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
-	v1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/generated/listers/cluster/v1beta1"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	versioned "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned"
+	internalinterfaces "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/listers/cluster/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 	watch "k8s.io/apimachinery/pkg/watch"

@@ -2,14 +2,14 @@
 
 You will learn the following things in the code contribution guide:
 
-- [How to Run Karbour Locally](#run-karbour-locally)
+- [How to Run Karpor Locally](#run-karpor-locally)
 - [How to Create a pull request](#create-a-pull-request)
 - [Code Review Guide](#code-review)
 - [Formatting guidelines of pull request](#formatting-guidelines)
 
-## Run Karbour Locally
+## Run Karpor Locally
 
-This guide helps you get started developing Karbour.
+This guide helps you get started developing Karpor.
 
 ### Prerequisites
 
@@ -63,26 +63,26 @@ cd ~/go/ && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/
 - Clone this project
 
 ```shell script
-git clone git@github.com:KusionStack/karbour.git
+git clone git@github.com:KusionStack/karpor.git
 ```
 
 For local development, we probably need to build both of them.
 
-- Build Karbour CLI
+- Build Karpor CLI
 
 ```shell script
 make build-all
 ```
 
-After the karbour cli built successfully, `make build-all` command will create `karbour` binary to `_build/${OS}` under the project.
+After the karpor cli built successfully, `make build-all` command will create `karpor` binary to `_build/${OS}` under the project.
 
-- Configure `karbour` binary to System PATH
+- Configure `karpor` binary to System PATH
 
 ```shell script
-export PATH=$PATH:/your/path/to/project/karbour/${OS}
+export PATH=$PATH:/your/path/to/project/karpor/${OS}
 ```
 
-Then you can use `karbour` command directly.
+Then you can use `karpor` command directly.
 
 ### Testing
 
@@ -96,7 +96,7 @@ make cover
 
 ## Create a pull request
 
-We're excited that you're considering making a contribution to the Karbour project!
+We're excited that you're considering making a contribution to the Karpor project!
 This document guides you through the process of creating a [pull request](https://help.github.com/en/articles/about-pull-requests/).
 
 ### Before you begin
@@ -144,7 +144,7 @@ These guidelines help you write good commit messages and descriptions for your p
 
 ### Commit message format
 
-Karbour follows the [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) to improve better history information.
+Karpor follows the [conventional-commits](https://www.conventionalcommits.org/en/v1.0.0/) to improve better history information.
 
 The commit message should be structured as follows:
 
@@ -215,7 +215,7 @@ A longer commit body may be provided after the short subject, providing addition
 
 ### Pull request titles
 
-The Karbour team _squashes_ all commits into one when we accept a pull request.
+The Karpor team _squashes_ all commits into one when we accept a pull request.
 The title of the pull request becomes the subject line of the squashed commit message.
 We still encourage contributors to write informative commit messages, as they become a part of the Git commit body.
 
@@ -227,17 +227,17 @@ Make sure that the title for your pull request uses the same format as the subje
 
 Before merge, All test CI should pass green.
 
-- [Unit test](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L12)
-- [Golang Lint](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L37)
-- [Commit Lint](https://github.com/KusionStack/karbour/blob/main/.github/workflows/check.yaml#L55)
-- [CLA](https://github.com/KusionStack/karbour/blob/main/.github/workflows/cla.yaml)
+- [Unit test](https://github.com/KusionStack/karpor/blob/main/.github/workflows/check.yaml#L12)
+- [Golang Lint](https://github.com/KusionStack/karpor/blob/main/.github/workflows/check.yaml#L37)
+- [Commit Lint](https://github.com/KusionStack/karpor/blob/main/.github/workflows/check.yaml#L55)
+- [CLA](https://github.com/KusionStack/karpor/blob/main/.github/workflows/cla.yaml)
 
 ## Update the docs & website
 
-If your pull request merged and this is a new feature or enhancement, it's necessary to update the docs and send a pull request to [karbour.com](https://github.com/KusionStack/karbour.com) repo.
+If your pull request merged and this is a new feature or enhancement, it's necessary to update the docs and send a pull request to [karpor.com](https://github.com/KusionStack/karpor.com) repo.
 
 Learn how to write the docs by the following guide:
 
-* [karbour.com Developer Guide](https://github.com/KusionStack/karbour.com/blob/main/README.md)
+* [karpor.com Developer Guide](https://github.com/KusionStack/karpor.com/blob/main/README.md)
 
 Great, you have complete the lifecycle of code contribution, try to [join the community as a member](https://github.com/KusionStack/community/blob/main/ROLES.md) if you're interested.

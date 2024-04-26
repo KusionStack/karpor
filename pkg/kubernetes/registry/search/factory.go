@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 package search
 
 import (
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 )
 
 // NewSearchStorage creates a new instance of a search storage component using the provided extra configuration.

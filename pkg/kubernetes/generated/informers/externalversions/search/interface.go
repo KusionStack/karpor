@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ limitations under the License.
 package search
 
 import (
-	internalinterfaces "github.com/KusionStack/karbour/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
-	v1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/generated/informers/externalversions/search/v1beta1"
+	internalinterfaces "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/search/v1beta1"
 )
 
 // Interface provides access to each of this group's versions.

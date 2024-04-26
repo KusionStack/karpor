@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package server
 
 import (
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
@@ -48,16 +48,16 @@ type CompletedConfig struct {
 }
 
 // New returns a new instance of APIServer from the given config.
-func (c *CompletedConfig) New() (*KarbourServer, error) {
+func (c *CompletedConfig) New() (*KarporServer, error) {
 	genericServer, err := c.GenericConfig.New(
-		"karbour-apiserver",
+		"karpor-apiserver",
 		genericapiserver.NewEmptyDelegate(),
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	s := &KarbourServer{
+	s := &KarporServer{
 		GenericAPIServer: genericServer,
 	}
 	if err := s.InstallKubernetesServer(c).

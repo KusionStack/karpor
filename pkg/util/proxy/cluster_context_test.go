@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +102,7 @@ func TestWithProxyByCluster(t *testing.T) {
 		{
 			name:         "With valid cluster context",
 			ctx:          WithCluster(context.Background(), "test-cluster"),
-			expectedPath: "/apis/cluster.karbour.com/v1beta1/clusters/test-cluster/proxy/test-path",
+			expectedPath: "/apis/cluster.karpor.com/v1beta1/clusters/test-cluster/proxy/test-path",
 		},
 		{
 			name:         "Without cluster context",

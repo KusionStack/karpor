@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,12 +19,12 @@ package main
 import (
 	"os"
 
-	"github.com/KusionStack/karbour/cmd/app"
+	"github.com/KusionStack/karpor/cmd/app"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
 )
 
-// @title    Karbour
+// @title    Karpor
 // @version  1.0
 func main() {
 	ctx := genericapiserver.SetupSignalContext()

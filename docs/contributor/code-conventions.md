@@ -1,6 +1,6 @@
 # Code Conventions
 
-In this section, you will find the code conventions for all kinds of code Karbour project related. It's not necessary to learn all of them at once, but make sure you have read corresponding parts before you start to code.
+In this section, you will find the code conventions for all kinds of code Karpor project related. It's not necessary to learn all of them at once, but make sure you have read corresponding parts before you start to code.
 
 - [Go Code Conventions](#go-code-conventions)
 - [Bash or Script Conventions](#bash-or-script-conventions)
@@ -22,7 +22,7 @@ In this section, you will find the code conventions for all kinds of code Karbou
 - Command-line flags should use dashes, not underscores
 - API
 
-  - According to RFC3986, URLs are "case sensitive". Karbour uses snake_case for API URLs.
+  - According to RFC3986, URLs are "case sensitive". Karpor uses snake_case for API URLs.
     - e.g.: `POST /v1/cloud_clusters`
 - Naming
 
@@ -50,7 +50,7 @@ In this section, you will find the code conventions for all kinds of code Karbou
 
 ## API Conventions
 
-- Karbour follows the Kubernetes conventions
+- Karpor follows the Kubernetes conventions
 
   - [API changes](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api_changes.md)
   - [API conventions](https://github.com/kubernetes/community/blob/master/contributors/devel/sig-architecture/api-conventions.md)

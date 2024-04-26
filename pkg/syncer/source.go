@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,12 +21,12 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karbour/pkg/syncer/internal"
-	"github.com/KusionStack/karbour/pkg/syncer/transform"
-	"github.com/KusionStack/karbour/pkg/syncer/utils"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/internal"
+	"github.com/KusionStack/karpor/pkg/syncer/transform"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	sprig "github.com/Masterminds/sprig/v3"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

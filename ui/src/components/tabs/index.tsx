@@ -16,7 +16,7 @@ type Props = {
   boxStyle?: any
 }
 
-const KarbourTabs = ({
+const KarporTabs = ({
   current,
   list,
   onChange,
@@ -58,4 +58,4 @@ const KarbourTabs = ({
   )
 }
 
-export default memo(KarbourTabs)
+export default memo(KarporTabs)

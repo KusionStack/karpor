@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ import (
 	"net"
 	"net/url"
 
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -44,7 +44,7 @@ func BuildMultiClusterClient(
 	hubConfig *restclient.Config,
 	name string,
 ) (*MultiClusterClient, error) {
-	// Create the hub clients using loopback hubConfig for Karbour apiserver
+	// Create the hub clients using loopback hubConfig for Karpor apiserver
 	hubClient, err := BuildHubClients(ctx, hubConfig)
 	if err != nil {
 		return nil, err

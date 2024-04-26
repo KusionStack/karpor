@@ -11,7 +11,7 @@ import {
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import KarbourTabs from '@/components/tabs'
+import KarporTabs from '@/components/tabs'
 import Loading from '@/components/loading'
 import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
@@ -305,7 +305,7 @@ const Cluster = () => {
       ) : (
         <div className={styles.content}>
           <div className={styles.stat}>
-            <KarbourTabs
+            <KarporTabs
               list={tabsList}
               current={currentTab}
               onChange={handleTabChange}

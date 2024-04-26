@@ -1,6 +1,6 @@
 ## Overview
 
-Karbour Dashboard is the dashboard of karbour, which provides users with functions such as multi-cluster search and insights.
+Karpor Dashboard is the dashboard of karpor, which provides users with functions such as multi-cluster search and insights.
 
 ## Quick Start
 

@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -25,11 +25,11 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/KusionStack/karbour/cmd/app/options"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karbour/pkg/server"
-	proxyutil "github.com/KusionStack/karbour/pkg/util/proxy"
+	"github.com/KusionStack/karpor/cmd/app/options"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/server"
+	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -42,7 +42,7 @@ import (
 	netutils "k8s.io/utils/net"
 )
 
-const defaultEtcdPathPrefix = "/registry/karbour"
+const defaultEtcdPathPrefix = "/registry/karpor"
 
 // Options contains state for master/api server
 type Options struct {

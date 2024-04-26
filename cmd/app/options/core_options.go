@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package options
 
 import (
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/spf13/pflag"
 )
 

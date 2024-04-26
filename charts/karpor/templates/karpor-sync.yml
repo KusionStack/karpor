@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: karpor-syncer
+  name: karpor-syncer
+  namespace: karpor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: karpor-syncer
+  template:
+    metadata:
+      labels:
+        app: karpor-syncer
+    spec:
+      containers:
+        - command:
+            - /karpor
+          args:
+            - syncer
+            - --elastic-search-addresses=http://elasticsearch.karpor.svc:9200
+          env:
+            - name: KUBECONFIG
+              value: /etc/karpor/config
+          image: kusionstack/karpor:latest
+          name: karpor-server
+          ports:
+            - containerPort: 7443
+          volumeMounts:
+            - mountPath: /etc/karpor/
+              name: karpor-kubeconfig
+      volumes:
+        - name: karpor-kubeconfig
+          configMap:
+            name: karpor-kubeconfig

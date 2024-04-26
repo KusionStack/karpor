@@ -114,7 +114,7 @@ jobs:
           # that treats warnings as errors, ensuring a successful build.
           CI=false npm run build
 
-      - name: Release the karbour with GoReleaser
+      - name: Release the karpor with GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           distribution: goreleaser

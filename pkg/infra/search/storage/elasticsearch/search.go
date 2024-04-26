@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,10 +23,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/KusionStack/karbour/pkg/core/entity"
-	"github.com/KusionStack/karbour/pkg/infra/persistence/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/util/sql2es"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/persistence/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/util/sql2es"
 	"github.com/pkg/errors"
 )
 
