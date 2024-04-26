@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package topology
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"

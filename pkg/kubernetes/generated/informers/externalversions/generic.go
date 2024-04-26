@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ package externalversions
 import (
 	"fmt"
 
-	v1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	searchv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
+	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
 	cache "k8s.io/client-go/tools/cache"
 )
@@ -53,11 +53,11 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=cluster.karbour.com, Version=v1beta1
+	// Group=cluster.karpor.io, Version=v1beta1
 	case v1beta1.SchemeGroupVersion.WithResource("clusters"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Cluster().V1beta1().Clusters().Informer()}, nil
 
-		// Group=search.karbour.com, Version=v1beta1
+		// Group=search.karpor.io, Version=v1beta1
 	case searchv1beta1.SchemeGroupVersion.WithResource("syncregistries"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncRegistries().Informer()}, nil
 	case searchv1beta1.SchemeGroupVersion.WithResource("syncresourceses"):

@@ -1,5 +1,5 @@
 /*
- * Copyright The Karbour Authors.
+ * Copyright The Karpor Authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,7 +19,7 @@ import { Tag } from 'antd'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
-import KarbourTabs from '@/components/tabs/index'
+import KarporTabs from '@/components/tabs/index'
 import logoJPG from '@/assets/logo.jpg'
 import SqlSearch from '@/components/sqlSearch'
 import { defaultSqlExamples, tabsList } from '@/utils/constants'
@@ -54,7 +54,7 @@ const SearchPage = () => {
     return sqlExamples?.map(item => (
       <div
         key={item}
-        className={styles.karbour_tag}
+        className={styles.karpor_tag}
         onClick={() => handleClickSql(`where ${item}`)}
       >
         <span className={styles.keyword}>select</span> *{' '}
@@ -79,7 +79,7 @@ const SearchPage = () => {
           <img src={logoJPG} width="30%" alt="icon" />
         </div>
         <div className={styles.searchTab}>
-          <KarbourTabs
+          <KarporTabs
             list={tabsList}
             current={searchType}
             onChange={handleTabChange}
@@ -118,7 +118,7 @@ const SearchPage = () => {
                 <>
                   {renderMoreSqlExamples()}
                   <div
-                    className={styles.karbour_tag}
+                    className={styles.karpor_tag}
                     onClick={() =>
                       handleClickSql(
                         `where kind='Pod' and creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by creationTimestamp`,

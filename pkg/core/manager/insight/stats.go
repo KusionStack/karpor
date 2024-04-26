@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ package insight
 import (
 	"context"
 
-	clustermanager "github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/infra/multicluster"
+	clustermanager "github.com/KusionStack/karpor/pkg/core/manager/cluster"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 )
 
 // Statistics is a method of the InsightManager struct which provides statistical information.

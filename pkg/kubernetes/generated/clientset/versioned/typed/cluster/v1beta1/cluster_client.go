@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ package v1beta1
 import (
 	"net/http"
 
-	v1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karbour/pkg/kubernetes/generated/clientset/versioned/scheme"
+	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 
@@ -31,7 +31,7 @@ type ClusterV1beta1Interface interface {
 	ClustersGetter
 }
 
-// ClusterV1beta1Client is used to interact with features provided by the cluster.karbour.com group.
+// ClusterV1beta1Client is used to interact with features provided by the cluster.karpor.io group.
 type ClusterV1beta1Client struct {
 	restClient rest.Interface
 }

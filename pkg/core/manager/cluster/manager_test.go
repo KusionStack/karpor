@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -422,7 +422,7 @@ func TestGetYAMLForCluster(t *testing.T) {
 			name:        "Get YAML for existing cluster",
 			clusterName: "existing-cluster",
 			expectedErr: false,
-			expectedYAML: `apiVersion: cluster.karbour.com/v1beta1
+			expectedYAML: `apiVersion: cluster.karpor.io/v1beta1
 kind: Cluster
 metadata:
   annotations:

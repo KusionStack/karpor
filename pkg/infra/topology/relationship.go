@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -23,11 +23,11 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/KusionStack/karbour/pkg/core/entity"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage"
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karbour/pkg/util/topology"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	yaml "gopkg.in/yaml.v3"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -109,7 +109,7 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	// TODO: Obtaining topological relationship from CR in the future.
 	// Get the file path from the environment variable, fallback to default if
 	// not set.
-	filePath := os.Getenv("KARBOUR_RELATIONSHIP_FILE")
+	filePath := os.Getenv("KARPOR_RELATIONSHIP_FILE")
 	if filePath == "" {
 		filePath = "relationship.yaml" // Default file path
 	}

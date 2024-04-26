@@ -426,9 +426,9 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   }
 
   return (
-    <div className={styles.karbour_editor_container}>
-      <div className={styles.karbour_editor}>
-        <div className={styles.karbour_editor_prefix}>{searchSqlPrefix}</div>
+    <div className={styles.karpor_editor_container}>
+      <div className={styles.karpor_editor}>
+        <div className={styles.karpor_editor_prefix}>{searchSqlPrefix}</div>
         <div
           style={{ width: '100%', flex: 1 }}
           ref={editorRef}
@@ -503,11 +503,11 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
             }
           `}
         />
-        <div className={styles.karbour_editor_divider}>
+        <div className={styles.karpor_editor_divider}>
           <Divider type="vertical" />
         </div>
-        <div className={styles.karbour_editor_btn_container}>
-          <div onClick={handleClick} className={styles.karbour_editor_btn}>
+        <div className={styles.karpor_editor_btn_container}>
+          <div onClick={handleClick} className={styles.karpor_editor_btn}>
             <img src={arrowRight} />
           </div>
         </div>

@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -22,13 +22,13 @@ import (
 	"io/fs"
 	"net/http"
 
-	"github.com/KusionStack/karbour/pkg/core/route"
-	"github.com/KusionStack/karbour/pkg/kubernetes/registry"
-	clusterstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/cluster"
-	corestorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/core"
-	searchstorage "github.com/KusionStack/karbour/pkg/kubernetes/registry/search"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karbour/ui"
+	"github.com/KusionStack/karpor/pkg/core/route"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	clusterstorage "github.com/KusionStack/karpor/pkg/kubernetes/registry/cluster"
+	corestorage "github.com/KusionStack/karpor/pkg/kubernetes/registry/core"
+	searchstorage "github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/ui"
 	"github.com/go-chi/chi/v5"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -37,17 +37,17 @@ import (
 	rbacrest "k8s.io/kubernetes/pkg/registry/rbac/rest"
 )
 
-// KarbourServer is the carrier of the main process of Karbour.
-type KarbourServer struct {
+// KarporServer is the carrier of the main process of Karpor.
+type KarporServer struct {
 	*genericapiserver.GenericAPIServer
 	mux *chi.Mux
 	err error
 }
 
 // InstallKubernetesServer installs various resource-specific REST storage
-// implementations on the KarbourServer. This method is part of the
+// implementations on the KarporServer. This method is part of the
 // bootstrapping process of setting up the API server.
-func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServer {
+func (s *KarporServer) InstallKubernetesServer(c *CompletedConfig) *KarporServer {
 	if s.err != nil {
 		return s
 	}
@@ -81,9 +81,9 @@ func (s *KarbourServer) InstallKubernetesServer(c *CompletedConfig) *KarbourServ
 }
 
 // InstallCoreServer installs the core server (handling non kubernetes-like API,
-// regular HTTP requests) onto the KarbourServer. This is typically the server
+// regular HTTP requests) onto the KarporServer. This is typically the server
 // that serves the user interface assets.
-func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
+func (s *KarporServer) InstallCoreServer(c *CompletedConfig) *KarporServer {
 	if s.err != nil {
 		return s
 	}
@@ -106,8 +106,8 @@ func (s *KarbourServer) InstallCoreServer(c *CompletedConfig) *KarbourServer {
 
 // InstallStaticFileServer sets up the server to serve static files.
 // It is used to serve files like stylesheets, scripts, and images for the
-// karbour dashboard.
-func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
+// karpor dashboard.
+func (s *KarporServer) InstallStaticFileServer() *KarporServer {
 	if s.err != nil {
 		return s
 	}
@@ -158,14 +158,14 @@ func (s *KarbourServer) InstallStaticFileServer() *KarbourServer {
 }
 
 // Error returns any errors that have occurred during the setup of the
-// KarbourServer. It is designed to be called after the configuration steps
+// KarporServer. It is designed to be called after the configuration steps
 // to ensure any issues are captured and reported.
-func (s *KarbourServer) Error() error {
+func (s *KarporServer) Error() error {
 	return s.err
 }
 
 // InstallLegacyAPI installs legacy API groups and resources into the server.
-func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
+func (s *KarporServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
 	// Installing core API group
 	coreProvider := corestorage.RESTStorageProvider{}
 	coreGroupName := coreProvider.GroupName()
@@ -180,7 +180,7 @@ func (s *KarbourServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGe
 	return nil
 }
 
-func (s *KarbourServer) InstallAPIs(
+func (s *KarporServer) InstallAPIs(
 	apiResourceConfigSource serverstorage.APIResourceConfigSource,
 	restOptionsGetter generic.RESTOptionsGetter,
 	restStorageProviders ...registry.RESTStorageProvider,

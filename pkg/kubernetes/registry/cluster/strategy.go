@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ import (
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/names"
 
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 )
 
 var Strategy = clusterStrategy{scheme.Scheme, names.SimpleNameGenerator}

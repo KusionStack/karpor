@@ -6,7 +6,7 @@ import { Breadcrumb, Tooltip, message } from 'antd'
 import { useTranslation } from 'react-i18next'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
-import KarbourTabs from '@/components/tabs'
+import KarporTabs from '@/components/tabs'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
@@ -353,7 +353,7 @@ const ClusterDetail = () => {
       {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
-          <KarbourTabs
+          <KarporTabs
             list={insightTabsList}
             current={currentTab}
             onChange={handleTabChange}

@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/KusionStack/karbour/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karbour/pkg/util/clusterinstall"
-	"github.com/KusionStack/karbour/pkg/util/ctxutil"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	errors2 "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"

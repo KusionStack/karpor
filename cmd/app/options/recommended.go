@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/pflag"
 
-	karbouropenapi "github.com/KusionStack/karbour/pkg/kubernetes/generated/openapi"
-	k8sopenapi "github.com/KusionStack/karbour/pkg/kubernetes/openapi"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
+	karporopenapi "github.com/KusionStack/karpor/pkg/kubernetes/generated/openapi"
+	k8sopenapi "github.com/KusionStack/karpor/pkg/kubernetes/openapi"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
@@ -127,7 +127,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	}
 
 	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
-	genericConfig.OpenAPIConfig.Info.Title = "Karbour"
+	genericConfig.OpenAPIConfig.Info.Title = "Karpor"
 	genericConfig.OpenAPIConfig.Info.Version = "0.1"
 
 	genericConfig.LongRunningFunc = filters.BasicLongRunningRequestCheck(
@@ -185,7 +185,7 @@ func (o *RecommendedOptions) Validate() []error {
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	ret := k8sopenapi.GetOpenAPIDefinitions(ref)
-	for k, v := range karbouropenapi.GetOpenAPIDefinitions(ref) {
+	for k, v := range karporopenapi.GetOpenAPIDefinitions(ref) {
 		ret[k] = v
 	}
 	return ret

@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,8 +21,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karbour/pkg/core/entity"
-	"github.com/KusionStack/karbour/pkg/infra/topology"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
@@ -32,7 +32,7 @@ import (
 func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 	// Set up environment variable for relationship file
 	setRelationshipFilePath()
-	defer os.Unsetenv("KARBOUR_RELATIONSHIP_FILE")
+	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
 
 	// Set up mocks for dynamic client
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
@@ -91,7 +91,7 @@ func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	// Set up environment variable for relationship file
 	setRelationshipFilePath()
-	defer os.Unsetenv("KARBOUR_RELATIONSHIP_FILE")
+	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
 
 	// Initialize InsightManager
 	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
@@ -166,7 +166,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 	// Set up environment variable for relationship file
 	setRelationshipFilePath()
-	defer os.Unsetenv("KARBOUR_RELATIONSHIP_FILE")
+	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
 
 	// Set up mocks for dynamic client
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
@@ -226,7 +226,7 @@ func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 }
 
 func setRelationshipFilePath() {
-	filePath := os.Getenv("KARBOUR_RELATIONSHIP_FILE")
+	filePath := os.Getenv("KARPOR_RELATIONSHIP_FILE")
 	if filePath == "" {
 		// Default file path
 		filePath = "relationship.yaml"
@@ -254,7 +254,7 @@ func setRelationshipFilePath() {
 			dir = parent
 		}
 		// Set the environment variable
-		if err := os.Setenv("KARBOUR_RELATIONSHIP_FILE", filePath); err != nil {
+		if err := os.Setenv("KARPOR_RELATIONSHIP_FILE", filePath); err != nil {
 			panic("Failed to set environment variable")
 		}
 	}

@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: elasticsearch
-  namespace: karbour
+  namespace: karpor
 spec:
   ports:
     - port: 9200
@@ -15,7 +15,7 @@ metadata:
   labels:
     app: elasticsearch
   name: elasticsearch
-  namespace: karbour
+  namespace: karpor
 spec:
   replicas: 1
   selector:

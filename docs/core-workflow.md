@@ -11,7 +11,7 @@ Configure (Admin) -> Search (User) -> Insight (User)
             - Cluster Registration (manual)
                 - If Cluster not registered:
                     - Click "register new cluster"
-                    - Fill in cluster name (in the scope of Karbour)
+                    - Fill in cluster name (in the scope of Karpor)
                     - Fill in cluster metadata: Display Name, Description, Tags
                     - Fill in cluster credential
                         - Paste the KubeConfig content in the text box

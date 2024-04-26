@@ -1,6 +1,6 @@
 # `/cmd`
 
-Main applications for `karbour`.
+Main applications for `karpor`.
 
 It's common to have a small `main` function that imports and invokes the code from the `/pkg` directories and nothing else.
 

@@ -1,4 +1,4 @@
-# Copyright The Karbour Authors.
+# Copyright The Karpor Authors.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@ FROM alpine:3.17.3 AS production
 USER root
 WORKDIR /
 
-COPY karbour .
+COPY karpor .
 COPY config/relationship.yaml .
 
-ENTRYPOINT ["/karbour"]
+ENTRYPOINT ["/karpor"]

@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,8 @@
 package cluster
 
 import (
-	"github.com/KusionStack/karbour/pkg/core/handler"
-	"github.com/KusionStack/karbour/pkg/core/manager/cluster"
+	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/cluster"
 )
 
 // Ensure that ClusterPayload implements the handler.Payload interface.
@@ -29,7 +29,7 @@ var sortCriteriaMap = map[string]cluster.SortCriteria{
 }
 
 // ClusterPayload represents the structure for cluster request data. It includes
-// the name, display name, description and kubeconfig of a karbour-managed cluster
+// the name, display name, description and kubeconfig of a karpor-managed cluster
 //
 //nolint:tagliatelle
 type ClusterPayload struct {

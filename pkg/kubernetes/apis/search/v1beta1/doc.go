@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,9 +16,9 @@ limitations under the License.
 
 // +k8s:openapi-gen=true
 // +k8s:deepcopy-gen=package
-// +k8s:conversion-gen=github.com/KusionStack/karbour/pkg/kubernetes/apis/search
+// +k8s:conversion-gen=github.com/KusionStack/karpor/pkg/kubernetes/apis/search
 // +k8s:defaulter-gen=TypeMeta
-// +groupName=search.karbour.com
+// +groupName=search.karpor.io
 
 // Package v1beta1 Package v1beta1 is the v1beta1 version of the API.
-package v1beta1 // import "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
+package v1beta1 // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"

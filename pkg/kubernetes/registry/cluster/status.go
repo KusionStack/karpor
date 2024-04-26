@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@ package cluster
 import (
 	"context"
 
-	clustermgr "github.com/KusionStack/karbour/pkg/core/manager/cluster"
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster"
+	clustermgr "github.com/KusionStack/karpor/pkg/core/manager/cluster"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

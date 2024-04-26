@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=search.karbour.com
+// +groupName=search.karpor.io
 
 // Package search is the internal version of the API.
-package search // import "github.com/KusionStack/karbour/pkg/kubernetes/apis/search"
+package search // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/search"

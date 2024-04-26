@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@ limitations under the License.
 */
 
 // +k8s:deepcopy-gen=package
-// +groupName=cluster.karbour.com
+// +groupName=cluster.karpor.io
 
 // Package cluster is the internal version of the API.
-package cluster // import "github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster"
+package cluster // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"

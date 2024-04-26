@@ -4,7 +4,7 @@ This article presents two search languages designed to retrieve the resources, a
 
 # Motivation
 
-Enabling the retrieval of resources from multiple clusters is a crucial functionality of Karbour. However, the current search feature is relatively basic, only supporting keyword and content searches. To provide a more comprehensive search capability, it is necessary to design a dedicated DSL for searching.
+Enabling the retrieval of resources from multiple clusters is a crucial functionality of Karpor. However, the current search feature is relatively basic, only supporting keyword and content searches. To provide a more comprehensive search capability, it is necessary to design a dedicated DSL for searching.
 
 # Proposal
 
@@ -31,7 +31,7 @@ The overall process is as shown in the following diagram:
 
 ```mermaid
 flowchart TB
-  subgraph Karbour
+  subgraph Karpor
     subgraph SearchAPI
       DSL[Search DSL] --> Convert[DSL Converter: DSL to Query]
     end 
@@ -49,7 +49,7 @@ flowchart TB
 
 ## Solution Design
 
-This section describes the syntax and description of the search patterns that Karbour plans to support for retrieving resource content.
+This section describes the syntax and description of the search patterns that Karpor plans to support for retrieving resource content.
 
 ### Solution 1: Using DSL for Search
 

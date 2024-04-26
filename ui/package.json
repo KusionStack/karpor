@@ -1,5 +1,5 @@
 {
-  "name": "Karbour-dashboard",
+  "name": "Karpor-dashboard",
   "version": "0.2.0",
   "private": true,
   "dependencies": {
@@ -112,5 +112,5 @@
     "stylelint-config-standard": "^36.0.0",
     "stylelint-prettier": "^5.0.0"
   },
-  "repository": "git@gitlab.alipay-inc.com:karbour/karbour-fe.git"
+  "repository": "git@gitlab.alipay-inc.com:karpor/karpor-fe.git"
 }

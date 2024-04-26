@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,9 @@ package app
 import (
 	"context"
 
-	"github.com/KusionStack/karbour/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karbour/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karbour/pkg/syncer"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/syncer"
 	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

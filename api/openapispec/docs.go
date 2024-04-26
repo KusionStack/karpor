@@ -1900,7 +1900,7 @@ var SwaggerInfo = swaggerInfo{
 	Host:        "",
 	BasePath:    "",
 	Schemes:     []string{},
-	Title:       "Karbour",
+	Title:       "Karpor",
 	Description: "",
 }
 

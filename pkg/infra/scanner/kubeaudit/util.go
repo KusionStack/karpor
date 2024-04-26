@@ -1,4 +1,4 @@
-// Copyright The Karbour Authors.
+// Copyright The Karpor Authors.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
 package kubeaudit
 
 import (
-	"github.com/KusionStack/karbour/pkg/infra/scanner"
+	"github.com/KusionStack/karpor/pkg/infra/scanner"
 	kubeauditpkg "github.com/elliotxx/kubeaudit"
 )
 

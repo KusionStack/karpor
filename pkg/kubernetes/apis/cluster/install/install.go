@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karbour/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )

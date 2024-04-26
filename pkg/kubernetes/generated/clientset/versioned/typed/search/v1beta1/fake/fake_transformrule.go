@@ -1,5 +1,5 @@
 /*
-Copyright The Karbour Authors.
+Copyright The Karpor Authors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -21,7 +21,7 @@ package fake
 import (
 	"context"
 
-	v1beta1 "github.com/KusionStack/karbour/pkg/kubernetes/apis/search/v1beta1"
+	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	labels "k8s.io/apimachinery/pkg/labels"
 	schema "k8s.io/apimachinery/pkg/runtime/schema"
@@ -35,9 +35,9 @@ type FakeTransformRules struct {
 	Fake *FakeSearchV1beta1
 }
 
-var transformrulesResource = schema.GroupVersionResource{Group: "search.karbour.com", Version: "v1beta1", Resource: "transformrules"}
+var transformrulesResource = schema.GroupVersionResource{Group: "search.karpor.io", Version: "v1beta1", Resource: "transformrules"}
 
-var transformrulesKind = schema.GroupVersionKind{Group: "search.karbour.com", Version: "v1beta1", Kind: "TransformRule"}
+var transformrulesKind = schema.GroupVersionKind{Group: "search.karpor.io", Version: "v1beta1", Kind: "TransformRule"}
 
 // Get takes name of the transformRule, and returns the corresponding transformRule object, and an error if there is any.
 func (c *FakeTransformRules) Get(ctx context.Context, name string, options v1.GetOptions) (result *v1beta1.TransformRule, err error) {

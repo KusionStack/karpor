@@ -1,4 +1,4 @@
-apiVersion: search.karbour.com/v1beta1
+apiVersion: search.karpor.io/v1beta1
 kind: TransformRule
 metadata:
   name: only-metadata
@@ -6,7 +6,7 @@ spec:
   type: replace
   valueTemplate: '{"kind": "{{ .Object.kind }}","apiVersion": "{{ .Object.apiVersion}}","metadata": {{ toJson .Object.metadata }}}'
 ---
-apiVersion: search.karbour.com/v1beta1
+apiVersion: search.karpor.io/v1beta1
 kind: SyncRegistry
 metadata:
   name: default-sync-rule
