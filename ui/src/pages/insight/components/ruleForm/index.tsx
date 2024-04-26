@@ -110,18 +110,16 @@ const RuleForm = ({
       destroyOnClose
       okText={t('Submit')}
       cancelText={t('Close')}
-      styles={{
-        body: {
-          paddingBottom: 80,
-        },
-      }}
       footer={(_, { OkBtn, CancelBtn }) => (
         <div style={{ textAlign: 'left' }}>
           {isEdit ? (
             <Popconfirm
               title={t('Delete')}
-              description="Are you sure to delete this task?"
+              description={t('AreYouSureDeleteResourceGroupRule')}
               onConfirm={confirm}
+              getPopupContainer={triggerNode => {
+                return triggerNode.parentNode as HTMLElement
+              }}
             >
               <Button danger style={{ background: 'red', color: '#fff' }}>
                 {t('Delete')}
@@ -130,7 +128,7 @@ const RuleForm = ({
           ) : (
             <CancelBtn />
           )}
-          <span style={{ marginRight: 10 }}></span>
+          <span style={{ marginRight: 15 }}></span>
           <OkBtn />
         </div>
       )}
@@ -183,7 +181,10 @@ const RuleForm = ({
                           {...restField}
                           name={[name, 'key']}
                           rules={[
-                            { required: false, message: 'Missing first name' },
+                            {
+                              required: false,
+                              message: 'Missing first name',
+                            },
                           ]}
                         >
                           <Select

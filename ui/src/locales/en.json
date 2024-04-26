@@ -101,5 +101,6 @@
   "Detail": "Detail",
   "Check": "Check",
   "AllTags": "All Tags",
-  "DuplicateData": "Duplicate data, please recheck"
+  "DuplicateData": "Duplicate data, please recheck",
+  "AreYouSureDeleteResourceGroupRule": "Are you sure to delete this resource group rule?"
 }

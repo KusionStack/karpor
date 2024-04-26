@@ -176,7 +176,7 @@ const LayoutPage = () => {
             <Divider type="vertical" />
           </div>
           <Menu
-            style={{ flex: 1, border: 'none' }}
+            style={{ flex: 1, border: 'none', fontSize: 13 }}
             mode="horizontal"
             selectedKeys={getKey()}
             items={getMenuItems()}

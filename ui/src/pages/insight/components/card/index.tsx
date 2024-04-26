@@ -18,16 +18,20 @@ const CardContent = ({ allTags, handleClick, group }) => {
   }
 
   const content = (
-    <div style={{ width: 300 }}>
-      {allTags?.map(item => {
+    <>
+      {allTags?.map((item, index) => {
         return (
-          <Tag
-            key={`${item?.key}`}
-            style={tagStyle}
-          >{`${item?.key}:${item?.value}`}</Tag>
+          <div key={item?.key}>
+            <Tag
+              style={{
+                ...tagStyle,
+                marginBottom: index === allTags?.length - 1 ? 0 : 5,
+              }}
+            >{`${item?.key}:${item?.value}`}</Tag>
+          </div>
         )
       })}
-    </div>
+    </>
   )
 
   return (
@@ -41,11 +45,7 @@ const CardContent = ({ allTags, handleClick, group }) => {
           <div className={styles.tag_container}>
             {allTags?.slice(0, 2)?.map(item => {
               return (
-                <Tag
-                  style={tagStyle}
-                  key={`${item?.key}`}
-                  title={`${item?.key}: ${item?.value}`}
-                >
+                <Tag style={tagStyle} key={item?.key}>
                   {`${item?.key}: ${item?.value}`}
                 </Tag>
               )

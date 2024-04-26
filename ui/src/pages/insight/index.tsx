@@ -21,6 +21,7 @@ import RuleForm from './components/ruleForm'
 import QuotaContent from './components/quotaContent'
 
 import styles from './styles.module.less'
+import { useSelector } from 'react-redux'
 
 const orderIconStyle: React.CSSProperties = {
   marginLeft: 0,
@@ -35,6 +36,7 @@ const defalutPageParams = {
 const Insight = () => {
   const { t } = useTranslation()
   const location = useLocation()
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const urlParams = queryString.parse(location?.search)
   const navigate = useNavigate()
   const [tabList, setTabList] = useState([])
@@ -377,7 +379,7 @@ const Insight = () => {
           <div>
             <Tabs
               activeKey={activeTabKey}
-              type="editable-card"
+              type={isReadOnlyMode ? 'card' : 'editable-card'}
               items={tabsItems}
               onChange={handleChangeTag}
               onEdit={onEdit}
@@ -396,22 +398,6 @@ const Insight = () => {
             </div>
             <div className={styles.action_bar_right}>
               <div className={styles.action_bar_right_sort}>{renderSort()}</div>
-              {/* <div className={styles.action_bar_right_show}>
-              <div
-                className={styles.item}
-                style={{ color: showType === 'CARD' ? '#000' : '#646566' }}
-                onClick={() => setShowType('CARD')}
-              >
-                <AppstoreAddOutlined style={{ fontSize: 16 }} />
-              </div>
-              <div
-                className={styles.item}
-                style={{ color: showType === 'LIST' ? '#000' : '#646566' }}
-                onClick={() => setShowType('LIST')}
-              >
-                <BarsOutlined style={{ fontSize: 16 }} />
-              </div>
-            </div> */}
             </div>
           </div>
           {resouresLoading ? (
