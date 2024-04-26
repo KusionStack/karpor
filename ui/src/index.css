@@ -10,3 +10,7 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+:where(.css-dev-only-do-not-override-ywusfv).ant-popover .ant-popover-inner {
+  padding: 20px;
+}
