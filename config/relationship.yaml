@@ -14,30 +14,6 @@
 
 ---
 relationship:
-- group: apps.cafe.cloud.alipay.com
-  version: v1alpha1
-  kind: InPlaceSet
-  parent:
-  - group: apps.cafe.cloud.alipay.com
-    version: v1alpha1
-    kind: CafeDeployment
-    type: OwnerReference
-  children:
-  - group: ""
-    version: v1
-    kind: Pod
-    type: OwnerReference
-
-# Not needed. Can be derived bi-directionally
-# - group: apps.cafe.cloud.alipay.com
-#   version: v1alpha1
-#   kind: CafeDeployment
-#   children:
-#   - group: apps.cafe.cloud.alipay.com
-#     version: v1alpha1
-#     kind: InPlaceSet
-#     type: OwnerReference
-
 - group: apps
   version: v1
   kind: ReplicaSet
