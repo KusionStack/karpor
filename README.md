@@ -69,7 +69,7 @@ go install github.com/KusionStack/karpor@latest
 docker pull kusionstack/karpor:latest
 ```
 
-> For more information about installation, please check the [Installation Guide](https://karpor.com/docs/user_docs/getting-started/install) on Karpor official website
+> For more information about installation, please check the [Installation Guide](https://kusionstack.io/karpor/getting-started/installation) on Karpor official website
 
 # Contact Us
 
