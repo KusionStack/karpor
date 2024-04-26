@@ -206,6 +206,11 @@ const ClusterDetail = () => {
         ),
       }
     }
+    if (from === 'insight') {
+      first = {
+        title: <NavLink to={'/insight'}>{t('Insight')}</NavLink>,
+      }
+    }
     const middle = []
     ;['cluster', 'kind', 'namespace', 'name']?.forEach(item => {
       const urlParamsItem = urlParams?.[item]
