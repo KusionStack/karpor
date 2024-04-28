@@ -14,6 +14,7 @@ import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
+import logo from '@/assets/karpor-logo.png'
 import languagePng from '@/assets/translate_language.svg'
 
 import styles from './style.module.less'
@@ -169,7 +170,9 @@ const LayoutPage = () => {
       <div className={styles.nav}>
         <div className={styles.left}>
           <div className={styles.title} onClick={goHome}>
-            <div className={styles.sub_logo}>K</div>
+            <div className={styles.sub_logo}>
+              <img src={logo} />
+            </div>
             <div className={styles.text}>Karpor</div>
           </div>
           <div>

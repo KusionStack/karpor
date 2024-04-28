@@ -20,7 +20,7 @@ import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import KarporTabs from '@/components/tabs/index'
-import logoJPG from '@/assets/logo.jpg'
+import logoJPG from '@/assets/karpor-full.png'
 import SqlSearch from '@/components/sqlSearch'
 import { defaultSqlExamples, tabsList } from '@/utils/constants'
 
@@ -76,7 +76,7 @@ const SearchPage = () => {
     <div className={styles.container}>
       <div className={styles.search}>
         <div className={styles.title}>
-          <img src={logoJPG} width="30%" alt="icon" />
+          <img src={logoJPG} width="25%" alt="icon" />
         </div>
         <div className={styles.searchTab}>
           <KarporTabs
