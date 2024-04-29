@@ -2,6 +2,7 @@
   "name": "Karpor-dashboard",
   "version": "0.2.0",
   "private": true,
+  "homepage": "/public/",
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@antv/g2": "^5.1.13",
