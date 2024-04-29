@@ -97,16 +97,12 @@ const Cluster = () => {
   })
 
   const join = () => {
-    if (isReadOnlyMode) {
-      return
-    }
+    if (isReadOnlyMode) return
     navigate('/cluster/access')
   }
 
   async function handleSubmit(values, callback: () => void) {
-    if (isReadOnlyMode) {
-      return
-    }
+    if (isReadOnlyMode) return
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`,
       method: 'PUT',
@@ -161,7 +157,7 @@ const Cluster = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchValue, pageData])
 
-  const iconStyle: any = {
+  const iconStyle: React.CSSProperties = {
     width: 24,
     height: 24,
     display: 'flex',
@@ -172,7 +168,7 @@ const Cluster = () => {
     borderRadius: 6,
   }
 
-  const tabStyle = {
+  const tabStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     fontSize: 14,
@@ -182,9 +178,7 @@ const Cluster = () => {
   const numberStyle = { paddingLeft: 10, fontSize: 24 }
 
   async function deleteItem(item) {
-    if (isReadOnlyMode) {
-      return
-    }
+    if (isReadOnlyMode) return
     const response: any = await axios({
       url: `/rest-api/v1/cluster/${item?.metadata?.name}`,
       method: 'DELETE',
@@ -205,7 +199,6 @@ const Cluster = () => {
     navigate(
       `/cluster/certificate?cluster=${item?.metadata?.name}&apiVersion=${item?.apiVersion}`,
     )
-    navigate(`/cluster/certificate?cluster=${item?.metadata?.name}`)
   }
 
   function goDetailPage(item) {
@@ -273,14 +266,7 @@ const Cluster = () => {
         )}
       </div>
       {loading ? (
-        <div
-          style={{
-            height: 300,
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
+        <div className={styles.loading_container}>
           <Loading />
         </div>
       ) : !pageData || !pageData?.length ? (
@@ -291,11 +277,9 @@ const Cluster = () => {
               <div className={styles.tip}>
                 {t('ClusterRequiresKubeConfigConfigurationFileAccess')}
               </div>
-              <div>
-                <Button type="primary" onClick={join}>
-                  {t('RegisterCluster')}
-                </Button>
-              </div>
+              <Button type="primary" onClick={join} disabled={isReadOnlyMode}>
+                {t('RegisterCluster')}
+              </Button>
             </div>
             <div className={styles.right}>
               <Empty />
@@ -319,9 +303,7 @@ const Cluster = () => {
             <div className={styles.tool_bar}>
               <Input
                 value={searchValue}
-                onChange={event => {
-                  setSearchValue(event.target.value)
-                }}
+                onChange={event => setSearchValue(event.target.value)}
                 style={{ width: 160, marginRight: 16 }}
                 placeholder={t('PleaseEnterKeywords')}
                 allowClear
@@ -353,32 +335,27 @@ const Cluster = () => {
                     <ArrowDownOutlined style={orderIconStyle} />
                   ))}
               </Button>
-              {/* <Radio.Group options={radioOptions} onChange={handleChangeRadio} value={radioValue} optionType="button" buttonStyle="solid" /> */}
-              {/* <div className={styles.right}>
-                    </div> */}
             </div>
             {showPageData && showPageData?.length > 0 ? (
               <div className={styles.page_list}>
-                {showPageData?.map((item: any, index: number) => {
-                  return (
-                    <ClusterCard
-                      key={`${item?.name}_${index}`}
-                      item={item}
-                      deleteItem={deleteItem}
-                      goDetailPage={goDetailPage}
-                      goCertificate={goCertificate}
-                      setLastDetail={setLastDetail}
-                      handleSubmit={handleSubmit}
-                      customStyle={
-                        showPageData?.length - 1 === index
-                          ? {}
-                          : {
-                              borderBottom: '1px solid rgb(0 10 26 / 5%)',
-                            }
-                      }
-                    />
-                  )
-                })}
+                {showPageData?.map((item: any, index: number) => (
+                  <ClusterCard
+                    key={`${item?.name}_${index}`}
+                    item={item}
+                    deleteItem={deleteItem}
+                    goDetailPage={goDetailPage}
+                    goCertificate={goCertificate}
+                    setLastDetail={setLastDetail}
+                    handleSubmit={handleSubmit}
+                    customStyle={
+                      showPageData?.length - 1 === index
+                        ? {}
+                        : {
+                            borderBottom: '1px solid rgb(0 10 26 / 5%)',
+                          }
+                    }
+                  />
+                ))}
               </div>
             ) : (
               <div className={styles.empty_data}>

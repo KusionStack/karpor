@@ -33,6 +33,28 @@ const defalutPageParams = {
   total: 0,
 }
 
+export function filterKeywordsOfArray(list, keywords) {
+  const result = []
+  if (keywords?.length === 1) {
+    list?.forEach((item: any) => {
+      if (item?.title?.toLowerCase()?.includes(keywords?.[0])) {
+        result.push(item)
+      }
+    })
+  } else {
+    list?.forEach((item: any) => {
+      if (
+        keywords?.every((innerValue: string) =>
+          item?.title?.toLowerCase()?.includes(innerValue),
+        )
+      ) {
+        result.push(item)
+      }
+    })
+  }
+  return result
+}
+
 const Insight = () => {
   const { t } = useTranslation()
   const location = useLocation()
@@ -156,29 +178,10 @@ const Insight = () => {
   }
 
   useEffect(() => {
-    let tmp: any = []
-    if (!keyword) {
-      tmp = allResourcesData?.groups
-    } else {
-      const newValue = keyword?.toLowerCase().trim()?.split(' ')
-      const groups = allResourcesData?.groups
-      if (newValue?.length === 1) {
-        groups?.forEach((item: any) => {
-          if (item?.title?.toLowerCase()?.includes(newValue?.[0])) {
-            tmp.push(item)
-          }
-        })
-      } else {
-        groups?.forEach((item: any) => {
-          if (
-            newValue?.every((innerValue: string) =>
-              item?.title?.toLowerCase()?.includes(innerValue),
-            )
-          ) {
-            tmp.push(item)
-          }
-        })
-      }
+    let tmp = allResourcesData?.groups
+    if (keyword) {
+      const keywords = keyword?.toLowerCase()?.trim()?.split(' ')
+      tmp = filterKeywordsOfArray(allResourcesData?.groups, keywords)
     }
     const pageList = truncationPageData({
       list: tmp,

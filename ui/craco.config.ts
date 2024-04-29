@@ -20,12 +20,6 @@ module.exports = {
     },
     configure: (webpackConfig, { paths }) => {
       paths.appBuild = path.resolve(__dirname, 'build')
-      webpackConfig.output = {
-        ...webpackConfig.output,
-        clean: true,
-        path: path.resolve(__dirname, 'build'),
-        publicPath: '/',
-      }
 
       whenProd(() => {
         const TerserPlugin = webpackConfig.optimization.minimizer.find(

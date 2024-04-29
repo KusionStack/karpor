@@ -16,6 +16,28 @@ type IProps = {
   open: boolean
 }
 
+export function filterKeywordsOfArray(list, keywords) {
+  const result = []
+  if (keywords?.length === 1) {
+    list?.forEach((item: any) => {
+      if (item?.issue?.title?.toLowerCase()?.includes(keywords?.[0])) {
+        result.push(item)
+      }
+    })
+  } else {
+    list?.forEach((item: any) => {
+      if (
+        keywords?.every((innerValue: string) =>
+          item?.issue?.title?.toLowerCase()?.includes(innerValue),
+        )
+      ) {
+        result.push(item)
+      }
+    })
+  }
+  return result
+}
+
 const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
   const [pageParams, setPageParams] = useState({
     pageNo: 1,
@@ -29,80 +51,26 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    if (currentKey === 'All') {
-      let tmp: any = []
-      if (!searchValue) {
-        tmp = exceptionList?.issueGroups
-      } else {
-        const newValue = searchValue?.toLowerCase().trim()?.split(' ')
-        const issueGroups = exceptionList?.issueGroups
-        if (newValue?.length === 1) {
-          issueGroups?.forEach((item: any) => {
-            if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
-              tmp.push(item)
-            }
-          })
-        } else {
-          issueGroups?.forEach((item: any) => {
-            if (
-              newValue?.every((innerValue: string) =>
-                item?.issue?.title?.toLowerCase()?.includes(innerValue),
-              )
-            ) {
-              tmp.push(item)
-            }
-          })
-        }
-      }
-      const pageList = truncationPageData({
-        list: tmp,
-        page: pageParams?.pageNo,
-        pageSize: pageParams?.pageSize,
-      })
-      setShowPageData(pageList)
-      setPageParams({
-        ...pageParams,
-        total: tmp?.length,
-      })
-    } else {
-      const tmp = exceptionList?.issueGroups?.filter(
-        (item: any) => item?.issue?.severity === currentKey,
-      )
-      let filterTmp: any = []
-      if (!searchValue) {
-        filterTmp = tmp
-      } else {
-        const newValue = searchValue?.toLowerCase().trim()?.split(' ')
-        const issueGroups = exceptionList?.issueGroups
-        if (newValue?.length === 1) {
-          issueGroups?.forEach((item: any) => {
-            if (item?.issue?.title?.toLowerCase()?.includes(newValue?.[0])) {
-              filterTmp.push(item)
-            }
-          })
-        } else {
-          issueGroups?.forEach((item: any) => {
-            if (
-              newValue?.every((innerValue: string) =>
-                item?.issue?.title?.toLowerCase()?.includes(innerValue),
-              )
-            ) {
-              filterTmp.push(item)
-            }
-          })
-        }
-      }
-      const pageList = truncationPageData({
-        list: filterTmp,
-        page: pageParams?.pageNo,
-        pageSize: pageParams?.pageSize,
-      })
-      setPageParams({
-        ...pageParams,
-        total: filterTmp?.length,
-      })
-      setShowPageData(pageList)
+    let tmp =
+      currentKey === 'All'
+        ? exceptionList?.issueGroups
+        : exceptionList?.issueGroups?.filter(
+            (item: any) => item?.issue?.severity === currentKey,
+          )
+    if (searchValue) {
+      const keywords = searchValue?.toLowerCase().trim()?.split(' ')
+      tmp = filterKeywordsOfArray(exceptionList?.issueGroups, keywords)
     }
+    const pageList = truncationPageData({
+      list: tmp,
+      page: pageParams?.pageNo,
+      pageSize: pageParams?.pageSize,
+    })
+    setPageParams({
+      ...pageParams,
+      total: tmp?.length,
+    })
+    setShowPageData(pageList)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     currentKey,

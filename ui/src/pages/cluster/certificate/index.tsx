@@ -100,9 +100,7 @@ const ClusterCertificate = () => {
   }, [cluster])
 
   async function onFinish() {
-    if (isReadOnlyMode) {
-      return
-    }
+    if (isReadOnlyMode) return
     if (!newYamlContent?.content) {
       message.warning(t('PleaseUploadNewKubeConfigFile'))
     } else {
@@ -261,7 +259,6 @@ const ClusterCertificate = () => {
         </Form>
         {newYamlContent?.sanitizedClusterContent ? (
           <div className={styles.config_content}>
-            {/* <div className={styles.title}>左侧为原配置信息，右侧为新配置信息</div> */}
             <div className={styles.diff_container}>
               <ReactDiffViewer
                 leftTitle={t('ExistingConfigurations')}
