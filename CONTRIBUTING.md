@@ -32,7 +32,9 @@ Unsure where to begin contributing to Karpor codebase? Start by browsing issues 
 - [Help wanted](https://github.com/KusionStack/karpor/labels/help%20wanted) issues are problems we would like the community to help us with regardless of complexity.
 - Refer to [Code Contribution Guide](./docs/contributor/code-contribute.md) for more details.
 
-Learn the [Release Process And Cadence](./docs/contributor/release-process.md) to know when your code changes will be released.
+Learn [Code Conventions](./docs/conventions/code-conventions.md) and [Test Conventions](./docs/conventions/test-conventions.md) and understand what to pay attention to when writing code. 
+
+And learn the [Release Process And Cadence](./docs/contributor/release-process.md) to know when your code changes will be released.
 
 ### Become a community member
 
