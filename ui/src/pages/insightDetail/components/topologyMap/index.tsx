@@ -20,8 +20,6 @@ import NodeLabel from './nodeLabel'
 
 import styles from './style.module.less'
 
-const TextCopy: any = Text
-
 function getTextSize(str: string, maxWidth: number, fontSize: number) {
   const width = G6.Util.getTextSize(str, fontSize)[0]
   return width > maxWidth ? maxWidth : width
@@ -223,15 +221,15 @@ const TopologyMap = ({
               </Rect>
               {(type === 'cluster' || type === 'namespace') && (
                 <Rect>
-                  <TextCopy
+                  <Text
                     onClick={event => handleMouseEnter(event)}
                     style={{
                       fill: '#000',
-                      fontSize: 16,
+                      fontSize: '16px',
                     }}
                   >
                     {`${cfg?.data?.count}`}
-                  </TextCopy>
+                  </Text>
                 </Rect>
               )}
             </Group>

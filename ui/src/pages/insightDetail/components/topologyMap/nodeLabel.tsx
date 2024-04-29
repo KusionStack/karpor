@@ -1,8 +1,6 @@
 import { Text } from '@antv/g6-react-node'
 import React from 'react'
 
-const TextCopy: any = Text
-
 const NodeLabel = (NodeLabelProps: {
   width: number
   color?: string
@@ -24,20 +22,20 @@ const NodeLabel = (NodeLabelProps: {
     disabled = false,
   } = NodeLabelProps
   return (
-    <TextCopy
+    <Text
       style={{
         width,
         fill: color,
         cursor: disabled ? 'not-allowed' : 'pointer',
         fontFamily: 'PingFangSC',
-        fontSize: 16,
+        fontSize: '16px',
       }}
       onClick={onClick}
       onMouseOver={onMouseOver}
       onMouseOut={onMouseLeave}
     >
       {children}
-    </TextCopy>
+    </Text>
   )
 }
 
