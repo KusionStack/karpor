@@ -104,26 +104,21 @@ func (s *KarporServer) InstallCoreServer(c *CompletedConfig) *KarporServer {
 	return s
 }
 
-// InstallStaticFileServer sets up the server to serve static files.
+// InstallPublicFileServer sets up the server to serve public files.
 // It is used to serve files like stylesheets, scripts, and images for the
 // karpor dashboard.
-func (s *KarporServer) InstallStaticFileServer() *KarporServer {
+func (s *KarporServer) InstallPublicFileServer() *KarporServer {
 	if s.err != nil {
 		return s
 	}
 
-	// Get the web root and static directory of dashboard from embedded
-	// filesystem.
+	// Get the web root of dashboard from embedded filesystem.
 	webRootFS, err := fs.Sub(ui.Embedded, "build")
 	if err != nil {
 		klog.Warningf(
 			"Failed to get web root directory from embedded filesystem as %s",
 			err.Error(),
 		)
-	}
-	staticFS, err := fs.Sub(ui.Embedded, "build/static")
-	if err != nil {
-		klog.Warningf("Failed to get static directory from embedded filesystem as %s", err.Error())
 	}
 
 	// Set up the router to serve static files when not found by other routes.
@@ -151,8 +146,8 @@ func (s *KarporServer) InstallStaticFileServer() *KarporServer {
 		w.Write(b)
 	})
 
-	staticHandler := http.StripPrefix("/static/", http.FileServer(http.FS(staticFS)))
-	s.mux.Mount("/static", staticHandler)
+	publicHandler := http.StripPrefix("/public", http.FileServer(http.FS(webRootFS)))
+	s.mux.Mount("/public", publicHandler)
 
 	return s
 }

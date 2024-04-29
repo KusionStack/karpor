@@ -14,7 +14,7 @@ rules:
       - /
       - /rest-api/*
       - /endpoints
-      - /static/*
+      - /public/*
       - /docs/*
       - /server-configs
       - /search
