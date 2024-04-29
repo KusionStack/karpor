@@ -1,11 +1,11 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img height="250px" src="assets/img/logo.jpg">
+    <img width="50%" src="ui/src/assets/karpor-full.png">
 </p>
-<h1>Search smarter, not harder! ⛵️</h1>
+<h2>Cross-Cluster Discovery 🔍 ,</br>Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 10px"> coming soon</sup></span>✨</h2>
 
-[简体中文](https://github.com/KusionStack/karpor/blob/main/README-zh.md) | [English](https://github.com/KusionStack/karpor/blob/main/README.md)
+[👉 Live Demo](https://karpor-demo.kusionstack.io) | [简体中文](https://github.com/KusionStack/karpor/blob/main/README-zh.md) | [English](https://github.com/KusionStack/karpor/blob/main/README.md)
 
 [![Kusion](https://github.com/KusionStack/kusion/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/kusion/actions/workflows/release.yaml)
 [![GitHub release](https://img.shields.io/github/release/KusionStack/kusion.svg)](https://github.com/KusionStack/kusion/releases)
@@ -30,65 +30,56 @@
 
 </div>
 
-# Karpor
+## What is Karpor?
 
-Karpor is a **Multi-Cluster Kubernetes Data Plane focusing on Search, Insight and Intelligence**.
+Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has features such as non-invasive, read-only, secure, and multi cloud and multi cluster support, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
 
-Search smarter, not harder! ⛵️
+## Why Karpor?
 
-![](assets/img/karpor-home.png)
+- ⚡️ **Lightweight and Easy to Setup**. One `helm` is done.
+- 📦 **Out of the Box**. Built-in security and compliance policies, resource sync strategy, resource transform rule, and topology relationship definitions.
+- 💰 **Self-Hosted, Cost-Effective**. Bring your own server, scale when you need.
+- 🔒 **Read-Only** data plane, **Non-Invasive** to user cluster.
+- ⚙️ **Kubernetes Native API Compatible**. Seamless integration of existing kubernetes tool chain.
+- ☁️ Natural support for **Multi-Cluster and Multi-Cloud**.
 
-## Key Features
+## ⚙️ Installation
 
--   `Karpor` runs on compute as low as $15/month.
--   Lightweight and easy to setup. One `helm` is done.
--   Self-hosted - Cost-effective, bring your own server, scale when you need.
--   Read only data plane, non-invasive to user cluster.
+### Install with Helm
 
-<!-- - HTTPS/TLS out-of-the-box with auto generated [Let's Encrypt](https://letsencrypt.org/) certificates. -->
+[Helm](https://github.com/helm/helm) is a tool for managing packages of pre-configured kubernetes resources.
 
-## Quick Start
-
-## Installation
-
-### Homebrew (macOS & Linux)
-
-```shell
-brew install KusionStack/tap/karpor
+```bash
+$ helm repo add kusionstack https://kusionstack.github.io/charts
+$ helm repo update kusionstack
+$ helm install karpor kusionstack/karpor
 ```
 
-### Go Install
+For more information about installation, please check the [Installation Guide](https://kusionstack.io/karpor/getting-started/installation) on official website.
 
-```shell
-go install github.com/KusionStack/karpor@latest
-```
+## 📖 Documentation
 
-### Docker
+Detailed documentation is available at [Karpor Website](https://kusionstack.io/karpor).
 
-```
-docker pull kusionstack/karpor:latest
-```
-
-> For more information about installation, please check the [Installation Guide](https://kusionstack.io/karpor/getting-started/installation) on Karpor official website
-
-# Contact Us
-
--   Twitter: [KusionStack](https://twitter.com/KusionStack)
-
-<!-- - Slack: [Kusionstack](https://join.slack.com/t/karpor/shared_invite/zt-19lqcc3a9-_kTNwagaT5qwBE~my5Lnxg) -->
-
-<!-- - DingTalk (Chinese): 42753001 -->
-
-<!-- - Wechat Group (Chinese) -->
-
-  <!-- <img src="docs/wx_spark.jpg" width="200" height="200"/> -->
-
-# 🎖︎ Contribution Guide
+## 🤝 Contribution Guide
 
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karpor project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
 
-<!-- # Contributors -->
+## 🎖︎ Contributors
 
-<!-- <a href="https://github.com/KusionStack/karpor/graphs/contributors"> -->
-<!--   <img src="https://contrib.rocks/image?repo=KusionStack/karpor" /> -->
-<!-- </a> -->
+<a href="https://github.com/KusionStack/karpor/graphs/contributors">
+<img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
+</a>
+
+## 🌐 Contact Us
+
+- Twitter: [KusionStack](https://twitter.com/KusionStack)
+- Slack: [KusionStack](https://join.slack.com/t/karpor/shared_invite/zt-19lqcc3a9-_kTNwagaT5qwBE~my5Lnxg)
+- DingTalk (Chinese): 42753001
+- Wechat Group (Chinese)
+
+  <img src="./assets/img/wechat.png" width="200" height="200"/>
+
+<!-- ## 🏛️ License -->
+
+<!-- [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Felliotxx%2Fkusion.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Felliotxx%2Fkusion?ref=badge_shield&issueType=license) -->

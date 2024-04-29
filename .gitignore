@@ -50,6 +50,7 @@ node_modules/
 
 # other
 tmp/
+.obsidian/
 
 vendor/
 apiserver.local.config/
@@ -58,3 +59,4 @@ static/
 # graph
 *.gv
 *.gv.svg
+
