@@ -9,47 +9,55 @@
     align-items: center;
 
     .karpor_editor_prefix {
+      width: 165px;
       height: 40px;
       padding-left: 10px;
       margin-right: 10px;
-      font-size: 16px;
+      font-size: 14px;
       line-height: 40px;
       color: #999;
       text-align: center;
       background: #f1f1f1;
       border-radius: 40px 0 0 40px;
+      box-sizing: border-box;
     }
 
-    .karpor_editor_divider {
+    .karpor_editor_content {
       display: flex;
-      height: 40px;
-      background: #fff;
       align-items: center;
-    }
+      flex: 1;
 
-    .karpor_editor_btn_container {
-      display: flex;
-      height: 40px;
-      padding-right: 10px;
-      background: #fff;
-      align-items: center;
-      border-radius: 0 40px 40px 0;
-
-      .karpor_editor_btn {
+      .karpor_editor_divider {
         display: flex;
-        height: 28px;
-        padding: 0 15px;
-        color: #fff;
-        text-align: center;
-        cursor: pointer;
-        background: #2f54eb;
-        border-radius: 40px;
-        justify-content: center;
+        height: 40px;
+        background: #fff;
         align-items: center;
+      }
 
-        img {
-          width: 20px;
-          height: 16px;
+      .karpor_editor_btn_container {
+        display: flex;
+        height: 40px;
+        padding-right: 10px;
+        background: #fff;
+        align-items: center;
+        border-radius: 0 40px 40px 0;
+
+        .karpor_editor_btn {
+          display: flex;
+          height: 28px;
+          padding: 0 15px;
+          color: #fff;
+          text-align: center;
+          cursor: pointer;
+          background: #2f54eb;
+          border-radius: 40px;
+          justify-content: center;
+          align-items: center;
+
+          img {
+            width: 20px;
+            height: 14px;
+          }
         }
       }
     }

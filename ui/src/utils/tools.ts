@@ -1,5 +1,6 @@
 import yaml from 'js-yaml'
 import moment from 'moment'
+import _ from 'lodash'
 
 export function truncationPageData({ list, page, pageSize }) {
   return list && list?.length > 0
@@ -161,4 +162,26 @@ export function hasDuplicatesOfObjectArray(array) {
     seen.add(serialized)
   }
   return false
+}
+
+export function filterKeywordsOfArray(list, keywords, attribute) {
+  const result = []
+  if (keywords?.length === 1) {
+    list?.forEach((item: any) => {
+      if (_.get(item, attribute)?.toLowerCase()?.includes(keywords?.[0])) {
+        result.push(item)
+      }
+    })
+  } else {
+    list?.forEach((item: any) => {
+      if (
+        keywords?.every((innerValue: string) =>
+          _.get(item, attribute)?.toLowerCase()?.includes(innerValue),
+        )
+      ) {
+        result.push(item)
+      }
+    })
+  }
+  return result
 }

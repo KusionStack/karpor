@@ -12,6 +12,7 @@ import queryString from 'query-string'
 import { useLocation, useNavigate } from 'react-router-dom'
 import Loading from '@/components/loading'
 import {
+  filterKeywordsOfArray,
   hasDuplicatesOfObjectArray,
   isEmptyObject,
   truncationPageData,
@@ -31,28 +32,6 @@ const defalutPageParams = {
   pageNo: 1,
   pageSize: 12,
   total: 0,
-}
-
-export function filterKeywordsOfArray(list, keywords) {
-  const result = []
-  if (keywords?.length === 1) {
-    list?.forEach((item: any) => {
-      if (item?.title?.toLowerCase()?.includes(keywords?.[0])) {
-        result.push(item)
-      }
-    })
-  } else {
-    list?.forEach((item: any) => {
-      if (
-        keywords?.every((innerValue: string) =>
-          item?.title?.toLowerCase()?.includes(innerValue),
-        )
-      ) {
-        result.push(item)
-      }
-    })
-  }
-  return result
 }
 
 const Insight = () => {
@@ -181,7 +160,7 @@ const Insight = () => {
     let tmp = allResourcesData?.groups
     if (keyword) {
       const keywords = keyword?.toLowerCase()?.trim()?.split(' ')
-      tmp = filterKeywordsOfArray(allResourcesData?.groups, keywords)
+      tmp = filterKeywordsOfArray(allResourcesData?.groups, keywords, 'title')
     }
     const pageList = truncationPageData({
       list: tmp,

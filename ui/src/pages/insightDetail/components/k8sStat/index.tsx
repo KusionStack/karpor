@@ -13,7 +13,8 @@ const K8sStat = ({ statData }: IProps) => {
   return (
     <div className={styles.exception_stat}>
       <div className={styles.title}>
-        全部<span className={styles.num}>{statData?.all}</span>
+        {t('AllIssues')}
+        <span className={styles.num}>{statData?.all}</span>
       </div>
       <div className={`${styles.title} ${styles.height}`}>
         <Badge status="error" text={t('Exception')}></Badge>
