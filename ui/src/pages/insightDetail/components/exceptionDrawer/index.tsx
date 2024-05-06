@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { Collapse, Drawer, Empty, Input, Pagination, Tag } from 'antd'
 import { CaretRightOutlined, SearchOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { truncationPageData } from '@/utils/tools'
+import { filterKeywordsOfArray, truncationPageData } from '@/utils/tools'
 import { DEFALUT_PAGE_SIZE_10, SEVERITY_MAP } from '@/utils/constants'
 import ExceptionStat from '../exceptionStat'
 import MultiTag from '../multiTag'
@@ -14,28 +14,6 @@ type IProps = {
   exceptionList: any
   onClose: () => void
   open: boolean
-}
-
-export function filterKeywordsOfArray(list, keywords) {
-  const result = []
-  if (keywords?.length === 1) {
-    list?.forEach((item: any) => {
-      if (item?.issue?.title?.toLowerCase()?.includes(keywords?.[0])) {
-        result.push(item)
-      }
-    })
-  } else {
-    list?.forEach((item: any) => {
-      if (
-        keywords?.every((innerValue: string) =>
-          item?.issue?.title?.toLowerCase()?.includes(innerValue),
-        )
-      ) {
-        result.push(item)
-      }
-    })
-  }
-  return result
 }
 
 const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
@@ -59,7 +37,11 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
           )
     if (searchValue) {
       const keywords = searchValue?.toLowerCase().trim()?.split(' ')
-      tmp = filterKeywordsOfArray(exceptionList?.issueGroups, keywords)
+      tmp = filterKeywordsOfArray(
+        exceptionList?.issueGroups,
+        keywords,
+        'issue.title',
+      )
     }
     const pageList = truncationPageData({
       list: tmp,

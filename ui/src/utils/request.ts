@@ -21,7 +21,7 @@ axios.interceptors.response.use(
   },
   error => {
     try {
-      message.error(error?.response?.data?.message || '请求失败，请重试')
+      message.error(error?.response?.data?.message)
       throw new Error(error)
     } catch (error) {}
   },

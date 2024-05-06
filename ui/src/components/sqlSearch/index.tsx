@@ -299,7 +299,7 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                       labelSpan.style.textOverflow = 'ellipsis'
                       labelSpan.style.whiteSpace = 'nowrap'
                       labelSpan.style.padding = '0 10px'
-                      labelSpan.style.fontSize = '16px'
+                      labelSpan.style.fontSize = '14px'
                       const btn = document.createElement('span')
                       btn.innerText = '✕'
                       btn.className = 'delete-btn'
@@ -429,86 +429,90 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
     <div className={styles.karpor_editor_container}>
       <div className={styles.karpor_editor}>
         <div className={styles.karpor_editor_prefix}>{searchSqlPrefix}</div>
-        <div
-          style={{ width: '100%', flex: 1 }}
-          ref={editorRef}
-          className={css`
-            .cm-editor .cm-scroller {
-              padding-left: 10px;
-              box-sizing: border-box;
-              background: #fff;
-              border: none;
-            }
-            .cm-editor .cm-content {
-              border-right: none;
-              border-left: none;
-              height: 40px;
-              width: 800px;
-              line-height: 40px;
-              font-size: 16px;
-              padding: 0;
-              overflow-x: auto;
-              white-space: pre;
-              background-color: #fff !important;
-              border: none;
-            }
-            .cm-editor .cm-content:focus {
-              outline: none !important;
-            }
-            .cm-line {
-              height: 40px !important;
-              padding: 0;
-              overflow-x: auto;
-              white-space: pre;
-              border: none;
-            }
-            .CodeMirror-focused {
-              outline: none !important;
-            }
-            .cm-editor.cm-focused {
-              outline: none !important;
-            }
-            .cm-keyword {
-              color: blue !important;
-            }
-            .cm-tooltip-autocomplete .cm-completion {
-              background-color: #f5f5f5 !important;
-            }
-            .cm-tooltip-autocomplete .cm-completionLabel {
-              padding: 10px !important;
-              font-size: 18px !important;
-            }
-            .cm-tooltip.cm-tooltip-autocomplete {
-              border-radius: 6px !important;
-              border: none;
-              padding: 10px !important;
-            }
-            .cm-tooltip.cm-tooltip-autocomplete > ul {
-              height: auto !important;
-              max-height: 500px !important;
-              overflow-y: auto !important;
-            }
-            .cm-tooltip.cm-tooltip-autocomplete > ul > li {
-              background-color: #f3f3f3 !important;
-              margin: 5px 0 !important;
-              padding: 10px 0 !important;
-              border-radius: 6px !important;
-              width: auto !important;
-            }
+        <div className={styles.karpor_editor_content}>
+          <div
+            style={{ width: '100%', flex: 1 }}
+            ref={editorRef}
+            className={css`
+              .cm-editor .cm-scroller {
+                padding-left: 10px;
+                box-sizing: border-box;
+                background: #fff;
+                border: none;
+              }
+              .cm-editor .cm-content {
+                border-right: none;
+                border-left: none;
+                height: 40px;
+                width: 800px;
+                line-height: 40px;
+                font-size: 14px;
+                padding: 0;
+                overflow-x: auto;
+                white-space: pre;
+                background-color: #fff !important;
+                border: none;
+              }
+              .cm-editor .cm-content:focus {
+                outline: none !important;
+              }
+              .cm-line {
+                height: 40px !important;
+                padding: 0;
+                overflow-x: auto;
+                white-space: pre;
+                border: none;
+              }
+              .CodeMirror-focused {
+                outline: none !important;
+              }
+              .cm-editor.cm-focused {
+                outline: none !important;
+              }
+              .cm-keyword {
+                color: blue !important;
+              }
+              .cm-tooltip-autocomplete .cm-completion {
+                background-color: #f5f5f5 !important;
+              }
+              .cm-tooltip-autocomplete .cm-completionLabel {
+                padding: 10px !important;
+                font-size: 18px !important;
+              }
+              .cm-tooltip.cm-tooltip-autocomplete {
+                border-radius: 6px !important;
+                border: none;
+                padding: 10px !important;
+              }
+              .cm-tooltip.cm-tooltip-autocomplete > ul {
+                height: auto !important;
+                max-height: 500px !important;
+                overflow-y: auto !important;
+              }
+              .cm-tooltip.cm-tooltip-autocomplete > ul > li {
+                background-color: #f3f3f3 !important;
+                margin: 5px 0 !important;
+                padding: 10px 0 !important;
+                border-radius: 6px !important;
+                width: auto !important;
+              }
 
-            .cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected='true'],
-            .cm-tooltip.cm-tooltip-autocomplete > ul > li:hover {
-              background-color: #97a9f5 !important;
-              color: white !important;
-            }
-          `}
-        />
-        <div className={styles.karpor_editor_divider}>
-          <Divider type="vertical" />
-        </div>
-        <div className={styles.karpor_editor_btn_container}>
-          <div onClick={handleClick} className={styles.karpor_editor_btn}>
-            <img src={arrowRight} />
+              .cm-tooltip.cm-tooltip-autocomplete
+                > ul
+                > li[aria-selected='true'],
+              .cm-tooltip.cm-tooltip-autocomplete > ul > li:hover {
+                background-color: #97a9f5 !important;
+                color: white !important;
+              }
+            `}
+          />
+          <div className={styles.karpor_editor_divider}>
+            <Divider type="vertical" />
+          </div>
+          <div className={styles.karpor_editor_btn_container}>
+            <div onClick={handleClick} className={styles.karpor_editor_btn}>
+              <img src={arrowRight} />
+            </div>
           </div>
         </div>
       </div>

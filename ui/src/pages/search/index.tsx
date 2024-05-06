@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Tag } from 'antd'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -32,6 +32,7 @@ const SearchPage = () => {
   const [searchType, setSearchType] = useState<string>('sql')
   const [sqlEditorValue, setSqlEditorValue] = useState<any>('')
   const [showAll, setShowAll] = useState(false)
+  const [scale, setScale] = useState(1)
 
   const toggleTags = () => {
     setShowAll(!showAll)
@@ -72,8 +73,28 @@ const SearchPage = () => {
     return renderSqlExamples(sqlExamples)
   }
 
+  useEffect(() => {
+    const handleResize = () => {
+      const innerWidth = window.innerWidth
+      if (innerWidth >= 1200) {
+        setScale(1)
+      } else if (innerWidth < 1200 && innerWidth >= 1100) {
+        setScale(0.9)
+      } else if (innerWidth < 1100 && innerWidth >= 900) {
+        setScale(0.8)
+      } else {
+        setScale(0.6)
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} style={{ transform: `scale(${scale})` }}>
       <div className={styles.search}>
         <div className={styles.title}>
           <img src={logoJPG} width="25%" alt="icon" />

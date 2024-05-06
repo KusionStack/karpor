@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { Popover, Progress } from 'antd'
 import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
@@ -61,15 +61,33 @@ type SummaryCardProps = {
   summary: any
 }
 const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
+  const [score, setScore] = useState(0)
   const { t } = useTranslation()
   const location = useLocation()
+  const scoreRef = useRef(0)
   const { type } = queryString.parse(location?.search)
+
+  useEffect(() => {
+    let timer
+    if (auditStat?.score) {
+      timer = setInterval(() => {
+        scoreRef.current = scoreRef?.current + 10
+        if (scoreRef.current > auditStat?.score) {
+          scoreRef.current = auditStat?.score
+        }
+        setScore(scoreRef.current)
+        if (scoreRef?.current >= auditStat?.score) timer && clearInterval(timer)
+      }, 100)
+    }
+    return () => timer && clearInterval(timer)
+  }, [auditStat?.score])
+
   return (
     <div className={styles.summary_card}>
       <Progress
         size={80}
         type="circle"
-        percent={parseInt(`${auditStat?.score}`)}
+        percent={parseInt(`${score}`)}
         format={percent => `${percent}`}
         strokeWidth={12}
       />
