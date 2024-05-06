@@ -2,7 +2,6 @@
   "name": "Karpor-dashboard",
   "version": "0.2.0",
   "private": true,
-  "homepage": "/public/",
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
     "@antv/g2": "^5.1.13",
@@ -58,7 +57,7 @@
   "scripts": {
     "release": "standard-version",
     "start": "GENERATE_SOURCEMAP=false HTTPS=true craco start",
-    "build": "GENERATE_SOURCEMAP=false craco build",
+    "build": "GENERATE_SOURCEMAP=false PUBLIC_URL=/public/ craco build",
     "lint:prettier": "prettier --write src\"/**/*.+(js|ts|tsx|jsx|json|md|json)\"",
     "lint:style": "stylelint src\"/**/*.+(css|scss|less|stylus|sass|postcss)\" --fix",
     "lint:fix": "eslint --fix --ext .js,.jsx,.ts,.tsx src",
