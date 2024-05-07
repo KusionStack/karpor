@@ -1,7 +1,7 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img width="50%" src="ui/src/assets/karpor-full.png">
+    <img width="50%" src="assets/img/logo-full.svg">
 </p>
 <h2>Cross-Cluster Discovery 🔍 ,</br>Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 10px"> coming soon</sup></span>✨</h2>
 
