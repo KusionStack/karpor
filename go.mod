@@ -65,6 +65,11 @@ require (
 )
 
 require (
+	github.com/cpuguy83/go-md2man/v2 v2.0.2 // indirect
+	github.com/russross/blackfriday/v2 v2.1.0 // indirect
+)
+
+require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
