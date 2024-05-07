@@ -23,4 +23,10 @@ jobs:
           min_length: 5 # Min length of the title
           max_length: 80 # Max length of the title
           github_token: ${{ github.token }} # Default: ${{ github.token }}
-
+  # Checks all Markdown files in repository for broken links.
+  # https://github.com/gaurav-nelson/github-action-markdown-link-check
+  # markdown-link-check:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - uses: actions/checkout@v2
+  #   - uses: gaurav-nelson/github-action-markdown-link-check@v1
