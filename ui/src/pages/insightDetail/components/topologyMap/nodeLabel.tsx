@@ -11,6 +11,7 @@ const NodeLabel = (NodeLabelProps: {
   disabled?: boolean
   marginRight?: number
   marginLeft?: number
+  customStyle?: any
 }) => {
   const {
     width,
@@ -20,6 +21,7 @@ const NodeLabel = (NodeLabelProps: {
     onMouseOver,
     onMouseLeave,
     disabled = false,
+    customStyle = {},
   } = NodeLabelProps
   return (
     <Text
@@ -27,8 +29,8 @@ const NodeLabel = (NodeLabelProps: {
         width,
         fill: color,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        fontFamily: 'PingFangSC',
         fontSize: '16px',
+        ...customStyle,
       }}
       onClick={onClick}
       onMouseOver={onMouseOver}

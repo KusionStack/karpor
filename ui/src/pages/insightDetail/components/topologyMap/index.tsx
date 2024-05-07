@@ -21,13 +21,13 @@ import NodeLabel from './nodeLabel'
 import styles from './style.module.less'
 
 function getTextSize(str: string, maxWidth: number, fontSize: number) {
-  const width = G6.Util.getTextSize(str, fontSize)[0]
+  const width = G6.Util.getTextSize(str, fontSize)?.[0]
   return width > maxWidth ? maxWidth : width
 }
 
 function fittingString(str: any, maxWidth: number, fontSize: number) {
   const ellipsis = '...'
-  const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)[0]
+  const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)?.[0]
   let currentWidth = 0
   let res = str
   const pattern = new RegExp('[\u4E00-\u9FA5]+') // distinguish the Chinese charactors and letters
@@ -179,12 +179,13 @@ const TopologyMap = ({
           style={{
             width: 250,
             height: 'auto',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
             fill: isHighLight ? '#fff' : '#C6E5FF',
             shadowColor: '#eee',
             shadowBlur: 30,
             radius: [8],
-            justifyContent: 'center',
-            padding: [10, 0],
             stroke: '#C6E5FF',
           }}
           draggable
@@ -195,44 +196,46 @@ const TopologyMap = ({
               cursor: 'pointer',
               stroke: 'transparent',
               fill: 'transparent',
+              display: 'flex',
               flexDirection: 'row',
               justifyContent: 'space-between',
               alignItems: 'center',
-              margin: [0, 15],
+              margin: [0, 10],
             }}
           >
-            <Group>
-              <Rect
+            <Rect
+              onClick={() => handleClickNode(cfg)}
+              style={{
+                stroke: 'transparent',
+                fill: 'transparent',
+              }}
+            >
+              <NodeLabel
                 onClick={() => handleClickNode(cfg)}
-                style={{
-                  stroke: 'transparent',
-                  fill: 'transparent',
-                  margin: [0, 10, 10, 0],
+                onMouseOver={evt => handleMouseEnter(evt)}
+                onMouseLeave={evt => handleMouseLeave(evt)}
+                width={getTextSize(getName(cfg), 190, 16)}
+                customStyle={{
+                  fill: '#000',
+                  fontSize: 16,
+                  margin: [10, 0],
                 }}
               >
-                <NodeLabel
-                  onClick={() => handleClickNode(cfg)}
-                  onMouseOver={evt => handleMouseEnter(evt)}
-                  onMouseLeave={evt => handleMouseLeave(evt)}
-                  width={getTextSize(getName(cfg), 190, 16)}
-                >
-                  {displayName}
-                </NodeLabel>
-              </Rect>
+                {displayName}
+              </NodeLabel>
               {(type === 'cluster' || type === 'namespace') && (
-                <Rect>
-                  <Text
-                    onClick={event => handleMouseEnter(event)}
-                    style={{
-                      fill: '#000',
-                      fontSize: '16px',
-                    }}
-                  >
-                    {`${cfg?.data?.count}`}
-                  </Text>
-                </Rect>
+                <Text
+                  onClick={event => handleMouseEnter(event)}
+                  style={{
+                    fill: '#000',
+                    fontSize: '16px',
+                    margin: [10, 0],
+                  }}
+                >
+                  {`${cfg?.data?.count}`}
+                </Text>
               )}
-            </Group>
+            </Rect>
             {type === 'cluster' && (
               <Rect>
                 <Image
@@ -319,6 +322,7 @@ const TopologyMap = ({
             container: ReactDOM.findDOMNode(ref.current) as HTMLElement,
             width,
             height,
+            renderer: 'svg',
             fitCenter: true,
             fitView: true,
             fitViewPadding: 20,
@@ -336,7 +340,7 @@ const TopologyMap = ({
             },
             defaultNode: {
               type: 'card-node',
-              size: [240, 45],
+              size: [250, 50],
             },
 
             defaultEdge: {
