@@ -98,6 +98,7 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 	}))
 
 	cmd := &cobra.Command{
+		Use:   "karpor",
 		Short: "Launch an API server",
 		Long:  "Launch an API server",
 		RunE: func(c *cobra.Command, args []string) error {
