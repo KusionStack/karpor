@@ -14,7 +14,7 @@ import { setServerConfigMode } from '@/store/modules/globalSlice'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
-import logo from '@/assets/karpor-logo.png'
+import logo from '@/assets/img/logo.svg'
 import languagePng from '@/assets/translate_language.svg'
 
 import styles from './style.module.less'
