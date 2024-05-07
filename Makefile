@@ -165,4 +165,4 @@ gen-api-doc: ## Generate API Documentation by API Specification
 
 .PHONY: gen-cli-doc
 gen-cli-doc: ## Generate CLI Documentation
-	@go run ./hack/gen-cli-docs/main.go
+	@go run ./hack/gen-cli-docs/main.go && echo "🎉 Done!"
