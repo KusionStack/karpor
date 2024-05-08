@@ -3,11 +3,12 @@
 <p>
     <img width="50%" src="assets/img/logo-full.svg">
 </p>
-<p style="font-size:1.5em">Cross-Cluster Discovery 🔍 ,</br>Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨</p>
+<p style="font-size: 2em; font-weight: bold;">Cross-Cluster Discovery 🔍 ,</br>Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨</p>
 
 <p align="center">
-  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🌐 Live Demo</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Install</b></a> •
+  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Installation</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
 </p>
 
@@ -114,15 +115,6 @@ Karpor is still in the initial stage, and there are many capabilities that need 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
 </a>
-
-## 🌐 Contact Us
-
-- Twitter: [KusionStack](https://twitter.com/KusionStack)
-- Slack: [KusionStack](https://join.slack.com/t/karpor/shared_invite/zt-19lqcc3a9-_kTNwagaT5qwBE~my5Lnxg)
-- DingTalk (Chinese): 42753001
-- Wechat Group (Chinese)
-
-  <img src="./assets/img/wechat.png" width="200" height="200"/>
 
 <!-- ## 🏛️ License -->
 
