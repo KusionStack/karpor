@@ -43,23 +43,49 @@ Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insi
 
 <h3 align="center">🤝 User Friendly</h3>
 
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                                                                    |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| <b>⚡️ Lightweight and Easy to Setup</b><br />One `helm` is done.<br /><br/><b>📦 Out of the Box</b><br />Built-in security and compliance policies, resource sync strategy, resource transform rule, and topology relationship definitions.<br /><br /><b>🔍 Quickly search and locate resource(s)</b><br />Quickly search and locate resource(s) of interest across a large number of clusters in a user-friendly way. | <img src="./assets/img/user-friendly.png" /> |
+<table>
+  <tr>
+    <td style="vertical-align: middle;">
+      <b>⚡️ Lightweight and Easy to Setup</b><br />One `helm` is done.<br /><br/>
+      <b>📦 Out of the Box</b><br />Built-in security and compliance policies, resource sync strategy, resource transform rule, and topology relationship definitions.<br /><br />
+      <b>🔍 Quickly search and locate resource(s)</b><br />Quickly search and locate resource(s) of interest across a large number of clusters in a user-friendly way.
+    </td>
+    <td style="width: 60%; vertical-align: middle;">
+      <img src="./assets/img/user-friendly.png" alt="User Friendly" />
+    </td>
+  </tr>
+</table>
 
+<h3 align="center">✨ Intelligent</h3>
 
-<h3 align="center">✨ Intelligent</h3>
+<table>
+  <tr>
+    <td style="width: 60%; vertical-align: middle;">
+      <img src="./assets/img/intelligent.png" alt="Intelligent" />
+    </td>
+    <td style="vertical-align: middle;">
+      <b>🔒 Compliance Protection</b><br />Automatically identify potential risks and receive AI suggestions for remediation.<br /><br/>
+      <b>📊 Logical and topological views</b><br />Logical and topological views of relevant resources within their operational context.
+    </td>
+  </tr>
+</table>
 
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |                                                                                                    |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| <b>🔒 Compliance Protection</b><br />Automatically identify potential risks and receive AI suggestions for remediation.<br /><br/><b>📊 Logical and topological views</b><br />Logical and topological views of relevant resources within their operational context.<br /><br /><b>📊 Logical and topological views</b><br />Logical and topological views of relevant resources within their operational context.<br /> | <img src="./assets/img/intelligent.png" /> |
+<h3 align="center">⚡️ Low Burden</h3>
 
-<h3 align="center">⚡️ Low Burden</h3>
+<table>
+  <tr>
+    <td style="vertical-align: middle;">
+      <b>🔒 Read-Only, Non-Invasive</b><br />Read-Only data plane, Non-Invasive to user cluster.<br /><br />
+      <b>⚙️ Kubernetes Native API Compatible</b><br />Seamless integration of existing kubernetes tool chain.<br /><br />
+      <b>☁️ Multi-Cluster and Multi-Cloud/Hybrid-Cloud</b><br />Natively supports Multi-Cluster and Multi-Cloud/Hybrid-Cloud.
+    </td>
+    <td style="width: 60%; vertical-align: middle;">
+      <img src="./assets/img/low-burden.png" alt="Low Burden" />
+    </td>
+  </tr>
+</table>
 
-|                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |                                                                                                        |
-| -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| <b>🔒 Read-Only, Non-Invasive</b><br />Read-Only data plane, Non-Invasive to user cluster.<br /><br /><b>⚙️ Kubernetes Native API Compatible</b><br />Seamless integration of existing kubernetes tool chain.<br /><br /><b>☁️ Multi-Cluster and Multi-Cloud/Hybrid-Cloud</b><br /> Natively supports Multi-Cluster and Multi-Cloud/Hybrid-Cloud. | <img src="./assets/img/low-burden.png" /> |
-
+</br>
 
 ## ⚙️ Installation
 
