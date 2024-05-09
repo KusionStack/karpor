@@ -100,7 +100,7 @@ Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insi
 
 ```bash
 $ helm repo add kusionstack https://kusionstack.github.io/charts
-$ helm repo update kusionstack
+$ helm repo update
 $ helm install karpor kusionstack/karpor
 ```
 
