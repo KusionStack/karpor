@@ -1,7 +1,7 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img width="50%" src="assets/img/logo-full.svg">
+    <img width="60%" src="https://kusionstack-io-dev.vercel.app/karpor/assets/logo/logo-full.svg">
 </p>
 
 <h2 style="font-size: 1.5em;">
@@ -46,7 +46,6 @@ Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insi
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
-
 ## Why Karpor?
 
 <h3 align="center">🤝 User Friendly</h3>
@@ -59,7 +58,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>🔍 Quickly search and locate resource(s)</b><br />Quickly search and locate resource(s) of interest across a large number of clusters in a user-friendly way.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="./assets/img/user-friendly.png" alt="User Friendly" />
+      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/user-friendly.png" alt="User Friendly" />
     </td>
   </tr>
 </table>
@@ -69,7 +68,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 <table>
   <tr>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="./assets/img/intelligent.png" alt="Intelligent" />
+      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/intelligent.png" alt="Intelligent" />
     </td>
     <td style="vertical-align: middle;">
       <b>🔒 Compliance Protection</b><br />Automatically identify potential risks and receive AI suggestions for remediation.<br /><br/>
@@ -88,7 +87,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>☁️ Multi-Cluster and Multi-Cloud/Hybrid-Cloud</b><br />Natively supports Multi-Cluster and Multi-Cloud/Hybrid-Cloud.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="./assets/img/low-burden.png" alt="Low Burden" />
+      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/low-burden.png" alt="Low Burden" />
     </td>
   </tr>
 </table>
