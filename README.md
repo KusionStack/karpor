@@ -44,6 +44,9 @@
 
 Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has features such as non-invasive, read-only, secure, and multi-cloud and multi-cluster support, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
 
+https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
+
+
 ## Why Karpor?
 
 <h3 align="center">🤝 User Friendly</h3>
