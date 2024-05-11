@@ -103,3 +103,14 @@ export const defaultSqlExamples = [
 ]
 
 export const DEFALUT_PAGE_SIZE_10 = 10
+
+export const Languages = [
+  {
+    label: 'English',
+    value: 'en',
+  },
+  {
+    label: '中文',
+    value: 'zh',
+  },
+]

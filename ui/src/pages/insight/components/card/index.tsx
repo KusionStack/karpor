@@ -4,11 +4,17 @@ import { useTranslation } from 'react-i18next'
 
 import styles from './styles.module.less'
 
-const CardContent = ({ allTags, handleClick, group }) => {
+type IProps = {
+  allTags?: any[]
+  handleClick?: (group: any, title: string) => void
+  group?: any
+}
+
+const CardContent = ({ allTags, handleClick, group }: IProps) => {
   const { t } = useTranslation()
   const title = group?.title
 
-  const tagStyle = {
+  const tagStyle: React.CSSProperties = {
     maxWidth: '100%',
     whiteSpace: 'nowrap',
     overflow: 'hidden',

@@ -1,4 +1,4 @@
-import React, { memo } from 'react'
+import React, { memo, useEffect } from 'react'
 import { Divider, Menu, Dropdown } from 'antd'
 import {
   ClusterOutlined,
@@ -15,9 +15,10 @@ import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
 import logo from '@/assets/img/logo.svg'
-import languagePng from '@/assets/translate_language.svg'
+import languageSvg from '@/assets/translate_language.svg'
 
 import styles from './style.module.less'
+import { Languages } from '@/utils/constants'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -49,17 +50,16 @@ const LayoutPage = () => {
   const { i18n, t } = useTranslation()
 
   async function getServerConfigs() {
-    const response: any = await axios(`/server-configs`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: {},
-    })
-    dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
+    const response: any = await axios.get(`/server-configs`)
+    if (response) {
+      dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
+    }
   }
 
-  getServerConfigs()
+  useEffect(() => {
+    getServerConfigs()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const menuItems = [
     getItem(t('Search'), '/search', <SearchOutlined />),
@@ -107,10 +107,6 @@ const LayoutPage = () => {
     ),
   ]
 
-  function getKey() {
-    return [pathname]
-  }
-
   function getMenuItems() {
     function loop(list) {
       return list
@@ -134,42 +130,28 @@ const LayoutPage = () => {
     }
   }
 
-  function goHome() {
-    navigate('/')
-  }
-  function changeToZh() {
-    localStorage.setItem('lang', 'zh')
-    i18n.changeLanguage('zh')
-  }
-  function changeToEn() {
-    localStorage.setItem('lang', 'en')
-    i18n.changeLanguage('en')
+  function handleChangeLanguage(lang) {
+    localStorage.setItem('lang', lang)
+    i18n.changeLanguage(lang)
   }
 
-  const languageItems: MenuProps['items'] = [
-    {
-      label: (
-        <div className={styles.language_content_item} onClick={changeToEn}>
-          English
-        </div>
-      ),
-      key: 'English',
-    },
-    {
-      label: (
-        <div className={styles.language_content_item} onClick={changeToZh}>
-          中文
-        </div>
-      ),
-      key: 'Chinese',
-    },
-  ]
+  const languageItems: MenuProps['items'] = Languages.map(item => ({
+    label: (
+      <div
+        className={styles.language_content_item}
+        onClick={() => handleChangeLanguage(item?.value)}
+      >
+        {item?.label}
+      </div>
+    ),
+    key: item?.value,
+  }))
 
   return (
     <div className={styles.wrapper}>
       <div className={styles.nav}>
         <div className={styles.left}>
-          <div className={styles.title} onClick={goHome}>
+          <div className={styles.title} onClick={() => navigate('/')}>
             <div className={styles.sub_logo}>
               <img src={logo} />
             </div>
@@ -181,7 +163,7 @@ const LayoutPage = () => {
           <Menu
             style={{ flex: 1, border: 'none', fontSize: 13 }}
             mode="horizontal"
-            selectedKeys={getKey()}
+            selectedKeys={[pathname]}
             items={getMenuItems()}
             onClick={handleMenuClick}
           />
@@ -199,7 +181,7 @@ const LayoutPage = () => {
                 onClick={e => e.preventDefault()}
                 className={styles.help_container}
               >
-                <img src={languagePng} />
+                <img src={languageSvg} />
                 <span className={styles.help_text}>
                   {i18n.language === 'zh' ? '中文' : 'English'}
                 </span>

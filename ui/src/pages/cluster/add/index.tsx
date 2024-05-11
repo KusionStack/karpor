@@ -25,21 +25,18 @@ const RegisterCluster = () => {
     if (isReadOnlyMode) {
       return
     }
-    const tmp = {
-      ...values,
-    }
     setLoading(true)
     const validateResponse: any = await axios.post(
       '/rest-api/v1/cluster/config/validate',
       {
-        kubeConfig: tmp?.kubeConfig,
+        kubeConfig: values?.kubeConfig,
       },
     )
     if (validateResponse?.success) {
       const response: any = await axios({
-        url: `/rest-api/v1/cluster/${tmp?.name}`,
+        url: `/rest-api/v1/cluster/${values?.name}`,
         method: 'POST',
-        data: tmp,
+        data: values,
       })
       if (response?.success) {
         message.success(t('VerifiedSuccessfullyAndSubmitted'))
@@ -148,15 +145,6 @@ const RegisterCluster = () => {
               </Button>
             </Upload>
           </Form.Item>
-          {/* <Form.Item
-          rules={[{ required: true }]}
-          name="kubeConfig"
-          label="Kubeconfig"
-          valuePropName="fileList"
-          extra="上传yaml文件"
-        >
-          <UploadConfig />
-        </Form.Item> */}
           <Form.Item>
             <Space>
               <Button
