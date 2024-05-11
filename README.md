@@ -5,13 +5,13 @@
 </p>
 
 <h2 style="font-size: 1.5em;">
-  Humanly and fast Discovery 🔍 ,<br>
-  Cross-Cluster Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
+  Friendly and Fast Discovery 🔍 ,<br>
+  Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
 </h2>
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Installation</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Install</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
 </p>
