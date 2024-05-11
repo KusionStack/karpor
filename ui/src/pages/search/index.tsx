@@ -76,7 +76,11 @@ const SearchPage = () => {
   useEffect(() => {
     const handleResize = () => {
       const innerWidth = window.innerWidth
-      if (innerWidth >= 1200) {
+      if (innerWidth >= 1920) {
+        setScale(1.25)
+      } else if (innerWidth < 1920 && innerWidth >= 1500) {
+        setScale(1.1)
+      } else if (innerWidth < 1500 && innerWidth >= 1200) {
         setScale(1)
       } else if (innerWidth < 1200 && innerWidth >= 1100) {
         setScale(0.9)
@@ -94,8 +98,8 @@ const SearchPage = () => {
   }, [])
 
   return (
-    <div className={styles.container} style={{ transform: `scale(${scale})` }}>
-      <div className={styles.search}>
+    <div className={styles.search_container}>
+      <div className={styles.search} style={{ transform: `scale(${scale})` }}>
         <div className={styles.title}>
           <img src={logoFull} width="100%" alt="icon" />
         </div>
