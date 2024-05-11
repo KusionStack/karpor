@@ -5,8 +5,8 @@
 </p>
 
 <h2 style="font-size: 1.5em;">
-  Cross-Cluster Discovery 🔍 ,<br>
-  Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
+  Humanly and fast Discovery 🔍 ,<br>
+  Cross-Cluster Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
 </h2>
 
 <p align="center">
@@ -112,11 +112,13 @@ For more information about installation, please check the [Installation Guide](h
 
 Detailed documentation is available at [Karpor Website](https://kusionstack.io/karpor).
 
-## 🤝 Contribution Guide
+## 🤝 How to contribute
 
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karpor project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
 
 ## 🎖︎ Contributors
+
+Thanks all! Welcome to join us! 🍻
 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
