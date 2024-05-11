@@ -165,24 +165,8 @@ func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 	}
 
 	// Convert the raw query parameters to maps.
-	var labels map[string]string
-	var annotations map[string]string
-	if len(labelsRaw) > 0 {
-		labels = make(map[string]string)
-		// Each label is expected to be in the format "key=value".
-		parts := strings.SplitN(labelsRaw, "=", 2)
-		if len(parts) == 2 {
-			labels[parts[0]] = parts[1]
-		}
-	}
-	if len(annotationsRaw) > 0 {
-		annotations = make(map[string]string)
-		// Each annotation is expected to be in the format "key=value".
-		parts := strings.SplitN(annotationsRaw, "=", 2)
-		if len(parts) == 2 {
-			annotations[parts[0]] = parts[1]
-		}
-	}
+	labels := parseKeyValuePairs(labelsRaw)
+	annotations := parseKeyValuePairs(annotationsRaw)
 
 	// Construct a resource group instance.
 	rg := ResourceGroup{
@@ -196,4 +180,22 @@ func NewResourceGroupFromQuery(r *http.Request) (ResourceGroup, error) {
 	}
 
 	return rg, nil
+}
+
+// parseKeyValuePairs parses a comma-separated key-value pair string and returns
+// a map.
+func parseKeyValuePairs(raw string) map[string]string {
+	result := make(map[string]string)
+	if len(raw) > 0 {
+		pairs := strings.Split(raw, ",")
+		for _, pair := range pairs {
+			parts := strings.SplitN(pair, "=", 2)
+			if len(parts) == 2 {
+				key := strings.TrimSpace(parts[0])
+				value := strings.TrimSpace(parts[1])
+				result[key] = value
+			}
+		}
+	}
+	return result
 }
