@@ -5,13 +5,13 @@
 </p>
 
 <h2 style="font-size: 1.5em;">
-  Cross-Cluster Discovery 🔍 ,<br>
+  Intuitive Discovery 🔍 ,<br>
   Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
 </h2>
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Installation</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Install</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
 </p>
@@ -42,7 +42,7 @@
 
 ## What is Karpor?
 
-Karpor is a **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has features such as non-invasive, read-only, secure, and multi-cloud and multi-cluster support, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
+Karpor is a Modern **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has features such as `non-invasive`, `read-only`, `secure`, and `multi-cloud` and `multi-cluster` support, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
@@ -112,11 +112,13 @@ For more information about installation, please check the [Installation Guide](h
 
 Detailed documentation is available at [Karpor Website](https://kusionstack.io/karpor).
 
-## 🤝 Contribution Guide
+## 🤝 How to contribute
 
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karpor project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
 
 ## 🎖︎ Contributors
+
+Thanks all! Come and join us! 🍻
 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
