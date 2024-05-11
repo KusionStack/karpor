@@ -2,6 +2,8 @@
   background: #f1f1f1;
   border: 8px solid #f1f1f1;
   border-radius: 40px;
+  width: 100%;
+  box-sizing: border-box;
 
   .karpor_editor {
     display: flex;
@@ -20,6 +22,9 @@
       background: #f1f1f1;
       border-radius: 40px 0 0 40px;
       box-sizing: border-box;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .karpor_editor_content {

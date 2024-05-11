@@ -52,11 +52,7 @@ const ClusterDetail = () => {
           const kindTmp = item?.id?.split('.')
           const len = kindTmp?.length
           const lastKindTmp = kindTmp?.[len - 1]
-          if (lastKindTmp === 'Pod') {
-            return true
-          } else {
-            return false
-          }
+          return lastKindTmp === 'Pod'
         } else {
           return false
         }
@@ -102,6 +98,8 @@ const ClusterDetail = () => {
     })
     if (response?.success) {
       setAuditStat(response?.data)
+    } else {
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
   async function getClusterDetail() {
@@ -113,6 +111,8 @@ const ClusterDetail = () => {
     })
     if (response?.success) {
       setYamlData(response?.data)
+    } else {
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 

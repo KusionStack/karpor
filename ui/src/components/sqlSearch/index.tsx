@@ -82,10 +82,8 @@ const placeholderStyle = EditorView.baseTheme({
 const focusHandlerExtension = EditorView.domEventHandlers({
   click: (event, view) => {
     const target: any = event.target
-    if (view.dom.contains(target)) {
-      if (view.state.doc?.length === 0) {
-        startCompletion(view)
-      }
+    if (view.dom.contains(target) && view.state.doc?.length === 0) {
+      startCompletion(view)
     }
   },
 })
@@ -96,10 +94,9 @@ type SqlSearchIProps = {
 }
 
 function getHistoryList() {
-  const historyList: any = localStorage?.getItem('sqlEditorHistory')
+  return localStorage?.getItem('sqlEditorHistory')
     ? JSON.parse(localStorage?.getItem('sqlEditorHistory'))
     : []
-  return historyList
 }
 
 function deleteHistoryByItem(val: string) {
@@ -167,7 +164,6 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
       }))
 
     const from = pos - filterTerm?.length
-
     if (customCompletions?.length > 0) {
       return { from, options: customCompletions }
     }
@@ -182,7 +178,6 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
       if (contentEditableElement) {
         contentEditableElement.style.outline = 'none'
       }
-
       const customCompletionKeymap: KeyBinding[] = [
         { key: 'Tab', run: acceptCompletion },
       ]
@@ -198,7 +193,6 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
       const customCompletion = context => {
         const { state, pos } = context
         const beforeCursor = state.doc.sliceString(0, pos)
-
         if (state.doc?.length === 0) {
           const historyOptions: any[] = historyCompletionsRef?.current?.map(
             record => ({
@@ -444,7 +438,7 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 border-right: none;
                 border-left: none;
                 height: 40px;
-                width: 800px;
+                width: 100%;
                 line-height: 40px;
                 font-size: 14px;
                 padding: 0;

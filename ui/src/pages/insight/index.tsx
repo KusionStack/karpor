@@ -63,7 +63,7 @@ const Insight = () => {
     if (response?.success) {
       setStatsData(response?.data)
     } else {
-      message.error(t('RequestFailedAndTry'))
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -72,19 +72,17 @@ const Insight = () => {
     if (response?.success) {
       const tabList = response?.data
         ?.filter(item => item)
-        ?.map(item => {
-          return {
-            ...item,
-            key: item?.name,
-            label: item?.name,
-          }
-        })
+        ?.map(item => ({
+          ...item,
+          key: item?.name,
+          label: item?.name,
+        }))
       setTabList(tabList)
       handleClickItem(
         isDelete || !activeTabKey ? tabList?.[0]?.name : activeTabKey,
       )
     } else {
-      message.error(t('RequestFailedAndTry'))
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -96,20 +94,23 @@ const Insight = () => {
     )
     if (response?.success) {
       const { groups, fields } = response?.data || {}
-      const filterGroups = groups?.filter(item => item && !isEmptyObject(item))
-      const newGroups = filterGroups?.map(group => {
-        const { title, tags } = getName(group, fields)
-        return {
-          ...group,
-          title,
-          tags,
-        }
-      })
+      const newGroups = groups
+        ?.filter(item => item && !isEmptyObject(item))
+        ?.map(group => {
+          const { title, tags } = getName(group, fields)
+          return {
+            ...group,
+            title,
+            tags,
+          }
+        })
       const newData = {
         fields: response?.data?.fields,
         groups: newGroups,
       }
       setAllResourcesData(newData)
+    } else {
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
     setResouresLoading(false)
   }
@@ -125,6 +126,8 @@ const Insight = () => {
       queryStats()
       queryCurrentResources(tabList?.[0]?.name)
       setOpen(false)
+    } else {
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -153,6 +156,8 @@ const Insight = () => {
       setOpen(false)
       setIsEdit(false)
       queryAllRules(false)
+    } else {
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
