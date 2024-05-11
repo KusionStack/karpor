@@ -33,6 +33,7 @@ const SearchPage = () => {
   const [sqlEditorValue, setSqlEditorValue] = useState<any>('')
   const [showAll, setShowAll] = useState(false)
   const [scale, setScale] = useState(1)
+  const [contentWidthPercent, setContentWidthPercent] = useState<any>('45%')
 
   const toggleTags = () => {
     setShowAll(!showAll)
@@ -77,17 +78,23 @@ const SearchPage = () => {
     const handleResize = () => {
       const innerWidth = window.innerWidth
       if (innerWidth >= 1920) {
-        setScale(1.25)
+        setScale(1.2)
+        setContentWidthPercent('45%')
       } else if (innerWidth < 1920 && innerWidth >= 1500) {
         setScale(1.1)
+        setContentWidthPercent('60%')
       } else if (innerWidth < 1500 && innerWidth >= 1200) {
         setScale(1)
+        setContentWidthPercent('70%')
       } else if (innerWidth < 1200 && innerWidth >= 1100) {
         setScale(0.9)
+        setContentWidthPercent('80%')
       } else if (innerWidth < 1100 && innerWidth >= 900) {
         setScale(0.8)
+        setContentWidthPercent('90%')
       } else {
         setScale(0.6)
+        setContentWidthPercent((innerWidth - 100) / 0.8)
       }
     }
     handleResize()
@@ -99,7 +106,10 @@ const SearchPage = () => {
 
   return (
     <div className={styles.search_container}>
-      <div className={styles.search} style={{ transform: `scale(${scale})` }}>
+      <div
+        className={styles.search}
+        style={{ transform: `scale(${scale})`, width: contentWidthPercent }}
+      >
         <div className={styles.title}>
           <img src={logoFull} width="100%" alt="icon" />
         </div>
