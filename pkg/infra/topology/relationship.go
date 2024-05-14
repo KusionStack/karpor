@@ -18,10 +18,11 @@ package topology
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"reflect"
+
+	"github.com/pkg/errors"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -292,7 +293,10 @@ func (rg *RelationshipGraph) CountRelationshipGraphByCustomResourceGroup(ctx con
 		return nil, errors.New("apiVersion should be empty")
 	}
 	for _, node := range rg.RelationshipNodes {
-		kvs := elasticsearch.ConvertResourceGroup2Map(resourceGroup)
+		kvs, err := elasticsearch.ConvertResourceGroup2Map(resourceGroup)
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to convert resource group to map")
+		}
 		kvs["apiVersion"] = schema.GroupVersion{Group: node.Group, Version: node.Version}.String()
 		kvs["kind"] = node.Kind
 		kvs["cluster"] = name
