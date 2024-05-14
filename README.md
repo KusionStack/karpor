@@ -11,6 +11,7 @@
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
+  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 Overview</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Install</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
