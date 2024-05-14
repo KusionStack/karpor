@@ -102,6 +102,7 @@ const RuleForm = ({
 
   return (
     <Modal
+      centered
       width={720}
       title={title}
       onOk={handleOk}

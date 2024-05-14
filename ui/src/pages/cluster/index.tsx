@@ -33,8 +33,24 @@ const Cluster = () => {
   })
   const { t } = useTranslation()
   const [searchValue, setSearchValue] = useState('')
-
   const [lastDetail, setLastDetail] = useState<any>()
+  const [scale, setScale] = useState<any>(1)
+
+  useEffect(() => {
+    const handleResize = () => {
+      const innerWidth = window.innerWidth
+      if (innerWidth >= 1440) {
+        setScale(1.2)
+      } else {
+        setScale(1)
+      }
+    }
+    handleResize()
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
   async function getClusterSummary() {
     setloading(true)
@@ -271,7 +287,10 @@ const Cluster = () => {
         </div>
       ) : !pageData || !pageData?.length ? (
         <div className={styles.empty_content}>
-          <div className={styles.empty_data}>
+          <div
+            className={styles.empty_data}
+            style={{ transform: `scale(${scale})` }}
+          >
             <div className={styles.left}>
               <div className={styles.nodate}>{t('EmptyCluster')}</div>
               <div className={styles.tip}>

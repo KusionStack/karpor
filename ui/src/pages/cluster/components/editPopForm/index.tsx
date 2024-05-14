@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Popover, Form, Input, Button, Space } from 'antd'
+import { Modal, Form, Input, Button, Space } from 'antd'
 
 const { TextArea } = Input
 
@@ -8,9 +8,15 @@ type EditFormProps = {
   submit: (val: any, callback: () => void) => void
   cancel: () => void
   lastDetail: any
+  open: boolean
 }
 
-export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
+export const EditForm = ({
+  submit,
+  cancel,
+  lastDetail,
+  open,
+}: EditFormProps) => {
   const [form] = Form.useForm()
   const { t } = useTranslation()
 
@@ -35,7 +41,7 @@ export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
   }
 
   return (
-    <div style={{ width: 320, padding: '20px 20px 0 20px' }}>
+    <Modal open={open} footer={null} centered onCancel={onCancel}>
       <Form form={form} layout="vertical" onFinish={onFinish}>
         <Form.Item
           name="name"
@@ -69,7 +75,7 @@ export const EditForm = ({ submit, cancel, lastDetail }: EditFormProps) => {
           </Space>
         </Form.Item>
       </Form>
-    </div>
+    </Modal>
   )
 }
 
@@ -84,7 +90,6 @@ type IProps = {
 
 const EditPopForm = ({
   setLastDetail,
-  title,
   submit,
   btnType,
   lastDetail,
@@ -96,6 +101,7 @@ const EditPopForm = ({
     setOpen(false)
   }
   const formProps = {
+    open,
     submit,
     cancel: hide,
     lastDetail,
@@ -105,18 +111,16 @@ const EditPopForm = ({
     setLastDetail(lastDetail)
   }
   return (
-    <Popover
-      open={open}
-      onOpenChange={handleOpenChange}
-      placement="bottomRight"
-      title={title || t('Edit')}
-      trigger="click"
-      content={<EditForm {...formProps} />}
-    >
-      <Button disabled={isDisabled} type={btnType || 'default'}>
+    <>
+      <Button
+        disabled={isDisabled}
+        type={btnType || 'default'}
+        onClick={handleOpenChange}
+      >
         {t('Edit')}
       </Button>
-    </Popover>
+      <EditForm {...formProps} />
+    </>
   )
 }
 

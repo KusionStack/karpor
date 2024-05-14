@@ -22,6 +22,7 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
   const { t } = useTranslation()
   return (
     <Modal
+      centered
       title={t('IssuesDetail')}
       open={open}
       destroyOnClose

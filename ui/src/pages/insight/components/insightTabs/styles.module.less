@@ -1,0 +1,54 @@
+.tabs_wrapper {
+  width: 100%;
+
+  .tabs_container {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #f1f1f1;
+    overflow-x: scroll;
+    .tabs {
+      display: flex;
+
+      .tab {
+        background-color: rgba(0, 0, 0, 0.02);
+        display: flex;
+        padding: 10px 16px;
+        border: 1px solid #f1f1f1;
+        border-bottom: none;
+        margin-right: 2px;
+        border-radius: 8px 8px 0 0;
+        font-size: 14px;
+        cursor: pointer;
+
+        &.active_tab {
+          margin-bottom: -1px;
+          z-index: 1000;
+          background: #fff;
+          border-bottom: 1px solid transparent;
+          color: #2f54eb;
+        }
+
+        .edit_icon {
+          padding: 0 6px;
+          margin-right: -4px;
+          margin-left: 8px;
+          font-size: 14px;
+
+          .anticon-edit {
+            font-size: 14px;
+            color: rgba(0, 0, 0, 0.45);
+          }
+        }
+      }
+    }
+
+    .add_box {
+      cursor: pointer;
+      border: 1px solid #f1f1f1;
+      border-bottom: none;
+      padding: 9px 13px;
+      border-radius: 8px 8px 0 0;
+    }
+  }
+}
