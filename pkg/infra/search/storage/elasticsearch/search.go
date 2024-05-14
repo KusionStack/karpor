@@ -163,7 +163,7 @@ func (s *Storage) AggregateByTerms(ctx context.Context, keys []string) (*storage
 }
 
 // ConvertResourceGroup2Map converts a ResourceGroup to a map[string]any.
-func ConvertResourceGroup2Map(rg *entity.ResourceGroup) map[string]any {
+func ConvertResourceGroup2Map(rg *entity.ResourceGroup) (map[string]any, error) {
 	result := make(map[string]interface{})
 	v := reflect.ValueOf(rg).Elem()
 
@@ -171,18 +171,32 @@ func ConvertResourceGroup2Map(rg *entity.ResourceGroup) map[string]any {
 	for i := 0; i < v.NumField(); i++ {
 		field := v.Type().Field(i)
 		value := v.Field(i).Interface()
+		s, ok := field.Tag.Lookup("json")
+		if !ok {
+			return nil, fmt.Errorf("the JSON tag for the %s field in the ResourceGroup does not exist", field.Name)
+		}
+		ss := strings.Split(s, ",")
+		if len(ss) == 0 {
+			return nil, fmt.Errorf("invalid json tag: %s", s)
+		}
+		tag := strings.TrimSpace(ss[0])
 
 		switch fieldValue := value.(type) {
 		case map[string]string:
 			// Handle the map field by iterating its keys and values.
 			for key, val := range fieldValue {
-				result[field.Name+"."+key] = val
+				result[tag+"."+key] = val
+			}
+		case string:
+			// For non-map fields, directly add them to the result map.
+			// TODO: use pointers instead of null values to determine if a field exists
+			if fieldValue != "" {
+				result[tag] = value
 			}
 		default:
-			// For non-map fields, directly add them to the result map.
-			result[field.Name] = value
+			return nil, fmt.Errorf("type %T not supported", fieldValue)
 		}
 	}
 
-	return result
+	return result, nil
 }
