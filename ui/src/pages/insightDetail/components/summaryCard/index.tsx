@@ -199,6 +199,16 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               ))}
             </>
           )}
+          {summary?.annotations && (
+            <>
+              {Object?.entries(summary?.annotations)?.map(([k, v]) => (
+                <div key={`${k}_${v}`} className={styles.item}>
+                  <div className={styles.label}>{k}</div>
+                  <PopoverCard data={v} />
+                </div>
+              ))}
+            </>
+          )}
           {summary?.countByGVK ? renderStatistics(summary?.countByGVK) : null}
         </div>
       </div>

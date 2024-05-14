@@ -169,7 +169,7 @@ const ClusterCertificate = () => {
       }
       if (info.file.status === 'done') {
         if (info?.file?.response?.success) {
-          message.success(`${info.file.name}${t('UploadSuccessful')}`)
+          message.success(`${info.file.name} ${t('UploadSuccessful')}`)
           form.setFieldsValue({
             kubeConfig: info?.file?.response?.data?.content,
           })

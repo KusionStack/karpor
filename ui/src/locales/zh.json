@@ -102,5 +102,7 @@
   "View": "查看",
   "AllTags": "所有标签",
   "DuplicateData": "数据重复，请重新检查",
-  "AreYouSureDeleteResourceGroupRule": "您确定要删除此资源组规则吗？"
+  "AreYouSureDeleteResourceGroupRule": "您确定要删除此资源组规则吗？",
+  "Copy": "复制",
+  "CopySuccess": "复制成功"
 }

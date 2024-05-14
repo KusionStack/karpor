@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Empty, Input, Pagination, Tabs, message } from 'antd'
+import { Button, Empty, Input, Pagination, message } from 'antd'
 import {
   EditOutlined,
   SearchOutlined,
@@ -23,6 +23,7 @@ import QuotaContent from './components/quotaContent'
 
 import styles from './styles.module.less'
 import { useSelector } from 'react-redux'
+import { InsightTabs } from './components/insightTabs'
 
 const orderIconStyle: React.CSSProperties = {
   marginLeft: 0,
@@ -340,12 +341,16 @@ const Insight = () => {
       return Date?.parse(a?.createdAt) - Date?.parse(b?.createdAt)
     })
     ?.map(item => {
-      const isDisabledEdit = item?.name === 'namespace'
+      const isDisabledEdit = item?.name === 'namespace' || isReadOnlyMode
       return {
         ...item,
         key: item?.name,
         label: item?.name,
-        closeIcon: isDisabledEdit ? null : <EditOutlined />,
+        closeIcon: isDisabledEdit ? null : (
+          <EditOutlined
+            style={{ fontSize: 12, color: `rgba(0, 0, 0, 0.45)` }}
+          />
+        ),
       }
     })
 
@@ -353,8 +358,8 @@ const Insight = () => {
     handleClickItem(key)
   }
 
-  function onEdit(targetKey, action) {
-    action === 'add' ? setOpen(true) : handleClickSetting(targetKey)
+  function onEdit(action, key) {
+    action === 'add' ? setOpen(true) : handleClickSetting(key)
   }
 
   return (
@@ -363,15 +368,14 @@ const Insight = () => {
         <div className={styles.pageTitle}>{t('Insight')}</div>
         <QuotaContent statsData={statsData} />
         <div className={styles.content}>
-          <div>
-            <Tabs
-              activeKey={activeTabKey}
-              type={isReadOnlyMode ? 'card' : 'editable-card'}
-              items={tabsItems}
-              onChange={handleChangeTag}
-              onEdit={onEdit}
-            />
-          </div>
+          <InsightTabs
+            items={tabsItems}
+            addIsDiasble={isReadOnlyMode}
+            activeKey={activeTabKey}
+            handleClickItem={handleChangeTag}
+            onEdit={onEdit}
+            disabledAdd={isReadOnlyMode}
+          />
           <div className={styles.action_bar}>
             <div className={styles.action_bar_left}>
               <Input

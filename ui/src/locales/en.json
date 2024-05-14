@@ -102,5 +102,7 @@
   "View": "View",
   "AllTags": "All Tags",
   "DuplicateData": "Duplicate data, please recheck",
-  "AreYouSureDeleteResourceGroupRule": "Are you sure to delete this resource group rule?"
+  "AreYouSureDeleteResourceGroupRule": "Are you sure to delete this resource group rule?",
+  "Copy": "Copy",
+  "CopySuccess": "Copy successful"
 }

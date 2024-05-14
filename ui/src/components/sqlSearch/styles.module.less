@@ -1,8 +1,8 @@
 .karpor_editor_container {
+  width: 100%;
   background: #f1f1f1;
   border: 8px solid #f1f1f1;
   border-radius: 40px;
-  width: 100%;
   box-sizing: border-box;
 
   .karpor_editor {
@@ -15,16 +15,16 @@
       height: 40px;
       padding-left: 10px;
       margin-right: 10px;
+      overflow: hidden;
       font-size: 14px;
       line-height: 40px;
       color: #999;
       text-align: center;
+      text-overflow: ellipsis;
+      white-space: nowrap;
       background: #f1f1f1;
       border-radius: 40px 0 0 40px;
       box-sizing: border-box;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .karpor_editor_content {

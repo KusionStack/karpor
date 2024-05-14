@@ -223,7 +223,7 @@ const TopologyMap = ({
               >
                 {displayName}
               </NodeLabel>
-              {(type === 'cluster' || type === 'namespace') && (
+              {'count' in (cfg?.data || {}) && (
                 <Text
                   onClick={event => handleMouseEnter(event)}
                   style={{

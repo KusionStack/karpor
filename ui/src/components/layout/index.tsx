@@ -171,7 +171,7 @@ const LayoutPage = () => {
         <div className={styles.right}>
           {isReadOnlyMode && (
             <div className={styles.read_only_mode}>
-              <img src={showPng} />
+              <img className={styles.read_only_mode_img} src={showPng} />
               <span>{t('ReadOnlyMode')}</span>
             </div>
           )}
