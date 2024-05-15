@@ -33,7 +33,7 @@ const CardContent = ({ allTags, handleClick, group }: IProps) => {
                 ...tagStyle,
                 marginBottom: index === allTags?.length - 1 ? 0 : 5,
               }}
-            >{`${item?.key}:${item?.value}`}</Tag>
+            >{`${item?.key}: ${item?.value}`}</Tag>
           </div>
         )
       })}

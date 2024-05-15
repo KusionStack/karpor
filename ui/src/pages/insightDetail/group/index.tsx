@@ -89,11 +89,13 @@ const ClusterDetail = () => {
         const sqlParams = generateSqlParams({
           ...tmp?.data?.resourceGroup,
           cluster: resultUrlParams?.cluster || selectedCluster,
+          ...generateUrlSqlParams(),
         })
         const queryStr = `select * from resources where ${sqlParams} `
         setTableQueryStr(queryStr)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     selectedCluster,
     resultUrlParams?.cluster,
@@ -279,12 +281,31 @@ const ClusterDetail = () => {
     setCurrentItem(item)
   }
 
+  function generateUrlSqlParams() {
+    const { labels, annotations } = resultUrlParams || {}
+    const urlSqlParams = {}
+    if (labels) {
+      Object.entries(labels)?.forEach(([k, v]) => {
+        const key = '`' + `labels.${k}` + '`'
+        urlSqlParams[key] = v
+      })
+    }
+    if (annotations) {
+      Object.entries(annotations)?.forEach(([k, v]) => {
+        const key = '`' + `annotations.${k}` + '`'
+        urlSqlParams[key] = v
+      })
+    }
+    return urlSqlParams
+  }
+
   async function onTopologyNodeClick(node) {
     const { resourceGroup } = node?.data || {}
     setTableName(resourceGroup?.kind)
     const sqlParams = generateSqlParams({
       ...resourceGroup,
       cluster: resultUrlParams?.cluster || selectedCluster,
+      ...generateUrlSqlParams(),
     })
     const sqlStr = `select * from resources where ${sqlParams}`
     setTableQueryStr(sqlStr)

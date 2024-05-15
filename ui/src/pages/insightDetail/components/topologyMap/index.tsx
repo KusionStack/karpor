@@ -223,7 +223,7 @@ const TopologyMap = ({
               >
                 {displayName}
               </NodeLabel>
-              {'count' in (cfg?.data || {}) && (
+              {typeof cfg?.data?.count === 'number' && (
                 <Text
                   onClick={event => handleMouseEnter(event)}
                   style={{
@@ -445,6 +445,7 @@ const TopologyMap = ({
         <div ref={ref} id="overviewContainer" className={styles.g6_overview}>
           <div className={styles.cluster_select}>
             <Select
+              style={{ minWidth: 100 }}
               placeholder=""
               value={selectedCluster}
               onChange={handleChangeCluster}

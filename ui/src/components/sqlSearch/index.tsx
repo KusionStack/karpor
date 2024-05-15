@@ -438,7 +438,7 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 border-right: none;
                 border-left: none;
                 height: 40px;
-                width: 100%;
+                width: ${editorRef?.current?.offsetWidth}px;
                 line-height: 40px;
                 font-size: 14px;
                 padding: 0;
