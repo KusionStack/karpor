@@ -62,6 +62,12 @@ const ClusterDetail = () => {
     return obj
   }
 
+  function generateSqlParams(sqlParamsObj = {}) {
+    return Object.entries(sqlParamsObj)
+      ?.map(([k, v]) => ` ${k} = '${v || ''}' `)
+      ?.join('and')
+  }
+
   useEffect(() => {
     if (selectedCluster) {
       const result = generateTopologyData(multiTopologyData?.[selectedCluster])
@@ -80,7 +86,11 @@ const ClusterDetail = () => {
         }
       })
       if (tmp) {
-        const queryStr = `select * from resources where cluster = '${resultUrlParams?.cluster || selectedCluster}' and apiVersion = '${tmp?.data?.resourceGroup?.apiVersion}' and kind = 'Pod'`
+        const sqlParams = generateSqlParams({
+          ...tmp?.data?.resourceGroup,
+          cluster: resultUrlParams?.cluster || selectedCluster,
+        })
+        const queryStr = `select * from resources where ${sqlParams} `
         setTableQueryStr(queryStr)
       }
     }
@@ -272,7 +282,11 @@ const ClusterDetail = () => {
   async function onTopologyNodeClick(node) {
     const { resourceGroup } = node?.data || {}
     setTableName(resourceGroup?.kind)
-    const sqlStr = `select * from resources where cluster = '${resourceGroup?.cluster || selectedCluster}' and apiVersion = '${resourceGroup?.apiVersion}' and kind = '${resourceGroup?.kind}'`
+    const sqlParams = generateSqlParams({
+      ...resourceGroup,
+      cluster: resultUrlParams?.cluster || selectedCluster,
+    })
+    const sqlStr = `select * from resources where ${sqlParams}`
     setTableQueryStr(sqlStr)
   }
 
