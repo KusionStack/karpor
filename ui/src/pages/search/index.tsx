@@ -69,7 +69,7 @@ const SearchPage = () => {
   function renderMoreSqlExamples() {
     const sqlExamples = [
       `kind='Service' order by creationTimestamp desc`,
-      `kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'`,
+      `kind='Deployment' and creationTimestamp > '2024-01-01T18:00:00Z'`,
     ]
     return renderSqlExamples(sqlExamples)
   }
@@ -156,7 +156,7 @@ const SearchPage = () => {
                     className={styles.karpor_tag}
                     onClick={() =>
                       handleClickSql(
-                        `where kind='Pod' and creationTimestamp between '2024-01-01T18:00:00Z' and '2024-01-11T18:00:00Z' order by creationTimestamp`,
+                        `where kind='Pod' and creationTimestamp between '2024-01-01T18:00:00Z' and '2025-01-11T18:00:00Z' order by creationTimestamp`,
                       )
                     }
                   >
@@ -165,7 +165,7 @@ const SearchPage = () => {
                     <span className={styles.keyword}>where </span>
                     kind='Pod' and creationTimestamp between
                     '2024-01-01T18:00:00Z'
-                    <br /> and '2024-01-11T18:00:00Z' order by creationTimestamp
+                    <br /> and '2025-01-11T18:00:00Z' order by creationTimestamp
                   </div>
                   <div className={styles.toggle_button} onClick={toggleTags}>
                     <span>
