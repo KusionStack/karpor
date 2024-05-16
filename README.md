@@ -99,7 +99,9 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 
 ### Install with Helm
 
-[Helm](https://github.com/helm/helm) is a tool for managing packages of pre-configured kubernetes resources.
+Karpor can be simply installed by helm v3.5+, which is a simple command-line tool and you can get it from [here](https://helm.sh/docs/intro/install/).
+
+If you are interested, you can also directly view the [Karpor Chart Repo](https://github.com/KusionStack/charts).
 
 ```bash
 $ helm repo add kusionstack https://kusionstack.github.io/charts
