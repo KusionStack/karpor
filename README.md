@@ -43,7 +43,7 @@
 
 ## What is Karpor?
 
-Karpor is a Modern **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has features such as `non-invasive`, `read-only`, `secure`, and `multi-cloud` and `multi-cluster` support, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
+Karpor is a Modern **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has keywords such as `self-host`, `non-invasive`, `read-only`, `secure compliance`, `multi-cloud/multi-cluster support`, `custom logical view`, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
@@ -115,11 +115,13 @@ Detailed documentation is available at [Karpor Website](https://kusionstack.io/k
 
 ## 🤝 How to contribute
 
-Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. Visit the [Contribution Guide](CONTRIBUTING.md) to understand how to participate in the contribution Karpor project. If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
+Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. 
+- Visit the [Contribution Guide](https://kusionstack-io-dev.vercel.app/karpor/next/developer-guide/contribution-guide) to understand how to participate in the contribution Karpor project. 
+- If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
 
 ## 🎖︎ Contributors
 
-Thanks all! Come and join us! 🍻
+Thanks all! Come and [join us](https://kusionstack-io-dev.vercel.app/karpor/next/developer-guide/contribution-guide)! 🍻
 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
