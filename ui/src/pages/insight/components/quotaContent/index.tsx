@@ -53,7 +53,7 @@ const QuotaContent = ({ statsData }: IProps) => {
       </div>
       <div className={styles.item}>
         <QuotaCard
-          title="Total ResourceGroup"
+          title="Total ResourceGroupRules"
           value={statsData?.resourceGroupRuleCount}
           bgColor="#e6f1ff"
           iconNode={
