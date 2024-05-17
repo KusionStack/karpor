@@ -425,7 +425,7 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
         <div className={styles.karpor_editor_prefix}>{searchSqlPrefix}</div>
         <div className={styles.karpor_editor_content}>
           <div
-            style={{ width: '100%', flex: 1 }}
+            style={{ flex: 1, width: 100 }}
             ref={editorRef}
             className={css`
               .cm-editor .cm-scroller {
@@ -433,12 +433,10 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 box-sizing: border-box;
                 background: #fff;
                 border: none;
+                overflow-x: auto;
               }
               .cm-editor .cm-content {
-                border-right: none;
-                border-left: none;
                 height: 40px;
-                width: ${editorRef?.current?.offsetWidth}px;
                 line-height: 40px;
                 font-size: 14px;
                 padding: 0;

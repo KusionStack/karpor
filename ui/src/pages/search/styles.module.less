@@ -4,6 +4,7 @@
   height: 100%;
   justify-content: center;
   align-items: center;
+  box-sizing: border-box;
 
   .search {
     display: flex;
@@ -15,7 +16,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      margin-left: -32px;
       font-size: 28px;
       font-weight: bold;
     }
@@ -26,13 +26,12 @@
 
     .searchTab {
       display: flex;
-      width: 650px;
       padding: 20px 0;
       justify-content: center;
+      margin-left: 32px;
     }
 
     .examples {
-      width: 800px;
       height: 130px;
       max-height: 260px;
       padding: 15px;
@@ -177,27 +176,124 @@
   animation: cursor-blinks 1.5s infinite steps(1, start);
 }
 
-.CodeMirror {
-  height: 35px;
-
-  /* 设置固定高度 */
-  overflow: auto;
-
-  /* 禁止自动换行 */
-  word-wrap: normal;
-
-  /* 允许出现滚动条 */
-  white-space: pre;
-
-  /* 禁止自动换行 */
+@media screen and (max-width: 640px) {
+  .search_container {
+    .search {
+      .title {
+        width: 300px;
+      }
+    }
+    .search_codemirror_container {
+      width: 550px;
+    }
+    .examples {
+      width: 500px;
+    }
+  }
 }
 
-/* 移除CodeMirror聚焦时的外部轮廓 */
-.CodeMirror-focused {
-  outline: none;
+@media screen and (min-width: 641px) and (max-width: 768px) {
+  .search_container {
+    .search {
+      .title {
+        width: 300px;
+      }
+    }
+    .search_codemirror_container {
+      min-width: 570px;
+      width: 80%;
+      max-width: 680px;
+    }
+    .examples {
+      width: 600px;
+    }
+  }
 }
 
-/* 在CSS中禁止CodeMirror的换行 */
-.CodeMirror-line {
-  white-space: pre !important;
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .search_container {
+    .search {
+      .title {
+        width: 300px;
+      }
+    }
+    .search_codemirror_container {
+      width: 80%;
+    }
+    .examples {
+      width: 700px;
+    }
+  }
+}
+
+@media screen and (min-width: 1024px) and (max-width: 1280px) {
+  .search_container {
+    .search {
+      .title {
+        width: 400px;
+      }
+    }
+    .search_codemirror_container {
+      min-width: 880px;
+      width: 900px;
+      max-width: 1000px;
+    }
+    .examples {
+      width: 800px;
+    }
+  }
+}
+
+@media screen and (min-width: 1280px) and (max-width: 1536px) {
+  .search_container {
+    .search {
+      .title {
+        width: 400px;
+      }
+    }
+    .search_codemirror_container {
+      min-width: 900px;
+      width: 1100px;
+      max-width: 1400px;
+    }
+    .examples {
+      width: 800px;
+    }
+  }
+}
+
+@media screen and (min-width: 1536px) and (max-width: 1920px) {
+  .search_container {
+    .search {
+      .title {
+        width: 400px;
+      }
+    }
+    .search_codemirror_container {
+      min-width: 1200px;
+      width: 1300px;
+      max-width: 1700px;
+    }
+    .examples {
+      width: 800px;
+    }
+  }
+}
+
+@media screen and (min-width: 1920px) {
+  .search_container {
+    .search {
+      .title {
+        width: 400px;
+      }
+    }
+    .search_codemirror_container {
+      min-width: 1200px;
+      width: 1300px;
+      max-width: 1700px;
+    }
+    .examples {
+      width: 800px;
+    }
+  }
 }

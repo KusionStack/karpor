@@ -104,5 +104,8 @@
   "DuplicateData": "Duplicate data, please recheck",
   "AreYouSureDeleteResourceGroupRule": "Are you sure to delete this resource group rule?",
   "Copy": "Copy",
-  "CopySuccess": "Copy successful"
+  "CopySuccess": "Copy successful",
+  "TotalResourceGroupRules": "Total ResourceGroupRules",
+  "TotalResources": "Total Resources",
+  "ClusterCount": "Cluster Count"
 }

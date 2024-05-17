@@ -5,6 +5,7 @@ import insightResourceGroupPng from '@/assets/insight_resources_group.png'
 import QuotaCard from './quotaCard'
 
 import styles from './styles.module.less'
+import { useTranslation } from 'react-i18next'
 
 type IProps = {
   statsData: {
@@ -15,11 +16,12 @@ type IProps = {
 }
 
 const QuotaContent = ({ statsData }: IProps) => {
+  const { t } = useTranslation()
   return (
     <div className={styles.stat}>
       <div className={styles.item}>
         <QuotaCard
-          title="Cluster Count"
+          title={t('ClusterCount')}
           value={statsData?.clusterCount}
           bgColor="#eaf3ed"
           iconNode={
@@ -36,7 +38,7 @@ const QuotaContent = ({ statsData }: IProps) => {
       </div>
       <div className={styles.item}>
         <QuotaCard
-          title="Total Resources"
+          title={t('TotalResources')}
           value={statsData?.resourceCount}
           bgColor="#fbf4e7"
           iconNode={
@@ -53,7 +55,7 @@ const QuotaContent = ({ statsData }: IProps) => {
       </div>
       <div className={styles.item}>
         <QuotaCard
-          title="Total ResourceGroupRules"
+          title={t('TotalResourceGroupRules')}
           value={statsData?.resourceGroupRuleCount}
           bgColor="#e6f1ff"
           iconNode={

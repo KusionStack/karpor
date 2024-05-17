@@ -2,9 +2,10 @@ import { SearchOutlined } from '@ant-design/icons'
 import { Button, Input, Space, Table, message } from 'antd'
 import axios from 'axios'
 import queryString from 'query-string'
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
+import useDebounce from '@/hooks/useDebounce'
 
 import styles from './style.module.less'
 
@@ -30,6 +31,9 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   const [tableData, setTableData] = useState([])
   const urlSearchParams = queryString?.parse(location?.search)
   const [loading, setLoading] = useState(false)
+  const [keyword, setKeyword] = useState('')
+
+  const debouncedValue = useDebounce(keyword, 500)
 
   function goResourcePage(record) {
     const nav = record?.object?.kind === 'Namespace' ? 'namespace' : 'resource'
@@ -54,37 +58,29 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       dataIndex: 'name',
       key: 'name',
       title: t('Name'),
-      render: (_, record) => {
-        return (
-          <Button type="link" onClick={() => goResourcePage(record)}>
-            {record?.object?.metadata?.name}
-          </Button>
-        )
-      },
+      render: (_, record) => (
+        <Button type="link" onClick={() => goResourcePage(record)}>
+          {record?.object?.metadata?.name}
+        </Button>
+      ),
     },
     {
       dataIndex: 'namespace',
       key: 'namespace',
       title: 'Namespace',
-      render: (_, record) => {
-        return record?.object?.metadata?.namespace
-      },
+      render: (_, record) => record?.object?.metadata?.namespace,
     },
     {
       dataIndex: 'apiVersion',
       key: 'apiVersion',
       title: 'APIVersion',
-      render: (_, record) => {
-        return record?.object?.apiVersion
-      },
+      render: (_, record) => record?.object?.apiVersion,
     },
     {
       dataIndex: 'kind',
       key: 'kind',
       title: 'Kind',
-      render: (_, record) => {
-        return record?.object?.kind
-      },
+      render: (_, record) => record?.object?.kind,
     },
   ]
 
@@ -92,7 +88,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     const { current, pageSize } = pageParams
     setLoading(true)
     const response: any = await axios.get(
-      `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}`,
+      `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}&keyword=${params?.keyword || ''}`,
     )
     if (response?.success) {
       setTableData(response?.data?.items || [])
@@ -108,15 +104,30 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
 
   useEffect(() => {
     if (queryStr) {
+      setKeyword('')
       queryTableData({ current: 1, pageSize: pageParams?.pageSize })
     }
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [queryStr])
 
   function handleTableChange({ current, pageSize }) {
-    queryTableData({ current, pageSize })
+    queryTableData({ current, pageSize, keyword: debouncedValue })
   }
+
+  const search = useCallback(() => {
+    queryTableData({
+      current: 1,
+      pageSize: pageParams?.pageSize,
+      keyword: debouncedValue,
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue])
+
+  useEffect(() => {
+    if (debouncedValue) {
+      search()
+    }
+  }, [debouncedValue, search])
 
   return (
     <div>
@@ -131,7 +142,10 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
         </div>
         <Space style={{ marginBottom: 10 }}>
           <Input
+            value={keyword}
+            allowClear
             disabled
+            onChange={event => setKeyword(event?.target?.value)}
             placeholder={t('FilterByName')}
             suffix={<SearchOutlined />}
           />
