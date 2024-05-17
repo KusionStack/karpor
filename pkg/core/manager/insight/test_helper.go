@@ -229,13 +229,12 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			},
 			Count: 1,
 			Relationship: map[string]string{
-				".v1.Node":                  "parent",
-				".v1.PersistentVolumeClaim": "child",
-				".v1.Secret":                "child",
-				".v1.Service":               "parent",
-				"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": "parent",
-				"apps.v1.ReplicaSet":                             "parent",
-				"policy.v1beta1.PodDisruptionBudget":             "parent",
+				".v1.Node":                           "parent",
+				".v1.PersistentVolumeClaim":          "child",
+				".v1.Secret":                         "child",
+				".v1.Service":                        "parent",
+				"apps.v1.ReplicaSet":                 "parent",
+				"policy.v1beta1.PodDisruptionBudget": "parent",
 			},
 		},
 		".v1.Secret": {
@@ -258,29 +257,6 @@ func mockClusterTopologyMapForCluster() map[string]ClusterTopology {
 			Count: 1,
 			Relationship: map[string]string{
 				".v1.Pod": "child",
-			},
-		},
-		"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": {
-			ResourceGroup: entity.ResourceGroup{
-				Cluster:    "existing-cluster",
-				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
-				Kind:       "CafeDeployment",
-			},
-			Count: 1,
-			Relationship: map[string]string{
-				"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": "child",
-			},
-		},
-		"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": {
-			ResourceGroup: entity.ResourceGroup{
-				Cluster:    "existing-cluster",
-				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
-				Kind:       "InPlaceSet",
-			},
-			Count: 1,
-			Relationship: map[string]string{
-				".v1.Pod": "child",
-				"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": "parent",
 			},
 		},
 		"apps.v1.Deployment": {
@@ -369,13 +345,12 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 			Count: 1,
 			Relationship: map[string]string{
-				".v1.Node":                  "parent",
-				".v1.PersistentVolumeClaim": "child",
-				".v1.Secret":                "child",
-				".v1.Service":               "parent",
-				"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": "parent",
-				"apps.v1.ReplicaSet":                             "parent",
-				"policy.v1beta1.PodDisruptionBudget":             "parent",
+				".v1.Node":                           "parent",
+				".v1.PersistentVolumeClaim":          "child",
+				".v1.Secret":                         "child",
+				".v1.Service":                        "parent",
+				"apps.v1.ReplicaSet":                 "parent",
+				"policy.v1beta1.PodDisruptionBudget": "parent",
 			},
 		},
 		".v1.Secret": {
@@ -400,31 +375,6 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			Count: 1,
 			Relationship: map[string]string{
 				".v1.Pod": "child",
-			},
-		},
-		"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": {
-			ResourceGroup: entity.ResourceGroup{
-				Cluster:    "existing-cluster",
-				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
-				Kind:       "CafeDeployment",
-				Namespace:  "default",
-			},
-			Count: 1,
-			Relationship: map[string]string{
-				"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": "child",
-			},
-		},
-		"apps.cafe.cloud.alipay.com.v1alpha1.InPlaceSet": {
-			ResourceGroup: entity.ResourceGroup{
-				Cluster:    "existing-cluster",
-				APIVersion: "apps.cafe.cloud.alipay.com/v1alpha1",
-				Kind:       "InPlaceSet",
-				Namespace:  "default",
-			},
-			Count: 1,
-			Relationship: map[string]string{
-				".v1.Pod": "child",
-				"apps.cafe.cloud.alipay.com.v1alpha1.CafeDeployment": "parent",
 			},
 		},
 		"apps.v1.Deployment": {
