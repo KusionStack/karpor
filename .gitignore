@@ -39,6 +39,8 @@ __debug_bin
 # build
 dist/
 build/
+ui/build/*
+!ui/build/.gitkeep
 _build/
 
 # log
