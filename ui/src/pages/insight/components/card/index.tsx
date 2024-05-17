@@ -43,17 +43,34 @@ const CardContent = ({ allTags, handleClick, group }: IProps) => {
   return (
     <div className={styles.insight_card}>
       <div className={styles.content}>
-        <div className={styles.content_left}>{title?.slice(0, 1)}</div>
+        <div
+          className={styles.content_left}
+          onClick={() => handleClick(group, title)}
+        >
+          {title?.slice(0, 1)}
+        </div>
         <div className={styles.content_right}>
           <Tooltip title={title}>
-            <div className={styles.title}>{title}</div>
+            <div
+              className={styles.title}
+              onClick={() => handleClick(group, title)}
+            >
+              {title}
+            </div>
           </Tooltip>
           <div className={styles.tag_container}>
             {allTags?.slice(0, 2)?.map(item => {
               return (
-                <Tag style={tagStyle} key={item?.key}>
-                  {`${item?.key}: ${item?.value}`}
-                </Tag>
+                <Popover
+                  key={item?.key}
+                  content={
+                    <span>
+                      {item?.key}: {item?.value}
+                    </span>
+                  }
+                >
+                  <Tag style={tagStyle}>{`${item?.key}: ${item?.value}`}</Tag>
+                </Popover>
               )
             })}
           </div>
