@@ -21,7 +21,5 @@
 /config/config.local.ts
 /yarn.lock
 /.nyc_output
-/build
 .DS_Store
 /src/.DS_Store
-

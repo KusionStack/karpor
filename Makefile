@@ -138,7 +138,7 @@ build-server-windows: ## Build server for Windows
 .PHONY: build-ui
 build-ui: ## Build UI for the dashboard
 	@echo "Building UI for the dashboard ..."
-	cd ui && npm install && npm run build
+	cd ui && npm install && npm run build && touch build/.gitkeep
 
 .PHONY: check-license
 check-license:  ## Checks if repo files contain valid license header

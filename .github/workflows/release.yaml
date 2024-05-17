@@ -113,6 +113,7 @@ jobs:
           # It bypasses the 'process.env.CI = true' setting in CI environments
           # that treats warnings as errors, ensuring a successful build.
           CI=false npm run build
+          touch build/.gitkeep
 
       - name: Release the karpor with GoReleaser
         uses: goreleaser/goreleaser-action@v2
