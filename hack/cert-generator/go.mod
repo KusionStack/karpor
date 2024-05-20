@@ -1,4 +1,4 @@
-module github.com/KusionStack/karpor/hack/cert-generator
+module kusionstack.io/karpor/hack/cert-generator
 
 go 1.19
 

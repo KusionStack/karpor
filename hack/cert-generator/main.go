@@ -18,12 +18,12 @@ import (
 	"context"
 	"os"
 
-	"github.com/KusionStack/karpor/hack/cert-generator/generator"
 	"github.com/spf13/cobra"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/component-base/cli"
+	"kusionstack.io/karpor/hack/cert-generator/generator"
 )
 
 func main() {
