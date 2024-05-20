@@ -2,7 +2,7 @@ import { Text } from '@antv/g6-react-node'
 import React from 'react'
 
 const NodeLabel = (NodeLabelProps: {
-  width: number
+  width?: number
   color?: string
   children?: string
   onClick?: (evt) => void
@@ -29,7 +29,6 @@ const NodeLabel = (NodeLabelProps: {
         width,
         fill: color,
         cursor: disabled ? 'not-allowed' : 'pointer',
-        fontSize: '16px',
         ...customStyle,
       }}
       onClick={onClick}
