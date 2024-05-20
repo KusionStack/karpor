@@ -64,7 +64,7 @@ header:
     - '.vscode/**'
     - '.dist/**'
     - '.husky/**'
-    - 'hack/**'
+    - 'hack/*'
     - 'LICENSE'
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
