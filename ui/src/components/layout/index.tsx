@@ -6,6 +6,7 @@ import {
   QuestionCircleOutlined,
   SearchOutlined,
   CaretDownOutlined,
+  GithubOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -193,6 +194,15 @@ const LayoutPage = () => {
             <a
               target="_blank"
               href="https://github.com/KusionStack/karpor"
+              rel="noreferrer"
+            >
+              <GithubOutlined style={{ color: '#646566' }} />
+            </a>
+          </div>
+          <div className={styles.help}>
+            <a
+              target="_blank"
+              href="https://kusionstack.io/karpor"
               rel="noreferrer"
             >
               <QuestionCircleOutlined style={{ color: '#646566' }} />

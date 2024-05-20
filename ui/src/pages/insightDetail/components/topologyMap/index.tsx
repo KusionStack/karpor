@@ -1,6 +1,5 @@
 import React, { memo, useLayoutEffect, useRef, useState } from 'react'
 import { Select } from 'antd'
-import ReactDOM from 'react-dom'
 import G6 from '@antv/g6'
 import type { IAbstractGraph, IG6GraphEvent } from '@antv/g6'
 import type { Point } from '@antv/g-base/lib/types'
@@ -12,7 +11,7 @@ import {
   createNodeFromReact,
   appenAutoShapeListener,
   Image,
-  Text,
+  // Text,
 } from '@antv/g6-react-node'
 import Loading from '@/components/loading'
 import transferPng from '@/assets/transfer.png'
@@ -62,8 +61,8 @@ const OverviewTooltip = memo((props: propsType) => {
     background: '#fff',
     border: '1px solid #f5f5f5',
     position: 'absolute',
-    top: props?.hiddenButtonInfo?.y - 20 || -500,
-    left: props?.hiddenButtonInfo?.x + (props?.itemWidth || 100) / 2 || -500,
+    top: props?.hiddenButtonInfo?.y - 60 || -500,
+    left: props?.hiddenButtonInfo?.x || -500,
     zIndex: 5,
     padding: 10,
     borderRadius: 8,
@@ -163,6 +162,7 @@ const TopologyMap = ({
   }
 
   function handleClickNode(cfg) {
+    setTooltipopen(false)
     onTopologyNodeClick(cfg)
   }
 
@@ -214,7 +214,11 @@ const TopologyMap = ({
                 onClick={() => handleClickNode(cfg)}
                 onMouseOver={evt => handleMouseEnter(evt)}
                 onMouseLeave={evt => handleMouseLeave(evt)}
-                width={getTextSize(getName(cfg), 190, 16)}
+                width={getTextSize(
+                  getName(cfg),
+                  type !== 'cluster' ? 240 : 190,
+                  16,
+                )}
                 customStyle={{
                   fill: '#000',
                   fontSize: 16,
@@ -224,16 +228,16 @@ const TopologyMap = ({
                 {displayName}
               </NodeLabel>
               {typeof cfg?.data?.count === 'number' && (
-                <Text
+                <NodeLabel
                   onClick={event => handleMouseEnter(event)}
-                  style={{
+                  customStyle={{
                     fill: '#000',
-                    fontSize: '16px',
-                    margin: [10, 0],
+                    fontSize: 16,
+                    margin: [5, 0],
                   }}
                 >
                   {`${cfg?.data?.count}`}
-                </Text>
+                </NodeLabel>
               )}
             </Rect>
             {type === 'cluster' && (
@@ -309,20 +313,19 @@ const TopologyMap = ({
   )
 
   useLayoutEffect(() => {
+    setTooltipopen(false)
     if (topologyData) {
       ;(async () => {
         const container = document.getElementById('overviewContainer')
         const width = container?.scrollWidth || 800
         const height = container?.scrollHeight || 400
         const toolbar = new G6.ToolBar()
-        if (!graph) {
+        if (!graph && container) {
           // eslint-disable-next-line
           graphRef.current = graph = new G6.Graph({
-            // eslint-disable-next-line react/no-find-dom-node
-            container: ReactDOM.findDOMNode(ref.current) as HTMLElement,
+            container,
             width,
             height,
-            renderer: 'svg',
             fitCenter: true,
             fitView: true,
             fitViewPadding: 20,
@@ -340,9 +343,8 @@ const TopologyMap = ({
             },
             defaultNode: {
               type: 'card-node',
-              size: [250, 50],
+              size: [240, 45],
             },
-
             defaultEdge: {
               type: 'polyline',
               sourceAnchor: 1,
@@ -417,7 +419,7 @@ const TopologyMap = ({
                 !container.scrollHeight
               )
                 return
-              graph.changeSize(container.scrollWidth, container.scrollHeight)
+              graph.changeSize(container?.scrollWidth, container?.scrollHeight)
             }
           }
         }
