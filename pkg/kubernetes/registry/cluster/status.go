@@ -19,8 +19,8 @@ package cluster
 import (
 	"context"
 
-	clustermgr "github.com/KusionStack/karpor/pkg/core/manager/cluster"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	clustermgr "kusionstack.io/karpor/pkg/core/manager/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

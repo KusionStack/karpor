@@ -20,7 +20,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-logr/logr"
 )

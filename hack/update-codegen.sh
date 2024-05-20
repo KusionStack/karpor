@@ -36,13 +36,13 @@ util:create_gopath_tree "${REPO_ROOT}" "${tmp_go_path}"
 #                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
 bash "${CODEGEN_PKG}/generate-groups.sh" all \
-  github.com/KusionStack/karpor/pkg/kubernetes/generated github.com/KusionStack/karpor/pkg/kubernetes/apis \
+  kusionstack.io/karpor/pkg/kubernetes/generated kusionstack.io/karpor/pkg/kubernetes/apis \
   "cluster:v1beta1 search:v1beta1" \
   --output-base "${tmp_go_path}" \
   --go-header-file "${REPO_ROOT}"/hack/boilerplate.go.txt
 
 bash "${CODEGEN_PKG}/generate-internal-groups.sh" "deepcopy,defaulter,conversion,openapi" \
-  github.com/KusionStack/karpor/pkg/kubernetes/generated github.com/KusionStack/karpor/pkg/kubernetes/apis github.com/KusionStack/karpor/pkg/kubernetes/apis \
+  kusionstack.io/karpor/pkg/kubernetes/generated kusionstack.io/karpor/pkg/kubernetes/apis kusionstack.io/karpor/pkg/kubernetes/apis \
   "cluster:v1beta1 search:v1beta1" \
   --output-base "${tmp_go_path}" \
   --go-header-file "${REPO_ROOT}/hack/boilerplate.go.txt"

@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )

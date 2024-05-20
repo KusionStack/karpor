@@ -15,8 +15,8 @@
 package cluster
 
 import (
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/cluster"
+	"kusionstack.io/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/manager/cluster"
 )
 
 // Ensure that ClusterPayload implements the handler.Payload interface.

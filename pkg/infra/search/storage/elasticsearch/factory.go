@@ -15,7 +15,7 @@
 package elasticsearch
 
 import (
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
 	"github.com/elastic/go-elasticsearch/v8"
 )
 

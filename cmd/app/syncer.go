@@ -17,9 +17,9 @@ package app
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karpor/pkg/syncer"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
+	"kusionstack.io/karpor/pkg/syncer"
 	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"

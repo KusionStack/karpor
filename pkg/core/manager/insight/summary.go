@@ -17,8 +17,8 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )

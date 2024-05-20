@@ -25,7 +25,7 @@ import (
 	url "net/url"
 	unsafe "unsafe"
 
-	cluster "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	cluster "kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )

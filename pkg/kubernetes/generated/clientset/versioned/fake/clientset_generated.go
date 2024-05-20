@@ -19,11 +19,11 @@ limitations under the License.
 package fake
 
 import (
-	clientset "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1"
-	fakeclusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1/fake"
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/typed/search/v1beta1"
-	fakesearchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/typed/search/v1beta1/fake"
+	clientset "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned"
+	clusterv1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1"
+	fakeclusterv1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1/fake"
+	searchv1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/typed/search/v1beta1"
+	fakesearchv1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/typed/search/v1beta1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"

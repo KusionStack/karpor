@@ -19,7 +19,7 @@ package syncclusterresources
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"

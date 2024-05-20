@@ -17,7 +17,7 @@ limitations under the License.
 package transformrule
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"

@@ -21,8 +21,8 @@ import (
 	"sync"
 	"sync/atomic"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	searchv1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"

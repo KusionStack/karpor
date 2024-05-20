@@ -19,7 +19,7 @@ package main
 import (
 	"os"
 
-	"github.com/KusionStack/karpor/cmd/app"
+	"kusionstack.io/karpor/cmd/app"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
 )

@@ -18,9 +18,9 @@ import (
 	"context"
 	"errors"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
 )
 
 type ResourceGroupManager struct {

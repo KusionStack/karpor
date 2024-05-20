@@ -19,7 +19,7 @@ package install
 import (
 	"testing"
 
-	clusterfuzzer "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/fuzzer"
+	clusterfuzzer "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/fuzzer"
 	"k8s.io/apimachinery/pkg/api/apitesting/roundtrip"
 )
 

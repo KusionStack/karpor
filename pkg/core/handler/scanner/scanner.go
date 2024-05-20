@@ -18,11 +18,11 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/insight"
-	_ "github.com/KusionStack/karpor/pkg/infra/scanner"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/manager/insight"
+	_ "kusionstack.io/karpor/pkg/infra/scanner"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 )
 

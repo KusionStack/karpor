@@ -24,7 +24,7 @@ package v1beta1
 import (
 	unsafe "unsafe"
 
-	search "github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
+	search "kusionstack.io/karpor/pkg/kubernetes/apis/search"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"

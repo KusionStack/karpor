@@ -17,11 +17,11 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	"github.com/KusionStack/karpor/pkg/infra/topology"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
+	"kusionstack.io/karpor/pkg/infra/topology"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
+	topologyutil "kusionstack.io/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

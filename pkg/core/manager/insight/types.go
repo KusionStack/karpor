@@ -15,7 +15,7 @@
 package insight
 
 import (
-	"github.com/KusionStack/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/core/entity"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )

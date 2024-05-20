@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"

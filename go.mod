@@ -1,4 +1,4 @@
-module github.com/KusionStack/karpor
+module kusionstack.io/karpor
 
 go 1.19
 

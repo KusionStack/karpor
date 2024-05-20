@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"

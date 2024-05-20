@@ -19,9 +19,9 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/kubernetes/registry"
+	"kusionstack.io/karpor/pkg/kubernetes/registry/search"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apiserver/pkg/server"

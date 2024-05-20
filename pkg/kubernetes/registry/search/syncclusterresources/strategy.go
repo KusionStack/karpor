@@ -27,8 +27,8 @@ import (
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/storage/names"
 
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 )
 
 var Strategy = strategy{scheme.Scheme, names.SimpleNameGenerator}

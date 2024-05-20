@@ -19,7 +19,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

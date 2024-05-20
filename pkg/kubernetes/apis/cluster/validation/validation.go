@@ -15,7 +15,7 @@
 package validation
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
 	"k8s.io/apimachinery/pkg/util/validation/field"
 )
 

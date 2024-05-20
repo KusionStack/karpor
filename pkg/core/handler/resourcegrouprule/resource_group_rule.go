@@ -17,9 +17,9 @@ package resourcegrouprule
 import (
 	"net/http"
 
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/manager/resourcegroup"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"

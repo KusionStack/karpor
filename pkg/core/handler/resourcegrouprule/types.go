@@ -17,8 +17,8 @@ package resourcegrouprule
 import (
 	"net/http"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/core/handler"
 	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"

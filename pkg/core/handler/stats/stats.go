@@ -17,9 +17,9 @@ package stats
 import (
 	"net/http"
 
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/insight"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/manager/insight"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 )
 

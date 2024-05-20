@@ -28,8 +28,8 @@ import (
 	"k8s.io/apiserver/pkg/storage"
 	"k8s.io/apiserver/pkg/storage/names"
 
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 )
 
 var Strategy = clusterStrategy{scheme.Scheme, names.SimpleNameGenerator}

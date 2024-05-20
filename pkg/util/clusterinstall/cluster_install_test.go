@@ -17,7 +17,7 @@ package clusterinstall
 import (
 	"testing"
 
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	clusterv1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/rest"
 )

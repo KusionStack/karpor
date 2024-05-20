@@ -19,8 +19,8 @@ import (
 	"net"
 	"net/url"
 
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	clusterv1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"

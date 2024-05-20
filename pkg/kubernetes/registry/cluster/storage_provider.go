@@ -15,9 +15,9 @@
 package cluster
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/registry"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"

@@ -18,7 +18,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-KARPOR_GO_PACKAGE="github.com/KusionStack/karpor"
+KARPOR_GO_PACKAGE="kusionstack.io/karpor"
 
 # util::create_gopath_tree create the GOPATH tree
 # Parameters:

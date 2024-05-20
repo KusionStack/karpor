@@ -15,8 +15,8 @@
 package search
 
 import (
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/kubernetes/registry"
 )
 
 // NewSearchStorage creates a new instance of a search storage component using the provided extra configuration.

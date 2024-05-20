@@ -23,10 +23,10 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/util/sql2es"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/persistence/elasticsearch"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/util/sql2es"
 	"github.com/pkg/errors"
 )
 

@@ -20,8 +20,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/errors"

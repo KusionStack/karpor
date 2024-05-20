@@ -19,8 +19,8 @@ package topology
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
+	topologyutil "kusionstack.io/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"

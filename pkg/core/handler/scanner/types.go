@@ -15,8 +15,8 @@
 package scanner
 
 import (
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/scanner"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/scanner"
 )
 
 // AuditData represents the aggregated data of scanner issues, including the

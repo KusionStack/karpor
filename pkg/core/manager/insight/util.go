@@ -20,12 +20,12 @@ import (
 	"math"
 	"sort"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	"github.com/KusionStack/karpor/pkg/infra/scanner"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
+	"kusionstack.io/karpor/pkg/infra/scanner"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
+	topologyutil "kusionstack.io/karpor/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 

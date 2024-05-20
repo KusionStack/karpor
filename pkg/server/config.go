@@ -15,7 +15,7 @@
 package server
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"kusionstack.io/karpor/pkg/kubernetes/registry"
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )

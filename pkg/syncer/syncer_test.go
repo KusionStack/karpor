@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"

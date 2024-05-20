@@ -15,8 +15,8 @@
 package core
 
 import (
-	podstore "github.com/KusionStack/karpor/pkg/kubernetes/registry/core/pod"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	podstore "kusionstack.io/karpor/pkg/kubernetes/registry/core/pod"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"

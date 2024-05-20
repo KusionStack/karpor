@@ -18,10 +18,10 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/search"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"kusionstack.io/karpor/pkg/core/handler"
+	"kusionstack.io/karpor/pkg/core/manager/search"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/render"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )

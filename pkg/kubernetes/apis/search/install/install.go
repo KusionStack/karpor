@@ -17,8 +17,8 @@ limitations under the License.
 package install
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 )

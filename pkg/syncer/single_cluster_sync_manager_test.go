@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	searchv1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/mock"

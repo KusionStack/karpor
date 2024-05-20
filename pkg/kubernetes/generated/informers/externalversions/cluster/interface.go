@@ -19,8 +19,8 @@ limitations under the License.
 package cluster
 
 import (
-	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/cluster/v1beta1"
-	internalinterfaces "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/informers/externalversions/cluster/v1beta1"
+	internalinterfaces "kusionstack.io/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
 )
 
 // Interface provides access to each of this group's versions.

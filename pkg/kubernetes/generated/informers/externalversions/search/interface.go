@@ -19,8 +19,8 @@ limitations under the License.
 package search
 
 import (
-	internalinterfaces "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
-	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/informers/externalversions/search/v1beta1"
+	internalinterfaces "kusionstack.io/karpor/pkg/kubernetes/generated/informers/externalversions/internalinterfaces"
+	v1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/informers/externalversions/search/v1beta1"
 )
 
 // Interface provides access to each of this group's versions.

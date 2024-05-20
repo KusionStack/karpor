@@ -20,7 +20,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

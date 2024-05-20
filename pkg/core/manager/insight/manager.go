@@ -17,11 +17,11 @@ package insight
 import (
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/scanner"
-	"github.com/KusionStack/karpor/pkg/infra/scanner/kubeaudit"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/util/cache"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/scanner"
+	"kusionstack.io/karpor/pkg/infra/scanner/kubeaudit"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/util/cache"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 

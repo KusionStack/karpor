@@ -19,7 +19,7 @@ package fuzzer
 import (
 	fuzz "github.com/google/gofuzz"
 
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/cluster"
 	runtimeserializer "k8s.io/apimachinery/pkg/runtime/serializer"
 )
 

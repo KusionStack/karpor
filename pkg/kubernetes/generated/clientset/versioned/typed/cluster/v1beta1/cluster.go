@@ -22,8 +22,8 @@ import (
 	"context"
 	"time"
 
-	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	scheme "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/scheme"
+	v1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	scheme "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/scheme"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	types "k8s.io/apimachinery/pkg/types"
 	watch "k8s.io/apimachinery/pkg/watch"

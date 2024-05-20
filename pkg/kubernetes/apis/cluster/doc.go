@@ -18,4 +18,4 @@ limitations under the License.
 // +groupName=cluster.karpor.io
 
 // Package cluster is the internal version of the API.
-package cluster // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+package cluster // import "kusionstack.io/karpor/pkg/kubernetes/apis/cluster"

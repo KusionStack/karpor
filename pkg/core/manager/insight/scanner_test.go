@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/core/entity"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )

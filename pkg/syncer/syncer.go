@@ -20,9 +20,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

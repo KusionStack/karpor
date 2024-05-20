@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
 	"k8s.io/client-go/rest"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 )

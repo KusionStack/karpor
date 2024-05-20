@@ -17,8 +17,8 @@ package insight
 import (
 	"context"
 
-	clustermanager "github.com/KusionStack/karpor/pkg/core/manager/cluster"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clustermanager "kusionstack.io/karpor/pkg/core/manager/cluster"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
 )
 
 // Statistics is a method of the InsightManager struct which provides statistical information.

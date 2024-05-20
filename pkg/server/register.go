@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/KusionStack/karpor/config"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"kusionstack.io/karpor/config"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 	"github.com/pkg/errors"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"

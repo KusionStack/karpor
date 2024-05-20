@@ -18,9 +18,9 @@ import (
 	"context"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/multicluster"
+	topologyutil "kusionstack.io/karpor/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8syaml "sigs.k8s.io/yaml"

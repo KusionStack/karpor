@@ -19,9 +19,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karpor/pkg/syncer/utils"
+	"kusionstack.io/karpor/pkg/infra/search/storage/elasticsearch"
+	"kusionstack.io/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"kusionstack.io/karpor/pkg/syncer/utils"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"

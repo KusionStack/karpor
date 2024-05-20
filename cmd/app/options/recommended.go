@@ -19,9 +19,9 @@ import (
 
 	"github.com/spf13/pflag"
 
-	karporopenapi "github.com/KusionStack/karpor/pkg/kubernetes/generated/openapi"
-	k8sopenapi "github.com/KusionStack/karpor/pkg/kubernetes/openapi"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	karporopenapi "kusionstack.io/karpor/pkg/kubernetes/generated/openapi"
+	k8sopenapi "kusionstack.io/karpor/pkg/kubernetes/openapi"
+	"kusionstack.io/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"

@@ -17,8 +17,8 @@ package scanner
 import (
 	"sort"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/scanner"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/scanner"
 )
 
 // convertScanResultToAuditData converts the scanner.ScanResult to an AuditData

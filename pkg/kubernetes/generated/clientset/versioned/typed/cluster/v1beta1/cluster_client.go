@@ -21,8 +21,8 @@ package v1beta1
 import (
 	"net/http"
 
-	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/scheme"
+	v1beta1 "kusionstack.io/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/scheme"
 	rest "k8s.io/client-go/rest"
 )
 

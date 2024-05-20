@@ -21,8 +21,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"kusionstack.io/karpor/pkg/core/entity"
+	"kusionstack.io/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 )
 

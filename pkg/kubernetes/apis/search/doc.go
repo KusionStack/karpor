@@ -18,4 +18,4 @@ limitations under the License.
 // +groupName=search.karpor.io
 
 // Package search is the internal version of the API.
-package search // import "github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
+package search // import "kusionstack.io/karpor/pkg/kubernetes/apis/search"

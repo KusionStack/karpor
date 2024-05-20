@@ -18,7 +18,7 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/middleware"
+	"kusionstack.io/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/require"
 	"k8s.io/klog/v2"

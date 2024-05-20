@@ -19,7 +19,7 @@ limitations under the License.
 package fake
 
 import (
-	v1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1"
+	v1beta1 "kusionstack.io/karpor/pkg/kubernetes/generated/clientset/versioned/typed/cluster/v1beta1"
 	rest "k8s.io/client-go/rest"
 	testing "k8s.io/client-go/testing"
 )

@@ -17,7 +17,7 @@ package ctxutil
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/middleware"
+	"kusionstack.io/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"
 )
