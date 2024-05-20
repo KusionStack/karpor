@@ -34,7 +34,7 @@ Unsure where to begin contributing to Karpor codebase? Start by browsing issues 
 
 Learn [Code Conventions](./docs/conventions/code-conventions.md) and [Test Conventions](./docs/conventions/test-conventions.md) and understand what to pay attention to when writing code. 
 
-And learn the [Release Process And Cadence](./docs/contributor/release-process.md) to know when your code changes will be released.
+And learn the [Release Process And Cadence](./docs/conventions/release-process.md) to know when your code changes will be released.
 
 ### Become a community member
 

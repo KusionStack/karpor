@@ -28,7 +28,7 @@ If you have ideas to improve Karpor, please submit a [feature request](https://g
 
 ## Answering Questions
 
-If you have a question and cannot find the answer in the [documentation](https://www.kusionstack.io/docs/next/karpor/), the next step is to ask on [GitHub Discussions](https://github.com/KusionStack/karpor/discussions).
+If you have a question and cannot find the answer in the [documentation](https://www.kusionstack.io/karpor/), the next step is to ask on [GitHub Discussions](https://github.com/KusionStack/karpor/discussions).
 
 Helping these users is important to us, and we would love to have your help. You can contribute by answering [their questions](https://github.com/KusionStack/karpor/discussions) to help other Karpor users.
 

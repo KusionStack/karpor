@@ -53,7 +53,7 @@ If the `gopath` folder does not exist, create it with `mkdir ~/gopath`. These co
 <details>
   <summary>Manually installing golangci-lint</summary>
 
-You can install it manually following the [guide](https://golangci-lint.run/usage/install/#local-installation), or use the command:
+You can install it manually following the [guide](https://golangci-lint.run/welcome/install), or use the command:
 
 ```
 cd ~/go/ && curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s v1.52.2
@@ -99,7 +99,7 @@ This document will guide you through the process of creating a [pull request](ht
 
 ### Before you begin
 
-We know you are excited to create your first pull request. Before we get started, make sure your code follows the relevant [code conventions](../2-conventions/2-code-conventions.md).
+We know you are excited to create your first pull request. Before we get started, make sure your code follows the relevant [code conventions](../conventions/code-conventions.md).
 
 ### Your First Pull Request
 
