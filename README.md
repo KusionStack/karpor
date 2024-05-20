@@ -1,7 +1,7 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img width="60%" src="https://kusionstack-io-dev.vercel.app/karpor/assets/logo/logo-full.svg">
+    <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg">
 </p>
 
 <h2 style="font-size: 1.5em;">
@@ -18,26 +18,12 @@
 </p>
 
 
-[![Kusion](https://github.com/KusionStack/kusion/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/kusion/actions/workflows/release.yaml)
-[![GitHub release](https://img.shields.io/github/release/KusionStack/kusion.svg)](https://github.com/KusionStack/kusion/releases)
-[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/kusion)](https://goreportcard.com/report/github.com/KusionStack/kusion)
-[![Coverage Status](https://coveralls.io/repos/github/KusionStack/kusion/badge.svg)](https://coveralls.io/github/KusionStack/kusion)
-[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/kusion.svg)](https://pkg.go.dev/github.com/KusionStack/kusion)
-[![license](https://img.shields.io/github/license/KusionStack/kusion.svg)](https://github.com/KusionStack/kusion/blob/main/LICENSE)
-
-<!-- TODO: Uncomment when the repository is publicly. -->
-
-<!-- [![Karpor](https://github.com/KarporStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KarporStack/karpor/actions/workflows/release.yaml) -->
-
-<!-- [![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases) -->
-
-<!-- [![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor) -->
-
-<!-- [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor) -->
-
-<!-- [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor) -->
-
-<!-- [![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE) -->
+[![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml)
+[![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor)
+[![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor)
+[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor)
+[![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE)
 
 </div>
 
@@ -59,7 +45,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>🔍 Quickly search and locate resource(s)</b><br />Quickly search and locate resource(s) of interest across a large number of clusters in a user-friendly way.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/user-friendly.png" alt="User Friendly" />
+      <img src="https://kusionstack.io/karpor/assets/overview/user-friendly.png" alt="User Friendly" />
     </td>
   </tr>
 </table>
@@ -69,7 +55,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 <table>
   <tr>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/intelligent.png" alt="Intelligent" />
+      <img src="https://kusionstack.io/karpor/assets/overview/intelligent.png" alt="Intelligent" />
     </td>
     <td style="vertical-align: middle;">
       <b>🔒 Compliance Protection</b><br />Automatically identify potential risks and receive AI suggestions for remediation.<br /><br/>
@@ -88,7 +74,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>☁️ Multi-Cluster and Multi-Cloud/Hybrid-Cloud</b><br />Natively supports Multi-Cluster and Multi-Cloud/Hybrid-Cloud.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack-io-dev.vercel.app/karpor/assets/overview/low-burden.png" alt="Low Burden" />
+      <img src="https://kusionstack.io/karpor/assets/overview/low-burden.png" alt="Low Burden" />
     </td>
   </tr>
 </table>
@@ -118,17 +104,14 @@ Detailed documentation is available at [Karpor Website](https://kusionstack.io/k
 ## 🤝 How to contribute
 
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. 
-- Visit the [Contribution Guide](https://kusionstack-io-dev.vercel.app/karpor/next/developer-guide/contribution-guide) to understand how to participate in the contribution Karpor project. 
+- Visit the [Contribution Guide](https://kusionstack.io/karpor/next/developer-guide/contribution-guide) to understand how to participate in the contribution Karpor project. 
 - If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
 
 ## 🎖︎ Contributors
 
-Thanks all! Come and [join us](https://kusionstack-io-dev.vercel.app/karpor/next/developer-guide/contribution-guide)! 🍻
+Thanks all! Come and [join us](https://kusionstack.io/karpor/next/developer-guide/contribution-guide)! 🍻
 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
-<img src="https://contrib.rocks/image?repo=KusionStack/kusion" />
+<img src="https://contrib.rocks/image?repo=KusionStack/karpor" />
 </a>
 
-<!-- ## 🏛️ License -->
-
-<!-- [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Felliotxx%2Fkusion.svg?type=shield&issueType=license)](https://app.fossa.com/projects/git%2Bgithub.com%2Felliotxx%2Fkusion?ref=badge_shield&issueType=license) -->
