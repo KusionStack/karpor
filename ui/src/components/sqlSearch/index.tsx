@@ -435,6 +435,9 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 border: none;
                 overflow-x: auto;
               }
+              .cm-editor .cm-scroller::-webkit-scrollbar {
+                display: none;
+              }
               .cm-editor .cm-content {
                 height: 40px;
                 line-height: 40px;
@@ -444,6 +447,9 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 white-space: pre;
                 background-color: #fff !important;
                 border: none;
+              }
+              .cm-editor .cm-content::-webkit-scrollbar {
+                display: none;
               }
               .cm-editor .cm-content:focus {
                 outline: none !important;
