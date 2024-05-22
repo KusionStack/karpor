@@ -107,7 +107,7 @@ func TestFlagParser(t *testing.T) {
 It is worth noting that most mainstream IDEs have already integrated [gotests](https://github.com/cweill/gotests), enabling the automatic generation of table-driven style Go unit tests, which I believe can enhance the efficiency of writing your unit tests:
 
 - [GoLand](https://blog.jetbrains.com/go/2020/03/13/test-driven-development-with-goland/)
-- [Visual Studio Code](https://betterprogramming.pub/a-quick-way-to-generate-go-tests-in-visual-studio-code-b7c675b88dac)
+- [Visual Studio Code](https://juandes.com/go-test-vsc/)
 
 ### File Naming
 
