@@ -20,9 +20,6 @@
 run:
   timeout: 10m
   go: '1.19'
-  # skip-files:
-  #   - pkg/kubernetes/openapi/zz_generated.openapi.go
-  #   - pkg/kubernetes/internalimport/internal_import.go
 
 linters:
   disable-all: true
