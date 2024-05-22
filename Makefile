@@ -9,6 +9,17 @@ LICENSE_CHECKER_VERSION ?= main
 # Front-End tools
 UIFORMATER			?= prettier
 
+# Default architecture for building binaries.
+# Override this variable by setting GOARCH=<your-architecture> before invoking the make command.
+# To find this list of possible platforms, run the following:
+#   go tool dist list
+GOARCH ?= amd64
+
+# Default setting for CGO_ENABLED to disable the use of cgo.
+# Can be overridden by setting CGO_ENABLED=1 before invoking the make command.
+CGO_ENABLED ?= 0
+
+
 # Check if the SKIP_UI_BUILD flag is set to control the UI building process.
 # If the flag is not set, the BUILD_UI variable is assigned the value 'build-ui'.
 # If the flag is set, the BUILD_UI variable remains empty.
@@ -57,84 +68,52 @@ update-codegen: ## Update generated code
 
 # Target: build-all
 # Description: Builds for all supported platforms (Darwin, Linux, Windows).
-# Example: make build-all
+# Usage: make build-all
 .PHONY: build-all
 build-all: build-darwin build-linux build-windows ## Build for all platforms
 
 # Target: build-darwin
 # Description: Builds for macOS platform.
-# Dependencies: BUILD_UI
-# Example:
+# Usage:
 # - make build-darwin
-# - make build-darwin SKIP_UI_BUILD=true
+# - make build-darwin GOARCH=arm64
+# - make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-darwin
 build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 	-rm -rf ./_build/darwin
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
+	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/darwin/$(APPROOT) \
 		./cmd
 
 # Target: build-linux
 # Description: Builds for Linux platform.
-# Dependencies: BUILD_UI
-# Example: make build-linux
+# Usage:
+# - make build-linux
+# - make build-linux GOARCH=arm64
+# - make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-linux
 build-linux: $(BUILD_UI) ## Build for Linux
 	-rm -rf ./_build/linux
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
+	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/linux/$(APPROOT) \
 		./cmd
 
 # Target: build-windows
 # Description: Builds for Windows platform.
-# Dependencies: BUILD_UI
-# Example: make build-windows
+# Usage:
+# - make build-windows
+# - make build-windows GOARCH=arm64
+# - make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-windows
 build-windows: $(BUILD_UI) ## Build for Windows
 	-rm -rf ./_build/windows
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
-		go build -o ./_build/windows/$(APPROOT).exe \
-		./cmd
-
-# Target: build-server-all
-# Description: Builds server for all supported platforms (Darwin, Linux, Windows).
-# Example: make build-server-all
-.PHONY: build-server-all
-build-server-all: build-server-darwin build-server-linux build-server-windows ## Build server for all platforms
-
-# Target: build-server-darwin
-# Description: Builds server for the macOS platform.
-# Example: make build-server-darwin
-.PHONY: build-server-darwin
-build-server-darwin: ## Build server for MacOS (Darwin)
-	-rm -rf ./_build/darwin
-	GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 \
-		go build -o ./_build/darwin/$(APPROOT) \
-		./cmd
-
-# Target: build-server-linux
-# Description: Builds server for the Linux platform.
-# Example: make build-server-linux
-.PHONY: build-server-linux
-build-server-linux: ## Build server for Linux
-	-rm -rf ./_build/linux
-	GOOS=linux GOARCH=amd64 CGO_ENABLED=0 \
-		go build -o ./_build/linux/$(APPROOT) \
-		./cmd
-
-# Target: build-server-windows
-# Description: Builds server for the Windows platform.
-# Example: make build-server-windows
-.PHONY: build-server-windows
-build-server-windows: ## Build server for Windows
-	-rm -rf ./_build/windows
-	GOOS=windows GOARCH=amd64 CGO_ENABLED=0 \
+	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/windows/$(APPROOT).exe \
 		./cmd
 
 # Target: build-ui
 # Description: Builds the UI for the dashboard.
-# Example: make build-ui
+# Usage: make build-ui
 .PHONY: build-ui
 build-ui: ## Build UI for the dashboard
 	@echo "Building UI for the dashboard ..."
