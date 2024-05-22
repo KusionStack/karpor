@@ -5,9 +5,7 @@
   .tabs_container {
     display: flex;
     align-items: center;
-    overflow-x: scroll;
-    overflow-y: hidden;
-
+    overflow: auto;
 
     .tabs {
       display: flex;
@@ -50,5 +48,8 @@
       border-radius: 8px 8px 0 0;
     }
   }
-}
 
+  .tabs_container::-webkit-scrollbar {
+    display: none;
+  }
+}
