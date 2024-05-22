@@ -16,9 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
       - name: Set up Go 1.19
         uses: actions/setup-go@v2
         with:
@@ -33,9 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
       - name: Set up Go 1.19
         uses: actions/setup-go@v2
         with:
@@ -54,9 +50,7 @@ jobs:
     name: Commit Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
       - uses: wagoid/commitlint-github-action@v5
 
   # Release the artifacts, release note and images.
@@ -65,9 +59,7 @@ jobs:
     # needs: [Test, GolangLint, CommitLint]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Check if on tag
         run: |
