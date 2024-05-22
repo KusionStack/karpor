@@ -1,0 +1,54 @@
+name: Check
+on:
+  pull_request:
+    branches:
+    - main
+  push:
+    branches:
+    - main
+jobs:
+  Test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.19'
+      - name: Running go tests with coverage
+        env:
+          GO111MODULE: on
+        run: make cover
+      - name: Send coverage
+        uses: shogo82148/actions-goveralls@v1
+        with:
+          path-to-profile: coverage.out
+
+  GolangLint:
+    name: Golang Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.19'
+      # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
+      # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
+      # not load export data: no export data for \"k8s.io/kube-aggregator\"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.58.2
+
+  LicenseCheck:
+    name: License Check
+    runs-on: ubuntu-latest
+    env:
+      TERM: xterm
+    steps:
+      - uses: actions/checkout@v4
+      - uses: apache/skywalking-eyes@main

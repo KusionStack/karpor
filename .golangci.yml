@@ -19,9 +19,7 @@
 # options for analysis running
 run:
   timeout: 10m
-  skip-files:
-    - pkg/kubernetes/openapi/zz_generated.openapi.go
-    - pkg/kubernetes/internalimport/internal_import.go
+  go: '1.19'
 
 linters:
   disable-all: true
@@ -62,8 +60,6 @@ linters:
 
 linters-settings:
   gofumpt:
-    # Select the Go version to target. The default is `1.15`.
-    lang-version: "1.19"
     # Choose whether or not to use the extra rules that are disabled
     # by default
     extra-rules: false
@@ -94,3 +90,6 @@ issues:
     - "S1000: should use for range instead of for { select {} }"
     - "SA4004: the surrounding loop is unconditionally terminated"
     - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
+  exclude-files:
+    - pkg/kubernetes/openapi/zz_generated.openapi.go
+    - pkg/kubernetes/internalimport/internal_import.go

@@ -11,58 +11,49 @@ on:
 permissions:
   contents: write
 jobs:
-  # TODO: Remove the jobs temporarily, because it is almost over the free limit of Github Action
-  # Test:
-  #   name: Unit Test
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Set up Go 1.19
-  #       uses: actions/setup-go@v2
-  #       with:
-  #         go-version: 1.19
+  Test:
+    name: Unit Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.19
+      - name: Running go tests with coverage
+        env:
+          GO111MODULE: on
+        run: make cover
 
-  #     - run: go build ./...
-  #     - run: go vet ./...
-
-  #     - name: Running go tests with coverage
-  #       env:
-  #         GO111MODULE: on
-  #       run: make cover
-
-  # GolangLint:
-  #   name: Golang Lint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v2
-  #       with:
-  #         fetch-depth: 0
-  #     - name: Set up Go 1.19
-  #       uses: actions/setup-go@v2
-  #       with:
-  #         go-version: 1.19
-  #     - name: golangci-lint
-  #       uses: golangci/golangci-lint-action@v3
-  #       with:
-  #         # Optional: version of golangci-lint to use in form of v1.2 or v1.2.3 or `latest` to use the latest version
-  #         version: v1.52.2
+  GolangLint:
+    name: Golang Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Go 1.19
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.19
+      # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
+      # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
+      # not load export data: no export data for \"k8s.io/kube-aggregator\"
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.58.2
 
   # # Lints Pull Request commits with commitlint.
   # #
   # # Rules can be referenced:
   # # https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
-  # CommitLint:
-  #   name: Commit Lint
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - uses: actions/checkout@v3
-  #       with:
-  #         fetch-depth: 0
-  #     - uses: wagoid/commitlint-github-action@v5
+  CommitLint:
+    name: Commit Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: wagoid/commitlint-github-action@v5
 
   # Release the artifacts, release note and images.
   Release:
@@ -70,9 +61,7 @@ jobs:
     # needs: [Test, GolangLint, CommitLint]
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
+        uses: actions/checkout@v4
 
       - name: Check if on tag
         run: |

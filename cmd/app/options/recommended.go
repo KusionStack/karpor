@@ -29,7 +29,6 @@ import (
 	"k8s.io/apiserver/pkg/endpoints/openapi"
 	"k8s.io/apiserver/pkg/features"
 	"k8s.io/apiserver/pkg/server"
-	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/apiserver/pkg/server/egressselector"
 	"k8s.io/apiserver/pkg/server/filters"
 	"k8s.io/apiserver/pkg/server/options"
@@ -126,7 +125,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 		return err
 	}
 
-	genericConfig.OpenAPIConfig = genericapiserver.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
+	genericConfig.OpenAPIConfig = server.DefaultOpenAPIConfig(GetOpenAPIDefinitions, openapi.NewDefinitionNamer(scheme.Scheme))
 	genericConfig.OpenAPIConfig.Info.Title = "Karpor"
 	genericConfig.OpenAPIConfig.Info.Version = "0.1"
 
@@ -192,11 +191,11 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 }
 
 // BuildAuthorizer constructs the authorizer
-func BuildAuthorizer(authz *kubeoptions.BuiltInAuthorizationOptions, EgressSelector *egressselector.EgressSelector, versionedInformers clientgoinformers.SharedInformerFactory) (authorizer.Authorizer, authorizer.RuleResolver, error) {
+func BuildAuthorizer(authz *kubeoptions.BuiltInAuthorizationOptions, egressSelector *egressselector.EgressSelector, versionedInformers clientgoinformers.SharedInformerFactory) (authorizer.Authorizer, authorizer.RuleResolver, error) {
 	authorizationConfig := authz.ToAuthorizationConfig(versionedInformers)
 
-	if EgressSelector != nil {
-		egressDialer, err := EgressSelector.Lookup(egressselector.ControlPlane.AsNetworkContext())
+	if egressSelector != nil {
+		egressDialer, err := egressSelector.Lookup(egressselector.ControlPlane.AsNetworkContext())
 		if err != nil {
 			return nil, nil, err
 		}
