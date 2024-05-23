@@ -406,6 +406,51 @@ func TestListCluster(t *testing.T) {
 	}
 }
 
+// TestListClusterName tests the ListClusterName method for retrieving a list of
+// cluster names.
+func TestListClusterName(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name        string
+		orderBy     SortCriteria
+		descending  bool
+		expectError bool
+	}{
+		{
+			name:        "List cluster names ordered by Name ascending",
+			orderBy:     ByName,
+			descending:  false,
+			expectError: false,
+		},
+		{
+			name:        "List cluster names ordered by CreationDate descending",
+			orderBy:     ByTimestamp,
+			descending:  true,
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			names, err := manager.ListClusterName(
+				context.TODO(),
+				&multicluster.MultiClusterClient{},
+				tc.orderBy,
+				tc.descending,
+			)
+			if tc.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, names)
+			}
+		})
+	}
+}
+
 // TestGetYAMLForCluster tests the GetYAMLForCluster method.
 func TestGetYAMLForCluster(t *testing.T) {
 	manager := NewClusterManager()
