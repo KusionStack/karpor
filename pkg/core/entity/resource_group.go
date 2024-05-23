@@ -108,10 +108,24 @@ func (rg *ResourceGroup) ToSQL() string {
 	if rg.Name != "" {
 		conditions = append(conditions, fmt.Sprintf("name='%s'", rg.Name))
 	}
-	for k, v := range rg.Annotations {
+
+	annotationKeys := make([]string, 0, len(rg.Annotations))
+	for k := range rg.Annotations {
+		annotationKeys = append(annotationKeys, k)
+	}
+	sort.Strings(annotationKeys)
+	for _, k := range annotationKeys {
+		v := rg.Annotations[k]
 		conditions = append(conditions, fmt.Sprintf("`annotations.%s`='%s'", k, v))
 	}
-	for k, v := range rg.Labels {
+
+	labelKeys := make([]string, 0, len(rg.Labels))
+	for k := range rg.Labels {
+		labelKeys = append(labelKeys, k)
+	}
+	sort.Strings(labelKeys)
+	for _, k := range labelKeys {
+		v := rg.Labels[k]
 		conditions = append(conditions, fmt.Sprintf("`labels.%s`='%s'", k, v))
 	}
 
