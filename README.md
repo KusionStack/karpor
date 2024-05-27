@@ -104,12 +104,14 @@ Detailed documentation is available at [Karpor Website](https://kusionstack.io/k
 ## 🤝 How to contribute
 
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. 
-- Visit the [Contribution Guide](https://kusionstack.io/karpor/next/developer-guide/contribution-guide) to understand how to participate in the contribution Karpor project. 
-- If you have any questions, please [Submit the Issue](https://github.com/KusionStack/karpor/issues).
+
+- If you don't know how to **start contributing**, you can read the [Contribution Guide](https://kusionstack.io/karpor/developer-guide/contribution-guide), you will know all the details.
+- If you don’t know **what issues start**, we have prepared a [Community tasks | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463), you can choose the issue you like.
+- If you have **any questions**, please [Submit the Issue](https://github.com/KusionStack/karpor/issues) or [Post on the discussions](https://github.com/KusionStack/karpor/discussions/new/choose), we will answer as soon as possible.
 
 ## 🎖︎ Contributors
 
-Thanks all! Come and [join us](https://kusionstack.io/karpor/next/developer-guide/contribution-guide)! 🍻
+Thanks all! Come and [join us](https://kusionstack.io/karpor/developer-guide/contribution-guide)! 🍻
 
 <a href="https://github.com/KusionStack/karpor/graphs/contributors">
 <img src="https://contrib.rocks/image?repo=KusionStack/karpor" />
