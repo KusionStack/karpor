@@ -39,6 +39,8 @@ test:  ## Run the tests
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.
 # Usage:
+#   make cover TARGET_PKG=<go-package-path>
+# Example:
 #   make cover                              # use the default GOSOURCE_PATHS
 #   make cover TARGET_PKG='./pkg/util/...'  # specify a custom package path
 .PHONY: cover
@@ -59,7 +61,7 @@ format:  ## Format source code of frontend and backend
 
 # Target: update-codegen
 # Description: Updates the generated code using the 'hack/update-codegen.sh' script.
-# Example: make update-codegen
+# Usage: make update-codegen
 .PHONY: update-codegen
 update-codegen: ## Update generated code
 	hack/update-codegen.sh
@@ -75,9 +77,11 @@ build-all: build-darwin build-linux build-windows ## Build for all platforms
 # Target: build-darwin
 # Description: Builds for macOS platform.
 # Usage:
-# - make build-darwin
-# - make build-darwin GOARCH=arm64
-# - make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
+#   make build-darwin GOARCH=<your-architecture> SKIP_UI_BUILD=<true,false>
+# Example:
+#   make build-darwin
+#   make build-darwin GOARCH=arm64
+#   make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-darwin
 build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 	-rm -rf ./_build/darwin
@@ -88,9 +92,11 @@ build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 # Target: build-linux
 # Description: Builds for Linux platform.
 # Usage:
-# - make build-linux
-# - make build-linux GOARCH=arm64
-# - make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
+#   make build-linux GOARCH=<your-architecture> SKIP_UI_BUILD=<true,false>
+# Example:
+#   make build-linux
+#   make build-linux GOARCH=arm64
+#   make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-linux
 build-linux: $(BUILD_UI) ## Build for Linux
 	-rm -rf ./_build/linux
@@ -101,9 +107,11 @@ build-linux: $(BUILD_UI) ## Build for Linux
 # Target: build-windows
 # Description: Builds for Windows platform.
 # Usage:
-# - make build-windows
-# - make build-windows GOARCH=arm64
-# - make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
+#   make build-windows GOARCH=<your-architecture> SKIP_UI_BUILD=<true,false>
+# Example:
+#   make build-windows
+#   make build-windows GOARCH=arm64
+#   make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-windows
 build-windows: $(BUILD_UI) ## Build for Windows
 	-rm -rf ./_build/windows
@@ -145,3 +153,33 @@ gen-api-doc: gen-api-spec ## Generate API Documentation by API Specification
 .PHONY: gen-cli-doc
 gen-cli-doc: ## Generate CLI Documentation
 	@go run ./hack/gen-cli-docs/main.go && echo "🎉 Done!"
+
+# Target: add-contributor
+# Description: Adds a new contributor to the project's list of contributors using the all-contributors-cli tool.
+# Usage:
+#   make add-contributor user=<github-username> role=<contributor-roles>
+# Example:
+#   make add-contributor user=mike role=code
+#   make add-contributor user=john role=code,doc
+# Where:
+#   <github-username> is the GitHub username of the contributor.
+#   <contributor-roles> is a comma-separated list of roles the contributor has (e.g., code, doc, design, ideas),
+#     with all values listed in the https://allcontributors.org/docs/en/emoji-key.
+.PHONY: add-contributor
+add-contributor: ## Add a new contributor
+	@if [ -z "$(user)" ] || [ -z "$(role)" ]; then \
+		echo "Error: 'user' and 'role' must be specified."; \
+		echo "Usage: make add-contributor user=<github-username> role=<contributor-roles>"; \
+		exit 1; \
+	fi
+	@which all-contributors > /dev/null || (echo "Installing all-contributors-cli ..."; npm i -g all-contributors-cli && echo -e "Installation complete!\n")
+	@all-contributors add $(user) $(role) && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+
+# Target: update-contributors
+# Description: Generate the latest list of contributors and update it in README.
+# Usage:
+#   make update-contributors
+.PHONY: update-contributors
+update-contributors: ## Update the list of contributors
+	@which all-contributors > /dev/null || (echo "Installing all-contributors-cli ..."; npm i -g all-contributors-cli && echo -e "Installation complete!\n")
+	-all-contributors generate && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)

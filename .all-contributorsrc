@@ -1,0 +1,105 @@
+{
+  "projectName": "karpor",
+  "projectOwner": "KusionStack",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md",
+    "README-zh.md"
+  ],
+  "imageSize": 70,
+  "commit": false,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "elliotxx",
+      "name": "elliotxx",
+      "avatar_url": "https://avatars.githubusercontent.com/u/9360247?v=4",
+      "profile": "https://github.com/elliotxx",
+      "contributions": [
+        "code",
+        "doc",
+        "design"
+      ]
+    },
+    {
+      "login": "panshuai-ps",
+      "name": "panshuai-ps",
+      "avatar_url": "https://avatars.githubusercontent.com/u/49754046?v=4",
+      "profile": "https://github.com/panshuai-ps",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "ffforest",
+      "name": "Forest",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5624244?v=4",
+      "profile": "https://github.com/ffforest",
+      "contributions": [
+        "code",
+        "doc"
+      ]
+    },
+    {
+      "login": "hai-tian",
+      "name": "hai-tian",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20057132?v=4",
+      "profile": "https://github.com/hai-tian",
+      "contributions": [
+        "code",
+        "design"
+      ]
+    },
+    {
+      "login": "weieigao",
+      "name": "weieigao",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2090295?v=4",
+      "profile": "https://github.com/weieigao",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "shaofan-hs",
+      "name": "shaofan-hs",
+      "avatar_url": "https://avatars.githubusercontent.com/u/133250733?v=4",
+      "profile": "https://github.com/shaofan-hs",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "healthjyk",
+      "name": "KK",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68334452?v=4",
+      "profile": "https://github.com/healthjyk",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "adohe",
+      "name": "TonyAdo",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71679464?v=4",
+      "profile": "https://github.com/adohe",
+      "contributions": [
+        "ideas",
+        "fundingFinding"
+      ]
+    },
+    {
+      "login": "wu8685",
+      "name": "Kan Wu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10124459?v=4",
+      "profile": "http://blog.wu8685.com/",
+      "contributions": [
+        "ideas",
+        "fundingFinding"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "linkToUsage": false
+}
