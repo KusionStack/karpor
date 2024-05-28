@@ -68,6 +68,7 @@ header:
     - 'LICENSE'
     - 'OWNERS_ALIASES'
     - 'SECURITY_CONTACTS'
+    - '.all-contributorsrc'
     - 'config/**'
     - 'charts/**'
   comment: never
