@@ -14,6 +14,7 @@
 
 # This is an example .goreleaser.yml file with some sane defaults.
 # Make sure to check the documentation at http://goreleaser.com
+
 before:
   hooks:
     # You may remove this if you don't use go modules.
@@ -36,7 +37,7 @@ builds:
     goarch:
       - amd64
       - arm64
-    # 使用 ldflags="-s -w" 去掉符号表和调试信息，以减少发布包的大小
+    # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
     ldflags:
       - -s -w
     main: ./cmd/
@@ -119,6 +120,7 @@ release:
     * `kusionstack/karpor:{{ .Tag }}`
 
     ## Thanks!
+  prerelease: auto
 
 dockers:
 - image_templates:
