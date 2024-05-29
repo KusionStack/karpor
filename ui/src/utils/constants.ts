@@ -109,4 +109,8 @@ export const Languages = [
     label: '中文',
     value: 'zh',
   },
+  {
+    label: 'Deutsch',
+    value: 'de',
+  },
 ]

@@ -184,7 +184,11 @@ const LayoutPage = () => {
               >
                 <img src={languageSvg} />
                 <span className={styles.help_text}>
-                  {i18n.language === 'zh' ? '中文' : 'English'}
+                  {i18n.language === 'zh'
+                    ? '中文'
+                    : i18n.language === 'de'
+                      ? 'Deutsch'
+                      : 'English'}
                 </span>
                 <CaretDownOutlined style={{ color: '#646566' }} />
               </a>

@@ -7,6 +7,7 @@ import 'dayjs/locale/zh-cn'
 import { useTranslation } from 'react-i18next'
 import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
+import deDE from 'antd/locale/de_DE'
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
@@ -30,7 +31,7 @@ function App() {
   return (
     <Provider store={store}>
       <ConfigProvider
-        locale={lang === 'en' ? enUS : zhCN}
+        locale={lang === 'en' ? enUS : lang === 'de' ? deDE : zhCN}
         theme={{
           token: {
             colorPrimary: '#2F54EB',
