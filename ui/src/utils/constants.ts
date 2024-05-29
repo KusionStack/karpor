@@ -30,11 +30,7 @@ export const whereKeywords = [
   'name',
   'content',
   '`labels.${key}`',
-  'labels_key',
-  'labels_value',
   '`annotations.${key}`',
-  'annotations_key',
-  'annotations_value',
 ]
 export const operatorKeywords = ['=', 'like', 'contains']
 export const kindCompletions = [
