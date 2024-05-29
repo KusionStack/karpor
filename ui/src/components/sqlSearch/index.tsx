@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef, useState, memo } from 'react'
 import { EditorState } from '@codemirror/state'
 import {
   EditorView,
@@ -108,7 +108,7 @@ function deleteHistoryByItem(val: string) {
   }
 }
 
-const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
+const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   const editorRef = useRef<any>(null)
   const { t } = useTranslation()
   const clusterListRef = useRef<any>(null)
@@ -230,7 +230,7 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
         const clusterMatch = /(cluster\s*=\s*)(\S*)$/i.exec(beforeCursor)
         if (clusterMatch) {
           const clusterNameList = clusterListRef.current?.map(
-            item => item?.metadata?.name,
+            item => `'${item?.metadata?.name}'`,
           )
           return getCustomCompletions(clusterMatch, clusterNameList, pos)
         }
@@ -516,6 +516,6 @@ const SqlSearch = ({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
       </div>
     </div>
   )
-}
+})
 
 export default SqlSearch

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { Tag } from 'antd'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
@@ -45,9 +45,12 @@ const SearchPage = () => {
     setSqlEditorValue(str)
   }
 
-  function handleSearch(inputValue) {
-    navigate(`/search/result?query=${inputValue}&pattern=sql`)
-  }
+  const handleSearch = useCallback(
+    inputValue => {
+      navigate(`/search/result?query=${inputValue}&pattern=sql`)
+    },
+    [navigate],
+  )
 
   function renderSqlExamples(data: string[] | null) {
     const sqlExamples = data || defaultSqlExamples
