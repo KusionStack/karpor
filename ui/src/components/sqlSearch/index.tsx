@@ -332,7 +332,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
         doc: '',
         extensions: [
           completionPlugin,
-          placeholder('Search using SQL ......'),
+          placeholder(t('SearchUsingSQL') + '......'),
           placeholderStyle,
           new LanguageSupport(sql() as any),
           highlightSpecialChars(),
