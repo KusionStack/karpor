@@ -28,10 +28,16 @@ function App() {
     setLang(i18n.language)
   }, [i18n.language])
 
+  const langMap = {
+    en: enUS,
+    zh: zhCN,
+    de: deDE,
+  }
+
   return (
     <Provider store={store}>
       <ConfigProvider
-        locale={lang === 'en' ? enUS : lang === 'de' ? deDE : zhCN}
+        locale={langMap?.[lang || 'en']}
         theme={{
           token: {
             colorPrimary: '#2F54EB',
