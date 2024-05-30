@@ -55,13 +55,13 @@ const Result = () => {
         pageSize: params?.pageSize || searchParams?.pageSize,
       },
     })
+    setSearchParams({
+      ...searchParams,
+      ...params,
+      total: response?.data?.total,
+    })
     if (response?.success) {
       setPageData(response?.data?.items || {})
-      setSearchParams({
-        ...searchParams,
-        ...params,
-        total: response?.data?.total,
-      })
       const objParams = {
         ...urlSearchParams,
         query: params?.query || searchParams?.query,
