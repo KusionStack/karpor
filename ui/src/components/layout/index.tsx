@@ -17,9 +17,9 @@ import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
 import logo from '@/assets/img/logo.svg'
 import languageSvg from '@/assets/translate_language.svg'
+import { Languages, LanguagesMap } from '@/utils/constants'
 
 import styles from './style.module.less'
-import { Languages } from '@/utils/constants'
 
 type MenuItem = Required<MenuProps>['items'][number]
 
@@ -184,11 +184,7 @@ const LayoutPage = () => {
               >
                 <img src={languageSvg} />
                 <span className={styles.help_text}>
-                  {i18n.language === 'zh'
-                    ? '中文'
-                    : i18n.language === 'de'
-                      ? 'Deutsch'
-                      : 'English'}
+                  {LanguagesMap?.[i18n.language || 'en']}
                 </span>
                 <CaretDownOutlined style={{ color: '#646566' }} />
               </a>
