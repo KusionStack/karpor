@@ -110,7 +110,7 @@ function deleteHistoryByItem(val: string) {
 
 const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   const editorRef = useRef<any>(null)
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const clusterListRef = useRef<any>(null)
   const [historyCompletions, setHistoryCompletions] = useState<
     { value: string }[]
@@ -332,7 +332,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
         doc: '',
         extensions: [
           completionPlugin,
-          placeholder(t('SearchUsingSQL') + '......'),
+          placeholder(`${t('SearchUsingSQL')} ......`),
           placeholderStyle,
           new LanguageSupport(sql() as any),
           highlightSpecialChars(),
@@ -387,7 +387,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorRef.current, historyCompletions])
+  }, [editorRef.current, historyCompletions, i18n?.language])
 
   useEffect(() => {
     if (sqlEditorValue && clusterListRef?.current && editorRef.current?.view) {
