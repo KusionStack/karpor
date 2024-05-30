@@ -6,6 +6,7 @@
   "Cluster": "集群",
   "KeywordSearch": "关键字搜索",
   "SQLSearch": "SQL 搜索",
+  "SearchUsingSQL": "使用 SQL 搜索",
   "PopularQueries": "常用查询",
   "ClusterManagement": "集群管理",
   "AllClusters": "全部集群",

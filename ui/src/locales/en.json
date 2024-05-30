@@ -6,6 +6,7 @@
   "Insight": "Insight",
   "KeywordSearch": "Search By KeyWords",
   "SQLSearch": "Search By SQL",
+  "SearchUsingSQL": "Search using SQL",
   "PopularQueries": "Popular queries",
   "ClusterManagement": "Cluster Management",
   "AllClusters": "All Clusters",
