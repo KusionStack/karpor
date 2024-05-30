@@ -4,10 +4,10 @@ name: Release
 on:
   push:
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 permissions:
   contents: write
 jobs:
@@ -112,11 +112,29 @@ jobs:
           CI=false npm run build
           touch build/.gitkeep
 
+      - name: Determine GoReleaser Config with Regex
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+          beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+          rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+          release='v[0-9]+.[0-9]+.[0-9]+'
+          if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
+            echo "Match found for alpha or beta tag"
+            echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
+          elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
+            echo "Match found for rc or release tag"
+            echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
+          else
+            echo "No match found"
+            exit 1
+          fi
+
       - name: Release the karpor with GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
           distribution: goreleaser
           version: latest
-          args: release --clean
+          args: release --clean --config .goreleaser/${{ env.GO_RELEASER_CONFIG }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
