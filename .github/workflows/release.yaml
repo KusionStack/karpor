@@ -113,10 +113,10 @@ jobs:
           release='v[0-9]+.[0-9]+.[0-9]+'
           if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
             echo "Match found for alpha or beta tag"
-            echo "GO_RELEASER_CONFIG=alpha_or_beta_tag.yml" >> $GITHUB_ENV
+            echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
           elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
             echo "Match found for rc or release tag"
-            echo "GO_RELEASER_CONFIG=rc_or_release_tag.yml" >> $GITHUB_ENV
+            echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
           else
             echo "No match found"
             exit 1
