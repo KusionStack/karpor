@@ -40,12 +40,12 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 
 <table>
   <tr>
-    <td style="vertical-align: middle; padding: 15px;">
+    <td>
       <b>⚡️ Automatic Syncing</b><br />Automatically synchronize your resources across any clusters managed by the multi-cloud platform.<br /><br/>
       <b>🔍 Powerful, flexible queries</b><br />Effectively retrieve and locate resources across multi clusters that you are looking for in a quick and easy way.
     </td>
-    <td style="width: 60%; vertical-align: middle; padding: 15px;">
-      <img border="solid" src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" alt="search" style="border: 1px solid #D3D3D3; border-radius: 5px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" />
+    <td>
+      <kbd><img border="solid" src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
     </td>
   </tr>
 </table>
@@ -54,10 +54,10 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 
 <table>
   <tr>
-    <td style="width: 60%; vertical-align: middle; padding: 15px;">
-      <img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" alt="Insight" style="border: 1px solid #D3D3D3; border-radius: 5px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" />
+    <td>
+      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
-    <td style="vertical-align: middle; padding: 15px;">
+    <td>
       <b>🔒 Compliance Governance</b><br />Understand your compliance status across multiple clusters and compliance standards.<br /><br/>
       <b>📊 Resource Topology</b><br />Logical and topological views of relevant resources within their operational context.<br /><br/>
       <b>📉 Cost Optimization</b><br />Coming soon.
@@ -69,13 +69,13 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 
 <table>
   <tr>
-    <td style="vertical-align: middle; padding: 15px;">
+    <td>
       <b>💬 Natural Language Operations</b><br />Interact with Kubernetes using plain language for more intuitive operations.<br /><br />
       <b>📦 Contextual AI Responses</b><br />Get smart, contextual assistance that understands your needs.<br /><br />
       <b>🤖 AIOps for Kubernetes</b><br />Automate and optimize Kubernetes management with AI-powered insights.
     </td>
-    <td style="width: 60%; vertical-align: middle; padding: 15px;">
-      <img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" alt="Coming soon" style="border: 1px solid #D3D3D3; border-radius: 5px;box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);" />
+    <td>
+      <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" /></kbd>
     </td>
   </tr>
 </table>
