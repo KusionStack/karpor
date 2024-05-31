@@ -4,9 +4,9 @@
     <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg">
 </p>
 
-<h3 style="font-size: 1.5em;">
+<h1 style="font-size: 1.5em;">
     Intelligence for Kubernetes ✨
-</h3>
+</h1>
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
