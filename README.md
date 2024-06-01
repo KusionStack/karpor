@@ -28,7 +28,7 @@
 
 ## What is Karpor?
 
-Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. With Karpor, you can gain more visibility into your Kubernetes clusters across any clouds and empower developers to ship faster.
+Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds and empower developers to ship faster.
 
 We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** project! 🚀
 
