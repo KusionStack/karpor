@@ -44,8 +44,8 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>⚡️ Automatic Syncing</b><br />Automatically synchronize your resources across any clusters managed by the multi-cloud platform.<br /><br/>
       <b>🔍 Powerful, flexible queries</b><br />Effectively retrieve and locate resources across multi clusters that you are looking for in a quick and easy way.
     </td>
-    <td>
-      <kbd><img border="solid" src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
     </td>
   </tr>
 </table>
@@ -54,7 +54,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 
 <table>
   <tr>
-    <td>
+    <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
     <td>
@@ -74,7 +74,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>📦 Contextual AI Responses</b><br />Get smart, contextual assistance that understands your needs.<br /><br />
       <b>🤖 AIOps for Kubernetes</b><br />Automate and optimize Kubernetes management with AI-powered insights.
     </td>
-    <td>
+    <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" /></kbd>
     </td>
   </tr>
