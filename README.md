@@ -4,17 +4,16 @@
     <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg">
 </p>
 
-<h2 style="font-size: 1.5em;">
-  Intuitive Discovery 🔍 ,<br>
-  Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
-</h2>
+<h1 style="font-size: 1.5em;">
+    Intelligence for Kubernetes ✨
+</h1>
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
-  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 Overview</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Install</b></a> •
+  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 Website</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
+  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 Discussions</b></a>
 </p>
 
 
@@ -29,52 +28,54 @@
 
 ## What is Karpor?
 
-Karpor is a Modern **Kubernetes Explorer** focusing on **🔍 Search**, **💡 Insight** and **🤖 Intelligence**. It has keywords such as `self-host`, `non-invasive`, `read-only`, `secure compliance`, `multi-cloud/multi-cluster support`, `custom logical view`, and can serve as a **Kubernetes Data Plane** to reduce the cost of discovering and understanding kubernetes resources.
+Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds and empower developers to ship faster.
+
+We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** project! 🚀
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
 ## Why Karpor?
 
-<h3 align="center">🤝 User Friendly</h3>
+<h3 align="center">🔍 Search</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>⚡️ Lightweight and Easy to Setup</b><br />One `helm` is done.<br /><br/>
-      <b>📦 Out of the Box</b><br />Built-in security and compliance policies, resource sync strategy, resource transform rule, and topology relationship definitions.<br /><br />
-      <b>🔍 Quickly search and locate resource(s)</b><br />Quickly search and locate resource(s) of interest across a large number of clusters in a user-friendly way.
+    <td>
+      <b>⚡️ Automatic Syncing</b><br />Automatically synchronize your resources across any clusters managed by the multi-cloud platform.<br /><br/>
+      <b>🔍 Powerful, flexible queries</b><br />Effectively retrieve and locate resources across multi clusters that you are looking for in a quick and easy way.
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/user-friendly.png" alt="User Friendly" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
     </td>
   </tr>
 </table>
 
-<h3 align="center">✨ Intelligent</h3>
+<h3 align="center">💡 Insight</h3>
 
 <table>
   <tr>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/intelligent.png" alt="Intelligent" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
-    <td style="vertical-align: middle;">
-      <b>🔒 Compliance Protection</b><br />Automatically identify potential risks and receive AI suggestions for remediation.<br /><br/>
-      <b>📊 Logical and topological views</b><br />Logical and topological views of relevant resources within their operational context.
+    <td>
+      <b>🔒 Compliance Governance</b><br />Understand your compliance status across multiple clusters and compliance standards.<br /><br/>
+      <b>📊 Resource Topology</b><br />Logical and topological views of relevant resources within their operational context.<br /><br/>
+      <b>📉 Cost Optimization</b><br />Coming soon.
     </td>
   </tr>
 </table>
 
-<h3 align="center">⚡️ Low Burden</h3>
+<h3 align="center">✨ AI</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>🔒 Read-Only, Non-Invasive</b><br />Read-Only data plane, Non-Invasive to user cluster.<br /><br />
-      <b>⚙️ Kubernetes Native API Compatible</b><br />Seamless integration of existing kubernetes tool chain.<br /><br />
-      <b>☁️ Multi-Cluster and Multi-Cloud/Hybrid-Cloud</b><br />Natively supports Multi-Cluster and Multi-Cloud/Hybrid-Cloud.
+    <td>
+      <b>💬 Natural Language Operations</b><br />Interact with Kubernetes using plain language for more intuitive operations.<br /><br />
+      <b>📦 Contextual AI Responses</b><br />Get smart, contextual assistance that understands your needs.<br /><br />
+      <b>🤖 AIOps for Kubernetes</b><br />Automate and optimize Kubernetes management with AI-powered insights.
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/low-burden.png" alt="Low Burden" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" /></kbd>
     </td>
   </tr>
 </table>
