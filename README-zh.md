@@ -11,7 +11,11 @@
   <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 概览</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ 安装</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ 快速开始</b></a> •
-  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 文档</b></a>
+  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 文档</b></a> •
+  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 论坛</b></a><br>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
+  [中文] 
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
 </p>
 
 [![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml) 

@@ -12,7 +12,7 @@
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Live Demo</b></a> •
   <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 Website</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Quick Start</b></a> •
-  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a>
+  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Docs</b></a> •
   <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 Discussions</b></a><br>
   [English] 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
