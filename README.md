@@ -16,6 +16,12 @@
   <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 Discussions</b></a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank"><b>[English]</b></a> •
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank"><b>[中文]</b></a> •
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank"><b>[Português]</b></a>
+</p>
+
 
 [![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml)
 [![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
