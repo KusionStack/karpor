@@ -106,7 +106,7 @@
     "AreYouSureDeleteResourceGroupRule": "Tem certeza de que deseja excluir essa regra do grupo de recursos?",
     "Copy": "Copiar",
     "CopySuccess": "Cópia bem-sucedida",
-    "TotalResourceGroupRules": "Regras de Grupe de Rocurso Totais",
+    "TotalResourceGroupRules": "Regras de Recursos Totais do Grupo",
     "TotalResources": "Recursos totais",
     "ClusterCount": "Número de Clusters"
   }
