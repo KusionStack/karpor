@@ -48,7 +48,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>🔍 Pesquisa e Localização Rápidas de Recursos</b><br />Pesquise e localize rapidamente recursos de interesse em um grande número de clusters de forma amigável ao usuário.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/user-friendly.png" alt="Amigável ao usuário" />
+      <img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" alt="Amigável ao usuário" />
     </td>
   </tr>
 </table>
@@ -58,7 +58,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
 <table>
   <tr>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/intelligent.png" alt="Inteligente" />
+      <img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" alt="Inteligente" />
     </td>
     <td style="vertical-align: middle;">
       <b>🔒 Proteção de Conformidade</b><br />Identifique automaticamente potenciais riscos e receba sugestões de IA para remediação.<br /><br/>
@@ -77,7 +77,7 @@ https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-102
       <b>☁️ Multi-Cluster e Multi-Nuvem/Nuvem Híbrida</b><br />Suporta nativamente Multi-Cluster e Multi-Nuvem/Nuvem Híbrida.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/low-burden.png" alt="Baixo Impacto" />
+      <img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" alt="Baixo Impacto" />
     </td>
   </tr>
 </table>
