@@ -113,10 +113,15 @@ export const Languages = [
     label: 'Deutsch',
     value: 'de',
   },
+  {
+    label: 'Português',
+    value: 'pt',
+  },
 ]
 
 export const LanguagesMap = {
   zh: '简体中文',
   en: 'English',
   de: 'Deutsch',
+  pt: 'Português',
 }

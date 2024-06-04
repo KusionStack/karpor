@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next'
 import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
 import deDE from 'antd/locale/de_DE'
+import ptBR from 'antd/locale/pt_BR'
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
@@ -32,6 +33,7 @@ function App() {
     en: enUS,
     zh: zhCN,
     de: deDE,
+    pt: ptBR,
   }
 
   return (
