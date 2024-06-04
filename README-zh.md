@@ -1,20 +1,21 @@
 <div align="center">
-<img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg" style="max-width:100%;">
+<p></p><p></p>
+<p>
+    <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg"> 
+</p>
 
-<h2 style="font-size: 1.5em;">
-  Intuitive Discovery 🔍 ,<br>
-  Limitless Insight 📊.<span style="color: gray; font-weight: normal;"> With AI.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> coming soon</sup></span>✨
-</h2>
+<h1 style="font-size: 1.5em;">
+    Intelligence for Kubernetes ✨
+</h1>
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 现场演示</b></a> •
-  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 概览</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ 安装</b></a> •
+  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 官网</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ 快速开始</b></a> •
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 文档</b></a> •
-  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 论坛</b></a><br>
+  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 讨论</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
-  [中文] 
+  [中文]
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
 </p>
 
@@ -24,93 +25,94 @@
 [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor) 
 [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor) 
 [![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE) 
+
 </div>
 
 ## Karpor 是什么？
 
-Karpor 是一个现代化的 **Kubernetes 资源探索器**，专注于 **🔍 搜索**、**💡 洞察** 和 **🤖 智能**。它具备 `自托管`、`非侵入式`、`只读`、`安全合规`、`多云/多集群支持`、`自定义逻辑视图` 等特性，并且可以作为 **Kubernetes 数据面**，降低发现和理解 Kubernetes 资源的成本。
+Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个**Kubernetes资源管理器/Kubernetes仪表板**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
+
+我们希望成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的项目！🚀
 
 ## 为什么选择 Karpor？
 
-<h3 align="center">🤝 用户友好</h3>
+<h3 align="center">🔍 搜索</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>⚡️ 轻量级，易于安装</b><br />仅需一个 `helm` 命令即可完成安装。<br /><br/>
-      <b>📦 开箱即用</b><br />内置安全和合规策略、资源同步策略、资源转换规则和拓扑关系定义。<br /><br />
-      <b>🔍 快速搜索和定位资源</b><br />以用户友好的方式快速定位跨集群资源。
+    <td>
+      <b>⚡️ 自动同步</b><br />自动同步您在多云平台管理的任何集群中的资源<br /><br/>
+      <b>🔍 强大灵活的查询</b><br />以快速简单的方式有效地检索和定位跨集群的资源
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/user-friendly.png" alt="用户友好" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg"  /></kbd>
     </td>
   </tr>
 </table>
 
-<h3 align="center">✨ 智能</h3>
+<h3 align="center">💡 洞察</h3>
 
 <table>
   <tr>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/intelligent.png" alt="智能" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg"  /></kbd>
     </td>
-    <td style="vertical-align: middle;">
-      <b>🔒 合规保护</b><br />自动识别潜在风险并生成 AI 整改建议。<br /><br/>
-      <b>📊 逻辑和拓扑视图</b><br />在其运行上下文中展示相关资源的逻辑和拓扑视图。
+    <td>
+      <b>🔒 安全合规</b><br />了解您在多个集群和合规标准中的合规性状态<br /><br/>
+      <b>📊 资源拓扑</b><br />提供包含资源运行上下文信息的关系拓扑和逻辑视图<br /><br/>
+      <b>📉 成本优化</b><br />即将推出
     </td>
   </tr>
 </table>
 
-<h3 align="center">⚡️ 低负担</h3>
+<h3 align="center">✨ AI</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>🔒 只读，非侵入式</b><br />只读数据平面，对用户集群无侵入。<br /><br />
-      <b>⚙️ 兼容 Kubernetes 原生 API</b><br />与现有 Kubernetes 工具链的无缝集成。<br /><br />
-      <b>☁️ 多集群和多云/混合云</b><br />原生支持多集群和多云/混合云。
+    <td>
+      <b>💬 自然语言操作</b><br />使用自然语言与 Kubernetes 交互，实现更直观的操作<br /><br />
+      <b>📦 情境化 AI 响应</b><br />获得智能的、情境化的辅助，满足您的需求<br /><br />
+      <b>🤖 Kubernetes AIOps</b><br />利用 AI 驱动的洞察，自动化和优化 Kubernetes 管理
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/overview/low-burden.png" alt="低负担" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg"  /></kbd>
     </td>
   </tr>
 </table>
 
 </br>
 
-## 安装
+## ⚙️ 安装
 
 ### 使用 Helm 安装
 
-Karpor 可以通过 Helm v3.5+ 简单安装。你可以从 [这里](https://helm.sh/docs/intro/install/) 获取 Helm。
+Karpor 可以通过 helm v3.5+ 简单安装，这是一个简单的命令行工具，您可以从[这里](https://helm.sh/docs/intro/install/)获取。
 
-如果你感兴趣，也可以直接查看 [Karpor Chart Repo](https://github.com/KusionStack/charts)。
-
-安装命令:
+如果您感兴趣，您也可以直接查看 [Karpor Chart Repo](https://github.com/KusionStack/charts)。
 
 ```bash
-helm repo add kusionstack https://kusionstack.github.io/charts
-helm repo update
-helm install karpor kusionstack/karpor
+$ helm repo add kusionstack https://kusionstack.github.io/charts 
+$ helm repo update
+$ helm install karpor kusionstack/karpor
 ```
 
-更多安装信息，请查看 [官方安装指南](https://kusionstack.io/karpor/getting-started/installation)。
+有关安装的更多信息，请查看官方网站上的 [安装指南](https://kusionstack.io/karpor/getting-started/installation)。
 
-## 文档
+## 📖 文档
 
-详细文档可在 [Karpor 官网](https://kusionstack.io/karpor) 查阅。
+详细的文档可在 [Karpor官网](https://kusionstack.io/karpor) 查阅。
 
-## 如何贡献
+## 🤝 如何贡献
 
-Karpor 仍处于初期阶段，我们欢迎每个人参与贡献。
+Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢迎每个人与我们共同参与建设。
 
-- 如果你不知道如何 **开始贡献**，可以阅读 [贡献指南](https://kusionstack.io/karpor/developer-guide/contribution-guide) 了解所有细节。
-- 如果你不知道 **从哪开始**，我们准备了 [社区任务 | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463)，你可以选择感兴趣的开始。
-- 如果你有任何 **问题**，请 [提交问题](https://github.com/KusionStack/karpor/issues) 或 [参与讨论](https://github.com/KusionStack/karpor/discussions/new/choose)，我们会尽快回答。
+- 如果您不知道如何 **开始贡献**，您可以阅读[贡献指南](https://kusionstack.io/karpor/developer-guide/contribution-guide)，您将了解所有细节。
+- 如果您不知道 **从哪些问题开始**，我们准备了[社区任务 | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463)，您可以选择您喜欢的问题。
+- 如果您有任何 **问题**，请[提交问题](https://github.com/KusionStack/karpor/issues)或[在讨论中发帖](https://github.com/KusionStack/karpor/discussions/new/choose)，我们将尽快回答。
 
-## 贡献者
+## 🎖︎ 贡献者
 
-感谢所有贡献者！欢迎[加入我们](https://kusionstack.io/karpor/developer-guide/contribution-guide)。
+感谢这些了不起的人！来[加入我们](https://kusionstack.io/karpor/developer-guide/contribution-guide)吧！🍻
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
