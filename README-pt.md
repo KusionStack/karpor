@@ -14,7 +14,10 @@
   <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 Visão Geral </b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Instalação</b></a> •
   <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Início Rápido</b></a> •
-  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentação</b></a>
+  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentação</b></a><br>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
+  [Português]
 </p>
 
 
