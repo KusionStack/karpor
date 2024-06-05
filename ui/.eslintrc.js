@@ -53,5 +53,6 @@ module.exports = {
     'react-hooks/exhaustive-deps': 'warn',
     'react/display-name': 'off',
     'react/prop-types': 'off',
+    'jsx-a11y/anchor-has-rel': 'off',
   },
 }

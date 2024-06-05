@@ -108,5 +108,6 @@
   "CopySuccess": "Copy successful",
   "TotalResourceGroupRules": "Total ResourceGroupRules",
   "TotalResources": "Total Resources",
-  "ClusterCount": "Cluster Count"
+  "ClusterCount": "Cluster Count",
+  "UnableCreateResourceGroupInReadOnly": "Unable to create resource group rules in read-only mode"
 }

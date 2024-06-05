@@ -2,6 +2,8 @@ import React from 'react'
 import styles from './styles.module.less'
 import { PlusOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
+import { Tooltip } from 'antd'
+import { useTranslation } from 'react-i18next'
 
 export const InsightTabs = ({
   items,
@@ -11,6 +13,7 @@ export const InsightTabs = ({
   onEdit,
   disabledAdd,
 }) => {
+  const { t } = useTranslation()
   function handleActionIcon(event, label) {
     event.preventDefault()
     event.stopPropagation()
@@ -50,16 +53,26 @@ export const InsightTabs = ({
             )
           })}
         </div>
-        <div
-          className={styles.add_box}
-          style={{ cursor: disabledAdd ? 'not-allowed' : 'pointer' }}
-          onClick={handleAdd}
-        >
-          <PlusOutlined
-            style={{ fontSize: 12, color: disabledAdd ? '#999' : '#000' }}
-            disabled={addIsDiasble}
-          />
-        </div>
+        {addIsDiasble ? (
+          <Tooltip
+            placement="right"
+            title={t('UnableCreateResourceGroupInReadOnly')}
+          >
+            <div className={styles.add_box} onClick={handleAdd}>
+              <PlusOutlined
+                style={{ fontSize: 12, color: disabledAdd ? '#999' : '#000' }}
+                disabled={addIsDiasble}
+              />
+            </div>
+          </Tooltip>
+        ) : (
+          <div className={styles.add_box} onClick={handleAdd}>
+            <PlusOutlined
+              style={{ fontSize: 12, color: disabledAdd ? '#999' : '#000' }}
+              disabled={addIsDiasble}
+            />
+          </div>
+        )}
       </div>
     </div>
   )

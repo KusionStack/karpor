@@ -274,7 +274,7 @@ const Cluster = () => {
   return (
     <div className={styles.container}>
       <div className={styles.action_bar}>
-        <div className={styles.title}>{t('ClusterManagement')}</div>
+        <h4 className={styles.title}>{t('ClusterManagement')}</h4>
         {pageData && pageData?.length > 0 && (
           <Button type="primary" onClick={join} disabled={isReadOnlyMode}>
             {t('RegisterCluster')}

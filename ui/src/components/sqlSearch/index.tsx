@@ -112,6 +112,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   const editorRef = useRef<any>(null)
   const { t, i18n } = useTranslation()
   const clusterListRef = useRef<any>(null)
+  const [clusterList, setClusterList] = useState([])
   const [historyCompletions, setHistoryCompletions] = useState<
     { value: string }[]
   >([])
@@ -139,6 +140,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
     })
     if (response?.success) {
       clusterListRef.current = response?.data?.items
+      setClusterList(response?.data?.items)
     } else {
       message.error(response?.message || t('RequestFailedAndTry'))
     }
@@ -390,7 +392,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   }, [editorRef.current, historyCompletions, i18n?.language])
 
   useEffect(() => {
-    if (sqlEditorValue && clusterListRef?.current && editorRef.current?.view) {
+    if (sqlEditorValue && clusterList && editorRef.current?.view) {
       editorRef.current?.view.dispatch({
         changes: {
           from: 0,
@@ -399,7 +401,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
         },
       })
     }
-  }, [clusterListRef, editorRef.current?.view, sqlEditorValue])
+  }, [clusterList, editorRef.current?.view, sqlEditorValue])
 
   const getContent = () => {
     if (editorRef.current?.view) {
@@ -481,18 +483,21 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
                 border-radius: 6px !important;
                 border: none;
                 padding: 10px !important;
+                box-sizing: border-box;
               }
               .cm-tooltip.cm-tooltip-autocomplete > ul {
-                height: auto !important;
-                max-height: 500px !important;
+                box-sizing: border-box;
+                height: auto;
+                max-height: 40vh;
                 overflow-y: auto !important;
               }
               .cm-tooltip.cm-tooltip-autocomplete > ul > li {
-                background-color: #f3f3f3 !important;
+                background-color: #f5f5f5 !important;
                 margin: 5px 0 !important;
                 padding: 10px 0 !important;
                 border-radius: 6px !important;
                 width: auto !important;
+                box-sizing: border-box;
               }
 
               .cm-tooltip.cm-tooltip-autocomplete

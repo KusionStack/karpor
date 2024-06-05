@@ -11,20 +11,20 @@
       display: flex;
 
       .tab {
-        background-color: rgba(0, 0, 0, 0.02);
         display: flex;
         padding: 10px 16px;
-        border: 1px solid #f1f1f1;
         margin-right: 2px;
-        border-radius: 8px 8px 0 0;
         font-size: 14px;
         cursor: pointer;
+        background-color: rgb(0 0 0 / 2%);
+        border: 1px solid #f1f1f1;
+        border-radius: 8px 8px 0 0;
 
         &.active_tab {
           z-index: 1000;
+          color: #2f54eb;
           background: #fff;
           border-bottom: 1px solid #fff;
-          color: #2f54eb;
         }
 
         .edit_icon {
@@ -35,16 +35,16 @@
 
           .anticon-edit {
             font-size: 14px;
-            color: rgba(0, 0, 0, 0.45);
+            color: rgb(0 0 0 / 45%);
           }
         }
       }
     }
 
     .add_box {
+      padding: 9px 16px 10px;
       cursor: pointer;
       border: 1px solid #f1f1f1;
-      padding: 9px 16px 10px 16px;
       border-radius: 8px 8px 0 0;
     }
   }

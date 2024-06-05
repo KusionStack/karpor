@@ -6,9 +6,12 @@
   .action_bar {
     display: flex;
     margin-bottom: 24px;
-    font-weight: bold;
     justify-content: space-between;
     align-items: center;
+
+    .title {
+      margin: 0;
+    }
   }
 
   .loading_container {
@@ -101,6 +104,7 @@
       }
 
       &.page_content_1 {
+
         &::before,
         &::after {
           left: 35%;
@@ -108,6 +112,7 @@
       }
 
       &.page_content_2 {
+
         &::before,
         &::after {
           left: 60%;
@@ -115,6 +120,7 @@
       }
 
       &.page_content_3 {
+
         &::before,
         &::after {
           left: 85%;
