@@ -403,8 +403,8 @@ const Insight = () => {
                   <div className={styles.footer}>
                     <Pagination
                       total={pageParams?.total}
-                      showTotal={(total, range) =>
-                        `${range[0]}-${range[1]} 共 ${total} 条`
+                      showTotal={(total: number, range: any[]) =>
+                        `${range[0]}-${range[1]} ${t('Total')} ${total} `
                       }
                       pageSize={pageParams?.pageSize}
                       current={pageParams?.pageNo}
