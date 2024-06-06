@@ -36,4 +36,5 @@ type ExtraConfig struct {
 	ElasticSearchUsername  string
 	ElasticSearchPassword  string
 	ReadOnlyMode           bool
+	GithubBadge            bool
 }
