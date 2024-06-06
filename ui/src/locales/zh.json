@@ -108,5 +108,6 @@
   "CopySuccess": "复制成功",
   "TotalResourceGroupRules": "资源组规则数量",
   "TotalResources": "资源总数",
-  "ClusterCount": "集群数量"
+  "ClusterCount": "集群数量",
+  "UnableCreateResourceGroupInReadOnly": "只读模式下不能创建资源组规则"
 }

@@ -176,122 +176,136 @@
   animation: cursor-blinks 1.5s infinite steps(1, start);
 }
 
-@media screen and (max-width: 640px) {
+@media screen and (width <= 640px) {
   .search_container {
     .search {
       .title {
         width: 300px;
       }
     }
+
     .search_codemirror_container {
       width: 550px;
     }
+
     .examples {
       width: 500px;
     }
   }
 }
 
-@media screen and (min-width: 641px) and (max-width: 768px) {
+@media screen and (width >= 641px) and (width <= 768px) {
   .search_container {
     .search {
       .title {
         width: 300px;
       }
     }
+
     .search_codemirror_container {
-      min-width: 570px;
       width: 80%;
       max-width: 680px;
+      min-width: 570px;
     }
+
     .examples {
       width: 600px;
     }
   }
 }
 
-@media screen and (min-width: 769px) and (max-width: 1024px) {
+@media screen and (width >= 769px) and (width <= 1024px) {
   .search_container {
     .search {
       .title {
         width: 300px;
       }
     }
+
     .search_codemirror_container {
       width: 80%;
     }
+
     .examples {
       width: 700px;
     }
   }
 }
 
-@media screen and (min-width: 1024px) and (max-width: 1280px) {
+@media screen and (width >= 1024px) and (width <= 1280px) {
   .search_container {
     .search {
       .title {
         width: 400px;
       }
     }
+
     .search_codemirror_container {
-      min-width: 880px;
       width: 900px;
       max-width: 1000px;
+      min-width: 880px;
     }
+
     .examples {
       width: 800px;
     }
   }
 }
 
-@media screen and (min-width: 1280px) and (max-width: 1536px) {
+@media screen and (width >= 1280px) and (width <= 1536px) {
   .search_container {
     .search {
       .title {
         width: 400px;
       }
     }
+
     .search_codemirror_container {
-      min-width: 900px;
       width: 1100px;
       max-width: 1400px;
+      min-width: 900px;
     }
+
     .examples {
       width: 800px;
     }
   }
 }
 
-@media screen and (min-width: 1536px) and (max-width: 1920px) {
+@media screen and (width >= 1536px) and (width <= 1920px) {
   .search_container {
     .search {
       .title {
         width: 400px;
       }
     }
+
     .search_codemirror_container {
-      min-width: 1200px;
       width: 1300px;
       max-width: 1700px;
+      min-width: 1200px;
     }
+
     .examples {
       width: 800px;
     }
   }
 }
 
-@media screen and (min-width: 1920px) {
+@media screen and (width >= 1920px) {
   .search_container {
     .search {
       .title {
         width: 400px;
       }
     }
+
     .search_codemirror_container {
-      min-width: 1200px;
       width: 1300px;
       max-width: 1700px;
+      min-width: 1200px;
     }
+
     .examples {
       width: 800px;
     }

@@ -365,7 +365,7 @@ const Insight = () => {
   return (
     <div className={styles.insight_wrapper}>
       <div className={styles.container}>
-        <div className={styles.pageTitle}>{t('Insight')}</div>
+        <h4 className={styles.pageTitle}>{t('Insight')}</h4>
         <QuotaContent statsData={statsData} />
         <div className={styles.content}>
           <InsightTabs

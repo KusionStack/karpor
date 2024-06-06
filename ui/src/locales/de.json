@@ -108,5 +108,6 @@
   "CopySuccess": "Kopieren erfolgreich",
   "TotalResourceGroupRules": "Gesamte Ressourcegruppen-Regeln",
   "TotalResources": "Alle Ressourcen",
-  "ClusterCount": "Anzahl der Kluster"
+  "ClusterCount": "Anzahl der Kluster",
+  "UnableCreateResourceGroupInReadOnly": "Im Nur-Lesen-Modus können keine Ressourcengruppen-Regeln erstellt werden."
 }

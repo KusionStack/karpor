@@ -39,7 +39,7 @@
 
         .text {
           display: inline-block;
-          margin-right: 10px;
+          margin: 10px 10px 10px 0;
           font-size: 14px;
         }
       }
@@ -85,6 +85,7 @@
 
       .help {
         margin: 0 10px;
+        cursor: pointer;
 
         .help_container {
           display: flex;
@@ -150,5 +151,37 @@
       color: #fff;
       background: rgb(112 134 222 / 50%);
     }
+  }
+}
+
+.github_corner:hover .octo_arm {
+  animation: octocat-wave 560ms ease-in-out
+}
+
+@keyframes octocat-wave {
+
+  0%,
+  100% {
+    transform: rotate(0)
+  }
+
+  20%,
+  60% {
+    transform: rotate(-25deg)
+  }
+
+  40%,
+  80% {
+    transform: rotate(10deg)
+  }
+}
+
+@media (width <=500px) {
+  .github_corner .octo_arm {
+    animation: octocat-wave 560ms ease-in-out
+  }
+
+  .github_corner:hover .octo_arm {
+    animation: none
   }
 }
