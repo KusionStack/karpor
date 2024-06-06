@@ -21,6 +21,7 @@ import (
 
 type CoreOptions struct {
 	ReadOnlyMode bool
+	GithubBadge  bool
 }
 
 func NewCoreOptions() *CoreOptions {
@@ -33,6 +34,7 @@ func (o *CoreOptions) Validate() []error {
 
 func (o *CoreOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.ReadOnlyMode = o.ReadOnlyMode
+	config.GithubBadge = o.GithubBadge
 	return nil
 }
 
@@ -43,4 +45,5 @@ func (o *CoreOptions) AddFlags(fs *pflag.FlagSet) {
 	}
 
 	fs.BoolVar(&o.ReadOnlyMode, "read-only-mode", false, "turn on the read only mode")
+	fs.BoolVar(&o.GithubBadge, "github-badge", false, "whether to display the github badge")
 }
