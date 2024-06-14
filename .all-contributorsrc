@@ -127,6 +127,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "SparkYuan",
+      "name": "Dayuan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4793557?v=4",
+      "profile": "https://github.com/SparkYuan",
+      "contributions": [
+        "doc"
+      ]
     }
   ],
   "contributorsPerLine": 7,
