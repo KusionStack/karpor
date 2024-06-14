@@ -19,18 +19,18 @@
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
 </p>
 
-[![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml) 
-[![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases) 
-[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor) 
-[![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor) 
-[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor) 
-[![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE) 
+[![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml)
+[![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor)
+[![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor)
+[![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor)
+[![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE)
 
 </div>
 
 ## Karpor 是什么？
 
-Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个**Kubernetes资源管理器/Kubernetes仪表板**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
+Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 资源管理器/Kubernetes 仪表板**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
 
 我们希望成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的项目！🚀
 
@@ -102,7 +102,7 @@ $ helm install karpor kusionstack/karpor
 
 ## 📖 文档
 
-详细的文档可在 [Karpor官网](https://kusionstack.io/karpor) 查阅。
+详细的文档可在 [Karpor 官网](https://kusionstack.io/karpor) 查阅。
 
 ## 🤝 如何贡献
 
@@ -117,8 +117,11 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 感谢这些了不起的人！来[加入我们](https://kusionstack.io/karpor/developer-guide/contribution-guide)吧！🍻
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
 <!-- prettier-ignore-start -->
+
 <!-- markdownlint-disable -->
+
 <table>
   <tbody>
     <tr>
@@ -141,6 +144,7 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 </table>
 
 <!-- markdownlint-restore -->
+
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->

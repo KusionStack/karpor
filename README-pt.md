@@ -20,7 +20,6 @@
   [Português]
 </p>
 
-
 [![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml)
 [![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor)
@@ -117,8 +116,11 @@ Karpor ainda está em estágio inicial e há muitas capacidades que precisam ser
 Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack.io/karpor/developer-guide/contribution-guide) a nós!🍻
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
 <!-- prettier-ignore-start -->
+
 <!-- markdownlint-disable -->
+
 <table>
   <tbody>
     <tr>
@@ -141,6 +143,7 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
 </table>
 
 <!-- markdownlint-restore -->
+
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
