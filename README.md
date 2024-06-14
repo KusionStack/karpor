@@ -106,7 +106,7 @@ Detailed documentation is available at [Karpor Website](https://kusionstack.io/k
 
 ## 🤝 How to contribute
 
-Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us. 
+Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us.
 
 - If you don't know how to **start contributing**, you can read the [Contribution Guide](https://kusionstack.io/karpor/developer-guide/contribution-guide), you will know all the details.
 - If you don’t know **what issues start**, we have prepared a [Community tasks | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463), you can choose the issue you like.
@@ -117,8 +117,11 @@ Karpor is still in the initial stage, and there are many capabilities that need 
 Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karpor/developer-guide/contribution-guide)! 🍻
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+
 <!-- prettier-ignore-start -->
+
 <!-- markdownlint-disable -->
+
 <table>
   <tbody>
     <tr>
@@ -141,6 +144,7 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
 </table>
 
 <!-- markdownlint-restore -->
+
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
