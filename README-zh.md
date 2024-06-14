@@ -10,9 +10,9 @@
 
 <p align="center">
   <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 现场演示</b></a> •
-  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 官网</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ 快速开始</b></a> •
-  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 文档</b></a> •
+  <a href="https://kusionstack.io/zh/karpor/" target="_blank"><b>🌐 官网</b></a> •
+  <a href="https://kusionstack.io/zh/karpor/getting-started/quick-start" target="_blank"><b>⚡️ 快速开始</b></a> •
+  <a href="https://kusionstack.io/zh/karpor" target="_blank"><b>📚 文档</b></a> •
   <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 讨论</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
   [中文]
@@ -98,23 +98,23 @@ $ helm repo update
 $ helm install karpor kusionstack/karpor
 ```
 
-有关安装的更多信息，请查看官方网站上的 [安装指南](https://kusionstack.io/karpor/getting-started/installation)。
+有关安装的更多信息，请查看官方网站上的 [安装指南](https://kusionstack.io/zh/karpor/getting-started/installation)。
 
 ## 📖 文档
 
-详细的文档可在 [Karpor 官网](https://kusionstack.io/karpor) 查阅。
+详细的文档可在 [Karpor 官网](https://kusionstack.io/zh/karpor) 查阅。
 
 ## 🤝 如何贡献
 
 Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢迎每个人与我们共同参与建设。
 
-- 如果您不知道如何 **开始贡献**，您可以阅读[贡献指南](https://kusionstack.io/karpor/developer-guide/contribution-guide)，您将了解所有细节。
+- 如果您不知道如何 **开始贡献**，您可以阅读[贡献指南](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)，您将了解所有细节。
 - 如果您不知道 **从哪些问题开始**，我们准备了[社区任务 | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463)，您可以选择您喜欢的问题。
 - 如果您有任何 **问题**，请[提交问题](https://github.com/KusionStack/karpor/issues)或[在讨论中发帖](https://github.com/KusionStack/karpor/discussions/new/choose)，我们将尽快回答。
 
 ## 🎖︎ 贡献者
 
-感谢这些了不起的人！来[加入我们](https://kusionstack.io/karpor/developer-guide/contribution-guide)吧！🍻
+感谢这些了不起的人！来[加入我们](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)吧！🍻
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
