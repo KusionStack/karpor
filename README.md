@@ -32,7 +32,7 @@
 
 Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. It is essentially a **Kubernetes Explorer/Kubernetes Dashboard**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds and empower developers to ship faster.
 
-We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** opensource project! 🚀
+We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project! 🚀
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
