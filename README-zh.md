@@ -30,9 +30,9 @@
 
 ## Karpor 是什么？
 
-Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 资源管理器/Kubernetes 仪表板**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
+Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 资源管理器/Kubernetes 仪表盘**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
 
-我们希望成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的项目！🚀
+我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！🚀
 
 https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
 
@@ -135,8 +135,9 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
       <td align="center" valign="top" width="14.28%"><a href="http://blog.wu8685.com/"><img src="https://avatars.githubusercontent.com/u/10124459?v=4?s=80" width="80px;" alt="Kan Wu"/><br /><sub><b>Kan Wu</b></sub></a><br /><a href="#ideas-wu8685" title="Ideas, Planning, & Feedback">🤔</a> <a href="#fundingFinding-wu8685" title="Funding Finding">🔍</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Paradiesvogel7"><img src="https://avatars.githubusercontent.com/u/96288496?v=4?s=80" width="80px;" alt="Paradiesvogel7"/><br /><sub><b>Paradiesvogel7</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=Paradiesvogel7" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/virtually-stray"><img src="https://avatars.githubusercontent.com/u/154653861?v=4?s=80" width="80px;" alt="Stray"/><br /><sub><b>Stray</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=virtually-stray" title="Documentation">📖</a> <a href="https://github.com/KusionStack/karpor/commits?author=virtually-stray" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ruquanzhao"><img src="https://avatars.githubusercontent.com/u/49401013?v=4?s=80" width="80px;" alt="ZhaoRuquan"/><br /><sub><b>ZhaoRuquan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=ruquanzhao" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ruquanzhao"><img src="https://avatars.githubusercontent.com/u/49401013?v=4?s=80" width="80px;" alt="ZhaoRuquan"/><br /><sub><b>ZhaoRuquan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=ruquanzhao" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=ruquanzhao" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SparkYuan"><img src="https://avatars.githubusercontent.com/u/4793557?v=4?s=80" width="80px;" alt="Dayuan"/><br /><sub><b>Dayuan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=SparkYuan" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolfcode111"><img src="https://avatars.githubusercontent.com/u/68718623?v=4?s=80" width="80px;" alt="huadongxu"/><br /><sub><b>huadongxu</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=wolfcode111" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>

@@ -125,7 +125,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/49401013?v=4",
       "profile": "https://github.com/ruquanzhao",
       "contributions": [
-        "code"
+        "code",
+        "doc"
       ]
     },
     {
@@ -133,6 +134,15 @@
       "name": "Dayuan",
       "avatar_url": "https://avatars.githubusercontent.com/u/4793557?v=4",
       "profile": "https://github.com/SparkYuan",
+      "contributions": [
+        "doc"
+      ]
+    },
+    {
+      "login": "wolfcode111",
+      "name": "huadongxu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68718623?v=4",
+      "profile": "https://github.com/wolfcode111",
       "contributions": [
         "doc"
       ]
