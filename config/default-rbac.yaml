@@ -19,6 +19,8 @@ rules:
       - /server-configs
       - /search
       - /search/*
+      - /insight
+      - /insight/*
       - /insightDetail
       - /insightDetail/*
       - /cluster
