@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { filterKeywordsOfArray, truncationPageData } from '@/utils/tools'
 import { DEFALUT_PAGE_SIZE_10, SEVERITY_MAP } from '@/utils/constants'
 import ExceptionStat from '../exceptionStat'
-import MultiTag from '../multiTag'
+import TagVariableSizeList from '../tagVariableSizeList'
 
 import styles from './style.module.less'
 
@@ -131,14 +131,17 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
                 </div>
               </div>
             </div>
-            <div className={`${styles.row_item}`}>
+            <div className={styles.row_item}>
               <div className={styles.label}>{t('Description')}:&nbsp;</div>
               <div className={styles.value}>{item?.issue?.message || '--'}</div>
             </div>
             <div className={styles.body}>
               <div className={styles.label}>{t('RelatedResources')}: </div>
               <div className={styles.value}>
-                <MultiTag allTags={resourceGroupsNames} />
+                <TagVariableSizeList
+                  allTags={resourceGroupsNames}
+                  containerWidth={880}
+                />
               </div>
             </div>
           </div>

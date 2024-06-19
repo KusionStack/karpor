@@ -109,5 +109,6 @@
   "TotalResourceGroupRules": "Total ResourceGroupRules",
   "TotalResources": "Total Resources",
   "ClusterCount": "Cluster Count",
-  "UnableCreateResourceGroupInReadOnly": "Unable to create resource group rules in read-only mode"
+  "UnableCreateResourceGroupInReadOnly": "Unable to create resource group rules in read-only mode",
+  "PleaseEnterValidSQLStatement": "Please enter a valid SQL statement"
 }

@@ -64,7 +64,7 @@ export const EditForm = ({
         >
           <TextArea autoSize={{ minRows: 3 }} />
         </Form.Item>
-        <Form.Item style={{ textAlign: 'right' }}>
+        <Form.Item style={{ textAlign: 'right', marginBottom: 0 }}>
           <Space>
             <Button htmlType="button" onClick={onCancel}>
               {t('Cancel')}

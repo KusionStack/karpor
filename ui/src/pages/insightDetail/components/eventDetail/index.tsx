@@ -2,9 +2,9 @@ import React from 'react'
 import { Button, Modal, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SEVERITY_MAP } from '@/utils/constants'
-import MultiTag from '../multiTag'
 
 import styles from './style.module.less'
+import TagVariableSizeList from '../tagVariableSizeList'
 
 type IProps = {
   open: boolean
@@ -70,7 +70,10 @@ const EventDetail = ({ open, detail, cancel }: IProps) => {
               {t('RelatedResources')}:&nbsp;
             </div>
             <div className={styles.soultion}>
-              <MultiTag allTags={resourceGroupsNames} />
+              <TagVariableSizeList
+                allTags={resourceGroupsNames}
+                containerWidth={480}
+              />
             </div>
           </div>
         </div>

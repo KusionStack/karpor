@@ -147,9 +147,6 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               <div className={styles.label}>Cluster </div>
               <PopoverCard data={summary?.cluster} />
             </div>
-            {/* <div className={`${styles.item} ${styles.namespaceStat}`}>
-              <div className={styles.label}>Top Resources</div>
-            </div> */}
           </div>
         )}
         {type === 'cluster' && (

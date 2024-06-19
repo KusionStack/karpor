@@ -1,8 +1,9 @@
 import React, { memo } from 'react'
 import classNames from 'classnames'
-import styles from './style.module.less'
-import { getDataType } from '@/utils/tools'
 import { useTranslation } from 'react-i18next'
+import { getDataType } from '@/utils/tools'
+
+import styles from './style.module.less'
 
 type Props = {
   current: string
@@ -26,34 +27,32 @@ const KarporTabs = ({
   const { t } = useTranslation()
   return (
     <div className={styles.tab_container} style={boxStyle}>
-      {list?.map((item, index) => {
-        return (
+      {list?.map((item, index) => (
+        <div
+          className={styles.item}
+          key={item.value as React.Key}
+          onClick={() => {
+            !item?.disabled && onChange(item.value, index)
+          }}
+          style={{
+            ...itemStyle,
+            ...(item?.disabled ? { color: '#f1f1f1' } : {}),
+          }}
+        >
           <div
-            className={styles.item}
-            key={item.value as React.Key}
-            onClick={() => {
-              !item?.disabled && onChange(item.value, index)
-            }}
-            style={{
-              ...itemStyle,
-              ...(item?.disabled ? { color: '#f1f1f1' } : {}),
-            }}
+            className={classNames(styles.normal, {
+              [styles.active]: current === item.value,
+            })}
+            style={
+              item?.disabled ? { color: '#999', cursor: 'not-allowed' } : {}
+            }
           >
-            <div
-              className={classNames(styles.normal, {
-                [styles.active]: current === item.value,
-              })}
-              style={
-                item?.disabled ? { color: '#999', cursor: 'not-allowed' } : {}
-              }
-            >
-              {getDataType(item?.label) === 'String'
-                ? t(item?.label as string)
-                : item?.label}
-            </div>
+            {getDataType(item?.label) === 'String'
+              ? t(item?.label as string)
+              : item?.label}
           </div>
-        )
-      })}
+        </div>
+      ))}
     </div>
   )
 }

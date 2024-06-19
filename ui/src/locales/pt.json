@@ -109,5 +109,6 @@
   "TotalResourceGroupRules": "Regras de Recursos Totais do Grupo",
   "TotalResources": "Recursos totais",
   "ClusterCount": "Número de Clusters",
-  "UnableCreateResourceGroupInReadOnly": "No modo de somente leitura, não é possível criar regras de grupo de recursos."
+  "UnableCreateResourceGroupInReadOnly": "No modo de somente leitura, não é possível criar regras de grupo de recursos.",
+  "PleaseEnterValidSQLStatement": "Por favor, insira uma declaração SQL válida."
 }

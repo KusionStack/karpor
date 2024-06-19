@@ -11,6 +11,7 @@ import {
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
+import classNames from 'classnames'
 import KarporTabs from '@/components/tabs'
 import Loading from '@/components/loading'
 import ClusterCard from './components/clusterCard'
@@ -22,6 +23,7 @@ import styles from './styles.module.less'
 
 const Cluster = () => {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [pageData, setPageData] = useState<any>([])
   const [showPageData, setShowPageData] = useState<any>([])
@@ -31,7 +33,6 @@ const Cluster = () => {
     orderBy: 'name',
     isAsc: true,
   })
-  const { t } = useTranslation()
   const [searchValue, setSearchValue] = useState('')
   const [lastDetail, setLastDetail] = useState<any>()
   const [scale, setScale] = useState<any>(1)
@@ -64,7 +65,7 @@ const Cluster = () => {
     if (response?.success) {
       setSummary(response?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
     setloading(false)
   }
@@ -83,7 +84,7 @@ const Cluster = () => {
     if (response?.success) {
       setPageData(response?.data?.items)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -292,7 +293,7 @@ const Cluster = () => {
             style={{ transform: `scale(${scale})` }}
           >
             <div className={styles.left}>
-              <div className={styles.nodate}>{t('EmptyCluster')}</div>
+              <div className={styles.nodata}>{t('EmptyCluster')}</div>
               <div className={styles.tip}>
                 {t('ClusterRequiresKubeConfigConfigurationFileAccess')}
               </div>
@@ -317,13 +318,16 @@ const Cluster = () => {
             />
           </div>
           <div
-            className={`${styles.page_content} ${styles[`page_content_${triangleLeftOffestIndex}`]}`}
+            className={classNames(
+              styles.page_content,
+              styles[`page_content_${triangleLeftOffestIndex}`],
+            )}
           >
             <div className={styles.tool_bar}>
               <Input
                 value={searchValue}
                 onChange={event => setSearchValue(event.target.value)}
-                style={{ width: 160, marginRight: 16 }}
+                style={{ width: 300, marginRight: 16 }}
                 placeholder={t('PleaseEnterKeywords')}
                 allowClear
                 suffix={<SearchOutlined />}

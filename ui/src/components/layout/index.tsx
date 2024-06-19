@@ -192,9 +192,7 @@ const LayoutPage = () => {
             </div>
             <h4 className={styles.text}>Karpor</h4>
           </div>
-          <div>
-            <Divider type="vertical" />
-          </div>
+          <Divider type="vertical" />
           <Menu
             style={{ flex: 1, border: 'none', fontSize: 13 }}
             mode="horizontal"

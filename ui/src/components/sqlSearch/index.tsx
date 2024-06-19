@@ -414,7 +414,7 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
   function handleClick() {
     const inputValue = getContent()
     if (!inputValue) {
-      message.warning('请输入有效sql语句')
+      message.warning(t('PleaseEnterValidSQLStatement'))
       return
     }
     cacheHistory(inputValue)

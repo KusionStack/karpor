@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Input, Space, Button, Upload, Radio, message } from 'antd'
-import type { RadioChangeEvent } from 'antd'
+import { Form, Space, Button, Upload, message } from 'antd'
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued'
 import { useTranslation } from 'react-i18next'
 import axios from 'axios'
@@ -15,57 +14,13 @@ import { HOST } from '@/utils/request'
 
 import styles from './styles.module.less'
 
-const { TextArea } = Input
-
-type UploadConfigProps = {
-  onChange: (val) => void
-  fileList: any
-}
-
-export const UploadConfig = (props: UploadConfigProps) => {
-  const [radioValue, setRadioValue] = useState('file')
-
-  const onRadioChange = (e: RadioChangeEvent) => {
-    setRadioValue(e.target.value)
-    props?.onChange({
-      type: e.target.value,
-      value: '',
-    })
-  }
-
-  const handleTextAreaChange = event => {
-    props?.onChange({
-      ...props?.fileList,
-      value: event.target.value,
-    })
-  }
-
-  return (
-    <div>
-      <div style={{ marginBottom: 15 }}>
-        <Radio.Group onChange={onRadioChange} value={radioValue}>
-          <Radio value="file">文件配置</Radio>
-          <Radio value="yaml">输入yaml</Radio>
-        </Radio.Group>
-      </div>
-      {radioValue === 'file' ? (
-        <Upload name="logo" action="/upload.do">
-          <Button icon={<UploadOutlined />}>上传配置文件</Button>
-        </Upload>
-      ) : (
-        <TextArea onChange={handleTextAreaChange} />
-      )}
-    </div>
-  )
-}
-
 const ClusterCertificate = () => {
   const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const location = useLocation()
   const { cluster } = queryString.parse(location?.search)
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [newYamlContent, setNewYamlContent] = useState<any>()
   const [loading, setLoading] = useState(false)
   const [lastYamlContent, setLastYamlContent] = useState('')
@@ -88,7 +43,7 @@ const ClusterCertificate = () => {
       setLastYamlContent(response?.data)
       setLastYamlContentJson(yaml2json(response?.data)?.data)
     } else {
-      message.error(response?.message || '请求失败，请重试')
+      message.error(response?.message || t('RequestFailedAndTry'))
     }
   }
 
@@ -214,7 +169,7 @@ const ClusterCertificate = () => {
         <div className={styles.header_back} onClick={goBack}>
           <ArrowLeftOutlined style={{ fontSize: 18 }} />
         </div>
-        {t('RotateCertificate')}
+        <h4 className={styles.page_title}>{t('RotateCertificate')}</h4>
       </div>
       <div className={styles.content}>
         <Form

@@ -1,13 +1,13 @@
 import React, { useEffect, useRef } from 'react'
 import type { LegacyRef } from 'react'
+import { Button, message } from 'antd'
+import { useTranslation } from 'react-i18next'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
 import 'highlight.js/styles/lightfair.css'
-import { yaml2json } from '../../utils/tools'
+import { yaml2json } from '@/utils/tools'
 
 import styles from './styles.module.less'
-import { Button, message } from 'antd'
-import { useTranslation } from 'react-i18next'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 hljs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))

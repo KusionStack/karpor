@@ -1,11 +1,11 @@
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 import insightClusterPng from '@/assets/insight_cluster.png'
 import insightResourcesPng from '@/assets/insight_resources.png'
 import insightResourceGroupPng from '@/assets/insight_resources_group.png'
 import QuotaCard from './quotaCard'
 
 import styles from './styles.module.less'
-import { useTranslation } from 'react-i18next'
 
 type IProps = {
   statsData: {
