@@ -14,12 +14,12 @@ import styles from './styles.module.less'
 const { TextArea } = Input
 
 const RegisterCluster = () => {
-  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
+  const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
+  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [yamlContent, setYamlContent] = useState('')
   const [loading, setLoading] = useState(false)
-  const { t } = useTranslation()
 
   async function onFinish(values: any) {
     if (isReadOnlyMode) {
@@ -50,8 +50,8 @@ const RegisterCluster = () => {
       message.error(
         validateResponse?.message || t('KubeConfigDoesNotMeetTheRequirements'),
       )
-      setLoading(false)
     }
+    setLoading(false)
   }
 
   function goBack() {
@@ -96,7 +96,7 @@ const RegisterCluster = () => {
     <div className={styles.container}>
       <div className={styles.header}>
         <ArrowLeftOutlined style={{ marginRight: 10 }} onClick={goBack} />
-        {t('RegisterCluster')}
+        <h4 className={styles.page_title}>{t('RegisterCluster')}</h4>
       </div>
       <div className={styles.content}>
         <Form

@@ -4,19 +4,20 @@ import axios from 'axios'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip, message } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { ICON_MAP } from '@/utils/images'
+import { capitalized } from '@/utils/tools'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import SummaryCard from '../components/summaryCard'
-import { ICON_MAP } from '@/utils/images'
-import { capitalized } from '@/utils/tools'
 
 import styles from './styles.module.less'
 
 const ClusterDetail = () => {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t, i18n } = useTranslation()
   const urlParams = queryString.parse(location?.search)
   const { type, apiVersion, cluster, kind, namespace, name, key, from, query } =
     urlParams
@@ -32,7 +33,6 @@ const ClusterDetail = () => {
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
-  const { t, i18n } = useTranslation()
 
   async function getAudit(isRescan) {
     setAuditLoading(true)

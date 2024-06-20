@@ -5,6 +5,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
+import classNames from 'classnames'
 import SqlSearch from '@/components/sqlSearch'
 import KarporTabs from '@/components/tabs/index'
 import { utcDateToLocalDate } from '@/utils/tools'
@@ -49,7 +50,7 @@ const Result = () => {
         'Content-Type': 'application/json',
       },
       params: {
-        query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`, // encodeURIComponent(searchValue as any),
+        query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`,
         ...(searchType === 'sql' ? { pattern: 'sql' } : {}),
         page: params?.page || searchParams?.page,
         pageSize: params?.pageSize || searchParams?.pageSize,
@@ -124,6 +125,133 @@ const Result = () => {
     navigate(`/insightDetail/${nav}?${urlParams}`)
   }
 
+  function renderEmpty() {
+    return (
+      <div
+        style={{
+          height: 500,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Empty />
+      </div>
+    )
+  }
+
+  function renderLoading() {
+    return (
+      <div
+        style={{
+          height: 500,
+          display: 'flex',
+          justifyContent: 'center',
+        }}
+      >
+        <Loading />
+      </div>
+    )
+  }
+
+  function renderListContent() {
+    return (
+      <>
+        <div className={styles.stat}>
+          <div>
+            {t('AboutInSearchResult')}&nbsp;
+            {searchParams?.total}&nbsp;
+            {t('SearchResult')}
+          </div>
+        </div>
+        {pageData?.map((item: any, index: number) => {
+          return (
+            <div className={styles.card} key={`${item?.name}_${index}`}>
+              <div className={styles.left}>
+                <img
+                  src={ICON_MAP?.[item?.object?.kind] || ICON_MAP.CRD}
+                  alt="icon"
+                />
+              </div>
+              <div className={styles.right}>
+                <div
+                  className={styles.top}
+                  onClick={() => handleTitleClick(item, item?.object?.kind)}
+                >
+                  {item?.object?.metadata?.name || '--'}
+                </div>
+                <div className={styles.bottom}>
+                  <div
+                    className={styles.item}
+                    onClick={() => handleClick(item, 'cluster')}
+                  >
+                    <span className={styles.api_icon}>Cluster</span>
+                    <span className={styles.label}>
+                      {item?.cluster || '--'}
+                    </span>
+                  </div>
+                  <Divider type="vertical" />
+                  <div className={classNames(styles.item, styles.disable)}>
+                    <span className={styles.api_icon}>APIVersion</span>
+                    <span className={styles.label}>
+                      {item?.object?.apiVersion || '--'}
+                    </span>
+                  </div>
+                  <Divider type="vertical" />
+                  <div
+                    className={styles.item}
+                    onClick={() => handleClick(item, 'kind')}
+                  >
+                    <span className={styles.api_icon}>Kind</span>
+                    <span className={styles.label}>
+                      {item?.object?.kind || '--'}
+                    </span>
+                  </div>
+                  <Divider type="vertical" />
+                  {item?.object?.metadata?.namespace && (
+                    <>
+                      <div
+                        className={styles.item}
+                        onClick={() => handleClick(item, 'namespace')}
+                      >
+                        <span className={styles.api_icon}>Namespace</span>
+                        <span className={styles.label}>
+                          {item?.object?.metadata?.namespace || '--'}
+                        </span>
+                      </div>
+                      <Divider type="vertical" />
+                    </>
+                  )}
+                  <div className={classNames(styles.item, styles.disable)}>
+                    <ClockCircleOutlined />
+                    <Tooltip title={t('CreateTime')}>
+                      <span className={styles.label}>
+                        {utcDateToLocalDate(
+                          item?.object?.metadata?.creationTimestamp,
+                        ) || '--'}
+                      </span>
+                    </Tooltip>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+        <div className={styles.footer}>
+          <Pagination
+            total={searchParams?.total}
+            showTotal={(total: number, range: any[]) =>
+              `${range?.[0]}-${range?.[1]} ${t('Total')} ${total} `
+            }
+            pageSize={searchParams?.pageSize}
+            current={searchParams?.page}
+            onChange={handleChangePage}
+          />
+        </div>
+      </>
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.searchTab}>
@@ -140,123 +268,11 @@ const Result = () => {
         handleSearch={handleSearch}
       />
       <div className={styles.content}>
-        {loading ? (
-          <div
-            style={{
-              height: 500,
-              display: 'flex',
-              justifyContent: 'center',
-            }}
-          >
-            <Loading />
-          </div>
-        ) : pageData && pageData?.length > 0 ? (
-          <>
-            {/* 汇总 */}
-            <div className={styles.stat}>
-              <div>
-                {t('AboutInSearchResult')}&nbsp;
-                {searchParams?.total}&nbsp;
-                {t('SearchResult')}
-              </div>
-            </div>
-            {pageData?.map((item: any, index: number) => {
-              return (
-                <div className={styles.card} key={`${item?.name}_${index}`}>
-                  <div className={styles.left}>
-                    <img
-                      src={ICON_MAP?.[item?.object?.kind] || ICON_MAP.CRD}
-                      alt="icon"
-                    />
-                  </div>
-                  <div className={styles.right}>
-                    <div
-                      className={styles.top}
-                      onClick={() => handleTitleClick(item, item?.object?.kind)}
-                    >
-                      {item?.object?.metadata?.name || '--'}
-                    </div>
-                    <div className={styles.bottom}>
-                      <div
-                        className={styles.item}
-                        onClick={() => handleClick(item, 'cluster')}
-                      >
-                        <span className={styles.api_icon}>Cluster</span>
-                        <span className={styles.label}>
-                          {item?.cluster || '--'}
-                        </span>
-                      </div>
-                      <Divider type="vertical" />
-                      <div className={`${styles.item} ${styles.disable}`}>
-                        <span className={styles.api_icon}>APIVersion</span>
-                        <span className={styles.label}>
-                          {item?.object?.apiVersion || '--'}
-                        </span>
-                      </div>
-                      <Divider type="vertical" />
-                      <div
-                        className={styles.item}
-                        onClick={() => handleClick(item, 'kind')}
-                      >
-                        <span className={styles.api_icon}>Kind</span>
-                        <span className={styles.label}>
-                          {item?.object?.kind || '--'}
-                        </span>
-                      </div>
-                      <Divider type="vertical" />
-                      {item?.object?.metadata?.namespace && (
-                        <>
-                          <div
-                            className={styles.item}
-                            onClick={() => handleClick(item, 'namespace')}
-                          >
-                            <span className={styles.api_icon}>Namespace</span>
-                            <span className={styles.label}>
-                              {item?.object?.metadata?.namespace || '--'}
-                            </span>
-                          </div>
-                          <Divider type="vertical" />
-                        </>
-                      )}
-                      <div className={`${styles.item} ${styles.disable}`}>
-                        <ClockCircleOutlined />
-                        <Tooltip title={t('CreateTime')}>
-                          <span className={styles.label}>
-                            {utcDateToLocalDate(
-                              item?.object?.metadata?.creationTimestamp,
-                            ) || '--'}
-                          </span>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )
-            })}
-            <div className={styles.footer}>
-              <Pagination
-                total={searchParams?.total}
-                showTotal={(total: number, range: any[]) =>
-                  `${range[0]}-${range[1]} ${t('Total')} ${total} `
-                }
-                pageSize={searchParams?.pageSize}
-                current={searchParams?.page}
-                onChange={handleChangePage}
-              />
-            </div>
-          </>
-        ) : (
-          <div
-            style={{
-              height: 500,
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Empty />
-          </div>
-        )}
+        {loading
+          ? renderLoading()
+          : pageData && pageData?.length > 0
+            ? renderListContent()
+            : renderEmpty()}
       </div>
     </div>
   )

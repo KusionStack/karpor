@@ -1,6 +1,7 @@
 import React from 'react'
 import { Badge } from 'antd'
 import { useTranslation } from 'react-i18next'
+import classNames from 'classnames'
 
 import styles from './style.module.less'
 
@@ -16,17 +17,17 @@ const K8sStat = ({ statData }: IProps) => {
         {t('AllIssues')}
         <span className={styles.num}>{statData?.all}</span>
       </div>
-      <div className={`${styles.title} ${styles.height}`}>
+      <div className={classNames(styles.title, styles.height)}>
         <Badge status="error" text={t('Exception')}></Badge>
-        <span className={styles.num}>{statData?.high || 5}</span>
+        <span className={styles.num}>{statData?.high || '--'}</span>
       </div>
       <div className={styles.title}>
         <Badge status="warning" text={t('Warning')}></Badge>
-        <span className={styles.num}>{statData?.medium || 2}</span>
+        <span className={styles.num}>{statData?.medium || '--'}</span>
       </div>
       <div className={styles.title}>
         <Badge status="success" text={t('Normal')}></Badge>
-        <span className={styles.num}>{statData?.low || 1}</span>
+        <span className={styles.num}>{statData?.low || '--'}</span>
       </div>
     </div>
   )

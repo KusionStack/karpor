@@ -185,3 +185,17 @@ export function filterKeywordsOfArray(list, keywords, attribute) {
   }
   return result
 }
+
+export function getTextSizeByCanvas(
+  text: string,
+  fontSize: number,
+  fontFamily?: string,
+) {
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')
+  context.font = `${fontSize}px ${fontFamily}`
+  const metrics = context.measureText(text)
+  const width = Math.ceil(metrics.width)
+  canvas.remove()
+  return width + 2
+}

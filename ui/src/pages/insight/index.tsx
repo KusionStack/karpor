@@ -6,6 +6,7 @@ import {
   SortAscendingOutlined,
   SortDescendingOutlined,
 } from '@ant-design/icons'
+import { useSelector } from 'react-redux'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import queryString from 'query-string'
@@ -20,10 +21,9 @@ import {
 import CardContent from './components/card'
 import RuleForm from './components/ruleForm'
 import QuotaContent from './components/quotaContent'
+import { InsightTabs } from './components/insightTabs'
 
 import styles from './styles.module.less'
-import { useSelector } from 'react-redux'
-import { InsightTabs } from './components/insightTabs'
 
 const orderIconStyle: React.CSSProperties = {
   marginLeft: 0,
@@ -381,7 +381,7 @@ const Insight = () => {
               <Input
                 placeholder={t('KeywordSearch')}
                 suffix={<SearchOutlined />}
-                style={{ width: 200 }}
+                style={{ width: 260 }}
                 value={keyword}
                 onChange={handleChange}
                 allowClear
@@ -404,7 +404,7 @@ const Insight = () => {
                     <Pagination
                       total={pageParams?.total}
                       showTotal={(total: number, range: any[]) =>
-                        `${range[0]}-${range[1]} ${t('Total')} ${total} `
+                        `${range?.[0]}-${range?.[1]} ${t('Total')} ${total} `
                       }
                       pageSize={pageParams?.pageSize}
                       current={pageParams?.pageNo}

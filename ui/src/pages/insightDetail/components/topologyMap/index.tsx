@@ -11,7 +11,6 @@ import {
   createNodeFromReact,
   appenAutoShapeListener,
   Image,
-  // Text,
 } from '@antv/g6-react-node'
 import Loading from '@/components/loading'
 import transferPng from '@/assets/transfer.png'

@@ -1,9 +1,10 @@
 import React from 'react'
-import styles from './styles.module.less'
 import { PlusOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
 import { Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
+
+import styles from './styles.module.less'
 
 export const InsightTabs = ({
   items,

@@ -25,18 +25,16 @@ const CardContent = ({ allTags, handleClick, group }: IProps) => {
 
   const content = (
     <>
-      {allTags?.map((item, index) => {
-        return (
-          <div key={item?.key}>
-            <Tag
-              style={{
-                ...tagStyle,
-                marginBottom: index === allTags?.length - 1 ? 0 : 5,
-              }}
-            >{`${item?.key}: ${item?.value}`}</Tag>
-          </div>
-        )
-      })}
+      {allTags?.map((item, index) => (
+        <div key={item?.key}>
+          <Tag
+            style={{
+              ...tagStyle,
+              marginBottom: index === allTags?.length - 1 ? 0 : 5,
+            }}
+          >{`${item?.key}: ${item?.value}`}</Tag>
+        </div>
+      ))}
     </>
   )
 
@@ -59,20 +57,18 @@ const CardContent = ({ allTags, handleClick, group }: IProps) => {
             </div>
           </Tooltip>
           <div className={styles.tag_container}>
-            {allTags?.slice(0, 2)?.map(item => {
-              return (
-                <Popover
-                  key={item?.key}
-                  content={
-                    <span>
-                      {item?.key}: {item?.value}
-                    </span>
-                  }
-                >
-                  <Tag style={tagStyle}>{`${item?.key}: ${item?.value}`}</Tag>
-                </Popover>
-              )
-            })}
+            {allTags?.slice(0, 2)?.map(item => (
+              <Popover
+                key={item?.key}
+                content={
+                  <span>
+                    {item?.key}: {item?.value}
+                  </span>
+                }
+              >
+                <Tag style={tagStyle}>{`${item?.key}: ${item?.value}`}</Tag>
+              </Popover>
+            ))}
           </div>
         </div>
       </div>
@@ -80,9 +76,7 @@ const CardContent = ({ allTags, handleClick, group }: IProps) => {
         <Popover content={content}>
           <div className={styles.btn_item}>{t('AllTags')}</div>
         </Popover>
-        <div>
-          <Divider type="vertical" />
-        </div>
+        <Divider type="vertical" />
         <div
           className={styles.btn_item}
           onClick={() => handleClick(group, title)}

@@ -40,12 +40,12 @@ const ClusterCard = (props: IProps) => {
           <div className={styles.top}>
             <div className={styles.name}>
               {item?.spec?.displayName ? (
-                <span>
+                <>
                   {item?.spec?.displayName}
                   <span style={{ color: '#808080' }}>
                     （{item?.metadata?.name}）
                   </span>
-                </span>
+                </>
               ) : (
                 <span>{item?.metadata?.name}</span>
               )}
