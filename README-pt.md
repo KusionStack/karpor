@@ -33,7 +33,7 @@
 
 O Karpor é um **Explorador de Kubernetes** Moderno focado em **🔍 Pesquisa**, **💡 Insights** e **🤖 Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
 
-https://github.com/KusionStack/karpor/assets/9360247/c5050dfa-23f3-49ac-ba4a-1026ab043e6c
+https://github.com/KusionStack/karpor/assets/9360247/c79cb430-12ec-4a48-90ab-6083ff3b82d4
 
 ## Por que escolher o Karpor?
 
