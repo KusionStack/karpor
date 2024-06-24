@@ -76,7 +76,7 @@ const ClusterDetail = () => {
           const kindTmp = item?.id?.split('.')
           const len = kindTmp?.length
           const lastKindTmp = kindTmp?.[len - 1]
-          if (lastKindTmp === 'Pod') {
+          if (lastKindTmp === (tableName || 'Pod')) {
             return true
           } else {
             return false
