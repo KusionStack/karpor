@@ -34,7 +34,7 @@ Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 
 
 我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！🚀
 
-https://github.com/KusionStack/karpor/assets/9360247/c79cb430-12ec-4a48-90ab-6083ff3b82d4
+https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
 ## 为什么选择 Karpor？
 
