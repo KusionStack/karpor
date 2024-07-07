@@ -74,19 +74,21 @@ func checkEndpointConnectivity(endpoint string) error {
 func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 	// Create an initial rest.Config object.
 	clientConfig := &rest.Config{}
-
 	// Set the API server and authentication details.
 	if len(config.Clusters) > 0 {
 		cluster := config.Clusters[0].Cluster
 		clientConfig.Host = cluster.Server
-		if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
-			return nil, errors.Wrapf(
-				err,
-				"invalid certificate-authority-data for cluster %s",
-				config.Clusters[0].Name,
-			)
-		} else {
-			clientConfig.CAData = plain
+		clientConfig.Insecure = cluster.Insecure // allow insecure connection
+		if len(cluster.CertificateAuthorityData) > 0 {
+			if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
+				return nil, errors.Wrapf(
+					err,
+					"invalid certificate-authority-data for cluster %s",
+					config.Clusters[0].Name,
+				)
+			} else {
+				clientConfig.CAData = plain
+			}
 		}
 	}
 
@@ -94,6 +96,11 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 		user := config.Users[0].User
 		clientConfig.Username = user.Username
 		clientConfig.Password = user.Password
+		clientConfig.BearerToken = user.Token
+		if len(user.Token) > 0 || (len(user.Password) > 0 && len(user.Username) > 0) {
+			// prefer token or username/password
+			return clientConfig, nil
+		}
 		if plain, err := base64.StdEncoding.DecodeString(user.ClientCertificateData); err != nil {
 			return nil, fmt.Errorf(
 				"invalid client-certificate-data for user %s: %v",

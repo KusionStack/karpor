@@ -365,6 +365,7 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		// Decode the request body into the payload.
 		payload := &ValidatePayload{}
 		if err := payload.Decode(r); err != nil {
+			log.Error(err, "failed to decode kubeconfig")
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 			return
 		}
@@ -378,6 +379,8 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		if info, err := clusterMgr.ValidateKubeConfigWithYAML(ctx, payload.KubeConfig); err == nil {
 			render.JSON(w, r, handler.SuccessResponse(ctx, info))
 		} else {
+			log.Error(err, "failed to validate kubeconfig")
+			w.WriteHeader(http.StatusBadRequest)
 			render.Render(w, r, handler.FailureResponse(ctx, err))
 		}
 	}
