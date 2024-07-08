@@ -34,7 +34,7 @@ endif
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated|handler"` ${TEST_FLAGS}
+	go test -gcflags=all=-l -timeout=10m `go list -e $${PKG_LIST} | grep -vE "internalimport|generated|handler"` ${TEST_FLAGS}
 
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.

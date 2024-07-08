@@ -418,13 +418,20 @@ func (c *ClusterManager) ValidateKubeConfigFor(
 		if cluster.Server == "" {
 			return "", ErrMissingClusterServer
 		}
-		if cluster.CertificateAuthorityData == "" {
-			return "", ErrMissingCertificateAuthority
-		}
-		if _, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
-			return "", ErrInvalidCertificateAuthority
+
+		if cluster.Insecure && len(cluster.CertificateAuthorityData) > 0 {
+			return "", ErrBothInsecureAndCertificateAuthority
 		}
 
+		if !cluster.Insecure && len(cluster.CertificateAuthorityData) <= 0 {
+			// when insecure is false, CA is required.
+			return "", ErrMissingCertificateAuthority
+		}
+		if len(cluster.CertificateAuthorityData) > 0 {
+			if _, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
+				return "", ErrInvalidCertificateAuthority
+			}
+		}
 		// Check cluster server address connectivity
 		if err := checkEndpointConnectivity(cluster.Server); err != nil {
 			return "", ErrClusterServerConnectivity

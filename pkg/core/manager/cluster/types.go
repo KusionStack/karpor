@@ -23,6 +23,7 @@ var (
 	ErrMissingUserEntry            = errors.New("at least one user entry is required")
 	ErrMissingClusterName          = errors.New("cluster name is required")
 	ErrMissingClusterServer        = errors.New("cluster server is required")
+	ErrBothInsecureAndCertificateAuthority = errors.New("certificate-authority-data and insecure-skip-tls-verify couldn't both be set")
 	ErrMissingCertificateAuthority = errors.New("certificate-authority-data is required")
 	ErrInvalidCertificateAuthority = errors.New("certificate-authority-data is invalid")
 	ErrClusterServerConnectivity   = errors.New("cannot connect to the cluster server")
@@ -70,6 +71,7 @@ type ClusterEntry struct {
 //
 //nolint:tagliatelle
 type Cluster struct {
+	Insecure bool 					`yaml:"insecure-skip-tls-verify,omitempty"`
 	Server                   string `yaml:"server"`
 	CertificateAuthorityData string `yaml:"certificate-authority-data,omitempty"`
 }
