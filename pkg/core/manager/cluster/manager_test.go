@@ -546,6 +546,29 @@ users:
 			expectedErr: false,
 		},
 		{
+			name:            "Sanitize token based kubeconfig",
+			plainKubeConfig: newMockTokenAndInsecureKubeConfig(),
+			expectedSanitizedKubeConfig: `apiVersion: v1
+kind: Config
+clusters:
+    - name: cluster-local
+      cluster:
+        insecure-skip-tls-verify: true
+        server: https://127.0.0.1:30383/k8s/cluster/cluster-local
+contexts:
+    - name: cluster-local-admin@cluster-local
+      context:
+        cluster: cluster-local
+        user: cluster-local-admin
+current-context: cluster-local-admin@cluster-local
+users:
+    - name: cluster-local-admin
+      user:
+        token: 3ac4************************ddd5
+`,
+			expectedErr: false,
+		},
+		{
 			name:                 "Attempt to sanitize invalid kubeconfig",
 			plainKubeConfig:      "invalid",
 			expectedErr:          true,
@@ -658,6 +681,29 @@ contexts:
     user: test-user
 current-context: test-context
 `, base64.StdEncoding.EncodeToString([]byte("sensitive-certificate-data")))
+}
+
+// newMockTokenAndInsecureKubeConfig generates a mock token-based kubeconfig with sensitive information
+// included.
+func newMockTokenAndInsecureKubeConfig() string {
+	return fmt.Sprintf(`apiVersion: v1
+kind: Config
+clusters:
+- name: cluster-local
+  cluster:
+    insecure-skip-tls-verify: true
+    server: https://127.0.0.1:30383/k8s/cluster/cluster-local
+contexts:
+- context:
+    cluster: cluster-local
+    user: cluster-local-admin
+  name: cluster-local-admin@cluster-local
+current-context: cluster-local-admin@cluster-local
+users:
+- name: cluster-local-admin
+  user:
+    token: %s
+`, base64.StdEncoding.EncodeToString([]byte("sensitive-token-data")))
 }
 
 // newMockCluster is a helper function that creates a mock cluster unstructured
