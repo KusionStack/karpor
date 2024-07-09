@@ -71,6 +71,7 @@ func TestNewCoreRoute(t *testing.T) {
 				"/endpoints",
 				"/server-configs",
 				"/rest-api/v1/search/",
+				"/livez",
 			},
 		},
 	}
@@ -90,6 +91,15 @@ func TestNewCoreRoute(t *testing.T) {
 					// Assert status code is not 404 to ensure the route exists.
 					require.NotEqual(t, http.StatusNotFound, rr.Code, "Route should exist: %s", route)
 				}
+
+				// Test the /healthz endpoint
+				req := httptest.NewRequest(http.MethodGet, "/livez", nil)
+				rr := httptest.NewRecorder()
+				router.ServeHTTP(rr, req)
+
+				// Assert status code is 200 to ensure the health check route works.
+				require.Equal(t, http.StatusOK, rr.Code, "Health check route should return status 200")
+				require.Equal(t, "ok", rr.Body.String(), "Health check route should return 'ok'")
 			}
 		})
 	}
