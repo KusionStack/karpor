@@ -86,6 +86,14 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 
 </br>
 
+## Our Vision
+
+The increasing complexity of the kubernetes ecosystem is an undeniable trend that is becoming more and more difficult to manage. This complexity not only entails a heavier burden on operations and maintenance but also slows down the adoption of new technologies by users, limiting their ability to fully leverage the potential of kubernetes.
+
+In general, we wish Karpor to focus on 🔍 search, 📊 insights, and ✨ AI, to **break through the increasingly complex maze of kubernetes**, achieving the following **value proposition**:
+
+![](https://kusionstack.io/karpor/assets/overview/vision.png)
+
 ## ⚙️ Installation
 
 ### Install with Helm
