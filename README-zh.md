@@ -86,7 +86,7 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 
 </br>
 
-## 🌈 Our Vision
+## 🌈 愿景
 
 现如今，Kubernetes 生态系统日益复杂是一个不可否认的趋势，这一趋势越来越难以驾驭。这种复杂性不仅增加了运维的难度，也降低了用户采纳新技术的速度，从而限制了他们充分利用 Kubernetes 的潜力。
 
