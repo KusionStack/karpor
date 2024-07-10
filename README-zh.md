@@ -28,15 +28,17 @@
 
 </div>
 
-## Karpor 是什么？
+## 📖 Karpor 是什么？
 
-Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 资源管理器/Kubernetes 仪表盘**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性，并使开发人员能够更快地交付。
+Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 可视化工具**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性。
 
 我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！🚀
 
+🎯 **当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
+
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
-## 为什么选择 Karpor？
+## 💡 为什么选择 Karpor？
 
 <h3 align="center">🔍 搜索</h3>
 
@@ -83,6 +85,14 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 </table>
 
 </br>
+
+## 🌈 愿景
+
+现如今，Kubernetes 生态系统日益复杂是一个不可否认的趋势，这一趋势越来越难以驾驭。这种复杂性不仅增加了运维的难度，也降低了用户采纳新技术的速度，从而限制了他们充分利用 Kubernetes 的潜力。
+
+我们希望 Karpor 围绕着 🔍 搜索、📊 洞察和✨AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
+
+![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
 ## ⚙️ 安装
 
@@ -139,6 +149,9 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SparkYuan"><img src="https://avatars.githubusercontent.com/u/4793557?v=4?s=80" width="80px;" alt="Dayuan"/><br /><sub><b>Dayuan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=SparkYuan" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolfcode111"><img src="https://avatars.githubusercontent.com/u/68718623?v=4?s=80" width="80px;" alt="huadongxu"/><br /><sub><b>huadongxu</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=wolfcode111" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.cnblogs.com/sting2me/"><img src="https://avatars.githubusercontent.com/u/3829504?v=4?s=80" width="80px;" alt="Peter Wang"/><br /><sub><b>Peter Wang</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=peter-wangxu" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
@@ -146,3 +159,13 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ 联系方式
+
+如果您有任何问题，欢迎通过以下方式联系我们：
+
+- [Slack](https://kusionstack.slack.com) | [加入](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- [钉钉群](https://page.dingtalk.com/wow/dingtalk/act/en-home)：`42753001`（中文）
+- 微信群（中文）：添加微信小助手，拉你进用户群
+
+  <img src="assets/img/wechat.png" width="200" height="200"/>

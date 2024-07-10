@@ -28,15 +28,17 @@
 
 </div>
 
-## What is Karpor?
+## 📖 What is Karpor?
 
-Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. It is essentially a **Kubernetes Explorer/Kubernetes Dashboard**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds and empower developers to ship faster.
+Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. It is essentially a **Kubernetes Visualization Tool**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds.
 
 We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project! 🚀
 
+🎯 **Current Status**: We are iterating [v0.5.0 Milestone](https://github.com/KusionStack/karpor/milestone/4), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/528).
+
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
-## Why Karpor?
+## 💡 Why Karpor?
 
 <h3 align="center">🔍 Search</h3>
 
@@ -83,6 +85,14 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 </table>
 
 </br>
+
+## 🌈 Our Vision
+
+The increasing complexity of the kubernetes ecosystem is an undeniable trend that is becoming more and more difficult to manage. This complexity not only entails a heavier burden on operations and maintenance but also slows down the adoption of new technologies by users, limiting their ability to fully leverage the potential of kubernetes.
+
+In general, we wish Karpor to focus on 🔍 search, 📊 insights, and ✨ AI, to **break through the increasingly complex maze of kubernetes**, achieving the following **value proposition**:
+
+![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
 ## ⚙️ Installation
 
@@ -139,6 +149,9 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SparkYuan"><img src="https://avatars.githubusercontent.com/u/4793557?v=4?s=80" width="80px;" alt="Dayuan"/><br /><sub><b>Dayuan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=SparkYuan" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolfcode111"><img src="https://avatars.githubusercontent.com/u/68718623?v=4?s=80" width="80px;" alt="huadongxu"/><br /><sub><b>huadongxu</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=wolfcode111" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.cnblogs.com/sting2me/"><img src="https://avatars.githubusercontent.com/u/3829504?v=4?s=80" width="80px;" alt="Peter Wang"/><br /><sub><b>Peter Wang</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=peter-wangxu" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
@@ -146,3 +159,13 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ Contact
+
+If you have any questions, feel free to reach out to us in the following ways:
+
+- [Slack](https://kusionstack.slack.com) | [Join](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- [DingTalk Group](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (Chinese)
+- WeChat Group (Chinese): Add the WeChat assistant to bring you into the user group.
+
+  <img src="assets/img/wechat.png" width="200" height="200"/>

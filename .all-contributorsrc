@@ -146,6 +146,15 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "peter-wangxu",
+      "name": "Peter Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3829504?v=4",
+      "profile": "https://www.cnblogs.com/sting2me/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
