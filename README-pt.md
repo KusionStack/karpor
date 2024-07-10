@@ -145,3 +145,9 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ Contato
+
+Caso tenha alguma pergunta, sinta-se à vontade para entrar em contato conosco pelos seguintes meios:
+
+- [Slack](https://kusionstack.slack.com) | [Junte-se](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)

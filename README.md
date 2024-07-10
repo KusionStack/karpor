@@ -146,3 +146,13 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ Contact
+
+If you have any questions, feel free to reach out to us in the following ways:
+
+- [Slack](https://kusionstack.slack.com) | [Join](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- [DingTalk Group](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (Chinese)
+- WeChat Group (Chinese): Add the WeChat assistant to bring you into the user group.
+
+  <img src="assets/img/wechat.png" width="200" height="200"/>

@@ -146,3 +146,13 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ 联系方式
+
+如果您有任何问题，欢迎通过以下方式联系我们：
+
+- [Slack](https://kusionstack.slack.com) | [加入](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- [钉钉群](https://page.dingtalk.com/wow/dingtalk/act/en-home)：`42753001`（中文）
+- 微信群（中文）：添加微信小助手，拉你进用户群
+
+  <img src="assets/img/wechat.png" width="200" height="200"/>
