@@ -5,7 +5,7 @@
 </p>
 
 <h1 style="font-size: 1.5em;">
-    Intelligence for Kubernetes ✨
+    Intelligence for Kubernetes
 </h1>
 
 <p align="center">
@@ -28,25 +28,25 @@
 
 </div>
 
-## 📖 Karpor 是什么？
+## Karpor 是什么？
 
-Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **🔍 搜索**、**💡 洞察**和 **✨ AI** 功能，本质上是一个 **Kubernetes 可视化工具**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性。
+Karpor 是一个现代化的 Kubernetes 可视化工具，核心特性聚焦在 **搜索、洞察、AI** ，目标是降低 Kubernetes 使用的复杂性，并用 AI 赋能 Kubernetes，它可以从任何云平台上获得对 Kubernetes 跨集群的关键可见性提供给开发者和平台团队，帮助他们更好地理解集群并做出决策。
 
-我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！🚀
+我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！
 
-🎯 **当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
+**当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
 
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
-## 💡 为什么选择 Karpor？
+## 为什么选择 Karpor？
 
 <h3 align="center">🔍 搜索</h3>
 
 <table>
   <tr>
     <td>
-      <b>⚡️ 自动同步</b><br />自动同步您在多云平台管理的任何集群中的资源<br /><br/>
-      <b>🔍 强大灵活的查询</b><br />以快速简单的方式有效地检索和定位跨集群的资源
+      <b>自动同步</b><br />自动同步您在多云平台管理的任何集群中的资源<br /><br/>
+      <b>强大灵活的查询</b><br />以快速简单的方式有效地检索和定位跨集群的资源
     </td>
     <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg"  /></kbd>
@@ -62,9 +62,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
       <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg"  /></kbd>
     </td>
     <td>
-      <b>🔒 安全合规</b><br />了解您在多个集群和合规标准中的合规性状态<br /><br/>
-      <b>📊 资源拓扑</b><br />提供包含资源运行上下文信息的关系拓扑和逻辑视图<br /><br/>
-      <b>📉 成本优化</b><br />即将推出
+      <b>安全合规</b><br />了解您在多个集群和合规标准中的合规性状态<br /><br/>
+      <b>资源拓扑</b><br />提供包含资源运行上下文信息的关系拓扑和逻辑视图<br /><br/>
+      <b>成本优化</b><br />即将推出
     </td>
   </tr>
 </table>
@@ -74,9 +74,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 <table>
   <tr>
     <td>
-      <b>💬 自然语言操作</b><br />使用自然语言与 Kubernetes 交互，实现更直观的操作<br /><br />
-      <b>📦 情境化 AI 响应</b><br />获得智能的、情境化的辅助，满足您的需求<br /><br />
-      <b>🤖 Kubernetes AIOps</b><br />利用 AI 驱动的洞察，自动化和优化 Kubernetes 管理
+      <b>自然语言操作</b><br />使用自然语言与 Kubernetes 交互，实现更直观的操作<br /><br />
+      <b>情境化 AI 响应</b><br />获得智能的、情境化的辅助，满足您的需求<br /><br />
+      <b>Kubernetes AIOps</b><br />利用 AI 驱动的洞察，自动化和优化 Kubernetes 管理
     </td>
     <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg"  /></kbd>
@@ -90,7 +90,7 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 
 现如今，Kubernetes 生态系统日益复杂是一个不可否认的趋势，这一趋势越来越难以驾驭。这种复杂性不仅增加了运维的难度，也降低了用户采纳新技术的速度，从而限制了他们充分利用 Kubernetes 的潜力。
 
-我们希望 Karpor 围绕着 🔍 搜索、📊 洞察和✨AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
+我们希望 Karpor 围绕着搜索、洞察和AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
 
 ![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
@@ -124,7 +124,7 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 
 ## 🎖︎ 贡献者
 
-感谢这些了不起的人！来[加入我们](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)吧！🍻
+感谢这些了不起的人！来[加入我们](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)吧！
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->

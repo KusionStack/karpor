@@ -5,7 +5,7 @@
 </p>
 
 <h1 style="font-size: 1.5em;">
-    Intelligence for Kubernetes ✨
+    Intelligence for Kubernetes
 </h1>
 
 <p align="center">
@@ -28,25 +28,25 @@
 
 </div>
 
-## 📖 What is Karpor?
+## What is Karpor?
 
-Karpor is Intelligence for Kubernetes. It brings advanced **🔍 Search**, **💡 Insight** and **✨ AI** to Kubernetes. It is essentially a **Kubernetes Visualization Tool**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds.
+Karpor is Intelligence for Kubernetes. It brings advanced **Search**, **Insight** and **AI** to Kubernetes. It is essentially a **Kubernetes Visualization Tool**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds.
 
-We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project! 🚀
+We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project!
 
-🎯 **Current Status**: We are iterating [v0.5.0 Milestone](https://github.com/KusionStack/karpor/milestone/4), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/528).
+**Current Status**: We are iterating [v0.5.0 Milestone](https://github.com/KusionStack/karpor/milestone/4), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/528).
 
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
-## 💡 Why Karpor?
+## Why Karpor?
 
 <h3 align="center">🔍 Search</h3>
 
 <table>
   <tr>
     <td>
-      <b>⚡️ Automatic Syncing</b><br />Automatically synchronize your resources across any clusters managed by the multi-cloud platform.<br /><br/>
-      <b>🔍 Powerful, flexible queries</b><br />Effectively retrieve and locate resources across multi clusters that you are looking for in a quick and easy way.
+      <b>Automatic Syncing</b><br />Automatically synchronize your resources across any clusters managed by the multi-cloud platform.<br /><br/>
+      <b>Powerful, flexible queries</b><br />Effectively retrieve and locate resources across multi clusters that you are looking for in a quick and easy way.
     </td>
     <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
@@ -62,9 +62,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
       <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
     <td>
-      <b>🔒 Compliance Governance</b><br />Understand your compliance status across multiple clusters and compliance standards.<br /><br/>
-      <b>📊 Resource Topology</b><br />Logical and topological views of relevant resources within their operational context.<br /><br/>
-      <b>📉 Cost Optimization</b><br />Coming soon.
+      <b>Compliance Governance</b><br />Understand your compliance status across multiple clusters and compliance standards.<br /><br/>
+      <b>Resource Topology</b><br />Logical and topological views of relevant resources within their operational context.<br /><br/>
+      <b>Cost Optimization</b><br />Coming soon.
     </td>
   </tr>
 </table>
@@ -74,9 +74,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 <table>
   <tr>
     <td>
-      <b>💬 Natural Language Operations</b><br />Interact with Kubernetes using plain language for more intuitive operations.<br /><br />
-      <b>📦 Contextual AI Responses</b><br />Get smart, contextual assistance that understands your needs.<br /><br />
-      <b>🤖 AIOps for Kubernetes</b><br />Automate and optimize Kubernetes management with AI-powered insights.
+      <b>Natural Language Operations</b><br />Interact with Kubernetes using plain language for more intuitive operations.<br /><br />
+      <b>Contextual AI Responses</b><br />Get smart, contextual assistance that understands your needs.<br /><br />
+      <b>AIOps for Kubernetes</b><br />Automate and optimize Kubernetes management with AI-powered insights.
     </td>
     <td width="60%">
       <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" /></kbd>
@@ -90,7 +90,7 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 
 The increasing complexity of the kubernetes ecosystem is an undeniable trend that is becoming more and more difficult to manage. This complexity not only entails a heavier burden on operations and maintenance but also slows down the adoption of new technologies by users, limiting their ability to fully leverage the potential of kubernetes.
 
-In general, we wish Karpor to focus on 🔍 search, 📊 insights, and ✨ AI, to **break through the increasingly complex maze of kubernetes**, achieving the following **value proposition**:
+In general, we wish Karpor to focus on search, insights, and AI, to **break through the increasingly complex maze of kubernetes**, achieving the following **value proposition**:
 
 ![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
@@ -124,7 +124,7 @@ Karpor is still in the initial stage, and there are many capabilities that need 
 
 ## 🎖︎ Contributors
 
-Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karpor/developer-guide/contribution-guide)! 🍻
+Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karpor/developer-guide/contribution-guide)! 
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
