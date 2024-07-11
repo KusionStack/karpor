@@ -30,7 +30,7 @@
 
 ## Karpor 是什么？
 
-Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的 **搜索**、**洞察**和**AI** 功能，本质上是一个 **Kubernetes 可视化工具**。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性。
+Karpor 是一个现代化的 Kubernetes 可视化工具，核心特性聚焦在 **搜索、洞察、AI** ，目标是降低 Kubernetes 使用的复杂性，并用 AI 赋能 Kubernetes，它可以从任何云平台上获得对 Kubernetes 跨集群的关键可见性提供给开发者和平台团队，帮助他们更好地理解集群并做出决策。
 
 我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！
 
