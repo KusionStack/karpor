@@ -29,6 +29,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/server"
+	"github.com/KusionStack/karpor/pkg/version"
 	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
@@ -95,6 +96,9 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 	}))
 	expvar.Publish("StorageOptions", expvar.Func(func() interface{} {
 		return o.SearchStorageOptions
+	}))
+	expvar.Publish("Version", expvar.Func(func() interface{} {
+		return version.GetVersion()
 	}))
 
 	cmd := &cobra.Command{

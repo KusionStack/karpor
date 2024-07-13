@@ -2,10 +2,12 @@ import { createSlice } from '@reduxjs/toolkit'
 
 type InitialState = {
   isReadOnlyMode: any
+  versionNumber: string
 }
 
 const initialState: InitialState = {
   isReadOnlyMode: undefined,
+  versionNumber: '',
 }
 
 export const globalSlice = createSlice({
@@ -15,9 +17,12 @@ export const globalSlice = createSlice({
     setServerConfigMode: (state, action) => {
       state.isReadOnlyMode = action.payload
     },
+    setVersionNumber: (state, action) => {
+      state.versionNumber = action.payload
+    },
   },
 })
 
-export const { setServerConfigMode } = globalSlice.actions
+export const { setServerConfigMode, setVersionNumber } = globalSlice.actions
 
 export default globalSlice.reducer
