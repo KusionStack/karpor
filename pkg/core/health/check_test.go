@@ -1,8 +1,6 @@
 package health
 
 import (
-	"github.com/elliotxx/healthcheck"
-	"github.com/elliotxx/healthcheck/checks"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -26,35 +24,35 @@ func TestNewHandler(t *testing.T) {
 	tests := []struct {
 		name               string
 		query              string
-		checks             []checks.Check
+		checks             []Check
 		expectedStatusCode int
 		expectedResponse   string
 	}{
 		{
 			name:               "All checks pass",
 			query:              "",
-			checks:             []checks.Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: true}},
+			checks:             []Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: true}},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   `OK`,
 		},
 		{
 			name:               "One check fails",
 			query:              "",
-			checks:             []checks.Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: false}},
+			checks:             []Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: false}},
 			expectedStatusCode: http.StatusServiceUnavailable,
 			expectedResponse:   `Fail`,
 		},
 		{
 			name:               "Check excluded",
 			query:              "excludes=check2",
-			checks:             []checks.Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: false}},
+			checks:             []Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: false}},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   `OK`,
 		},
 		{
 			name:               "Verbose output",
 			query:              "verbose=true",
-			checks:             []checks.Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: true}},
+			checks:             []Check{&mockCheck{name: "check1", pass: true}, &mockCheck{name: "check2", pass: true}},
 			expectedStatusCode: http.StatusOK,
 			expectedResponse:   `[+] check1 ok` + "\n" + `[+] check2 ok` + "\n" + `health check passed`,
 		},
@@ -62,11 +60,11 @@ func TestNewHandler(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			conf := healthcheck.HandlerConfig{
+			conf := HandlerConfig{
 				Verbose:  false,
 				Excludes: []string{},
 				Checks:   tt.checks,
-				FailureNotification: healthcheck.FailureNotification{
+				FailureNotification: FailureNotification{
 					Threshold: 3,
 					Chan:      make(chan error),
 				},

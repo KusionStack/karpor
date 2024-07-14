@@ -1,10 +1,24 @@
+/*
+Copyright The Karpor Authors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/
+
 package health
 
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/syncer"
-	"github.com/elliotxx/healthcheck"
-	"github.com/elliotxx/healthcheck/checks"
 	"github.com/go-chi/chi/v5"
 	"golang.org/x/sync/errgroup"
 	"k8s.io/kubernetes/pkg/kubelet/server"
@@ -23,13 +37,13 @@ func Register(r *chi.Mux, serv server.Server, sync syncer.ResourceSyncer, sg sto
 // NewLivezHandler creates a new liveness check handler that can be
 // used to check if the application is running.
 func NewLivezHandler() http.HandlerFunc {
-	conf := healthcheck.HandlerConfig{
+	conf := HandlerConfig{
 		Verbose: false,
 		// checkList is a list of healthcheck to run.
-		Checks: []checks.Check{
-			checks.NewPingCheck(),
+		Checks: []Check{
+			NewPingCheck(),
 		},
-		FailureNotification: healthcheck.FailureNotification{Threshold: 1},
+		FailureNotification: FailureNotification{Threshold: 1},
 	}
 
 	return NewHandler(conf)
@@ -38,22 +52,22 @@ func NewLivezHandler() http.HandlerFunc {
 // NewReadyzHandler creates a new readiness check handler that can be
 // used to check if the application is ready to serve traffic.
 func NewReadyzHandler(serv server.Server, sync syncer.ResourceSyncer, sg storage.Storage) http.HandlerFunc {
-	conf := healthcheck.HandlerConfig{
+	conf := HandlerConfig{
 		Verbose: true,
 		// checkList is a list of healthcheck to run.
-		Checks: []checks.Check{
-			checks.NewPingCheck(),
+		Checks: []Check{
+			NewPingCheck(),
 			//NewServerCheck(serv),
 			//NewSyncerCheck(sync),
 			//NewStorageCheck(sg),
 		},
-		FailureNotification: healthcheck.FailureNotification{Threshold: 1},
+		FailureNotification: FailureNotification{Threshold: 1},
 	}
 
 	return NewHandler(conf)
 }
 
-func NewHandler(conf healthcheck.HandlerConfig) http.HandlerFunc {
+func NewHandler(conf HandlerConfig) http.HandlerFunc {
 	var (
 		mu            sync.Mutex
 		failureInARow uint32
@@ -76,7 +90,7 @@ func NewHandler(conf healthcheck.HandlerConfig) http.HandlerFunc {
 		}
 
 		// Create a new check statuses instance.
-		statuses := checks.NewCheckStatuses(len(conf.Checks))
+		statuses := NewCheckStatuses(len(conf.Checks))
 
 		// Iterate over the list of health checks and execute them
 		// concurrently.
@@ -98,7 +112,7 @@ func NewHandler(conf healthcheck.HandlerConfig) http.HandlerFunc {
 				}
 
 				if _, ok := statuses.Get(name); ok {
-					return healthcheck.ErrHealthCheckNamesConflict
+					return ErrHealthCheckNamesConflict
 				}
 
 				// Execute the check and update the status list.
@@ -107,7 +121,7 @@ func NewHandler(conf healthcheck.HandlerConfig) http.HandlerFunc {
 
 				// If the check fails, return a failure error.
 				if !pass {
-					return healthcheck.ErrHealthCheckFailed
+					return ErrHealthCheckFailed
 				}
 				return nil
 			})
