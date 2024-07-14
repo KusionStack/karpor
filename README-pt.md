@@ -31,7 +31,7 @@
 
 ## O que é o Karpor?
 
-O Karpor é um **Explorador de Kubernetes** Moderno focado em **🔍 Pesquisa**, **💡 Insights** e **🤖 Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
+O Karpor é um **Explorador de Kubernetes** Moderno focado em **Pesquisa**, **Insights** e **Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
 
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
@@ -42,9 +42,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 <table>
   <tr>
     <td style="vertical-align: middle;">
-      <b>⚡️ Leve e Fácil de Configurar</b><br />Apenas um `helm` e pronto.<br /><br/>
-      <b>📦 Pronto para Usar</b><br />Políticas de segurança e conformidade integradas, estratégia de sincronização de recursos, regra de transformação de recursos e definições de relacionamento de topologia.<br /><br />
-      <b>🔍 Pesquisa e Localização Rápidas de Recursos</b><br />Pesquise e localize rapidamente recursos de interesse em um grande número de clusters de forma amigável ao usuário.
+      <b>Leve e Fácil de Configurar</b><br />Apenas um `helm` e pronto.<br /><br/>
+      <b>Pronto para Usar</b><br />Políticas de segurança e conformidade integradas, estratégia de sincronização de recursos, regra de transformação de recursos e definições de relacionamento de topologia.<br /><br />
+      <b>Pesquisa e Localização Rápidas de Recursos</b><br />Pesquise e localize rapidamente recursos de interesse em um grande número de clusters de forma amigável ao usuário.
     </td>
     <td style="width: 60%; vertical-align: middle;">
       <img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" alt="Amigável ao usuário" />
@@ -60,8 +60,8 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
       <img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" alt="Inteligente" />
     </td>
     <td style="vertical-align: middle;">
-      <b>🔒 Proteção de Conformidade</b><br />Identifique automaticamente potenciais riscos e receba sugestões de IA para remediação.<br /><br/>
-      <b>📊 Visualizações Lógicas e Topológicas</b><br />Visualizações lógicas e topológicas de recursos relevantes dentro do contexto operacional.
+      <b>Proteção de Conformidade</b><br />Identifique automaticamente potenciais riscos e receba sugestões de IA para remediação.<br /><br/>
+      <b>Visualizações Lógicas e Topológicas</b><br />Visualizações lógicas e topológicas de recursos relevantes dentro do contexto operacional.
     </td>
   </tr>
 </table>
@@ -71,9 +71,9 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 <table>
   <tr>
     <td style="vertical-align: middle;">
-      <b>🔒 Somente Leitura, Não Invasivo</b><br />Plano de dados apenas para leitura, Não Invasivo ao cluster do usuário.<br /><br />
-      <b>⚙️ Compatível com API Nativa do Kubernetes</b><br />Integração perfeita com a cadeia de ferramentas existente do Kubernetes.<br /><br />
-      <b>☁️ Multi-Cluster e Multi-Nuvem/Nuvem Híbrida</b><br />Suporta nativamente Multi-Cluster e Multi-Nuvem/Nuvem Híbrida.
+      <b>Somente Leitura, Não Invasivo</b><br />Plano de dados apenas para leitura, Não Invasivo ao cluster do usuário.<br /><br />
+      <b>Compatível com API Nativa do Kubernetes</b><br />Integração perfeita com a cadeia de ferramentas existente do Kubernetes.<br /><br />
+      <b>Multi-Cluster e Multi-Nuvem/Nuvem Híbrida</b><br />Suporta nativamente Multi-Cluster e Multi-Nuvem/Nuvem Híbrida.
     </td>
     <td style="width: 60%; vertical-align: middle;">
       <img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" alt="Baixo Impacto" />
@@ -82,6 +82,14 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
 </table>
 
 </br>
+
+## 🌈 Nossa Visão
+
+A crescente complexidade do ecossistema do Kubernetes é uma tendência inegável que está se tornando cada vez mais difícil de gerenciar. Essa complexidade não só significa uma carga maior para operações e manutenção, mas também retarda a adoção de novas tecnologias pelos usuários, limitando sua capacidade de aproveitar ao máximo o potencial do Kubernetes.
+
+Em geral, desejamos que o Karpor se concentre em busca, insights e inteligência artificial, para **transcender o labirinto cada vez mais complexo do Kubernetes**, alcançando a seguinte **proposta de valor**:
+
+![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
 ## ⚙️ Instalação
 
@@ -113,7 +121,7 @@ Karpor ainda está em estágio inicial e há muitas capacidades que precisam ser
 
 ## 🎖︎ Colaboradores
 
-Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack.io/karpor/developer-guide/contribution-guide) a nós!🍻
+Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack.io/karpor/developer-guide/contribution-guide) a nós!
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -138,6 +146,9 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SparkYuan"><img src="https://avatars.githubusercontent.com/u/4793557?v=4?s=80" width="80px;" alt="Dayuan"/><br /><sub><b>Dayuan</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=SparkYuan" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wolfcode111"><img src="https://avatars.githubusercontent.com/u/68718623?v=4?s=80" width="80px;" alt="huadongxu"/><br /><sub><b>huadongxu</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=wolfcode111" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://www.cnblogs.com/sting2me/"><img src="https://avatars.githubusercontent.com/u/3829504?v=4?s=80" width="80px;" alt="Peter Wang"/><br /><sub><b>Peter Wang</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=peter-wangxu" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 
@@ -145,3 +156,9 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## ☎️ Contato
+
+Caso tenha alguma pergunta, sinta-se à vontade para entrar em contato conosco pelos seguintes meios:
+
+- [Slack](https://kusionstack.slack.com) | [Junte-se](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
