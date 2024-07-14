@@ -69,7 +69,7 @@ func NewServerCheck(serv server.Server, storage storage.Storage) Check {
 }
 
 func NewSyncerCheck(sync syncer.ResourceSyncer) Check {
-	return nil
+	return NewSyncerCheckHandler(sync)
 }
 
 func NewStorageCheck(sg storage.Storage) Check {
