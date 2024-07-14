@@ -417,3 +417,22 @@ func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*Ag
 		Total:   len(bs),
 	}, nil
 }
+
+// PingElasticSearchClient would ping ElasticSearch client
+func (cl *Client) PingElasticSearchClient(ctx context.Context) error {
+	req := esapi.PingRequest{
+		Pretty: true,
+	}
+
+	// 使用带有上下文的请求
+	res, err := req.Do(ctx, cl.client)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	if res.IsError() {
+		return fmt.Errorf("error pinging Elasticsearch: %s", res.String())
+	}
+	return nil
+}

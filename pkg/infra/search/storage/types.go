@@ -49,6 +49,7 @@ type ResourceStorage interface {
 	DeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
 	DeleteAllResources(ctx context.Context, cluster string) error
 	CountResources(ctx context.Context) (int, error)
+	CheckHealth
 }
 
 // ResourceGroupRuleStorage interface defines the basic operations for resource
@@ -60,6 +61,7 @@ type ResourceGroupRuleStorage interface {
 	ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error)
 	CountResourceGroupRules(ctx context.Context) (int, error)
 	ListResourceGroupsBy(ctx context.Context, ruleName string) (*ResourceGroupResult, error)
+	CheckHealth
 }
 
 // SearchStorage interface defines the basic operations for search storage.
@@ -67,6 +69,7 @@ type SearchStorage interface {
 	Search(ctx context.Context, queryString, patternType string, pagination *Pagination) (*SearchResult, error)
 	SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *Pagination) (*SearchResult, error)
 	AggregateByTerms(ctx context.Context, keys []string) (*AggregateResults, error)
+	CheckHealth
 }
 
 type SearchStorageGetter interface {
@@ -78,6 +81,10 @@ type ResourceStorageGetter interface {
 
 type ResourceGroupRuleStorageGetter interface {
 	GetResourceGroupRuleStorage() (ResourceGroupRuleStorage, error)
+}
+
+type CheckHealth interface {
+	CheckStorageHealth(ctx context.Context) error
 }
 
 // Query represents the query parameters for searching resources.

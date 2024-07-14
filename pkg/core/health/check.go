@@ -73,5 +73,5 @@ func NewSyncerCheck(sync syncer.ResourceSyncer) Check {
 }
 
 func NewStorageCheck(sg storage.Storage) Check {
-	return nil
+	return NewStorageCheckHandler(sg)
 }

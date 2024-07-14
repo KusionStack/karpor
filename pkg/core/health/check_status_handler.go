@@ -19,6 +19,7 @@ limitations under the License.
 package health
 
 import (
+	"context"
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 	"net/http"
@@ -40,7 +41,7 @@ var (
 // Check represents a health check that can be run to check the status
 // of a service.
 type Check interface {
-	Pass() bool
+	Pass(context.Context) bool
 	Name() string
 }
 
@@ -170,7 +171,7 @@ func NewPingCheck() Check {
 }
 
 // Pass always returns true for the ping health check.
-func (c *pingCheck) Pass() bool {
+func (c *pingCheck) Pass(context.Context) bool {
 	return true
 }
 
@@ -190,6 +191,8 @@ func NewHandler(conf HandlerConfig) http.HandlerFunc {
 			eg         errgroup.Group
 			httpStatus = http.StatusOK
 		)
+
+		ctx := r.Context()
 
 		// Process the request parameters.
 		verbose := conf.Verbose
@@ -228,7 +231,7 @@ func NewHandler(conf HandlerConfig) http.HandlerFunc {
 				}
 
 				// Execute the check and update the status list.
-				pass := captureCheck.Pass()
+				pass := captureCheck.Pass(ctx)
 				statuses.Set(name, pass)
 
 				// If the check fails, return a failure error.

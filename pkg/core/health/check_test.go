@@ -1,6 +1,7 @@
 package health
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -16,7 +17,7 @@ func (m *mockCheck) Name() string {
 	return m.name
 }
 
-func (m *mockCheck) Pass() bool {
+func (m *mockCheck) Pass(ctx context.Context) bool {
 	return m.pass
 }
 
