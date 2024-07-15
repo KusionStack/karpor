@@ -18,15 +18,15 @@ package health
 
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/server"
 	"github.com/KusionStack/karpor/pkg/syncer"
 	"github.com/go-chi/chi/v5"
-	"k8s.io/kubernetes/pkg/kubelet/server"
 	"net/http"
 )
 
 // Register registers the livez and readyz handlers to the specified
 // router.
-func Register(r *chi.Mux, serv server.Server, sync syncer.ResourceSyncer, sg storage.Storage) {
+func Register(r *chi.Mux, serv server.KarporServer, sync syncer.ResourceSyncer, sg storage.Storage) {
 	r.Get("/livez", NewLivezHandler())
 	r.Get("/readyz", NewReadyzHandler(serv, sync, sg))
 }
@@ -48,13 +48,13 @@ func NewLivezHandler() http.HandlerFunc {
 
 // NewReadyzHandler creates a new readiness check handler that can be
 // used to check if the application is ready to serve traffic.
-func NewReadyzHandler(serv server.Server, sync syncer.ResourceSyncer, sg storage.Storage) http.HandlerFunc {
+func NewReadyzHandler(serv server.KarporServer, sync syncer.ResourceSyncer, sg storage.Storage) http.HandlerFunc {
 	conf := HandlerConfig{
 		Verbose: true,
 		// checkList is a list of healthcheck to run.
 		Checks: []Check{
 			NewPingCheck(),
-			NewServerCheck(serv, sg),
+			NewServerCheck(serv),
 			NewSyncerCheck(sync),
 			NewStorageCheck(sg),
 		},
@@ -64,8 +64,8 @@ func NewReadyzHandler(serv server.Server, sync syncer.ResourceSyncer, sg storage
 	return NewHandler(conf)
 }
 
-func NewServerCheck(serv server.Server, storage storage.Storage) Check {
-	return nil
+func NewServerCheck(serv server.KarporServer) Check {
+	return NewServerCheckHandler(serv)
 }
 
 func NewSyncerCheck(sync syncer.ResourceSyncer) Check {

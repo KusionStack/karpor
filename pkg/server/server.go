@@ -17,6 +17,7 @@ limitations under the License.
 package server
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"io/fs"
@@ -35,6 +36,10 @@ import (
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
 	"k8s.io/klog/v2"
 	rbacrest "k8s.io/kubernetes/pkg/registry/rbac/rest"
+)
+
+var (
+	SecurePort int
 )
 
 // KarporServer is the carrier of the main process of Karpor.
@@ -212,6 +217,27 @@ func (s *KarporServer) InstallAPIs(
 
 	if err := s.GenericAPIServer.InstallAPIGroups(apiGroupsInfo...); err != nil {
 		return fmt.Errorf("error in registering group versions: %v", err)
+	}
+	return nil
+}
+
+func (s *KarporServer) InstallHealthChecker(c *CompletedConfig) *KarporServer {
+	SecurePort = c.ExtraConfig.APIServerSecurePort
+	return s
+}
+
+func (s *KarporServer) HealthCheck(ctx context.Context) error {
+	url := fmt.Sprintf("https://localhost:{%d}/healthz", SecurePort)
+	req, _ := http.NewRequest("GET", url, nil)
+	req = req.WithContext(ctx)
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("health check failed with status code %d", resp.StatusCode)
 	}
 	return nil
 }

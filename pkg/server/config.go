@@ -63,6 +63,7 @@ func (c *CompletedConfig) New() (*KarporServer, error) {
 	if err := s.InstallKubernetesServer(c).
 		InstallCoreServer(c).
 		InstallPublicFileServer().
+		InstallHealthChecker(c).
 		Error(); err != nil {
 		return nil, err
 	}
