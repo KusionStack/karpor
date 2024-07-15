@@ -213,3 +213,13 @@ func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructure
 	}
 	return obj
 }
+
+// CheckStorageHealth checks the health of the ResourceSyncer's storage.
+func (s *ResourceSyncer) CheckStorageHealth(ctx context.Context) error {
+	healthy := s.Source().HasSynced() && s.storage.CheckStorageHealth(ctx) == nil
+	if !healthy {
+		s.logger.Error(errors.New("syncer is unhealthy"), "syncer is unhealthy")
+		return errors.New("syncer is unhealthy")
+	}
+	return nil
+}

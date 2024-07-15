@@ -32,7 +32,8 @@ func NewSyncerCheckHandler(sync syncer.ResourceSyncer) Check {
 }
 
 func (s *SyncerCheck) Pass(ctx context.Context) bool {
-	return s.Source().HasSynced()
+	err := s.CheckStorageHealth(ctx)
+	return err == nil
 }
 
 func (s *SyncerCheck) Name() string {
