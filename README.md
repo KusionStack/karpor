@@ -151,6 +151,7 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://www.cnblogs.com/sting2me/"><img src="https://avatars.githubusercontent.com/u/3829504?v=4?s=80" width="80px;" alt="Peter Wang"/><br /><sub><b>Peter Wang</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=peter-wangxu" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://blog.solarhell.com/"><img src="https://avatars.githubusercontent.com/u/10279583?v=4?s=80" width="80px;" alt="jiaxin"/><br /><sub><b>jiaxin</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=solarhell" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
