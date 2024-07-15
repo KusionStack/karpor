@@ -22,10 +22,10 @@ import (
 )
 
 type ServerCheck struct {
-	server.KarporServer
+	*server.KarporServer
 }
 
-func NewServerCheckHandler(serv server.KarporServer) Check {
+func NewServerCheckHandler(serv *server.KarporServer) Check {
 	return &ServerCheck{
 		KarporServer: serv,
 	}

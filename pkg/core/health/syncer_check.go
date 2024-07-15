@@ -22,10 +22,10 @@ import (
 )
 
 type SyncerCheck struct {
-	syncer.ResourceSyncer
+	*syncer.ResourceSyncer
 }
 
-func NewSyncerCheckHandler(sync syncer.ResourceSyncer) Check {
+func NewSyncerCheckHandler(sync *syncer.ResourceSyncer) Check {
 	return &SyncerCheck{
 		ResourceSyncer: sync,
 	}
