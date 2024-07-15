@@ -155,6 +155,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "solarhell",
+      "name": "jiaxin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10279583?v=4",
+      "profile": "https://blog.solarhell.com/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
