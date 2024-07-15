@@ -6,6 +6,7 @@ import {
   QuestionCircleOutlined,
   SearchOutlined,
   CaretDownOutlined,
+  TagOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
@@ -208,15 +209,22 @@ const LayoutPage = () => {
           />
         </div>
         <div className={styles.right} style={{ marginRight: 80 }}>
-          <div className={styles.version_number}>
-            <span>{versionNumber}</span>
-          </div>
           {isReadOnlyMode && (
             <div className={styles.read_only_mode}>
               <img className={styles.read_only_mode_img} src={showPng} />
               <span>{t('ReadOnlyMode')}</span>
             </div>
           )}
+          {versionNumber && (
+            <div
+              className={styles.read_only_mode}
+              style={{ padding: '2px 5px' }}
+            >
+              <TagOutlined />
+              <span style={{ marginRight: 5 }}>{versionNumber}</span>
+            </div>
+          )}
+
           <div className={styles.help}>
             <Dropdown menu={{ items: languageItems }}>
               <a
