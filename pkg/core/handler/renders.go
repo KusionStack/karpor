@@ -16,6 +16,7 @@ package handler
 
 import (
 	"context"
+	"net/http"
 	"time"
 
 	appmiddleware "github.com/KusionStack/karpor/pkg/core/middleware"
@@ -27,17 +28,22 @@ import (
 const SuccessMessage = "OK"
 
 // Response creates a standard API response renderer.
-func Response(ctx context.Context, data any, err error) render.Renderer {
+func Response(ctx context.Context, data any, err error, statusCode int) render.Renderer {
 	resp := &response{}
 
-	// Set the Success and Message fields based on the error parameter.
+	// Set the Message and Data fields based on the error parameter.
 	if err == nil {
-		resp.Success = true
 		resp.Message = SuccessMessage
 		resp.Data = data
 	} else {
-		resp.Success = false
 		resp.Message = err.Error()
+	}
+
+	// Set the Success fields based on the error and statusCode parameters.
+	if err == nil || statusCode == http.StatusNotFound {
+		resp.Success = true
+	} else {
+		resp.Success = false
 	}
 
 	// Include the request trace ID if available.
@@ -58,10 +64,15 @@ func Response(ctx context.Context, data any, err error) render.Renderer {
 
 // FailureResponse creates a response renderer for a failed request.
 func FailureResponse(ctx context.Context, err error) render.Renderer {
-	return Response(ctx, nil, err)
+	return Response(ctx, nil, err, http.StatusInternalServerError)
 }
 
 // SuccessResponse creates a response renderer for a successful request.
 func SuccessResponse(ctx context.Context, data any) render.Renderer {
-	return Response(ctx, data, nil)
+	return Response(ctx, data, nil, http.StatusOK)
+}
+
+// NotFoundResponse creates a response renderer for a not found request.
+func NotFoundResponse(ctx context.Context, err error) render.Renderer {
+	return Response(ctx, nil, err, http.StatusNotFound)
 }
