@@ -110,7 +110,7 @@ func NewCoreRoute(
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
 	// TODO: Add health check endpoints
-	health.Register(router, nil, nil, nil)
+	health.Register(router, nil, nil)
 	return router, nil
 }
 

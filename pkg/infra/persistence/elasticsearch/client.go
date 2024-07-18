@@ -418,21 +418,20 @@ func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*Ag
 	}, nil
 }
 
-// PingElasticSearchClient would ping ElasticSearch client
-func (cl *Client) PingElasticSearchClient(ctx context.Context) error {
-	req := esapi.PingRequest{
-		Pretty: true,
-	}
-
-	// 使用带有上下文的请求
-	res, err := req.Do(ctx, cl.client)
+// CheckElasticSearchLiveness would ping ElasticSearch client
+func (cl *Client) CheckElasticSearchLiveness(ctx context.Context) error {
+	_, err := cl.client.Info(cl.client.Info.WithContext(ctx))
 	if err != nil {
 		return err
 	}
-	defer res.Body.Close()
-
-	if res.IsError() {
-		return fmt.Errorf("error pinging Elasticsearch: %s", res.String())
+	resp, err := cl.client.Cluster.Health(cl.client.Cluster.Health.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("failed to get cluster health: %v", err)
 	}
+	defer resp.Body.Close()
+	if status := resp.Status(); status != "green" && status != "yellow" {
+		return fmt.Errorf("cluster health status is not OK: %s", status)
+	}
+
 	return nil
 }
