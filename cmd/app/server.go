@@ -39,7 +39,9 @@ import (
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/client-go/util/keyutil"
 	"k8s.io/klog/v2"
+	"k8s.io/kubernetes/pkg/serviceaccount"
 	netutils "k8s.io/utils/net"
 )
 
@@ -140,6 +142,27 @@ func (o *Options) Validate(args []string) error {
 
 // Complete fills in fields required to have valid data
 func (o *Options) Complete() error {
+	if o.CoreOptions.ReadOnlyMode {
+		return nil
+	}
+
+	// generate token issuer
+	if len(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers) == 0 || o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0] == "" {
+		return fmt.Errorf("no valid serviceaccounts issuer")
+	}
+	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" {
+		return fmt.Errorf("no valid serviceaccounts signing key file")
+	}
+	sk, err := keyutil.PrivateKeyFromFile(o.RecommendedOptions.ServiceAccountSigningKeyFile)
+	if err != nil {
+		return fmt.Errorf("failed to parse service-account-issuer-key-file: %w", err)
+	}
+	o.RecommendedOptions.ServiceAccountIssuer, err = serviceaccount.JWTTokenGenerator(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0], sk)
+	if err != nil {
+		return fmt.Errorf("no valid serviceaccounts signing key file: %w", err)
+	}
+	o.RecommendedOptions.ServiceAccountTokenMaxExpiration = o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration
+
 	return nil
 }
 
@@ -150,6 +173,9 @@ func (o *Options) Config() (*server.Config, error) {
 		ExtraConfig:   &registry.ExtraConfig{},
 	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
+		return nil, err
+	}
+	if err := o.RecommendedOptions.ApplyToExtraConfig(config.ExtraConfig); err != nil {
 		return nil, err
 	}
 	if err := o.SearchStorageOptions.ApplyTo(config.ExtraConfig); err != nil {

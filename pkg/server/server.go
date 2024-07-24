@@ -51,7 +51,7 @@ func (s *KarporServer) InstallKubernetesServer(c *CompletedConfig) *KarporServer
 	if s.err != nil {
 		return s
 	}
-	err := s.InstallLegacyAPI(c.GenericConfig.RESTOptionsGetter)
+	err := s.InstallLegacyAPI(c)
 	if err != nil {
 		s.err = err
 		return s
@@ -160,11 +160,11 @@ func (s *KarporServer) Error() error {
 }
 
 // InstallLegacyAPI installs legacy API groups and resources into the server.
-func (s *KarporServer) InstallLegacyAPI(restOptionsGetter generic.RESTOptionsGetter) error {
+func (s *KarporServer) InstallLegacyAPI(c *CompletedConfig) error {
 	// Installing core API group
-	coreProvider := corestorage.RESTStorageProvider{}
+	coreProvider := corestorage.NewRESTStorageProvider(c.ExtraConfig.ServiceAccountIssuer, c.ExtraConfig.ServiceAccountMaxExpiration)
 	coreGroupName := coreProvider.GroupName()
-	coreGroupInfo, err := coreProvider.NewRESTStorage(restOptionsGetter)
+	coreGroupInfo, err := coreProvider.NewRESTStorage(c.GenericConfig.RESTOptionsGetter)
 	if err != nil {
 		return fmt.Errorf("problem initializing legacy API group %q: %v", coreGroupName, err)
 	}
