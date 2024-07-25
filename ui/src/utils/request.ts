@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { message } from 'antd'
 
 export const HOST = ''
 axios.defaults.baseURL = HOST
@@ -21,7 +20,6 @@ axios.interceptors.response.use(
   },
   error => {
     try {
-      message.error(error?.response?.data?.message)
       throw new Error(error)
     } catch (error) {}
   },
