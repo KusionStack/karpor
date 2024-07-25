@@ -19,7 +19,7 @@ const QuotaCard = ({ title, value, color, bgColor, iconNode }: IProps) => {
         <div className={styles.icon}>{iconNode}</div>
         <div className={styles.status}>
           <div className={styles.num} style={{ color }}>
-            {value ? format_with_regex(value) : '--'}
+            {value ? format_with_regex(value) : 0}
           </div>
         </div>
       </div>
