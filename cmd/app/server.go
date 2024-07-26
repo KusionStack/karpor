@@ -41,6 +41,7 @@ import (
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
 	"k8s.io/client-go/util/keyutil"
 	"k8s.io/klog/v2"
+	authzmodes "k8s.io/kubernetes/pkg/kubeapiserver/authorizer/modes"
 	"k8s.io/kubernetes/pkg/serviceaccount"
 	netutils "k8s.io/utils/net"
 )
@@ -142,10 +143,6 @@ func (o *Options) Validate(args []string) error {
 
 // Complete fills in fields required to have valid data
 func (o *Options) Complete() error {
-	if o.CoreOptions.ReadOnlyMode {
-		return nil
-	}
-
 	// generate token issuer
 	if len(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers) == 0 || o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0] == "" {
 		return fmt.Errorf("no valid serviceaccounts issuer")
@@ -171,6 +168,10 @@ func (o *Options) Config() (*server.Config, error) {
 	config := &server.Config{
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
 		ExtraConfig:   &registry.ExtraConfig{},
+	}
+	// always allow access if readOnlyMode is open
+	if o.CoreOptions.ReadOnlyMode {
+		o.RecommendedOptions.Authorization.Modes = []string{authzmodes.ModeAlwaysAllow}
 	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
 		return nil, err

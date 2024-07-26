@@ -18,6 +18,7 @@ import (
 	"expvar"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
+	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karpor/pkg/core/handler/detail"
 	endpointhandler "github.com/KusionStack/karpor/pkg/core/handler/endpoint"
@@ -105,7 +106,7 @@ func NewCoreRoute(
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
-	// Endpoint to list all available endpoints in the router.
+	// Expose server configuration and runtime statistics.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
 	return router, nil
@@ -160,4 +161,5 @@ func setupRestAPIV1(
 	})
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
+	r.Get("/authn", authnhandler.Get())
 }
