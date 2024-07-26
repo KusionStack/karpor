@@ -64,7 +64,10 @@ const Insight = () => {
     if (response) {
       if (response?.success) {
         if (response?.data?.clusterCount <= 0) {
-          navigate('/cluster')
+          message.info(t('NoClusterAndJumpToClusterPage'))
+          setTimeout(() => {
+            navigate('/cluster')
+          }, 2000)
           return
         }
         setStatsData(response?.data)
