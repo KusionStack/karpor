@@ -110,5 +110,6 @@
   "TotalResources": "Recursos totais",
   "ClusterCount": "Número de Clusters",
   "UnableCreateResourceGroupInReadOnly": "No modo de somente leitura, não é possível criar regras de grupo de recursos.",
-  "PleaseEnterValidSQLStatement": "Por favor, insira uma declaração SQL válida."
+  "PleaseEnterValidSQLStatement": "Por favor, insira uma declaração SQL válida.",
+  "NoClusterAndJumpToClusterPage": "O sistema atualmente não está conectado a nenhum cluster. Por favor, registre-se em um cluster primeiro."
 }
