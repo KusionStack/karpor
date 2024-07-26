@@ -18,16 +18,21 @@ package health
 
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/server"
 	"github.com/go-chi/chi/v5"
 	"net/http"
 )
 
+type StorageImpl struct {
+	storage.ResourceStorage
+	storage.SearchStorage
+	storage.ResourceGroupRuleStorage
+}
+
 // Register registers the livez and readyz handlers to the specified
 // router.
-func Register(r *chi.Mux, serv *server.KarporServer, sg storage.Storage) {
+func Register(r *chi.Mux, sg storage.Storage) {
 	r.Get("/livez", NewLivezHandler())
-	r.Get("/readyz", NewReadyzHandler(serv, sg))
+	r.Get("/readyz", NewReadyzHandler(sg))
 }
 
 // NewLivezHandler creates a new liveness check handler that can be
@@ -47,23 +52,19 @@ func NewLivezHandler() http.HandlerFunc {
 
 // NewReadyzHandler creates a new readiness check handler that can be
 // used to check if the application is ready to serve traffic.
-func NewReadyzHandler(serv *server.KarporServer, sg storage.Storage) http.HandlerFunc {
+// Currently, this feature only contains a storage check and a ping check.
+func NewReadyzHandler(sg storage.Storage) http.HandlerFunc {
 	conf := HandlerConfig{
 		Verbose: true,
 		// checkList is a list of healthcheck to run.
 		Checks: []Check{
 			NewPingCheck(),
-			NewServerCheck(serv),
 			NewStorageCheck(sg),
 		},
 		FailureNotification: FailureNotification{Threshold: 1},
 	}
 
 	return NewHandler(conf)
-}
-
-func NewServerCheck(serv *server.KarporServer) Check {
-	return NewServerCheckHandler(serv)
 }
 
 func NewStorageCheck(sg storage.Storage) Check {

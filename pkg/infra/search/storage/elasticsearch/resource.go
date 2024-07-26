@@ -166,9 +166,5 @@ func generateResourceQuery(cluster, namespace, name string, obj runtime.Object) 
 
 // CheckStorageHealth checks the health of the Elasticsearch storage by pinging the client.
 func (s *Storage) CheckStorageHealth(ctx context.Context) error {
-	err := s.client.CheckElasticSearchLiveness(ctx)
-	if err != nil {
-		return err
-	}
-	return nil
+	return s.client.CheckElasticSearchLiveness(ctx)
 }

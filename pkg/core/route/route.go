@@ -16,8 +16,6 @@ package route
 
 import (
 	"expvar"
-	"github.com/KusionStack/karpor/pkg/core/health"
-
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karpor/pkg/core/handler/detail"
@@ -30,6 +28,7 @@ import (
 	statshandler "github.com/KusionStack/karpor/pkg/core/handler/stats"
 	summaryhandler "github.com/KusionStack/karpor/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karpor/pkg/core/handler/topology"
+	healthhandler "github.com/KusionStack/karpor/pkg/core/health"
 	clustermanager "github.com/KusionStack/karpor/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karpor/pkg/core/manager/insight"
 	resourcegroupmanager "github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
@@ -109,8 +108,10 @@ func NewCoreRoute(
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
-	// TODO: Add health check endpoints
-	health.Register(router, nil, nil)
+	healthhandler.Register(router, healthhandler.StorageImpl{
+		ResourceStorage:          resourceStorage,
+		SearchStorage:            searchStorage,
+		ResourceGroupRuleStorage: resourceGroupRuleStorage})
 	return router, nil
 }
 

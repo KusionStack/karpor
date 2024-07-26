@@ -37,5 +37,4 @@ type ExtraConfig struct {
 	ElasticSearchPassword  string
 	ReadOnlyMode           bool
 	GithubBadge            bool
-	APIServerSecurePort    int
 }
