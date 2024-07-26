@@ -65,6 +65,11 @@ require (
 )
 
 require (
+	github.com/hupe1980/go-huggingface v0.0.15 // indirect
+	github.com/sashabaranov/go-openai v1.27.0 // indirect
+)
+
+require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
