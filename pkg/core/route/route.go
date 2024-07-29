@@ -74,6 +74,10 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	generalStorage, err := search.NewGeneralStorage(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	insightMgr, err := insightmanager.NewInsightManager(searchStorage, resourceStorage, resourceGroupRuleStorage, genericConfig)
 	if err != nil {
@@ -108,7 +112,7 @@ func NewCoreRoute(
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
-	healthhandler.Register(router, searchStorage.(storage.Storage))
+	healthhandler.Register(router, generalStorage)
 	return router, nil
 }
 

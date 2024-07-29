@@ -81,6 +81,10 @@ type ResourceGroupRuleStorageGetter interface {
 	GetResourceGroupRuleStorage() (ResourceGroupRuleStorage, error)
 }
 
+type GeneralStorageGetter interface {
+	GetGeneralStorage() (Storage, error)
+}
+
 type CheckHealth interface {
 	CheckStorageHealth(ctx context.Context) error
 }
