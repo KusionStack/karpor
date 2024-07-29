@@ -108,10 +108,7 @@ func NewCoreRoute(
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
-	healthhandler.Register(router, healthhandler.StorageImpl{
-		ResourceStorage:          resourceStorage,
-		SearchStorage:            searchStorage,
-		ResourceGroupRuleStorage: resourceGroupRuleStorage})
+	healthhandler.Register(router, searchStorage.(storage.Storage))
 	return router, nil
 }
 

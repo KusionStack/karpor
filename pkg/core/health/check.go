@@ -22,12 +22,6 @@ import (
 	"net/http"
 )
 
-type StorageImpl struct {
-	storage.ResourceStorage
-	storage.SearchStorage
-	storage.ResourceGroupRuleStorage
-}
-
 // Register registers the livez and readyz handlers to the specified
 // router.
 func Register(r *chi.Mux, sg storage.Storage) {
