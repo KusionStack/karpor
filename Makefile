@@ -31,6 +31,12 @@ endif
 
 # If you encounter an error like "panic: permission denied" on MacOS,
 # please visit https://github.com/eisenxp/macos-golink-wrapper to find the solution.
+
+.PHONY: gen-version
+gen-version: ## Generate version file
+	# Update version
+	-cd pkg/version/scripts && go run gen/gen.go
+
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
@@ -84,6 +90,7 @@ build-all: build-darwin build-linux build-windows ## Build for all platforms
 #   make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-darwin
 build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
+	$(MAKE) gen-version
 	-rm -rf ./_build/darwin
 	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/darwin/$(APPROOT) \
@@ -99,6 +106,7 @@ build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 #   make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-linux
 build-linux: $(BUILD_UI) ## Build for Linux
+	$(MAKE) gen-version
 	-rm -rf ./_build/linux
 	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/linux/$(APPROOT) \
@@ -114,6 +122,7 @@ build-linux: $(BUILD_UI) ## Build for Linux
 #   make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-windows
 build-windows: $(BUILD_UI) ## Build for Windows
+	$(MAKE) gen-version
 	-rm -rf ./_build/windows
 	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/windows/$(APPROOT).exe \
@@ -124,6 +133,7 @@ build-windows: $(BUILD_UI) ## Build for Windows
 # Usage: make build-ui
 .PHONY: build-ui
 build-ui: ## Build UI for the dashboard
+	$(MAKE) gen-version
 	@echo "Building UI for the dashboard ..."
 	cd ui && npm install && npm run build && touch build/.gitkeep
 

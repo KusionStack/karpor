@@ -110,5 +110,6 @@
   "TotalResources": "资源总数",
   "ClusterCount": "集群数量",
   "UnableCreateResourceGroupInReadOnly": "只读模式下不能创建资源组规则",
-  "PleaseEnterValidSQLStatement": "请输入有效SQL语句"
+  "PleaseEnterValidSQLStatement": "请输入有效SQL语句",
+  "NoClusterAndJumpToClusterPage": "目前系统尚未连接至任何集群，请您先完成集群接入操作"
 }
