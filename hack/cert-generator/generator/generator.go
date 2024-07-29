@@ -32,7 +32,7 @@ const kubeConfigTemplate = `apiVersion: v1
 clusters:
 - cluster:
     insecure-skip-tls-verify: true
-    server: https://karpor-server.karpor.svc:7443
+    server: https://karpor-server.%s.svc:7443
   name: karpor
 contexts:
 - context:
@@ -83,7 +83,7 @@ func NewGenerator(cfg *rest.Config, namespace string, certName string, kubeConfi
 
 // Generate is a function that orchestrates the creation and application of certificates and kubeconfig necessary for a karpor sever.
 func (g *Generator) Generate(ctx context.Context) error {
-	caCert, caKey, kubeConfig, err := generateConfig()
+	caCert, caKey, kubeConfig, err := generateConfig(g.namespace)
 	if err != nil {
 		return err
 	}
@@ -138,7 +138,7 @@ func (g *Generator) applyKubeConfigToConfigMap(ctx context.Context, kubeConfig s
 	return nil
 }
 
-func generateConfig() (*x509.Certificate, crypto.Signer, string, error) {
+func generateConfig(namespace string) (*x509.Certificate, crypto.Signer, string, error) {
 	caCert, caKey, err := generateCA()
 	if err != nil {
 		return nil, nil, "", err
@@ -147,7 +147,7 @@ func generateConfig() (*x509.Certificate, crypto.Signer, string, error) {
 	if err != nil {
 		return nil, nil, "", err
 	}
-	kubeConfig, err := generateAdminKubeconfig(cert, key)
+	kubeConfig, err := generateAdminKubeconfig(namespace, cert, key)
 	if err != nil {
 		return nil, nil, "", err
 	}
@@ -183,11 +183,11 @@ func generateCert(caCert *x509.Certificate, caKey crypto.Signer) (*x509.Certific
 	return cert, key, nil
 }
 
-func generateAdminKubeconfig(cert *x509.Certificate, key crypto.Signer) (string, error) {
+func generateAdminKubeconfig(namespace string, cert *x509.Certificate, key crypto.Signer) (string, error) {
 	certData := EncodeCertPEM(cert)
 	keyData, err := keyutil.MarshalPrivateKeyToPEM(key)
 	if err != nil {
 		return "", fmt.Errorf("unable to marshal private key to PEM %s", err)
 	}
-	return fmt.Sprintf(kubeConfigTemplate, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
+	return fmt.Sprintf(kubeConfigTemplate, namespace, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
 }
