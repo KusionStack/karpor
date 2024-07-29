@@ -12,6 +12,7 @@ import {
   appenAutoShapeListener,
   Image,
 } from '@antv/g6-react-node'
+import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
 import transferPng from '@/assets/transfer.png'
 import NodeLabel from './nodeLabel'
@@ -101,6 +102,7 @@ const TopologyMap = ({
   clusterOptions,
   handleChangeCluster,
 }: IProps) => {
+  const { t } = useTranslation()
   const ref = useRef(null)
   const graphRef = useRef<any>()
   let graph: IAbstractGraph | null = null
@@ -452,7 +454,11 @@ const TopologyMap = ({
               onChange={handleChangeCluster}
             >
               {clusterOptions?.map(item => {
-                return <Select.Option key={item}>{item}</Select.Option>
+                return (
+                  <Select.Option key={item}>
+                    {item === 'ALL' ? t('AllClusters') : item}
+                  </Select.Option>
+                )
               })}
             </Select>
           </div>

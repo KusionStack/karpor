@@ -71,5 +71,6 @@ header:
     - '.all-contributorsrc'
     - 'config/**'
     - 'charts/**'
+    - 'pkg/version/VERSION'
   comment: never
   license-location-threshold: 80

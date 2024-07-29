@@ -65,6 +65,11 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       ),
     },
     {
+      dataIndex: 'cluster',
+      key: 'cluster',
+      title: 'Cluster',
+    },
+    {
       dataIndex: 'namespace',
       key: 'namespace',
       title: 'Namespace',
@@ -87,6 +92,11 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   async function queryTableData(params) {
     const { current, pageSize } = pageParams
     setLoading(true)
+    setTableData([])
+    setPageParams({
+      ...params,
+      total: 0,
+    })
     const response: any = await axios.get(
       `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}&keyword=${params?.keyword || ''}`,
     )

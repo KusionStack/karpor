@@ -6,11 +6,15 @@ import {
   QuestionCircleOutlined,
   SearchOutlined,
   CaretDownOutlined,
+  TagOutlined,
 } from '@ant-design/icons'
 import type { MenuProps } from 'antd'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
-import { setServerConfigMode } from '@/store/modules/globalSlice'
+import {
+  setServerConfigMode,
+  setVersionNumber,
+} from '@/store/modules/globalSlice'
 import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
@@ -46,13 +50,16 @@ const LayoutPage = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const dispatch = useDispatch()
-  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
+  const { isReadOnlyMode, versionNumber } = useSelector(
+    (state: any) => state.globalSlice,
+  )
   const { i18n, t } = useTranslation()
 
   async function getServerConfigs() {
     const response: any = await axios.get(`/server-configs`)
     if (response) {
       dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
+      dispatch(setVersionNumber(response?.Version))
     }
   }
 
@@ -208,6 +215,16 @@ const LayoutPage = () => {
               <span>{t('ReadOnlyMode')}</span>
             </div>
           )}
+          {versionNumber && (
+            <div
+              className={styles.read_only_mode}
+              style={{ padding: '2px 5px' }}
+            >
+              <TagOutlined />
+              <span style={{ marginRight: 5 }}>{versionNumber}</span>
+            </div>
+          )}
+
           <div className={styles.help}>
             <Dropdown menu={{ items: languageItems }}>
               <a

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { message } from 'antd'
+import { notification } from 'antd'
 
 export const HOST = ''
 axios.defaults.baseURL = HOST
@@ -15,13 +15,20 @@ axios.interceptors.request.use(
 
 axios.interceptors.response.use(
   response => {
-    if (response?.status === 200) {
+    if (
+      response?.config?.url?.includes('/rest-api') &&
+      !response?.data?.success
+    ) {
+      notification.error({
+        message: `${response?.status}`,
+        description: `${response?.data?.message}`,
+      })
+    } else {
       return response?.data
     }
   },
   error => {
     try {
-      message.error(error?.response?.data?.message)
       throw new Error(error)
     } catch (error) {}
   },

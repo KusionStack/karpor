@@ -61,10 +61,19 @@ const Insight = () => {
 
   async function queryStats() {
     const response: any = await axios.get('/rest-api/v1/insight/stats')
-    if (response?.success) {
-      setStatsData(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
+    if (response) {
+      if (response?.success) {
+        if (response?.data?.clusterCount <= 0) {
+          message.info(t('NoClusterAndJumpToClusterPage'))
+          setTimeout(() => {
+            navigate('/cluster')
+          }, 2000)
+          return
+        }
+        setStatsData(response?.data)
+      } else {
+        message.error(response?.message || t('RequestFailedAndTry'))
+      }
     }
   }
 
@@ -93,25 +102,27 @@ const Insight = () => {
     const response: any = await axios.get(
       `/rest-api/v1/resource-groups/${ruleName}`,
     )
-    if (response?.success) {
-      const { groups, fields } = response?.data || {}
-      const newGroups = groups
-        ?.filter(item => item && !isEmptyObject(item))
-        ?.map(group => {
-          const { title, tags } = getName(group, fields)
-          return {
-            ...group,
-            title,
-            tags,
-          }
-        })
-      const newData = {
-        fields: response?.data?.fields,
-        groups: newGroups,
+    if (response) {
+      if (response?.success) {
+        const { groups, fields } = response?.data || {}
+        const newGroups = groups
+          ?.filter(item => item && !isEmptyObject(item))
+          ?.map(group => {
+            const { title, tags } = getName(group, fields)
+            return {
+              ...group,
+              title,
+              tags,
+            }
+          })
+        const newData = {
+          fields: response?.data?.fields,
+          groups: newGroups,
+        }
+        setAllResourcesData(newData)
+      } else {
+        message.error(response?.message || t('RequestFailedAndTry'))
       }
-      setAllResourcesData(newData)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
     setResouresLoading(false)
   }

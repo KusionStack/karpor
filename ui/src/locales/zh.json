@@ -77,7 +77,7 @@
   "RequestFailedAndTry": "请求失败，请重试",
   "DeletedSuccess": "删除成功",
   "EmptyCluster": "当前暂无可管理的集群",
-  "ClusterRequiresKubeConfigConfigurationFileAccess": "集群需 KubeConfig 配置文件接入",
+  "ClusterRequiresKubeConfigConfigurationFileAccess": "请导入新集群的 KubeConfig",
   "PleaseEnterKeywords": "请输入搜索关键字",
   "IssuesDetail": "风险详情",
   "Close": "关闭",
@@ -110,5 +110,6 @@
   "TotalResources": "资源总数",
   "ClusterCount": "集群数量",
   "UnableCreateResourceGroupInReadOnly": "只读模式下不能创建资源组规则",
-  "PleaseEnterValidSQLStatement": "请输入有效SQL语句"
+  "PleaseEnterValidSQLStatement": "请输入有效SQL语句",
+  "NoClusterAndJumpToClusterPage": "目前系统尚未连接至任何集群，请您先完成集群接入操作"
 }

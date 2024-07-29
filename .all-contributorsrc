@@ -146,6 +146,33 @@
       "contributions": [
         "doc"
       ]
+    },
+    {
+      "login": "peter-wangxu",
+      "name": "Peter Wang",
+      "avatar_url": "https://avatars.githubusercontent.com/u/3829504?v=4",
+      "profile": "https://www.cnblogs.com/sting2me/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "solarhell",
+      "name": "jiaxin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10279583?v=4",
+      "profile": "https://blog.solarhell.com/",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "rajeshkio",
+      "name": "rajeshkio",
+      "avatar_url": "https://avatars.githubusercontent.com/u/107089376?v=4",
+      "profile": "https://github.com/rajeshkio",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,

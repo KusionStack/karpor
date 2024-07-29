@@ -70,29 +70,57 @@ const ClusterDetail = () => {
 
   useEffect(() => {
     if (selectedCluster) {
-      const result = generateTopologyData(multiTopologyData?.[selectedCluster])
-      const tmp = result?.nodes?.find((item: any) => {
-        if (item?.id) {
-          const kindTmp = item?.id?.split('.')
-          const len = kindTmp?.length
-          const lastKindTmp = kindTmp?.[len - 1]
-          if (lastKindTmp === (tableName || 'Pod')) {
-            return true
+      if (selectedCluster === 'ALL') {
+        const result = generateAllClusterTopologyData()
+        const tmp: any = result?.nodes?.find((item: any) => {
+          if (item?.id) {
+            const kindTmp = item?.id?.split('.')
+            const len = kindTmp?.length
+            const lastKindTmp = kindTmp?.[len - 1]
+            if (lastKindTmp === tableName) {
+              return true
+            } else {
+              return false
+            }
           } else {
             return false
           }
-        } else {
-          return false
-        }
-      })
-      if (tmp) {
-        const sqlParams = generateSqlParams({
-          ...tmp?.data?.resourceGroup,
-          cluster: resultUrlParams?.cluster || selectedCluster,
-          ...generateUrlSqlParams(),
         })
-        const queryStr = `select * from resources where ${sqlParams} `
-        setTableQueryStr(queryStr)
+        if (tmp) {
+          const sqlParams = generateSqlParams({
+            ...tmp?.data?.resourceGroup,
+            ...generateUrlSqlParams(),
+          })
+          const queryStr = `select * from resources where ${sqlParams} `
+          setTableQueryStr(queryStr)
+        }
+      } else {
+        const result = generateTopologyData(
+          multiTopologyData?.[selectedCluster],
+        )
+        const tmp = result?.nodes?.find((item: any) => {
+          if (item?.id) {
+            const kindTmp = item?.id?.split('.')
+            const len = kindTmp?.length
+            const lastKindTmp = kindTmp?.[len - 1]
+            if (lastKindTmp === tableName) {
+              return true
+            } else {
+              return false
+            }
+          } else {
+            return false
+          }
+        })
+        if (tmp) {
+          const sqlParams = generateSqlParams({
+            ...tmp?.data?.resourceGroup,
+            cluster: resultUrlParams?.cluster || selectedCluster,
+            ...generateUrlSqlParams(),
+          })
+          const queryStr = `select * from resources where ${sqlParams} `
+          setTableQueryStr(queryStr)
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -249,8 +277,8 @@ const ClusterDetail = () => {
   useEffect(() => {
     if (multiTopologyData) {
       const clusterKeys = Object.keys(multiTopologyData)
-      setClusterOptions(clusterKeys)
-      setSelectedCluster(clusterKeys?.[0])
+      setClusterOptions(['ALL', ...clusterKeys])
+      setSelectedCluster('ALL' || clusterKeys?.[0])
     }
   }, [multiTopologyData])
 
@@ -304,7 +332,9 @@ const ClusterDetail = () => {
     setTableName(resourceGroup?.kind)
     const sqlParams = generateSqlParams({
       ...resourceGroup,
-      cluster: resultUrlParams?.cluster || selectedCluster,
+      ...(selectedCluster === 'ALL'
+        ? {}
+        : { cluster: resultUrlParams?.cluster || selectedCluster }),
       ...generateUrlSqlParams(),
     })
     const sqlStr = `select * from resources where ${sqlParams}`
@@ -352,12 +382,47 @@ const ClusterDetail = () => {
     setSelectedCluster(val)
   }
 
+  function generateAllClusterTopologyData() {
+    const objNodes = {}
+    const objEdges = {}
+    if (multiTopologyData) {
+      Object.values(multiTopologyData)?.forEach(clusterData => {
+        const currentClusterData = generateTopologyData(clusterData)
+        if (currentClusterData) {
+          currentClusterData?.nodes?.forEach(current => {
+            if (!objNodes?.[current?.id]) {
+              objNodes[current?.id] = current
+            } else {
+              objNodes[current?.id].data.count += current?.data?.count
+            }
+          })
+          currentClusterData?.edges?.forEach(current => {
+            if (!objEdges?.[`${current?.source}__${current?.target}`]) {
+              objEdges[`${current?.source}__${current?.target}`] = current
+            }
+          })
+        }
+      })
+    }
+    const nodes = Object.values(objNodes)
+    const edges = Object.values(objEdges)
+    return {
+      nodes,
+      edges,
+    }
+  }
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
-      const topologyData =
-        multiTopologyData &&
-        selectedCluster &&
-        generateTopologyData(multiTopologyData?.[selectedCluster])
+      let topologyData
+      if (selectedCluster === 'ALL') {
+        topologyData = generateAllClusterTopologyData()
+      } else {
+        topologyData =
+          multiTopologyData &&
+          selectedCluster &&
+          generateTopologyData(multiTopologyData?.[selectedCluster])
+      }
       if (topologyData?.nodes?.length > 0) {
         return (
           <>
