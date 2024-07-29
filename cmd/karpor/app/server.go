@@ -50,6 +50,7 @@ type Options struct {
 	RecommendedOptions   *options.RecommendedOptions
 	SearchStorageOptions *options.SearchStorageOptions
 	CoreOptions          *options.CoreOptions
+	AIOptions            *options.AIOptions
 
 	StdOut io.Writer
 	StdErr io.Writer
@@ -66,6 +67,7 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 		),
 		SearchStorageOptions: options.NewSearchStorageOptions(),
 		CoreOptions:          options.NewCoreOptions(),
+		AIOptions:            options.NewAIOptions(),
 		StdOut:               out,
 		StdErr:               errOut,
 	}
@@ -96,6 +98,9 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 	}))
 	expvar.Publish("StorageOptions", expvar.Func(func() interface{} {
 		return o.SearchStorageOptions
+	}))
+	expvar.Publish("AIOptions", expvar.Func(func() interface{} {
+		return o.AIOptions
 	}))
 	expvar.Publish("Version", expvar.Func(func() interface{} {
 		return version.GetVersion()
@@ -132,6 +137,7 @@ func (o *Options) AddFlags(fs *pflag.FlagSet) {
 	o.RecommendedOptions.AddFlags(fs)
 	o.SearchStorageOptions.AddFlags(fs)
 	o.CoreOptions.AddFlags(fs)
+	o.AIOptions.AddFlags(fs)
 }
 
 // Validate validates Options
@@ -139,6 +145,7 @@ func (o *Options) Validate(args []string) error {
 	errors := []error{}
 	errors = append(errors, o.RecommendedOptions.Validate()...)
 	errors = append(errors, o.SearchStorageOptions.Validate()...)
+	errors = append(errors, o.AIOptions.Validate()...)
 	return utilerrors.NewAggregate(errors)
 }
 
@@ -160,6 +167,9 @@ func (o *Options) Config() (*server.Config, error) {
 		return nil, err
 	}
 	if err := o.CoreOptions.ApplyTo(config.ExtraConfig); err != nil {
+		return nil, err
+	}
+	if err := o.AIOptions.ApplyTo(config.ExtraConfig); err != nil {
 		return nil, err
 	}
 
