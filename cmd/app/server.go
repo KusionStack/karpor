@@ -29,8 +29,8 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/server"
-	"github.com/KusionStack/karpor/pkg/version"
 	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
+	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -101,11 +101,10 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 	}))
 	expvar.Publish("Version", expvar.Func(func() interface{} {
 		return version.GetVersion()
-  }))  
-  expvar.Publish("AIOptions", expvar.Func(func() interface{} {
+	}))
+	expvar.Publish("AIOptions", expvar.Func(func() interface{} {
 		return o.AIOptions
-  }))  
-
+	}))
 
 	cmd := &cobra.Command{
 		Use:   "karpor",
