@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 package main
 
 import (
@@ -65,13 +64,13 @@ func main() {
 	versionFilePath := filepath.Join(rootDir, "pkg", "version", "VERSION")
 
 	// Ensure the pkg/version directory exists
-	err = os.MkdirAll(filepath.Dir(versionFilePath), 0755)
+	err = os.MkdirAll(filepath.Dir(versionFilePath), 0o755)
 	if err != nil {
 		fmt.Println("Error creating version directory:", err)
 		os.Exit(1)
 	}
 	// Write the version to the VERSION file, replacing any existing content
-	err = os.WriteFile(versionFilePath, []byte(version.Version+"\n"), 0644)
+	err = os.WriteFile(versionFilePath, []byte(version.Version+"\n"), 0o644)
 	if err != nil {
 		fmt.Println("Error writing version file:", err)
 		os.Exit(1)
