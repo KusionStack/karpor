@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next'
 import { generateTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import KarporTabs from '@/components/tabs'
-import Yaml from '@/components/yaml'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import SourceTable from '../components/sourceTable'
@@ -30,7 +29,6 @@ const ClusterDetail = () => {
   const [currentTab, setCurrentTab] = useState('Topology')
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
-  const [yamlData, setYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditLoading, setAuditLoading] = useState<any>(false)
   const [auditStat, setAuditStat] = useState<any>()
@@ -42,7 +40,6 @@ const ClusterDetail = () => {
   const [topologyLoading, setTopologyLoading] = useState(false)
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
-  const [groupTabsList, setGroupTabsList] = useState(insightTabsList)
 
   function getUrlParams() {
     const obj = {}
@@ -184,34 +181,6 @@ const ClusterDetail = () => {
       setAuditStat(response?.data)
     }
   }
-  async function getClusterDetail() {
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/detail',
-      method: 'GET',
-      params: {
-        apiVersion: resultUrlParams?.apiVersion,
-        cluster: resultUrlParams?.cluster,
-        kind: resultUrlParams?.kind,
-        namespace: resultUrlParams?.namespace,
-        name: resultUrlParams?.name,
-        labels: resultUrlParams?.labels
-          ? getObjectUrlParams(resultUrlParams?.labels)
-          : undefined,
-        annotations: resultUrlParams?.annotations
-          ? getObjectUrlParams(resultUrlParams?.annotations)
-          : undefined,
-        format: 'yaml',
-      },
-    })
-    if (response?.success) {
-      setYamlData(response?.data)
-    } else {
-      const newGroupTabList = groupTabsList?.filter(
-        item => item?.value !== 'YAML',
-      )
-      setGroupTabsList(newGroupTabList)
-    }
-  }
 
   async function getSummary() {
     const response: any = await axios({
@@ -283,7 +252,6 @@ const ClusterDetail = () => {
   }, [multiTopologyData])
 
   useEffect(() => {
-    getClusterDetail()
     getAudit(false)
     getAuditScore()
     getSummary()
@@ -440,9 +408,6 @@ const ClusterDetail = () => {
         )
       }
     }
-    if (currentTab === 'YAML') {
-      return <Yaml data={yamlData || ''} />
-    }
     if (currentTab === 'K8s') {
       return (
         <K8sEvent
@@ -478,7 +443,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={groupTabsList}
+            list={insightTabsList?.filter(item => item?.value !== 'YAML')}
             current={currentTab}
             onChange={handleTabChange}
           />
