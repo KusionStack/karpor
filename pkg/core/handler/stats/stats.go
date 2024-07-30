@@ -47,9 +47,9 @@ func GetStatistics(insightMgr *insight.InsightManager) http.HandlerFunc {
 		logger.Info("Getting statistics ...")
 		statistics, err := insightMgr.Statistics(ctx)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
-		render.Render(w, r, handler.SuccessResponse(ctx, statistics))
+		render.Render(w, r, handler.successResponse(ctx, statistics))
 	}
 }

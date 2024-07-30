@@ -57,7 +57,7 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 		// Decode the query parameters into the resourceGroup.
 		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
@@ -68,13 +68,13 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 		// Perform the audit using the manager and the provided manifest.
 		scanResult, err := insight.Audit(ctx, resourceGroup, forceNew)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		data := convertScanResultToAuditData(scanResult)
 
-		render.JSON(w, r, handler.SuccessResponse(ctx, data))
+		render.JSON(w, r, handler.successResponse(ctx, data))
 	}
 }
 
@@ -111,7 +111,7 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 		// Decode the query parameters into the resourceGroup.
 		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 		forceNew, _ := strconv.ParseBool(r.URL.Query().Get("forceNew"))
@@ -122,10 +122,10 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 		// Calculate score using the audit issues.
 		data, err := insightMgr.Score(ctx, resourceGroup, forceNew)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
-		render.JSON(w, r, handler.SuccessResponse(ctx, data))
+		render.JSON(w, r, handler.successResponse(ctx, data))
 	}
 }
