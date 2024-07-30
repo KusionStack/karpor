@@ -76,3 +76,27 @@ func SuccessResponse(ctx context.Context, data any) render.Renderer {
 func NotFoundResponse(ctx context.Context, err error) render.Renderer {
 	return Response(ctx, nil, err, http.StatusNotFound)
 }
+
+// FailureRender renders a failed response and status code and respond to the
+// client request.
+func FailureRender(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) error {
+	render.Status(r, http.StatusInternalServerError)
+	respRender := FailureResponse(ctx, err)
+	return render.Render(w, r, respRender)
+}
+
+// SuccessRender renders a success response and status code and respond to the
+// client request.
+func SuccessRender(ctx context.Context, w http.ResponseWriter, r *http.Request, data any) error {
+	render.Status(r, http.StatusOK)
+	respRender := SuccessResponse(ctx, data)
+	return render.Render(w, r, respRender)
+}
+
+// NotFoundRender renders a not found response and status code and respond to the
+// client request.
+func NotFoundRender(ctx context.Context, w http.ResponseWriter, r *http.Request, err error) error {
+	render.Status(r, http.StatusNotFound)
+	respRender := NotFoundResponse(ctx, err)
+	return render.Render(w, r, respRender)
+}
