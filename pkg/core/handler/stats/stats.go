@@ -20,7 +20,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/core/manager/insight"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	"github.com/go-chi/render"
 )
 
 // GetStatistics returns an HTTP handler function that returns a statistics
@@ -50,6 +49,6 @@ func GetStatistics(insightMgr *insight.InsightManager) http.HandlerFunc {
 			handler.FailureRender(ctx, w, r, err)
 			return
 		}
-		render.Render(w, r, handler.successResponse(ctx, statistics))
+		handler.SuccessRender(ctx, w, r, statistics)
 	}
 }

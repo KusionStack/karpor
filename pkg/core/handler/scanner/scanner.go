@@ -23,7 +23,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/manager/insight"
 	_ "github.com/KusionStack/karpor/pkg/infra/scanner"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	"github.com/go-chi/render"
 )
 
 // Audit handles the auditing process based on the specified resource group.
@@ -74,7 +73,7 @@ func Audit(insight *insight.InsightManager) http.HandlerFunc {
 
 		data := convertScanResultToAuditData(scanResult)
 
-		render.JSON(w, r, handler.successResponse(ctx, data))
+		handler.SuccessRender(ctx, w, r, data)
 	}
 }
 
@@ -126,6 +125,6 @@ func Score(insightMgr *insight.InsightManager) http.HandlerFunc {
 			return
 		}
 
-		render.JSON(w, r, handler.successResponse(ctx, data))
+		handler.SuccessRender(ctx, w, r, data)
 	}
 }

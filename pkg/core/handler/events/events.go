@@ -23,7 +23,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/manager/insight"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	"github.com/go-chi/render"
 	"k8s.io/apiserver/pkg/server"
 )
 
