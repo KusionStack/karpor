@@ -111,5 +111,13 @@
   "ClusterCount": "集群数量",
   "UnableCreateResourceGroupInReadOnly": "只读模式下不能创建资源组规则",
   "PleaseEnterValidSQLStatement": "请输入有效SQL语句",
-  "NoClusterAndJumpToClusterPage": "目前系统尚未连接至任何集群，请您先完成集群接入操作"
+  "NoClusterAndJumpToClusterPage": "目前系统尚未连接至任何集群，请您先完成集群接入操作",
+  "Logout": "退出",
+  "TokenCreationGuide": "token创建指引",
+  "LoginFailedAndCheck": "登录失败，请检查token是否有效",
+  "UnLoginAndTokenLogin": "当前未登录，请输入token进行登录",
+  "LoginSuccess": "登录成功",
+  "Login": "登录",
+  "LogoutSuccess": "退出成功",
+  "InputToken": "请输入token"
 }

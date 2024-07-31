@@ -7,7 +7,6 @@ import {
   SortDescendingOutlined,
 } from '@ant-design/icons'
 import { useSelector } from 'react-redux'
-import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import queryString from 'query-string'
 import { useLocation, useNavigate } from 'react-router-dom'
@@ -18,6 +17,7 @@ import {
   isEmptyObject,
   truncationPageData,
 } from '@/utils/tools'
+import { useAxios } from '@/utils/request'
 import CardContent from './components/card'
 import RuleForm from './components/ruleForm'
 import QuotaContent from './components/quotaContent'
@@ -57,30 +57,43 @@ const Insight = () => {
   const [showData, setShowData] = useState<any>([])
   const [statsData, setStatsData] = useState<any>()
   const [keyword, setKeyword] = useState('')
-  const [resouresLoading, setResouresLoading] = useState<boolean>(false)
 
-  async function queryStats() {
-    const response: any = await axios.get('/rest-api/v1/insight/stats')
-    if (response) {
-      if (response?.success) {
-        if (response?.data?.clusterCount <= 0) {
-          message.info(t('NoClusterAndJumpToClusterPage'))
-          setTimeout(() => {
-            navigate('/cluster')
-          }, 2000)
-          return
-        }
-        setStatsData(response?.data)
-      } else {
-        message.error(response?.message || t('RequestFailedAndTry'))
+  const { response: statResponse, refetch: statRefetch } = useAxios({
+    url: '/rest-api/v1/insight/stats',
+    option: {
+      params: {
+        orderBy: 'name',
+        ascending: true,
+      },
+    },
+    manual: true,
+    method: 'GET',
+  })
+
+  const { response: allRulesResponse, refetch: allRulesRefetch } = useAxios({
+    url: '/rest-api/v1/resource-group-rules',
+    manual: true,
+    successParams: {
+      isDelete: false,
+    },
+  })
+
+  useEffect(() => {
+    if (statResponse?.success) {
+      if (statResponse?.data?.clusterCount <= 0) {
+        message.info(t('NoClusterAndJumpToClusterPage'))
+        setTimeout(() => {
+          navigate('/cluster')
+        }, 1000)
+        return
       }
+      setStatsData(statResponse?.data)
     }
-  }
+  }, [statResponse, navigate, t])
 
-  async function queryAllRules(isDelete) {
-    const response: any = await axios.get('/rest-api/v1/resource-group-rules')
-    if (response?.success) {
-      const tabList = response?.data
+  useEffect(() => {
+    if (allRulesResponse?.success) {
+      const tabList = allRulesResponse?.data
         ?.filter(item => item)
         ?.map(item => ({
           ...item,
@@ -89,89 +102,144 @@ const Insight = () => {
         }))
       setTabList(tabList)
       handleClickItem(
-        isDelete || !activeTabKey ? tabList?.[0]?.name : activeTabKey,
+        allRulesResponse?.successParams?.isDelete || !activeTabKey
+          ? tabList?.[0]?.name
+          : activeTabKey,
       )
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allRulesResponse, navigate, t])
+
+  function queryStats() {
+    statRefetch()
   }
 
-  async function queryCurrentResources(ruleName) {
-    setResouresLoading(true)
-    setAllResourcesData({})
-    const response: any = await axios.get(
-      `/rest-api/v1/resource-groups/${ruleName}`,
-    )
-    if (response) {
-      if (response?.success) {
-        const { groups, fields } = response?.data || {}
-        const newGroups = groups
-          ?.filter(item => item && !isEmptyObject(item))
-          ?.map(group => {
-            const { title, tags } = getName(group, fields)
-            return {
-              ...group,
-              title,
-              tags,
-            }
-          })
-        const newData = {
-          fields: response?.data?.fields,
-          groups: newGroups,
-        }
-        setAllResourcesData(newData)
-      } else {
-        message.error(response?.message || t('RequestFailedAndTry'))
+  function queryAllRules(isDelete) {
+    allRulesRefetch({
+      successParams: {
+        isDelete,
+      },
+    })
+  }
+
+  const {
+    response: currentRulesResponse,
+    refetch: currentRulesRefetch,
+    loading: resouresLoading,
+  } = useAxios({
+    manual: true,
+    method: 'GET',
+  })
+
+  useEffect(() => {
+    if (currentRulesResponse?.success) {
+      const { groups, fields } = currentRulesResponse?.data || {}
+      const newGroups = groups
+        ?.filter(item => item && !isEmptyObject(item))
+        ?.map(group => {
+          const { title, tags } = getName(group, fields)
+          return {
+            ...group,
+            title,
+            tags,
+          }
+        })
+      const newData = {
+        fields: statResponse?.data?.fields,
+        groups: newGroups,
       }
+      setAllResourcesData(newData)
     }
-    setResouresLoading(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentRulesResponse, navigate, t])
+
+  function queryCurrentResources(ruleName) {
+    setAllResourcesData({})
+    currentRulesRefetch({
+      url: `/rest-api/v1/resource-groups/${ruleName}`,
+    })
   }
 
-  async function deleteItem(itemKey, callback) {
-    const response: any = await axios.delete(
-      `/rest-api/v1/resource-group-rule/${itemKey}`,
-    )
-    if (response?.success) {
-      callback && callback()
+  const { response: deleteRuleResponse, refetch: deleteRuleRefetch } = useAxios(
+    {
+      url: '',
+      manual: true,
+      method: 'DELETE',
+    },
+  )
+
+  useEffect(() => {
+    if (deleteRuleResponse?.success) {
+      deleteRuleResponse?.callbackFn && deleteRuleResponse?.callbackFn()
       setIsEdit(false)
       queryAllRules(true)
       queryStats()
       queryCurrentResources(tabList?.[0]?.name)
       setOpen(false)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteRuleResponse])
+
+  useEffect(() => {
+    if (statResponse?.success) {
+      if (statResponse?.data?.clusterCount <= 0) {
+        message.info(t('NoClusterAndJumpToClusterPage'))
+        setTimeout(() => {
+          navigate('/cluster')
+        }, 2000)
+        return
+      }
+      setStatsData(statResponse?.data)
+    }
+  }, [statResponse, navigate, t])
+
+  function deleteItem(itemKey, callback) {
+    deleteRuleRefetch({
+      url: `/rest-api/v1/resource-group-rule/${itemKey}`,
+      callbackFn: callback,
+    })
   }
 
-  async function handleSubmit(values, callback) {
+  const { response: submitResponse, refetch: submitRefetch } = useAxios({
+    url: '/rest-api/v1/resource-group-rule',
+    manual: true,
+    method: 'POST',
+  })
+
+  function handleSubmit(values, callback) {
     const isDuplicates = hasDuplicatesOfObjectArray(values?.fields)
     if (isDuplicates) {
       message.error(t('DuplicateData'))
       return
     }
-    const response: any = await axios(`/rest-api/v1/resource-group-rule`, {
+    submitRefetch({
       method: isEdit ? 'PUT' : 'POST',
-      data: {
-        name: values?.name,
-        description: values?.description,
-        fields: values?.fields?.map(item => {
-          return item?.key === 'namespace'
-            ? 'namespace'
-            : item?.value
-              ? `${item?.key}.${item?.value}`
-              : item?.key
-        }),
+      option: {
+        data: {
+          name: values?.name,
+          description: values?.description,
+          fields: values?.fields?.map(item => {
+            return item?.key === 'namespace'
+              ? 'namespace'
+              : item?.value
+                ? `${item?.key}.${item?.value}`
+                : item?.key
+          }),
+        },
       },
+      callbackFn: callback,
     })
-    if (response?.success) {
-      callback && callback()
+  }
+
+  useEffect(() => {
+    if (submitResponse?.success) {
+      submitResponse?.callbackFn && submitResponse?.callbackFn()
       setOpen(false)
       setIsEdit(false)
       queryAllRules(false)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [submitResponse])
 
   useEffect(() => {
     let tmp = allResourcesData?.groups

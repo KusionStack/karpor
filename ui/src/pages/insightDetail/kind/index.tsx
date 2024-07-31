@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
 import queryString from 'query-string'
-import { Breadcrumb, Tooltip, message } from 'antd'
+import { Breadcrumb, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { ICON_MAP } from '@/utils/images'
 import { capitalized } from '@/utils/tools'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
@@ -27,61 +27,85 @@ const ClusterDetail = () => {
     `select * from resources where cluster = '${cluster}' and apiVersion='${apiVersion}' and kind = '${kind}'`,
   )
   const [auditList, setAuditList] = useState<any>([])
-  const [auditLoading, setAuditLoading] = useState<any>(false)
   const [auditStat, setAuditStat] = useState<any>()
   const [tableName, setTableName] = useState(kind as any)
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
 
-  async function getAudit(isRescan) {
-    setAuditLoading(true)
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/audit',
-      method: 'GET',
-      params: {
-        apiVersion,
-        kind,
-        cluster,
-        ...(isRescan ? { forceNew: true } : {}),
+  const {
+    response: auditResponse,
+    refetch: auditRefetch,
+    loading: auditLoading,
+  } = useAxios({
+    url: `/rest-api/v1/insight/audit`,
+  })
+
+  useEffect(() => {
+    if (auditResponse?.success) {
+      setAuditList(auditResponse?.data)
+    }
+  }, [auditResponse])
+
+  function getAudit(isRescan) {
+    auditRefetch({
+      option: {
+        params: {
+          apiVersion,
+          kind,
+          cluster,
+          ...(isRescan ? { forceNew: true } : {}),
+        },
       },
     })
-    setAuditLoading(false)
-    if (response?.success) {
-      setAuditList(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
-    }
-  }
-  async function getAuditScore() {
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/score',
-      method: 'GET',
-      params: {
-        cluster,
-        apiVersion,
-        kind,
-      },
-    })
-    if (response?.success) {
-      setAuditStat(response?.data)
-    }
   }
 
-  async function getSummary() {
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/summary',
-      params: {
-        cluster,
-        apiVersion,
-        kind,
+  const { response: auditScoreResponse, refetch: auditScoreRefetch } = useAxios(
+    {
+      url: '/rest-api/v1/insight/score',
+    },
+  )
+
+  useEffect(() => {
+    if (auditScoreResponse?.success) {
+      setAuditStat(auditScoreResponse?.data)
+    }
+  }, [auditScoreResponse])
+
+  function getAuditScore() {
+    auditScoreRefetch({
+      option: {
+        params: {
+          cluster,
+          apiVersion,
+          kind,
+        },
       },
     })
-    if (response?.success) {
-      setSummary(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
+  }
+
+  const { response: summaryResponse, refetch: summaryRefetch } = useAxios({
+    url: '/rest-api/v1/insight/summary',
+    method: 'GET',
+    manual: true,
+  })
+
+  useEffect(() => {
+    if (summaryResponse?.success) {
+      setSummary(summaryResponse?.data)
     }
+  }, [summaryResponse])
+
+  function getSummary() {
+    summaryRefetch({
+      option: {
+        params: {
+          cluster,
+          apiVersion,
+          kind,
+        },
+      },
+    })
   }
 
   useEffect(() => {
@@ -229,7 +253,6 @@ const ClusterDetail = () => {
         </div>
       </div>
 
-      {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <SourceTable queryStr={tableQueryStr} tableName={tableName} />
       </div>

@@ -3,11 +3,15 @@ import { createSlice } from '@reduxjs/toolkit'
 type InitialState = {
   isReadOnlyMode: any
   versionNumber: string
+  isLogin: boolean
+  githubBadge: boolean
 }
 
 const initialState: InitialState = {
   isReadOnlyMode: undefined,
   versionNumber: '',
+  isLogin: false,
+  githubBadge: false,
 }
 
 export const globalSlice = createSlice({
@@ -20,9 +24,20 @@ export const globalSlice = createSlice({
     setVersionNumber: (state, action) => {
       state.versionNumber = action.payload
     },
+    setIsLogin: (state, action) => {
+      state.isLogin = action.payload
+    },
+    setGithubBadge: (state, action) => {
+      state.githubBadge = action.payload
+    },
   },
 })
 
-export const { setServerConfigMode, setVersionNumber } = globalSlice.actions
+export const {
+  setServerConfigMode,
+  setVersionNumber,
+  setIsLogin,
+  setGithubBadge,
+} = globalSlice.actions
 
 export default globalSlice.reducer
