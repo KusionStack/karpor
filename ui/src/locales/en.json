@@ -113,7 +113,7 @@
   "PleaseEnterValidSQLStatement": "Please enter a valid SQL statement",
   "NoClusterAndJumpToClusterPage": "The system is currently not connected to any cluster. Please register with a cluster first.",
   "Logout": "Logout",
-  "TokenCreationGuide": "Token creation guide",
+  "TokenCreationGuide": "How to create token",
   "LoginFailedAndCheck": "Login failed, please check if token is valid",
   "UnLoginAndTokenLogin": "Currently not logged in, please enter token to login",
   "LoginSuccess": "Login successful",
