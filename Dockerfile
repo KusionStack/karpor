@@ -20,4 +20,6 @@ WORKDIR /
 COPY karpor .
 COPY config/relationship.yaml .
 
+RUN apk update && apk add --no-cache aws-cli
+
 ENTRYPOINT ["/karpor"]
