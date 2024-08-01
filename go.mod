@@ -15,10 +15,12 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.4.0
+	github.com/hupe1980/go-huggingface v0.0.15
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
+	github.com/sashabaranov/go-openai v1.27.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4

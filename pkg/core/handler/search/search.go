@@ -15,6 +15,7 @@
 package search
 
 import (
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"net/http"
 	"strconv"
 
@@ -45,11 +46,13 @@ import (
 // @Failure      429       {string}  string          "Too Many Requests"
 // @Failure      500       {string}  string          "Internal Server Error"
 // @Router       /rest-api/v1/search [get]
-func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.SearchStorage) http.HandlerFunc {
+func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
+
+		//res, nil := aiMgr.ConvertTextToSQL("搜索集群cluster中kind为namespace的")
 
 		// Extract URL query parameters with default value
 		searchQuery := r.URL.Query().Get("query")

@@ -29,6 +29,7 @@ import (
 	statshandler "github.com/KusionStack/karpor/pkg/core/handler/stats"
 	summaryhandler "github.com/KusionStack/karpor/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karpor/pkg/core/handler/topology"
+	aimanager "github.com/KusionStack/karpor/pkg/core/manager/ai"
 	clustermanager "github.com/KusionStack/karpor/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karpor/pkg/core/manager/insight"
 	resourcegroupmanager "github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
@@ -83,6 +84,10 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	aiMgr, err := aimanager.NewAIManager(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	clusterMgr := clustermanager.NewClusterManager()
 	searchMgr := searchmanager.NewSearchManager()
@@ -90,6 +95,7 @@ func NewCoreRoute(
 	// Set up the API routes for version 1 of the API.
 	router.Route("/rest-api/v1", func(r chi.Router) {
 		setupRestAPIV1(r,
+			aiMgr,
 			clusterMgr,
 			insightMgr,
 			resourceGroupMgr,
@@ -115,6 +121,7 @@ func NewCoreRoute(
 // resource type and setting up proper handlers.
 func setupRestAPIV1(
 	r chi.Router,
+	aiMgr *aimanager.AIManager,
 	clusterMgr *clustermanager.ClusterManager,
 	insightMgr *insightmanager.InsightManager,
 	resourceGroupMgr *resourcegroupmanager.ResourceGroupManager,
@@ -139,7 +146,7 @@ func setupRestAPIV1(
 	})
 
 	r.Route("/search", func(r chi.Router) {
-		r.Get("/", searchhandler.SearchForResource(searchMgr, searchStorage))
+		r.Get("/", searchhandler.SearchForResource(searchMgr, aiMgr, searchStorage))
 	})
 
 	r.Route("/insight", func(r chi.Router) {
