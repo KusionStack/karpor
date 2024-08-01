@@ -113,7 +113,7 @@
   "PleaseEnterValidSQLStatement": "Por favor, insira uma declaração SQL válida.",
   "NoClusterAndJumpToClusterPage": "O sistema atualmente não está conectado a nenhum cluster. Por favor, registre-se em um cluster primeiro.",
   "Logout": "Logout",
-  "TokenCreationGuide": "Guia de criação de token",
+  "TokenCreationGuide": "Você pode gerar um token para uma conta de serviço: kubectl -n NAMESPACE create token SERVICE_ACCOUNT <a href='{{linkUrl}}' target='_blank'>[Como criar um token]</a>",
   "LoginFailedAndCheck": "Falha no login, por favor, verifique se o token é válido",
   "UnLoginAndTokenLogin": "Atualmente não logado, por favor, insira o token para fazer login",
   "LoginSuccess": "Login bem-sucedido",

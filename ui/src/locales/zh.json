@@ -113,7 +113,7 @@
   "PleaseEnterValidSQLStatement": "请输入有效 SQL 语句",
   "NoClusterAndJumpToClusterPage": "目前系统尚未连接至任何集群，请您先完成集群接入操作",
   "Logout": "登出",
-  "TokenCreationGuide": "如何创建 token",
+  "TokenCreationGuide": "可以通过以下命令为服务账户生成令牌: kubectl -n NAMESPACE create token SERVICE_ACCOUNT <a href='{{linkUrl}}' target='_blank'>[如何创建token]</a>",
   "LoginFailedAndCheck": "登录失败，请检查 token 是否有效",
   "UnLoginAndTokenLogin": "当前未登录，请输入 token 进行登录",
   "LoginSuccess": "登录成功",

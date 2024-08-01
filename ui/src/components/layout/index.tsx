@@ -133,7 +133,11 @@ const LayoutPage = () => {
   }
 
   function handleMenuClick(event) {
-    if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
+    if (event.key === '/search') {
+      navigate('/search')
+    } else if (!isLogin && !isReadOnlyMode && ['/login']?.includes(pathname)) {
+      return
+    } else if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
       const { origin } = window.location
       window.open(`${origin}${event.key}`)
     } else {
@@ -230,7 +234,10 @@ const LayoutPage = () => {
             onClick={handleMenuClick}
           />
         </div>
-        <div className={styles.right} style={{ marginRight: 80 }}>
+        <div
+          className={styles.right}
+          style={githubBadge ? { marginRight: 80 } : {}}
+        >
           {isReadOnlyMode && (
             <div className={styles.read_only_mode}>
               <img className={styles.read_only_mode_img} src={showPng} />
@@ -280,9 +287,13 @@ const LayoutPage = () => {
       </div>
       <div className={styles.content}>
         <div className={styles.right}>
-          <div className={styles.right_content}>
-            <Outlet />
-          </div>
+          {!isLogin &&
+          !isReadOnlyMode &&
+          !['/login', '/', '/search']?.includes(pathname) ? null : (
+            <div className={styles.right_content}>
+              <Outlet />
+            </div>
+          )}
         </div>
       </div>
     </div>

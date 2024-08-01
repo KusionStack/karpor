@@ -1,7 +1,7 @@
-import { Button, Input, message } from 'antd'
+import { Button, Input, message, Tooltip } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { InfoCircleFilled } from '@ant-design/icons'
+import { InfoCircleFilled, QuestionCircleOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useDispatch } from 'react-redux'
 import { setIsLogin } from '@/store/modules/globalSlice'
@@ -25,7 +25,7 @@ const Login = () => {
 
   function handleLogin() {
     if (!value) {
-      message.warning(t('InputToken'))
+      setErrorMessage(t('InputToken'))
       return
     }
     refetch({
@@ -47,7 +47,7 @@ const Login = () => {
         navigate(-1)
       }, 300)
     } else if (response?.code === 401) {
-      setErrorMessage(t('TokenCreationGuide'))
+      setErrorMessage(t('LoginFailedAndCheck'))
     }
   }, [response, dispatch, value, navigate, t])
 
@@ -55,12 +55,34 @@ const Login = () => {
     <div className={styles.login_wrapper}>
       <div className={styles.login}>
         <div className={styles.title}>
-          <InfoCircleFilled />
+          <InfoCircleFilled style={{ color: '#2f54eb' }} />
           <h4>{t('UnLoginAndTokenLogin')}</h4>
         </div>
         <div className={styles.content}>
           <div className={styles.label}>
-            <span>Bearer token</span>
+            <Tooltip
+              color="#fff"
+              title={
+                <div
+                  style={{
+                    color: '#646566',
+                  }}
+                >
+                  <p
+                    dangerouslySetInnerHTML={{
+                      __html: t('TokenCreationGuide', {
+                        linkUrl: 'https://www.kusionstack.io/karpor',
+                      }),
+                    }}
+                  />
+                </div>
+              }
+            >
+              <span>Token</span>
+              <QuestionCircleOutlined
+                style={{ margin: '0 5px', cursor: 'pointer' }}
+              />
+            </Tooltip>
             <span className={styles.token_require}>*</span>
           </div>
           <div className={styles.input_box}>
@@ -71,13 +93,8 @@ const Login = () => {
           </div>
         </div>
         {errorMessage && (
-          <div className={styles.error_message}>{t('LoginFailedAndCheck')}</div>
+          <div className={styles.error_message}>{errorMessage}</div>
         )}
-        <div className={styles.guide_token}>
-          <Button type="link" style={{ padding: 0 }}>
-            {t('TokenCreationGuide')}
-          </Button>
-        </div>
         <div className={styles.footer}>
           <Button key="login" type="primary" onClick={handleLogin}>
             {t('Login')}
