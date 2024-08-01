@@ -180,19 +180,6 @@ const Insight = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [deleteRuleResponse])
 
-  useEffect(() => {
-    if (statResponse?.success) {
-      if (statResponse?.data?.clusterCount <= 0) {
-        message.info(t('NoClusterAndJumpToClusterPage'))
-        setTimeout(() => {
-          navigate('/cluster')
-        }, 2000)
-        return
-      }
-      setStatsData(statResponse?.data)
-    }
-  }, [statResponse, navigate, t])
-
   function deleteItem(itemKey, callback) {
     deleteRuleRefetch({
       url: `/rest-api/v1/resource-group-rule/${itemKey}`,

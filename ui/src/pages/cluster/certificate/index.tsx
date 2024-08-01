@@ -102,14 +102,15 @@ const ClusterCertificate = () => {
             kubeConfig: newYamlContent?.content,
           },
         },
-        callbackFn: addRefetch({
-          url: `/rest-api/v1/cluster/${cluster}`,
-          option: {
-            data: {
-              kubeConfig: newYamlContent?.content,
+        callbackFn: () =>
+          addRefetch({
+            url: `/rest-api/v1/cluster/${cluster}`,
+            option: {
+              data: {
+                kubeConfig: newYamlContent?.content,
+              },
             },
-          },
-        }),
+          }),
       })
     }
   }
@@ -123,7 +124,9 @@ const ClusterCertificate = () => {
     name: 'file',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      authorization: 'authorization-text',
+      Authorization: localStorage.getItem('token')
+        ? `Bearer ${localStorage.getItem('token')}`
+        : '',
     },
     method: 'POST',
     data: {

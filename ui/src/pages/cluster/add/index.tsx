@@ -58,12 +58,13 @@ const RegisterCluster = () => {
           kubeConfig: values?.kubeConfig,
         },
       },
-      callbackFn: addRefetch({
-        url: `/rest-api/v1/cluster/${values?.name}`,
-        option: {
-          data: values,
-        },
-      }),
+      callbackFn: () =>
+        addRefetch({
+          url: `/rest-api/v1/cluster/${values?.name}`,
+          option: {
+            data: values,
+          },
+        }),
     })
   }
 
@@ -76,7 +77,9 @@ const RegisterCluster = () => {
     name: 'file',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      authorization: 'authorization-text',
+      Authorization: localStorage.getItem('token')
+        ? `Bearer ${localStorage.getItem('token')}`
+        : '',
     },
     withCredentials: true,
     maxCount: 1,
