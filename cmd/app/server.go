@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/KusionStack/karpor/cmd/app/options"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
@@ -47,6 +48,8 @@ import (
 )
 
 const defaultEtcdPathPrefix = "/registry/karpor"
+const defaultTokenIssuer = "karpor"
+const defaultTokenMaxExpiration = 8760 * time.Hour
 
 // Options contains state for master/api server
 type Options struct {
@@ -145,21 +148,36 @@ func (o *Options) Validate(args []string) error {
 func (o *Options) Complete() error {
 	// generate token issuer
 	if len(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers) == 0 || o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0] == "" {
-		return fmt.Errorf("no valid serviceaccounts issuer")
+		o.RecommendedOptions.Authentication.ServiceAccounts.Issuers = []string{defaultTokenIssuer}
 	}
-	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" {
+
+	// set default token max expiration
+	o.RecommendedOptions.ServiceAccountTokenMaxExpiration = defaultTokenMaxExpiration
+	if o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration != 0 {
+		o.RecommendedOptions.ServiceAccountTokenMaxExpiration = o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration
+	}
+
+	// complete two content-related keys with each other
+	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" && (len(o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles) == 0 ||
+		o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles[0] == "") {
 		return fmt.Errorf("no valid serviceaccounts signing key file")
 	}
+	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" {
+		o.RecommendedOptions.ServiceAccountSigningKeyFile = o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles[0]
+	}
+	if len(o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles) == 0 {
+		o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles = []string{o.RecommendedOptions.ServiceAccountSigningKeyFile}
+	}
+
+	// create token generator
 	sk, err := keyutil.PrivateKeyFromFile(o.RecommendedOptions.ServiceAccountSigningKeyFile)
 	if err != nil {
-		return fmt.Errorf("failed to parse service-account-issuer-key-file: %w", err)
+		return fmt.Errorf("failed to parse key-file for token generator: %w", err)
 	}
 	o.RecommendedOptions.ServiceAccountIssuer, err = serviceaccount.JWTTokenGenerator(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0], sk)
 	if err != nil {
-		return fmt.Errorf("no valid serviceaccounts signing key file: %w", err)
+		return fmt.Errorf("create token generator failed: %w", err)
 	}
-	o.RecommendedOptions.ServiceAccountTokenMaxExpiration = o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration
-
 	return nil
 }
 
