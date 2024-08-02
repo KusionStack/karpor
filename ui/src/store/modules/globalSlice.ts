@@ -28,6 +28,7 @@ export const globalSlice = createSlice({
   },
 })
 
-export const { setServerConfigMode, setVersionNumber, setGithubBadge } = globalSlice.actions
+export const { setServerConfigMode, setVersionNumber, setGithubBadge } =
+  globalSlice.actions
 
 export default globalSlice.reducer
