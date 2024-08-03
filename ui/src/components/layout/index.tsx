@@ -212,7 +212,10 @@ const LayoutPage = () => {
             onClick={handleMenuClick}
           />
         </div>
-        <div className={styles.right} style={{ marginRight: 80 }}>
+        <div
+          className={styles.right}
+          style={githubBadge ? { marginRight: 80 } : {}}
+        >
           {isReadOnlyMode && (
             <div className={styles.read_only_mode}>
               <img className={styles.read_only_mode_img} src={showPng} />

@@ -34,8 +34,8 @@ endif
 
 .PHONY: gen-version
 gen-version: ## Generate version file
-	# Update version
-	-cd pkg/version/scripts && go run gen/gen.go
+	@echo "🛠️ Updating the version file ..."
+	@cd pkg/version/scripts && go run gen/gen.go
 
 .PHONY: test
 test:  ## Run the tests
@@ -89,9 +89,9 @@ build-all: build-darwin build-linux build-windows ## Build for all platforms
 #   make build-darwin GOARCH=arm64
 #   make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-darwin
-build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
-	$(MAKE) gen-version
-	-rm -rf ./_build/darwin
+build-darwin: gen-version $(BUILD_UI) ## Build for MacOS (Darwin)
+	@rm -rf ./_build/darwin
+	@echo "🚀 Building karpor-server for darwin platform ..."
 	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/darwin/$(APPROOT) \
 		./cmd
@@ -105,9 +105,9 @@ build-darwin: $(BUILD_UI) ## Build for MacOS (Darwin)
 #   make build-linux GOARCH=arm64
 #   make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-linux
-build-linux: $(BUILD_UI) ## Build for Linux
-	$(MAKE) gen-version
-	-rm -rf ./_build/linux
+build-linux: gen-version $(BUILD_UI) ## Build for Linux
+	@rm -rf ./_build/linux
+	@echo "🚀 Building karpor-server for linux platform ..."
 	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/linux/$(APPROOT) \
 		./cmd
@@ -121,9 +121,9 @@ build-linux: $(BUILD_UI) ## Build for Linux
 #   make build-windows GOARCH=arm64
 #   make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-windows
-build-windows: $(BUILD_UI) ## Build for Windows
-	$(MAKE) gen-version
-	-rm -rf ./_build/windows
+build-windows: gen-version $(BUILD_UI) ## Build for Windows
+	@rm -rf ./_build/windows
+	@echo "🚀 Building karpor-server for windows platform ..."
 	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/windows/$(APPROOT).exe \
 		./cmd
@@ -132,9 +132,8 @@ build-windows: $(BUILD_UI) ## Build for Windows
 # Description: Builds the UI for the dashboard.
 # Usage: make build-ui
 .PHONY: build-ui
-build-ui: ## Build UI for the dashboard
-	$(MAKE) gen-version
-	@echo "Building UI for the dashboard ..."
+build-ui: gen-version ## Build UI for the dashboard
+	@echo "🧀 Building UI for the dashboard ..."
 	cd ui && npm install && npm run build && touch build/.gitkeep
 
 .PHONY: check-license
