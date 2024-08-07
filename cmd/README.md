@@ -1,6 +1,8 @@
 # `/cmd`
 
-Main applications for `karpor`.
+All applications for `karpor`, including:
+- Main application `karpor`, the `karpor-server` and `karpor-syncer` both start through it.
+- Cert generator `cert-generator`.
 
 It's common to have a small `main` function that imports and invokes the code from the `/pkg` directories and nothing else.
 
