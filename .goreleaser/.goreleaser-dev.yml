@@ -44,6 +44,7 @@ builds:
     ldflags:
       - -s -w
     main: ./cmd/karpor/
+    binary: karpor
   - id: "cert-generator"
     env:
       - CGO_ENABLED=0
@@ -66,6 +67,7 @@ builds:
     ldflags:
       - -s -w
     main: ./cmd/cert-generator/
+    binary: cert-generator
 
 release:
   disable: true
