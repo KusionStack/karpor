@@ -4,6 +4,7 @@ name: Release
 on:
   push:
     tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+-debug.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
       - 'v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
@@ -122,7 +123,7 @@ jobs:
           if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
             echo "Match found for alpha or beta tag"
             echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
-          elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
+          elif [[ $tag =~ $debug ]] ||[[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
             echo "Match found for rc or release tag"
             echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
           else
