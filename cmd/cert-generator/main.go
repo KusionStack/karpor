@@ -16,9 +16,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/KusionStack/karpor/pkg/util/certgenerator"
+	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
@@ -50,6 +52,11 @@ func runCertGenerator(ctx context.Context, options *CertOptions) error {
 	var cfg *rest.Config
 	var ns string
 	var err error
+
+	if options.Version {
+		fmt.Println("Karpor version:", version.GetVersion())
+		return nil
+	}
 
 	if options.KubeConfig == "" {
 		cfg, err = rest.InClusterConfig()
