@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Input, Space, Button, Upload, message } from 'antd'
+import { Form, Input, Space, Button, Upload, message, notification } from 'antd'
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
@@ -103,7 +103,14 @@ const RegisterCluster = () => {
               `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeConfig, .kubeconf`,
           )
         }
-      } else if (info.file.status === 'error') {
+      } else if (
+        info.file.status === 'error' &&
+        info.file.response?.code === 403
+      ) {
+        notification.error({
+          message: `${info.file.response?.code}`,
+          description: `${info.file.response?.message}`,
+        })
       }
     },
   }

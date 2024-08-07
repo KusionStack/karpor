@@ -55,7 +55,14 @@ export const useAxios = ({
   const dispatch = useDispatch()
 
   function handleResponse(res, callbackFn, successParams) {
-    if (res?.status === 403 || res?.status === 401) {
+    if (res?.status === 403) {
+      notification.error({
+        message: `${res?.status}`,
+        description: `${res?.data?.message}`,
+      })
+      return
+    }
+    if (res?.status === 401) {
       dispatch(setIsLogin(false))
       if (res?.config?.url?.includes('/rest-api/v1/authn')) {
         setResponse(res?.data)
