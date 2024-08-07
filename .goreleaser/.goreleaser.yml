@@ -68,6 +68,9 @@ builds:
 archives:
   - id: release
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - karpor
+      - cert-generator
     builds_info:
       mode: 0644
       # format is `time.RFC3339Nano`
