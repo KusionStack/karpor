@@ -76,8 +76,8 @@ func TestNewCoreRoute(t *testing.T) {
 			expectError: false,
 			expectRoutes: []string{
 				"/endpoints",
-				"/server-configs", // fixme: this may result in a nil pointer
-				"/rest-api/v1/search/",
+				"/server-configs",
+				"/rest-api/v1/search/", // fixme: this may result in a nil pointer
 				"/livez",
 			},
 		},
