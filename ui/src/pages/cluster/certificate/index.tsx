@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Space, Button, Upload, message } from 'antd'
+import { Form, Space, Button, Upload, message, notification } from 'antd'
 import ReactDiffViewer, { DiffMethod } from 'react-diff-viewer-continued'
 import { useTranslation } from 'react-i18next'
 import queryString from 'query-string'
@@ -162,8 +162,14 @@ const ClusterCertificate = () => {
               `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeconfig, .kubeconf`,
           )
         }
-      } else if (info.file.status === 'error') {
-        message.error(`${info.file.name} file upload failed.`)
+      } else if (
+        info.file.status === 'error' &&
+        info.file.response?.code === 403
+      ) {
+        notification.error({
+          message: `${info.file.response?.code}`,
+          description: `${info.file.response?.message}`,
+        })
       }
     },
   }
