@@ -153,10 +153,13 @@ release:
     ## Thanks!
   prerelease: auto
 
+
+# Reference:
+# - https://blog.goreleaser.com/goreleaser-and-docker-manifests-9fe167acf21e
+# - https://goreleaser.com/cookbooks/multi-platform-docker-images/#creating-multi-platform-docker-images-with-goreleaser
 dockers:
 - image_templates:
-  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}'
-  - 'kusionstack/{{ .ProjectName }}:latest'
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64'
   dockerfile: Dockerfile
   use: docker
   build_flag_templates:
@@ -167,12 +170,12 @@ dockers:
   - "--label=org.opencontainers.image.version={{.Version}}"
   - "--label=org.opencontainers.image.source={{.GitURL}}"
   - "--platform=linux/amd64"
+  goarch: amd64
   extra_files:
   - pkg/version/VERSION
   - config/relationship.yaml
 - image_templates:
-  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}'
-  - 'kusionstack/{{ .ProjectName }}:latest'
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
   dockerfile: Dockerfile
   use: docker
   build_flag_templates:
@@ -187,3 +190,13 @@ dockers:
   extra_files:
   - pkg/version/VERSION
   - config/relationship.yaml
+
+docker_manifests:
+  - name_template: "kusionstack/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "kusionstack/{{ .ProjectName }}:latest"
+    image_templates:
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64"
