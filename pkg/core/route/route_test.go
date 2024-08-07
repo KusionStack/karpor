@@ -15,6 +15,7 @@
 package route
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -31,6 +32,11 @@ import (
 // interface for testing purposes.
 type mockSearchStorage struct {
 	storage.SearchStorage
+}
+
+// Search implements the SearchStorage interface to avoid nil pointer panic.
+func (*mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	return &storage.SearchResult{}, nil
 }
 
 // mockResourceStorage is an in-memory implementation of the ResourceStorage
@@ -77,7 +83,7 @@ func TestNewCoreRoute(t *testing.T) {
 			expectRoutes: []string{
 				"/endpoints",
 				"/server-configs",
-				"/rest-api/v1/search/", // fixme: this may result in a nil pointer
+				"/rest-api/v1/search/",
 				"/livez",
 			},
 		},
