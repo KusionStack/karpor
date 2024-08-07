@@ -15,6 +15,9 @@
 package core
 
 import (
+	"fmt"
+	"time"
+
 	podstore "github.com/KusionStack/karpor/pkg/kubernetes/registry/core/pod"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
@@ -23,11 +26,23 @@ import (
 	namespacestore "k8s.io/kubernetes/pkg/registry/core/namespace/storage"
 	secretstore "k8s.io/kubernetes/pkg/registry/core/secret/storage"
 	serviceaccountstore "k8s.io/kubernetes/pkg/registry/core/serviceaccount/storage"
+	"k8s.io/kubernetes/pkg/serviceaccount"
 )
 
 const GroupName = "core"
 
-type RESTStorageProvider struct{}
+type RESTStorageProvider struct {
+	ServiceAccountIssuer        serviceaccount.TokenGenerator
+	ServiceAccountMaxExpiration time.Duration
+}
+
+func NewRESTStorageProvider(serviceAccouuntIssuer serviceaccount.TokenGenerator,
+	serviceAccountMaxExpiration time.Duration) *RESTStorageProvider {
+	return &RESTStorageProvider{
+		ServiceAccountIssuer:        serviceAccouuntIssuer,
+		ServiceAccountMaxExpiration: serviceAccountMaxExpiration,
+	}
+}
 
 func (p RESTStorageProvider) GroupName() string {
 	return GroupName
@@ -61,26 +76,36 @@ func (p RESTStorageProvider) NewRESTStorage(
 	}
 	storage["secrets"] = secretStorage
 
-	serviceAccountStorage, err := serviceaccountstore.NewREST(
-		restOptionsGetter,
-		nil,
-		nil,
-		0,
-		nil,
-		nil,
-		false,
-	)
-	if err != nil {
-		return genericapiserver.APIGroupInfo{}, err
-	}
-	storage["serviceaccounts"] = serviceAccountStorage
-
 	podStorage, err := podstore.NewStorage(restOptionsGetter)
 	if err != nil {
 		return genericapiserver.APIGroupInfo{}, err
 	}
 	storage["pods"] = podStorage.Pod
 	storage["pods/status"] = podStorage.Status
+
+	var serviceAccountStorage *serviceaccountstore.REST
+	if p.ServiceAccountIssuer != nil {
+		serviceAccountStorage, err = serviceaccountstore.NewREST(
+			restOptionsGetter,
+			p.ServiceAccountIssuer,
+			nil,
+			p.ServiceAccountMaxExpiration,
+			podStorage.Pod.Store,
+			secretStorage.Store,
+			false,
+		)
+	} else {
+		serviceAccountStorage, err = serviceaccountstore.NewREST(restOptionsGetter, nil, nil, 0, nil, nil, false)
+	}
+	if err != nil {
+		return genericapiserver.APIGroupInfo{}, err
+	}
+	storage["serviceaccounts"] = serviceAccountStorage
+	if serviceAccountStorage.Token != nil {
+		storage["serviceaccounts/token"] = serviceAccountStorage.Token
+	} else {
+		return apiGroupInfo, fmt.Errorf("get token rest storage failed")
+	}
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1"] = storage
 	return apiGroupInfo, nil

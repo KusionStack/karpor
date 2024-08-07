@@ -1,5 +1,5 @@
 import React, { memo, useEffect } from 'react'
-import { Divider, Menu, Dropdown } from 'antd'
+import { Divider, Menu, Dropdown, Button, message } from 'antd'
 import {
   ClusterOutlined,
   FundOutlined,
@@ -14,14 +14,15 @@ import { useDispatch, useSelector } from 'react-redux'
 import {
   setServerConfigMode,
   setVersionNumber,
+  setIsLogin,
   setGithubBadge,
 } from '@/store/modules/globalSlice'
-import axios from 'axios'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
 import logo from '@/assets/img/logo.svg'
 import languageSvg from '@/assets/translate_language.svg'
 import { Languages, LanguagesMap } from '@/utils/constants'
+import { useAxios } from '@/utils/request'
 
 import styles from './style.module.less'
 
@@ -51,24 +52,25 @@ const LayoutPage = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const dispatch = useDispatch()
-  const { isReadOnlyMode, versionNumber, githubBadge } = useSelector(
+  const { isReadOnlyMode, versionNumber, isLogin, githubBadge } = useSelector(
     (state: any) => state.globalSlice,
   )
   const { i18n, t } = useTranslation()
 
-  async function getServerConfigs() {
-    const response: any = await axios.get(`/server-configs`)
+  const { response } = useAxios({
+    url: '/server-configs',
+    option: { params: {} },
+    manual: false,
+    method: 'GET',
+  })
+
+  useEffect(() => {
     if (response) {
       dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
       dispatch(setVersionNumber(response?.Version))
       dispatch(setGithubBadge(response?.CoreOptions?.GithubBadge))
     }
-  }
-
-  useEffect(() => {
-    getServerConfigs()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [response, dispatch])
 
   const menuItems = [
     getItem(t('Search'), '/search', <SearchOutlined />),
@@ -131,7 +133,11 @@ const LayoutPage = () => {
   }
 
   function handleMenuClick(event) {
-    if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
+    if (event.key === '/search') {
+      navigate('/search')
+    } else if (!isLogin && !isReadOnlyMode && ['/login']?.includes(pathname)) {
+      return
+    } else if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
       const { origin } = window.location
       window.open(`${origin}${event.key}`)
     } else {
@@ -155,6 +161,22 @@ const LayoutPage = () => {
     ),
     key: item?.value,
   }))
+
+  useEffect(() => {
+    if (
+      !isLogin &&
+      !isReadOnlyMode &&
+      !['/login', '/', '/search']?.includes(pathname)
+    ) {
+      navigate('/login')
+    }
+  }, [isLogin, isReadOnlyMode, navigate, pathname])
+
+  function handleLogout() {
+    message.info(t('LogoutSuccess'))
+    localStorage.setItem('token', '')
+    dispatch(setIsLogin(false))
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -231,7 +253,6 @@ const LayoutPage = () => {
               <span style={{ marginRight: 5 }}>{versionNumber}</span>
             </div>
           )}
-
           <div className={styles.help}>
             <Dropdown menu={{ items: languageItems }}>
               <a
@@ -255,13 +276,24 @@ const LayoutPage = () => {
               <QuestionCircleOutlined style={{ color: '#646566' }} />
             </span>
           </div>
+          {isLogin && !isReadOnlyMode && (
+            <div className={styles.logout} style={{ padding: '2px 5px' }}>
+              <Button style={{ padding: 0 }} type="link" onClick={handleLogout}>
+                {t('Logout')}
+              </Button>
+            </div>
+          )}
         </div>
       </div>
       <div className={styles.content}>
         <div className={styles.right}>
-          <div className={styles.right_content}>
-            <Outlet />
-          </div>
+          {!isLogin &&
+          !isReadOnlyMode &&
+          !['/login', '/', '/search']?.includes(pathname) ? null : (
+            <div className={styles.right_content}>
+              <Outlet />
+            </div>
+          )}
         </div>
       </div>
     </div>

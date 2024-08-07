@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
-import axios from 'axios'
 import queryString from 'query-string'
-import { Breadcrumb, Tooltip, message } from 'antd'
+import { Breadcrumb, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { generateTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import KarporTabs from '@/components/tabs'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import SourceTable from '../components/sourceTable'
@@ -20,7 +20,7 @@ import styles from './styles.module.less'
 
 const ClusterDetail = () => {
   const location = useLocation()
-  const { t, i18n } = useTranslation()
+  const { i18n } = useTranslation()
   const urlParams = queryString.parse(location?.search)
   const resultUrlParams: any = getUrlParams()
 
@@ -30,14 +30,12 @@ const ClusterDetail = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
   const [auditList, setAuditList] = useState<any>([])
-  const [auditLoading, setAuditLoading] = useState<any>(false)
   const [auditStat, setAuditStat] = useState<any>()
   const [tableName, setTableName] = useState('Pod')
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
-  const [topologyLoading, setTopologyLoading] = useState(false)
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
@@ -128,96 +126,60 @@ const ClusterDetail = () => {
     multiTopologyData,
   ])
 
-  async function handleTabChange(value: string) {
+  function handleTabChange(value: string) {
     setCurrentTab(value)
   }
 
-  async function getAudit(isRescan) {
-    setAuditLoading(true)
-    const response: any = await axios({
-      url: `/rest-api/v1/insight/audit`,
-      method: 'GET',
-      params: {
-        apiVersion: resultUrlParams?.apiVersion,
-        cluster: resultUrlParams?.cluster,
-        kind: resultUrlParams?.kind,
-        namespace: resultUrlParams?.namespace,
-        name: resultUrlParams?.name,
-        labels: resultUrlParams?.labels
-          ? getObjectUrlParams(resultUrlParams?.labels)
-          : undefined,
-        annotations: resultUrlParams?.annotations
-          ? getObjectUrlParams(resultUrlParams?.annotations)
-          : undefined,
-        ...(isRescan ? { forceNew: true } : {}),
+  const {
+    response: auditResponse,
+    refetch: auditRefetch,
+    loading: auditLoading,
+  } = useAxios({
+    url: `/rest-api/v1/insight/audit`,
+  })
+
+  useEffect(() => {
+    if (auditResponse?.success) {
+      setAuditList(auditResponse?.data)
+    }
+  }, [auditResponse])
+
+  function getAudit(isRescan) {
+    auditRefetch({
+      option: {
+        params: {
+          apiVersion: resultUrlParams?.apiVersion,
+          cluster: resultUrlParams?.cluster,
+          kind: resultUrlParams?.kind,
+          namespace: resultUrlParams?.namespace,
+          name: resultUrlParams?.name,
+          labels: resultUrlParams?.labels
+            ? getObjectUrlParams(resultUrlParams?.labels)
+            : undefined,
+          annotations: resultUrlParams?.annotations
+            ? getObjectUrlParams(resultUrlParams?.annotations)
+            : undefined,
+          ...(isRescan ? { forceNew: true } : {}),
+        },
       },
     })
-    setAuditLoading(false)
-    if (response?.success) {
-      setAuditList(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
-    }
-  }
-  async function getAuditScore() {
-    const response: any = await axios({
-      url: `/rest-api/v1/insight/score`,
-      method: 'GET',
-      params: {
-        apiVersion: resultUrlParams?.apiVersion,
-        cluster: resultUrlParams?.cluster,
-        kind: resultUrlParams?.kind,
-        namespace: resultUrlParams?.namespace,
-        name: resultUrlParams?.name,
-        labels: resultUrlParams?.labels
-          ? getObjectUrlParams(resultUrlParams?.labels)
-          : undefined,
-        annotations: resultUrlParams?.annotations
-          ? getObjectUrlParams(resultUrlParams?.annotations)
-          : undefined,
-      },
-    })
-    if (response?.success) {
-      setAuditStat(response?.data)
-    }
   }
 
-  async function getSummary() {
-    const response: any = await axios({
-      url: '/rest-api/v1/insight/summary',
-      method: 'GET',
-      params: {
-        apiVersion: resultUrlParams?.apiVersion,
-        cluster: resultUrlParams?.cluster,
-        kind: resultUrlParams?.kind,
-        namespace: resultUrlParams?.namespace,
-        name: resultUrlParams?.name,
-        labels: resultUrlParams?.labels
-          ? getObjectUrlParams(resultUrlParams?.labels)
-          : undefined,
-        annotations: resultUrlParams?.annotations
-          ? getObjectUrlParams(resultUrlParams?.annotations)
-          : undefined,
-      },
-    })
-    if (response?.success) {
-      setSummary(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
+  const { response: auditScoreResponse, refetch: auditScoreRefetch } = useAxios(
+    {
+      url: '/rest-api/v1/insight/score',
+    },
+  )
+
+  useEffect(() => {
+    if (auditScoreResponse?.success) {
+      setAuditStat(auditScoreResponse?.data)
     }
-  }
+  }, [auditScoreResponse])
 
-  function getObjectUrlParams(obj) {
-    const list = Object.entries(obj)?.map(([k, v]) => `${k}=${v}`)
-    return list?.join(',')
-  }
-
-  async function getTopologyData() {
-    setTopologyLoading(true)
-    try {
-      const response: any = await axios({
-        url: '/rest-api/v1/insight/topology',
-        method: 'GET',
+  function getAuditScore() {
+    auditScoreRefetch({
+      option: {
         params: {
           apiVersion: resultUrlParams?.apiVersion,
           cluster: resultUrlParams?.cluster,
@@ -231,16 +193,81 @@ const ClusterDetail = () => {
             ? getObjectUrlParams(resultUrlParams?.annotations)
             : undefined,
         },
-      })
-      if (response?.success) {
-        setMultiTopologyData(response?.data)
-      } else {
-        message.error(response?.message || t('RequestFailedAndTry'))
-      }
-      setTopologyLoading(false)
-    } catch (error) {
-      setTopologyLoading(false)
+      },
+    })
+  }
+
+  const { response: summaryResponse, refetch: summaryRefetch } = useAxios({
+    url: '/rest-api/v1/insight/summary',
+    method: 'GET',
+    manual: true,
+  })
+
+  useEffect(() => {
+    if (summaryResponse?.success) {
+      setSummary(summaryResponse?.data)
     }
+  }, [summaryResponse])
+
+  function getSummary() {
+    summaryRefetch({
+      option: {
+        params: {
+          apiVersion: resultUrlParams?.apiVersion,
+          cluster: resultUrlParams?.cluster,
+          kind: resultUrlParams?.kind,
+          namespace: resultUrlParams?.namespace,
+          name: resultUrlParams?.name,
+          labels: resultUrlParams?.labels
+            ? getObjectUrlParams(resultUrlParams?.labels)
+            : undefined,
+          annotations: resultUrlParams?.annotations
+            ? getObjectUrlParams(resultUrlParams?.annotations)
+            : undefined,
+        },
+      },
+    })
+  }
+
+  function getObjectUrlParams(obj) {
+    const list = Object.entries(obj)?.map(([k, v]) => `${k}=${v}`)
+    return list?.join(',')
+  }
+
+  const {
+    response: topologyDataResponse,
+    refetch: topologyDataRefetch,
+    loading: topologyLoading,
+  } = useAxios({
+    url: '/rest-api/v1/insight/topology',
+    method: 'GET',
+    manual: true,
+  })
+
+  useEffect(() => {
+    if (topologyDataResponse?.success) {
+      setMultiTopologyData(topologyDataResponse?.data)
+    }
+  }, [topologyDataResponse])
+
+  function getTopologyData() {
+    topologyDataRefetch({
+      option: {
+        params: {
+          apiVersion: resultUrlParams?.apiVersion,
+          cluster: resultUrlParams?.cluster,
+          kind: resultUrlParams?.kind,
+          namespace: resultUrlParams?.namespace,
+          name: resultUrlParams?.name,
+          labels: resultUrlParams?.labels
+            ? getObjectUrlParams(resultUrlParams?.labels)
+            : undefined,
+          annotations: resultUrlParams?.annotations
+            ? getObjectUrlParams(resultUrlParams?.annotations)
+            : undefined,
+        },
+      },
+    })
   }
 
   useEffect(() => {
@@ -295,7 +322,7 @@ const ClusterDetail = () => {
     return urlSqlParams
   }
 
-  async function onTopologyNodeClick(node) {
+  function onTopologyNodeClick(node) {
     const { resourceGroup } = node?.data || {}
     setTableName(resourceGroup?.kind)
     const sqlParams = generateSqlParams({

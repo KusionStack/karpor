@@ -25,7 +25,6 @@ import {
 } from '@codemirror/autocomplete'
 import { useTranslation } from 'react-i18next'
 import { css } from '@emotion/css'
-import axios from 'axios'
 import { Divider, message } from 'antd'
 import arrowRight from '@/assets/arrow-right.png'
 import {
@@ -35,6 +34,7 @@ import {
   operatorKeywords,
   searchSqlPrefix,
 } from '@/utils/constants'
+import { useAxios } from '@/utils/request'
 
 import styles from './styles.module.less'
 
@@ -127,27 +127,26 @@ const SqlSearch = memo(({ sqlEditorValue, handleSearch }: SqlSearchIProps) => {
     setHistoryCompletions(historyCompletionsRef.current)
   }
 
-  async function getClusterList() {
-    const response: any = await axios(`/rest-api/v1/clusters`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+  const { response } = useAxios({
+    url: '/rest-api/v1/clusters',
+    option: {
       params: {
         orderBy: 'name',
         ascending: true,
       },
-    })
+    },
+    manual: false,
+    method: 'GET',
+  })
+
+  useEffect(() => {
     if (response?.success) {
       clusterListRef.current = response?.data?.items
       setClusterList(response?.data?.items)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
-  }
+  }, [response])
 
   useEffect(() => {
-    getClusterList()
     getHistoryList()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

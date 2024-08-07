@@ -24,6 +24,7 @@ import (
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	searchinstall "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/install"
 	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	authenticationinstall "k8s.io/kubernetes/pkg/apis/authentication/install"
 	coreinstall "k8s.io/kubernetes/pkg/apis/core/install"
 	corev1 "k8s.io/kubernetes/pkg/apis/core/v1"
 	rbacinstall "k8s.io/kubernetes/pkg/apis/rbac/install"
@@ -52,6 +53,7 @@ func init() {
 	searchinstall.Install(Scheme)
 	coreinstall.Install(Scheme)
 	rbacinstall.Install(Scheme)
+	authenticationinstall.Install(Scheme)
 
 	metav1.AddToGroupVersion(Scheme, schema.GroupVersion{Version: "v1"})
 	unversioned := schema.GroupVersion{Group: "", Version: "v1"}

@@ -1,11 +1,11 @@
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Space, Table, message } from 'antd'
-import axios from 'axios'
+import { Button, Input, Space, Table } from 'antd'
 import queryString from 'query-string'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDebounce from '@/hooks/useDebounce'
+import { useAxios } from '@/utils/request'
 
 import styles from './style.module.less'
 
@@ -30,7 +30,6 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   const [pageParams, setPageParams] = useState(defaultSearchParams)
   const [tableData, setTableData] = useState([])
   const urlSearchParams = queryString?.parse(location?.search)
-  const [loading, setLoading] = useState(false)
   const [keyword, setKeyword] = useState('')
 
   const debouncedValue = useDebounce(keyword, 500)
@@ -89,27 +88,36 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
     },
   ]
 
-  async function queryTableData(params) {
+  const {
+    response: tableDataResponse,
+    refetch: tableDataRefetch,
+    loading,
+  } = useAxios({
+    url: '',
+    manual: true,
+  })
+
+  useEffect(() => {
+    if (tableDataResponse?.success) {
+      setTableData(tableDataResponse?.data?.items || [])
+      setPageParams({
+        ...tableDataResponse?.successParams,
+        total: tableDataResponse?.data?.total,
+      })
+    }
+  }, [tableDataResponse])
+
+  function queryTableData(params) {
     const { current, pageSize } = pageParams
-    setLoading(true)
     setTableData([])
     setPageParams({
       ...params,
       total: 0,
     })
-    const response: any = await axios.get(
-      `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}&keyword=${params?.keyword || ''}`,
-    )
-    if (response?.success) {
-      setTableData(response?.data?.items || [])
-      setPageParams({
-        ...params,
-        total: response?.data?.total,
-      })
-    } else {
-      message.error(response?.message)
-    }
-    setLoading(false)
+    tableDataRefetch({
+      url: `/rest-api/v1/search?query=${queryStr}&pattern=sql&page=${params?.current || current}&pageSize=${params?.pageSize || pageSize}&keyword=${params?.keyword || ''}`,
+      successParams: params,
+    })
   }
 
   useEffect(() => {

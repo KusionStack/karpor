@@ -72,7 +72,7 @@ const RuleForm = ({
     } catch (error) {}
   }
 
-  async function confirm() {
+  function confirm() {
     deleteItem(currentItem?.name, () => {
       form.resetFields()
       setDisabledInputs({})

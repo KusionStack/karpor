@@ -23,3 +23,5 @@
 /.nyc_output
 .DS_Store
 /src/.DS_Store
+.node
+package-lock.json
