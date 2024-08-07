@@ -18,7 +18,7 @@ import (
 	"context"
 	"os"
 
-	"github.com/KusionStack/karpor/hack/cert-generator/generator"
+	"github.com/KusionStack/karpor/pkg/util/certgenerator"
 	"github.com/spf13/cobra"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
@@ -74,7 +74,7 @@ func runCertGenerator(ctx context.Context, options *CertOptions) error {
 		ns = options.Namespace
 	}
 
-	generator, err := generator.NewGenerator(cfg, ns, options.CertName, options.KubeConfigName)
+	generator, err := certgenerator.NewGenerator(cfg, ns, options.CertName, options.KubeConfigName)
 	if err != nil {
 		return err
 	}

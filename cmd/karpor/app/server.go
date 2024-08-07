@@ -25,7 +25,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/KusionStack/karpor/cmd/app/options"
+	"github.com/KusionStack/karpor/cmd/karpor/app/options"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/server"
