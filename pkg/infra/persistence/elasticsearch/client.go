@@ -417,3 +417,21 @@ func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*Ag
 		Total:   len(bs),
 	}, nil
 }
+
+// CheckElasticSearchLiveness would ping ElasticSearch client
+func (cl *Client) CheckElasticSearchLiveness(ctx context.Context) error {
+	_, err := cl.client.Info(cl.client.Info.WithContext(ctx))
+	if err != nil {
+		return err
+	}
+	resp, err := cl.client.Cluster.Health(cl.client.Cluster.Health.WithContext(ctx))
+	if err != nil {
+		return fmt.Errorf("failed to get cluster health: %v", err)
+	}
+	defer resp.Body.Close()
+	if status := resp.Status(); status != "green" && status != "yellow" {
+		return fmt.Errorf("cluster health status is not OK: %s", status)
+	}
+
+	return nil
+}

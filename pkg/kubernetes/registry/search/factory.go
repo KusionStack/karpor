@@ -69,3 +69,20 @@ func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupR
 
 	return resourceGroupRuleStorageGetter.GetResourceGroupRuleStorage()
 }
+
+// NewGeneralStorage creates a new instance of a general storage component using the provided extra configuration.
+func NewGeneralStorage(c registry.ExtraConfig) (storage.Storage, error) {
+	storage := RESTStorageProvider{
+		SearchStorageType:      c.SearchStorageType,
+		ElasticSearchAddresses: c.ElasticSearchAddresses,
+		ElasticSearchName:      c.ElasticSearchUsername,
+		ElasticSearchPassword:  c.ElasticSearchPassword,
+	}
+
+	generalStorageGetter, err := storage.GeneralStorageGetter()
+	if err != nil {
+		return nil, err
+	}
+
+	return generalStorageGetter.GetGeneralStorage()
+}
