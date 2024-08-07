@@ -84,7 +84,8 @@ archives:
       - LICENSE
       - README.md
       - docs/*
-      - pkg/version/VERSION
+      - src: pkg/version/VERSION
+        strip_parent: true
       - src: dist/CHANGELOG.md
         strip_parent: true
 checksum:
@@ -168,6 +169,7 @@ dockers:
   - "--platform=linux/amd64"
   extra_files:
   - ui/
+  - pkg/version/VERSION
   - config/relationship.yaml
 # - image_templates:
 #   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
