@@ -1,0 +1,28 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: karpor-guest
+rules:
+  - nonResourceURLs:
+      - /rest-api/v1/resource-group-rule
+      - /rest-api/v1/resource-group-rule/*
+      - /rest-api/v1/cluster
+      - /rest-api/v1/cluster/*
+      - /rest-api/v1/authn
+      - /
+      - /rest-api/*
+      - /endpoints
+      - /public/*
+      - /docs/*
+      - /server-configs
+      - /search
+      - /search/*
+      - /insight
+      - /insight/*
+      - /insightDetail
+      - /insightDetail/*
+      - /cluster
+      - /cluster/*
+      - /login
+    verbs:
+      - get
