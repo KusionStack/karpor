@@ -21,7 +21,8 @@ before:
     - go mod tidy
     - make gen-version
 builds:
-  - env:
+  - id: "karpor"
+    env:
       - CGO_ENABLED=0
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -42,6 +43,28 @@ builds:
     ldflags:
       - -s -w
     main: ./cmd/
+  - id: "cert-generator"
+    env:
+      - CGO_ENABLED=0
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ 'darwin', 'linux', 'windows' ]
+    goos:
+      - linux
+      # - windows
+      - darwin
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ '386', 'amd64', 'arm64' ]
+    goarch:
+      - amd64
+      - arm64
+    # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
+    ldflags:
+      - -s -w
+    main: ./hack/cert-generator/
 archives:
   - id: release
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
@@ -56,6 +79,7 @@ archives:
       - LICENSE
       - README.md
       - docs/*
+      - pkg/version/VERSION
       - src: dist/CHANGELOG.md
         strip_parent: true
 checksum:

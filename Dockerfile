@@ -18,6 +18,7 @@ USER root
 WORKDIR /
 
 COPY karpor .
+COPY cert-generator .
 COPY config/relationship.yaml .
 
 ENTRYPOINT ["/karpor"]
