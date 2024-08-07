@@ -38,7 +38,7 @@ func main() {
 func NewCertGeneratorCommand(ctx context.Context) *cobra.Command {
 	options := NewCertOptions()
 	cmd := &cobra.Command{
-		Use:   "gen-cert",
+		Use:   "cert-generator",
 		Short: "Generate CA and kubeconfig",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCertGenerator(ctx, options)
