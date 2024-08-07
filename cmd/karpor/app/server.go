@@ -107,7 +107,7 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		Long:  "Launch an API server",
 		RunE: func(c *cobra.Command, args []string) error {
 			if o.CoreOptions.Version {
-				fmt.Println("Karpor version:", version.GetVersion())
+				fmt.Println(version.GetVersion())
 				return nil
 			}
 			if err := o.Complete(); err != nil {

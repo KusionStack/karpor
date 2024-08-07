@@ -54,7 +54,7 @@ func runCertGenerator(ctx context.Context, options *CertOptions) error {
 	var err error
 
 	if options.Version {
-		fmt.Println("Karpor version:", version.GetVersion())
+		fmt.Println(version.GetVersion())
 		return nil
 	}
 
