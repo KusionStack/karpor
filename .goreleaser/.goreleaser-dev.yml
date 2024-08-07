@@ -43,7 +43,7 @@ builds:
     # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
     ldflags:
       - -s -w
-    main: ./cmd/
+    main: ./cmd/karpor/
   - id: "cert-generator"
     env:
       - CGO_ENABLED=0
@@ -65,7 +65,7 @@ builds:
     # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
     ldflags:
       - -s -w
-    main: ./hack/cert-generator/
+    main: ./cmd/cert-generator/
 
 release:
   disable: true
