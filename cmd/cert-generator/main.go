@@ -16,9 +16,11 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"os"
 
-	"github.com/KusionStack/karpor/hack/cert-generator/generator"
+	"github.com/KusionStack/karpor/pkg/util/certgenerator"
+	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
@@ -36,7 +38,7 @@ func main() {
 func NewCertGeneratorCommand(ctx context.Context) *cobra.Command {
 	options := NewCertOptions()
 	cmd := &cobra.Command{
-		Use:   "gen-cert",
+		Use:   "cert-generator",
 		Short: "Generate CA and kubeconfig",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			return runCertGenerator(ctx, options)
@@ -50,6 +52,11 @@ func runCertGenerator(ctx context.Context, options *CertOptions) error {
 	var cfg *rest.Config
 	var ns string
 	var err error
+
+	if options.Version {
+		fmt.Println(version.GetVersion())
+		return nil
+	}
 
 	if options.KubeConfig == "" {
 		cfg, err = rest.InClusterConfig()
@@ -74,7 +81,7 @@ func runCertGenerator(ctx context.Context, options *CertOptions) error {
 		ns = options.Namespace
 	}
 
-	generator, err := generator.NewGenerator(cfg, ns, options.CertName, options.KubeConfigName)
+	generator, err := certgenerator.NewGenerator(cfg, ns, options.CertName, options.KubeConfigName)
 	if err != nil {
 		return err
 	}
