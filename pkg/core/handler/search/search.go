@@ -22,7 +22,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/manager/search"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	"github.com/go-chi/render"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
@@ -68,7 +67,7 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 
 		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
@@ -84,6 +83,6 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 		rt.Total = res.Total
 		rt.CurrentPage = searchPage
 		rt.PageSize = searchPageSize
-		render.JSON(w, r, handler.SuccessResponse(ctx, rt))
+		handler.SuccessRender(ctx, w, r, rt)
 	}
 }

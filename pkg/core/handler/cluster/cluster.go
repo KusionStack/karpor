@@ -26,15 +26,12 @@ import (
 	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/pkg/errors"
-
 	_ "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/tools/clientcmd"
-
 	k8syaml "sigs.k8s.io/yaml"
 )
 
@@ -66,7 +63,7 @@ func Get(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.Han
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(r.Context(), err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
@@ -110,7 +107,7 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 		// Decode the request body into the payload.
 		payload := &ClusterPayload{}
 		if err := payload.Decode(r); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
@@ -150,7 +147,7 @@ func Update(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 		// Decode the request body into the payload.
 		payload := &ClusterPayload{}
 		if err := payload.Decode(r); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
@@ -266,7 +263,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		const maxUploadSize = 2 << 20
 		r.Body = http.MaxBytesReader(w, r.Body, maxUploadSize)
 		if err := r.ParseMultipartForm(maxUploadSize); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "failed to parse multipart form")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "failed to parse multipart form"))
 			return
 		}
 
@@ -276,7 +273,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		description := r.FormValue("description")
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "invalid request")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "failed to get uploaded file"))
 			return
 		}
 		defer file.Close()
@@ -287,7 +284,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		buf := make([]byte, maxUploadSize)
 		fileSize, err := file.Read(buf)
 		if err != nil && errors.Is(err, io.EOF) {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error reading file")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error reading file"))
 			return
 		}
 		plainContent := string(buf[:fileSize])
@@ -295,19 +292,19 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		// Create new restConfig from uploaded kubeconfig.
 		restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(plainContent))
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error create new rest config from uploaded kubeconfig")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error create new rest config from uploaded kubeconfig"))
 			return
 		}
 
 		// Convert the rest.Config to Cluster object.
 		clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error convert kubeconfig to cluster")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error convert kubeconfig to cluster"))
 			return
 		}
 		unstructuredClusterMap, err := runtime.DefaultUnstructuredConverter.ToUnstructured(clusterObj)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error convert cluster to unstructured obj")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error convert cluster to unstructured obj"))
 			return
 		}
 		clusterUnstructured := &unstructured.Unstructured{}
@@ -316,13 +313,13 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		// Sanitize the cluster object.
 		sanitizedUnstructuredClusterObj, err := cluster.SanitizeUnstructuredCluster(ctx, clusterUnstructured)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error sanitize unstructured obj")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error sanitize unstructured obj"))
 			return
 		}
 
 		clusterYAML, err := k8syaml.Marshal(sanitizedUnstructuredClusterObj)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.Wrapf(err, "error marshal unstructured obj")))
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error marshal unstructured obj"))
 			return
 		}
 
@@ -333,7 +330,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 			Content:                 plainContent,
 			SanitizedClusterContent: string(clusterYAML),
 		}
-		render.JSON(w, r, handler.SuccessResponse(ctx, data))
+		handler.SuccessRender(ctx, w, r, data)
 	}
 }
 
@@ -366,7 +363,7 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		payload := &ValidatePayload{}
 		if err := payload.Decode(r); err != nil {
 			log.Error(err, "failed to decode kubeconfig")
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
@@ -377,11 +374,10 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 
 		// Validate the specified kube config.
 		if info, err := clusterMgr.ValidateKubeConfigWithYAML(ctx, payload.KubeConfig); err == nil {
-			render.JSON(w, r, handler.SuccessResponse(ctx, info))
+			handler.SuccessRender(ctx, w, r, info)
 		} else {
 			log.Error(err, "failed to validate kubeconfig")
-			w.WriteHeader(http.StatusBadRequest)
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureWithCodeRender(ctx, w, r, err, http.StatusBadRequest)
 		}
 	}
 }

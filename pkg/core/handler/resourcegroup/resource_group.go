@@ -22,7 +22,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 )
 
@@ -50,7 +49,7 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 
 		name := chi.URLParam(r, "resourceGroupRuleName")
 		if len(name) == 0 {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			handler.FailureRender(ctx, w, r, errors.New("resource group rule name cannot be empty"))
 			return
 		}
 
@@ -60,15 +59,14 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 		rgs, err := resourceGroupMgr.ListResourceGroupsBy(ctx, name)
 		if err != nil {
 			if errors.Is(err, elasticsearch.ErrResourceGroupNotFound) {
-				render.Status(r, http.StatusNotFound)
-				render.Render(w, r, handler.NotFoundResponse(ctx, err))
+				handler.NotFoundRender(ctx, w, r, err)
 			} else {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
+				handler.FailureRender(ctx, w, r, err)
 			}
 			return
 		}
 
 		// Render the list of resource groups.
-		render.JSON(w, r, handler.SuccessResponse(ctx, rgs))
+		handler.SuccessRender(ctx, w, r, rgs)
 	}
 }

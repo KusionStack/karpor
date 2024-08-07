@@ -24,8 +24,8 @@ import (
 // HandleResult is a handler function that writes the response to the HTTP response writer based on the provided error and data.
 func HandleResult(w http.ResponseWriter, r *http.Request, ctx context.Context, err error, data any) {
 	if err != nil {
-		render.Render(w, r, FailureResponse(ctx, err))
+		render.Render(w, r, failureResponse(ctx, err))
 		return
 	}
-	render.JSON(w, r, SuccessResponse(ctx, data))
+	render.JSON(w, r, successResponse(ctx, data))
 }

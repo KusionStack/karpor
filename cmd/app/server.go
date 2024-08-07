@@ -29,8 +29,8 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/server"
-	"github.com/KusionStack/karpor/pkg/version"
 	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
+	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -106,6 +106,10 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		Short: "Launch an API server",
 		Long:  "Launch an API server",
 		RunE: func(c *cobra.Command, args []string) error {
+			if versionFlag, _ := c.Flags().GetBool("version"); versionFlag {
+				fmt.Println("Karpor version:", version.GetVersion())
+				return nil
+			}
 			if err := o.Complete(); err != nil {
 				return err
 			}
@@ -118,6 +122,9 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 			return nil
 		},
 	}
+
+	// Add version flag
+	cmd.Flags().BoolP("version", "V", false, "Print version and exit")
 
 	o.AddFlags(cmd.Flags())
 	return cmd

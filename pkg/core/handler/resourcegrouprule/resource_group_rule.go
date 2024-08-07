@@ -22,7 +22,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/render"
 	"github.com/pkg/errors"
 )
 
@@ -50,7 +49,7 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 
 		name := chi.URLParam(r, "resourceGroupRuleName")
 		if len(name) == 0 {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			handler.FailureRender(ctx, w, r, errors.New("resource group rule name cannot be empty"))
 			return
 		}
 
@@ -59,12 +58,12 @@ func Get(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc 
 		// Use the ResourceGroupManager to get the resource group rule.
 		data, err := resourceGroupMgr.GetResourceGroupRule(ctx, name)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		// Render the response in the requested format.
-		render.JSON(w, r, handler.SuccessResponse(ctx, data))
+		handler.SuccessRender(ctx, w, r, data)
 	}
 }
 
@@ -95,12 +94,12 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 		// Decode the request body into the payload.
 		var payload ResourceGroupRulePayload
 		if err := payload.Decode(r); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		if payload.Name == "" {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			handler.FailureRender(ctx, w, r, errors.New("resource group rule name cannot be empty"))
 			return
 		}
 
@@ -109,12 +108,12 @@ func Create(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 		// Use the ResourceGroupManager to create the resource group rule.
 		rgr := payload.ToEntity()
 		if err := resourceGroupMgr.CreateResourceGroupRule(ctx, rgr); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		// Render the created resource group rule.
-		render.JSON(w, r, handler.SuccessResponse(ctx, payload))
+		handler.SuccessRender(ctx, w, r, payload)
 	}
 }
 
@@ -145,11 +144,11 @@ func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 		// Decode the request body into the payload.
 		var payload ResourceGroupRulePayload
 		if err := payload.Decode(r); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 		if payload.Name == "" {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			handler.FailureRender(ctx, w, r, errors.New("resource group rule name cannot be empty"))
 			return
 		}
 
@@ -158,12 +157,12 @@ func Update(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 		// Use the ResourceGroupManager to update the resource group rule.
 		rgr := payload.ToEntity()
 		if err := resourceGroupMgr.UpdateResourceGroupRule(ctx, rgr.Name, rgr); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		// Render the updated resource group rule.
-		render.JSON(w, r, handler.SuccessResponse(ctx, payload))
+		handler.SuccessRender(ctx, w, r, payload)
 	}
 }
 
@@ -197,16 +196,15 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 		rules, err := resourceGroupMgr.ListResourceGroupRules(ctx)
 		if err != nil {
 			if errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
-				render.Status(r, http.StatusNotFound)
-				render.Render(w, r, handler.NotFoundResponse(ctx, err))
+				handler.NotFoundRender(ctx, w, r, err)
 			} else {
-				render.Render(w, r, handler.FailureResponse(ctx, err))
+				handler.FailureRender(ctx, w, r, err)
 			}
 			return
 		}
 
 		// Render the list of resource group rules.
-		render.JSON(w, r, handler.SuccessResponse(ctx, rules))
+		handler.SuccessRender(ctx, w, r, rules)
 	}
 }
 
@@ -234,7 +232,7 @@ func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 
 		name := chi.URLParam(r, "resourceGroupRuleName")
 		if len(name) == 0 {
-			render.Render(w, r, handler.FailureResponse(ctx, errors.New("resource group rule name cannot be empty")))
+			handler.FailureRender(ctx, w, r, errors.New("resource group rule name cannot be empty"))
 			return
 		}
 
@@ -242,11 +240,11 @@ func Delete(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFu
 
 		// Use the ResourceGroupManager to delete the resource group rule.
 		if err := resourceGroupMgr.DeleteResourceGroupRule(ctx, name); err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		// Render a success response.
-		render.JSON(w, r, handler.SuccessResponse(ctx, "ResourceGroupRule deleted successfully"))
+		handler.SuccessRender(ctx, w, r, "ResourceGroupRule deleted successfully")
 	}
 }

@@ -25,7 +25,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/manager/insight"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	"github.com/go-chi/render"
 	"k8s.io/apiserver/pkg/server"
 )
 
@@ -60,20 +59,20 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 
 		resourceGroup, err := entity.NewResourceGroupFromQuery(r)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 		logger.Info("Getting resource detail for resourceGroup...", "resourceGroup", resourceGroup)
 
 		client, err := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, resourceGroup.Cluster)
 		if err != nil {
-			render.Render(w, r, handler.FailureResponse(ctx, err))
+			handler.FailureRender(ctx, w, r, err)
 			return
 		}
 
 		resourceGroupType, ok := resourceGroup.GetType()
 		if !ok {
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unable to determine resource group type")))
+			handler.FailureRender(ctx, w, r, fmt.Errorf("unable to determine resource group type"))
 			return
 		}
 
@@ -95,7 +94,7 @@ func GetDetail(clusterMgr *cluster.ClusterManager, insightMgr *insight.InsightMa
 				handler.HandleResult(w, r, ctx, err, namespace)
 			}
 		default:
-			render.Render(w, r, handler.FailureResponse(ctx, fmt.Errorf("unsupported resource group type: %v", resourceGroupType)))
+			handler.FailureRender(ctx, w, r, fmt.Errorf("unsupported resource group type: %v", resourceGroupType))
 		}
 	}
 }
