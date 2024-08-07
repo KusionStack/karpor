@@ -153,6 +153,7 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
       <td align="center" valign="top" width="14.28%"><a href="https://www.cnblogs.com/sting2me/"><img src="https://avatars.githubusercontent.com/u/3829504?v=4?s=80" width="80px;" alt="Peter Wang"/><br /><sub><b>Peter Wang</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=peter-wangxu" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://blog.solarhell.com/"><img src="https://avatars.githubusercontent.com/u/10279583?v=4?s=80" width="80px;" alt="jiaxin"/><br /><sub><b>jiaxin</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=solarhell" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajeshkio"><img src="https://avatars.githubusercontent.com/u/107089376?v=4?s=80" width="80px;" alt="rajeshkio"/><br /><sub><b>rajeshkio</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajeshkio" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://chenchen.link/"><img src="https://avatars.githubusercontent.com/u/30647904?v=4?s=80" width="80px;" alt="Chen Chen"/><br /><sub><b>Chen Chen</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=z1cheng" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
