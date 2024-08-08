@@ -17,6 +17,7 @@ package syncer
 import (
 	"context"
 	"fmt"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"reflect"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -373,6 +374,27 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 			}
 			config.TLSClientConfig.CertData = access.Credential.X509.Certificate
 			config.TLSClientConfig.KeyData = access.Credential.X509.PrivateKey
+		case clusterv1beta1.CredentialTypeOIDC:
+			if access.Credential.ExecConfig == nil {
+				return nil, fmt.Errorf("ExecConfig is required for Exec credential type")
+			}
+			var env []clientcmdapi.ExecEnvVar
+			for _, envValue := range access.Credential.ExecConfig.Env {
+				tempEnv := clientcmdapi.ExecEnvVar{
+					Name:  envValue.Name,
+					Value: envValue.Value,
+				}
+				env = append(env, tempEnv)
+			}
+			config.ExecProvider = &clientcmdapi.ExecConfig{
+				Command:            access.Credential.ExecConfig.Command,
+				Args:               access.Credential.ExecConfig.Args,
+				Env:                env,
+				APIVersion:         access.Credential.ExecConfig.APIVersion,
+				InstallHint:        access.Credential.ExecConfig.InstallHint,
+				ProvideClusterInfo: access.Credential.ExecConfig.ProvideClusterInfo,
+				InteractiveMode:    clientcmdapi.ExecInteractiveMode(access.Credential.ExecConfig.InteractiveMode),
+			}
 		default:
 			return nil, fmt.Errorf("unknown credential type %v", access.Credential.Type)
 		}

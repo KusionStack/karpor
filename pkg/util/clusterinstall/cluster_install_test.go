@@ -15,6 +15,7 @@
 package clusterinstall
 
 import (
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"testing"
 
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
@@ -90,6 +91,29 @@ func TestConvertKubeconfigToCluster(t *testing.T) {
 			},
 			wantErr: true,
 		},
+		{
+			name:        "ExecCluster",
+			displayName: "My Exec Cluster",
+			description: "This cluster uses an ExecConfig as credential",
+			cfg: &rest.Config{
+				Host:        "https://execonfig:6443",
+				BearerToken: "tokenDataHere",
+				TLSClientConfig: rest.TLSClientConfig{
+					Insecure: false,
+				},
+				ExecProvider: &clientcmdapi.ExecConfig{
+					Command: "aws",
+					Args: []string{"--region", "xxx", "eks", "get-token", "--cluster-name",
+						"exec-cluster"},
+					Env:                nil,
+					APIVersion:         "client.authentication.k8s.io/v1beta1",
+					InstallHint:        "",
+					ProvideClusterInfo: false,
+					InteractiveMode:    "Never",
+				},
+			},
+			wantErr: false,
+		},
 	}
 
 	for _, tc := range tests {
@@ -124,6 +148,9 @@ func TestConvertKubeconfigToCluster(t *testing.T) {
 				} else if tc.cfg.BearerToken != "" {
 					require.Equal(t, clusterv1beta1.CredentialTypeServiceAccountToken, cluster.Spec.Access.Credential.Type)
 					require.Equal(t, tc.cfg.BearerToken, cluster.Spec.Access.Credential.ServiceAccountToken)
+				} else if tc.cfg.ExecProvider != nil {
+					require.Equal(t, clusterv1beta1.CredentialTypeOIDC, cluster.Spec.Access.Credential.Type)
+					require.Equal(t, tc.cfg.ExecProvider, cluster.Spec.Access.Credential.ExecConfig)
 				}
 			}
 		})

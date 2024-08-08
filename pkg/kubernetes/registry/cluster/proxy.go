@@ -30,6 +30,7 @@ import (
 	genericregistry "k8s.io/apiserver/pkg/registry/generic/registry"
 	"k8s.io/apiserver/pkg/registry/rest"
 	restclient "k8s.io/client-go/rest"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 var proxyMethods = []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"}
@@ -142,16 +143,37 @@ func NewConfigFromCluster(c *cluster.Cluster) (*restclient.Config, error) {
 	case cluster.CredentialTypeX509Certificate:
 		cfg.CertData = c.Spec.Access.Credential.X509.Certificate
 		cfg.KeyData = c.Spec.Access.Credential.X509.PrivateKey
+	case cluster.CredentialTypeOIDC:
+		var env []clientcmdapi.ExecEnvVar
+		for _, envValue := range c.Spec.Access.Credential.ExecConfig.Env {
+			tempEnv := clientcmdapi.ExecEnvVar{
+				Name:  envValue.Name,
+				Value: envValue.Value,
+			}
+			env = append(env, tempEnv)
+		}
+		cfg.ExecProvider = &clientcmdapi.ExecConfig{
+			Command:            c.Spec.Access.Credential.ExecConfig.Command,
+			Args:               c.Spec.Access.Credential.ExecConfig.Args,
+			Env:                env,
+			APIVersion:         c.Spec.Access.Credential.ExecConfig.APIVersion,
+			InstallHint:        c.Spec.Access.Credential.ExecConfig.InstallHint,
+			ProvideClusterInfo: c.Spec.Access.Credential.ExecConfig.ProvideClusterInfo,
+			InteractiveMode:    clientcmdapi.ExecInteractiveMode(c.Spec.Access.Credential.ExecConfig.InteractiveMode),
+		}
 	}
-	u, err := url.Parse(c.Spec.Access.Endpoint)
-	if err != nil {
-		return nil, err
+	// ServerName should be set to an empty string when using ExecConfig
+	if c.Spec.Access.Credential.Type != cluster.CredentialTypeOIDC {
+		u, err := url.Parse(c.Spec.Access.Endpoint)
+		if err != nil {
+			return nil, err
+		}
+		host, _, err := net.SplitHostPort(u.Host)
+		if err != nil {
+			return nil, err
+		}
+		cfg.ServerName = host // apiserver may listen on SNI cert
 	}
-	host, _, err := net.SplitHostPort(u.Host)
-	if err != nil {
-		return nil, err
-	}
-	cfg.ServerName = host // apiserver may listen on SNI cert
 	return cfg, nil
 }
 
