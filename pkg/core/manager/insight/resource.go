@@ -45,7 +45,7 @@ func (i *InsightManager) GetResource(
 	}
 	if strings.EqualFold(resourceGroup.Kind, "Secret") {
 		return i.SanitizeSecret(secret)
-	}else{
+	} else {
 		return secret, err
 	}
 }
