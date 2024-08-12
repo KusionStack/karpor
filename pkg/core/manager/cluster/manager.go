@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
@@ -52,6 +53,10 @@ func (c *ClusterManager) GetCluster(
 ) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	obj, err := client.DynamicClient.Resource(clusterGVR).Get(ctx, name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	obj, err = handler.RemoveUnstructuredManagedFields(ctx, obj)
 	if err != nil {
 		return nil, err
 	}
@@ -282,7 +287,11 @@ func (c *ClusterManager) GetNamespace(
 	// client.ClientSet.CoreV1().Namespaces().Get(ctx, namespace, metav1.GetOptions{}) returns an
 	// empty TypeMeta
 	nsGVR := v1.SchemeGroupVersion.WithResource("namespaces")
-	return client.DynamicClient.Resource(nsGVR).Get(ctx, namespace, metav1.GetOptions{})
+	ns, err := client.DynamicClient.Resource(nsGVR).Get(ctx, namespace, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+	return handler.RemoveUnstructuredManagedFields(ctx, ns)
 }
 
 // GetNamespaceForCluster returns the yaml byte array for a given cluster
