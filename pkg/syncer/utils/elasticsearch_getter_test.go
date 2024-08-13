@@ -76,7 +76,6 @@ func TestESListerGetter_ListKeys(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestESListerGetter_GetByKey(t *testing.T) {

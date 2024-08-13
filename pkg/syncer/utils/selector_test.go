@@ -33,7 +33,8 @@ func createTestSelectable(labels map[string]interface{}, fields map[string]inter
 					"labels": labels,
 				},
 				"spec": fields,
-			}},
+			},
+		},
 		parser: DefaultJSONPathParser,
 	}
 }
@@ -148,7 +149,8 @@ func TestPredicate(t *testing.T) {
 						"labels": tc.labels,
 					},
 					"spec": tc.fields,
-				}}))
+				},
+			}))
 		})
 	}
 }
