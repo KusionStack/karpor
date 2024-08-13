@@ -53,6 +53,27 @@ func ConvertKubeconfigToCluster(name, displayName, description string, cfg *rest
 	} else if cfg.BearerToken != "" {
 		credential.Type = clusterv1beta1.CredentialTypeServiceAccountToken
 		credential.ServiceAccountToken = cfg.BearerToken
+	} else if cfg.ExecProvider != nil {
+		credential.Type = clusterv1beta1.CredentialTypeOIDC
+		var env []clusterv1beta1.ExecEnvVar
+		// Convert rest.Config.ExecConfig into cluster ExecConfig, maybe there are better ways to convert config env
+		// into cluster EnvVar
+		for _, envValue := range cfg.ExecProvider.Env {
+			tempEnv := clusterv1beta1.ExecEnvVar{
+				Name:  envValue.Name,
+				Value: envValue.Value,
+			}
+			env = append(env, tempEnv)
+		}
+		credential.ExecConfig = &clusterv1beta1.ExecConfig{
+			Command:            cfg.ExecProvider.Command,
+			Args:               cfg.ExecProvider.Args,
+			Env:                env,
+			APIVersion:         cfg.ExecProvider.APIVersion,
+			InstallHint:        cfg.ExecProvider.InstallHint,
+			ProvideClusterInfo: cfg.ExecProvider.ProvideClusterInfo,
+			InteractiveMode:    string(cfg.ExecProvider.InteractiveMode),
+		}
 	} else {
 		return nil, fmt.Errorf("failed to parse credential from kubeconfig")
 	}

@@ -31,29 +31,31 @@ import (
 
 func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenAPIDefinition {
 	return map[string]common.OpenAPIDefinition{
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.Cluster":                      schema_pkg_apis_cluster_v1beta1_Cluster(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccess":                schema_pkg_apis_cluster_v1beta1_ClusterAccess(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccessCredential":      schema_pkg_apis_cluster_v1beta1_ClusterAccessCredential(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterList":                  schema_pkg_apis_cluster_v1beta1_ClusterList(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterProxyOptions":          schema_pkg_apis_cluster_v1beta1_ClusterProxyOptions(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterSpec":                  schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterStatus":                schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.X509":                         schema_pkg_apis_cluster_v1beta1_X509(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ClusterResourcesSyncCondition": schema_pkg_apis_search_v1beta1_ClusterResourcesSyncCondition(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.FieldSelector":                 schema_pkg_apis_search_v1beta1_FieldSelector(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncCondition":         schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule":              schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector":                      schema_pkg_apis_search_v1beta1_Selector(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistry":                  schema_pkg_apis_search_v1beta1_SyncRegistry(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryList":              schema_pkg_apis_search_v1beta1_SyncRegistryList(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistrySpec":              schema_pkg_apis_search_v1beta1_SyncRegistrySpec(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryStatus":            schema_pkg_apis_search_v1beta1_SyncRegistryStatus(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResources":                 schema_pkg_apis_search_v1beta1_SyncResources(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesList":             schema_pkg_apis_search_v1beta1_SyncResourcesList(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesSpec":             schema_pkg_apis_search_v1beta1_SyncResourcesSpec(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRule":                 schema_pkg_apis_search_v1beta1_TransformRule(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleList":             schema_pkg_apis_search_v1beta1_TransformRuleList(ref),
-		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec":             schema_pkg_apis_search_v1beta1_TransformRuleSpec(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.Cluster":                      schema_kubernetes_apis_cluster_v1beta1_Cluster(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccess":                schema_kubernetes_apis_cluster_v1beta1_ClusterAccess(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccessCredential":      schema_kubernetes_apis_cluster_v1beta1_ClusterAccessCredential(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterList":                  schema_kubernetes_apis_cluster_v1beta1_ClusterList(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterProxyOptions":          schema_kubernetes_apis_cluster_v1beta1_ClusterProxyOptions(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterSpec":                  schema_kubernetes_apis_cluster_v1beta1_ClusterSpec(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterStatus":                schema_kubernetes_apis_cluster_v1beta1_ClusterStatus(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecConfig":                   schema_kubernetes_apis_cluster_v1beta1_ExecConfig(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecEnvVar":                   schema_kubernetes_apis_cluster_v1beta1_ExecEnvVar(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.X509":                         schema_kubernetes_apis_cluster_v1beta1_X509(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ClusterResourcesSyncCondition": schema_kubernetes_apis_search_v1beta1_ClusterResourcesSyncCondition(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.FieldSelector":                 schema_kubernetes_apis_search_v1beta1_FieldSelector(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncCondition":         schema_kubernetes_apis_search_v1beta1_ResourceSyncCondition(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule":              schema_kubernetes_apis_search_v1beta1_ResourceSyncRule(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector":                      schema_kubernetes_apis_search_v1beta1_Selector(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistry":                  schema_kubernetes_apis_search_v1beta1_SyncRegistry(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryList":              schema_kubernetes_apis_search_v1beta1_SyncRegistryList(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistrySpec":              schema_kubernetes_apis_search_v1beta1_SyncRegistrySpec(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryStatus":            schema_kubernetes_apis_search_v1beta1_SyncRegistryStatus(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResources":                 schema_kubernetes_apis_search_v1beta1_SyncResources(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesList":             schema_kubernetes_apis_search_v1beta1_SyncResourcesList(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesSpec":             schema_kubernetes_apis_search_v1beta1_SyncResourcesSpec(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRule":                 schema_kubernetes_apis_search_v1beta1_TransformRule(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleList":             schema_kubernetes_apis_search_v1beta1_TransformRuleList(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec":             schema_kubernetes_apis_search_v1beta1_TransformRuleSpec(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                                  schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                                              schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                               schema_pkg_apis_meta_v1_APIResource(ref),
@@ -109,7 +111,7 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_Cluster(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_Cluster(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -153,12 +155,11 @@ func schema_pkg_apis_cluster_v1beta1_Cluster(ref common.ReferenceCallback) commo
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterSpec", "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterSpec", "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterAccess(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterAccess(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -193,12 +194,11 @@ func schema_pkg_apis_cluster_v1beta1_ClusterAccess(ref common.ReferenceCallback)
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccessCredential",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccessCredential"},
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterAccessCredential(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterAccessCredential(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -222,17 +222,21 @@ func schema_pkg_apis_cluster_v1beta1_ClusterAccessCredential(ref common.Referenc
 							Ref: ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.X509"),
 						},
 					},
+					"execConfig": {
+						SchemaProps: spec.SchemaProps{
+							Ref: ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecConfig"),
+						},
+					},
 				},
 				Required: []string{"type"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.X509",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecConfig", "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.X509"},
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -277,12 +281,11 @@ func schema_pkg_apis_cluster_v1beta1_ClusterList(ref common.ReferenceCallback) c
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.Cluster", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.Cluster", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterProxyOptions(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterProxyOptions(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -315,7 +318,7 @@ func schema_pkg_apis_cluster_v1beta1_ClusterProxyOptions(ref common.ReferenceCal
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -359,12 +362,11 @@ func schema_pkg_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCallback) c
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccess",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ClusterAccess"},
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ClusterStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -382,7 +384,108 @@ func schema_pkg_apis_cluster_v1beta1_ClusterStatus(ref common.ReferenceCallback)
 	}
 }
 
-func schema_pkg_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_cluster_v1beta1_ExecConfig(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"command": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"args": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+					"env": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecEnvVar"),
+									},
+								},
+							},
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"installHint": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"provideClusterInfo": {
+						SchemaProps: spec.SchemaProps{
+							Default: false,
+							Type:    []string{"boolean"},
+							Format:  "",
+						},
+					},
+					"interactiveMode": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+				Required: []string{"command", "args", "env", "provideClusterInfo"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1.ExecEnvVar"},
+	}
+}
+
+func schema_kubernetes_apis_cluster_v1beta1_ExecEnvVar(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+					"value": {
+						SchemaProps: spec.SchemaProps{
+							Default: "",
+							Type:    []string{"string"},
+							Format:  "",
+						},
+					},
+				},
+				Required: []string{"name", "value"},
+			},
+		},
+	}
+}
+
+func schema_kubernetes_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -407,7 +510,7 @@ func schema_pkg_apis_cluster_v1beta1_X509(ref common.ReferenceCallback) common.O
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_ClusterResourcesSyncCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_ClusterResourcesSyncCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -445,12 +548,11 @@ func schema_pkg_apis_search_v1beta1_ClusterResourcesSyncCondition(ref common.Ref
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncCondition",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncCondition"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -486,7 +588,7 @@ func schema_pkg_apis_search_v1beta1_FieldSelector(ref common.ReferenceCallback) 
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_ResourceSyncCondition(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -536,12 +638,11 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncCondition(ref common.ReferenceCa
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -577,7 +678,7 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 							Ref:         ref("k8s.io/apimachinery/pkg/apis/meta/v1.Duration"),
 						},
 					},
-					"workers": {
+					"maxConcurrent": {
 						SchemaProps: spec.SchemaProps{
 							Description: "MaxConcurrent is the maximum number of workers (default: 10)",
 							Type:        []string{"integer"},
@@ -616,12 +717,11 @@ func schema_pkg_apis_search_v1beta1_ResourceSyncRule(ref common.ReferenceCallbac
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_Selector(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_Selector(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -644,12 +744,11 @@ func schema_pkg_apis_search_v1beta1_Selector(ref common.ReferenceCallback) commo
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.FieldSelector", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.FieldSelector", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncRegistry(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncRegistry(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -691,12 +790,11 @@ func schema_pkg_apis_search_v1beta1_SyncRegistry(ref common.ReferenceCallback) c
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistrySpec", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistrySpec", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistryStatus", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncRegistryList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncRegistryList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -740,12 +838,11 @@ func schema_pkg_apis_search_v1beta1_SyncRegistryList(ref common.ReferenceCallbac
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistry", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncRegistry", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncRegistrySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncRegistrySpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -795,12 +892,11 @@ func schema_pkg_apis_search_v1beta1_SyncRegistrySpec(ref common.ReferenceCallbac
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule", "k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelector"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncRegistryStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncRegistryStatus(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -830,12 +926,11 @@ func schema_pkg_apis_search_v1beta1_SyncRegistryStatus(ref common.ReferenceCallb
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ClusterResourcesSyncCondition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ClusterResourcesSyncCondition", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncResources(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncResources(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -871,12 +966,11 @@ func schema_pkg_apis_search_v1beta1_SyncResources(ref common.ReferenceCallback) 
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResourcesSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncResourcesList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncResourcesList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -920,12 +1014,11 @@ func schema_pkg_apis_search_v1beta1_SyncResourcesList(ref common.ReferenceCallba
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResources", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.SyncResources", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_SyncResourcesSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_SyncResourcesSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -948,12 +1041,11 @@ func schema_pkg_apis_search_v1beta1_SyncResourcesSpec(ref common.ReferenceCallba
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.ResourceSyncRule"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_TransformRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_TransformRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -990,12 +1082,11 @@ func schema_pkg_apis_search_v1beta1_TransformRule(ref common.ReferenceCallback) 
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_TransformRuleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_TransformRuleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1039,12 +1130,11 @@ func schema_pkg_apis_search_v1beta1_TransformRuleList(ref common.ReferenceCallba
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRule", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta",
-		},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRule", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
 	}
 }
 
-func schema_pkg_apis_search_v1beta1_TransformRuleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+func schema_kubernetes_apis_search_v1beta1_TransformRuleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
 	return common.OpenAPIDefinition{
 		Schema: spec.Schema{
 			SchemaProps: spec.SchemaProps{
@@ -1142,8 +1232,7 @@ func schema_pkg_apis_meta_v1_APIGroup(ref common.ReferenceCallback) common.OpenA
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.GroupVersionForDiscovery", "k8s.io/apimachinery/pkg/apis/meta/v1.ServerAddressByClientCIDR",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.GroupVersionForDiscovery", "k8s.io/apimachinery/pkg/apis/meta/v1.ServerAddressByClientCIDR"},
 	}
 }
 
@@ -1187,8 +1276,7 @@ func schema_pkg_apis_meta_v1_APIGroupList(ref common.ReferenceCallback) common.O
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup"},
 	}
 }
 
@@ -1352,8 +1440,7 @@ func schema_pkg_apis_meta_v1_APIResourceList(ref common.ReferenceCallback) commo
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource"},
 	}
 }
 
@@ -1412,8 +1499,7 @@ func schema_pkg_apis_meta_v1_APIVersions(ref common.ReferenceCallback) common.Op
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ServerAddressByClientCIDR",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ServerAddressByClientCIDR"},
 	}
 }
 
@@ -1534,8 +1620,7 @@ func schema_pkg_apis_meta_v1_Condition(ref common.ReferenceCallback) common.Open
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Time",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -1662,8 +1747,7 @@ func schema_pkg_apis_meta_v1_DeleteOptions(ref common.ReferenceCallback) common.
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.Preconditions",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.Preconditions"},
 	}
 }
 
@@ -1933,8 +2017,7 @@ func schema_pkg_apis_meta_v1_InternalEvent(ref common.ReferenceCallback) common.
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/runtime.Object",
-		},
+			"k8s.io/apimachinery/pkg/runtime.Object"},
 	}
 }
 
@@ -1984,8 +2067,7 @@ func schema_pkg_apis_meta_v1_LabelSelector(ref common.ReferenceCallback) common.
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelectorRequirement",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.LabelSelectorRequirement"},
 	}
 }
 
@@ -2087,8 +2169,7 @@ func schema_pkg_apis_meta_v1_List(ref common.ReferenceCallback) common.OpenAPIDe
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/runtime.RawExtension",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
@@ -2281,8 +2362,7 @@ func schema_pkg_apis_meta_v1_ManagedFieldsEntry(ref common.ReferenceCallback) co
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.FieldsV1", "k8s.io/apimachinery/pkg/apis/meta/v1.Time",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.FieldsV1", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -2464,8 +2544,7 @@ func schema_pkg_apis_meta_v1_ObjectMeta(ref common.ReferenceCallback) common.Ope
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ManagedFieldsEntry", "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference", "k8s.io/apimachinery/pkg/apis/meta/v1.Time",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ManagedFieldsEntry", "k8s.io/apimachinery/pkg/apis/meta/v1.OwnerReference", "k8s.io/apimachinery/pkg/apis/meta/v1.Time"},
 	}
 }
 
@@ -2566,8 +2645,7 @@ func schema_pkg_apis_meta_v1_PartialObjectMetadata(ref common.ReferenceCallback)
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
 	}
 }
 
@@ -2618,8 +2696,7 @@ func schema_pkg_apis_meta_v1_PartialObjectMetadataList(ref common.ReferenceCallb
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.PartialObjectMetadata",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.PartialObjectMetadata"},
 	}
 }
 
@@ -2849,8 +2926,7 @@ func schema_pkg_apis_meta_v1_Status(ref common.ReferenceCallback) common.OpenAPI
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.StatusDetails",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.StatusDetails"},
 	}
 }
 
@@ -2948,8 +3024,7 @@ func schema_pkg_apis_meta_v1_StatusDetails(ref common.ReferenceCallback) common.
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.StatusCause",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.StatusCause"},
 	}
 }
 
@@ -3014,8 +3089,7 @@ func schema_pkg_apis_meta_v1_Table(ref common.ReferenceCallback) common.OpenAPID
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.TableColumnDefinition", "k8s.io/apimachinery/pkg/apis/meta/v1.TableRow",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta", "k8s.io/apimachinery/pkg/apis/meta/v1.TableColumnDefinition", "k8s.io/apimachinery/pkg/apis/meta/v1.TableRow"},
 	}
 }
 
@@ -3154,8 +3228,7 @@ func schema_pkg_apis_meta_v1_TableRow(ref common.ReferenceCallback) common.OpenA
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/apis/meta/v1.TableRowCondition", "k8s.io/apimachinery/pkg/runtime.RawExtension",
-		},
+			"k8s.io/apimachinery/pkg/apis/meta/v1.TableRowCondition", "k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
@@ -3354,8 +3427,7 @@ func schema_pkg_apis_meta_v1_WatchEvent(ref common.ReferenceCallback) common.Ope
 			},
 		},
 		Dependencies: []string{
-			"k8s.io/apimachinery/pkg/runtime.RawExtension",
-		},
+			"k8s.io/apimachinery/pkg/runtime.RawExtension"},
 	}
 }
 
