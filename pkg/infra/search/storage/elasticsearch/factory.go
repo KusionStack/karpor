@@ -83,6 +83,26 @@ func (s *ResourceGroupRuleStorageGetter) GetResourceGroupRuleStorage() (storage.
 	return esClient, nil
 }
 
+// GeneralStorageGetter retrieves and returns a general storage instance based on
+// the provided configuration.
+type GeneralStorageGetter struct {
+	cfg *Config
+}
+
+// GetGeneralStorage retrieves and returns a storage instance based on the provided
+// configuration.
+func (s *GeneralStorageGetter) GetGeneralStorage() (storage.Storage, error) {
+	esClient, err := NewStorage(elasticsearch.Config{
+		Addresses: s.cfg.Addresses,
+		Username:  s.cfg.UserName,
+		Password:  s.cfg.Password,
+	})
+	if err != nil {
+		return nil, err
+	}
+	return esClient, nil
+}
+
 // Config defines the configuration structure for Elasticsearch storage.
 type Config struct {
 	Addresses []string `env:"ES_ADDRESSES"`
@@ -129,6 +149,20 @@ func NewResourceGroupRuleStorageGetter(addresses []string, userName, password st
 	}
 
 	return &ResourceGroupRuleStorageGetter{
+		cfg,
+	}
+}
+
+// NewGeneralStorageGetter creates a new instance of the GeneralStorageGetter
+// with the given Elasticsearch addresses, user name, and password.
+func NewGeneralStorageGetter(addresses []string, userName, password string) *GeneralStorageGetter {
+	cfg := &Config{
+		Addresses: addresses,
+		UserName:  userName,
+		Password:  password,
+	}
+
+	return &GeneralStorageGetter{
 		cfg,
 	}
 }

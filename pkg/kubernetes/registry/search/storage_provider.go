@@ -134,3 +134,17 @@ func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceG
 		return nil, fmt.Errorf("invalid resource group rule storage type %s", p.SearchStorageType)
 	}
 }
+
+// GeneralStorageGetter returns the general storage getter for the provider.
+func (p RESTStorageProvider) GeneralStorageGetter() (storage.GeneralStorageGetter, error) {
+	switch p.SearchStorageType {
+	case elasticSearchType:
+		return elasticsearch.NewGeneralStorageGetter(
+			p.ElasticSearchAddresses,
+			p.ElasticSearchName,
+			p.ElasticSearchPassword,
+		), nil
+	default:
+		return nil, fmt.Errorf("invalid general storage type %s", p.SearchStorageType)
+	}
+}
