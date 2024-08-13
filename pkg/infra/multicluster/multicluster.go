@@ -27,6 +27,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	restclient "k8s.io/client-go/rest"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	metricsv1beta1 "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
@@ -164,15 +165,36 @@ func NewConfigFromCluster(c *clusterv1beta1.Cluster) (*restclient.Config, error)
 	case clusterv1beta1.CredentialTypeX509Certificate:
 		cfg.CertData = c.Spec.Access.Credential.X509.Certificate
 		cfg.KeyData = c.Spec.Access.Credential.X509.PrivateKey
+	case clusterv1beta1.CredentialTypeOIDC:
+		var env []clientcmdapi.ExecEnvVar
+		for _, envValue := range c.Spec.Access.Credential.ExecConfig.Env {
+			tempEnv := clientcmdapi.ExecEnvVar{
+				Name:  envValue.Name,
+				Value: envValue.Value,
+			}
+			env = append(env, tempEnv)
+		}
+		cfg.ExecProvider = &clientcmdapi.ExecConfig{
+			Command:            c.Spec.Access.Credential.ExecConfig.Command,
+			Args:               c.Spec.Access.Credential.ExecConfig.Args,
+			Env:                env,
+			APIVersion:         c.Spec.Access.Credential.ExecConfig.APIVersion,
+			InstallHint:        c.Spec.Access.Credential.ExecConfig.InstallHint,
+			ProvideClusterInfo: c.Spec.Access.Credential.ExecConfig.ProvideClusterInfo,
+			InteractiveMode:    clientcmdapi.ExecInteractiveMode(c.Spec.Access.Credential.ExecConfig.InteractiveMode),
+		}
 	}
-	u, err := url.Parse(c.Spec.Access.Endpoint)
-	if err != nil {
-		return nil, err
+	// ServerName should be set to an empty string when using ExecConfig
+	if c.Spec.Access.Credential.Type != clusterv1beta1.CredentialTypeOIDC {
+		u, err := url.Parse(c.Spec.Access.Endpoint)
+		if err != nil {
+			return nil, err
+		}
+		host, _, err := net.SplitHostPort(u.Host)
+		if err != nil {
+			return nil, err
+		}
+		cfg.ServerName = host // apiserver may listen on SNI cert
 	}
-	host, _, err := net.SplitHostPort(u.Host)
-	if err != nil {
-		return nil, err
-	}
-	cfg.ServerName = host // apiserver may listen on SNI cert
 	return cfg, nil
 }

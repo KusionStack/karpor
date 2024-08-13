@@ -22,6 +22,7 @@ import (
 type CoreOptions struct {
 	ReadOnlyMode bool
 	GithubBadge  bool
+	Version      bool
 }
 
 func NewCoreOptions() *CoreOptions {
@@ -46,4 +47,5 @@ func (o *CoreOptions) AddFlags(fs *pflag.FlagSet) {
 
 	fs.BoolVar(&o.ReadOnlyMode, "read-only-mode", false, "turn on the read only mode")
 	fs.BoolVar(&o.GithubBadge, "github-badge", false, "whether to display the github badge")
+	fs.BoolVarP(&o.Version, "version", "V", o.Version, "Print version and exit")
 }

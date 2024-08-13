@@ -15,6 +15,7 @@
 package route
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -33,6 +34,11 @@ type mockSearchStorage struct {
 	storage.SearchStorage
 }
 
+// Search implements the SearchStorage interface to avoid nil pointer panic.
+func (*mockSearchStorage) Search(ctx context.Context, queryString, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+	return &storage.SearchResult{}, nil
+}
+
 // mockResourceStorage is an in-memory implementation of the ResourceStorage
 // interface for testing purposes.
 type mockResourceStorage struct {
@@ -45,6 +51,12 @@ type mockResourceGroupRuleStorage struct {
 	storage.ResourceGroupRuleStorage
 }
 
+// mockGeneralStorage is an in-memory implementation of the Storage interface
+// for testing purposes.
+type mockGeneralStorage struct {
+	storage.Storage
+}
+
 // TestNewCoreRoute will test the NewCoreRoute function with different
 // configurations.
 func TestNewCoreRoute(t *testing.T) {
@@ -53,6 +65,7 @@ func TestNewCoreRoute(t *testing.T) {
 	mockey.Mock(search.NewSearchStorage).Return(&mockSearchStorage{}, nil).Build()
 	mockey.Mock(search.NewResourceStorage).Return(&mockResourceStorage{}, nil).Build()
 	mockey.Mock(search.NewResourceGroupRuleStorage).Return(&mockResourceGroupRuleStorage{}, nil).Build()
+	mockey.Mock(search.NewGeneralStorage).Return(&mockGeneralStorage{}, nil).Build()
 	defer mockey.UnPatchAll()
 
 	tests := []struct {
@@ -71,6 +84,7 @@ func TestNewCoreRoute(t *testing.T) {
 				"/endpoints",
 				"/server-configs",
 				"/rest-api/v1/search/",
+				"/livez",
 			},
 		},
 	}
@@ -90,6 +104,7 @@ func TestNewCoreRoute(t *testing.T) {
 					// Assert status code is not 404 to ensure the route exists.
 					require.NotEqual(t, http.StatusNotFound, rr.Code, "Route should exist: %s", route)
 				}
+
 			}
 		})
 	}

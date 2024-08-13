@@ -29,6 +29,7 @@ type CertOptions struct {
 	Namespace      string
 	CertName       string
 	KubeConfigName string
+	Version        bool
 }
 
 func NewCertOptions() *CertOptions {
@@ -43,4 +44,5 @@ func (o *CertOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.Namespace, "namespace", o.Namespace, "The namespace to store the CA and kubeconfig")
 	fs.StringVar(&o.CertName, "ca-name", o.CertName, "The name of the secret used to store the CA certificate.")
 	fs.StringVar(&o.KubeConfigName, "kubeconfig-name", o.KubeConfigName, "The name of the configmap used to store the kubeconfig.")
+	fs.BoolVarP(&o.Version, "version", "V", o.Version, "Print version and exit")
 }
