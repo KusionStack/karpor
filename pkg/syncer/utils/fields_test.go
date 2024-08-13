@@ -17,6 +17,7 @@ package utils
 import (
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
@@ -52,4 +53,25 @@ func TestJSONPathFields(t *testing.T) {
 			t.Errorf(`the value of path '%s' is expected to be '%s', but got '%s'`, path, expectVal, actualVal)
 		}
 	}
+}
+
+func TestHas(t *testing.T) {
+	u := unstructured.Unstructured{
+		Object: map[string]interface{}{
+			"metadata": metav1.ObjectMeta{
+				Name: "foo",
+				Labels: map[string]string{
+					"label1":        "bar",
+					"label2/label3": "foo",
+				},
+			},
+		},
+	}
+
+	fields := NewJSONPathFields(NewJSONPathParser(), u.Object)
+	actualVal := fields.Has("metadata.name")
+	require.True(t, actualVal)
+
+	actualVal = fields.Has("{.notExistField}")
+	require.False(t, actualVal)
 }

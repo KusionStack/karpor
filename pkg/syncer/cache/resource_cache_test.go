@@ -79,3 +79,116 @@ func TestIsNewer_ResourceVersionIsExcluded(t *testing.T) {
 	require.NoError(t, err)
 	require.False(t, newer, "resource version should be excluded from hash caculation")
 }
+
+func TestResourceCache_Get(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	u2 := makeUnstructured("default", "test", map[string]interface{}{
+		"metadata.resourceVersion": "1",
+	})
+
+	item, exists, err := cache.Get(u2)
+	require.NoError(t, err)
+	require.True(t, exists)
+	require.NotNil(t, item)
+}
+
+func TestResourceCache_GetByKey(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	item, exists, err := cache.GetByKey("default/test")
+	require.NoError(t, err)
+	require.True(t, exists)
+	require.NotNil(t, item)
+}
+
+func TestResourceCache_List(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	list := cache.List()
+	require.Len(t, list, 1)
+}
+
+func TestResourceCache_ListKeys(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	list := cache.ListKeys()
+	require.Len(t, list, 1)
+	require.Equal(t, "default/test", list[0])
+}
+
+func TestResourceCache_Update(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	u2 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "2",
+		})
+
+	err := cache.Update(u2)
+	require.NoError(t, err)
+}
+
+func TestResourceCache_Delete(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	u2 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "2",
+		})
+	err := cache.Delete(u2)
+	require.NoError(t, err)
+}
+
+func TestResourceCache_Replace(t *testing.T) {
+	cache := NewResourceCache()
+	u1 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "1",
+		})
+
+	cache.Add(u1)
+
+	u2 := makeUnstructured("default", "test",
+		map[string]interface{}{
+			"metadata.resourceVersion": "2",
+		})
+	err := cache.Replace([]any{u2}, "v1")
+	require.NoError(t, err)
+}

@@ -20,10 +20,17 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
+
+func TestScope_Name(t *testing.T) {
+	scope := Scope{"namespace"}
+	name := scope.Name()
+	require.Equal(t, meta.RESTScopeName("namespace"), name, "Result matches expected")
+}
 
 func TestIsMapSubset(t *testing.T) {
 	tests := []struct {

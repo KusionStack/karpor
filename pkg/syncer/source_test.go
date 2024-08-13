@@ -307,3 +307,11 @@ func Test_informerSource_Stop(t *testing.T) {
 		require.NoError(t, err)
 	})
 }
+
+func Test_informerSource_HasSynced(t *testing.T) {
+	s := &informerSource{
+		informer: &controllertest.FakeInformer{},
+	}
+	res := s.HasSynced()
+	require.False(t, res)
+}

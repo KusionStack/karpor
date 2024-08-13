@@ -76,7 +76,7 @@ func (fs JSONPathFields) Has(fieldPath string) (exists bool) {
 		return false
 	}
 	vals, err := jp.FindResults(fs.data)
-	if err != nil {
+	if err != nil || len(vals) == 0 || len(vals[0]) == 0 {
 		return false
 	}
 	return len(vals) > 0

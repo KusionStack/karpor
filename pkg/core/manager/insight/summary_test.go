@@ -21,8 +21,12 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/api/resource"
+	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/kubernetes"
 )
 
 func TestInsightManager_GetResourceSummary(t *testing.T) {
@@ -180,6 +184,116 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetNamespaceSummary method
 			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Nil(t, result, "Expected nil result on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.NotNil(t, result, "Expected non-nil result")
+
+				// Compare results
+				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
+			}
+		})
+	}
+}
+
+func TestInsightManager_GetDetailsForCluster(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	mockey.Mock((*kubernetes.Clientset).CoreV1).Return(&FakeCoreV1{}).Build()
+	mockey.Mock((*discovery.DiscoveryClient).ServerVersion).Return(&version.Info{
+		GitVersion: "v1.2.0",
+	}, err).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	cpuVal := resource.MustParse("12Mi")
+	memVal := resource.MustParse("2Gi")
+	podVal := resource.MustParse("10")
+	testCases := []struct {
+		name           string
+		resourceGroup  *entity.ResourceGroup
+		expectedResult *ClusterDetail
+		expectError    bool
+	}{
+		{
+			name: "Success - GetDetailsForCluster",
+			resourceGroup: &entity.ResourceGroup{
+				Cluster:   "existing-cluster",
+				Namespace: "default",
+			},
+			expectedResult: &ClusterDetail{
+				NodeCount:      1,
+				ServerVersion:  "v1.2.0",
+				MemoryCapacity: memVal.Value(),
+				CPUCapacity:    cpuVal.Value(),
+				PodsCapacity:   podVal.Value(),
+			},
+			expectError: false,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResourceGroupSummary method
+			result, err := manager.GetDetailsForCluster(context.Background(), mockMultiClusterClient(), "")
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Nil(t, result, "Expected nil result on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.NotNil(t, result, "Expected non-nil result")
+
+				// Compare results
+				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
+			}
+		})
+	}
+}
+
+func TestInsightManager_GetResourceGroupSummary(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		resourceGroup  *entity.ResourceGroup
+		expectedResult *ResourceGroupSummary
+		expectError    bool
+	}{
+		{
+			name: "Success - GetResourceGroupSummary",
+			resourceGroup: &entity.ResourceGroup{
+				Cluster:   "existing-cluster",
+				Namespace: "default",
+			},
+			expectedResult: &ResourceGroupSummary{
+				ResourceGroup: &entity.ResourceGroup{
+					Cluster:   "existing-cluster",
+					Namespace: "default",
+				},
+				CountByGVK: map[string]int{
+					"Pod.v1": 1,
+				},
+			},
+			expectError: false,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResourceGroupSummary method
+			result, err := manager.GetResourceGroupSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
