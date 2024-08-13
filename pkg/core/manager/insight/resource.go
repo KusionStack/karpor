@@ -35,19 +35,18 @@ func (i *InsightManager) GetResource(
 	if err != nil {
 		return nil, err
 	}
-	secret, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
+	resource, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
-	secret, err = handler.RemoveUnstructuredManagedFields(ctx, secret)
+	resource, err = handler.RemoveUnstructuredManagedFields(ctx, resource)
 	if err != nil {
 		return nil, err
 	}
 	if strings.EqualFold(resourceGroup.Kind, "Secret") {
-		return i.SanitizeSecret(secret)
-	} else {
-		return secret, err
+		return i.SanitizeSecret(resource)
 	}
+	return resource, err
 }
 
 // GetYAMLForResource returns the yaml byte array for a given cluster

@@ -32,7 +32,6 @@ func HandleResult(w http.ResponseWriter, r *http.Request, ctx context.Context, e
 	render.JSON(w, r, successResponse(ctx, data))
 }
 
-
 // RemoveUnstructuredManagedFields remove managedFields information within a Unstructured
 func RemoveUnstructuredManagedFields(
 	ctx context.Context,
