@@ -92,7 +92,7 @@ func Patch(original interface{}, patchText string) (interface{}, error) {
 	if err := json.Unmarshal(modifiedJSON, &dest); err != nil {
 		return nil, errors.Wrap(err, "json decoding error")
 	}
-	return &dest, nil
+	return dest, nil
 }
 
 // Replace function replaces the original data structure with the new one derived from the JSON string.
