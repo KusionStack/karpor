@@ -25,6 +25,7 @@ type CredentialType string
 const (
 	CredentialTypeServiceAccountToken CredentialType = "ServiceAccountToken"
 	CredentialTypeX509Certificate     CredentialType = "X509Certificate"
+	CredentialTypeOIDC                CredentialType = "OIDC"
 )
 
 // +genclient
@@ -74,13 +75,29 @@ type ClusterAccess struct {
 type ClusterAccessCredential struct {
 	Type CredentialType `json:"type"`
 	// +optional
-	ServiceAccountToken string `json:"serviceAccountToken,omitempty"`
-	X509                *X509  `json:"x509,omitempty"`
+	ServiceAccountToken string      `json:"serviceAccountToken,omitempty"`
+	X509                *X509       `json:"x509,omitempty"`
+	ExecConfig          *ExecConfig `json:"execConfig,omitempty"`
 }
 
 type X509 struct {
 	Certificate []byte `json:"certificate"`
 	PrivateKey  []byte `json:"privateKey"`
+}
+
+type ExecEnvVar struct {
+	Name  string `json:"name"`
+	Value string `json:"value"`
+}
+
+type ExecConfig struct {
+	Command            string       `json:"command"`
+	Args               []string     `json:"args"`
+	Env                []ExecEnvVar `json:"env"`
+	APIVersion         string       `json:"apiVersion,omitempty"`
+	InstallHint        string       `json:"installHint,omitempty"`
+	ProvideClusterInfo bool         `json:"provideClusterInfo"`
+	InteractiveMode    string       `json:"interactiveMode,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object

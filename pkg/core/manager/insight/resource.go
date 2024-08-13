@@ -19,6 +19,7 @@ import (
 	"strings"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,17 +35,18 @@ func (i *InsightManager) GetResource(
 	if err != nil {
 		return nil, err
 	}
-	if strings.EqualFold(resourceGroup.Kind, "Secret") {
-		secret, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
-		if err != nil {
-			return nil, err
-		}
-		return i.SanitizeSecret(secret)
+	resource, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
 	}
-	return client.DynamicClient.
-		Resource(resourceGVR).
-		Namespace(resourceGroup.Namespace).
-		Get(ctx, resourceGroup.Name, metav1.GetOptions{})
+	resource, err = handler.RemoveUnstructuredManagedFields(ctx, resource)
+	if err != nil {
+		return nil, err
+	}
+	if strings.EqualFold(resourceGroup.Kind, "Secret") {
+		return i.SanitizeSecret(resource)
+	}
+	return resource, err
 }
 
 // GetYAMLForResource returns the yaml byte array for a given cluster

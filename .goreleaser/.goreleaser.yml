@@ -21,7 +21,8 @@ before:
     - go mod tidy
     - make gen-version
 builds:
-  - env:
+  - id: "karpor"
+    env:
       - CGO_ENABLED=0
     # GOOS list to build for.
     # For more info refer to: https://golang.org/doc/install/source#environment
@@ -41,10 +42,37 @@ builds:
     # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
     ldflags:
       - -s -w
-    main: ./cmd/
+    main: ./cmd/karpor/
+    binary: karpor
+  - id: "cert-generator"
+    env:
+      - CGO_ENABLED=0
+    # GOOS list to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ 'darwin', 'linux', 'windows' ]
+    goos:
+      - linux
+      # - windows
+      - darwin
+    # GOARCH to build for.
+    # For more info refer to: https://golang.org/doc/install/source#environment
+    #
+    # Default: [ '386', 'amd64', 'arm64' ]
+    goarch:
+      - amd64
+      - arm64
+    # By using ldflags="-s -w", the symbol table and debug information are removed to decrease the size of the release package.
+    ldflags:
+      - -s -w
+    main: ./cmd/cert-generator/
+    binary: cert-generator
 archives:
   - id: release
     name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+    builds:
+      - karpor
+      - cert-generator
     builds_info:
       mode: 0644
       # format is `time.RFC3339Nano`
@@ -56,6 +84,8 @@ archives:
       - LICENSE
       - README.md
       - docs/*
+      - src: pkg/version/VERSION
+        strip_parent: true
       - src: dist/CHANGELOG.md
         strip_parent: true
 checksum:
@@ -123,10 +153,13 @@ release:
     ## Thanks!
   prerelease: auto
 
+
+# Reference:
+# - https://blog.goreleaser.com/goreleaser-and-docker-manifests-9fe167acf21e
+# - https://goreleaser.com/cookbooks/multi-platform-docker-images/#creating-multi-platform-docker-images-with-goreleaser
 dockers:
 - image_templates:
-  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}'
-  - 'kusionstack/{{ .ProjectName }}:latest'
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64'
   dockerfile: Dockerfile
   use: docker
   build_flag_templates:
@@ -137,21 +170,33 @@ dockers:
   - "--label=org.opencontainers.image.version={{.Version}}"
   - "--label=org.opencontainers.image.source={{.GitURL}}"
   - "--platform=linux/amd64"
+  goarch: amd64
   extra_files:
-  - ui/
+  - pkg/version/VERSION
   - config/relationship.yaml
-# - image_templates:
-#   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
-#   dockerfile: Dockerfile
-#   use: docker
-#   build_flag_templates:
-#   - "--pull"
-#   - "--label=org.opencontainers.image.created={{.Date}}"
-#   - "--label=org.opencontainers.image.name={{.ProjectName}}"
-#   - "--label=org.opencontainers.image.revision={{.FullCommit}}"
-#   - "--label=org.opencontainers.image.version={{.Version}}"
-#   - "--label=org.opencontainers.image.source={{.GitURL}}"
-#   - "--platform=linux/arm64"
-#   goarch: arm64
-#   extra_files:
-#   - ui/
+- image_templates:
+  - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
+  dockerfile: Dockerfile
+  use: docker
+  build_flag_templates:
+  - "--pull"
+  - "--label=org.opencontainers.image.created={{.Date}}"
+  - "--label=org.opencontainers.image.name={{.ProjectName}}"
+  - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+  - "--label=org.opencontainers.image.version={{.Version}}"
+  - "--label=org.opencontainers.image.source={{.GitURL}}"
+  - "--platform=linux/arm64"
+  goarch: arm64
+  extra_files:
+  - pkg/version/VERSION
+  - config/relationship.yaml
+
+docker_manifests:
+  - name_template: "kusionstack/{{ .ProjectName }}:{{ .Tag }}"
+    image_templates:
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64"
+  - name_template: "kusionstack/{{ .ProjectName }}:latest"
+    image_templates:
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-amd64"
+      - "kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64"

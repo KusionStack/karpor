@@ -17,7 +17,7 @@ package main
 import (
 	"os"
 
-	"github.com/KusionStack/karpor/cmd/app"
+	"github.com/KusionStack/karpor/cmd/karpor/app"
 	"github.com/spf13/cobra/doc"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/klog/v2"

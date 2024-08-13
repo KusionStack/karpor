@@ -94,7 +94,7 @@ build-darwin: gen-version $(BUILD_UI) ## Build for MacOS (Darwin)
 	@echo "🚀 Building karpor-server for darwin platform ..."
 	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/darwin/$(APPROOT) \
-		./cmd
+		./cmd/karpor
 
 # Target: build-linux
 # Description: Builds for Linux platform.
@@ -110,7 +110,7 @@ build-linux: gen-version $(BUILD_UI) ## Build for Linux
 	@echo "🚀 Building karpor-server for linux platform ..."
 	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/linux/$(APPROOT) \
-		./cmd
+		./cmd/karpor
 
 # Target: build-windows
 # Description: Builds for Windows platform.
@@ -126,7 +126,7 @@ build-windows: gen-version $(BUILD_UI) ## Build for Windows
 	@echo "🚀 Building karpor-server for windows platform ..."
 	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		go build -o ./_build/windows/$(APPROOT).exe \
-		./cmd
+		./cmd/karpor
 
 # Target: build-ui
 # Description: Builds the UI for the dashboard.

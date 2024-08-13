@@ -26,7 +26,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/KusionStack/karpor/cmd/app/options"
+	"github.com/KusionStack/karpor/cmd/karpor/app/options"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/server"
@@ -112,8 +112,8 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		Short: "Launch an API server",
 		Long:  "Launch an API server",
 		RunE: func(c *cobra.Command, args []string) error {
-			if versionFlag, _ := c.Flags().GetBool("version"); versionFlag {
-				fmt.Println("Karpor version:", version.GetVersion())
+			if o.CoreOptions.Version {
+				fmt.Println(version.GetVersion())
 				return nil
 			}
 			if err := o.Complete(); err != nil {
@@ -128,9 +128,6 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 			return nil
 		},
 	}
-
-	// Add version flag
-	cmd.Flags().BoolP("version", "V", false, "Print version and exit")
 
 	o.AddFlags(cmd.Flags())
 	return cmd

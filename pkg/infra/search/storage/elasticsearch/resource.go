@@ -19,7 +19,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -163,4 +162,9 @@ func generateResourceQuery(cluster, namespace, name string, obj runtime.Object) 
 		esquery.Term(resourceKeyCluster, cluster),
 	).Map()
 	return query
+}
+
+// CheckStorageHealth checks the health of the Elasticsearch storage by pinging the client.
+func (s *Storage) CheckStorageHealth(ctx context.Context) error {
+	return s.client.CheckElasticSearchLiveness(ctx)
 }

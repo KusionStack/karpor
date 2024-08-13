@@ -16,7 +16,6 @@ package route
 
 import (
 	"expvar"
-
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
@@ -30,6 +29,7 @@ import (
 	statshandler "github.com/KusionStack/karpor/pkg/core/handler/stats"
 	summaryhandler "github.com/KusionStack/karpor/pkg/core/handler/summary"
 	topologyhandler "github.com/KusionStack/karpor/pkg/core/handler/topology"
+	healthhandler "github.com/KusionStack/karpor/pkg/core/health"
 	clustermanager "github.com/KusionStack/karpor/pkg/core/manager/cluster"
 	insightmanager "github.com/KusionStack/karpor/pkg/core/manager/insight"
 	resourcegroupmanager "github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
@@ -75,6 +75,10 @@ func NewCoreRoute(
 	if err != nil {
 		return nil, err
 	}
+	generalStorage, err := search.NewGeneralStorage(*extraConfig)
+	if err != nil {
+		return nil, err
+	}
 
 	insightMgr, err := insightmanager.NewInsightManager(searchStorage, resourceStorage, resourceGroupRuleStorage, genericConfig)
 	if err != nil {
@@ -109,6 +113,7 @@ func NewCoreRoute(
 	// Expose server configuration and runtime statistics.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
+	healthhandler.Register(router, generalStorage)
 	return router, nil
 }
 

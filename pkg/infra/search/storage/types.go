@@ -40,6 +40,7 @@ type Storage interface {
 	ResourceStorage
 	ResourceGroupRuleStorage
 	SearchStorage
+	CheckHealth
 }
 
 // ResourceStorage interface defines the basic operations for resource storage.
@@ -78,6 +79,14 @@ type ResourceStorageGetter interface {
 
 type ResourceGroupRuleStorageGetter interface {
 	GetResourceGroupRuleStorage() (ResourceGroupRuleStorage, error)
+}
+
+type GeneralStorageGetter interface {
+	GetGeneralStorage() (Storage, error)
+}
+
+type CheckHealth interface {
+	CheckStorageHealth(ctx context.Context) error
 }
 
 // Query represents the query parameters for searching resources.
