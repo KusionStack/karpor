@@ -173,7 +173,6 @@ dockers:
   goarch: amd64
   extra_files:
   - pkg/version/VERSION
-  - config/relationship.yaml
 - image_templates:
   - 'kusionstack/{{ .ProjectName }}:{{ .Tag }}-arm64'
   dockerfile: Dockerfile
@@ -189,7 +188,6 @@ dockers:
   goarch: arm64
   extra_files:
   - pkg/version/VERSION
-  - config/relationship.yaml
 
 docker_manifests:
   - name_template: "kusionstack/{{ .ProjectName }}:{{ .Tag }}"

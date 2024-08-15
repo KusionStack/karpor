@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"reflect"
 	"text/template"
 	"time"
 
@@ -28,6 +29,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/syncer/transform"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	sprig "github.com/Masterminds/sprig/v3"
+	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
@@ -38,6 +40,7 @@ import (
 	"k8s.io/client-go/dynamic"
 	clientgocache "k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
+	ctrl "sigs.k8s.io/controller-runtime"
 	ctrlhandler "sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
@@ -70,6 +73,8 @@ type informerSource struct {
 	ctx     context.Context
 	cancel  context.CancelFunc
 	stopped chan struct{}
+
+	logger logr.Logger
 }
 
 func (s *informerSource) Add(obj interface{}) error {
@@ -116,6 +121,7 @@ func NewSource(cluster string, client dynamic.Interface, rsr v1beta1.ResourceSyn
 		ResourceSyncRule: rsr,
 		client:           client,
 		stopped:          make(chan struct{}),
+		logger:           ctrl.Log.WithName(fmt.Sprintf("%s-syncer-source", rsr.Resource)),
 	}
 }
 
@@ -258,7 +264,13 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 		return nil, errors.Wrap(err, "invalid transform template")
 	}
 
-	return func(obj interface{}) (interface{}, error) {
+	return func(obj interface{}) (ret interface{}, err error) {
+		defer func() {
+			if err != nil {
+				s.logger.Error(err, "error in transforming object", "actualType", reflect.TypeOf(obj))
+			}
+		}()
+
 		u, ok := obj.(*unstructured.Unstructured)
 		if !ok {
 			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured")
