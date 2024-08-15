@@ -30,7 +30,7 @@ axios.interceptors.response.use(
       if (response) {
         return Promise.resolve(response)
       }
-    } catch (error) { }
+    } catch (error) {}
   },
 )
 

@@ -406,8 +406,8 @@ const Cluster = () => {
                       showPageData?.length - 1 === index
                         ? {}
                         : {
-                          borderBottom: '1px solid rgb(0 10 26 / 5%)',
-                        }
+                            borderBottom: '1px solid rgb(0 10 26 / 5%)',
+                          }
                     }
                   />
                 ))}
