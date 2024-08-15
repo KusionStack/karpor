@@ -18,8 +18,11 @@ import _ "embed"
 
 var DefaultConfig = [][]byte{DefaultSyncStrategy, DefaultRBAC}
 
-//go:embed default-sync-strategy.yaml
-var DefaultSyncStrategy []byte
-
 //go:embed default-rbac.yaml
 var DefaultRBAC []byte
+
+//go:embed default-relationship.yaml
+var DefaultRelationship []byte
+
+//go:embed default-sync-strategy.yaml
+var DefaultSyncStrategy []byte

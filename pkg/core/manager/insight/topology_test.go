@@ -16,8 +16,6 @@ package insight
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"reflect"
 	"testing"
 
@@ -30,10 +28,6 @@ import (
 )
 
 func TestInsightManager_GetTopologyForCluster(t *testing.T) {
-	// Set up environment variable for relationship file
-	setRelationshipFilePath()
-	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
-
 	// Set up mocks for dynamic client
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	mockey.Mock(topology.GVRNamespaced).Return(true).Build()
@@ -89,10 +83,6 @@ func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 }
 
 func TestInsightManager_GetTopologyForResource(t *testing.T) {
-	// Set up environment variable for relationship file
-	setRelationshipFilePath()
-	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
-
 	// Initialize InsightManager
 	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
@@ -164,10 +154,6 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 }
 
 func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
-	// Set up environment variable for relationship file
-	setRelationshipFilePath()
-	defer os.Unsetenv("KARPOR_RELATIONSHIP_FILE")
-
 	// Set up mocks for dynamic client
 	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	mockey.Mock(topology.GVRNamespaced).Return(true).Build()
@@ -222,40 +208,5 @@ func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 				require.True(t, reflect.DeepEqual(tc.expectedMap, topologyMap), "Topology map does not match expected")
 			}
 		})
-	}
-}
-
-func setRelationshipFilePath() {
-	filePath := os.Getenv("KARPOR_RELATIONSHIP_FILE")
-	if filePath == "" {
-		// Default file path
-		filePath = "relationship.yaml"
-		// Find the file in each parent directory
-		curdir, err := os.Getwd()
-		if err != nil {
-			panic("Unable to get current directory")
-		}
-		dir := curdir
-		for {
-			configPath := filepath.Join(dir, "config", "relationship.yaml")
-			if _, err := os.Stat(configPath); err == nil {
-				filePath, err = filepath.Rel(curdir, configPath)
-				if err != nil {
-					panic("Failed to get relative path of relationship.yaml as " + err.Error())
-				}
-				break
-			}
-			// Move up to the parent directory
-			parent := filepath.Dir(dir)
-			if parent == dir {
-				// Reached the root directory, break the loop
-				break
-			}
-			dir = parent
-		}
-		// Set the environment variable
-		if err := os.Setenv("KARPOR_RELATIONSHIP_FILE", filePath); err != nil {
-			panic("Failed to set environment variable")
-		}
 	}
 }

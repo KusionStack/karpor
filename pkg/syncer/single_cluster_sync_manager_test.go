@@ -318,7 +318,6 @@ func TestClusterConfig(t *testing.T) {
 }
 
 func TestHasSyncResource(t *testing.T) {
-	// 准备测试数据
 	testGVR := schema.GroupVersionResource{
 		Group:    "example.com",
 		Version:  "v1",
