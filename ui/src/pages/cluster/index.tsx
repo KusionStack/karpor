@@ -163,7 +163,8 @@ const Cluster = () => {
       getClusterSummary()
       getPageData(sortParams)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [putClusterResponse])
 
   const [currentTab, setCurrentTab] = useState('all')
   const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0)
