@@ -19,7 +19,6 @@ WORKDIR /
 
 COPY karpor .
 COPY cert-generator .
-COPY config/relationship.yaml .
 COPY pkg/version/VERSION .
 
 RUN apk update && apk add --no-cache aws-cli
