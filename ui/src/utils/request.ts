@@ -10,7 +10,7 @@ axios.defaults.baseURL = HOST
 axios.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
-    if (token) {
+    if (!config?.headers?.Authorization && token) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
@@ -30,7 +30,7 @@ axios.interceptors.response.use(
       if (response) {
         return Promise.resolve(response)
       }
-    } catch (error) {}
+    } catch (error) { }
   },
 )
 

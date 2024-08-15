@@ -163,7 +163,8 @@ const Cluster = () => {
       getClusterSummary()
       getPageData(sortParams)
     }
-  }, [])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [putClusterResponse])
 
   const [currentTab, setCurrentTab] = useState('all')
   const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0)
@@ -405,8 +406,8 @@ const Cluster = () => {
                       showPageData?.length - 1 === index
                         ? {}
                         : {
-                            borderBottom: '1px solid rgb(0 10 26 / 5%)',
-                          }
+                          borderBottom: '1px solid rgb(0 10 26 / 5%)',
+                        }
                     }
                   />
                 ))}
