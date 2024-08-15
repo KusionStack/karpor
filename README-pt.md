@@ -152,6 +152,11 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajeshkio"><img src="https://avatars.githubusercontent.com/u/107089376?v=4?s=80" width="80px;" alt="rajeshkio"/><br /><sub><b>rajeshkio</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajeshkio" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://chenchen.link/"><img src="https://avatars.githubusercontent.com/u/30647904?v=4?s=80" width="80px;" alt="Chen Chen"/><br /><sub><b>Chen Chen</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=z1cheng" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/JasonHe-WQ"><img src="https://avatars.githubusercontent.com/u/85824149?v=4?s=80" width="80px;" alt="JasonHe-WQ"/><br /><sub><b>JasonHe-WQ</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=JasonHe-WQ" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/CirillaQL"><img src="https://avatars.githubusercontent.com/u/46399960?v=4?s=80" width="80px;" alt="EduardoQian"/><br /><sub><b>EduardoQian</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=CirillaQL" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/regend"><img src="https://avatars.githubusercontent.com/u/5510284?v=4?s=80" width="80px;" alt="xiao.wu"/><br /><sub><b>xiao.wu</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=regend" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/iamryanchia"><img src="https://avatars.githubusercontent.com/u/41557860?v=4?s=80" width="80px;" alt="iamryanchia"/><br /><sub><b>iamryanchia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=iamryanchia" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

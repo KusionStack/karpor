@@ -18,14 +18,17 @@ import _ "embed"
 
 var DefaultConfig = [][]byte{DefaultSyncStrategy, DefaultAnonymousRBAC, DefaultGuestRBAC, DefaultAdminRBAC}
 
-//go:embed default-sync-strategy.yaml
-var DefaultSyncStrategy []byte
-
 //go:embed default-anonymous-rbac.yaml
 var DefaultAnonymousRBAC []byte
+
+//go:embed default-karpor-admin-rbac.yaml
+var DefaultAdminRBAC []byte
 
 //go:embed default-karpor-guest-rbac.yaml
 var DefaultGuestRBAC []byte
 
-//go:embed default-karpor-admin-rbac.yaml
-var DefaultAdminRBAC []byte
+//go:embed default-relationship.yaml
+var DefaultRelationship []byte
+
+//go:embed default-sync-strategy.yaml
+var DefaultSyncStrategy []byte
