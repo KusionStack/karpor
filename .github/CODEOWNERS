@@ -46,6 +46,12 @@
 # /docs/ @doctocat
 /docs/ @elliotxx @panshuai-ps @adohe @ffforest @ruquanzhao
 
+# In this example, @doctocat owns any file in the `/ui`
+# directory in the root of your repository and any of its
+# subdirectories.
+# /ui/ @doctocat
+/ui/ @elliotxx @ruquanzhao @hai-tian
+
 # In this example, @octocat owns any file in the `/apps`
 # directory in the root of your repository except for the `/apps/github`
 # subdirectory, as its owners are left empty.
