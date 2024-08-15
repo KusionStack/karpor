@@ -113,7 +113,7 @@
   "PleaseEnterValidSQLStatement": "Bitte geben Sie eine gültige SQL-Anweisung ein.",
   "NoClusterAndJumpToClusterPage": "Das System ist derzeit nicht mit einem Cluster verbunden. Bitte registrieren Sie sich zuerst bei einem Cluster.",
   "Logout": "Ausloggen",
-  "TokenCreationGuide": "Sie können ein Token für einen Dienstaccount generieren: kubectl -n NAMESPACE create token SERVICE_ACCOUNT <a href='{{linkUrl}}' target='_blank'>[Wie erstelle ich ein Token]</a>",
+  "TokenCreationGuide": "Token ist ein Zugangsschlüssel für das Hub-Cluster. Erfahren Sie mehr: <a href='{{linkUrl}}' target='_blank'>[Wie erstelle ich ein Token]</a>",
   "LoginFailedAndCheck": "Login fehlgeschlagen, bitte überprüfen Sie, ob der Token gültig ist",
   "UnLoginAndTokenLogin": "Derzeit nicht eingeloggt, bitte Token eingeben, um sich einzuloggen",
   "LoginSuccess": "Erfolgreich eingeloggt",
