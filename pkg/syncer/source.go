@@ -267,13 +267,22 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 	return func(obj interface{}) (ret interface{}, err error) {
 		defer func() {
 			if err != nil {
-				s.logger.Error(err, "error in transforming object", "actualType", reflect.TypeOf(obj))
+				s.logger.Error(err, "error in transforming object")
 			}
 		}()
 
+		if d, ok := obj.(clientgocache.DeletedFinalStateUnknown); ok {
+			// Since we import ES data into informer cache at startup, the
+			// resource that was deleted during the restart will generate
+			// DeletedFinalStateUnknown.
+			// We unwarp the object here, so there is no need for following
+			// steps including event handler to care about DeletedFinalStateUnknown.
+			obj = d.Obj
+		}
+
 		u, ok := obj.(*unstructured.Unstructured)
 		if !ok {
-			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured")
+			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured, but received %v", reflect.TypeOf(obj))
 		}
 
 		templateData := struct {
