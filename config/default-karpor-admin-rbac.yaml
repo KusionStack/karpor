@@ -27,5 +27,7 @@ rules:
       - /cluster/*
       - /login
       - /rest-api/v1/authn
+      - /livez
+      - /readyz
     verbs:
       - get
