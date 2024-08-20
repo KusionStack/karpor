@@ -19,6 +19,8 @@ rules:
       - /cluster
       - /cluster/*
       - /login
+      - /livez
+      - /readyz
     verbs:
       - get
 ---
