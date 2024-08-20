@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Pagination, Empty, Divider, message, Tooltip } from 'antd'
-import axios from 'axios'
+import { Pagination, Empty, Divider, Tooltip } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined } from '@ant-design/icons'
@@ -12,6 +11,7 @@ import { utcDateToLocalDate } from '@/utils/tools'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
 import { searchSqlPrefix, tabsList } from '@/utils/constants'
+import { useAxios } from '@/utils/request'
 
 import styles from './styles.module.less'
 
@@ -28,7 +28,6 @@ const Result = () => {
     query: urlSearchParams?.query || '',
     total: 0,
   })
-  const [loading, setLoading] = useState(false)
 
   function handleTabChange(value: string) {
     setSearchType(value)
@@ -42,37 +41,41 @@ const Result = () => {
     })
   }
 
-  async function getPageData(params) {
-    setLoading(true)
-    const response: any = await axios('/rest-api/v1/search', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: {
-        query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`,
-        ...(searchType === 'sql' ? { pattern: 'sql' } : {}),
-        page: params?.page || searchParams?.page,
-        pageSize: params?.pageSize || searchParams?.pageSize,
+  const { response, refetch, loading } = useAxios({
+    url: '/rest-api/v1/search',
+    manual: true,
+  })
+
+  useEffect(() => {
+    if (response?.success) {
+      setPageData(response?.data?.items || {})
+      const objParams = {
+        ...urlSearchParams,
+        query: response?.successParams?.query || searchParams?.query,
+      }
+      const urlString = queryString.stringify(objParams)
+      navigate(`${location?.pathname}?${urlString}`, { replace: true })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [response])
+
+  function getPageData(params) {
+    refetch({
+      option: {
+        params: {
+          query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`,
+          ...(searchType === 'sql' ? { pattern: 'sql' } : {}),
+          page: params?.page || searchParams?.page,
+          pageSize: params?.pageSize || searchParams?.pageSize,
+        },
       },
     })
+
     setSearchParams({
       ...searchParams,
       ...params,
       total: response?.data?.total,
     })
-    if (response?.success) {
-      setPageData(response?.data?.items || {})
-      const objParams = {
-        ...urlSearchParams,
-        query: params?.query || searchParams?.query,
-      }
-      const urlString = queryString.stringify(objParams)
-      navigate(`${location?.pathname}?${urlString}`, { replace: true })
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
-    }
-    setLoading(false)
   }
 
   useEffect(() => {

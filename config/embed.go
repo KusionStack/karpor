@@ -16,10 +16,16 @@ package config
 
 import _ "embed"
 
-var DefaultConfig = [][]byte{DefaultSyncStrategy, DefaultRBAC}
+var DefaultConfig = [][]byte{DefaultSyncStrategy, DefaultAnonymousRBAC, DefaultGuestRBAC, DefaultAdminRBAC}
 
-//go:embed default-rbac.yaml
-var DefaultRBAC []byte
+//go:embed default-anonymous-rbac.yaml
+var DefaultAnonymousRBAC []byte
+
+//go:embed default-karpor-admin-rbac.yaml
+var DefaultAdminRBAC []byte
+
+//go:embed default-karpor-guest-rbac.yaml
+var DefaultGuestRBAC []byte
 
 //go:embed default-relationship.yaml
 var DefaultRelationship []byte

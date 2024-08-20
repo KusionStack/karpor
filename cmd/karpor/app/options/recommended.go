@@ -16,12 +16,13 @@ package options
 
 import (
 	"fmt"
-
-	"github.com/spf13/pflag"
+	"time"
 
 	karporopenapi "github.com/KusionStack/karpor/pkg/kubernetes/generated/openapi"
 	k8sopenapi "github.com/KusionStack/karpor/pkg/kubernetes/openapi"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"k8s.io/apiserver/pkg/admission"
@@ -39,6 +40,7 @@ import (
 	"k8s.io/component-base/featuregate"
 	"k8s.io/kube-openapi/pkg/common"
 	kubeoptions "k8s.io/kubernetes/pkg/kubeapiserver/options"
+	"k8s.io/kubernetes/pkg/serviceaccount"
 )
 
 // RecommendedOptions contains the recommended options for running an API server.
@@ -63,6 +65,10 @@ type RecommendedOptions struct {
 	EgressSelector *options.EgressSelectorOptions
 	// Traces contains options to control distributed request tracing.
 	Traces *options.TracingOptions
+
+	ServiceAccountSigningKeyFile     string
+	ServiceAccountIssuer             serviceaccount.TokenGenerator
+	ServiceAccountTokenMaxExpiration time.Duration
 }
 
 func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptions {
@@ -77,6 +83,7 @@ func NewRecommendedOptions(prefix string, codec runtime.Codec) *RecommendedOptio
 		Authentication: kubeoptions.NewBuiltInAuthenticationOptions().
 			WithAnonymous().
 			WithClientCert().
+			WithServiceAccounts().
 			WithRequestHeader(),
 		Authorization:              kubeoptions.NewBuiltInAuthorizationOptions(),
 		Audit:                      options.NewAuditOptions(),
@@ -100,6 +107,8 @@ func (o *RecommendedOptions) AddFlags(fs *pflag.FlagSet) {
 	o.Admission.AddFlags(fs)
 	o.EgressSelector.AddFlags(fs)
 	o.Traces.AddFlags(fs)
+	fs.StringVar(&o.ServiceAccountSigningKeyFile, "service-account-signing-key-file", "",
+		"Path to the file that contains the current private key of the service account token issuer. The issuer will sign issued ID tokens with this private key.")
 }
 
 // ApplyTo adds RecommendedOptions to the server configuration.
@@ -164,6 +173,14 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	} else if err := o.Admission.ApplyTo(genericConfig, config.SharedInformerFactory, config.ClientConfig, o.FeatureGate, initializers...); err != nil {
 		return err
 	}
+	return nil
+}
+
+// ApplyToExtraConfig adds RecommendedOptions to the extra server configuration.
+func (o *RecommendedOptions) ApplyToExtraConfig(config *registry.ExtraConfig) error {
+	config.ServiceAccountIssuer = o.ServiceAccountIssuer
+	config.ServiceAccountMaxExpiration = o.ServiceAccountTokenMaxExpiration
+	config.ExtendExpiration = o.Authentication.ServiceAccounts.ExtendExpiration
 	return nil
 }
 
