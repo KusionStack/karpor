@@ -25,6 +25,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/syncclusterresources"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/transformrule"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/trimrule"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
@@ -89,6 +90,12 @@ func (p RESTStorageProvider) v1beta1Storage(
 		return map[string]rest.Storage{}, err
 	}
 	v1beta1Storage["transformrules"] = transformRule
+
+	trimRule, err := trimrule.NewREST(restOptionsGetter)
+	if err != nil {
+		return map[string]rest.Storage{}, err
+	}
+	v1beta1Storage["trimrules"] = trimRule
 
 	return v1beta1Storage, nil
 }

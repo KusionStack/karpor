@@ -29,3 +29,7 @@ type SyncResourcesListerExpansion interface{}
 // TransformRuleListerExpansion allows custom methods to be added to
 // TransformRuleLister.
 type TransformRuleListerExpansion interface{}
+
+// TrimRuleListerExpansion allows custom methods to be added to
+// TrimRuleLister.
+type TrimRuleListerExpansion interface{}

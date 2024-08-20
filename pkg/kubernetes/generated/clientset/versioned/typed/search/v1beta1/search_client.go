@@ -31,6 +31,7 @@ type SearchV1beta1Interface interface {
 	SyncRegistriesGetter
 	SyncResourcesesGetter
 	TransformRulesGetter
+	TrimRulesGetter
 }
 
 // SearchV1beta1Client is used to interact with features provided by the search.karpor.io group.
@@ -48,6 +49,10 @@ func (c *SearchV1beta1Client) SyncResourceses() SyncResourcesInterface {
 
 func (c *SearchV1beta1Client) TransformRules() TransformRuleInterface {
 	return newTransformRules(c)
+}
+
+func (c *SearchV1beta1Client) TrimRules() TrimRuleInterface {
+	return newTrimRules(c)
 }
 
 // NewForConfig creates a new SearchV1beta1Client for the given config.

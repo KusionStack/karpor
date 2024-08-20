@@ -23,3 +23,5 @@ type SyncRegistryExpansion interface{}
 type SyncResourcesExpansion interface{}
 
 type TransformRuleExpansion interface{}
+
+type TrimRuleExpansion interface{}
