@@ -130,8 +130,6 @@ Once you have created a pull request, the next step is to have others review you
 If you believe a specific person should review your pull request, you can tag them in the description or a comment.
 Tag a user by typing an `@` symbol followed by their username.
 
-We recommend that you read [How to do a code review](https://google.github.io/eng-practices/review/reviewer/) to learn more about code reviews.
-
 ## Formatting Guidelines
 
 A well-crafted pull request can minimize the time to get your changes accepted. These guidelines will help you write well-formulated commit messages and descriptions for your pull requests.
