@@ -17,6 +17,7 @@ package syncer
 
 import (
 	"context"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -304,4 +305,35 @@ func Test_singleClusterSyncManager_handleSyncResourcesUpdate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestClusterConfig(t *testing.T) {
+	testClusterConfig := &rest.Config{Host: "http://example.com"}
+	manager := &singleClusterSyncManager{
+		clusterConfig: testClusterConfig,
+	}
+
+	result := manager.ClusterConfig()
+	require.Equal(t, testClusterConfig.Host, result.Host, "ClusterConfig should return a copy of the cluster config")
+}
+
+func TestHasSyncResource(t *testing.T) {
+	testGVR := schema.GroupVersionResource{
+		Group:    "example.com",
+		Version:  "v1",
+		Resource: "resources",
+	}
+
+	syncers := sync.Map{}
+	syncers.Store(testGVR, NewResourceSyncer("cluster1", nil, searchv1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "resources"}, &elasticsearch.Storage{}))
+
+	manager := &singleClusterSyncManager{
+		syncers: syncers,
+	}
+
+	// 调用方法
+	result := manager.HasSyncResource(testGVR)
+
+	// 断言结果
+	require.True(t, result, "HasSyncResource should return true if the sync resource is configured")
 }
