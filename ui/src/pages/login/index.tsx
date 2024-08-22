@@ -71,7 +71,8 @@ const Login = () => {
                   <p
                     dangerouslySetInnerHTML={{
                       __html: t('TokenCreationGuide', {
-                        linkUrl: 'https://www.kusionstack.io/karpor',
+                        linkUrl:
+                          'https://www.kusionstack.io/karpor/next/user-guide/how-to-create-token',
                       }),
                     }}
                   />
