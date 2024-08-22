@@ -40,7 +40,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	httpswagger "github.com/swaggo/http-swagger"
+	httpswagger "github.com/swaggo/http-swagger/v2"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
