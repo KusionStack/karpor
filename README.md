@@ -20,7 +20,8 @@
 </p>
 
 [![Karpor](https://github.com/KusionStack/karpor/actions/workflows/release.yaml/badge.svg)](https://github.com/KusionStack/karpor/actions/workflows/release.yaml)
-[![GitHub release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
+[![GitHub Release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
+[![Artifact Hub](https://img.shields.io/endpoint?url=https://artifacthub.io/badge/repository/karpor)](https://artifacthub.io/packages/helm/kusionstack/karpor)
 [![Go Report Card](https://goreportcard.com/badge/github.com/KusionStack/karpor)](https://goreportcard.com/report/github.com/KusionStack/karpor)
 [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor)
 [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor)
