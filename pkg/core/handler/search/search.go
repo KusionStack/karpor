@@ -52,8 +52,6 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
-		//res, nil := aiMgr.ConvertTextToSQL("搜索集群cluster中kind为namespace的")
-
 		// Extract URL query parameters with default value
 		searchQuery := r.URL.Query().Get("query")
 		searchPattern := r.URL.Query().Get("pattern")
