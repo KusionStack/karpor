@@ -25,6 +25,11 @@ const (
 	OpenAIProvider      = "openai"
 )
 
+const (
+	Text2sqlType = "Text2sql"
+	SqlFixType   = "SqlFix"
+)
+
 var clients = map[string]AIProvider{
 	AzureProvider:       &AzureAIClient{},
 	HuggingFaceProvider: &HuggingfaceClient{},
