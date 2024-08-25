@@ -34,7 +34,7 @@ func (c *HuggingfaceClient) Configure(cfg AIConfig) error {
 	return nil
 }
 
-func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string, serviceType string) (string, error) {
+func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string, error) {
 	resp, err := c.client.TextGeneration(ctx, &huggingface.TextGenerationRequest{
 		Inputs: prompt,
 		Parameters: huggingface.TextGenerationParameters{

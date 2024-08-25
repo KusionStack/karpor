@@ -37,7 +37,7 @@ type AIProvider interface {
 	Configure(config AIConfig) error
 	// Generate generates a response from the AI service based on
 	// the provided prompt and service type.
-	Generate(ctx context.Context, prompt string, serviceType string) (string, error)
+	Generate(ctx context.Context, prompt string) (string, error)
 }
 
 // AIConfig represents the configuration settings for an AI client.
