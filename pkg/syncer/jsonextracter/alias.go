@@ -16,7 +16,6 @@ package jsonextracter
 
 import (
 	"k8s.io/client-go/util/jsonpath"
-	"k8s.io/kubectl/pkg/cmd/get"
 )
 
 type (
@@ -36,7 +35,4 @@ type (
 	IdentifierNode = jsonpath.IdentifierNode
 )
 
-var (
-	Parse                     = jsonpath.Parse
-	RelaxedJSONPathExpression = get.RelaxedJSONPathExpression
-)
+var Parse = jsonpath.Parse
