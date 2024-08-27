@@ -41,8 +41,6 @@ import (
 
 const defaultWorkers = 10
 
-var nopTransformFunc = func(obj interface{}) (interface{}, error) { return obj, nil }
-
 // deleted is a type that represents a deleted Kubernetes object.
 type deleted struct {
 	client.Object
@@ -132,7 +130,6 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 
 	if transformFunc, err := s.parseTransformer(); err != nil {
 		s.logger.Error(err, "error in parsing transform rule")
-		s.transformFunc = nopTransformFunc
 	} else {
 		s.transformFunc = transformFunc
 	}
@@ -195,7 +192,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 		return err
 	}
 
-	if exists {
+	if exists && s.transformFunc != nil {
 		val, err = s.transformFunc(val)
 		if err != nil {
 			return err
@@ -230,7 +227,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 func (s *ResourceSyncer) parseTransformer() (clientgocache.TransformFunc, error) {
 	t := s.source.SyncRule().Transform
 	if t == nil {
-		return nopTransformFunc, nil
+		return nil, nil
 	}
 
 	fn, found := transform.GetTransformFunc(t.Type)
