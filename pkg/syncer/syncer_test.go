@@ -284,3 +284,15 @@ func (q *fakeQueue) Add(item interface{}) {
 	}
 	q.queue = append(q.queue, item)
 }
+
+func TestResourceSyncer_parseTransformer(t *testing.T) {
+	s := &ResourceSyncer{
+		source: &informerSource{
+			ResourceSyncRule: v1beta1.ResourceSyncRule{Transform: &v1beta1.TransformRuleSpec{Type: "patch"}},
+			cluster:          "clusterName",
+		},
+	}
+
+	_, err := s.parseTransformer()
+	require.NoError(t, err)
+}

@@ -15,20 +15,16 @@
 package syncer
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"reflect"
-	"text/template"
 	"time"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karpor/pkg/syncer/internal"
-	"github.com/KusionStack/karpor/pkg/syncer/transform"
+	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
-	sprig "github.com/Masterminds/sprig/v3"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -178,9 +174,9 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 		return nil, nil, fmt.Errorf("error parsing selectors: %v", selectors)
 	}
 
-	transform, err := s.parseTransformer()
+	trim, err := s.parseTrimer()
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "error parsing transform rule")
+		return nil, nil, errors.Wrap(err, "error parsing trim rule")
 	}
 
 	resyncPeriod := defaultResyncPeriod
@@ -198,7 +194,7 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 	}
 
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
-	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, transform)
+	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
 	// TODO: Use interface instead of struct
 	importer := utils.NewESImporter(s.storage.(*elasticsearch.Storage), s.cluster, gvr)
 	if err = importer.ImportTo(ctx, cache); err != nil {
@@ -247,51 +243,56 @@ func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 	return selectors, nil
 }
 
-// parseTransformer creates and returns a transformation function for the informerSource based on the ResourceSyncRule's transformers.
-func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error) {
-	t := s.ResourceSyncRule.Transform
-	if t == nil {
+func (s *informerSource) parseTrimer() (clientgocache.TransformFunc, error) {
+	t := s.ResourceSyncRule.Trim
+	if t == nil || len(t.Retain.JSONPaths) == 0 {
 		return nil, nil
 	}
 
-	fn, found := transform.GetTransformFunc(t.Type)
-	if !found {
-		return nil, fmt.Errorf("unsupported transform type %q", t.Type)
+	extracters := make([]jsonextracter.Extracter, 0, len(t.Retain.JSONPaths))
+	for _, p := range t.Retain.JSONPaths {
+		p, err := utils.RelaxedJSONPathExpression(p)
+		if err != nil {
+			return nil, err
+		}
+
+		ex, err := jsonextracter.BuildExtracter(p, true)
+		if err != nil {
+			return nil, err
+		}
+		extracters = append(extracters, ex)
 	}
 
-	tmpl, err := newTemplate(t.ValueTemplate)
-	if err != nil {
-		return nil, errors.Wrap(err, "invalid transform template")
-	}
-
-	return func(obj interface{}) (ret interface{}, err error) {
+	trimFunc := func(obj interface{}) (ret interface{}, err error) {
 		defer func() {
 			if err != nil {
-				s.logger.Error(err, "error in transforming object", "actualType", reflect.TypeOf(obj))
+				s.logger.Error(err, "error in triming object")
+				ret, err = obj, nil
 			}
 		}()
 
+		if d, ok := obj.(clientgocache.DeletedFinalStateUnknown); ok {
+			// Since we import ES data into informer cache at startup, the
+			// resource that was deleted during the restart will generate
+			// DeletedFinalStateUnknown.
+			// We unwarp the object here, so there is no need for following
+			// steps including event handler to care about DeletedFinalStateUnknown.
+			obj = d.Obj
+		}
+
 		u, ok := obj.(*unstructured.Unstructured)
 		if !ok {
-			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured")
+			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured, but received %T", obj)
 		}
 
-		templateData := struct {
-			*unstructured.Unstructured
-			Cluster string
-		}{
-			Unstructured: u,
-			Cluster:      s.cluster,
+		merged, err := jsonextracter.Merge(extracters, u.Object)
+		if err != nil {
+			return nil, err
 		}
-		var buf bytes.Buffer
-		if err := tmpl.Execute(&buf, templateData); err != nil {
-			return nil, errors.Wrap(err, "transform: error rendering template")
-		}
-		return fn(obj, buf.String())
-	}, nil
-}
 
-// newTemplate creates and returns a new text template from the provided string, which can be used for processing templates in the syncer.
-func newTemplate(tmpl string) (*template.Template, error) {
-	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Parse(tmpl)
+		unObj := &unstructured.Unstructured{Object: merged}
+		return unObj, nil
+	}
+
+	return trimFunc, nil
 }
