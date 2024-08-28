@@ -83,23 +83,23 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-      - name: Determine GoReleaser Config with Regex
-        run: |
-          tag=${GITHUB_REF#refs/tags/}
-          alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
-          beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
-          rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
-          release='v[0-9]+.[0-9]+.[0-9]+'
-          if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
-            echo "Match found for alpha or beta tag"
-            echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
-          elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
-            echo "Match found for rc or release tag"
-            echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
-          else
-            echo "No match found"
-            exit 1
-          fi
+      # - name: Determine GoReleaser Config with Regex
+      #   run: |
+      #     tag=${GITHUB_REF#refs/tags/}
+      #     alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+      #     beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      #     rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+      #     release='v[0-9]+.[0-9]+.[0-9]+'
+      #     if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
+      #       echo "Match found for alpha or beta tag"
+      #       echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
+      #     elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
+      #       echo "Match found for rc or release tag"
+      #       echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
+      #     else
+      #       echo "No match found"
+      #       exit 1
+      #     fi
 
       - name: Get new chart version from the chart repo
         id: get_chart_version
@@ -122,8 +122,8 @@ jobs:
       - name: Checkout Target repository
         uses: actions/checkout@v3
         with:
-          repository: KusionStack/charts 
-          path: charts 
+          repository: KusionStack/charts
+          path: charts
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Bump version in the related HelmChart Chart.yaml
@@ -134,7 +134,7 @@ jobs:
           changes: '{"version":"${{ steps.get_chart_version.outputs.new_chart_version }}", "appVersion":"${{ steps.get_version.outputs.VERSION }}"}'
           value: ${{ steps.get_version.outputs.VERSION }}
           branch: bump-karpor-to-${{ steps.get_version.outputs.VERSION }}
-          targetBranch: chart-version-updater 
+          targetBranch: chart-version-updater
           createPR: false
           message: 'refactor: bump karpor version to ${{ steps.get_version.outputs.VERSION }}'
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -145,4 +145,4 @@ jobs:
           echo "Testing complete. Check the logs for details."
           echo "New chart version: ${{ steps.get_chart_version.outputs.new_chart_version }}"
           echo "App version: ${{ steps.get_version.outputs.VERSION }}"
-  
+
