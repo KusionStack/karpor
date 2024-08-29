@@ -30,7 +30,7 @@ func TestExtractSelectSQL(t *testing.T) {
 			name: "NormalCase",
 			sql: "Q: 所有kind=namespace " +
 				"Schema_links: [kind, namespace] " +
-				"SQL: select * from resources where kind='namespace'",
+				"SQL: select * from resources where kind='namespace';",
 			expected: "select * from resources where kind='namespace'",
 		},
 	}

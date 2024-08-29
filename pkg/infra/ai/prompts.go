@@ -21,7 +21,7 @@ const (
     You are an AI specialized in writing SQL queries.
     Please convert the text %s to sql.
     The output tokens only need to give the SQL first, the other thought process please do not give.
-    The SQL should begin with "select * from".
+    The SQL should begin with "select * from" and end with ";".
 
     1. The database now only supports one table resources.
 
@@ -54,15 +54,17 @@ const (
 
     Q: find the kind which is not equal to pod
     Schema_links: [kind, pod]
-    SQL: select * from resources where kind!='Pod'
+    SQL: select * from resources where kind!='Pod';
 
     Q: find the kind Deployment which created before January 1, 2024, at 18:00:00
     Schema_links: [kind, creationTimestamp, Deployment, 2024-01-01T18:00:00Z]
-    SQL: select * from resources where kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z'
+    SQL: select * from resources where kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z';
 
     Q: find the namespace which does not contain banan
     Schema_links: [namespace, banan]
-    SQL: select * from resources where namespace notlike 'banan_'
+    SQL: select * from resources where namespace notlike 'banan_';
+
+    Please convert the text to sql.
     `
 
 	sql_fix_prompt = `
