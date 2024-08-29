@@ -82,7 +82,11 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
 		if err != nil {
 			if searchPattern == storage.NLPatternType {
+<<<<<<< HEAD
 				//logger.Info(err.Error())
+=======
+				logger.Info("-------------" + err.Error() + "-------------")
+>>>>>>> 1eac1aa (fix: format the sql)
 				fixedQuery, fixErr := aiMgr.FixSQL(query, searchQuery, err.Error())
 				if fixErr != nil {
 					handler.FailureRender(ctx, w, r, err)
