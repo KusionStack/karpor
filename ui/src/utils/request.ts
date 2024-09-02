@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { setIsLogin } from '@/store/modules/globalSlice'
 
-export const HOST = 'https://30.177.33.254:7443'
+export const HOST = ''
 axios.defaults.baseURL = HOST
 
 axios.interceptors.request.use(
