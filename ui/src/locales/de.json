@@ -119,5 +119,7 @@
   "LoginSuccess": "Erfolgreich eingeloggt",
   "Login": "Einloggen",
   "LogoutSuccess": "Erfolgreich abgemeldet",
-  "InputToken": "Geben Sie bitte den Token ein"
+  "InputToken": "Geben Sie bitte den Token ein",
+  "SearchByNaturalLanguage": "Suche mit natürlicher Sprache",
+  "CannotBeEmpty": "Darf nicht leer sein"
 }
