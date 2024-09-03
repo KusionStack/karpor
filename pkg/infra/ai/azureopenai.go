@@ -48,6 +48,7 @@ func (c *AzureAIClient) Configure(cfg AIConfig) error {
 }
 
 func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
+
 	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: c.model,
 		Messages: []openai.ChatCompletionMessage{
