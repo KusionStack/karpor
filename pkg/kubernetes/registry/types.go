@@ -15,9 +15,12 @@
 package registry
 
 import (
+	"time"
+
 	"k8s.io/apiserver/pkg/registry/generic"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
+	"k8s.io/kubernetes/pkg/serviceaccount"
 )
 
 // RESTStorageProvider is a factory type for REST storage.
@@ -37,6 +40,13 @@ type ExtraConfig struct {
 	ElasticSearchPassword  string
 	ReadOnlyMode           bool
 	GithubBadge            bool
+  
+  // Service Account issue configs
+  ServiceAccountIssuer        serviceaccount.TokenGenerator
+	ServiceAccountMaxExpiration time.Duration
+	ExtendExpiration            bool
+
+  // AI backend configs
 	Backend                string
 	AuthToken              string
 	BaseURL                string

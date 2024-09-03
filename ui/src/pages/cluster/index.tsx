@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 import { Empty, Button, Input, message } from 'antd'
-import axios from 'axios'
 import {
   SearchOutlined,
   SortAscendingOutlined,
@@ -18,6 +17,7 @@ import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
 import exceptionalPng from '@/assets/exceptional.png'
 import clusterPng from '@/assets/cluster_outlind.png'
+import { useAxios } from '@/utils/request'
 
 import styles from './styles.module.less'
 
@@ -27,7 +27,6 @@ const Cluster = () => {
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [pageData, setPageData] = useState<any>([])
   const [showPageData, setShowPageData] = useState<any>([])
-  const [loading, setloading] = useState(false)
   const [summary, setSummary] = useState<any>()
   const [sortParams, setSortParams] = useState<any>({
     orderBy: 'name',
@@ -36,6 +35,46 @@ const Cluster = () => {
   const [searchValue, setSearchValue] = useState('')
   const [lastDetail, setLastDetail] = useState<any>()
   const [scale, setScale] = useState<any>(1)
+
+  const {
+    response: summaryResponse,
+    loading,
+    refetch: summaryRefetch,
+  } = useAxios({
+    url: `/rest-api/v1/clusters?summary=true`,
+    option: { params: {} },
+    manual: true,
+    method: 'GET',
+  })
+
+  const { response: pageResponse, refetch: pageRefetch } = useAxios({
+    url: '/rest-api/v1/clusters',
+    option: { params: {} },
+    manual: true,
+    method: 'GET',
+  })
+
+  const { response: deleteResponse, refetch: deleteRefetch } = useAxios({
+    url: '/rest-api/v1/clusters',
+    option: { params: {} },
+    manual: true,
+    method: 'DELETE',
+  })
+
+  const { response: putClusterResponse, refetch: putClusterRefetch } = useAxios(
+    {
+      url: '/rest-api/v1/clusters',
+      option: { data: {} },
+      manual: true,
+      method: 'PUT',
+    },
+  )
+
+  useEffect(() => {
+    if (summaryResponse?.success) {
+      setSummary(summaryResponse?.data)
+    }
+  }, [summaryResponse])
 
   useEffect(() => {
     const handleResize = () => {
@@ -53,40 +92,26 @@ const Cluster = () => {
     }
   }, [])
 
-  async function getClusterSummary() {
-    setloading(true)
-    const response: any = await axios(`/rest-api/v1/clusters?summary=true`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: {},
-    })
-    if (response?.success) {
-      setSummary(response?.data)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
-    }
-    setloading(false)
+  function getClusterSummary() {
+    summaryRefetch()
   }
 
-  async function getPageData(params) {
-    const response: any = await axios(`/rest-api/v1/clusters`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      params: {
-        orderBy: params?.orderBy,
-        ...(params?.isAsc ? { ascending: true } : { descending: true }),
+  function getPageData(params) {
+    pageRefetch({
+      option: {
+        params: {
+          orderBy: params?.orderBy,
+          ...(params?.isAsc ? { ascending: true } : { descending: true }),
+        },
       },
     })
-    if (response?.success) {
-      setPageData(response?.data?.items)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
-    }
   }
+
+  useEffect(() => {
+    if (pageResponse?.success) {
+      setPageData(pageResponse?.data?.items)
+    }
+  }, [pageResponse])
 
   function getShowPageData(allData, currentTabKey) {
     let result: any
@@ -108,32 +133,38 @@ const Cluster = () => {
     return result
   }
 
-  useState(() => {
+  useEffect(() => {
     getClusterSummary()
     getPageData(sortParams)
-  })
+  }, [])
 
   const join = () => {
     if (isReadOnlyMode) return
     navigate('/cluster/access')
   }
 
-  async function handleSubmit(values, callback: () => void) {
+  function handleSubmit(values, callback: () => void) {
     if (isReadOnlyMode) return
-    const response: any = await axios({
+    putClusterRefetch({
       url: `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`,
-      method: 'PUT',
-      data: values,
+      option: {
+        data: {
+          values,
+        },
+      },
+      callbackFn: callback,
     })
-    if (response?.success) {
+  }
+
+  useEffect(() => {
+    if (putClusterResponse?.success) {
       message.success(t('UpdateSuccess'))
-      callback()
+      putClusterResponse?.callbackFn()
       getClusterSummary()
       getPageData(sortParams)
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [putClusterResponse])
 
   const [currentTab, setCurrentTab] = useState('all')
   const [triangleLeftOffestIndex, setTriangleLeftOffestIndex] = useState(0)
@@ -194,20 +225,21 @@ const Cluster = () => {
 
   const numberStyle = { paddingLeft: 10, fontSize: 24 }
 
-  async function deleteItem(item) {
+  function deleteItem(item) {
     if (isReadOnlyMode) return
-    const response: any = await axios({
+    deleteRefetch({
       url: `/rest-api/v1/cluster/${item?.metadata?.name}`,
-      method: 'DELETE',
     })
-    if (response?.success) {
+  }
+
+  useEffect(() => {
+    if (deleteResponse?.success) {
       message.success(t('DeletedSuccess'))
       getPageData(sortParams)
       getClusterSummary()
-    } else {
-      message.error(response?.message || t('RequestFailedAndTry'))
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [deleteResponse])
 
   function goCertificate(item) {
     if (isReadOnlyMode) {

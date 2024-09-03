@@ -57,3 +57,8 @@ func TestResourceGroupRule_Validate(t *testing.T) {
 		})
 	}
 }
+
+func TestUUID(t *testing.T) {
+	uuid := UUID()
+	require.NotEmpty(t, uuid)
+}

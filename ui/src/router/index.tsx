@@ -8,6 +8,7 @@ import {
 import Layout from '@/components/layout'
 import Loading from '@/components/loading'
 
+const Login = lazy(() => import('@/pages/login'))
 const Search = lazy(() => import('@/pages/search'))
 const Result = lazy(() => import('@/pages/result'))
 const Cluster = lazy(() => import('@/pages/cluster'))
@@ -45,6 +46,12 @@ const router: RouteObject[] = [
     path: '/',
     element: <Layout />,
     children: [
+      {
+        key: '/login',
+        path: '/login',
+        title: 'Login',
+        element: lazyLoad(<Login />),
+      },
       {
         key: '/search',
         path: '/search',

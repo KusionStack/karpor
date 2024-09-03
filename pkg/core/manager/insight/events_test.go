@@ -21,220 +21,45 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
-	"k8s.io/apimachinery/pkg/api/resource"
-	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/kubernetes"
 )
 
-func TestInsightManager_GetResourceSummary(t *testing.T) {
+func TestInsightManager_GetResourceEvents(t *testing.T) {
 	// Initialize InsightManager
 	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
-
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
 	testCases := []struct {
 		name           string
 		resourceGroup  *entity.ResourceGroup
-		expectedResult *ResourceSummary
+		expectedLength int
 		expectError    bool
 	}{
 		{
-			name: "Success - Existing ConfigMap",
+			name: "Success - GetResourceEvents",
 			resourceGroup: &entity.ResourceGroup{
-				Cluster:    "existing-cluster",
+				Name:       "default-name",
 				APIVersion: "v1",
-				Kind:       "ConfigMap",
-				Namespace:  "default",
-				Name:       "existing-configmap",
+				Kind:       "Pod",
 			},
-			expectedResult: &ResourceSummary{
-				Resource: entity.ResourceGroup{
-					Name:       "existing-configmap",
-					Namespace:  "default",
-					APIVersion: "v1",
-					Cluster:    "existing-cluster",
-					Kind:       "ConfigMap",
-				},
-			},
-			expectError: false,
+			expectedLength: 1,
+			expectError:    false,
 		},
-	}
-
-	// Execute test cases
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call GetResourceSummary method
-			result, err := manager.GetResourceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
-
-			// Check error expectation
-			if tc.expectError {
-				require.Error(t, err, "Expected an error")
-				require.Nil(t, result, "Expected nil result on error")
-			} else {
-				require.NoError(t, err, "Did not expect error")
-				require.NotNil(t, result, "Expected non-nil result")
-
-				// Compare results
-				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
-			}
-		})
-	}
-}
-
-func TestInsightManager_GetGVKSummary(t *testing.T) {
-	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
-	require.NoError(t, err, "Unexpected error initializing InsightManager")
-
-	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
-	defer mockey.UnPatchAll()
-
-	// Test cases
-	testCases := []struct {
-		name           string
-		resourceGroup  *entity.ResourceGroup
-		expectedResult *GVKSummary
-		expectError    bool
-	}{
 		{
-			name: "Success - Existing ConfigMap",
+			name: "Failed - GetResourceEvents",
 			resourceGroup: &entity.ResourceGroup{
-				Cluster:    "existing-cluster",
+				Name:       "default-test",
 				APIVersion: "v1",
-				Kind:       "ConfigMap",
-				Namespace:  "default",
-				Name:       "existing-configmap",
+				Kind:       "Pod",
 			},
-			expectedResult: &GVKSummary{
-				Cluster: "existing-cluster",
-				Group:   "",
-				Version: "v1",
-				Kind:    "ConfigMap",
-				Count:   1,
-			},
-			expectError: false,
-		},
-	}
-
-	// Execute test cases
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call GetGVKSummary method
-			result, err := manager.GetGVKSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
-
-			// Check error expectation
-			if tc.expectError {
-				require.Error(t, err, "Expected an error")
-				require.Nil(t, result, "Expected nil result on error")
-			} else {
-				require.NoError(t, err, "Did not expect error")
-				require.NotNil(t, result, "Expected non-nil result")
-
-				// Compare results
-				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
-			}
-		})
-	}
-}
-
-func TestInsightManager_GetNamespaceSummary(t *testing.T) {
-	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
-	require.NoError(t, err, "Unexpected error initializing InsightManager")
-
-	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
-	defer mockey.UnPatchAll()
-
-	// Test cases
-	testCases := []struct {
-		name           string
-		resourceGroup  *entity.ResourceGroup
-		expectedResult *NamespaceSummary
-		expectError    bool
-	}{
-		{
-			name: "Success - Existing Namespace",
-			resourceGroup: &entity.ResourceGroup{
-				Cluster:   "existing-cluster",
-				Namespace: "default",
-			},
-			expectedResult: &NamespaceSummary{
-				Cluster:   "existing-cluster",
-				Namespace: "default",
-				CountByGVK: map[string]int{
-					"Pod.v1": 1,
-				},
-			},
-			expectError: false,
-		},
-	}
-
-	// Execute test cases
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			// Call GetNamespaceSummary method
-			result, err := manager.GetNamespaceSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
-
-			// Check error expectation
-			if tc.expectError {
-				require.Error(t, err, "Expected an error")
-				require.Nil(t, result, "Expected nil result on error")
-			} else {
-				require.NoError(t, err, "Did not expect error")
-				require.NotNil(t, result, "Expected non-nil result")
-
-				// Compare results
-				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
-			}
-		})
-	}
-}
-
-func TestInsightManager_GetDetailsForCluster(t *testing.T) {
-	// Initialize InsightManager
-	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
-	require.NoError(t, err, "Unexpected error initializing InsightManager")
-
-	mockey.Mock((*kubernetes.Clientset).CoreV1).Return(&FakeCoreV1{}).Build()
-	mockey.Mock((*discovery.DiscoveryClient).ServerVersion).Return(&version.Info{
-		GitVersion: "v1.2.0",
-	}, err).Build()
-	defer mockey.UnPatchAll()
-
-	// Test cases
-	cpuVal := resource.MustParse("12Mi")
-	memVal := resource.MustParse("2Gi")
-	podVal := resource.MustParse("10")
-	testCases := []struct {
-		name           string
-		resourceGroup  *entity.ResourceGroup
-		expectedResult *ClusterDetail
-		expectError    bool
-	}{
-		{
-			name: "Success - GetDetailsForCluster",
-			resourceGroup: &entity.ResourceGroup{
-				Cluster:   "existing-cluster",
-				Namespace: "default",
-			},
-			expectedResult: &ClusterDetail{
-				NodeCount:      1,
-				ServerVersion:  "v1.2.0",
-				MemoryCapacity: memVal.Value(),
-				CPUCapacity:    cpuVal.Value(),
-				PodsCapacity:   podVal.Value(),
-			},
-			expectError: false,
+			expectedLength: 0,
+			expectError:    false,
 		},
 	}
 
@@ -242,50 +67,53 @@ func TestInsightManager_GetDetailsForCluster(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResourceGroupSummary method
-			result, err := manager.GetDetailsForCluster(context.Background(), mockMultiClusterClient(), "")
+			events, err := manager.GetResourceEvents(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+
 			// Check error expectation
 			if tc.expectError {
 				require.Error(t, err, "Expected an error")
-				require.Nil(t, result, "Expected nil result on error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
 			} else {
 				require.NoError(t, err, "Did not expect error")
-				require.NotNil(t, result, "Expected non-nil result")
-
-				// Compare results
-				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
 			}
 		})
 	}
 }
 
-func TestInsightManager_GetResourceGroupSummary(t *testing.T) {
+func TestInsightManager_GetNamespaceGVKEvents(t *testing.T) {
 	// Initialize InsightManager
 	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	defer mockey.UnPatchAll()
 
 	// Test cases
 	testCases := []struct {
 		name           string
 		resourceGroup  *entity.ResourceGroup
-		expectedResult *ResourceGroupSummary
+		expectedLength int
 		expectError    bool
 	}{
 		{
-			name: "Success - GetResourceGroupSummary",
+			name: "Success - GetNamespaceGVKEvents",
 			resourceGroup: &entity.ResourceGroup{
-				Cluster:   "existing-cluster",
-				Namespace: "default",
+				APIVersion: "v1",
+				Kind:       "Pod",
 			},
-			expectedResult: &ResourceGroupSummary{
-				ResourceGroup: &entity.ResourceGroup{
-					Cluster:   "existing-cluster",
-					Namespace: "default",
-				},
-				CountByGVK: map[string]int{
-					"Pod.v1": 1,
-				},
+			expectedLength: 1,
+			expectError:    false,
+		},
+		{
+			name: "Failed - GetNamespaceGVKEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v2",
+				Kind:       "Pod",
 			},
-			expectError: false,
+			expectedLength: 0,
+			expectError:    false,
 		},
 	}
 
@@ -293,18 +121,173 @@ func TestInsightManager_GetResourceGroupSummary(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call GetResourceGroupSummary method
-			result, err := manager.GetResourceGroupSummary(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+			events, err := manager.GetNamespaceGVKEvents(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
 
 			// Check error expectation
 			if tc.expectError {
 				require.Error(t, err, "Expected an error")
-				require.Nil(t, result, "Expected nil result on error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
 			} else {
 				require.NoError(t, err, "Did not expect error")
-				require.NotNil(t, result, "Expected non-nil result")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			}
+		})
+	}
+}
 
-				// Compare results
-				require.Equal(t, tc.expectedResult, result, "Result does not match expected")
+func TestInsightManager_GetNamespaceEvents(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		resourceGroup  *entity.ResourceGroup
+		expectedLength int
+		expectError    bool
+	}{
+		{
+			name: "Success - GetNamespaceEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v1",
+				Kind:       "Pod",
+				Namespace:  "default",
+			},
+			expectedLength: 1,
+			expectError:    false,
+		},
+		{
+			name: "Failed - GetNamespaceEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v2",
+				Kind:       "Pod",
+				Namespace:  "non-default",
+			},
+			expectedLength: 0,
+			expectError:    false,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResourceGroupSummary method
+			events, err := manager.GetNamespaceEvents(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			}
+		})
+	}
+}
+
+func TestInsightManager_GetGVKEvents(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		resourceGroup  *entity.ResourceGroup
+		expectedLength int
+		expectError    bool
+	}{
+		{
+			name: "Success - GetGVKEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v1",
+				Kind:       "Pod",
+				Namespace:  "default",
+			},
+			expectedLength: 1,
+			expectError:    false,
+		},
+		{
+			name: "Failed - GetGVKEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v2",
+				Kind:       "Pod",
+				Namespace:  "non-default",
+			},
+			expectedLength: 0,
+			expectError:    false,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResourceGroupSummary method
+			events, err := manager.GetGVKEvents(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			}
+		})
+	}
+}
+
+func TestInsightManager_GetClusterEvents(t *testing.T) {
+	// Initialize InsightManager
+	manager, err := NewInsightManager(&mockSearchStorage{}, &mockResourceStorage{}, &mockResourceGroupRuleStorage{}, &genericapiserver.CompletedConfig{})
+	require.NoError(t, err, "Unexpected error initializing InsightManager")
+
+	// Set up mocks for dynamic client
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	// Test cases
+	testCases := []struct {
+		name           string
+		resourceGroup  *entity.ResourceGroup
+		expectedLength int
+		expectError    bool
+	}{
+		{
+			name: "Success - GetGVKEvents",
+			resourceGroup: &entity.ResourceGroup{
+				APIVersion: "v1",
+				Kind:       "Pod",
+				Namespace:  "default",
+			},
+			expectedLength: 1,
+			expectError:    false,
+		},
+	}
+
+	// Execute test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Call GetResourceGroupSummary method
+			events, err := manager.GetClusterEvents(context.Background(), mockMultiClusterClient(), tc.resourceGroup)
+
+			// Check error expectation
+			if tc.expectError {
+				require.Error(t, err, "Expected an error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
+			} else {
+				require.NoError(t, err, "Did not expect error")
+				require.Len(t, events, tc.expectedLength, "Expected nil result on error")
 			}
 		})
 	}

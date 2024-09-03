@@ -218,8 +218,18 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "cheny-alf",
+      "name": "cheny-alf",
+      "avatar_url": "https://avatars.githubusercontent.com/u/71162267?v=4",
+      "profile": "https://github.com/cheny-alf",
+      "contributions": [
+        "test"
+      ]
     }
   ],
   "contributorsPerLine": 7,
-  "linkToUsage": false
+  "linkToUsage": false,
+  "commitType": "docs"
 }
