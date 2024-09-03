@@ -47,16 +47,11 @@ func (c *AzureAIClient) Configure(cfg AIConfig) error {
 	return nil
 }
 
-func (c *AzureAIClient) Generate(ctx context.Context, prompt string, serviceType string) (string, error) {
-	servicePrompt := ServicePromptMap[serviceType]
+func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
 
 	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: c.model,
 		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleSystem,
-				Content: servicePrompt,
-			},
 			{
 				Role:    openai.ChatMessageRoleUser,
 				Content: prompt,

@@ -35,7 +35,7 @@ import (
 // @Tags         search
 // @Produce      json
 // @Param        query     query     string          true   "The query to use for search. Required"
-// @Param        pattern   query     string          true   "The search pattern. Can be either sql or dsl. Required"
+// @Param        pattern   query     string          true   "The search pattern. Can be either sql, dsl or nl. Required"
 // @Param        pageSize  query     string          false  "The size of the page. Default to 10"
 // @Param        page      query     string          false  "The current page to fetch. Default to 1"
 // @Success      200       {array}   runtime.Object  "Array of runtime.Object"
@@ -66,9 +66,42 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 			searchPage = 1
 		}
 
+		query := searchQuery
+
+		if searchPattern == storage.NLPatternType {
+			//logger.Info(searchQuery)
+			res, err := aiMgr.ConvertTextToSQL(searchQuery)
+			if err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+			searchQuery = res
+		}
+
+		//logger.Info(searchQuery)
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
 		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+		if err != nil {
+			if searchPattern == storage.NLPatternType {
+				//logger.Info(err.Error())
+				fixedQuery, fixErr := aiMgr.FixSQL(query, searchQuery, err.Error())
+				if fixErr != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+				searchQuery = fixedQuery
+				res, err = searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+				if err != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+			} else {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+		}
+
 		if err != nil {
 			handler.FailureRender(ctx, w, r, err)
 			return
@@ -83,6 +116,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 				Object:  unObj,
 			})
 		}
+		rt.SQLQuery = searchQuery
 		rt.Total = res.Total
 		rt.CurrentPage = searchPage
 		rt.PageSize = searchPageSize
