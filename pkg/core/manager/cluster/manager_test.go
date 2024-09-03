@@ -28,6 +28,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
+	k8syaml "sigs.k8s.io/yaml"
 )
 
 // TestGetCluster tests the GetCluster method of the ClusterManager for various
@@ -816,4 +817,77 @@ func (m *mockNamespaceableResource) Delete(
 		return nil
 	}
 	return errors.NewNotFound(clusterv1beta1.Resource("cluster"), name)
+}
+
+func TestClusterManager_GetNamespace(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	testCases := []struct {
+		name         string
+		namespace    string
+		descending   bool
+		expectError  bool
+		expectResult *unstructured.Unstructured
+	}{
+		{
+			name:         "Success - GetNamespace",
+			namespace:    "existing-cluster",
+			expectError:  false,
+			expectResult: newMockCluster("existing-cluster"),
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			summary, err := manager.GetNamespace(context.TODO(), &multicluster.MultiClusterClient{
+				DynamicClient: &dynamic.DynamicClient{},
+			}, tc.namespace)
+
+			if tc.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expectResult, summary)
+			}
+		})
+	}
+}
+
+func TestClusterManager_GetNamespaceYAML(t *testing.T) {
+	manager := NewClusterManager()
+	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	defer mockey.UnPatchAll()
+
+	expectResult, _ := k8syaml.Marshal(newMockCluster("existing-cluster"))
+	testCases := []struct {
+		name         string
+		namespace    string
+		descending   bool
+		expectError  bool
+		expectResult []byte
+	}{
+		{
+			name:         "Success - GetNamespaceYAML",
+			namespace:    "existing-cluster",
+			expectError:  false,
+			expectResult: expectResult,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			summary, err := manager.GetNamespaceYAML(context.TODO(), &multicluster.MultiClusterClient{
+				DynamicClient: &dynamic.DynamicClient{},
+			}, tc.namespace)
+
+			if tc.expectError {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tc.expectResult, summary)
+			}
+		})
+	}
 }

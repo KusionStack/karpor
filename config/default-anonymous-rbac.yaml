@@ -1,0 +1,38 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: anonymous
+rules:
+  - nonResourceURLs:
+      - /
+      - /rest-api/*
+      - /endpoints
+      - /public/*
+      - /docs/*
+      - /server-configs
+      - /search
+      - /search/*
+      - /insight
+      - /insight/*
+      - /insightDetail
+      - /insightDetail/*
+      - /cluster
+      - /cluster/*
+      - /login
+      - /livez
+      - /readyz
+    verbs:
+      - get
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: anonymous
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: anonymous
+subjects:
+  - apiGroup: rbac.authorization.k8s.io
+    kind: User
+    name: system:anonymous

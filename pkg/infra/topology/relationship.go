@@ -24,6 +24,7 @@ import (
 
 	"github.com/pkg/errors"
 
+	"github.com/KusionStack/karpor/config"
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
@@ -110,17 +111,20 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 	// TODO: Obtaining topological relationship from CR in the future.
 	// Get the file path from the environment variable, fallback to default if
 	// not set.
+	var err error
+	relationshipYAML := config.DefaultRelationship
+
 	filePath := os.Getenv("KARPOR_RELATIONSHIP_FILE")
-	if filePath == "" {
-		filePath = "relationship.yaml" // Default file path
+	if filePath != "" {
+		log.Info("Using custom relationship file: " + filePath)
+		relationshipYAML, err = os.ReadFile(filePath)
+		if err != nil {
+			log.Error(err, "ReadFile error")
+		}
 	}
 
-	yamlFile, err := os.ReadFile(filePath)
-	if err != nil {
-		log.Error(err, "yamlFile.Get err")
-	}
 	r := RelationshipGraph{}
-	err = yaml.Unmarshal(yamlFile, &r)
+	err = yaml.Unmarshal(relationshipYAML, &r)
 	if err != nil {
 		log.Error(err, "Unmarshal error")
 	}

@@ -24,6 +24,7 @@ import (
 	"net"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/KusionStack/karpor/cmd/karpor/app/options"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
@@ -39,11 +40,16 @@ import (
 	"k8s.io/apiserver/pkg/features"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	utilfeature "k8s.io/apiserver/pkg/util/feature"
+	"k8s.io/client-go/util/keyutil"
 	"k8s.io/klog/v2"
+	authzmodes "k8s.io/kubernetes/pkg/kubeapiserver/authorizer/modes"
+	"k8s.io/kubernetes/pkg/serviceaccount"
 	netutils "k8s.io/utils/net"
 )
 
 const defaultEtcdPathPrefix = "/registry/karpor"
+const defaultTokenIssuer = "karpor"
+const defaultTokenMaxExpiration = 8760 * time.Hour
 
 // Options contains state for master/api server
 type Options struct {
@@ -151,6 +157,38 @@ func (o *Options) Validate(args []string) error {
 
 // Complete fills in fields required to have valid data
 func (o *Options) Complete() error {
+	// generate token issuer
+	if len(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers) == 0 || o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0] == "" {
+		o.RecommendedOptions.Authentication.ServiceAccounts.Issuers = []string{defaultTokenIssuer}
+	}
+
+	// set default token max expiration
+	o.RecommendedOptions.ServiceAccountTokenMaxExpiration = defaultTokenMaxExpiration
+	if o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration != 0 {
+		o.RecommendedOptions.ServiceAccountTokenMaxExpiration = o.RecommendedOptions.Authentication.ServiceAccounts.MaxExpiration
+	}
+
+	// complete two content-related keys with each other
+	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" && (len(o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles) == 0 ||
+		o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles[0] == "") {
+		return fmt.Errorf("no valid serviceaccounts signing key file")
+	}
+	if o.RecommendedOptions.ServiceAccountSigningKeyFile == "" {
+		o.RecommendedOptions.ServiceAccountSigningKeyFile = o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles[0]
+	}
+	if len(o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles) == 0 {
+		o.RecommendedOptions.Authentication.ServiceAccounts.KeyFiles = []string{o.RecommendedOptions.ServiceAccountSigningKeyFile}
+	}
+
+	// create token generator
+	sk, err := keyutil.PrivateKeyFromFile(o.RecommendedOptions.ServiceAccountSigningKeyFile)
+	if err != nil {
+		return fmt.Errorf("failed to parse key-file for token generator: %w", err)
+	}
+	o.RecommendedOptions.ServiceAccountIssuer, err = serviceaccount.JWTTokenGenerator(o.RecommendedOptions.Authentication.ServiceAccounts.Issuers[0], sk)
+	if err != nil {
+		return fmt.Errorf("create token generator failed: %w", err)
+	}
 	return nil
 }
 
@@ -160,7 +198,14 @@ func (o *Options) Config() (*server.Config, error) {
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
 		ExtraConfig:   &registry.ExtraConfig{},
 	}
+	// always allow access if readOnlyMode is open
+	if o.CoreOptions.ReadOnlyMode {
+		o.RecommendedOptions.Authorization.Modes = []string{authzmodes.ModeAlwaysAllow}
+	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
+		return nil, err
+	}
+	if err := o.RecommendedOptions.ApplyToExtraConfig(config.ExtraConfig); err != nil {
 		return nil, err
 	}
 	if err := o.SearchStorageOptions.ApplyTo(config.ExtraConfig); err != nil {

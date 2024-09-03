@@ -20,13 +20,16 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/resource"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
+	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
@@ -415,4 +418,74 @@ func mockClusterTopologyMapForClusterNamespace() map[string]ClusterTopology {
 			},
 		},
 	}
+}
+
+// mockNamespaceableResource is a mock implementation of
+// dynamic.NamespaceableResourceInterface.
+type mockEventResource struct {
+	dynamic.NamespaceableResourceInterface
+}
+
+// Namespace sets the namespace on the mock NamespaceableResource.
+func (m *mockEventResource) Namespace(namespace string) dynamic.ResourceInterface {
+	return &mockEventResource{}
+}
+
+// List retrieves a list of unstructured resources from the mock NamespaceableResource.
+func (m *mockEventResource) List(ctx context.Context, opts metav1.ListOptions) (*unstructured.UnstructuredList, error) {
+	return &unstructured.UnstructuredList{
+		Object: map[string]interface{}{"kind": "EventList", "apiVersion": "v1"},
+		Items: []unstructured.Unstructured{
+			*newMockEvent("default", "default-name"),
+		},
+	}, nil
+}
+
+func newMockEvent(namespace, name string) *unstructured.Unstructured {
+	return &unstructured.Unstructured{
+		Object: map[string]any{
+			"apiVersion": "v1",
+			"kind":       "Event",
+			"metadata": map[string]any{
+				"name":      name,
+				"namespace": namespace,
+			},
+			"involvedObject": map[string]any{
+				"apiVersion": "v1",
+				"kind":       "Pod",
+				"name":       "default-name",
+				"namespace":  "default",
+			},
+		},
+	}
+}
+
+type FakeCoreV1 struct {
+	v1.CoreV1Interface
+}
+
+func (FakeCoreV1) Nodes() v1.NodeInterface {
+	return &FakeNode{}
+}
+
+type FakeNode struct {
+	v1.NodeInterface
+}
+
+func (f *FakeNode) List(ctx context.Context, opts metav1.ListOptions) (*coreV1.NodeList, error) {
+	return &coreV1.NodeList{
+		TypeMeta: metav1.TypeMeta{},
+		ListMeta: metav1.ListMeta{},
+		Items: []coreV1.Node{
+			{
+				Status: coreV1.NodeStatus{
+					Capacity: coreV1.ResourceList{
+						"cpu":    resource.MustParse("12Mi"),
+						"memory": resource.MustParse("2Gi"),
+						"pods":   resource.MustParse("10"),
+					},
+				},
+			},
+		},
+	}, nil
 }

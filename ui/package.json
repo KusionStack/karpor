@@ -57,6 +57,7 @@
   },
   "scripts": {
     "release": "standard-version",
+    "dev": "GENERATE_SOURCEMAP=false PORT=8000 craco start",
     "start": "GENERATE_SOURCEMAP=false PORT=8080 HTTPS=true craco start",
     "build": "GENERATE_SOURCEMAP=false PUBLIC_URL=/public/ craco build",
     "lint:prettier": "prettier --write src\"/**/*.+(js|ts|tsx|jsx|json|md|json)\"",

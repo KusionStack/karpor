@@ -18,6 +18,7 @@ import (
 	"expvar"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
+	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karpor/pkg/core/handler/detail"
 	endpointhandler "github.com/KusionStack/karpor/pkg/core/handler/endpoint"
@@ -41,7 +42,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
-	httpswagger "github.com/swaggo/http-swagger"
+	httpswagger "github.com/swaggo/http-swagger/v2"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 )
 
@@ -116,7 +117,7 @@ func NewCoreRoute(
 	// Endpoint to list all available endpoints in the router.
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
-	// Endpoint to list all available endpoints in the router.
+	// Expose server configuration and runtime statistics.
 	router.Get("/server-configs", expvar.Handler().ServeHTTP)
 
 	healthhandler.Register(router, generalStorage)
@@ -173,4 +174,5 @@ func setupRestAPIV1(
 	})
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
+	r.Get("/authn", authnhandler.Get())
 }

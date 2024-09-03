@@ -1,12 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Input, Space, Button, Upload, message } from 'antd'
+import { Form, Input, Space, Button, Upload, message, notification } from 'antd'
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
-import axios from 'axios'
 import { useSelector } from 'react-redux'
-import { HOST } from '@/utils/request'
+import { HOST, useAxios } from '@/utils/request'
 import Yaml from '@/components/yaml'
 
 import styles from './styles.module.less'
@@ -19,39 +18,54 @@ const RegisterCluster = () => {
   const navigate = useNavigate()
   const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
   const [yamlContent, setYamlContent] = useState('')
-  const [loading, setLoading] = useState(false)
 
-  async function onFinish(values: any) {
+  const {
+    response: validateResponse,
+    refetch: validateRefetch,
+    loading,
+  } = useAxios({
+    url: '/rest-api/v1/cluster/config/validate',
+    manual: true,
+    method: 'POST',
+  })
+
+  const { response: addResponse, refetch: addRefetch } = useAxios({
+    url: '',
+    manual: true,
+    method: 'POST',
+  })
+
+  useEffect(() => {
+    if (validateResponse?.success) {
+      validateResponse?.callbackFn && validateResponse?.callbackFn()
+    }
+  }, [validateResponse])
+
+  useEffect(() => {
+    if (addResponse?.success) {
+      message.success(t('VerifiedSuccessfullyAndSubmitted'))
+      navigate(-1)
+    }
+  }, [addResponse, navigate, t])
+
+  function onFinish(values: any) {
     if (isReadOnlyMode) {
       return
     }
-    setLoading(true)
-    const validateResponse: any = await axios.post(
-      '/rest-api/v1/cluster/config/validate',
-      {
-        kubeConfig: values?.kubeConfig,
+    validateRefetch({
+      option: {
+        data: {
+          kubeConfig: values?.kubeConfig,
+        },
       },
-    )
-    if (validateResponse?.success) {
-      const response: any = await axios({
-        url: `/rest-api/v1/cluster/${values?.name}`,
-        method: 'POST',
-        data: values,
-      })
-      if (response?.success) {
-        message.success(t('VerifiedSuccessfullyAndSubmitted'))
-        navigate(-1)
-      } else {
-        message.error(
-          response?.message || t('VerificationSuccessfulButSubmissionFailed'),
-        )
-      }
-    } else {
-      message.error(
-        validateResponse?.message || t('KubeConfigDoesNotMeetTheRequirements'),
-      )
-    }
-    setLoading(false)
+      callbackFn: () =>
+        addRefetch({
+          url: `/rest-api/v1/cluster/${values?.name}`,
+          option: {
+            data: values,
+          },
+        }),
+    })
   }
 
   function goBack() {
@@ -63,7 +77,9 @@ const RegisterCluster = () => {
     name: 'file',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      authorization: 'authorization-text',
+      Authorization: localStorage.getItem('token')
+        ? `Bearer ${localStorage.getItem('token')}`
+        : '',
     },
     withCredentials: true,
     maxCount: 1,
@@ -87,7 +103,14 @@ const RegisterCluster = () => {
               `${t('TheFileMustBeIn')}.yaml, .yml, .json, .kubeConfig, .kubeconf`,
           )
         }
-      } else if (info.file.status === 'error') {
+      } else if (
+        info.file.status === 'error' &&
+        info.file.response?.code === 403
+      ) {
+        notification.error({
+          message: `${info.file.response?.code}`,
+          description: `${info.file.response?.message}`,
+        })
       }
     },
   }
