@@ -131,6 +131,10 @@ type ResourceSyncRule struct {
 	// TrimRefName is the name of the TrimRule.
 	// +optional
 	TrimRefName string `json:"trimRefName,omitempty"`
+
+	// RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.
+	// +optional
+	RemainAfterDeleted bool `json:"remainAfterDeleted,omitempty"`
 }
 
 // +genclient

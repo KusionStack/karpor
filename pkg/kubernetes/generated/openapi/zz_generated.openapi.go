@@ -729,6 +729,13 @@ func schema_kubernetes_apis_search_v1beta1_ResourceSyncRule(ref common.Reference
 							Format:      "",
 						},
 					},
+					"remainAfterDeleted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"apiVersion", "resource"},
 			},
