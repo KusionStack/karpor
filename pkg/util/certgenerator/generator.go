@@ -32,7 +32,7 @@ const hubClusterKubeConfigTemplate = `apiVersion: v1
 clusters:
 - cluster:
     insecure-skip-tls-verify: true
-    server: https://127.0.0.1:7443
+    server: https://karpor-server.%s.svc:7443
   name: karpor
 contexts:
 - context:
@@ -189,5 +189,5 @@ func generateAdminKubeconfig(namespace string, cert *x509.Certificate, key crypt
 	if err != nil {
 		return "", fmt.Errorf("unable to marshal private key to PEM %s", err)
 	}
-	return fmt.Sprintf(hubClusterKubeConfigTemplate, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
+	return fmt.Sprintf(hubClusterKubeConfigTemplate, namespace, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
 }

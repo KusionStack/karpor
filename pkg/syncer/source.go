@@ -282,7 +282,7 @@ func (s *informerSource) parseTrimer() (clientgocache.TransformFunc, error) {
 
 		u, ok := obj.(*unstructured.Unstructured)
 		if !ok {
-			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured, but received %T", obj)
+			return nil, fmt.Errorf("trim: object's type should be *unstructured.Unstructured, but received %T", obj)
 		}
 
 		merged, err := jsonextracter.Merge(extracters, u.Object)

@@ -23,13 +23,18 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/transform"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"go.uber.org/multierr"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
+	clientgocache "k8s.io/client-go/tools/cache"
 	"k8s.io/client-go/util/workqueue"
 
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -70,6 +75,9 @@ type singleClusterSyncManager struct {
 	storage storage.ResourceStorage
 
 	logger logr.Logger
+
+	discoveryClient discovery.DiscoveryInterface
+	gvkToGVRCache   sync.Map
 }
 
 // NewSingleClusterSyncManager creates a new instance of the singleClusterSyncManager with the given context, cluster name, config, controller, and storage.
@@ -85,6 +93,8 @@ func NewSingleClusterSyncManager(baseContext context.Context,
 		return nil, err
 	}
 
+	discoveryClient := discovery.NewDiscoveryClientForConfigOrDie(config)
+
 	innerCtx, innerCancel := context.WithCancel(baseContext)
 	mgr := &singleClusterSyncManager{
 		clusterName:   clusterName,
@@ -96,7 +106,12 @@ func NewSingleClusterSyncManager(baseContext context.Context,
 		controller:    controller,
 		storage:       storage,
 		logger:        ctrl.LoggerFrom(baseContext).WithName("single-cluster-manager").WithValues("cluster", clusterName),
+
+		discoveryClient: discoveryClient,
 	}
+
+	mgr.registerTmplFuncs()
+
 	return mgr, nil
 }
 
@@ -233,6 +248,73 @@ func (s *singleClusterSyncManager) handleSyncResourcesUpdate(ctx context.Context
 		s.stopResource(s.ctx, syncer)
 	}
 	return merr
+}
+
+func (s *singleClusterSyncManager) GVKToGVR(gvk schema.GroupVersionKind) (schema.GroupVersionResource, error) {
+	if val, ok := s.gvkToGVRCache.Load(gvk); ok {
+		return val.(schema.GroupVersionResource), nil
+	}
+
+	zero := schema.GroupVersionResource{}
+
+	groupResources, err := restmapper.GetAPIGroupResources(s.discoveryClient)
+	if err != nil {
+		return zero, err
+	}
+
+	mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
+	resource, err := mapper.RESTMapping(gvk.GroupKind())
+	if err != nil {
+		return zero, err
+	}
+
+	s.logger.Info("GVK to GVR", "gvk", gvk, "gvr", resource.Resource)
+	s.gvkToGVRCache.Store(gvk, resource.Resource)
+	return resource.Resource, nil
+}
+
+func (s *singleClusterSyncManager) getObject(apiVersion, kind, namespace, name string) (interface{}, error) {
+	gv, err := schema.ParseGroupVersion(apiVersion)
+	if err != nil {
+		return nil, err
+	}
+
+	gvr, err := s.GVKToGVR(gv.WithKind(kind))
+	if err != nil {
+		return nil, err
+	}
+
+	syncer, exist := s.getSyncer(gvr)
+	if !exist {
+		return nil, fmt.Errorf("syncer %v not exist", gvr)
+	}
+
+	meta := &metav1.PartialObjectMetadata{
+		TypeMeta:   metav1.TypeMeta{Kind: kind, APIVersion: apiVersion},
+		ObjectMeta: metav1.ObjectMeta{Namespace: namespace, Name: name},
+	}
+
+	// Should keep consistent with informer key function.
+	key, err := clientgocache.DeletionHandlingMetaNamespaceKeyFunc(meta)
+	if err != nil {
+		return nil, err
+	}
+
+	obj, exist, err := syncer.source.GetByKey(key)
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, fmt.Errorf("resource with key %v not exist", key)
+	}
+
+	return obj, nil
+}
+
+func (s *singleClusterSyncManager) registerTmplFuncs() {
+	if err := transform.RegisterClusterTmplFunc(s.clusterName, "objectRef", s.getObject); err != nil {
+		s.logger.Error(err, "error in registering tmpl func")
+	}
 }
 
 // startResource is an internal method that starts the synchronization for a specific resource based on the provided GroupVersionResource and ResourceSyncRule.
