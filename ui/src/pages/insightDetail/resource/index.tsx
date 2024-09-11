@@ -101,7 +101,7 @@ const ClusterDetail = () => {
 
   const { response: clusterDetailResponse, refetch: clusterDetailRefetch } =
     useAxios({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/score',
       method: 'GET',
     })
 
@@ -113,7 +113,7 @@ const ClusterDetail = () => {
 
   function getClusterDetail() {
     clusterDetailRefetch({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/detail',
       option: {
         params: {
           cluster,
