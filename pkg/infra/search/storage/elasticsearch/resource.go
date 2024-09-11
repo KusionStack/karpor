@@ -19,6 +19,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"time"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -39,6 +41,8 @@ const (
 	resourceKeyOwnerReferences   = "ownerReferences"
 	resourceKeyResourceVersion   = "resourceVersion"
 	resourceKeyContent           = "content"
+	resourceKeySyncAt            = "syncAt"  // resource save/update/delete time
+	resourceKeyDeleted           = "deleted" // indicates whether the resource is deleted in cluster
 )
 
 var ErrNotFound = fmt.Errorf("object not found")
@@ -50,6 +54,32 @@ func (s *Storage) SaveResource(ctx context.Context, cluster string, obj runtime.
 		return err
 	}
 	return s.client.SaveDocument(ctx, s.resourceIndexName, id, bytes.NewReader(body))
+}
+
+// SoftDeleteResource only sets the deleted field to true, not really deletes the data in storage.
+func (s *Storage) SoftDeleteResource(ctx context.Context, cluster string, obj runtime.Object) error {
+	unObj, ok := obj.(*unstructured.Unstructured)
+	if !ok {
+		// TODO: support other implement of runtime.Object
+		return fmt.Errorf("only support *unstructured.Unstructured type")
+	}
+
+	if err := s.GetResource(ctx, cluster, unObj); err != nil {
+		return err
+	}
+
+	body, err := json.Marshal(map[string]map[string]interface{}{
+		"doc": {
+			resourceKeySyncAt:  time.Now(),
+			resourceKeyDeleted: true,
+		},
+	})
+	if err != nil {
+		return err
+	}
+
+	id := string(unObj.GetUID())
+	return s.client.UpdateDocument(ctx, s.resourceIndexName, id, bytes.NewReader(body))
 }
 
 // DeleteResource removes an object from the Elasticsearch storage for the specified cluster.
@@ -142,6 +172,8 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 		resourceKeyOwnerReferences:   metaObj.GetOwnerReferences(),
 		resourceKeyResourceVersion:   metaObj.GetResourceVersion(),
 		resourceKeyContent:           buf.String(),
+		resourceKeySyncAt:            time.Now(),
+		resourceKeyDeleted:           false,
 	})
 	if err != nil {
 		return
