@@ -317,6 +317,7 @@ func autoConvert_v1beta1_ResourceSyncRule_To_search_ResourceSyncRule(in *Resourc
 	out.TransformRefName = in.TransformRefName
 	out.Trim = (*search.TrimRuleSpec)(unsafe.Pointer(in.Trim))
 	out.TrimRefName = in.TrimRefName
+	out.RemainAfterDeleted = in.RemainAfterDeleted
 	return nil
 }
 
@@ -336,6 +337,7 @@ func autoConvert_search_ResourceSyncRule_To_v1beta1_ResourceSyncRule(in *search.
 	out.TransformRefName = in.TransformRefName
 	out.Trim = (*TrimRuleSpec)(unsafe.Pointer(in.Trim))
 	out.TrimRefName = in.TrimRefName
+	out.RemainAfterDeleted = in.RemainAfterDeleted
 	return nil
 }
 
