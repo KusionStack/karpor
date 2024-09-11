@@ -259,7 +259,7 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 		return nil, fmt.Errorf("unsupported transform type %q", t.Type)
 	}
 
-	tmpl, err := newTemplate(t.ValueTemplate)
+	tmpl, err := newTemplate(t.ValueTemplate, s.cluster)
 	if err != nil {
 		return nil, errors.Wrap(err, "invalid transform template")
 	}
@@ -292,6 +292,7 @@ func (s *informerSource) parseTransformer() (clientgocache.TransformFunc, error)
 }
 
 // newTemplate creates and returns a new text template from the provided string, which can be used for processing templates in the syncer.
-func newTemplate(tmpl string) (*template.Template, error) {
-	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Parse(tmpl)
+func newTemplate(tmpl, cluster string) (*template.Template, error) {
+	clusterFuncs, _ := transform.GetClusterTmplFuncs(cluster)
+	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Funcs(clusterFuncs).Parse(tmpl)
 }
