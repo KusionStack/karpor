@@ -30,6 +30,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
@@ -185,6 +186,19 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	return true
 }
 
+func (s *ResourceSyncer) saveResource(ctx context.Context, obj runtime.Object) error {
+	return s.storage.SaveResource(ctx, s.source.Cluster(), obj)
+}
+
+func (s *ResourceSyncer) deleteResource(ctx context.Context, obj runtime.Object) error {
+	remainAfterDeleted := s.source.SyncRule().RemainAfterDeleted
+	if remainAfterDeleted {
+		return s.storage.SoftDeleteResource(ctx, s.source.Cluster(), obj)
+	}
+
+	return s.storage.DeleteResource(ctx, s.source.Cluster(), obj)
+}
+
 // sync synchronizes the specified resource based on the key provided.
 func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	val, exists, err := s.source.GetByKey(key)
@@ -203,11 +217,11 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	if exists {
 		op = "save"
 		obj := val.(*unstructured.Unstructured)
-		err = s.storage.SaveResource(ctx, s.source.Cluster(), obj)
+		err = s.saveResource(ctx, obj)
 	} else {
 		op = "delete"
 		obj := genUnObj(s.SyncRule(), key)
-		err = s.storage.DeleteResource(ctx, s.source.Cluster(), obj)
+		err = s.deleteResource(ctx, obj)
 		if errors.Is(err, elasticsearch.ErrNotFound) {
 			s.logger.Error(err, "failed to sync", "key", key, "op", op)
 			err = nil

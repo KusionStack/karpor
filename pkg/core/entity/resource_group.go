@@ -42,12 +42,12 @@ const (
 
 // ResourceGroup represents information required to locate a resource or multi resources.
 type ResourceGroup struct {
-	Cluster     string            `json:"cluster,omitempty" yaml:"cluster,omitempty"`
-	APIVersion  string            `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	Kind        string            `json:"kind,omitempty" yaml:"kind,omitempty"`
-	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Cluster     string            `json:"cluster,omitempty"     yaml:"cluster,omitempty"`
+	APIVersion  string            `json:"apiVersion,omitempty"  yaml:"apiVersion,omitempty"`
+	Kind        string            `json:"kind,omitempty"        yaml:"kind,omitempty"`
+	Namespace   string            `json:"namespace,omitempty"   yaml:"namespace,omitempty"`
+	Name        string            `json:"name,omitempty"        yaml:"name,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"      yaml:"labels,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
 }
 
