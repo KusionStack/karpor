@@ -40,6 +40,10 @@ func (c *FakeSearchV1beta1) TransformRules() v1beta1.TransformRuleInterface {
 	return &FakeTransformRules{c}
 }
 
+func (c *FakeSearchV1beta1) TrimRules() v1beta1.TrimRuleInterface {
+	return &FakeTrimRules{c}
+}
+
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
 func (c *FakeSearchV1beta1) RESTClient() rest.Interface {
