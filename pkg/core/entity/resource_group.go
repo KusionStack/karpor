@@ -89,6 +89,34 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 	return ResourceGroupHash(hash.String())
 }
 
+// ToTerms converts the ResourceGroup to ES query terms.
+func (rg *ResourceGroup) ToTerms() map[string]any {
+	terms := map[string]any{}
+
+	setIfNotEmpty := func(key string, val any) {
+		switch val := val.(type) {
+		case string:
+			if len(val) != 0 {
+				terms[key] = val
+			}
+		case map[string]string:
+			if len(val) != 0 {
+				terms[key] = val
+			}
+		}
+	}
+
+	setIfNotEmpty("cluster", rg.Cluster)
+	setIfNotEmpty("apiVersion", rg.APIVersion)
+	setIfNotEmpty("kind", rg.Kind)
+	setIfNotEmpty("namespace", rg.Namespace)
+	setIfNotEmpty("name", rg.Name)
+	setIfNotEmpty("labels", rg.Labels)
+	setIfNotEmpty("annotations", rg.Annotations)
+
+	return terms
+}
+
 // ToSQL generates a SQL query string based on the ResourceGroup.
 func (rg *ResourceGroup) ToSQL() string {
 	conditions := []string{}
