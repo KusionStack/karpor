@@ -27,9 +27,6 @@ type AzureAIClient struct {
 }
 
 func (c *AzureAIClient) Configure(cfg AIConfig) error {
-	if cfg.AuthToken == "" {
-		return errors.New("auth token was not provided")
-	}
 	if cfg.BaseURL == "" {
 		return errors.New("base url was not provided")
 	}
