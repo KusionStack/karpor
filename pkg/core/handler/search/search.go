@@ -15,7 +15,6 @@
 package search
 
 import (
-	"errors"
 	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"net/http"
 	"strconv"
@@ -69,10 +68,11 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 
 		if searchPattern == storage.NLPatternType {
 			// logger.Info(searchQuery)
-			if aiMgr == nil {
-				handler.FailureRender(ctx, w, r, errors.New("auth token was not provided"))
+			if err := ai.ValidateAIManager(aiMgr); err != nil {
+				handler.FailureRender(ctx, w, r, err)
 				return
 			}
+
 			res, err := aiMgr.ConvertTextToSQL(searchQuery)
 			if err != nil {
 				handler.FailureRender(ctx, w, r, err)
