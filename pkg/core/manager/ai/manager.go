@@ -38,7 +38,8 @@ func NewAIManager(c registry.ExtraConfig) (*AIManager, error) {
 	}, nil
 }
 
-func ValidateAIManager(aiMgr *AIManager) error {
+// CheckAIManager check if the AI manager is created
+func CheckAIManager(aiMgr *AIManager) error {
 	if aiMgr == nil {
 		return ErrMissingAuthToken
 	}

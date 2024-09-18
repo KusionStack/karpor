@@ -68,7 +68,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 
 		if searchPattern == storage.NLPatternType {
 			// logger.Info(searchQuery)
-			if err := ai.ValidateAIManager(aiMgr); err != nil {
+			if err := ai.CheckAIManager(aiMgr); err != nil {
 				handler.FailureRender(ctx, w, r, err)
 				return
 			}
