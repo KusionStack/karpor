@@ -57,12 +57,12 @@ type AIConfig struct {
 
 func ConvertToAIConfig(c registry.ExtraConfig) AIConfig {
 	return AIConfig{
-		Name:        c.Backend,
-		AuthToken:   c.AuthToken,
-		BaseURL:     c.BaseURL,
-		Model:       c.Model,
-		Temperature: c.Temperature,
-		TopP:        c.TopP,
+		Name:        c.AIBackend,
+		AuthToken:   c.AIAuthToken,
+		BaseURL:     c.AIBaseURL,
+		Model:       c.AIModel,
+		Temperature: c.AITemperature,
+		TopP:        c.AITopP,
 	}
 }
 

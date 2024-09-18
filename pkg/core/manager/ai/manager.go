@@ -25,7 +25,7 @@ type AIManager struct {
 
 // NewAIManager returns a new AIManager object
 func NewAIManager(c registry.ExtraConfig) (*AIManager, error) {
-	aiClient := ai.NewClient(c.Backend)
+	aiClient := ai.NewClient(c.AIBackend)
 	if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil {
 		return nil, err
 	}
