@@ -25,6 +25,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/syncer/internal"
 	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
+	"github.com/KusionStack/karpor/pkg/util/jsonpath"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -251,7 +252,7 @@ func (s *informerSource) parseTrimer() (clientgocache.TransformFunc, error) {
 
 	extracters := make([]jsonextracter.Extracter, 0, len(t.Retain.JSONPaths))
 	for _, p := range t.Retain.JSONPaths {
-		p, err := utils.RelaxedJSONPathExpression(p)
+		p, err := jsonpath.RelaxedJSONPathExpression(p)
 		if err != nil {
 			return nil, err
 		}
