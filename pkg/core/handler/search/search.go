@@ -67,7 +67,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		query := searchQuery
 
 		if searchPattern == storage.NLPatternType {
-			// logger.Info(searchQuery)
+			//logger.Info(searchQuery)
 			if err := ai.CheckAIManager(aiMgr); err != nil {
 				handler.FailureRender(ctx, w, r, err)
 				return
@@ -81,7 +81,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 			searchQuery = res
 		}
 
-		//logger.Info(searchQuery)
+		logger.Info(searchQuery)
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
 		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
