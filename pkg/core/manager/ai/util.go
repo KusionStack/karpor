@@ -14,7 +14,18 @@
 
 package ai
 
-import "regexp"
+import (
+	"regexp"
+	"strings"
+)
+
+// IfQueryInvalid check if the query is invalid
+func IfQueryInvalid(sql string) bool {
+	if strings.Contains(strings.ToLower(sql), "error") {
+		return true
+	}
+	return false
+}
 
 // ExtractSelectSQL extracts SQL statements that start with "SELECT * FROM"
 func ExtractSelectSQL(sql string) string {

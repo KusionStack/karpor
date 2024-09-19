@@ -42,3 +42,30 @@ func TestExtractSelectSQL(t *testing.T) {
 		})
 	}
 }
+
+// TestIfQueryInvalid tests the IfQueryInvalid function.
+func TestIfQueryInvalid(t *testing.T) {
+	testCases := []struct {
+		name     string
+		sql      string
+		expected bool
+	}{
+		{
+			name:     "ValidQueryWithoutError",
+			sql:      "select * from resources where kind='namespace';",
+			expected: false,
+		},
+		{
+			name:     "InvalidQuery",
+			sql:      "Error",
+			expected: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual := IfQueryInvalid(tc.sql)
+			require.Equal(t, tc.expected, actual)
+		})
+	}
+}

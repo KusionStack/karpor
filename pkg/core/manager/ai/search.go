@@ -28,6 +28,9 @@ func (a *AIManager) ConvertTextToSQL(query string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	if IfQueryInvalid(res) {
+		return "", ErrInvalidQuery
+	}
 	return ExtractSelectSQL(res), nil
 }
 
