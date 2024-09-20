@@ -29,7 +29,9 @@ const ClusterDetail = () => {
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState('Topology')
+  const [currentTab, setCurrentTab] = useState(
+    urlParams?.deleted ? 'YAML' : 'Topology',
+  )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState<any>()
   const [yamlData, setYamlData] = useState('')
@@ -189,6 +191,7 @@ const ClusterDetail = () => {
   }, [topologyDataResponse])
 
   function getTopologyData() {
+    if (urlParams?.deleted) return
     topologyDataRefetch({
       option: {
         params: {
@@ -399,7 +402,12 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList}
+            list={insightTabsList?.map(item => {
+              if (item?.value === 'Topology' && urlParams?.deleted) {
+                item.disabled = true
+              }
+              return item
+            })}
             current={currentTab}
             onChange={handleTabChange}
           />
