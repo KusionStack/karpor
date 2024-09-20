@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Pagination, Empty, Divider, Tooltip } from 'antd'
+import { Pagination, Empty, Divider, Tooltip, Tag } from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ClockCircleOutlined } from '@ant-design/icons'
@@ -98,6 +98,7 @@ const Result = () => {
     const nav = key === 'name' ? 'resource' : key
     const objParams = {
       from: 'result',
+      deleted: item?.deleted,
       cluster: item?.cluster,
       apiVersion: item?.object?.apiVersion,
       type: key,
@@ -114,6 +115,7 @@ const Result = () => {
     const nav = kind === 'Namespace' ? 'namespace' : 'resource'
     const objParams = {
       from: 'result',
+      deleted: item?.deleted,
       cluster: item?.cluster,
       apiVersion: item?.object?.apiVersion,
       type: nav,
@@ -170,6 +172,11 @@ const Result = () => {
         {pageData?.map((item: any, index: number) => {
           return (
             <div className={styles.card} key={`${item?.name}_${index}`}>
+              {item?.deleted && (
+                <div className={styles.delete_tag}>
+                  <Tag color="error">{t('Delete')}</Tag>
+                </div>
+              )}
               <div className={styles.left}>
                 <img
                   src={ICON_MAP?.[item?.object?.kind] || ICON_MAP.CRD}
