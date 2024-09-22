@@ -51,6 +51,7 @@ type ResourceStorage interface {
 	DeleteAllResources(ctx context.Context, cluster string) error
 	CountResources(ctx context.Context) (int, error)
 	SoftDeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
+	Refresh(ctx context.Context) error
 }
 
 // ResourceGroupRuleStorage interface defines the basic operations for resource

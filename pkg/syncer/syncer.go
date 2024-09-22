@@ -26,6 +26,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karpor/pkg/syncer/transform"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	sprig "github.com/Masterminds/sprig/v3"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -40,7 +41,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const defaultWorkers = 10
+const (
+	defaultWorkers = 10
+
+	// purgeMarker indicates it's time to prune the storage.
+	// As k8s object name cannot use underscore, we can use this name in workqueue without collision.
+	purgeMarker = "__purge_marker__"
+)
 
 // deleted is a type that represents a deleted Kubernetes object.
 type deleted struct {
@@ -59,6 +66,7 @@ type ResourceSyncer struct {
 	logger logr.Logger
 
 	transformFunc clientgocache.TransformFunc
+	startTime     time.Time
 }
 
 // NewResourceSyncer creates a new instance of the ResourceSyncer with the given parameters.
@@ -119,6 +127,8 @@ func (s *ResourceSyncer) enqueue(obj client.Object) {
 
 // Run starts the ResourceSyncer and its workers to process Kubernetes object events.
 func (s *ResourceSyncer) Run(ctx context.Context) error {
+	s.startTime = time.Now()
+
 	s.ctx, s.cancel = context.WithCancel(ctx)
 
 	defer utilruntime.HandleCrash()
@@ -138,6 +148,10 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 	if ok := clientgocache.WaitForCacheSync(s.ctx.Done(), s.source.HasSynced); !ok {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}
+
+	// We push the purgeMarker after cacheSync, meaning that when the purgeMarker
+	// is read from the queue, almost all resources have been synced.
+	s.queue.Add(purgeMarker)
 
 	workers := s.source.SyncRule().MaxConcurrent
 	if workers <= 0 {
@@ -162,6 +176,28 @@ func (s *ResourceSyncer) runWorker(ctx context.Context) {
 	}
 }
 
+func (s *ResourceSyncer) purgeStorage(ctx context.Context) {
+	err := s.storage.Refresh(ctx)
+	if err != nil {
+		s.logger.Error(err, "error in refreshing storage")
+		return
+	}
+
+	r := s.SyncRule()
+	gvr, err := parseGVR(&r)
+	if err != nil {
+		s.logger.Error(err, "error in parsing GVR")
+		return
+	}
+
+	// TODO: Use interface instead of struct
+	esPurger := utils.NewESPurger(s.storage.(*elasticsearch.Storage), s.source.Cluster(), gvr, s.source, s.OnDelete)
+	if err := esPurger.Purge(ctx, s.startTime); err != nil {
+		s.logger.Error(err, "error in purging ES")
+		return
+	}
+}
+
 // processNextWorkItem processes the next work item from the queue, returning true if work continues.
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	item, shutdown := s.queue.Get()
@@ -169,6 +205,12 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		return false
 	}
 	key := item.(string)
+
+	if key == purgeMarker {
+		s.purgeStorage(ctx)
+		return true
+	}
+
 	func() {
 		defer s.queue.Done(item)
 
@@ -178,7 +220,7 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 				s.queue.AddRateLimited(item)
 				return
 			} else {
-				s.logger.Error(errors.New("retry reached max times"), "key", key)
+				s.logger.Error(err, "retry reached max times", "key", key)
 			}
 		}
 		s.queue.Forget(item)

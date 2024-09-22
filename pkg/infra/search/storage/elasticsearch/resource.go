@@ -56,6 +56,14 @@ func (s *Storage) SaveResource(ctx context.Context, cluster string, obj runtime.
 	return s.client.SaveDocument(ctx, s.resourceIndexName, id, bytes.NewReader(body))
 }
 
+// Refresh will update ES index. If you want the previous document changes to be
+// searchable immediately, you need to call refresh manually.
+//
+// Refer to https://www.elastic.co/guide/en/elasticsearch/guide/current/near-real-time.html to see detail.
+func (s *Storage) Refresh(ctx context.Context) error {
+	return s.client.Refresh(ctx, s.resourceIndexName)
+}
+
 // SoftDeleteResource only sets the deleted field to true, not really deletes the data in storage.
 func (s *Storage) SoftDeleteResource(ctx context.Context, cluster string, obj runtime.Object) error {
 	unObj, ok := obj.(*unstructured.Unstructured)
