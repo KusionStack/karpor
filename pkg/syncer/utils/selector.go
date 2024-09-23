@@ -15,6 +15,7 @@
 package utils
 
 import (
+	"github.com/KusionStack/karpor/pkg/util/jsonpath"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/fields"
@@ -118,13 +119,13 @@ func (m MultiSelectors) Predicate(obj interface{}) bool {
 	if !ok {
 		return false
 	}
-	return m.Matches(selectableUnstructured{Unstructured: u, parser: DefaultJSONPathParser})
+	return m.Matches(selectableUnstructured{Unstructured: u, parser: jsonpath.DefaultJSONPathParser})
 }
 
 // selectableUnstructured is a wrapper around unstructured.Unstructured for implementing the Selectable interface.
 type selectableUnstructured struct {
 	*unstructured.Unstructured
-	parser *JSONPathParser
+	parser *jsonpath.JSONPathParser
 }
 
 // GetLabels retrieves the labels from the wrapped unstructured.Unstructured object.
@@ -134,5 +135,5 @@ func (w selectableUnstructured) GetLabels() labels.Labels {
 
 // GetFields retrieves the fields from the wrapped unstructured.Unstructured object using the embedded JSONPathParser.
 func (w selectableUnstructured) GetFields() fields.Fields {
-	return NewJSONPathFields(w.parser, w.UnstructuredContent())
+	return jsonpath.NewJSONPathFields(w.parser, w.UnstructuredContent())
 }

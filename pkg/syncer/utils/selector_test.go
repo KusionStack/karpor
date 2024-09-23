@@ -15,13 +15,14 @@
 package utils
 
 import (
-    "testing"
+	"testing"
 
-    "github.com/stretchr/testify/require"
-    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
-    "k8s.io/apimachinery/pkg/fields"
-    "k8s.io/apimachinery/pkg/labels"
+	"github.com/KusionStack/karpor/pkg/util/jsonpath"
+	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // generate a test selectable object.
@@ -35,7 +36,7 @@ func createTestSelectable(labels map[string]interface{}, fields map[string]inter
                 "spec": fields,
             },
         },
-        parser: DefaultJSONPathParser,
+        parser: jsonpath.DefaultJSONPathParser,
     }
 }
 
@@ -51,8 +52,8 @@ func TestGetFields(t *testing.T) {
             "spec.replicas": "2",
         },
     }
-    expectedFields := NewJSONPathFields(NewJSONPathParser(), u.Object)
-    label := selectableUnstructured{Unstructured: u, parser: DefaultJSONPathParser}
+    expectedFields := jsonpath.NewJSONPathFields(jsonpath.NewJSONPathParser(), u.Object)
+    label := selectableUnstructured{Unstructured: u, parser: jsonpath.DefaultJSONPathParser}
     require.Equal(t, expectedFields, label.GetFields())
 }
 
