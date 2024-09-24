@@ -15,15 +15,15 @@
 package search
 
 import (
-    "github.com/KusionStack/karpor/pkg/core/manager/ai"
-    "net/http"
-    "strconv"
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
+	"net/http"
+	"strconv"
 
-    "github.com/KusionStack/karpor/pkg/core/handler"
-    "github.com/KusionStack/karpor/pkg/core/manager/search"
-    "github.com/KusionStack/karpor/pkg/infra/search/storage"
-    "github.com/KusionStack/karpor/pkg/util/ctxutil"
-    "k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/search"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 )
 
 // SearchForResource returns an HTTP handler function that returns an
@@ -47,78 +47,78 @@ import (
 // @Failure      500       {string}  string          "Internal Server Error"
 // @Router       /rest-api/v1/search [get]
 func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, searchStorage storage.SearchStorage) http.HandlerFunc {
-    return func(w http.ResponseWriter, r *http.Request) {
-        // Extract the context and logger from the request.
-        ctx := r.Context()
-        logger := ctxutil.GetLogger(ctx)
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
 
-        // Extract URL query parameters with default value
-        searchQuery := r.URL.Query().Get("query")
-        searchPattern := r.URL.Query().Get("pattern")
-        searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
-        searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
-        if searchPageSize <= 1 {
-            searchPageSize = 10
-        }
-        if searchPage <= 1 {
-            searchPage = 1
-        }
+		// Extract URL query parameters with default value
+		searchQuery := r.URL.Query().Get("query")
+		searchPattern := r.URL.Query().Get("pattern")
+		searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
+		searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		if searchPageSize <= 1 {
+			searchPageSize = 10
+		}
+		if searchPage <= 1 {
+			searchPage = 1
+		}
 
-        query := searchQuery
+		query := searchQuery
 
-        if searchPattern == storage.NLPatternType {
-            if err := ai.CheckAIManager(aiMgr); err != nil {
-                handler.FailureRender(ctx, w, r, err)
-                return
-            }
-            res, err := aiMgr.ConvertTextToSQL(searchQuery)
-            if err != nil {
-                handler.FailureRender(ctx, w, r, err)
-                return
-            }
-            searchQuery = res
-        }
+		if searchPattern == storage.NLPatternType {
+			if err := ai.CheckAIManager(aiMgr); err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+			res, err := aiMgr.ConvertTextToSQL(searchQuery)
+			if err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+			searchQuery = res
+		}
 
-        logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
+		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
-        res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
-        if err != nil {
-            if searchPattern == storage.NLPatternType {
-                fixedQuery, fixErr := aiMgr.FixSQL(query, searchQuery, err.Error())
-                if fixErr != nil {
-                    handler.FailureRender(ctx, w, r, err)
-                    return
-                }
-                searchQuery = fixedQuery
-                res, err = searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
-                if err != nil {
-                    handler.FailureRender(ctx, w, r, err)
-                    return
-                }
-            } else {
-                handler.FailureRender(ctx, w, r, err)
-                return
-            }
-        }
+		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+		if err != nil {
+			if searchPattern == storage.NLPatternType {
+				fixedQuery, fixErr := aiMgr.FixSQL(query, searchQuery, err.Error())
+				if fixErr != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+				searchQuery = fixedQuery
+				res, err = searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+				if err != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+			} else {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+		}
 
-        if err != nil {
-            handler.FailureRender(ctx, w, r, err)
-            return
-        }
+		if err != nil {
+			handler.FailureRender(ctx, w, r, err)
+			return
+		}
 
-        rt := &search.UniResourceList{}
-        for _, r := range res.Resources {
-            unObj := &unstructured.Unstructured{}
-            unObj.SetUnstructuredContent(r.Object)
-            rt.Items = append(rt.Items, search.UniResource{
-                Cluster: r.Cluster,
-                Object:  unObj,
-            })
-        }
-        rt.SQLQuery = searchQuery
-        rt.Total = res.Total
-        rt.CurrentPage = searchPage
-        rt.PageSize = searchPageSize
-        handler.SuccessRender(ctx, w, r, rt)
-    }
+		rt := &search.UniResourceList{}
+		for _, r := range res.Resources {
+			unObj := &unstructured.Unstructured{}
+			unObj.SetUnstructuredContent(r.Object)
+			rt.Items = append(rt.Items, search.UniResource{
+				Cluster: r.Cluster,
+				Object:  unObj,
+			})
+		}
+		rt.SQLQuery = searchQuery
+		rt.Total = res.Total
+		rt.CurrentPage = searchPage
+		rt.PageSize = searchPageSize
+		handler.SuccessRender(ctx, w, r, rt)
+	}
 }
