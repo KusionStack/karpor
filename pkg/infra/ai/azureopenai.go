@@ -27,9 +27,6 @@ type AzureAIClient struct {
 }
 
 func (c *AzureAIClient) Configure(cfg AIConfig) error {
-	if cfg.AuthToken == "" {
-		return errors.New("auth token was not provided")
-	}
 	if cfg.BaseURL == "" {
 		return errors.New("base url was not provided")
 	}
@@ -48,7 +45,6 @@ func (c *AzureAIClient) Configure(cfg AIConfig) error {
 }
 
 func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
-
 	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
 		Model: c.model,
 		Messages: []openai.ChatCompletionMessage{

@@ -25,7 +25,10 @@ type AIManager struct {
 
 // NewAIManager returns a new AIManager object
 func NewAIManager(c registry.ExtraConfig) (*AIManager, error) {
-	aiClient := ai.NewClient(c.Backend)
+	if c.AIAuthToken == "" {
+		return nil, ErrMissingAuthToken
+	}
+	aiClient := ai.NewClient(c.AIBackend)
 	if err := aiClient.Configure(ai.ConvertToAIConfig(c)); err != nil {
 		return nil, err
 	}
@@ -33,4 +36,12 @@ func NewAIManager(c registry.ExtraConfig) (*AIManager, error) {
 	return &AIManager{
 		client: aiClient,
 	}, nil
+}
+
+// CheckAIManager check if the AI manager is created
+func CheckAIManager(aiMgr *AIManager) error {
+	if aiMgr == nil {
+		return ErrMissingAuthToken
+	}
+	return nil
 }

@@ -28,9 +28,6 @@ type OpenAIClient struct {
 }
 
 func (c *OpenAIClient) Configure(cfg AIConfig) error {
-	if cfg.AuthToken == "" {
-		return errors.New("auth token was not provided")
-	}
 	defaultConfig := openai.DefaultConfig(cfg.AuthToken)
 	if cfg.BaseURL != "" {
 		defaultConfig.BaseURL = cfg.BaseURL

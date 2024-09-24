@@ -15,8 +15,8 @@
 package route
 
 import (
+	"errors"
 	"expvar"
-
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
@@ -44,6 +44,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	httpswagger "github.com/swaggo/http-swagger/v2"
 	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/klog/v2"
 )
 
 // NewCoreRoute creates and configures an instance of chi.Mux with the given
@@ -92,7 +93,11 @@ func NewCoreRoute(
 	}
 	aiMgr, err := aimanager.NewAIManager(*extraConfig)
 	if err != nil {
-		return nil, err
+		if errors.Is(err, aimanager.ErrMissingAuthToken) {
+			klog.Warning("Auth token is empty.")
+		} else {
+			return nil, err
+		}
 	}
 
 	clusterMgr := clustermanager.NewClusterManager()

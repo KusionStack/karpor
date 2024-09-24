@@ -47,10 +47,10 @@ type ExtraConfig struct {
 	ExtendExpiration            bool
 
 	// AI configs
-	Backend     string
-	AuthToken   string
-	BaseURL     string
-	Model       string
-	Temperature float32
-	TopP        float32
+	AIBackend     string
+	AIAuthToken   string
+	AIBaseURL     string
+	AIModel       string
+	AITemperature float32
+	AITopP        float32
 }
