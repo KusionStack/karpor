@@ -19,12 +19,9 @@ import (
 	"strings"
 )
 
-// IfQueryInvalid check if the query is invalid
-func IfQueryInvalid(sql string) bool {
-	if strings.Contains(strings.ToLower(sql), "error") {
-		return true
-	}
-	return false
+// IsInvalidQuery check if the query is invalid
+func IsInvalidQuery(sql string) bool {
+	return strings.Contains(strings.ToLower(sql), "error")
 }
 
 // ExtractSelectSQL extracts SQL statements that start with "SELECT * FROM"
