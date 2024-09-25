@@ -71,7 +71,6 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 				handler.FailureRender(ctx, w, r, err)
 				return
 			}
-
 			res, err := aiMgr.ConvertTextToSQL(searchQuery)
 			if err != nil {
 				handler.FailureRender(ctx, w, r, err)

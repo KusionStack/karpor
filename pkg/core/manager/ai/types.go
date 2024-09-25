@@ -18,4 +18,5 @@ import "errors"
 
 var (
 	ErrMissingAuthToken = errors.New("auth token is required")
+	ErrInvalidQuery     = errors.New("query is invalid")
 )

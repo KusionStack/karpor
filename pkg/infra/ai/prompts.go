@@ -20,6 +20,7 @@ const (
 	text2sql_prompt = `
     You are an AI specialized in writing SQL queries.
     Please convert the text %s to sql.
+    If the text is not accurate enough, please output "Error".
     The output tokens only need to give the SQL first, the other thought process please do not give.
     The SQL should begin with "select * from" and end with ";".
 
@@ -30,23 +31,33 @@ const (
     resourceVersion, labels.[key], annotations.[key], content]
 
     2. find the schema_links for generating SQL queries for each question based on the database schema.
+       If there are Chinese expressions, please translate them into English.
 
     Follow are some examples.
 
     Q: find the kind which is not equal to pod
     A: Let’s think step by step. In the question "find the kind column which is not equal to pod", we are asked:
-    "find the kind" so we need column = [kind]
+    "find the kind" so we need column = [kind].
     Based on the columns, the set of possible cell values are = [pod].
     So the Schema_links are:
     Schema_links: [kind, pod]
 
     Q: find the kind Deployment which created before January 1, 2024, at 18:00:00
     A: Let’s think step by step. In the question "find the kind Deployment which created before January 1, 2024, at 18:00:00", we are asked:
-    "find the kind Deployment" so we need column = [kind]
-    "created before" so we need column = [creationTimestamp]
+    "find the kind Deployment" so we need column = [kind].
+    "created before" so we need column = [creationTimestamp].
     Based on the columns, the set of possible cell values are = [Deployment, 2024-01-01T18:00:00Z].
     So the Schema_links are:
-    Schema_links: [kind, creationTimestamp, Deployment, 2024-01-01T18:00:00Z]
+    Schema_links: [[kind, Deployment], [creationTimestamp, 2024-01-01T18:00:00Z]]
+
+    Q: find the kind Namespace which which created
+    A: Let’s think step by step. In the question "find the kind", we are asked:
+    "find the kind Namespace " so we need column = [kind]
+    "created before" so we need column = [creationTimestamp]
+    Based on the columns, the set of possible cell values are = [kind, creationTimestamp].
+    There is no creationTimestamp corresponding cell values, so the text is not accurate enough.
+    So the Schema_links are:
+    Schema_links: error
 
     3. Use the the schema links to generate the SQL queries for each of the questions.
 
@@ -57,14 +68,19 @@ const (
     SQL: select * from resources where kind!='Pod';
 
     Q: find the kind Deployment which created before January 1, 2024, at 18:00:00
-    Schema_links: [kind, creationTimestamp, Deployment, 2024-01-01T18:00:00Z]
+    Schema_links: [[kind, Deployment], [creationTimestamp, 2024-01-01T18:00:00Z]]
     SQL: select * from resources where kind='Deployment' and creationTimestamp < '2024-01-01T18:00:00Z';
 
     Q: find the namespace which does not contain banan
     Schema_links: [namespace, banan]
     SQL: select * from resources where namespace notlike 'banan_';
 
+    Q: find the kind Namespace which which created
+    Schema_links: error
+    Error;
+
     Please convert the text to sql.
+    If the text is not accurate enough, please output "Error".
     `
 
 	sql_fix_prompt = `
