@@ -44,6 +44,22 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+  const [tabList, setTabList] = useState(insightTabsList)
+
+  useEffect(() => {
+    if (urlParams?.deleted) {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology' && urlParams?.deleted) {
+          item.disabled = true
+        }
+        return item
+      })
+      setTabList(tmp)
+    } else {
+      setTabList(insightTabsList)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParams])
 
   useEffect(() => {
     if (selectedCluster) {
@@ -398,16 +414,10 @@ const ClusterDetail = () => {
         </div>
       </div>
 
-      {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList?.map(item => {
-              if (item?.value === 'Topology' && urlParams?.deleted) {
-                item.disabled = true
-              }
-              return item
-            })}
+            list={tabList}
             current={currentTab}
             onChange={handleTabChange}
           />

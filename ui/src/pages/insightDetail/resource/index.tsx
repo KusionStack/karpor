@@ -8,6 +8,7 @@ import Yaml from '@/components/yaml'
 import { capitalized, generateResourceTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import ExceptionList from '../components/exceptionList'
@@ -17,7 +18,6 @@ import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
 const ClusterDetail = () => {
   const { t, i18n } = useTranslation()
@@ -41,6 +41,23 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+
+  const [tabList, setTabList] = useState(insightTabsList)
+
+  useEffect(() => {
+    if (urlParams?.deleted) {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology' && urlParams?.deleted) {
+          item.disabled = true
+        }
+        return item
+      })
+      setTabList(tmp)
+    } else {
+      setTabList(insightTabsList)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParams])
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -393,12 +410,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList?.map(item => {
-              if (item?.value === 'Topology' && urlParams?.deleted) {
-                item.disabled = true
-              }
-              return item
-            })}
+            list={tabList}
             current={currentTab}
             onChange={handleTabChange}
           />
