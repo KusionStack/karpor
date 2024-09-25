@@ -214,6 +214,7 @@ const ClusterDetail = () => {
 
   function getTopologyData() {
     if (urlParams?.deleted === 'true') return
+
     topologyDataRefetch({
       option: {
         params: {
