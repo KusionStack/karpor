@@ -35,7 +35,7 @@ Karpor is Intelligence for Kubernetes. It brings advanced **Search**, **Insight
 
 We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project!
 
-**Current Status**: We are iterating [v0.5.0 Milestone](https://github.com/KusionStack/karpor/milestone/4), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/528).
+**Current Status**: We are iterating [v0.6.0 Milestone](https://github.com/KusionStack/karpor/milestone/5), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/624).
 
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
