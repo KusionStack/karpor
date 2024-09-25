@@ -30,7 +30,7 @@ const ClusterDetail = () => {
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState(
-    urlParams?.deleted ? 'YAML' : 'Topology',
+    urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
   )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState<any>()
@@ -47,19 +47,25 @@ const ClusterDetail = () => {
   const [tabList, setTabList] = useState(insightTabsList)
 
   useEffect(() => {
-    if (urlParams?.deleted) {
+    if (urlParams?.deleted === 'true') {
       const tmp = tabList?.map(item => {
-        if (item?.value === 'Topology' && urlParams?.deleted) {
+        if (item?.value === 'Topology' && urlParams?.deleted === 'true') {
           item.disabled = true
         }
         return item
       })
       setTabList(tmp)
     } else {
-      setTabList(insightTabsList)
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology') {
+          item.disabled = false
+        }
+        return item
+      })
+      setTabList(tmp)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [urlParams])
+  }, [urlParams?.deleted])
 
   useEffect(() => {
     if (selectedCluster) {
@@ -207,7 +213,7 @@ const ClusterDetail = () => {
   }, [topologyDataResponse])
 
   function getTopologyData() {
-    if (urlParams?.deleted) return
+    if (urlParams?.deleted === 'true') return
     topologyDataRefetch({
       option: {
         params: {
