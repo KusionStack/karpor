@@ -416,5 +416,8 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 			return nil, fmt.Errorf("unknown credential type %v", access.Credential.Type)
 		}
 	}
+
+	config.QPS = 1000
+	config.Burst = 2000
 	return &config, nil
 }
