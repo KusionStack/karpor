@@ -119,5 +119,7 @@
   "LoginSuccess": "Login successful",
   "Login": "Login",
   "LogoutSuccess": "Successfully logged out",
-  "InputToken": "Please enter the token"
+  "InputToken": "Please enter the token",
+  "SearchByNaturalLanguage": "Search By Natural Language",
+  "CannotBeEmpty": "Cannot be empty"
 }

@@ -68,6 +68,7 @@ const TagVariableSizeList = ({ allTags, containerWidth }: IProps) => {
     return rows
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const transformedData = useMemo(() => convertDataToRows(allTags), [allTags])
   const itemSize = 30 // lineHeight
   const itemCount = transformedData?.length // row count

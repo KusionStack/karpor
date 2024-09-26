@@ -15,14 +15,21 @@
  */
 
 import React, { useCallback, useState } from 'react'
-import { Tag } from 'antd'
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { AutoComplete, Input, message, Space, Tag } from 'antd'
+import {
+  DoubleLeftOutlined,
+  DoubleRightOutlined,
+  CloseOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import KarporTabs from '@/components/tabs/index'
 import logoFull from '@/assets/img/logo-full.svg'
 import SqlSearch from '@/components/sqlSearch'
 import { defaultSqlExamples, tabsList } from '@/utils/constants'
+import { deleteHistoryByItem, getHistoryList } from '@/utils/tools'
+
+const { Search } = Input
 
 import styles from './styles.module.less'
 
@@ -32,6 +39,9 @@ const SearchPage = () => {
   const [searchType, setSearchType] = useState<string>('sql')
   const [sqlEditorValue, setSqlEditorValue] = useState<any>('')
   const [showAll, setShowAll] = useState(false)
+  const [naturalOptions, setNaturalOptions] = useState(
+    getHistoryList('naturalHistory') || [],
+  )
 
   const toggleTags = () => {
     setShowAll(!showAll)
@@ -45,7 +55,7 @@ const SearchPage = () => {
     setSqlEditorValue(str)
   }
 
-  const handleSearch = useCallback(
+  const handleSqlSearch = useCallback(
     inputValue => {
       navigate(`/search/result?query=${inputValue}&pattern=sql`)
     },
@@ -75,6 +85,45 @@ const SearchPage = () => {
     return renderSqlExamples(sqlExamples)
   }
 
+  function handleNaturalSearch(value) {
+    if (!value) {
+      message.warning(t('CannotBeEmpty'))
+      return
+    }
+    navigate(`/search/result?query=${value}&pattern=natural`)
+  }
+
+  const handleDelete = val => {
+    deleteHistoryByItem('naturalHistory', val)
+    const list = getHistoryList('naturalHistory') || []
+    setNaturalOptions(list)
+  }
+
+  const renderOption = val => {
+    return (
+      <Space
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>{val}</span>
+        <CloseOutlined
+          onClick={event => {
+            event?.stopPropagation()
+            handleDelete(val)
+          }}
+        />
+      </Space>
+    )
+  }
+
+  const tmpOptions = naturalOptions?.map(val => ({
+    value: val,
+    label: renderOption(val),
+  }))
+
   return (
     <div className={styles.search_container}>
       <div className={styles.search}>
@@ -88,12 +137,42 @@ const SearchPage = () => {
             onChange={handleTabChange}
           />
         </div>
-        <div className={styles.search_codemirror_container}>
-          <SqlSearch
-            sqlEditorValue={sqlEditorValue}
-            handleSearch={handleSearch}
-          />
-        </div>
+
+        {searchType === 'sql' && (
+          <div className={styles.search_codemirror_container}>
+            <SqlSearch
+              sqlEditorValue={sqlEditorValue}
+              handleSqlSearch={handleSqlSearch}
+            />
+          </div>
+        )}
+
+        {searchType === 'natural' && (
+          <div className={styles.search_codemirror_container}>
+            <AutoComplete
+              style={{ width: '100%' }}
+              size="large"
+              options={tmpOptions}
+              filterOption={(inputValue, option) => {
+                if (option?.value) {
+                  return (
+                    (option?.value as string)
+                      ?.toUpperCase()
+                      .indexOf(inputValue.toUpperCase()) !== -1
+                  )
+                }
+              }}
+            >
+              <Search
+                size="large"
+                placeholder={`${t('SearchByNaturalLanguage')}...`}
+                enterButton
+                onSearch={handleNaturalSearch}
+              />
+            </AutoComplete>
+          </div>
+        )}
+
         <div className={styles.examples}>
           {searchType === 'keyword' ? (
             <div className={styles.keywords}>
@@ -108,7 +187,7 @@ const SearchPage = () => {
                 </Tag>
               </div>
             </div>
-          ) : (
+          ) : searchType === 'natural' ? null : (
             <div className={styles.sql}>
               {renderSqlExamples(null)}
               {!showAll && (

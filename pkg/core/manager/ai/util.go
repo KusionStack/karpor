@@ -12,29 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package search
+package ai
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"regexp"
+	"strings"
 )
 
-type SearchManager struct{}
-
-// NewSearchManager returns a new SearchManager object
-func NewSearchManager() *SearchManager {
-	return &SearchManager{}
+// IsInvalidQuery check if the query is invalid
+func IsInvalidQuery(sql string) bool {
+	return strings.Contains(strings.ToLower(sql), "error")
 }
 
-type UniResource struct {
-	Cluster string `json:"cluster"`
-	Object  any    `json:"object"`
-}
-
-type UniResourceList struct {
-	metav1.TypeMeta
-	Items       []UniResource `json:"items"`
-	SQLQuery    string        `json:"sqlQuery"`
-	Total       int           `json:"total"`
-	CurrentPage int           `json:"currentPage"`
-	PageSize    int           `json:"pageSize"`
+// ExtractSelectSQL extracts SQL statements that start with "SELECT * FROM"
+func ExtractSelectSQL(sql string) string {
+	res := regexp.MustCompile(`(?i)SELECT \* FROM [^;]+`)
+	match := res.FindString(sql)
+	return match
 }
