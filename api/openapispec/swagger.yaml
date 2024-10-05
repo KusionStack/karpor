@@ -7,7 +7,7 @@ definitions:
       displayName:
         description: ClusterDisplayName is the display name of cluster to be created
         type: string
-      kubeconfig:
+      kubeConfig:
         description: ClusterKubeConfig is the kubeconfig of cluster to be created
         type: string
     type: object
@@ -175,6 +175,43 @@ info:
   title: Karpor
   version: "1.0"
 paths:
+  /authn:
+    get:
+      description: This endpoint returns an authn result.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "405":
+          description: Method Not Allowed
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get returns an authn result of user's token.
+      tags:
+      - authn
   /endpoints:
     get:
       consumes:

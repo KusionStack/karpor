@@ -23,6 +23,62 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/authn": {
+            "get": {
+                "description": "This endpoint returns an authn result.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authn"
+                ],
+                "summary": "Get returns an authn result of user's token.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/endpoints": {
             "get": {
                 "description": "List all registered endpoints in the router",
@@ -1659,7 +1715,7 @@ var doc = `{
                     "description": "ClusterDisplayName is the display name of cluster to be created",
                     "type": "string"
                 },
-                "kubeconfig": {
+                "kubeConfig": {
                     "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
                     "type": "string"
                 }

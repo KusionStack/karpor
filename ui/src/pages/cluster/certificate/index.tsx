@@ -42,7 +42,7 @@ const ClusterCertificate = () => {
   const { response: addResponse, refetch: addRefetch } = useAxios({
     url: '',
     manual: true,
-    method: 'POST',
+    method: 'PUT',
   })
 
   const { response: queryDetailResponse, refetch: queryDetailRefetch } =
