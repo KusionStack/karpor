@@ -44,6 +44,7 @@
     }
 
     .card {
+      position: relative;
       display: flex;
       width: 100%;
       padding: 16px 24px;
@@ -52,6 +53,12 @@
       border-radius: 8px;
       box-sizing: border-box;
       align-items: center;
+
+      .delete_tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+      }
 
       .left {
         width: 48px;

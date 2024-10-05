@@ -87,7 +87,7 @@ func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *st
 
 // searchBySQL performs a search operation using an SQL string and pagination settings.
 func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	dsl, _, err := sql2es.Convert(sqlStr)
+	dsl, _, err := sql2es.ConvertWithDefaultFilter(sqlStr, &sql2es.DeletedFilter)
 	if err != nil {
 		return nil, err
 	}

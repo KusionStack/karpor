@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/KusionStack/karpor/pkg/syncer/internal"
 	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
@@ -164,7 +163,7 @@ func (s *informerSource) Stop(ctx context.Context) error {
 }
 
 // createInformer sets up and returns the informer and controller for the informerSource, using the provided context, event handler, workqueue, and predicates.
-func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
+func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error parsing GroupVersionResource")
@@ -196,11 +195,6 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
 	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
-	// TODO: Use interface instead of struct
-	importer := utils.NewESImporter(s.storage.(*elasticsearch.Storage), s.cluster, gvr)
-	if err = importer.ImportTo(ctx, cache); err != nil {
-		return nil, nil, err
-	}
 	return cache, informer, nil
 }
 

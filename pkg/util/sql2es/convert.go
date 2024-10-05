@@ -20,9 +20,50 @@ import (
 	"strings"
 
 	"github.com/xwb1989/sqlparser"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
+var DeletedFilter = sqlparser.ComparisonExpr{
+	Operator: sqlparser.EqualStr,
+	Left:     &sqlparser.ColName{Name: sqlparser.NewColIdent("deleted")},
+	Right:    sqlparser.NewStrVal([]byte("false")),
+}
+
+func applyDefaultFilter(sel *sqlparser.Select, filter sqlparser.Expr) *sqlparser.Select {
+	if filter == nil {
+		return sel
+	}
+
+	getColNames := func(node sqlparser.SQLNode) sets.Set[string] {
+		names := sets.Set[string]{}
+		node.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+			switch node.(type) {
+			case sqlparser.ColIdent, *sqlparser.ColIdent:
+				names.Insert(fmt.Sprintf("%v", node))
+			}
+			return true, nil
+		})
+		return names
+	}
+
+	selColNames := getColNames(sel.Where)
+	filterColNames := getColNames(filter)
+
+	if selColNames.Intersection(filterColNames).Len() > 0 {
+		return sel
+	}
+
+	sel.AddWhere(filter)
+	return sel
+}
+
 func Convert(sql string) (dsl string, table string, err error) {
+	return ConvertWithDefaultFilter(sql, nil)
+}
+
+// ConvertWithDefaultFilter appends the filter to sql where clause if the
+// filter column names have no intersection with where clause.
+func ConvertWithDefaultFilter(sql string, filter sqlparser.Expr) (dsl string, table string, err error) {
 	stmt, err := sqlparser.Parse(sql)
 	if err != nil {
 		return "", "", err
@@ -39,6 +80,7 @@ func Convert(sql string) (dsl string, table string, err error) {
 		return "", "", fmt.Errorf("only one table supported")
 	}
 
+	sel = applyDefaultFilter(sel, filter)
 	return handleSelect(sel)
 }
 
