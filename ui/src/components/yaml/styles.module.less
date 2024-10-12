@@ -1,28 +1,29 @@
 .yaml_content {
-  position: relative;
+  height: 100%;
   overflow-y: auto;
+  border-radius: 8px;
 
   .copy {
     position: absolute;
     top: 20px;
     right: 20px;
   }
-
-  .yaml_box {
-    width: 100%;
-    height: 500px;
-    max-height: 800px;
-    min-height: 300px;
-    padding: 1.5rem 2rem;
-    overflow-y: auto;
-    font:
-      1.1em Inconsolata,
-      monospace;
-    color: #fff;
-    word-break: break-all;
-    white-space: pre-wrap;
+  .yaml_container {
+    height: 100%;
     background-color: #000;
-    border-radius: 8px;
-    box-sizing: border-box;
+    .yaml_box {
+      width: 100%;
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      font:
+        1.1em Inconsolata,
+        monospace;
+      color: #fff;
+      word-break: break-all;
+      white-space: pre-wrap;
+      background-color: #000;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
   }
 }
