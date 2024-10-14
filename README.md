@@ -26,6 +26,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor)
 [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor)
 [![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_shield)
 
 </div>
 
@@ -180,3 +181,7 @@ If you have any questions, feel free to reach out to us in the following ways:
 - WeChat Group (Chinese): Add the WeChat assistant to bring you into the user group.
 
   <img src="assets/img/wechat.png" width="200" height="200"/>
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_large)
