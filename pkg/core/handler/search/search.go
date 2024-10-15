@@ -93,6 +93,8 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 			rt.Items = append(rt.Items, search.UniResource{
 				Cluster: res.Cluster,
 				Object:  obj,
+				SyncAt:  res.SyncAt,
+				Deleted: res.Deleted,
 			})
 		}
 		rt.Total = res.Total

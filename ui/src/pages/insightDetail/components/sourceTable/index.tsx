@@ -1,5 +1,5 @@
 import { SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Space, Table } from 'antd'
+import { Button, Input, Space, Table, Tag } from 'antd'
 import queryString from 'query-string'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -37,6 +37,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
   function goResourcePage(record) {
     const nav = record?.object?.kind === 'Namespace' ? 'namespace' : 'resource'
     const params = {
+      deleted: record?.deleted,
       from: urlSearchParams?.from,
       type: nav,
       query: urlSearchParams?.query,
@@ -85,6 +86,14 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       key: 'kind',
       title: 'Kind',
       render: (_, record) => record?.object?.kind,
+    },
+    {
+      dataIndex: 'deleted',
+      key: 'deleted',
+      title: 'status',
+      render: text => {
+        return text ? <Tag color="error">{t('Deleted')}</Tag> : null
+      },
     },
   ]
 

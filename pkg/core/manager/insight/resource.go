@@ -22,13 +22,14 @@ import (
 	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
+	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	k8syaml "sigs.k8s.io/yaml"
 )
 
-// GetResource returns the unstructured cluster object for a given cluster.
-func (i *InsightManager) GetResource(
+// getResource gets the resource from the cluster or storage.
+func (i *InsightManager) getResource(
 	ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup,
 ) (*unstructured.Unstructured, error) {
 	resourceGVR, err := topologyutil.GetGVRFromGVK(resourceGroup.APIVersion, resourceGroup.Kind)
@@ -36,6 +37,23 @@ func (i *InsightManager) GetResource(
 		return nil, err
 	}
 	resource, err := client.DynamicClient.Resource(resourceGVR).Namespace(resourceGroup.Namespace).Get(ctx, resourceGroup.Name, metav1.GetOptions{})
+
+	if err != nil && k8serrors.IsNotFound(err) {
+		if r, err := i.search.SearchByTerms(ctx, resourceGroup.ToTerms(), nil); err == nil && len(r.Resources) > 0 {
+			resource = &unstructured.Unstructured{}
+			resource.SetUnstructuredContent(r.Resources[0].Object)
+			return resource, nil
+		}
+	}
+
+	return resource, err
+}
+
+// GetResource returns the unstructured cluster object for a given cluster.
+func (i *InsightManager) GetResource(
+	ctx context.Context, client *multicluster.MultiClusterClient, resourceGroup *entity.ResourceGroup,
+) (*unstructured.Unstructured, error) {
+	resource, err := i.getResource(ctx, client, resourceGroup)
 	if err != nil {
 		return nil, err
 	}
