@@ -191,8 +191,7 @@ func (o *Options) Config() (*server.Config, error) {
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
 		ExtraConfig:   &registry.ExtraConfig{},
 	}
-	// always allow access if readOnlyMode is open
-	if o.CoreOptions.ReadOnlyMode {
+	if !o.CoreOptions.EnableRBAC {
 		o.RecommendedOptions.Authorization.Modes = []string{authzmodes.ModeAlwaysAllow}
 	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
@@ -211,6 +210,10 @@ func (o *Options) Config() (*server.Config, error) {
 	config.GenericConfig.BuildHandlerChainFunc = func(handler http.Handler, c *genericapiserver.Config) http.Handler {
 		handler = genericapiserver.DefaultBuildHandlerChain(handler, c)
 		handler = proxyutil.WithProxyByCluster(handler)
+		if !o.CoreOptions.EnableRBAC {
+			// remove http header "Authorization" if RBAC is not enabled
+			handler = removeAuthorizationHeader(handler)
+		}
 		return handler
 	}
 	config.GenericConfig.Config.EnableIndex = false
@@ -242,4 +245,12 @@ func (o *Options) RunServer(stopCh <-chan struct{}) error {
 	serv.GenericAPIServer.AddPostStartHookOrDie("register-default-config", server.ConfigRegister)
 
 	return serv.GenericAPIServer.PrepareRun().Run(stopCh)
+}
+
+func removeAuthorizationHeader(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		newReq := r.WithContext(context.Background())
+		newReq.Header.Del("Authorization")
+		next.ServeHTTP(w, newReq)
+	})
 }

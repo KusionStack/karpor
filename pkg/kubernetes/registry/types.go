@@ -41,6 +41,7 @@ type ExtraConfig struct {
 	ReadOnlyMode           bool
 	GithubBadge            bool
 
+	EnableRBAC                  bool
 	ServiceAccountIssuer        serviceaccount.TokenGenerator
 	ServiceAccountMaxExpiration time.Duration
 	ExtendExpiration            bool
