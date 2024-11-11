@@ -191,8 +191,7 @@ func (o *Options) Config() (*server.Config, error) {
 		GenericConfig: genericapiserver.NewRecommendedConfig(scheme.Codecs),
 		ExtraConfig:   &registry.ExtraConfig{},
 	}
-	// always allow access if readOnlyMode is open
-	if o.CoreOptions.ReadOnlyMode {
+	if !o.CoreOptions.EnableRBAC {
 		o.RecommendedOptions.Authorization.Modes = []string{authzmodes.ModeAlwaysAllow}
 	}
 	if err := o.RecommendedOptions.ApplyTo(config.GenericConfig); err != nil {
