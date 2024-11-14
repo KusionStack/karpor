@@ -10,6 +10,7 @@ on:
       - 'v[0-9]+.[0-9]+.[0-9]+'
 permissions:
   contents: write
+  pull-requests: write
 jobs:
   Test:
     name: Unit Test
@@ -83,58 +84,66 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      # - name: Determine GoReleaser Config with Regex
+      #   run: |
+      #     tag=${GITHUB_REF#refs/tags/}
+      #     alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+      #     beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+      #     rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+      #     release='v[0-9]+.[0-9]+.[0-9]+'
+      #     if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
+      #       echo "Match found for alpha or beta tag"
+      #       echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
+      #     elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
+      #       echo "Match found for rc or release tag"
+      #       echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
+      #     else
+      #       echo "No match found"
+      #       exit 1
+      #     fi
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v2
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.19
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '20'
-
-      - name: Install npm packages and build UI
-        working-directory: ./ui
+      - name: Get new chart version from the chart repo
+        id: get_chart_version
         run: |
-          npm install
-          # Using 'CI=false' prevents build errors due to warnings.
-          # It bypasses the 'process.env.CI = true' setting in CI environments
-          # that treats warnings as errors, ensuring a successful build.
-          CI=false npm run build
-          touch build/.gitkeep
-
-      - name: Determine GoReleaser Config with Regex
-        run: |
-          tag=${GITHUB_REF#refs/tags/}
-          alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
-          beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
-          rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
-          release='v[0-9]+.[0-9]+.[0-9]+'
-          if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
-            echo "Match found for alpha or beta tag"
-            echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
-          elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
-            echo "Match found for rc or release tag"
-            echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
-          else
-            echo "No match found"
+          helm repo add kusionstack https://kusionstack.github.io/charts
+          helm repo update
+          version=$(helm search repo kusionstack/karpor --versions | head -n 2 | tail -n 1 | awk '{print $2}')
+          if [ -z "$version" ]; then
+            echo "Error: Unable to fetch chart version" >&2
             exit 1
           fi
+          echo "Current chart version is: $version"
+          major=$(echo "$version" | cut -d. -f1)
+          minor=$(echo "$version" | cut -d. -f2)
+          patch=$(echo "$version" | cut -d. -f3)
+          new_chart_version="${major}.${minor}.$((patch + 1))"
+          echo "New chart version is: $new_chart_version"
+          echo "::set-output name=new_chart_version::$new_chart_version"
 
-      - name: Release the karpor with GoReleaser
-        uses: goreleaser/goreleaser-action@v2
+      - name: Checkout Target repository
+        uses: actions/checkout@v3
         with:
-          distribution: goreleaser
-          version: latest
-          args: release --clean --config .goreleaser/${{ env.GO_RELEASER_CONFIG }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repository: KusionStack/charts
+          path: charts
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Bump version in the related HelmChart Chart.yaml
+        uses: fjogeleit/yaml-update-action@main
+        with:
+          repository: KusionStack/charts
+          valueFile: 'charts/karpor/Chart.yaml'
+          changes: '{"version":"${{ steps.get_chart_version.outputs.new_chart_version }}", "appVersion":"${{ steps.get_version.outputs.VERSION }}"}'
+          value: ${{ steps.get_version.outputs.VERSION }}
+          branch: bump-karpor-to-${{ steps.get_version.outputs.VERSION }}
+          targetBranch: chart-version-updater
+          createPR: false
+          message: 'refactor: bump karpor version to ${{ steps.get_version.outputs.VERSION }}'
+          token: ${{ secrets.GITHUB_TOKEN }}
+          workDir: charts
+
+      - name: Log Test Outputs  # Log outputs for debugging
+        run: |
+          echo "Testing complete. Check the logs for details."
+          echo "New chart version: ${{ steps.get_chart_version.outputs.new_chart_version }}"
+          echo "App version: ${{ steps.get_version.outputs.VERSION }}"
+
