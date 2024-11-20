@@ -47,6 +47,10 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.58.2
+          args: --timeout=5m
+          skip-cache: false
+          skip-pkg-cache: false
+          skip-build-cache: false
 
   LicenseCheck:
     name: License Check
