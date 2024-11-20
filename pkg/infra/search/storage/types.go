@@ -50,6 +50,8 @@ type ResourceStorage interface {
 	DeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
 	DeleteAllResources(ctx context.Context, cluster string) error
 	CountResources(ctx context.Context) (int, error)
+	SoftDeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
+	Refresh(ctx context.Context) error
 }
 
 // ResourceGroupRuleStorage interface defines the basic operations for resource
@@ -162,6 +164,8 @@ func (r *SearchResult) ToYAML() (string, error) {
 type Resource struct {
 	entity.ResourceGroup `json:",inline" yaml:",inline"`
 	Object               map[string]interface{} `json:"object"`
+	SyncAt               string                 `json:"syncAt,omitempty"`
+	Deleted              bool                   `json:"deleted,omitempty"`
 }
 
 // NewResource creates a new Resource instance based on the provided bytes
@@ -203,6 +207,14 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 	out.Kind = in["kind"].(string)
 	out.Namespace = in["namespace"].(string)
 	out.Name = in["name"].(string)
+
+	// These two fields are newly added, so they don't exist in the old data.
+	if v, ok := in["syncAt"]; ok {
+		out.SyncAt = v.(string)
+	}
+	if v, ok := in["deleted"]; ok {
+		out.Deleted = v.(bool)
+	}
 
 	content := in["content"].(string)
 	obj := &unstructured.Unstructured{}

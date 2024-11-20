@@ -15,6 +15,7 @@
 package sql2es
 
 import (
+	"bytes"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -299,6 +300,43 @@ func TestHandleGroupByAgg(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t, tc.wantAgg, aggMap)
+			}
+		})
+	}
+}
+
+func Test_applyDefaultFilter(t *testing.T) {
+	tests := []struct {
+		name   string
+		sql    string
+		filter sqlparser.Expr
+		want   string
+	}{
+		{name: "not contain deleted filter", sql: "SELECT * FROM mock_table WHERE id = '123'", filter: &DeletedFilter, want: "select * from mock_table where id = '123' and deleted = 'false'"},
+		{name: "not contain deleted filter (group by)", sql: "SELECT * FROM mock_table WHERE name like '%abc%' GROUP BY range(age, 18, 60)", filter: &DeletedFilter, want: "select * from mock_table where name like '%abc%' and deleted = 'false' group by range(age, 18, 60)"},
+		{name: "contain deleted filter", sql: "SELECT * FROM mock_table WHERE id = '123' and deleted = 'true'", filter: &DeletedFilter, want: "select * from mock_table where id = '123' and deleted = 'true'"},
+		{name: "contain deleted filter (parenthesize)", sql: "SELECT * FROM mock_table WHERE id = '123' and deleted in ('true')", filter: &DeletedFilter, want: "select * from mock_table where id = '123' and deleted in ('true')"},
+		{name: "backquote", sql: "SELECT * FROM mock_table WHERE id = '123' and `deleted` = 'true'", filter: &DeletedFilter, want: "select * from mock_table where id = '123' and deleted = 'true'"},
+		{name: "nil filter", sql: "SELECT * FROM mock_table WHERE id = '123'", filter: nil, want: "select * from mock_table where id = '123'"},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			stmt, err := sqlparser.Parse(tt.sql)
+			if err != nil {
+				t.Errorf("sqlparser.Parse unexpected error = %v", err)
+				return
+			}
+
+			sel := stmt.(*sqlparser.Select)
+			got := applyDefaultFilter(sel, tt.filter)
+
+			var buf bytes.Buffer
+			tbuf := &sqlparser.TrackedBuffer{Buffer: &buf}
+			got.Format(tbuf)
+
+			if got := tbuf.String(); got != tt.want {
+				t.Errorf("applyDefaultFilter() = %v, want %v", got, tt.want)
 			}
 		})
 	}

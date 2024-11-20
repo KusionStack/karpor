@@ -28,6 +28,8 @@ func NewSearchManager() *SearchManager {
 type UniResource struct {
 	Cluster string `json:"cluster"`
 	Object  any    `json:"object"`
+	SyncAt  string `json:"syncAt"`
+	Deleted bool   `json:"deleted"`
 }
 
 type UniResourceList struct {
