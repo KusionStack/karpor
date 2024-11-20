@@ -176,7 +176,9 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
 
 If you have any questions, feel free to reach out to us in the following ways:
 
-- [Slack](https://kusionstack.slack.com) | [Join](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- **Slack Channels:**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Technical discussions about Karpor and KusionStack
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - General discussions, announcements, and community updates
 - [DingTalk Group](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (Chinese)
 - WeChat Group (Chinese): Add the WeChat assistant to bring you into the user group.
 
