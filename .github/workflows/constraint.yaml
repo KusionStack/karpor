@@ -31,3 +31,5 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        config-file: '.github/workflows/mlc_config.json'
