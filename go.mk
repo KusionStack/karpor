@@ -33,12 +33,12 @@ cover-html:  ## Generates coverage report and displays it in the browser
 .PHONY: lint
 lint:  ## Lint, will not fix but sets exit code on error
 	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
-	$(GOLINTER) run --deadline=10m $(GOSOURCE_PATHS)
+	$(GOLINTER) run $(GOSOURCE_PATHS) --fast --verbose --print-resources-usage
 
 .PHONY: lint-fix
 lint-fix:  ## Lint, will try to fix errors and modify code
 	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
-	$(GOLINTER) run --deadline=10m $(GOSOURCE_PATHS) --fix
+	$(GOLINTER) run $(GOSOURCE_PATHS) --fix
 
 .PHONY: doc
 doc:  ## Start the documentation server with godoc

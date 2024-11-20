@@ -20,6 +20,9 @@
 run:
   timeout: 10m
   go: '1.19'
+  concurrency: 4
+  allow-parallel-runners: true
+  cache-dir: .cache/golangci-lint
 
 linters:
   disable-all: true
@@ -28,7 +31,6 @@ linters:
     - contextcheck
     - depguard
     - dogsled
-    - dupl
     - errorlint
     - errname
     - exportloopref
@@ -55,7 +57,6 @@ linters:
     - unparam
     - unused
     - usestdlibvars
-    - wastedassign
     - whitespace
 
 linters-settings:
