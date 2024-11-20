@@ -28,6 +28,7 @@ run:
     - "hack"
   skip-files:
     - ".*\\.pb\\.go$"
+    - "internal_import\\.go$"
     - ".*\\.gen\\.go$"
   modules-download-mode: readonly
   max-same-issues: 50
