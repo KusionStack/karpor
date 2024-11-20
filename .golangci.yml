@@ -23,6 +23,14 @@ run:
   concurrency: 8
   allow-parallel-runners: true
   cache-dir: .cache/golangci-lint
+  skip-dirs:
+    - "api/openapispec"
+    - "hack"
+  skip-files:
+    - ".*\\.pb\\.go$"
+    - ".*\\.gen\\.go$"
+  modules-download-mode: readonly
+  max-same-issues: 50
 
 linters:
   disable-all: true

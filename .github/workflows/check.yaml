@@ -47,7 +47,7 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.58.2
-          args: --timeout=5m --fast --verbose --print-resources-usage
+          args: --timeout=5m --verbose --print-resources-usage --max-issues-per-linter=0 --max-same-issues=0
           skip-pkg-cache: false
           skip-build-cache: false
 
