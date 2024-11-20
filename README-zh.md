@@ -175,7 +175,9 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 
 如果您有任何问题，欢迎通过以下方式联系我们：
 
-- [Slack](https://kusionstack.slack.com) | [加入](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- **Slack 频道：**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Karpor 和 KusionStack 的技术讨论
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - 一般性讨论、公告和社区动态
 - [钉钉群](https://page.dingtalk.com/wow/dingtalk/act/en-home)：`42753001`（中文）
 - 微信群（中文）：添加微信小助手，拉你进用户群
 

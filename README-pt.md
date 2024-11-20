@@ -172,4 +172,6 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
 
 Caso tenha alguma pergunta, sinta-se à vontade para entrar em contato conosco pelos seguintes meios:
 
-- [Slack](https://kusionstack.slack.com) | [Junte-se](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- **Canais do Slack:**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Discussões técnicas sobre Karpor e KusionStack
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - Discussões gerais, anúncios e atualizações da comunidade
