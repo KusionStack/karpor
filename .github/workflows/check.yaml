@@ -41,12 +41,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.19'
-      - name: Clean cache directory
-        run: |
-          sudo chown -R $USER:$USER ~/go/pkg/mod/
-          sudo chown -R $USER:$USER ~/.cache/go-build/
-          rm -rf ~/go/pkg/mod/*
-          rm -rf ~/.cache/go-build/*
+      - name: Go Cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ github.sha }}-${{ github.run_id }}
       # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
       # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
       # not load export data: no export data for \"k8s.io/kube-aggregator\"
