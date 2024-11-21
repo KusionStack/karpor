@@ -41,10 +41,11 @@ linters:
     - errname
     - exportloopref
     - forbidigo
-    - gosimple
     - gocritic
     - goconst
     - gofumpt
+    - govet  # Re-enable govet with custom settings
+    - gosimple
     - ineffassign
     - loggercheck
     - misspell
@@ -86,6 +87,18 @@ linters-settings:
     # See the https://github.com/polyfloyd/go-errorlint for caveats.
     # Default: true
     errorf: false
+  govet:
+    # Explicitly disable buildssa analyzer
+    disable:
+      - buildssa
+    enable-all: true
+    settings:
+      printf:
+        funcs:
+          - (github.com/sirupsen/logrus.FieldLogger).Infof
+          - (github.com/sirupsen/logrus.FieldLogger).Warnf
+          - (github.com/sirupsen/logrus.FieldLogger).Errorf
+          - (github.com/sirupsen/logrus.FieldLogger).Fatalf
 
 issues:
   exclude-dirs:
