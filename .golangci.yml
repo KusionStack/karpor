@@ -41,13 +41,14 @@ linters:
     - gocritic
     - goconst
     - gofumpt
-    - govet
+    # Temporarily disable govet since it contains the buildssa analyzer that causes issues
+    # - govet
     - ineffassign
     - loggercheck
     - misspell
-    - nolintlint
     - nilerr
     - nilnil
+    - nolintlint
     - prealloc
     - predeclared
     - staticcheck
@@ -85,7 +86,7 @@ linters-settings:
     # Default: true
     errorf: false
   govet:
-    # disable buildssa analyzer to fix k8s.io/kube-aggregator issue
+    # Disable buildssa analyzer to fix the issue with k8s.io/kube-aggregator package
     disable:
       - buildssa
 
