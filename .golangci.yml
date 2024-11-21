@@ -27,8 +27,6 @@ run:
   max-same-issues: 50
   # Disable problematic analyzers
   disable-default-analyzers: true
-  skip-files:
-    - ".*_test\\.go$"
 
 linters:
   disable-all: true
@@ -101,29 +99,40 @@ linters-settings:
           - (github.com/sirupsen/logrus.FieldLogger).Fatalf
 
 issues:
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+    - path: \.pb\.go
+      linters:
+        - all
+    - path: \.gen\.go
+      linters:
+        - all
+    - path: pkg/kubernetes/.*
+      linters:
+        - goanalysis_metalinter
+    - path: pkg/kubernetes/internalimport/internal_import.go
+      linters:
+        - typecheck
+        - govet
   exclude-dirs:
+    - "pkg/kubernetes/generated"
+    - "pkg/kubernetes/openapi"
     - "api/openapispec"
     - "hack"
+    - vendor
+    - third_party
+    - test
   exclude-files:
-    - ".*\\.pb\\.go$"
-    - "internal_import\\.go$"
-    - ".*\\.gen\\.go$"
+    - internal_import\.go$
     - pkg/kubernetes/openapi/zz_generated.openapi.go
-    - pkg/kubernetes/internalimport/internal_import.go
   exclude:
     - "G306: Expect WriteFile permissions to be 0600 or less"
     - "ST1018: string literal contains Unicode control characters, consider using escape sequences instead"
     - "ifElseChain: rewrite if-else to switch statement"
     - "S1000: should use for range instead of for { select {} }"
     - "SA4004: the surrounding loop is unconditionally terminated"
-    - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
-  exclude-rules:
-    # Disable goanalysis_metalinter for kubernetes related packages
-    - path: pkg/kubernetes/.*
-      linters:
-        - goanalysis_metalinter
-    # Specific rule for the file causing issues
-    - path: pkg/kubernetes/internalimport/internal_import.go
-      linters:
-        - typecheck
-        - govet
