@@ -73,7 +73,6 @@ jobs:
           args: >
             --timeout=10m
             --verbose
-            --new-from-rev=HEAD~1
             --max-issues-per-linter=0
             --max-same-issues=0
           github-token: ${{ github.token }}
