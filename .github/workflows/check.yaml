@@ -49,7 +49,10 @@ jobs:
           go mod download
           go mod verify
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v6
+        # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
+        # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
+        # not load export data: no export data for \"k8s.io/kube-aggregator\"
+        uses: golangci/golangci-lint-action@v2
         env:
           GO111MODULE: on
           GOFLAGS: -mod=readonly
