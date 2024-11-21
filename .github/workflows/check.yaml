@@ -35,6 +35,7 @@ jobs:
   GolangLint:
     name: Golang Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -44,6 +45,14 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.19'
+          cache: true
+      - name: Cache golangci-lint
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/golangci-lint
+          key: ${{ runner.os }}-golangci-lint-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-golangci-lint-
       - name: Download dependencies
         run: |
           go mod download
@@ -58,7 +67,11 @@ jobs:
           GOFLAGS: -mod=readonly
         with:
           version: v1.58.2
-          args: --timeout=5m --verbose --print-resources-usage --max-issues-per-linter=0 --max-same-issues=0
+          skip-cache: false
+          args: --timeout=5m --max-issues-per-linter=0 --max-same-issues=0
+          github-token: ${{ github.token }}
+          only-new-issues: true
+          timeout: 8m
 
   LicenseCheck:
     name: License Check
