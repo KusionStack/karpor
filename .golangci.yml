@@ -18,9 +18,9 @@
 
 # options for analysis running
 run:
-  timeout: 10m
+  timeout: 8m
   go: '1.19'
-  concurrency: 8
+  concurrency: 4
   allow-parallel-runners: true
   cache-dir: .cache/golangci-lint
   modules-download-mode: readonly

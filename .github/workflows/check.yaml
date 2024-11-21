@@ -70,11 +70,16 @@ jobs:
           GOFLAGS: -mod=readonly
         with:
           version: v1.58.2
-          skip-cache: false
-          args: --timeout=10m --max-issues-per-linter=0 --max-same-issues=0
+          args: >
+            --timeout=10m
+            --verbose
+            --new-from-rev=HEAD~1
+            --max-issues-per-linter=0
+            --max-same-issues=0
           github-token: ${{ github.token }}
           only-new-issues: true
-          timeout: 10m
+          skip-pkg-cache: false
+          skip-build-cache: false
 
   LicenseCheck:
     name: License Check
