@@ -49,9 +49,12 @@ jobs:
       - name: Cache golangci-lint
         uses: actions/cache@v3
         with:
-          path: ~/.cache/golangci-lint
-          key: ${{ runner.os }}-golangci-lint-${{ hashFiles('**/go.sum') }}
+          path: |
+            ~/.cache/golangci-lint
+            ~/.cache/go-build
+          key: ${{ runner.os }}-golangci-lint-${{ hashFiles('.golangci.yml') }}-${{ hashFiles('go.sum') }}
           restore-keys: |
+            ${{ runner.os }}-golangci-lint-${{ hashFiles('.golangci.yml') }}-
             ${{ runner.os }}-golangci-lint-
       - name: Download dependencies
         run: |
