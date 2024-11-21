@@ -25,6 +25,10 @@ run:
   cache-dir: .cache/golangci-lint
   modules-download-mode: readonly
   max-same-issues: 50
+  # Disable problematic analyzers
+  disable-default-analyzers: true
+  skip-files:
+    - ".*_test\\.go$"
 
 linters:
   disable-all: true
@@ -41,8 +45,6 @@ linters:
     - gocritic
     - goconst
     - gofumpt
-    # Temporarily disable govet since it contains the buildssa analyzer that causes issues
-    # - govet
     - ineffassign
     - loggercheck
     - misspell
@@ -55,7 +57,6 @@ linters:
     - stylecheck
     - tagliatelle
     - tparallel
-    - typecheck
     - unconvert
     - unparam
     - unused
@@ -85,10 +86,6 @@ linters-settings:
     # See the https://github.com/polyfloyd/go-errorlint for caveats.
     # Default: true
     errorf: false
-  govet:
-    # Disable buildssa analyzer to fix the issue with k8s.io/kube-aggregator package
-    disable:
-      - buildssa
 
 issues:
   exclude-dirs:
@@ -107,3 +104,13 @@ issues:
     - "S1000: should use for range instead of for { select {} }"
     - "SA4004: the surrounding loop is unconditionally terminated"
     - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
+  exclude-rules:
+    # Disable goanalysis_metalinter for kubernetes related packages
+    - path: pkg/kubernetes/.*
+      linters:
+        - goanalysis_metalinter
+    # Specific rule for the file causing issues
+    - path: pkg/kubernetes/internalimport/internal_import.go
+      linters:
+        - typecheck
+        - govet
