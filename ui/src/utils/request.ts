@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { notification } from 'antd'
 import { useState, useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setIsLogin } from '@/store/modules/globalSlice'
 
 export const HOST = ''
@@ -10,7 +10,12 @@ axios.defaults.baseURL = HOST
 axios.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
-    if (!config?.headers?.Authorization && token) {
+    if (
+      config?.url !== '/server-configs' &&
+      !config?.params?.isUnsafeMode &&
+      !config?.headers?.Authorization &&
+      token
+    ) {
       config.headers['Authorization'] = `Bearer ${token}`
     }
     return config
@@ -42,7 +47,8 @@ export const useAxios = ({
   callbackFn = null,
   successParams = {},
 }) => {
-  const [options, setOptions] = useState({
+  const { isUnsafeMode } = useSelector((state: any) => state.globalSlice)
+  const [options, setOptions] = useState<any>({
     url,
     option,
     manual,
@@ -86,11 +92,18 @@ export const useAxios = ({
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const newOption = {
+          ...options?.option,
+          params: {
+            ...options?.option?.params,
+            isUnsafeMode,
+          },
+        }
         setLoading(true)
         const res = await axios({
           url: url,
           method: method.toLowerCase(),
-          ...options?.option,
+          ...newOption,
         })
         handleResponse(res, callbackFn, successParams)
       } catch (err) {
@@ -110,6 +123,7 @@ export const useAxios = ({
     const newOptions = {
       ...options,
       ...newParams,
+      isUnsafeMode,
     }
     setOptions(newOptions)
     setLoading(true)
