@@ -1,0 +1,26 @@
+# ... 前面的配置保持不变
+
+      - name: Cache Go modules and build cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+
+      - name: Clean cache directory
+        run: |
+          rm -rf ~/go/pkg/mod/*
+          rm -rf ~/.cache/go-build/*
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
+        with:
+          version: latest
+          args: --timeout=5m
+          # 添加以下配置来避免缓存冲突
+          skip-cache: true  # 跳过 golangci-lint 的内部缓存机制
+          skip-pkg-cache: true  # 跳过包缓存
+          skip-build-cache: true  # 跳过构建缓存 
