@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.19'
+          cache: true
       - name: Download dependencies
         run: |
           go mod download
@@ -53,15 +54,6 @@ jobs:
           key: ${{ runner.os }}-golangci-lint-cache-${{ hashFiles('.golangci.yml') }}
           restore-keys: |
             ${{ runner.os }}-golangci-lint-cache-
-      - name: Go Mod Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
       - name: Download dependencies
         run: |
           go mod download
