@@ -19,11 +19,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.19'
-          cache: true
-      - name: Download dependencies
-        run: |
-          go mod download
-          go mod verify
       - name: Running go tests with coverage
         env:
           GO111MODULE: on
@@ -46,21 +41,13 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.19'
-          cache: true
-      - name: Download dependencies
-        run: |
-          go mod download
-          go mod verify
       - name: golangci-lint
         # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
         # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
         # not load export data: no export data for \"k8s.io/kube-aggregator\"
         uses: golangci/golangci-lint-action@v2
-        env:
-          GO111MODULE: on
-          GOFLAGS: -mod=readonly
         with:
-          version: v1.58
+          version: v1.59.0
           args: >
             --timeout=10m
             --verbose
