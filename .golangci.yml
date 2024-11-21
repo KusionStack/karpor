@@ -23,13 +23,6 @@ run:
   concurrency: 8
   allow-parallel-runners: true
   cache-dir: .cache/golangci-lint
-  skip-dirs:
-    - "api/openapispec"
-    - "hack"
-  skip-files:
-    - ".*\\.pb\\.go$"
-    - "internal_import\\.go$"
-    - ".*\\.gen\\.go$"
   modules-download-mode: readonly
   max-same-issues: 50
 
@@ -97,6 +90,13 @@ linters-settings:
       - buildssa
 
 issues:
+  exclude-dirs:
+    - "api/openapispec"
+    - "hack"
+  exclude-files:
+    - ".*\\.pb\\.go$"
+    - "internal_import\\.go$"
+    - ".*\\.gen\\.go$"
   exclude:
     - "G306: Expect WriteFile permissions to be 0600 or less"
     - "ST1018: string literal contains Unicode control characters, consider using escape sequences instead"
