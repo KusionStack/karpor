@@ -97,6 +97,8 @@ issues:
     - ".*\\.pb\\.go$"
     - "internal_import\\.go$"
     - ".*\\.gen\\.go$"
+    - pkg/kubernetes/openapi/zz_generated.openapi.go
+    - pkg/kubernetes/internalimport/internal_import.go
   exclude:
     - "G306: Expect WriteFile permissions to be 0600 or less"
     - "ST1018: string literal contains Unicode control characters, consider using escape sequences instead"
@@ -104,6 +106,3 @@ issues:
     - "S1000: should use for range instead of for { select {} }"
     - "SA4004: the surrounding loop is unconditionally terminated"
     - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
-  exclude-files:
-    - pkg/kubernetes/openapi/zz_generated.openapi.go
-    - pkg/kubernetes/internalimport/internal_import.go
