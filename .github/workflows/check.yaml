@@ -43,6 +43,8 @@ jobs:
           go-version: '1.19'
       - name: Clean cache directory
         run: |
+          sudo chown -R $USER:$USER ~/go/pkg/mod/
+          sudo chown -R $USER:$USER ~/.cache/go-build/
           rm -rf ~/go/pkg/mod/*
           rm -rf ~/.cache/go-build/*
       # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
