@@ -18,7 +18,7 @@
 
 # options for analysis running
 run:
-  timeout: 5m
+  timeout: 10m
   go: '1.19'
   concurrency: 8
   allow-parallel-runners: true

@@ -35,7 +35,7 @@ jobs:
   GolangLint:
     name: Golang Lint
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -68,10 +68,10 @@ jobs:
         with:
           version: v1.58.2
           skip-cache: false
-          args: --timeout=5m --max-issues-per-linter=0 --max-same-issues=0
+          args: --timeout=10m --max-issues-per-linter=0 --max-same-issues=0
           github-token: ${{ github.token }}
           only-new-issues: true
-          timeout: 8m
+          timeout: 10m
 
   LicenseCheck:
     name: License Check
