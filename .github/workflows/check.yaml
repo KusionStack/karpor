@@ -60,7 +60,7 @@ jobs:
           GO111MODULE: on
           GOFLAGS: -mod=readonly
         with:
-          version: v1.58.2
+          version: v1.58
           args: >
             --timeout=10m
             --verbose
