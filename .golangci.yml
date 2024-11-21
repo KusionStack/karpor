@@ -91,6 +91,10 @@ linters-settings:
     # See the https://github.com/polyfloyd/go-errorlint for caveats.
     # Default: true
     errorf: false
+  govet:
+    # disable buildssa analyzer to fix k8s.io/kube-aggregator issue
+    disable:
+      - buildssa
 
 issues:
   exclude:
