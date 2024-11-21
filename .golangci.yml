@@ -22,11 +22,7 @@ run:
   go: '1.19'
   concurrency: 4
   allow-parallel-runners: true
-  cache-dir: .cache/golangci-lint
-  modules-download-mode: readonly
   max-same-issues: 50
-  # Disable problematic analyzers
-  disable-default-analyzers: true
 
 linters:
   disable-all: true
