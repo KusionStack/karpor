@@ -50,10 +50,10 @@ jobs:
             --max-issues-per-linter=0
             --max-same-issues=0
 
-  # # Lints Pull Request commits with commitlint.
-  # #
-  # # Rules can be referenced:
-  # # https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
+  # Lints Pull Request commits with commitlint.
+  #
+  # Rules can be referenced:
+  # https://github.com/conventional-changelog/commitlint/tree/master/%40commitlint/config-conventional
   CommitLint:
     name: Commit Lint
     runs-on: ubuntu-latest
