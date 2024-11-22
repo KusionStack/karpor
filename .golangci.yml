@@ -93,10 +93,6 @@ linters-settings:
           - (github.com/sirupsen/logrus.FieldLogger).Warnf
           - (github.com/sirupsen/logrus.FieldLogger).Errorf
           - (github.com/sirupsen/logrus.FieldLogger).Fatalf
-  typecheck:
-    exclude:
-      - k8s.io/kube-aggregator
-      - k8s.io/sample-apiserver
 
 issues:
   exclude-rules:

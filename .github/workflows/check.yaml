@@ -48,9 +48,6 @@ jobs:
             ~/.cache/go-build
             ~/go/pkg/mod
           key: ${{ runner.os }}-go-${{ github.sha }}-${{ github.run_id }}
-      # NOTE: This golangci-lint action MUST be specified as v2 version, otherwise an error will be reported:
-      # Running error: can't run linter goanalysis_metalinter\nbuildssa: failed to load package main: could
-      # not load export data: no export data for \"k8s.io/kube-aggregator\"
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
