@@ -20,9 +20,9 @@ jobs:
         with:
           fetch-depth: 0
       - name: Set up Go 1.22
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - name: Running go tests with coverage
         env:
           GO111MODULE: on
@@ -39,7 +39,7 @@ jobs:
       - name: Set up Go 1.22
         uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
@@ -96,9 +96,9 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
       - name: Set up Go
-        uses: actions/setup-go@v2
+        uses: actions/setup-go@v5
         with:
-          go-version: 1.22
+          go-version: '1.22'
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
