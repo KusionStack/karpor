@@ -26,13 +26,13 @@ import (
 // @Description  This endpoint returns an authn result.
 // @Tags         authn
 // @Produce      json
-// @Success      200          {string}  string                     "OK"
-// @Failure      400          {string}  string                     "Bad Request"
-// @Failure      401          {string}  string                     "Unauthorized"
-// @Failure      404          {string}  string                     "Not Found"
-// @Failure      405          {string}  string                     "Method Not Allowed"
-// @Failure      429          {string}  string                     "Too Many Requests"
-// @Failure      500          {string}  string                     "Internal Server Error"
+// @Success      200  {string}  string  "OK"
+// @Failure      400  {string}  string  "Bad Request"
+// @Failure      401  {string}  string  "Unauthorized"
+// @Failure      404  {string}  string  "Not Found"
+// @Failure      405  {string}  string  "Method Not Allowed"
+// @Failure      429  {string}  string  "Too Many Requests"
+// @Failure      500  {string}  string  "Internal Server Error"
 // @Router       /authn [get]
 func Get() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

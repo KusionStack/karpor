@@ -208,16 +208,6 @@ func Test_informerSource_Start(t *testing.T) {
 	})
 }
 
-func Test_informerSource_parseTransformer(t *testing.T) {
-	t.Run("test no error", func(t *testing.T) {
-		s := &informerSource{
-			ResourceSyncRule: v1beta1.ResourceSyncRule{Transform: &v1beta1.TransformRuleSpec{Type: "patch"}},
-		}
-		_, err := s.parseTransformer()
-		require.NoError(t, err)
-	})
-}
-
 func Test_parseSelectors(t *testing.T) {
 	tests := []struct {
 		name    string

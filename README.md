@@ -26,6 +26,7 @@
 [![Coverage Status](https://coveralls.io/repos/github/KusionStack/karpor/badge.svg)](https://coveralls.io/github/KusionStack/karpor)
 [![Go Reference](https://pkg.go.dev/badge/github.com/KusionStack/karpor.svg)](https://pkg.go.dev/github.com/KusionStack/karpor)
 [![license](https://img.shields.io/github/license/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/blob/main/LICENSE)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_shield)
 
 </div>
 
@@ -35,7 +36,7 @@ Karpor is Intelligence for Kubernetes. It brings advanced **Search**, **Insight
 
 We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project!
 
-**Current Status**: We are iterating [v0.5.0 Milestone](https://github.com/KusionStack/karpor/milestone/4), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/528).
+**Current Status**: We are iterating [v0.6.0 Milestone](https://github.com/KusionStack/karpor/milestone/5), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/624).
 
 https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
 
@@ -175,8 +176,14 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
 
 If you have any questions, feel free to reach out to us in the following ways:
 
-- [Slack](https://kusionstack.slack.com) | [Join](https://join.slack.com/t/kusionstack/shared_invite/zt-2drafxksz-VzCZZwlraHP4xpPeh_g8lg)
+- **Slack Channels:**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Technical discussions about Karpor and KusionStack
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - General discussions, announcements, and community updates
 - [DingTalk Group](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (Chinese)
 - WeChat Group (Chinese): Add the WeChat assistant to bring you into the user group.
 
   <img src="assets/img/wechat.png" width="200" height="200"/>
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_large)

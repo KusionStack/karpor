@@ -32,7 +32,7 @@ const hubClusterKubeConfigTemplate = `apiVersion: v1
 clusters:
 - cluster:
     insecure-skip-tls-verify: true
-    server: karpor-server.%s.svc:7443
+    server: https://karpor-server.%s.svc:7443
   name: karpor
 contexts:
 - context:

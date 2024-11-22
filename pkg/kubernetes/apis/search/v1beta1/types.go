@@ -123,6 +123,56 @@ type ResourceSyncRule struct {
 	// TransformRefName is the name of the TransformRule
 	// +optional
 	TransformRefName string `json:"transformRefName,omitempty"`
+
+	// Trim defines the trimming strategy for the resources of the current type.
+	// +optional
+	Trim *TrimRuleSpec `json:"trim,omitempty"`
+
+	// TrimRefName is the name of the TrimRule.
+	// +optional
+	TrimRefName string `json:"trimRefName,omitempty"`
+
+	// RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.
+	// +optional
+	RemainAfterDeleted bool `json:"remainAfterDeleted,omitempty"`
+}
+
+// +genclient
+// +genclient:nonNamespaced
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+// TrimRule defines the strategy of trimming k8s objects, which can save
+// informer memory by discarding redundant fields.
+type TrimRule struct {
+	metav1.TypeMeta   `json:",inline"`
+	metav1.ObjectMeta `json:"metadata,omitempty"` //nolint:tagliatelle
+
+	// +optional
+	Spec TrimRuleSpec `json:"spec,omitempty"`
+}
+
+type TrimRuleSpec struct {
+	// Retain specifies which fields should be retained after trimming.
+	// +optional
+	Retain TrimRuleRetainFields `json:"retain,omitempty"`
+}
+
+type TrimRuleRetainFields struct {
+	// JSONPaths specifies the path of the field to be retained.
+	// For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/
+	// +optional
+	JSONPaths []string `json:"jsonPaths,omitempty"`
+}
+
+// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
+
+type TrimRuleList struct {
+	metav1.TypeMeta `json:",inline"`
+
+	// +optional
+	metav1.ListMeta `json:"metadata,omitempty"` //nolint:tagliatelle
+
+	Items []TrimRule `json:"items"`
 }
 
 // +genclient

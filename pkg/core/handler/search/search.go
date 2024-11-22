@@ -57,6 +57,14 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		searchPattern := r.URL.Query().Get("pattern")
 		searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
 		searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
+
+		format := r.URL.Query().Get("format")
+		formatter, err := ParseObjectFormatter(format)
+		if err != nil {
+			handler.FailureWithCodeRender(ctx, w, r, err, http.StatusBadRequest)
+			return
+		}
+
 		if searchPageSize <= 1 {
 			searchPageSize = 10
 		}
@@ -107,12 +115,21 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		}
 
 		rt := &search.UniResourceList{}
-		for _, r := range res.Resources {
+		for _, res := range res.Resources {
 			unObj := &unstructured.Unstructured{}
-			unObj.SetUnstructuredContent(r.Object)
+			unObj.SetUnstructuredContent(res.Object)
+
+			obj, err := formatter.Format(unObj)
+			if err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+
 			rt.Items = append(rt.Items, search.UniResource{
-				Cluster: r.Cluster,
-				Object:  unObj,
+				Cluster: res.Cluster,
+				Object:  obj,
+				SyncAt:  res.SyncAt,
+				Deleted: res.Deleted,
 			})
 		}
 		rt.SQLQuery = searchQuery

@@ -30,6 +30,8 @@ type Interface interface {
 	SyncResourceses() SyncResourcesInformer
 	// TransformRules returns a TransformRuleInformer.
 	TransformRules() TransformRuleInformer
+	// TrimRules returns a TrimRuleInformer.
+	TrimRules() TrimRuleInformer
 }
 
 type version struct {
@@ -56,4 +58,9 @@ func (v *version) SyncResourceses() SyncResourcesInformer {
 // TransformRules returns a TransformRuleInformer.
 func (v *version) TransformRules() TransformRuleInformer {
 	return &transformRuleInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
+}
+
+// TrimRules returns a TrimRuleInformer.
+func (v *version) TrimRules() TrimRuleInformer {
+	return &trimRuleInformer{factory: v.factory, tweakListOptions: v.tweakListOptions}
 }

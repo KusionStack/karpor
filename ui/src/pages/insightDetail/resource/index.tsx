@@ -8,6 +8,7 @@ import Yaml from '@/components/yaml'
 import { capitalized, generateResourceTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import ExceptionList from '../components/exceptionList'
@@ -17,7 +18,6 @@ import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
 const ClusterDetail = () => {
   const { t, i18n } = useTranslation()
@@ -28,7 +28,9 @@ const ClusterDetail = () => {
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState('Topology')
+  const [currentTab, setCurrentTab] = useState(
+    urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
+  )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [yamlData, setYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
@@ -39,6 +41,29 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+
+  const [tabList, setTabList] = useState(insightTabsList)
+
+  useEffect(() => {
+    if (urlParams?.deleted === 'true') {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology' && urlParams?.deleted === 'true') {
+          item.disabled = true
+        }
+        return item
+      })
+      setTabList(tmp)
+    } else {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology') {
+          item.disabled = false
+        }
+        return item
+      })
+      setTabList(tmp)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParams?.deleted])
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -101,7 +126,7 @@ const ClusterDetail = () => {
 
   const { response: clusterDetailResponse, refetch: clusterDetailRefetch } =
     useAxios({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/score',
       method: 'GET',
     })
 
@@ -113,7 +138,7 @@ const ClusterDetail = () => {
 
   function getClusterDetail() {
     clusterDetailRefetch({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/detail',
       option: {
         params: {
           cluster,
@@ -170,6 +195,7 @@ const ClusterDetail = () => {
   }, [topologyDataResponse])
 
   function getTopologyData() {
+    if (urlParams?.deleted === 'true') return
     topologyDataRefetch({
       option: {
         params: {
@@ -390,7 +416,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList}
+            list={tabList}
             current={currentTab}
             onChange={handleTabChange}
           />

@@ -17,7 +17,6 @@ package syncer
 import (
 	"context"
 	"fmt"
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"reflect"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -30,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/rest"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
 
@@ -329,23 +329,40 @@ func isMatched(registry *searchv1beta1.SyncRegistry, cluster *clusterv1beta1.Clu
 
 // getNormalizedResource retrieves the normalized resource sync rule for the given resource sync rule.
 func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.ResourceSyncRule, error) {
-	if rsr.TransformRefName == "" {
-		return rsr.DeepCopy(), nil
-	}
-	if rsr.Transform != nil {
-		return nil, fmt.Errorf("specify both Transform and TransformRefName in ResourceSyncRule is not allowed")
+	normalized := rsr.DeepCopy()
+
+	if rsr.TransformRefName != "" {
+		if rsr.Transform != nil {
+			return nil, fmt.Errorf("specify both Transform and TransformRefName in ResourceSyncRule is not allowed")
+		}
+
+		var rule searchv1beta1.TransformRule
+		err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TransformRefName}, &rule)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return nil, fmt.Errorf("TransformRule referenced by name %q doesn't exist", rsr.TransformRefName)
+			}
+			return nil, errors.Wrapf(err, "failed to list transformRule %s from lister", rsr.TransformRefName)
+		}
+		normalized.Transform = &rule.Spec
 	}
 
-	var rule searchv1beta1.TransformRule
-	err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TransformRefName}, &rule)
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			return nil, fmt.Errorf("TransformRule referenced by name %q doesn't exist", rsr.TransformRefName)
+	if rsr.TrimRefName != "" {
+		if rsr.Trim != nil {
+			return nil, fmt.Errorf("specify both Trim and TrimRefName in ResourceSyncRule is not allowed")
 		}
-		return nil, errors.Wrapf(err, "failed to list transformRule %s from lister", rsr.TransformRefName)
+
+		var rule searchv1beta1.TrimRule
+		err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TrimRefName}, &rule)
+		if err != nil {
+			if apierrors.IsNotFound(err) {
+				return nil, fmt.Errorf("TrimRule referenced by name %q doesn't exist", rsr.TrimRefName)
+			}
+			return nil, errors.Wrapf(err, "failed to list trimRule %s from lister", rsr.TrimRefName)
+		}
+		normalized.Trim = &rule.Spec
 	}
-	normalized := rsr.DeepCopy()
-	normalized.Transform = &rule.Spec
+
 	return normalized, nil
 }
 
