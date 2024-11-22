@@ -57,7 +57,7 @@ linters:
 
 linters-settings:
   gofumpt:
-    extra-rules: true
+    extra-rules: false
   tagliatelle:
     case:
       use-field-name: true
