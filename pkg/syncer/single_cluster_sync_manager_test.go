@@ -17,11 +17,12 @@ package syncer
 
 import (
 	"context"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 
 	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"

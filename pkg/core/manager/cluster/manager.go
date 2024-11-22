@@ -432,7 +432,7 @@ func (c *ClusterManager) ValidateKubeConfigFor(
 			return "", ErrBothInsecureAndCertificateAuthority
 		}
 
-		if !cluster.Insecure && len(cluster.CertificateAuthorityData) <= 0 {
+		if !cluster.Insecure && len(cluster.CertificateAuthorityData) == 0 {
 			// when insecure is false, CA is required.
 			return "", ErrMissingCertificateAuthority
 		}

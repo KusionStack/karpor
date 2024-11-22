@@ -121,7 +121,7 @@ func GetTopResultsFromMap(m map[string]int) map[string]int {
 		return s[i].value > s[j].value
 	})
 
-	index := min(len(s), 5)
+	index := minInt(len(s), 5)
 	for _, kv := range s[:index] {
 		res[kv.key] = kv.value
 	}
@@ -129,8 +129,8 @@ func GetTopResultsFromMap(m map[string]int) map[string]int {
 	return res
 }
 
-// min returns the smaller of two integers x and y.
-func min(x, y int) int {
+// minInt returns the smaller of two integers x and y.
+func minInt(x, y int) int {
 	if x < y {
 		return x
 	}

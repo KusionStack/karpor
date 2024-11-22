@@ -26,7 +26,6 @@ linters:
   enable: # please keep this alphabetized
     - bodyclose     # Checks whether HTTP response body is closed successfully
     - contextcheck  # Check whether the function uses a non-inherited context
-    - depguard     # Checks if package imports are in a list of acceptable packages
     - dogsled      # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
     - errorlint    # Find code that will cause problems with the error wrapping scheme
     - errname      # Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
@@ -35,7 +34,6 @@ linters:
     - gocritic     # Provides diagnostics that check for bugs, performance and style issues
     - goconst      # Finds repeated strings that could be replaced by a constant
     - gofumpt      # Checks whether code was gofumpt-ed
-    - govet        # Reports suspicious constructs, such as Printf calls whose arguments do not align with the format string
     - gosimple     # Specializes in simplifying code
     - ineffassign  # Detects when assignments to existing variables are not used
     - loggercheck  # Checks key value pairs for common logger libraries
@@ -45,20 +43,21 @@ linters:
     - nolintlint   # Reports ill-formed or insufficient nolint directives
     - prealloc     # Finds slice declarations that could potentially be pre-allocated
     - predeclared  # Finds code that shadows one of Go's predeclared identifiers
-    - staticcheck  # It's a set of rules from staticcheck
+    - staticcheck  # Go static analysis
     - stylecheck   # Stylecheck is a replacement for golint
     - tagliatelle  # Checks the struct tags case
+    - tenv        # tenv is analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
+    - thelper     # thelper detects golang test helpers without t.Helper() call
     - tparallel    # Detects inappropriate usage of t.Parallel() method in your Go test codes
     - unconvert    # Remove unnecessary type conversions
     - unparam      # Reports unused function parameters
-    - unused       # Checks for unused constants, variables, functions and types
+    - unused       # Checks Go code for unused constants, variables, functions and types
     - usestdlibvars # Detects the possibility to use variables/constants from the Go standard library
     - whitespace   # Tool for detection of leading and trailing whitespace
 
 linters-settings:
   gofumpt:
-    # Choose whether or not to use the extra rules that are disabled by default
-    extra-rules: false
+    extra-rules: true
   tagliatelle:
     case:
       use-field-name: true
@@ -72,10 +71,37 @@ linters-settings:
     # Check whether fmt.Errorf uses the %w verb for formatting errors
     errorf: false
   govet:
-    # Explicitly disable buildssa analyzer
+    enable:
+      - asmdecl
+      - assign
+      - atomic
+      - bools
+      - buildtag
+      - cgocall
+      - composites
+      - copylocks
+      - errorsas
+      - fieldalignment
+      - framepointer
+      - httpresponse
+      - ifaceassert
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - shift
+      - stdmethods
+      - stringintconv
+      - structtag
+      - testinggoroutine
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
     disable:
       - buildssa
-    enable-all: true
+      - fieldalignment
     settings:
       printf:
         funcs:
@@ -111,6 +137,38 @@ issues:
     - text: "import .* is a program, not an importable package"
       linters:
         - typecheck
+    - text: "json\\(goCamel\\): got 'metadata'"  # Allow 'metadata' as standard k8s field name
+      linters:
+        - tagliatelle
+    - path: pkg/syncer/source\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/syncer\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/jsonextracter/jsonpath\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/jsonextracter/jsonpath\.go
+      text: "`\\(\\*JSONPath\\)\\.evalRecursive` - `node` is unused"
+      linters:
+        - unparam
+    - path: pkg/syncer/jsonextracter/fieldpath\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/core/manager/cluster/manager_test\.go
+      text: "`newMockCluster` - `name` always receives"
+      linters:
+        - unparam
+    # Allow fmt.Println in version generation script
+    - path: pkg/version/scripts/gen/gen\.go
+      text: "use of `fmt.Println`"
+      linters:
+        - forbidigo
   exclude-dirs:
     - "pkg/kubernetes/generated"  # Generated code
     - "pkg/kubernetes/openapi"    # Generated OpenAPI code

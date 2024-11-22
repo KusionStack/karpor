@@ -53,6 +53,10 @@ func calculateVersion() (string, error) {
 
 func main() {
 	currentDir, err := os.Getwd()
+	if err != nil {
+		fmt.Println("Error getting current directory:", err)
+		os.Exit(1)
+	}
 	versionStr, err := calculateVersion()
 	if err != nil {
 		fmt.Println("Error calculating version:", err)

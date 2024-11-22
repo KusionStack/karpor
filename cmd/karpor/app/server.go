@@ -47,9 +47,11 @@ import (
 	netutils "k8s.io/utils/net"
 )
 
-const defaultEtcdPathPrefix = "/registry/karpor"
-const defaultTokenIssuer = "karpor"
-const defaultTokenMaxExpiration = 8760 * time.Hour
+const (
+	defaultEtcdPathPrefix     = "/registry/karpor"
+	defaultTokenIssuer        = "karpor"
+	defaultTokenMaxExpiration = 8760 * time.Hour
+)
 
 // Options contains state for master/api server
 type Options struct {

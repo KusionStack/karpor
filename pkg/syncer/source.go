@@ -186,10 +186,10 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 
 	lw := &clientgocache.ListWatch{
 		ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
-			return s.client.Resource(gvr).Namespace(s.Namespace).List(context.TODO(), options)
+			return s.client.Resource(gvr).Namespace(s.Namespace).List(s.ctx, options)
 		},
 		WatchFunc: func(options metav1.ListOptions) (watch.Interface, error) {
-			return s.client.Resource(gvr).Namespace(s.Namespace).Watch(context.TODO(), options)
+			return s.client.Resource(gvr).Namespace(s.Namespace).Watch(s.ctx, options)
 		},
 	}
 

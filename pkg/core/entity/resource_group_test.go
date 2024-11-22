@@ -282,7 +282,7 @@ func TestNewResourceGroupFromQuery(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			r, err := http.NewRequest("GET", tt.query, nil)
+			r, err := http.NewRequest(http.MethodGet, tt.query, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

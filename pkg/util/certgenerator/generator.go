@@ -54,7 +54,7 @@ type Generator struct {
 	kubeConfigName string
 }
 
-func NewGenerator(cfg *rest.Config, namespace string, certName string, kubeConfigName string) (*Generator, error) {
+func NewGenerator(cfg *rest.Config, namespace, certName, kubeConfigName string) (*Generator, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("cfg is required buit was nil")
 	}

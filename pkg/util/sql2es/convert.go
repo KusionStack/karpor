@@ -57,13 +57,13 @@ func applyDefaultFilter(sel *sqlparser.Select, filter sqlparser.Expr) *sqlparser
 	return sel
 }
 
-func Convert(sql string) (dsl string, table string, err error) {
+func Convert(sql string) (dsl, table string, err error) {
 	return ConvertWithDefaultFilter(sql, nil)
 }
 
 // ConvertWithDefaultFilter appends the filter to sql where clause if the
 // filter column names have no intersection with where clause.
-func ConvertWithDefaultFilter(sql string, filter sqlparser.Expr) (dsl string, table string, err error) {
+func ConvertWithDefaultFilter(sql string, filter sqlparser.Expr) (dsl, table string, err error) {
 	stmt, err := sqlparser.Parse(sql)
 	if err != nil {
 		return "", "", err
@@ -84,7 +84,7 @@ func ConvertWithDefaultFilter(sql string, filter sqlparser.Expr) (dsl string, ta
 	return handleSelect(sel)
 }
 
-func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) {
+func handleSelect(sel *sqlparser.Select) (dsl, esType string, err error) {
 	var rootParent sqlparser.Expr
 
 	queryMapStr, err := handleSelectWhere(&sel.Where.Expr, true, &rootParent)
@@ -176,7 +176,7 @@ func buildNestedFuncStrValue(nestedFunc *sqlparser.FuncExpr) (string, error) {
 	return "", fmt.Errorf("unsupported function " + nestedFunc.Name.String())
 }
 
-func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereAndExpr(expr, parent *sqlparser.Expr) (string, error) {
 	andExpr := (*expr).(*sqlparser.AndExpr)
 	leftExpr := andExpr.Left
 	rightExpr := andExpr.Right
@@ -204,7 +204,7 @@ func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (str
 	return fmt.Sprintf(`{"bool" : {"must" : [%v]}}`, resultStr), nil
 }
 
-func handleSelectWhereOrExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereOrExpr(expr, parent *sqlparser.Expr) (string, error) {
 	orExpr := (*expr).(*sqlparser.OrExpr)
 	leftExpr := orExpr.Left
 	rightExpr := orExpr.Right

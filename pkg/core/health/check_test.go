@@ -85,7 +85,7 @@ func TestNewHandler(t *testing.T) {
 				},
 			}
 
-			req, err := http.NewRequest("GET", "/health?"+tt.query, nil)
+			req, err := http.NewRequest(http.MethodGet, "/health?"+tt.query, nil)
 			if err != nil {
 				t.Fatal(err)
 			}
