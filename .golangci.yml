@@ -19,7 +19,7 @@
 # options for analysis running
 run:
   timeout: 8m
-  go: '1.19'
+  go: '1.22'
   concurrency: 4
   allow-parallel-runners: true
   max-same-issues: 50
@@ -33,7 +33,7 @@ linters:
     - dogsled
     - errorlint
     - errname
-    - exportloopref
+    - copyloopvar
     - forbidigo
     - gocritic
     - goconst
@@ -93,6 +93,10 @@ linters-settings:
           - (github.com/sirupsen/logrus.FieldLogger).Warnf
           - (github.com/sirupsen/logrus.FieldLogger).Errorf
           - (github.com/sirupsen/logrus.FieldLogger).Fatalf
+  typecheck:
+    exclude:
+      - k8s.io/kube-aggregator
+      - k8s.io/sample-apiserver
 
 issues:
   exclude-rules:
@@ -111,10 +115,16 @@ issues:
     - path: pkg/kubernetes/.*
       linters:
         - goanalysis_metalinter
-    - path: pkg/kubernetes/internalimport/internal_import.go
+    - path: pkg/kubernetes/internalimport/internal_import\.go$
+      linters:
+        - all
+    - path: internal_import\.go$
       linters:
         - typecheck
         - govet
+    - text: "import .* is a program, not an importable package"
+      linters:
+        - typecheck
   exclude-dirs:
     - "pkg/kubernetes/generated"
     - "pkg/kubernetes/openapi"

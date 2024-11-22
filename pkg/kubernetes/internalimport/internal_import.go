@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+//nolint:all
 package internalimport
 
 // To use k8s.io/kubernetes as a library, it is required to import the relevant packages related to
@@ -32,7 +33,6 @@ import (
 	_ "k8s.io/csi-translation-lib"
 	_ "k8s.io/dynamic-resource-allocation"
 	_ "k8s.io/kms"
-	_ "k8s.io/kube-aggregator"
 	_ "k8s.io/kube-controller-manager"
 	_ "k8s.io/kube-proxy"
 	_ "k8s.io/kube-scheduler"
@@ -42,5 +42,4 @@ import (
 	_ "k8s.io/metrics"
 	_ "k8s.io/mount-utils"
 	_ "k8s.io/pod-security-admission"
-	_ "k8s.io/sample-apiserver"
 )
