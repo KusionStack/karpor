@@ -41,13 +41,6 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.22'
-      - name: Go Cache
-        uses: actions/cache@v3
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ github.sha }}-${{ github.run_id }}
       - name: golangci-lint
         uses: golangci/golangci-lint-action@v6
         with:
@@ -57,9 +50,6 @@ jobs:
             --verbose
             --max-issues-per-linter=0
             --max-same-issues=0
-          skip-cache: true
-          skip-pkg-cache: true
-          skip-build-cache: true
 
   LicenseCheck:
     name: License Check
