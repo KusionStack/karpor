@@ -16,7 +16,9 @@ const RegisterCluster = () => {
   const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
+  const { isReadOnlyMode, isUnsafeMode } = useSelector(
+    (state: any) => state.globalSlice,
+  )
   const [yamlContent, setYamlContent] = useState('')
 
   const {
@@ -77,9 +79,11 @@ const RegisterCluster = () => {
     name: 'file',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      Authorization: localStorage.getItem('token')
-        ? `Bearer ${localStorage.getItem('token')}`
-        : '',
+      Authorization: isUnsafeMode
+        ? ''
+        : localStorage.getItem('token')
+          ? `Bearer ${localStorage.getItem('token')}`
+          : '',
     },
     withCredentials: true,
     maxCount: 1,
