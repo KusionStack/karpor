@@ -169,6 +169,11 @@ issues:
       text: "use of `fmt.Println`"
       linters:
         - forbidigo
+    # Allow fmt.Println in version commands
+    - path: cmd/(cert-generator|karpor)/.*
+      text: "use of `fmt.Println`"
+      linters:
+        - forbidigo
   exclude-dirs:
     - "pkg/kubernetes/generated"  # Generated code
     - "pkg/kubernetes/openapi"    # Generated OpenAPI code

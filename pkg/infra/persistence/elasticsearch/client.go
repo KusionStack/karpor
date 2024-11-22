@@ -44,9 +44,6 @@ func NewClient(config elasticsearch.Config) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 	typed, err := elasticsearch.NewTypedClient(config)
 	if err != nil {
 		return nil, err
