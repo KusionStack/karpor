@@ -16,6 +16,7 @@ package certgenerator
 
 import (
 	"context"
+	"crypto/rsa"
 	"crypto/x509"
 	"errors"
 	"testing"
@@ -25,7 +26,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	testcore "k8s.io/client-go/kubernetes/fake"
+	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/keyutil"
 )
@@ -244,7 +245,7 @@ func TestGenerator_applyCertToSecret(t *testing.T) {
 						Namespace: "test-ns",
 					},
 				}
-				fakeClientset := testcore.NewSimpleClientset(secret)
+				fakeClientset := fake.NewSimpleClientset(secret)
 				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(fakeClientset.CoreV1()).Build()
 				// Mock Secret Apply method
 				secretsClient := fakeClientset.CoreV1().Secrets(generator.namespace)
@@ -294,7 +295,7 @@ func TestGenerator_applyKubeConfigToConfigMap(t *testing.T) {
 						Namespace: "test-ns",
 					},
 				}
-				fakeClientset := testcore.NewSimpleClientset(configMap)
+				fakeClientset := fake.NewSimpleClientset(configMap)
 				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(fakeClientset.CoreV1()).Build()
 				// Mock ConfigMap Apply method
 				configMapsClient := fakeClientset.CoreV1().ConfigMaps(generator.namespace)
@@ -315,6 +316,221 @@ func TestGenerator_applyKubeConfigToConfigMap(t *testing.T) {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestGenerateConfig(t *testing.T) {
+	testCases := []struct {
+		name        string
+		namespace   string
+		mockSetup   func()
+		expectError bool
+	}{
+		{
+			name:      "Success",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA
+				mockey.Mock(generateCA).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateCert
+				mockey.Mock(generateCert).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateAdminKubeconfig
+				mockey.Mock(generateAdminKubeconfig).Return("test-kubeconfig", nil).Build()
+			},
+			expectError: false,
+		},
+		{
+			name:      "Error - generateCA Failed",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA with error
+				mockey.Mock(generateCA).Return(nil, nil, errors.New("generateCA failed")).Build()
+			},
+			expectError: true,
+		},
+		{
+			name:      "Error - generateCert Failed",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA
+				mockey.Mock(generateCA).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateCert with error
+				mockey.Mock(generateCert).Return(nil, nil, errors.New("generateCert failed")).Build()
+			},
+			expectError: true,
+		},
+		{
+			name:      "Error - generateAdminKubeconfig Failed",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA
+				mockey.Mock(generateCA).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateCert
+				mockey.Mock(generateCert).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateAdminKubeconfig with error
+				mockey.Mock(generateAdminKubeconfig).Return("", errors.New("generateAdminKubeconfig failed")).Build()
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup mocks
+			tc.mockSetup()
+			defer mockey.UnPatchAll()
+
+			caCert, caKey, kubeConfig, err := generateConfig(tc.namespace)
+			if tc.expectError {
+				require.Error(t, err)
+				require.Nil(t, caCert)
+				require.Nil(t, caKey)
+				require.Empty(t, kubeConfig)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, caCert)
+				require.NotNil(t, caKey)
+				require.NotEmpty(t, kubeConfig)
+			}
+		})
+	}
+}
+
+func TestGenerateCA(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockSetup   func()
+		expectError bool
+	}{
+		{
+			name: "Success",
+			mockSetup: func() {
+				// Mock NewCaCertAndKey
+				mockey.Mock(NewCaCertAndKey).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+			},
+			expectError: false,
+		},
+		{
+			name: "Error - NewCaCertAndKey Failed",
+			mockSetup: func() {
+				// Mock NewCaCertAndKey with error
+				mockey.Mock(NewCaCertAndKey).Return(nil, nil, errors.New("NewCaCertAndKey failed")).Build()
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup mocks
+			tc.mockSetup()
+			defer mockey.UnPatchAll()
+
+			cert, key, err := generateCA()
+			if tc.expectError {
+				require.Error(t, err)
+				require.Nil(t, cert)
+				require.Nil(t, key)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, cert)
+				require.NotNil(t, key)
+			}
+		})
+	}
+}
+
+func TestGenerateCert(t *testing.T) {
+	testCases := []struct {
+		name        string
+		mockSetup   func()
+		expectError bool
+	}{
+		{
+			name: "Success",
+			mockSetup: func() {
+				// Mock NewCaCertAndKeyFromRoot
+				mockey.Mock(NewCaCertAndKeyFromRoot).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+			},
+			expectError: false,
+		},
+		{
+			name: "Error - NewCaCertAndKeyFromRoot Failed",
+			mockSetup: func() {
+				// Mock NewCaCertAndKeyFromRoot with error
+				mockey.Mock(NewCaCertAndKeyFromRoot).Return(nil, nil, errors.New("NewCaCertAndKeyFromRoot failed")).Build()
+			},
+			expectError: true,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup mocks
+			tc.mockSetup()
+			defer mockey.UnPatchAll()
+
+			cert, key, err := generateCert(&x509.Certificate{}, &rsa.PrivateKey{})
+			if tc.expectError {
+				require.Error(t, err)
+				require.Nil(t, cert)
+				require.Nil(t, key)
+			} else {
+				require.NoError(t, err)
+				require.NotNil(t, cert)
+				require.NotNil(t, key)
+			}
+		})
+	}
+}
+
+func TestGenerateAdminKubeconfig(t *testing.T) {
+	testCases := []struct {
+		name        string
+		namespace   string
+		caCert      *x509.Certificate
+		caKey       *rsa.PrivateKey
+		mockSetup   func()
+		expectError bool
+	}{
+		{
+			name:      "Success",
+			namespace: "test-ns",
+			caCert:    &x509.Certificate{},
+			caKey:     &rsa.PrivateKey{},
+			mockSetup: func() {
+				// Mock generateCert
+				mockey.Mock(generateCert).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock EncodeCertPEM
+				mockey.Mock(EncodeCertPEM).Return([]byte("test-cert")).Build()
+				// Mock keyutil.MarshalPrivateKeyToPEM
+				mockey.Mock(keyutil.MarshalPrivateKeyToPEM).Return([]byte("test-key"), nil).Build()
+			},
+			expectError: false,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			// Setup mocks
+			tc.mockSetup()
+			defer mockey.UnPatchAll()
+
+			kubeconfig, err := generateAdminKubeconfig(tc.namespace, tc.caCert, tc.caKey)
+			if tc.expectError {
+				require.Error(t, err)
+				require.Empty(t, kubeconfig)
+			} else {
+				require.NoError(t, err)
+				require.NotEmpty(t, kubeconfig)
+				// Verify kubeconfig format
+				require.Contains(t, kubeconfig, "apiVersion: v1")
+				require.Contains(t, kubeconfig, "kind: Config")
+				require.Contains(t, kubeconfig, "clusters:")
+				require.Contains(t, kubeconfig, "contexts:")
+				require.Contains(t, kubeconfig, "users:")
 			}
 		})
 	}
