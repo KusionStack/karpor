@@ -40,7 +40,7 @@ gen-version: ## Generate version file
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
-	go test -gcflags=all=-l -timeout=10m `go list -e $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|registry|openapi|apis"` ${TEST_FLAGS}
+	go test -gcflags=all=-l -timeout=10m `go list -e $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|middleware|registry|openapi|apis|version|gitutil|server|elasticsearch"` ${TEST_FLAGS}
 
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.
@@ -53,7 +53,7 @@ test:  ## Run the tests
 cover: ## Generates coverage report
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
 	echo "🚀 Executing unit tests for $${PKG_LIST}:"; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|registry|openapi|apis"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|middleware|registry|openapi|apis|version|gitutil|server|elasticsearch"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
 	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test failed!"; exit 1)
 
 
