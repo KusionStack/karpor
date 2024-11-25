@@ -33,7 +33,8 @@ func (t *jsonPathTest) Prepare(allowMissingKeys bool) (*JSONPath, error) {
 	return jp, jp.Parse(t.template)
 }
 
-func benchmarkJSONPath(test jsonPathTest, allowMissingKeys bool, b *testing.B) {
+func benchmarkJSONPath(b *testing.B, test jsonPathTest, allowMissingKeys bool) {
+	b.Helper()
 	jp, err := test.Prepare(allowMissingKeys)
 	if err != nil {
 		if !test.expectError {
@@ -48,7 +49,8 @@ func benchmarkJSONPath(test jsonPathTest, allowMissingKeys bool, b *testing.B) {
 	}
 }
 
-func testJSONPath(tests []jsonPathTest, allowMissingKeys bool, t *testing.T) {
+func testJSONPath(t *testing.T, tests []jsonPathTest, allowMissingKeys bool) {
+	t.Helper()
 	for _, test := range tests {
 		jp, err := test.Prepare(allowMissingKeys)
 		if err != nil {
@@ -152,7 +154,7 @@ func TestJSONPath(t *testing.T) {
 		{"not exist label", `{.metadata.labels.xx.dd}`, podData, `null`, true},
 	}
 
-	testJSONPath(podTests, false, t)
+	testJSONPath(t, podTests, false)
 
 	allowMissingTests := []jsonPathTest{
 		{"containers image", `{.spec.containers[*]['xname', 'image']}`, podData, `{"spec":{"containers":[{"image":"registry.k8s.io/pause:3.8"},{"image":"registry.k8s.io/pause:3.8"}]}}`, false},
@@ -160,10 +162,10 @@ func TestJSONPath(t *testing.T) {
 		{"not exist label", `{.metadata.labels.xx.dd}`, podData, `{"metadata":{"labels":{}}}`, false},
 	}
 
-	testJSONPath(allowMissingTests, true, t)
+	testJSONPath(t, allowMissingTests, true)
 }
 
 func BenchmarkJSONPath(b *testing.B) {
 	t := jsonPathTest{"range nodes capacity", `{.kind}`, podData, `{"kind":"Pod"}`, false}
-	benchmarkJSONPath(t, true, b)
+	benchmarkJSONPath(b, t, true)
 }

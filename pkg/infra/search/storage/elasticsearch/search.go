@@ -37,7 +37,7 @@ type Pagination struct {
 }
 
 // Search performs a search operation with the given query string, pattern type, and pagination settings.
-func (s *Storage) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) Search(ctx context.Context, queryStr, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var sr *storage.SearchResult
 	var err error
 

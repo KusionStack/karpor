@@ -290,7 +290,6 @@ func (j *JSONPath) evalArray(input []reflect.Value, node *ArrayNode, setFn []set
 	result := []reflect.Value{}
 	nextFns := []setFieldFunc{}
 	for k, value := range input {
-
 		value, isNil := template.Indirect(value)
 		if isNil {
 			continue

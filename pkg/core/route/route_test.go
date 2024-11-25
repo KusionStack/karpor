@@ -104,7 +104,6 @@ func TestNewCoreRoute(t *testing.T) {
 					// Assert status code is not 404 to ensure the route exists.
 					require.NotEqual(t, http.StatusNotFound, rr.Code, "Route should exist: %s", route)
 				}
-
 			}
 		})
 	}

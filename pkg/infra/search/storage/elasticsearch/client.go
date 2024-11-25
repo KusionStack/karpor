@@ -54,11 +54,11 @@ func NewStorage(cfg esv8.Config) (*Storage, error) {
 		return nil, err
 	}
 
-	if err = cl.CreateIndex(context.TODO(), defaultResourceIndexName, strings.NewReader(defaultResourceMapping)); err != nil {
+	if err = cl.CreateIndex(context.Background(), defaultResourceIndexName, strings.NewReader(defaultResourceMapping)); err != nil {
 		return nil, err
 	}
 
-	if err = cl.CreateIndex(context.TODO(), defaultResourceGroupRuleIndexName, strings.NewReader(defaultResourceGroupRuleMapping)); err != nil {
+	if err = cl.CreateIndex(context.Background(), defaultResourceGroupRuleIndexName, strings.NewReader(defaultResourceGroupRuleMapping)); err != nil {
 		return nil, err
 	}
 

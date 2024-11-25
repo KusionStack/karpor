@@ -1,6 +1,6 @@
 module github.com/KusionStack/karpor
 
-go 1.19
+go 1.22
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -44,7 +44,6 @@ require (
 	k8s.io/dynamic-resource-allocation v0.26.1
 	k8s.io/klog/v2 v2.80.1
 	k8s.io/kms v0.26.1
-	k8s.io/kube-aggregator v0.26.1
 	k8s.io/kube-controller-manager v0.26.1
 	k8s.io/kube-openapi v0.0.0-20230106171958-10e5f0effbd2
 	k8s.io/kube-proxy v0.26.1
@@ -56,7 +55,6 @@ require (
 	k8s.io/metrics v0.26.1
 	k8s.io/mount-utils v0.26.1
 	k8s.io/pod-security-admission v0.26.1
-	k8s.io/sample-apiserver v0.26.1
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.6
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3

@@ -17,9 +17,10 @@ limitations under the License.
 package health
 
 import (
+	"net/http"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/go-chi/chi/v5"
-	"net/http"
 )
 
 // Register registers the livez and readyz handlers to the specified

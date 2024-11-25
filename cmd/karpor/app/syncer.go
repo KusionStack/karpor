@@ -72,6 +72,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 	}
 
 	// TODO: add startup parameters to change the type of storage
+	//nolint:contextcheck
 	es, err := elasticsearch.NewStorage(esclient.Config{
 		Addresses: options.ElasticSearchAddresses,
 	})
@@ -80,6 +81,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 		return err
 	}
 
+	//nolint:contextcheck
 	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err

@@ -68,12 +68,8 @@ func TestESListerGetter_ListKeys(t *testing.T) {
 			esLister := NewESListerGetter("defalut", &elasticsearch.Storage{}, tc.gvr)
 			keys := esLister.ListKeys()
 
-			// Check error expectation
-			if tc.expectError {
-				require.Len(t, keys, tc.expectedLength, "Expected nil result on error")
-			} else {
-				require.Len(t, keys, tc.expectedLength, "Expected nil result on error")
-			}
+			// Check the length of returned keys
+			require.Len(t, keys, tc.expectedLength, "Unexpected number of keys returned")
 		})
 	}
 }

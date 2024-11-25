@@ -44,9 +44,6 @@ func NewClient(config elasticsearch.Config) (*Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err != nil {
-		return nil, err
-	}
 	typed, err := elasticsearch.NewTypedClient(config)
 	if err != nil {
 		return nil, err
@@ -139,7 +136,7 @@ func (cl *Client) UpdateDocument(
 }
 
 // DeleteDocument deletes a document with the specified ID
-func (cl *Client) DeleteDocument(ctx context.Context, indexName string, documentID string) error {
+func (cl *Client) DeleteDocument(ctx context.Context, indexName, documentID string) error {
 	if _, err := cl.GetDocument(ctx, indexName, documentID); err != nil {
 		return err
 	}
@@ -401,7 +398,7 @@ func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []stri
 }
 
 // termsAgg executes a single-term aggregation query on the specified field.
-func (cl *Client) termsAgg(ctx context.Context, index string, field string) (*AggResults, error) {
+func (cl *Client) termsAgg(ctx context.Context, index, field string) (*AggResults, error) {
 	// Execute the search request with the single-term aggregation.
 	resp, err := cl.typedClient.
 		Search().

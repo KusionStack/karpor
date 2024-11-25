@@ -66,7 +66,7 @@ func TestFieldPath(t *testing.T) {
 			got, err := NestedFieldNoCopy(tt.args.obj, tt.args.allowMissingKeys, tt.args.fields...)
 
 			jpt := jsonPathTest{tt.name, fieldPathToJSONPath(tt.args.fields), tt.args.obj, tt.want, tt.wantErr}
-			testJSONPath([]jsonPathTest{jpt}, tt.args.allowMissingKeys, t)
+			testJSONPath(t, []jsonPathTest{jpt}, tt.args.allowMissingKeys)
 
 			if (err != nil) != tt.wantErr {
 				t.Errorf("NestedFieldNoCopy() error = %v, wantErr %v", err, tt.wantErr)

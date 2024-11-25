@@ -73,7 +73,7 @@ func (e *ESPurger) Purge(ctx context.Context, syncBefore time.Time) error {
 		esquery.Range("syncAt").Lte(syncBefore),
 	).Map()
 
-	sr, err := e.esClient.SearchByQuery(context.Background(), query, nil)
+	sr, err := e.esClient.SearchByQuery(ctx, query, nil)
 	if err != nil {
 		return err
 	}

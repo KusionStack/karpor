@@ -24,7 +24,7 @@ var (
 	clusterTmplFuncsLock sync.RWMutex
 )
 
-func RegisterClusterTmplFunc(cluster, FuncName string, tmplFunc any) error {
+func RegisterClusterTmplFunc(cluster, funcName string, tmplFunc any) error {
 	clusterTmplFuncsLock.Lock()
 	defer clusterTmplFuncsLock.Unlock()
 
@@ -34,7 +34,7 @@ func RegisterClusterTmplFunc(cluster, FuncName string, tmplFunc any) error {
 		clusterTmplFuncs[cluster] = make(template.FuncMap)
 	}
 
-	clusterTmplFuncs[cluster][FuncName] = tmplFunc
+	clusterTmplFuncs[cluster][funcName] = tmplFunc
 	return nil
 }
 
