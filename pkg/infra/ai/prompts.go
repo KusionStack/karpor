@@ -19,7 +19,7 @@ const (
 
 	text2sql_prompt = `
     You are an AI specialized in writing SQL queries.
-    Please convert the text %s to sql.
+    Please convert the text :"%s" to sql.
     If the text is not accurate enough, please output "Error".
     The output tokens only need to give the SQL first, the other thought process please do not give.
     The SQL should begin with "select * from" and end with ";".
@@ -80,7 +80,6 @@ const (
     Error;
 
     Please convert the text to sql.
-    If the text is not accurate enough, please output "Error".
     `
 
 	sql_fix_prompt = `
