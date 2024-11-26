@@ -18,9 +18,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/KusionStack/karpor/pkg/core/manager/ai"
-
 	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"github.com/KusionStack/karpor/pkg/core/manager/search"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"

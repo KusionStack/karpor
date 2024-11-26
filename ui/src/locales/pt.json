@@ -121,5 +121,6 @@
   "LogoutSuccess": "Sessão encerrada com sucesso",
   "InputToken": "Por favor, insira o token",
   "SearchByNaturalLanguage": "Procure por linguagem natural",
-  "CannotBeEmpty": "Não pode estar vazio"
+  "CannotBeEmpty": "Não pode estar vazio",
+  "DefaultTag": "Tag padrão"
 }

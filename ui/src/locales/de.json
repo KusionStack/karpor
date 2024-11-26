@@ -121,5 +121,6 @@
   "LogoutSuccess": "Erfolgreich abgemeldet",
   "InputToken": "Geben Sie bitte den Token ein",
   "SearchByNaturalLanguage": "Suche mit natürlicher Sprache",
-  "CannotBeEmpty": "Darf nicht leer sein"
+  "CannotBeEmpty": "Darf nicht leer sein",
+  "DefaultTag": "Standard-Tag"
 }

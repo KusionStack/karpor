@@ -121,5 +121,6 @@
   "LogoutSuccess": "Successfully Logged Out",
   "InputToken": "Please Enter the Token",
   "SearchByNaturalLanguage": "Search By Natural Language",
-  "CannotBeEmpty": "Cannot be empty"
+  "CannotBeEmpty": "Cannot be empty",
+  "DefaultTag": "default tag"
 }

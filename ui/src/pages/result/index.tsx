@@ -32,6 +32,7 @@ import { useAxios } from '@/utils/request'
 import styles from './styles.module.less'
 
 const { Search } = Input
+const { t } = useTranslation()
 const Option = AutoComplete.Option
 
 export const CustomDropdown = props => {
@@ -46,7 +47,9 @@ export const CustomDropdown = props => {
         >
           <Option value={option.value}>
             <span>{option.value}</span> -{' '}
-            <span style={{ color: '#999' }}>{option.value || '默认标签'}</span>
+            <span style={{ color: '#999' }}>
+              {option.value || t('DefaultTag')}
+            </span>
           </Option>
         </div>
       ))}
