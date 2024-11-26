@@ -38,6 +38,20 @@ type LogEntry struct {
 }
 
 // GetPodLogs returns an HTTP handler function that streams Pod logs using Server-Sent Events
+//
+// @Summary      Stream pod logs using Server-Sent Events
+// @Description  This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
+// @Tags         insight
+// @Produce      text/event-stream
+// @Param        cluster    path      string  true   "The cluster name"
+// @Param        namespace  path      string  true   "The namespace name"
+// @Param        name       path      string  true   "The pod name"
+// @Param        container  query     string  false  "The container name (optional if pod has only one container)"
+// @Success      200        {object}  LogEntry
+// @Failure      400        {string}  string  "Bad Request"
+// @Failure      401        {string}  string  "Unauthorized"
+// @Failure      404        {string}  string  "Not Found"
+// @Router       /insight/aggregator/pod/{cluster}/{namespace}/{name}/log [get]
 func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set SSE headers
