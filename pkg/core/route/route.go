@@ -18,12 +18,12 @@ import (
 	"expvar"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
+	aggregatorhandler "github.com/KusionStack/karpor/pkg/core/handler/aggregator"
 	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karpor/pkg/core/handler/detail"
 	endpointhandler "github.com/KusionStack/karpor/pkg/core/handler/endpoint"
 	eventshandler "github.com/KusionStack/karpor/pkg/core/handler/events"
-	podhandler "github.com/KusionStack/karpor/pkg/core/handler/pod"
 	resourcegrouphandler "github.com/KusionStack/karpor/pkg/core/handler/resourcegroup"
 	resourcegrouprulehandler "github.com/KusionStack/karpor/pkg/core/handler/resourcegrouprule"
 	scannerhandler "github.com/KusionStack/karpor/pkg/core/handler/scanner"
@@ -158,6 +158,7 @@ func setupRestAPIV1(
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
+		r.Get("/aggregator/pod/{cluster}/{namespace}/{name}/log", aggregatorhandler.GetPodLogs(clusterMgr, genericConfig))
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {
@@ -169,8 +170,4 @@ func setupRestAPIV1(
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
 	r.Get("/authn", authnhandler.Get())
-
-	r.Route("/pods/{cluster}/{namespace}/{name}/logs", func(r chi.Router) {
-		r.Get("/", podhandler.GetPodLogs(clusterMgr, genericConfig))
-	})
 }
