@@ -16,7 +16,6 @@ package pod
 
 import (
 	"bufio"
-	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -82,7 +81,7 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 
 		// Get log stream from the pod
 		req := clusterClient.CoreV1().Pods(namespace).GetLogs(name, opts)
-		stream, err := req.Stream(context.Background())
+		stream, err := req.Stream(ctx)
 		if err != nil {
 			writeSSEError(w, fmt.Sprintf("failed to get pod logs: %v", err))
 			return

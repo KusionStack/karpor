@@ -119,15 +119,6 @@ const PodLogs: React.FC<PodLogsProps> = ({
     setError(null)
   }
 
-  const formatTime = (timestamp: string) => {
-    try {
-      const date = new Date(timestamp)
-      return date.toLocaleTimeString()
-    } catch {
-      return timestamp
-    }
-  }
-
   return (
     <div className={styles.podLogs}>
       <div className={styles.toolbar}>
@@ -174,9 +165,6 @@ const PodLogs: React.FC<PodLogsProps> = ({
       <div className={styles.logsContainer}>
         {logs.map((log, index) => (
           <div key={index} className={styles.logEntry}>
-            <span className={styles.timestamp}>
-              {formatTime(log.timestamp)}
-            </span>
             <span className={styles.content}>{log.content}</span>
           </div>
         ))}
