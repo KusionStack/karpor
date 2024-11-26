@@ -46,9 +46,9 @@ func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string
 		},
 		Model: c.model,
 	})
-
 	if err != nil {
 		return "", err
 	}
+
 	return resp[0].GeneratedText[len(prompt):], nil
 }

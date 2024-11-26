@@ -15,8 +15,9 @@
 package ai
 
 import (
-	"github.com/stretchr/testify/require"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 // TestExtractSelectSQL tests the correctness of the ExtractSelectSQL function.

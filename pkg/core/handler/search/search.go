@@ -15,9 +15,10 @@
 package search
 
 import (
-	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"net/http"
 	"strconv"
+
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 
 	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/core/manager/search"

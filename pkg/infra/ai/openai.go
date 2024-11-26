@@ -17,6 +17,7 @@ package ai
 import (
 	"context"
 	"errors"
+
 	"github.com/sashabaranov/go-openai"
 )
 
