@@ -16,6 +16,7 @@ package ai
 
 import (
 	"context"
+
 	"github.com/hupe1980/go-huggingface"
 )
 
@@ -50,5 +51,4 @@ func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string
 		return "", err
 	}
 	return resp[0].GeneratedText[len(prompt):], nil
-
 }

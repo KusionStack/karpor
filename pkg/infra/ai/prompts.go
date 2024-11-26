@@ -15,11 +15,11 @@
 package ai
 
 const (
-	default_prompt = "You are a helpful assistant."
+	defaultPrompt = "You are a helpful assistant."
 
-	text2sql_prompt = `
+	text2sqlPrompt = `
     You are an AI specialized in writing SQL queries.
-    Please convert the text :"%s" to sql.
+    Please convert the text: "%s" to sql.
     If the text is not accurate enough, please output "Error".
     The output tokens only need to give the SQL first, the other thought process please do not give.
     The SQL should begin with "select * from" and end with ";".
@@ -82,9 +82,9 @@ const (
     Please convert the text to sql.
     `
 
-	sql_fix_prompt = `
+	sqlFixPrompt = `
     You are an AI specialized in writing SQL queries.
-    Please convert the text %s to sql.
+    Please convert the text: "%s" to sql.
     The SQL should begin with "select * from".
 
     The database now only supports one table resources.
@@ -93,13 +93,13 @@ const (
     namespace, name, creationTimestamp, deletionTimestamp, ownerReferences,
     resourceVersion, labels.[key], annotations.[key], content]
 
-    After we executed SQL %s,  we observed the following error %s.
+    After we executed SQL: "%s",  we observed the following error "%s".
     Please fix the SQL.
     `
 )
 
 var ServicePromptMap = map[string]string{
-	"default":  default_prompt,
-	"Text2sql": text2sql_prompt,
-	"SqlFix":   sql_fix_prompt,
+	"default":  defaultPrompt,
+	"Text2sql": text2sqlPrompt,
+	"SqlFix":   sqlFixPrompt,
 }

@@ -17,6 +17,7 @@ package ai
 import (
 	"context"
 	"fmt"
+
 	"github.com/KusionStack/karpor/pkg/infra/ai"
 )
 
@@ -35,9 +36,9 @@ func (a *AIManager) ConvertTextToSQL(query string) (string, error) {
 }
 
 // FixSQL fix the error SQL
-func (a *AIManager) FixSQL(sql string, query string, error string) (string, error) {
-	servicePrompt := ai.ServicePromptMap[ai.SqlFixType]
-	prompt := fmt.Sprintf(servicePrompt, query, sql, error)
+func (a *AIManager) FixSQL(sql string, query string, sqlErr string) (string, error) {
+	servicePrompt := ai.ServicePromptMap[ai.SQLFixType]
+	prompt := fmt.Sprintf(servicePrompt, query, sql, sqlErr)
 	res, err := a.client.Generate(context.Background(), prompt)
 	if err != nil {
 		return "", err

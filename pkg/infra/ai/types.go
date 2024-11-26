@@ -16,6 +16,7 @@ package ai
 
 import (
 	"context"
+
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 )
 
@@ -27,7 +28,7 @@ const (
 
 const (
 	Text2sqlType = "Text2sql"
-	SqlFixType   = "SqlFix"
+	SQLFixType   = "SqlFix"
 )
 
 var clients = map[string]AIProvider{
