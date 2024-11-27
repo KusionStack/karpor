@@ -16,6 +16,7 @@ import EventDetail from '../components/eventDetail'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
+import PodLogs from '../components/podLogs'
 
 import styles from './styles.module.less'
 
@@ -62,8 +63,18 @@ const ClusterDetail = () => {
       })
       setTabList(tmp)
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [urlParams?.deleted])
+
+  useEffect(() => {
+    if (kind === 'Pod') {
+      setTabList(prev => {
+        if (!prev.find(tab => tab.value === 'Log')) {
+          return [...prev, { value: 'Log', label: t('LogAggregator') }]
+        }
+        return prev
+      })
+    }
+  }, [kind])
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -379,6 +390,16 @@ const ClusterDetail = () => {
     }
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
+    }
+    if (currentTab === 'Log' && kind === 'Pod') {
+      return (
+        <PodLogs
+          cluster={cluster as string}
+          namespace={namespace as string}
+          podName={name as string}
+          yamlData={yamlData}
+        />
+      )
     }
     if (currentTab === 'K8s') {
       return (

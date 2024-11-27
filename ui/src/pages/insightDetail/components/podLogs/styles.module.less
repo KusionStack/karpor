@@ -1,0 +1,67 @@
+.podLogs {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+
+  .toolbar {
+    margin-bottom: 16px;
+  }
+
+  .error {
+    margin-bottom: 16px;
+  }
+
+  .logsContainer {
+    flex: 1;
+    background: #1e1e1e;
+    border-radius: 4px;
+    overflow: auto;
+    padding: 16px;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 13px;
+    line-height: 1.5;
+
+    .logEntry {
+      display: flex;
+      margin-bottom: 4px;
+      color: #fff;
+
+      .timestamp {
+        color: #888;
+        margin-right: 12px;
+        flex-shrink: 0;
+        user-select: none;
+      }
+
+      .content {
+        flex: 1;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #2e2e2e;
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: #555;
+      border-radius: 4px;
+
+      &:hover {
+        background: #666;
+      }
+    }
+  }
+}

@@ -28,6 +28,7 @@
   "CheckAllIssues": "Check All Issues",
   "ResourceTopology": "Resource Topology",
   "KubernetesEvents": "Kubernetes Events",
+  "LogAggregator": "Log",
   "Name": "Name",
   "Times": "Times",
   "FilterByName": "Filter by Name",
@@ -122,5 +123,12 @@
   "InputToken": "Please Enter the Token",
   "SearchByNaturalLanguage": "Search By Natural Language",
   "CannotBeEmpty": "Cannot be empty",
-  "DefaultTag": "default tag"
+  "DefaultTag": "default tag",
+  "SelectContainer": "Select container",
+  "ResumeLogs": "Resume logs",
+  "PauseLogs": "Pause logs",
+  "ClearLogs": "Clear logs",
+  "Connected": "Connected",
+  "Disconnected": "Disconnected",
+  "FailedToParsePodDetails": "Failed to parse pod details"
 }

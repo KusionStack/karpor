@@ -19,6 +19,7 @@ import (
 	"expvar"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
+	aggregatorhandler "github.com/KusionStack/karpor/pkg/core/handler/aggregator"
 	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
 	clusterhandler "github.com/KusionStack/karpor/pkg/core/handler/cluster"
 	detailhandler "github.com/KusionStack/karpor/pkg/core/handler/detail"
@@ -170,6 +171,7 @@ func setupRestAPIV1(
 		r.Get("/summary", summaryhandler.GetSummary(insightMgr, genericConfig))
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
+		r.Get("/aggregator/pod/{cluster}/{namespace}/{name}/log", aggregatorhandler.GetPodLogs(clusterMgr, genericConfig))
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {

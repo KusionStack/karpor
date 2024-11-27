@@ -28,6 +28,7 @@
   "CheckAllIssues": "Alle Fehler prüfen",
   "ResourceTopology": "Ressourcen Topologie",
   "KubernetesEvents": "Kubernetes Ereignisse",
+  "LogAggregator": "Log-Aggregator",
   "Name": "Name",
   "Times": "Mal",
   "FilterByName": "Nach Name filtern",
@@ -122,5 +123,12 @@
   "InputToken": "Geben Sie bitte den Token ein",
   "SearchByNaturalLanguage": "Suche mit natürlicher Sprache",
   "CannotBeEmpty": "Darf nicht leer sein",
-  "DefaultTag": "Standard-Tag"
+  "DefaultTag": "Standard-Tag",
+  "ResumeLogs": "Logs fortsetzen",
+  "PauseLogs": "Logs pausieren",
+  "ClearLogs": "Logs löschen",
+  "Connected": "Verbunden",
+  "Disconnected": "Getrennt",
+  "FailedToParsePodDetails": "Pod-Details konnten nicht analysiert werden",
+  "SelectContainer": "Container auswählen"
 }
