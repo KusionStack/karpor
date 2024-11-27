@@ -28,6 +28,7 @@
   "CheckAllIssues": "查看全部风险",
   "ResourceTopology": "资源拓扑",
   "KubernetesEvents": "Kubernetes 事件",
+  "LogAggregator": "日志",
   "Name": "名称",
   "Times": "次",
   "FilterByName": "请输入名称",
@@ -119,5 +120,12 @@
   "LoginSuccess": "登录成功",
   "Login": "登录",
   "LogoutSuccess": "登出成功",
-  "InputToken": "请输入 token"
+  "InputToken": "请输入 Token",
+  "ResumeLogs": "继续日志",
+  "PauseLogs": "暂停日志",
+  "ClearLogs": "清除日志",
+  "Connected": "已连接",
+  "Disconnected": "已断开",
+  "FailedToParsePodDetails": "解析 Pod 详情失败",
+  "SelectContainer": "选择容器"
 }

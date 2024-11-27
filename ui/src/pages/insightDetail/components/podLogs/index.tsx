@@ -54,7 +54,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
         }
       } catch (error) {
         console.error('Failed to parse pod details:', error)
-        setError(t('Failed to parse pod details'))
+        setError(t('FailedToParsePodDetails'))
       }
     }
   }, [yamlData, container, t])
@@ -127,7 +127,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
             value={container}
             onChange={setContainer}
             style={{ width: 200 }}
-            placeholder={t('Select container')}
+            placeholder={t('SelectContainer')}
           >
             {containers.map(c => (
               <Select.Option key={c} value={c}>
@@ -135,14 +135,14 @@ const PodLogs: React.FC<PodLogsProps> = ({
               </Select.Option>
             ))}
           </Select>
-          <Tooltip title={isPaused ? t('Resume logs') : t('Pause logs')}>
+          <Tooltip title={isPaused ? t('ResumeLogs') : t('PauseLogs')}>
             <Button
               type={isPaused ? 'default' : 'primary'}
               icon={isPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
               onClick={handlePause}
             />
           </Tooltip>
-          <Tooltip title={t('Clear logs')}>
+          <Tooltip title={t('ClearLogs')}>
             <Button icon={<ClearOutlined />} onClick={handleClear} />
           </Tooltip>
           <Badge
