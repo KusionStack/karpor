@@ -47,7 +47,7 @@ func (s *Storage) Search(ctx context.Context, queryStr, patternType string, pagi
 		if err != nil {
 			return nil, errors.Wrap(err, "search by DSL failed")
 		}
-	case storage.SQLPatternType:
+	case storage.SQLPatternType, storage.NLPatternType:
 		sr, err = s.searchBySQL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by SQL failed")

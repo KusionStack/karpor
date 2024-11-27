@@ -40,9 +40,18 @@ type ExtraConfig struct {
 	ElasticSearchPassword  string
 	ReadOnlyMode           bool
 	GithubBadge            bool
+	EnableRBAC             bool
 
-	EnableRBAC                  bool
+	// ServiceAccount configs
 	ServiceAccountIssuer        serviceaccount.TokenGenerator
 	ServiceAccountMaxExpiration time.Duration
 	ExtendExpiration            bool
+
+	// AI configs
+	AIBackend     string
+	AIAuthToken   string
+	AIBaseURL     string
+	AIModel       string
+	AITemperature float32
+	AITopP        float32
 }
