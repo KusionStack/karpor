@@ -1,36 +1,113 @@
 import React, { useState, useEffect } from 'react'
-import { Pagination, Empty, Divider, Tooltip, Tag } from 'antd'
+import {
+  Pagination,
+  Empty,
+  Divider,
+  Tooltip,
+  Input,
+  message,
+  AutoComplete,
+  Space,
+  Tag,
+} from 'antd'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { ClockCircleOutlined } from '@ant-design/icons'
+import { ClockCircleOutlined, CloseOutlined } from '@ant-design/icons'
 import queryString from 'query-string'
 import classNames from 'classnames'
 import SqlSearch from '@/components/sqlSearch'
 import KarporTabs from '@/components/tabs/index'
-import { utcDateToLocalDate } from '@/utils/tools'
+import {
+  cacheHistory,
+  deleteHistoryByItem,
+  getHistoryList,
+  utcDateToLocalDate,
+} from '@/utils/tools'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
 import { searchSqlPrefix, tabsList } from '@/utils/constants'
 import { useAxios } from '@/utils/request'
+// import useDebounce from '@/hooks/useDebounce'
 
 import styles from './styles.module.less'
+
+const { Search } = Input
+const { t } = useTranslation()
+const Option = AutoComplete.Option
+
+export const CustomDropdown = props => {
+  const { options } = props
+
+  return (
+    <div>
+      {options.map((option, index) => (
+        <div
+          key={index}
+          style={{ padding: '5px', borderBottom: '1px solid #ccc' }}
+        >
+          <Option value={option.value}>
+            <span>{option.value}</span> -{' '}
+            <span style={{ color: '#999' }}>
+              {option.value || t('DefaultTag')}
+            </span>
+          </Option>
+        </div>
+      ))}
+    </div>
+  )
+}
 
 const Result = () => {
   const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [pageData, setPageData] = useState<any>()
-  const urlSearchParams = queryString.parse(location.search)
-  const [searchType, setSearchType] = useState<string>('sql')
+  const urlSearchParams: any = queryString.parse(location.search)
+  const [searchType, setSearchType] = useState<string>(urlSearchParams?.pattern)
   const [searchParams, setSearchParams] = useState({
     pageSize: 20,
     page: 1,
     query: urlSearchParams?.query || '',
     total: 0,
   })
+  const [naturalValue, setNaturalValue] = useState('')
+  const [sqlValue, setSqlValue] = useState('')
+  const [naturalOptions, setNaturalOptions] = useState(
+    getHistoryList('naturalHistory') || [],
+  )
+
+  function cacheNaturalHistory(key, val) {
+    const result = cacheHistory(key, val)
+    setNaturalOptions(result)
+  }
+
+  useEffect(() => {
+    if (searchType === 'natural') {
+      setNaturalValue(urlSearchParams?.query)
+      handleNaturalSearch(urlSearchParams?.query)
+    }
+    if (searchType === 'sql') {
+      setSqlValue(urlSearchParams?.query)
+      handleSqlSearch(urlSearchParams?.query)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    if (urlSearchParams?.pattern) {
+      setSearchType(urlSearchParams?.pattern)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlSearchParams?.pattern, urlSearchParams?.query])
 
   function handleTabChange(value: string) {
     setSearchType(value)
+    const urlString = queryString.stringify({
+      pattern: value,
+      query:
+        value === 'natural' ? naturalValue : value === 'sql' ? sqlValue : '',
+    })
+    navigate(`${location?.pathname}?${urlString}`, { replace: true })
   }
 
   function handleChangePage(page: number, pageSize: number) {
@@ -48,11 +125,23 @@ const Result = () => {
 
   useEffect(() => {
     if (response?.success) {
-      setPageData(response?.data?.items || {})
       const objParams = {
         ...urlSearchParams,
+        pattern: 'sql',
         query: response?.successParams?.query || searchParams?.query,
       }
+      if (searchType === 'natural') {
+        let sqlVal
+        if (response?.data?.sqlQuery?.includes('WHERE')) {
+          sqlVal = `where ${response?.data?.sqlQuery?.split(' WHERE ')?.[1]}`
+        }
+        if (response?.data?.sqlQuery?.includes('where')) {
+          sqlVal = `where ${response?.data?.sqlQuery?.split(' where ')?.[1]}`
+        }
+        setSearchType('sql')
+        setSqlValue(sqlVal)
+      }
+      setPageData(response?.data?.items || {})
       const urlString = queryString.stringify(objParams)
       navigate(`${location?.pathname}?${urlString}`, { replace: true })
     }
@@ -60,11 +149,19 @@ const Result = () => {
   }, [response])
 
   function getPageData(params) {
+    const pattern =
+      searchType === 'natural' ? 'nl' : searchType === 'sql' ? 'sql' : ''
+    const query =
+      searchType === 'natural'
+        ? params?.query
+        : searchType === 'sql'
+          ? `${searchSqlPrefix} ${params?.query}`
+          : ''
     refetch({
       option: {
         params: {
-          query: `${searchSqlPrefix} ${params?.query || searchParams?.query}`,
-          ...(searchType === 'sql' ? { pattern: 'sql' } : {}),
+          pattern,
+          query,
           page: params?.page || searchParams?.page,
           pageSize: params?.pageSize || searchParams?.pageSize,
         },
@@ -78,11 +175,8 @@ const Result = () => {
     })
   }
 
-  useEffect(() => {
-    getPageData(searchParams)
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
-
-  function handleSearch(inputValue) {
+  function handleSqlSearch(inputValue) {
+    setSqlValue(inputValue)
     setSearchParams({
       ...searchParams,
       query: inputValue,
@@ -128,6 +222,23 @@ const Result = () => {
     }
     const urlParams = queryString.stringify(objParams)
     navigate(`/insightDetail/${nav}?${urlParams}`)
+  }
+
+  function handleNaturalAutoCompleteChange(val) {
+    setNaturalValue(val)
+  }
+
+  function handleNaturalSearch(value) {
+    if (!value && !naturalValue) {
+      message.warning(t('CannotBeEmpty'))
+      return
+    }
+    cacheNaturalHistory('naturalHistory', value)
+    getPageData({
+      pageSize: searchParams?.pageSize,
+      page: 1,
+      query: value,
+    })
   }
 
   function renderEmpty() {
@@ -262,6 +373,37 @@ const Result = () => {
     )
   }
 
+  const handleDelete = val => {
+    deleteHistoryByItem('naturalHistory', val)
+    const list = getHistoryList('naturalHistory') || []
+    setNaturalOptions(list)
+  }
+
+  const renderOption = val => {
+    return (
+      <Space
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+        }}
+      >
+        <span>{val}</span>
+        <CloseOutlined
+          onClick={event => {
+            event?.stopPropagation()
+            handleDelete(val)
+          }}
+        />
+      </Space>
+    )
+  }
+
+  const tmpOptions = naturalOptions?.map(val => ({
+    value: val,
+    label: renderOption(val),
+  }))
+
   return (
     <div className={styles.container}>
       <div className={styles.searchTab}>
@@ -271,12 +413,39 @@ const Result = () => {
           onChange={handleTabChange}
         />
       </div>
-      <SqlSearch
-        sqlEditorValue={
-          (searchParams?.query || urlSearchParams?.query) as string
-        }
-        handleSearch={handleSearch}
-      />
+      {searchType === 'sql' && (
+        <SqlSearch
+          sqlEditorValue={(sqlValue || urlSearchParams?.query) as string}
+          handleSqlSearch={handleSqlSearch}
+        />
+      )}
+      {searchType === 'natural' && (
+        <div className={styles.search_codemirror_container}>
+          <AutoComplete
+            style={{ width: '100%' }}
+            size="large"
+            options={tmpOptions}
+            value={naturalValue}
+            onChange={handleNaturalAutoCompleteChange}
+            filterOption={(inputValue, option) => {
+              if (option?.value) {
+                return (
+                  (option?.value as string)
+                    ?.toUpperCase()
+                    .indexOf(inputValue.toUpperCase()) !== -1
+                )
+              }
+            }}
+          >
+            <Search
+              size="large"
+              placeholder={`${t('SearchByNaturalLanguage')}...`}
+              enterButton
+              onSearch={handleNaturalSearch}
+            />
+          </AutoComplete>
+        </div>
+      )}
       <div className={styles.content}>
         {loading
           ? renderLoading()

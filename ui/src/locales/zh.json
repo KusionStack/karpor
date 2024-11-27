@@ -119,5 +119,8 @@
   "LoginSuccess": "登录成功",
   "Login": "登录",
   "LogoutSuccess": "登出成功",
-  "InputToken": "请输入 token"
+  "InputToken": "请输入 token",
+  "SearchByNaturalLanguage": "自然语言搜索",
+  "CannotBeEmpty": "不能为空",
+  "DefaultTag": "默认标签"
 }

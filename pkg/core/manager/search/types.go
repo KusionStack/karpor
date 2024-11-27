@@ -35,6 +35,7 @@ type UniResource struct {
 type UniResourceList struct {
 	metav1.TypeMeta
 	Items       []UniResource `json:"items"`
+	SQLQuery    string        `json:"sqlQuery"`
 	Total       int           `json:"total"`
 	CurrentPage int           `json:"currentPage"`
 	PageSize    int           `json:"pageSize"`

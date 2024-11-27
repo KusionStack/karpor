@@ -81,6 +81,10 @@ export const defaultKeywords = [
 export const tabsList = [
   { label: 'KeywordSearch', value: 'keyword', disabled: true },
   { label: 'SQLSearch', value: 'sql' },
+  {
+    label: 'SearchByNaturalLanguage',
+    value: 'natural',
+  },
 ]
 
 export const insightTabsList = [

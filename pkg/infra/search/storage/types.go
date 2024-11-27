@@ -31,6 +31,7 @@ import (
 
 const (
 	Equals         = "="
+	NLPatternType  = "nl"
 	DSLPatternType = "dsl"
 	SQLPatternType = "sql"
 )

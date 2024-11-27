@@ -19,6 +19,7 @@ import (
 	"strconv"
 
 	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"github.com/KusionStack/karpor/pkg/core/manager/search"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
@@ -34,7 +35,7 @@ import (
 // @Tags         search
 // @Produce      json
 // @Param        query     query     string          true   "The query to use for search. Required"
-// @Param        pattern   query     string          true   "The search pattern. Can be either sql or dsl. Required"
+// @Param        pattern   query     string          true   "The search pattern. Can be either sql, dsl or nl. Required"
 // @Param        pageSize  query     string          false  "The size of the page. Default to 10"
 // @Param        page      query     string          false  "The current page to fetch. Default to 1"
 // @Success      200       {array}   runtime.Object  "Array of runtime.Object"
@@ -45,7 +46,7 @@ import (
 // @Failure      429       {string}  string          "Too Many Requests"
 // @Failure      500       {string}  string          "Internal Server Error"
 // @Router       /rest-api/v1/search [get]
-func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.SearchStorage) http.HandlerFunc {
+func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, searchStorage storage.SearchStorage) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request.
 		ctx := r.Context()
@@ -71,9 +72,43 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 			searchPage = 1
 		}
 
+		query := searchQuery
+
+		if searchPattern == storage.NLPatternType {
+			if err := ai.CheckAIManager(aiMgr); err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+			res, err := aiMgr.ConvertTextToSQL(searchQuery)
+			if err != nil {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+			searchQuery = res
+		}
+
 		logger.Info("Searching for resources...", "page", searchPage, "pageSize", searchPageSize)
 
 		res, err := searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+		if err != nil {
+			if searchPattern == storage.NLPatternType {
+				fixedQuery, fixErr := aiMgr.FixSQL(query, searchQuery, err.Error())
+				if fixErr != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+				searchQuery = fixedQuery
+				res, err = searchStorage.Search(ctx, searchQuery, searchPattern, &storage.Pagination{Page: searchPage, PageSize: searchPageSize})
+				if err != nil {
+					handler.FailureRender(ctx, w, r, err)
+					return
+				}
+			} else {
+				handler.FailureRender(ctx, w, r, err)
+				return
+			}
+		}
+
 		if err != nil {
 			handler.FailureRender(ctx, w, r, err)
 			return
@@ -97,6 +132,7 @@ func SearchForResource(searchMgr *search.SearchManager, searchStorage storage.Se
 				Deleted: res.Deleted,
 			})
 		}
+		rt.SQLQuery = searchQuery
 		rt.Total = res.Total
 		rt.CurrentPage = searchPage
 		rt.PageSize = searchPageSize
