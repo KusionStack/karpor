@@ -2,6 +2,7 @@
 
 
 # Karpor
+Karpor is a brand new Kubernetes visualization tool that focuses on search, insights, and AI at its core
   
 
 ## Informations
@@ -26,9 +27,18 @@
 
 ### Produces
   * application/json
+  * text/event-stream
   * text/plain
 
 ## All endpoints
+
+###  authn
+
+| Method  | URI     | Name   | Summary |
+|---------|---------|--------|---------|
+| GET | /authn | [get authn](#get-authn) | Get returns an authn result of user's token. |
+  
+
 
 ###  cluster
 
@@ -56,6 +66,7 @@
 
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
+| GET | /insight/aggregator/pod/{cluster}/{namespace}/{name}/log | [get insight aggregator pod cluster namespace name log](#get-insight-aggregator-pod-cluster-namespace-name-log) | Stream pod logs using Server-Sent Events |
 | GET | /rest-api/v1/insight/audit | [get rest API v1 insight audit](#get-rest-api-v1-insight-audit) | Audit based on resource group. |
 | GET | /rest-api/v1/insight/detail | [get rest API v1 insight detail](#get-rest-api-v1-insight-detail) | GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/events | [get rest API v1 insight events](#get-rest-api-v1-insight-events) | GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
@@ -284,6 +295,94 @@ Status: Internal Server Error
 
 
 
+### <span id="get-authn"></span> Get returns an authn result of user's token. (*GetAuthn*)
+
+```
+GET /authn
+```
+
+This endpoint returns an authn result.
+
+#### Produces
+  * application/json
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-authn-200) | OK | OK |  | [schema](#get-authn-200-schema) |
+| [400](#get-authn-400) | Bad Request | Bad Request |  | [schema](#get-authn-400-schema) |
+| [401](#get-authn-401) | Unauthorized | Unauthorized |  | [schema](#get-authn-401-schema) |
+| [404](#get-authn-404) | Not Found | Not Found |  | [schema](#get-authn-404-schema) |
+| [405](#get-authn-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-authn-405-schema) |
+| [429](#get-authn-429) | Too Many Requests | Too Many Requests |  | [schema](#get-authn-429-schema) |
+| [500](#get-authn-500) | Internal Server Error | Internal Server Error |  | [schema](#get-authn-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-authn-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-authn-200-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-authn-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-authn-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-authn-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-authn-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-authn-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-authn-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="get-endpoints"></span> List all available endpoints (*GetEndpoints*)
 
 ```
@@ -310,6 +409,73 @@ List all registered endpoints in the router
 Status: OK
 
 ###### <span id="get-endpoints-200-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-insight-aggregator-pod-cluster-namespace-name-log"></span> Stream pod logs using Server-Sent Events (*GetInsightAggregatorPodClusterNamespaceNameLog*)
+
+```
+GET /insight/aggregator/pod/{cluster}/{namespace}/{name}/log
+```
+
+This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| cluster | `path` | string | `string` |  | ✓ |  | The cluster name |
+| name | `path` | string | `string` |  | ✓ |  | The pod name |
+| namespace | `path` | string | `string` |  | ✓ |  | The namespace name |
+| container | `query` | string | `string` |  |  |  | The container name (optional if pod has only one container) |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-insight-aggregator-pod-cluster-namespace-name-log-200) | OK | OK |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-200-schema) |
+| [400](#get-insight-aggregator-pod-cluster-namespace-name-log-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-400-schema) |
+| [401](#get-insight-aggregator-pod-cluster-namespace-name-log-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-401-schema) |
+| [404](#get-insight-aggregator-pod-cluster-namespace-name-log-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-404-schema) |
+
+#### Responses
+
+
+##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-200-schema"></span> Schema
+   
+  
+
+[AggregatorLogEntry](#aggregator-log-entry)
+
+##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-404-schema"></span> Schema
    
   
 
@@ -1467,7 +1633,7 @@ This endpoint returns an array of Kubernetes runtime Object matched using the qu
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | page | `query` | string | `string` |  |  |  | The current page to fetch. Default to 1 |
 | pageSize | `query` | string | `string` |  |  |  | The size of the page. Default to 10 |
-| pattern | `query` | string | `string` |  | ✓ |  | The search pattern. Can be either sql or dsl. Required |
+| pattern | `query` | string | `string` |  | ✓ |  | The search pattern. Can be either sql, dsl or nl. Required |
 | query | `query` | string | `string` |  | ✓ |  | The query to use for search. Required |
 
 #### All responses
@@ -2091,6 +2257,23 @@ Status: Internal Server Error
 
 ## Models
 
+### <span id="aggregator-log-entry"></span> aggregator.LogEntry
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | |  |  |
+| error | string| `string` |  | |  |  |
+| timestamp | string| `string` |  | |  |  |
+
+
+
 ### <span id="cluster-cluster-payload"></span> cluster.ClusterPayload
 
 
@@ -2104,7 +2287,7 @@ Status: Internal Server Error
 |------|------|---------|:--------:| ------- |-------------|---------|
 | description | string| `string` |  | | ClusterDescription is the description of cluster to be created |  |
 | displayName | string| `string` |  | | ClusterDisplayName is the display name of cluster to be created |  |
-| kubeconfig | string| `string` |  | | ClusterKubeConfig is the kubeconfig of cluster to be created |  |
+| kubeConfig | string| `string` |  | | ClusterKubeConfig is the kubeconfig of cluster to be created |  |
 
 
 
