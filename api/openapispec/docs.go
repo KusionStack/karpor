@@ -102,6 +102,73 @@ var doc = `{
                 }
             }
         },
+        "/insight/aggregator/pod/{cluster}/{namespace}/{name}/log": {
+            "get": {
+                "description": "This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Stream pod logs using Server-Sent Events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The cluster name",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The namespace name",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The pod name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The container name (optional if pod has only one container)",
+                        "name": "container",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.LogEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/rest-api/v1/cluster/config/file": {
             "post": {
                 "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB.",
@@ -1637,7 +1704,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "The search pattern. Can be either sql or dsl. Required",
+                        "description": "The search pattern. Can be either sql, dsl or nl. Required",
                         "name": "pattern",
                         "in": "query",
                         "required": true
@@ -1704,6 +1771,20 @@ var doc = `{
         }
     },
     "definitions": {
+        "aggregator.LogEntry": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
         "cluster.ClusterPayload": {
             "type": "object",
             "properties": {
@@ -1957,7 +2038,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "",
 	Schemes:     []string{},
 	Title:       "Karpor",
-	Description: "",
+	Description: "Karpor is a brand new Kubernetes visualization tool that focuses on search, insights, and AI at its core",
 }
 
 type s struct{}

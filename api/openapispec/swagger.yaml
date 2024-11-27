@@ -1,4 +1,13 @@
 definitions:
+  aggregator.LogEntry:
+    properties:
+      content:
+        type: string
+      error:
+        type: string
+      timestamp:
+        type: string
+    type: object
   cluster.ClusterPayload:
     properties:
       description:
@@ -172,6 +181,8 @@ definitions:
     type: object
 info:
   contact: {}
+  description: Karpor is a brand new Kubernetes visualization tool that focuses on
+    search, insights, and AI at its core
   title: Karpor
   version: "1.0"
 paths:
@@ -227,6 +238,52 @@ paths:
       summary: List all available endpoints
       tags:
       - debug
+  /insight/aggregator/pod/{cluster}/{namespace}/{name}/log:
+    get:
+      description: This endpoint streams pod logs in real-time using SSE. It supports
+        container selection and automatic reconnection.
+      parameters:
+      - description: The cluster name
+        in: path
+        name: cluster
+        required: true
+        type: string
+      - description: The namespace name
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: The pod name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: The container name (optional if pod has only one container)
+        in: query
+        name: container
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/aggregator.LogEntry'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Stream pod logs using Server-Sent Events
+      tags:
+      - insight
   /rest-api/v1/cluster/{clusterName}:
     delete:
       description: This endpoint deletes the cluster resource by name.
@@ -1254,7 +1311,7 @@ paths:
         name: query
         required: true
         type: string
-      - description: The search pattern. Can be either sql or dsl. Required
+      - description: The search pattern. Can be either sql, dsl or nl. Required
         in: query
         name: pattern
         required: true
