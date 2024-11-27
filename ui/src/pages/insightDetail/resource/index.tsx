@@ -143,13 +143,11 @@ const ClusterDetail = () => {
 
   useEffect(() => {
     if (clusterDetailResponse?.success) {
-      console.log('Received cluster detail response:', clusterDetailResponse) // Debug log
       setYamlData(clusterDetailResponse?.data)
     }
   }, [clusterDetailResponse])
 
   function getClusterDetail() {
-    console.log('Fetching cluster detail...') // Debug log
     clusterDetailRefetch({
       url: '/rest-api/v1/insight/detail',
       option: {
