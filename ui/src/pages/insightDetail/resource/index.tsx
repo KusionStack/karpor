@@ -69,7 +69,7 @@ const ClusterDetail = () => {
     if (kind === 'Pod') {
       setTabList(prev => {
         if (!prev.find(tab => tab.value === 'Log')) {
-          return [...prev, { value: 'Log', label: t('LogAggregator') }]
+          return [...prev, { value: 'Log', label: 'LogAggregator' }]
         }
         return prev
       })
