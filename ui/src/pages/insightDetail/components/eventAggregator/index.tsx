@@ -34,6 +34,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [eventType, setEventType] = useState<string>()
+  const [hasEvents, setHasEvents] = useState(false)
   const eventSource = useRef<EventSource>()
 
   useEffect(() => {
@@ -73,6 +74,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
           }
 
           setEvents(events)
+          setHasEvents(events.length > 0 || hasEvents)
         } catch (error) {
           setError(t('EventAggregator.Error'))
         }
@@ -135,7 +137,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        {events.length > 0 && (
+        {hasEvents && (
           <Select
             value={eventType}
             onChange={setEventType}
