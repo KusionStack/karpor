@@ -1,8 +1,10 @@
-import React, { useEffect, useState, useRef } from 'react'
-import { Table, Badge, Select, Empty, Alert, Spin } from 'antd'
+import React, { useEffect, useRef, useState } from 'react'
+import { Table, Select, Spin, Empty, Alert, Input, Skeleton } from 'antd'
+import { SearchOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { formatTime } from '@/utils/tools'
 import axios from 'axios'
+import classNames from 'classnames'
 import styles from './styles.module.less'
 
 interface Event {
@@ -35,6 +37,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const [error, setError] = useState<string>()
   const [eventType, setEventType] = useState<string>()
   const [hasEvents, setHasEvents] = useState(false)
+  const [searchText, setSearchText] = useState('')
   const eventSource = useRef<EventSource>()
 
   useEffect(() => {
@@ -98,6 +101,20 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     }
   }, [cluster, namespace, name, kind, apiVersion, eventType, t])
 
+  const filteredEvents = events.filter(event => {
+    const searchLower = searchText.toLowerCase()
+    return (
+      !searchText ||
+      event.type.toLowerCase().includes(searchLower) ||
+      event.reason.toLowerCase().includes(searchLower) ||
+      event.message.toLowerCase().includes(searchLower)
+    )
+  })
+
+  const handleSearch = (value: string) => {
+    setSearchText(value)
+  }
+
   const columns = [
     {
       title: t('EventAggregator.ColumnType'),
@@ -105,7 +122,14 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       key: 'type',
       width: 100,
       render: (type: string) => (
-        <Badge status={type === 'Normal' ? 'success' : 'error'} text={type} />
+        <span
+          className={classNames(styles.tag, styles.typeTag, {
+            [styles.normal]: type === 'Normal',
+            [styles.warning]: type === 'Warning',
+          })}
+        >
+          {type}
+        </span>
       ),
     },
     {
@@ -113,6 +137,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       dataIndex: 'reason',
       key: 'reason',
       width: 150,
+      render: (reason: string) => <span className={styles.tag}>{reason}</span>,
     },
     {
       title: t('EventAggregator.ColumnMessage'),
@@ -124,6 +149,9 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       dataIndex: 'count',
       key: 'count',
       width: 100,
+      render: (count: number) => (
+        <span className={classNames(styles.tag, styles.countTag)}>{count}</span>
+      ),
     },
     {
       title: t('EventAggregator.ColumnLastSeen'),
@@ -137,22 +165,31 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        {hasEvents && (
-          <Select
-            value={eventType}
-            onChange={setEventType}
+        <div className={styles.toolBar}>
+          <Input
+            className={styles.searchInput}
+            placeholder={t('Search events...')}
+            prefix={<SearchOutlined />}
+            onChange={e => handleSearch(e.target.value)}
             allowClear
-            placeholder={t('EventAggregator.Type')}
-            className={styles.typeFilter}
-          >
-            <Select.Option value="Normal">
-              {t('EventAggregator.Normal')}
-            </Select.Option>
-            <Select.Option value="Warning">
-              {t('EventAggregator.Warning')}
-            </Select.Option>
-          </Select>
-        )}
+          />
+          {hasEvents && (
+            <Select
+              value={eventType}
+              onChange={setEventType}
+              allowClear
+              placeholder={t('EventAggregator.Type')}
+              className={styles.typeFilter}
+            >
+              <Select.Option value="Normal">
+                {t('EventAggregator.Normal')}
+              </Select.Option>
+              <Select.Option value="Warning">
+                {t('EventAggregator.Warning')}
+              </Select.Option>
+            </Select>
+          )}
+        </div>
       </div>
 
       {error && (
@@ -160,9 +197,11 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       )}
 
       <Spin spinning={loading}>
-        {events.length > 0 ? (
+        {loading ? (
+          <Skeleton active paragraph={{ rows: 5 }} />
+        ) : events.length > 0 ? (
           <Table
-            dataSource={events}
+            dataSource={filteredEvents}
             columns={columns}
             rowKey={record =>
               `${record.type}-${record.reason}-${record.message}-${record.count}-${record.lastTimestamp}`
