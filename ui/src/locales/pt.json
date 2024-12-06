@@ -33,6 +33,7 @@
   "EventAggregator.Normal": "Normal",
   "EventAggregator.Warning": "Aviso",
   "EventAggregator.NoEvents": "Sem Eventos",
+  "EventAggregator.SearchEvents": "Pesquisar eventos...",
   "EventAggregator.ColumnType": "Tipo",
   "EventAggregator.ColumnReason": "Motivo",
   "EventAggregator.ColumnMessage": "Mensagem",

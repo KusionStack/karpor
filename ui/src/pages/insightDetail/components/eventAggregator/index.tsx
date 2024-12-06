@@ -166,28 +166,28 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     <div className={styles.container}>
       <div className={styles.header}>
         <div className={styles.toolBar}>
-          <Input
-            className={styles.searchInput}
-            placeholder={t('Search events...')}
-            prefix={<SearchOutlined />}
-            onChange={e => handleSearch(e.target.value)}
-            allowClear
-          />
           {hasEvents && (
-            <Select
-              value={eventType}
-              onChange={setEventType}
-              allowClear
-              placeholder={t('EventAggregator.Type')}
-              className={styles.typeFilter}
-            >
-              <Select.Option value="Normal">
-                {t('EventAggregator.Normal')}
-              </Select.Option>
-              <Select.Option value="Warning">
-                {t('EventAggregator.Warning')}
-              </Select.Option>
-            </Select>
+            <>
+              <Input
+                className={styles.searchInput}
+                placeholder={t('EventAggregator.SearchEvents')}
+                prefix={<SearchOutlined />}
+                allowClear
+                value={searchText}
+                onChange={e => handleSearch(e.target.value)}
+              />
+              <Select
+                className={styles.typeFilter}
+                placeholder={t('EventAggregator.Type')}
+                allowClear
+                value={eventType}
+                onChange={setEventType}
+                options={[
+                  { value: 'Normal', label: t('EventAggregator.Normal') },
+                  { value: 'Warning', label: t('EventAggregator.Warning') },
+                ]}
+              />
+            </>
           )}
         </div>
       </div>

@@ -33,6 +33,7 @@
   "EventAggregator.Normal": "正常",
   "EventAggregator.Warning": "警告",
   "EventAggregator.NoEvents": "暂无事件",
+  "EventAggregator.SearchEvents": "搜索事件...",
   "EventAggregator.ColumnType": "类型",
   "EventAggregator.ColumnReason": "原因",
   "EventAggregator.ColumnMessage": "消息",
