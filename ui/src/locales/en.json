@@ -29,6 +29,8 @@
   "ResourceTopology": "Resource Topology",
   "KubernetesEvents": "Kubernetes Events",
   "LogAggregator": "Log",
+  "LogAggregator.ConnectedTip": "Successfully connected to container {{container}}",
+  "LogAggregator.DisconnectedTip": "Connection lost. Trying to reconnect...",
   "Name": "Name",
   "Times": "Times",
   "FilterByName": "Filter by Name",

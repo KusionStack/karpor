@@ -29,6 +29,8 @@
   "ResourceTopology": "资源拓扑",
   "KubernetesEvents": "Kubernetes 事件",
   "LogAggregator": "日志",
+  "LogAggregator.ConnectedTip": "已成功连接到容器 {{container}}",
+  "LogAggregator.DisconnectedTip": "连接已断开，正在尝试重新连接...",
   "Name": "名称",
   "Times": "次",
   "FilterByName": "请输入名称",
