@@ -28,7 +28,19 @@
   "CheckAllIssues": "Verificar Todos os Problemas",
   "ResourceTopology": "Topologia de Recursos",
   "KubernetesEvents": "Eventos do Kubernetes",
-  "LogAggregator": "Agregador de Logs",
+  "LogAggregator": "Log",
+  "EventAggregator": "Evento",
+  "EventAggregator.Type": "Tipo de Evento",
+  "EventAggregator.Normal": "Normal",
+  "EventAggregator.Warning": "Aviso",
+  "EventAggregator.NoEvents": "Sem Eventos",
+  "EventAggregator.ColumnType": "Tipo",
+  "EventAggregator.ColumnReason": "Motivo",
+  "EventAggregator.ColumnMessage": "Mensagem",
+  "EventAggregator.ColumnTimes": "Vezes",
+  "EventAggregator.ColumnFirstSeen": "Primeira Ocorrência",
+  "EventAggregator.ColumnLastSeen": "Última Ocorrência",
+  "EventAggregator.Error": "Falha na conexão com o fluxo de eventos",
   "Name": "Nome",
   "Times": "Vezes",
   "FilterByName": "Filtrado por nome",
@@ -130,5 +142,5 @@
   "Connected": "Conectado",
   "Disconnected": "Desconectado",
   "FailedToParsePodDetails": "Falha ao analisar detalhes do Pod",
-  "SelectContainer": "Selecionar container"
+  "SelectContainer": "Selecionar Container"
 }

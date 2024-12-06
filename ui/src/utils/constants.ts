@@ -88,9 +88,10 @@ export const tabsList = [
 ]
 
 export const insightTabsList = [
-  { label: 'ResourceTopology', value: 'Topology' },
-  { label: 'YAML', value: 'YAML' },
-  { label: 'KubernetesEvents', value: 'K8s', disabled: true },
+  { value: 'Topology', label: 'ResourceTopology' },
+  { value: 'YAML', label: 'YAML' },
+  { value: 'Event', label: 'Event' },
+  { value: 'K8s', label: 'KubernetesEvents', disabled: true },
 ]
 
 export const defaultSqlExamples = [
