@@ -161,7 +161,6 @@ const PodLogs: React.FC<PodLogsProps> = ({
       <div className={styles.logsContainer}>
         {logs.map((log, index) => (
           <div key={index} className={styles.logEntry}>
-            <span className={styles.timestamp}>{log.timestamp}</span>
             <span className={styles.content}>{log.content}</span>
           </div>
         ))}
