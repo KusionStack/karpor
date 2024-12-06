@@ -26,7 +26,7 @@
   "LowRisk": "Low",
   "Rescan": "Re-scan",
   "CheckAllIssues": "Check All Issues",
-  "ResourceTopology": "Resource Topology",
+  "ResourceTopology": "Topology",
   "KubernetesEvents": "Kubernetes Events",
   "LogAggregator": "Log",
   "LogAggregator.ConnectedTip": "Successfully connected to container {{container}}",
