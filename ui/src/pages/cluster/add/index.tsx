@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
 import { HOST, useAxios } from '@/utils/request'
 import Yaml from '@/components/yaml'
+import { fireConfetti } from '@/utils/confetti'
 
 import styles from './styles.module.less'
 
@@ -45,8 +46,11 @@ const RegisterCluster = () => {
 
   useEffect(() => {
     if (addResponse?.success) {
+      fireConfetti()
       message.success(t('VerifiedSuccessfullyAndSubmitted'))
-      navigate(-1)
+      setTimeout(() => {
+        navigate(-1)
+      }, 1000)
     }
   }, [addResponse, navigate, t])
 
@@ -60,13 +64,14 @@ const RegisterCluster = () => {
           kubeConfig: values?.kubeConfig,
         },
       },
-      callbackFn: () =>
+      callbackFn: () => {
         addRefetch({
           url: `/rest-api/v1/cluster/${values?.name}`,
           option: {
             data: values,
           },
-        }),
+        })
+      },
     })
   }
 
