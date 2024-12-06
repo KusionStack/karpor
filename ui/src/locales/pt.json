@@ -27,7 +27,6 @@
   "Rescan": "Reescanear",
   "CheckAllIssues": "Verificar Todos os Problemas",
   "ResourceTopology": "Topologia de Recursos",
-  "KubernetesEvents": "Eventos do Kubernetes",
   "LogAggregator": "Log",
   "EventAggregator": "Evento",
   "EventAggregator.Type": "Tipo de Evento",

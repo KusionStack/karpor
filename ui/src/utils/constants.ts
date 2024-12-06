@@ -87,11 +87,16 @@ export const tabsList = [
   },
 ]
 
-export const insightTabsList = [
+export interface InsightTab {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+export const insightTabsList: InsightTab[] = [
   { value: 'Topology', label: 'ResourceTopology' },
   { value: 'YAML', label: 'YAML' },
   { value: 'Event', label: 'Event' },
-  { value: 'K8s', label: 'KubernetesEvents', disabled: true },
 ]
 
 export const defaultSqlExamples = [

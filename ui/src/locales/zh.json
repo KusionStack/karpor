@@ -27,7 +27,6 @@
   "Rescan": "重新扫描",
   "CheckAllIssues": "查看全部风险",
   "ResourceTopology": "资源拓扑",
-  "KubernetesEvents": "Kubernetes 事件",
   "LogAggregator": "日志",
   "EventAggregator": "事件",
   "EventAggregator.Type": "事件类型",

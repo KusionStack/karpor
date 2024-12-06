@@ -27,7 +27,6 @@
   "Rescan": "Re-scan",
   "CheckAllIssues": "Check All Issues",
   "ResourceTopology": "Resource Topology",
-  "KubernetesEvents": "Kubernetes Events",
   "LogAggregator": "Log",
   "EventAggregator": "Event",
   "EventAggregator.Type": "Event Type",
