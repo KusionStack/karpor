@@ -132,5 +132,6 @@
   "Connected": "Verbunden",
   "Disconnected": "Getrennt",
   "FailedToParsePodDetails": "Pod-Details konnten nicht analysiert werden",
-  "SelectContainer": "Container auswählen"
+  "SelectContainer": "Container auswählen",
+  "CopiedToClipboard": "In die Zwischenablage kopiert"
 }

@@ -109,6 +109,7 @@
   "AreYouSureDeleteResourceGroupRule": "您确定要删除此资源组规则吗？",
   "Copy": "复制",
   "CopySuccess": "复制成功",
+  "CopiedToClipboard": "已复制到剪贴板",
   "TotalResourceGroupRules": "资源组规则数量",
   "TotalResources": "资源总数",
   "ClusterCount": "集群数量",

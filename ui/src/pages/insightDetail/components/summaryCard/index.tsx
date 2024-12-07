@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Popover, Progress } from 'antd'
+import { Progress, message } from 'antd'
 import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
@@ -7,34 +7,31 @@ import { filterSize, getDataType } from '@/utils/tools'
 
 import styles from './styles.module.less'
 
-function getContent(data) {
-  return (
-    <>
-      {Object.keys(data)?.map(key => {
-        const [displayKey] = key?.split('.')
-        return (
-          <div className={styles.popoverItem} key={key}>
-            <span className={styles.popoverLabel}>{displayKey}:</span>
-            <span className={styles.popoverValue}>{data?.[key]}</span>
-          </div>
-        )
-      })}
-    </>
-  )
+const copyToClipboard = (text: string, t: any) => {
+  navigator.clipboard.writeText(text).then(() => {
+    message.success(t('CopiedToClipboard'))
+  })
 }
 
 const PopoverCard = ({ data }: any) => {
+  const { t } = useTranslation()
+
   if (!data) {
     return <div className={styles.value}>--</div>
   }
   const type = getDataType(data)
-  const showContent = type === 'String' ? <span>{data}</span> : getContent(data)
+  const displayText = type === 'String' ? data : JSON.stringify(data)
+
+  const handleClick = () => {
+    if (displayText !== '--') {
+      copyToClipboard(displayText, t)
+    }
+  }
+
   return (
-    <Popover content={showContent}>
-      <div className={styles.value}>
-        {type === 'String' ? data : JSON.stringify(data)}
-      </div>
-    </Popover>
+    <div className={styles.value} onClick={handleClick}>
+      {displayText}
+    </div>
   )
 }
 

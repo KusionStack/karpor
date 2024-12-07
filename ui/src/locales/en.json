@@ -132,5 +132,6 @@
   "ClearLogs": "Clear logs",
   "Connected": "Connected",
   "Disconnected": "Disconnected",
-  "FailedToParsePodDetails": "Failed to parse pod details"
+  "FailedToParsePodDetails": "Failed to parse pod details",
+  "CopiedToClipboard": "Copied to clipboard"
 }
