@@ -3,6 +3,7 @@ import type { LegacyRef } from 'react'
 import { Button, message } from 'antd'
 import { Resizable } from 're-resizable'
 import { useTranslation } from 'react-i18next'
+import { CopyOutlined } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
 import 'highlight.js/styles/lightfair.css'
@@ -54,6 +55,18 @@ const Yaml = (props: IProps) => {
           const newModuleHeight = moduleHeight + d.height
           setModuleHeight(newModuleHeight)
         }}
+        handleStyles={{
+          bottom: {
+            bottom: 0,
+            height: '6px',
+            cursor: 'row-resize',
+            background: 'transparent',
+            transition: 'background 0.3s ease',
+          },
+        }}
+        handleClasses={{
+          bottom: styles.resizeHandle,
+        }}
       >
         <div className={styles.yaml_content} style={{ height: props?.height }}>
           <div className={styles.copy}>
@@ -63,6 +76,7 @@ const Yaml = (props: IProps) => {
                 size="small"
                 onClick={copy}
                 disabled={!data}
+                icon={<CopyOutlined />}
               >
                 {t('Copy')}
               </Button>

@@ -26,9 +26,11 @@
   "LowRisk": "Low",
   "Rescan": "Re-scan",
   "CheckAllIssues": "Check All Issues",
-  "ResourceTopology": "Resource Topology",
+  "ResourceTopology": "Topology",
   "KubernetesEvents": "Kubernetes Events",
   "LogAggregator": "Log",
+  "LogAggregator.ConnectedTip": "Successfully connected to container {{container}}",
+  "LogAggregator.DisconnectedTip": "Connection lost. Trying to reconnect...",
   "Name": "Name",
   "Times": "Times",
   "FilterByName": "Filter by Name",
@@ -130,5 +132,6 @@
   "ClearLogs": "Clear logs",
   "Connected": "Connected",
   "Disconnected": "Disconnected",
-  "FailedToParsePodDetails": "Failed to parse pod details"
+  "FailedToParsePodDetails": "Failed to parse pod details",
+  "CopiedToClipboard": "Copied to clipboard"
 }
