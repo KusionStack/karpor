@@ -17,6 +17,7 @@ import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 import PodLogs from '../components/podLogs'
+import EventAggregator from '../components/eventAggregator'
 
 import styles from './styles.module.less'
 
@@ -46,35 +47,32 @@ const ClusterDetail = () => {
   const [tabList, setTabList] = useState(insightTabsList)
 
   useEffect(() => {
-    if (urlParams?.deleted === 'true') {
-      const tmp = tabList?.map(item => {
-        if (item?.value === 'Topology' && urlParams?.deleted === 'true') {
-          item.disabled = true
-        }
-        return item
-      })
-      setTabList(tmp)
-    } else {
-      const tmp = tabList?.map(item => {
-        if (item?.value === 'Topology') {
-          item.disabled = false
-        }
-        return item
-      })
-      setTabList(tmp)
+    const initialTabList = [...insightTabsList]
+    if (kind === 'Pod') {
+      if (!initialTabList.find(tab => tab.value === 'Log')) {
+        initialTabList.push({ value: 'Log', label: 'LogAggregator' })
+      }
     }
-  }, [urlParams?.deleted])
+    setTabList(initialTabList)
+  }, [kind])
 
   useEffect(() => {
-    if (kind === 'Pod') {
-      setTabList(prev => {
-        if (!prev.find(tab => tab.value === 'Log')) {
-          return [...prev, { value: 'Log', label: 'LogAggregator' }]
-        }
-        return prev
-      })
+    if (urlParams?.deleted === 'true') {
+      setTabList(prev =>
+        prev.map(item => ({
+          ...item,
+          disabled: item.value === 'Topology' && urlParams?.deleted === 'true',
+        })),
+      )
+    } else {
+      setTabList(prev =>
+        prev.map(item => ({
+          ...item,
+          disabled: false,
+        })),
+      )
     }
-  }, [kind])
+  }, [urlParams?.deleted])
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -390,6 +388,17 @@ const ClusterDetail = () => {
     }
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
+    }
+    if (currentTab === 'Event') {
+      return (
+        <EventAggregator
+          cluster={cluster as string}
+          namespace={namespace as string}
+          name={name as string}
+          kind={kind as string}
+          apiVersion={apiVersion as string}
+        />
+      )
     }
     if (currentTab === 'Log' && kind === 'Pod') {
       return (

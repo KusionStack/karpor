@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import KarporTabs from '@/components/tabs'
 import Yaml from '@/components/yaml'
 import { capitalized, generateTopologyData } from '@/utils/tools'
-import { insightTabsList } from '@/utils/constants'
+import { insightTabsList, InsightTab } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
@@ -44,7 +44,7 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
-  const [tabList, setTabList] = useState(insightTabsList)
+  const [tabList, setTabList] = useState<InsightTab[]>(insightTabsList)
 
   useEffect(() => {
     if (urlParams?.deleted === 'true') {

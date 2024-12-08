@@ -222,3 +222,10 @@ export function cacheHistory(key, val: string) {
   localStorage.setItem(key, JSON.stringify(newList))
   return getHistoryList(key)
 }
+
+export function formatTime(
+  time: string,
+  format = 'YYYY-MM-DD HH:mm:ss',
+): string {
+  return moment(time).format(format)
+}

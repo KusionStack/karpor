@@ -71,14 +71,14 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		container := r.URL.Query().Get("container")
 
 		if cluster == "" || namespace == "" || name == "" {
-			writeSSEError(w, "cluster, namespace and name are required")
+			writeLogSSEError(w, "cluster, namespace and name are required")
 			return
 		}
 
 		// Build multi-cluster client
 		client, err := multicluster.BuildMultiClusterClient(ctx, c.LoopbackClientConfig, cluster)
 		if err != nil {
-			writeSSEError(w, fmt.Sprintf("failed to build multi-cluster client: %v", err))
+			writeLogSSEError(w, fmt.Sprintf("failed to build multi-cluster client: %v", err))
 			return
 		}
 		// Get single cluster clientset
@@ -97,7 +97,7 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		req := clusterClient.CoreV1().Pods(namespace).GetLogs(name, opts)
 		stream, err := req.Stream(ctx)
 		if err != nil {
-			writeSSEError(w, fmt.Sprintf("failed to get pod logs: %v", err))
+			writeLogSSEError(w, fmt.Sprintf("failed to get pod logs: %v", err))
 			return
 		}
 		defer stream.Close()
@@ -123,7 +123,7 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 
 				data, err := json.Marshal(logEntry)
 				if err != nil {
-					writeSSEError(w, fmt.Sprintf("failed to marshal log entry: %v", err))
+					writeLogSSEError(w, fmt.Sprintf("failed to marshal log entry: %v", err))
 					return
 				}
 
@@ -133,15 +133,15 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		}
 
 		if err := scanner.Err(); err != nil {
-			writeSSEError(w, fmt.Sprintf("error reading log stream: %v", err))
+			writeLogSSEError(w, fmt.Sprintf("error reading log stream: %v", err))
 		}
 	}
 }
 
-// writeSSEError writes an error message to the SSE stream
-func writeSSEError(w http.ResponseWriter, errMsg string) {
+// writeLogSSEError writes an error message to the SSE stream
+func writeLogSSEError(w http.ResponseWriter, errMsg string) {
 	logEntry := LogEntry{
-		Timestamp: time.Now().Format(time.RFC3339Nano),
+		Timestamp: time.Now().Format(TimeFormat),
 		Error:     errMsg,
 	}
 	data, _ := json.Marshal(logEntry)
