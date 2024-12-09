@@ -26,8 +26,10 @@
   "LowRisk": "Low",
   "Rescan": "Re-scan",
   "CheckAllIssues": "Check All Issues",
-  "ResourceTopology": "Resource Topology",
+  "ResourceTopology": "Topology",
   "LogAggregator": "Log",
+  "LogAggregator.ConnectedTip": "Successfully connected to container {{container}}",
+  "LogAggregator.DisconnectedTip": "Connection lost. Trying to reconnect...",
   "EventAggregator": "Event",
   "EventAggregator.Type": "Event Type",
   "EventAggregator.Normal": "Normal",
@@ -142,5 +144,6 @@
   "ClearLogs": "Clear logs",
   "Connected": "Connected",
   "Disconnected": "Disconnected",
-  "FailedToParsePodDetails": "Failed to parse pod details"
+  "FailedToParsePodDetails": "Failed to parse pod details",
+  "CopiedToClipboard": "Copied to clipboard"
 }

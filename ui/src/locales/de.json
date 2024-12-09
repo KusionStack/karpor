@@ -28,6 +28,8 @@
   "CheckAllIssues": "Alle Fehler prüfen",
   "ResourceTopology": "Ressourcen Topologie",
   "LogAggregator": "Log",
+  "LogAggregator.ConnectedTip": "Erfolgreich mit Container {{container}} verbunden",
+  "LogAggregator.DisconnectedTip": "Verbindung verloren. Versuche erneut zu verbinden...",
   "EventAggregator": "Ereignis",
   "EventAggregator.Type": "Ereignistyp",
   "EventAggregator.Normal": "Normal",
@@ -142,5 +144,6 @@
   "Connected": "Verbunden",
   "Disconnected": "Getrennt",
   "FailedToParsePodDetails": "Pod-Details konnten nicht analysiert werden",
-  "SelectContainer": "Container auswählen"
+  "SelectContainer": "Container auswählen",
+  "CopiedToClipboard": "In die Zwischenablage kopiert"
 }

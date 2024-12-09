@@ -20,7 +20,7 @@
 .typeFilter {
   width: 160px;
   transition: all 0.2s ease;
-  
+
   &:hover {
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -48,11 +48,11 @@
   width: 240px;
   margin-right: 16px;
   transition: all 0.3s ease;
-  
+
   &:hover {
     box-shadow: 0 0 0 2px rgba(47, 84, 235, 0.1);
   }
-  
+
   &:focus {
     transform: translateY(-1px);
   }
@@ -104,7 +104,7 @@
   line-height: 20px;
   white-space: nowrap;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &:hover {
     transform: scale(1.05);
   }
@@ -119,7 +119,7 @@
     background: #f6ffed;
     border-color: #b7eb8f;
     color: #52c41a;
-    
+
     &:hover {
       background: #f6ffed;
     }
@@ -129,7 +129,7 @@
     background: #fff2e8;
     border-color: #ffbb96;
     color: #fa541c;
-    
+
     &:hover {
       background: #fff7e6;
     }
@@ -142,7 +142,12 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+    background: linear-gradient(
+      120deg,
+      transparent,
+      rgba(255, 255, 255, 0.6),
+      transparent
+    );
     transform: translateX(-100%);
   }
 
@@ -157,7 +162,7 @@
   background: #f0f5ff;
   border-color: #d6e4ff;
   color: #2f54eb;
-  
+
   &:hover {
     animation: pulse 1s;
   }
@@ -196,7 +201,7 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             z-index: 1;
           }
-          
+
           > td {
             transition: background-color 0.2s ease;
           }

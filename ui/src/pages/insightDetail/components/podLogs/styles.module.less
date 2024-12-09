@@ -2,13 +2,85 @@
   display: flex;
   flex-direction: column;
   height: 100%;
+  padding: 8px;
 
   .toolbar {
-    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+
+    &:empty {
+      display: none;
+      padding: 0;
+      border-bottom: none;
+    }
+
+    .connectionStatus {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.02);
+      transition: all 0.3s ease;
+      cursor: help;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
+
+      :global {
+        .ant-badge-status-dot {
+          width: 8px;
+          height: 8px;
+          transition: all 0.3s ease;
+        }
+
+        .ant-badge-status-success .ant-badge-status-dot {
+          box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.1);
+        }
+
+        .ant-badge-status-error .ant-badge-status-dot {
+          box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+        }
+
+        .ant-badge-status-text {
+          margin-left: 8px;
+          color: rgba(0, 0, 0, 0.65);
+        }
+      }
+    }
+
+    :global {
+      .ant-select {
+        min-width: 200px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          box-shadow: 0 0 0 2px rgba(47, 84, 235, 0.1);
+        }
+      }
+
+      .ant-btn {
+        transition: all 0.2s ease;
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+      }
+    }
   }
 
   .error {
-    margin-bottom: 16px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
   }
 
   .logsContainer {
@@ -16,31 +88,28 @@
     background: #1e1e1e;
     border-radius: 4px;
     overflow: auto;
-    padding: 16px;
+    padding: 12px;
     font-family: 'Courier New', Courier, monospace;
     font-size: 13px;
     line-height: 1.5;
+    transition: all 0.3s ease;
 
     .logEntry {
       display: flex;
-      margin-bottom: 4px;
+      margin-bottom: 2px;
       color: #fff;
+      padding: 1px 4px;
+      border-radius: 2px;
+      transition: background-color 0.2s ease;
 
-      .timestamp {
-        color: #888;
-        margin-right: 12px;
-        flex-shrink: 0;
-        user-select: none;
+      &:hover {
+        background-color: rgba(255, 255, 255, 0.1);
       }
 
       .content {
         flex: 1;
         white-space: pre-wrap;
         word-break: break-all;
-      }
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.05);
       }
     }
 
@@ -50,16 +119,17 @@
     }
 
     &::-webkit-scrollbar-track {
-      background: #2e2e2e;
+      background: rgba(255, 255, 255, 0.05);
       border-radius: 4px;
     }
 
     &::-webkit-scrollbar-thumb {
-      background: #555;
+      background: rgba(255, 255, 255, 0.2);
       border-radius: 4px;
+      transition: background 0.2s ease;
 
       &:hover {
-        background: #666;
+        background: rgba(255, 255, 255, 0.3);
       }
     }
   }

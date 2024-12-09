@@ -28,6 +28,8 @@
   "CheckAllIssues": "Verificar Todos os Problemas",
   "ResourceTopology": "Topologia de Recursos",
   "LogAggregator": "Log",
+  "LogAggregator.ConnectedTip": "Conectado com sucesso ao contêiner {{container}}",
+  "LogAggregator.DisconnectedTip": "Conexão perdida. Tentando reconectar...",
   "EventAggregator": "Evento",
   "EventAggregator.Type": "Tipo de Evento",
   "EventAggregator.Normal": "Normal",
@@ -142,5 +144,6 @@
   "Connected": "Conectado",
   "Disconnected": "Desconectado",
   "FailedToParsePodDetails": "Falha ao analisar detalhes do Pod",
-  "SelectContainer": "Selecionar Container"
+  "SelectContainer": "Selecionar container",
+  "CopiedToClipboard": "Copiado para a área de transferência"
 }

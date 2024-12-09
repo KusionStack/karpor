@@ -111,58 +111,53 @@ const PodLogs: React.FC<PodLogsProps> = ({
     }
   }, [cluster, namespace, podName, container, isPaused])
 
-  const handlePause = () => {
-    setPaused(!isPaused)
-  }
-
-  const handleClear = () => {
-    setLogs([])
-    setError(null)
-  }
-
   return (
     <div className={styles.podLogs}>
-      <div className={styles.toolbar}>
-        <Space>
+      {error && (
+        <Alert className={styles.error} message={error} type="error" showIcon />
+      )}
+      {container && (
+        <div className={styles.toolbar}>
           <Select
             value={container}
             onChange={setContainer}
-            style={{ width: 200 }}
             placeholder={t('SelectContainer')}
-          >
-            {containers.map(c => (
-              <Select.Option key={c} value={c}>
-                {c}
-              </Select.Option>
-            ))}
-          </Select>
-          <Tooltip title={isPaused ? t('ResumeLogs') : t('PauseLogs')}>
-            <Button
-              type={isPaused ? 'default' : 'primary'}
-              icon={isPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />}
-              onClick={handlePause}
-            />
-          </Tooltip>
-          <Tooltip title={t('ClearLogs')}>
-            <Button icon={<ClearOutlined />} onClick={handleClear} />
-          </Tooltip>
-          <Badge
-            status={isConnected ? 'success' : 'error'}
-            text={isConnected ? t('Connected') : t('Disconnected')}
+            options={containers.map(c => ({ value: c, label: c }))}
           />
-        </Space>
-      </div>
-
-      {error && (
-        <Alert
-          type="error"
-          message={error}
-          className={styles.error}
-          closable
-          onClose={() => setError(null)}
-        />
+          <Space>
+            <Tooltip title={isPaused ? t('ResumeLogs') : t('PauseLogs')}>
+              <Button
+                type="text"
+                icon={
+                  isPaused ? <PlayCircleOutlined /> : <PauseCircleOutlined />
+                }
+                onClick={() => setPaused(!isPaused)}
+              />
+            </Tooltip>
+            <Tooltip title={t('ClearLogs')}>
+              <Button
+                type="text"
+                icon={<ClearOutlined />}
+                onClick={() => setLogs([])}
+              />
+            </Tooltip>
+            <Tooltip
+              title={
+                isConnected
+                  ? t('LogAggregator.ConnectedTip', { container })
+                  : t('LogAggregator.DisconnectedTip')
+              }
+            >
+              <div className={styles.connectionStatus}>
+                <Badge
+                  status={isConnected ? 'success' : 'error'}
+                  text={t(isConnected ? 'Connected' : 'Disconnected')}
+                />
+              </div>
+            </Tooltip>
+          </Space>
+        </div>
       )}
-
       <div className={styles.logsContainer}>
         {logs.map((log, index) => (
           <div key={index} className={styles.logEntry}>
