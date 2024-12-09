@@ -7,7 +7,7 @@ import {
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
-import { HOST } from '@/utils/request'
+import axios from 'axios'
 import styles from './styles.module.less'
 
 interface LogEntry {
@@ -71,7 +71,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
       setLogs([]) // Clear logs when switching containers or reconnecting
     }
 
-    const url = `${HOST}/rest-api/v1/insight/aggregator/pod/${cluster}/${namespace}/${podName}/log?container=${container}`
+    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/pod/${cluster}/${namespace}/${podName}/log?container=${container}`
     const eventSource = new EventSource(url)
     eventSourceRef.current = eventSource
 
