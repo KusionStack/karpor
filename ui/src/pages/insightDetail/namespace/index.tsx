@@ -44,7 +44,9 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
-  const [tabList, setTabList] = useState<InsightTab[]>(insightTabsList)
+  const [tabList, setTabList] = useState<InsightTab[]>(
+    insightTabsList?.filter(item => item?.value !== 'Event'),
+  )
 
   useEffect(() => {
     if (urlParams?.deleted === 'true') {
