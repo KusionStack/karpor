@@ -1,4 +1,19 @@
 definitions:
+  aggregator.Event:
+    properties:
+      count:
+        type: integer
+      firstTimestamp:
+        type: string
+      lastTimestamp:
+        type: string
+      message:
+        type: string
+      reason:
+        type: string
+      type:
+        type: string
+    type: object
   aggregator.LogEntry:
     properties:
       content:
@@ -238,7 +253,65 @@ paths:
       summary: List all available endpoints
       tags:
       - debug
-  /insight/aggregator/pod/{cluster}/{namespace}/{name}/log:
+  /insight/aggregator/event/{cluster}/{namespace}/{name}:
+    get:
+      description: This endpoint streams resource events in real-time using SSE. It
+        supports event type filtering and automatic updates.
+      parameters:
+      - description: The cluster name
+        in: path
+        name: cluster
+        required: true
+        type: string
+      - description: The namespace name
+        in: path
+        name: namespace
+        required: true
+        type: string
+      - description: The resource name
+        in: path
+        name: name
+        required: true
+        type: string
+      - description: The resource kind
+        in: query
+        name: kind
+        required: true
+        type: string
+      - description: The resource API version
+        in: query
+        name: apiVersion
+        required: true
+        type: string
+      - description: Event type filter (Normal or Warning)
+        in: query
+        name: type
+        type: string
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/aggregator.Event'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+      summary: Stream resource events using Server-Sent Events
+      tags:
+      - insight
+  /insight/aggregator/log/pod/{cluster}/{namespace}/{name}:
     get:
       description: This endpoint streams pod logs in real-time using SSE. It supports
         container selection and automatic reconnection.

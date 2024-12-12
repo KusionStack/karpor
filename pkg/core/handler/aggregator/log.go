@@ -51,7 +51,7 @@ type LogEntry struct {
 // @Failure      400        {string}  string  "Bad Request"
 // @Failure      401        {string}  string  "Unauthorized"
 // @Failure      404        {string}  string  "Not Found"
-// @Router       /insight/aggregator/pod/{cluster}/{namespace}/{name}/log [get]
+// @Router       /insight/aggregator/log/pod/{cluster}/{namespace}/{name} [get]
 func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Set SSE headers

@@ -66,7 +66,8 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
-| GET | /insight/aggregator/pod/{cluster}/{namespace}/{name}/log | [get insight aggregator pod cluster namespace name log](#get-insight-aggregator-pod-cluster-namespace-name-log) | Stream pod logs using Server-Sent Events |
+| GET | /insight/aggregator/event/{cluster}/{namespace}/{name} | [get insight aggregator event cluster namespace name](#get-insight-aggregator-event-cluster-namespace-name) | Stream resource events using Server-Sent Events |
+| GET | /insight/aggregator/log/pod/{cluster}/{namespace}/{name} | [get insight aggregator log pod cluster namespace name](#get-insight-aggregator-log-pod-cluster-namespace-name) | Stream pod logs using Server-Sent Events |
 | GET | /rest-api/v1/insight/audit | [get rest API v1 insight audit](#get-rest-api-v1-insight-audit) | Audit based on resource group. |
 | GET | /rest-api/v1/insight/detail | [get rest API v1 insight detail](#get-rest-api-v1-insight-detail) | GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/events | [get rest API v1 insight events](#get-rest-api-v1-insight-events) | GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
@@ -414,10 +415,79 @@ Status: OK
 
 
 
-### <span id="get-insight-aggregator-pod-cluster-namespace-name-log"></span> Stream pod logs using Server-Sent Events (*GetInsightAggregatorPodClusterNamespaceNameLog*)
+### <span id="get-insight-aggregator-event-cluster-namespace-name"></span> Stream resource events using Server-Sent Events (*GetInsightAggregatorEventClusterNamespaceName*)
 
 ```
-GET /insight/aggregator/pod/{cluster}/{namespace}/{name}/log
+GET /insight/aggregator/event/{cluster}/{namespace}/{name}
+```
+
+This endpoint streams resource events in real-time using SSE. It supports event type filtering and automatic updates.
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| cluster | `path` | string | `string` |  | ✓ |  | The cluster name |
+| name | `path` | string | `string` |  | ✓ |  | The resource name |
+| namespace | `path` | string | `string` |  | ✓ |  | The namespace name |
+| apiVersion | `query` | string | `string` |  | ✓ |  | The resource API version |
+| kind | `query` | string | `string` |  | ✓ |  | The resource kind |
+| type | `query` | string | `string` |  |  |  | Event type filter (Normal or Warning) |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-insight-aggregator-event-cluster-namespace-name-200) | OK | OK |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-200-schema) |
+| [400](#get-insight-aggregator-event-cluster-namespace-name-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-400-schema) |
+| [401](#get-insight-aggregator-event-cluster-namespace-name-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-401-schema) |
+| [404](#get-insight-aggregator-event-cluster-namespace-name-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-404-schema) |
+
+#### Responses
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-200-schema"></span> Schema
+   
+  
+
+[][AggregatorEvent](#aggregator-event)
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-404-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-insight-aggregator-log-pod-cluster-namespace-name"></span> Stream pod logs using Server-Sent Events (*GetInsightAggregatorLogPodClusterNamespaceName*)
+
+```
+GET /insight/aggregator/log/pod/{cluster}/{namespace}/{name}
 ```
 
 This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
@@ -437,45 +507,45 @@ This endpoint streams pod logs in real-time using SSE. It supports container sel
 #### All responses
 | Code | Status | Description | Has headers | Schema |
 |------|--------|-------------|:-----------:|--------|
-| [200](#get-insight-aggregator-pod-cluster-namespace-name-log-200) | OK | OK |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-200-schema) |
-| [400](#get-insight-aggregator-pod-cluster-namespace-name-log-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-400-schema) |
-| [401](#get-insight-aggregator-pod-cluster-namespace-name-log-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-401-schema) |
-| [404](#get-insight-aggregator-pod-cluster-namespace-name-log-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-pod-cluster-namespace-name-log-404-schema) |
+| [200](#get-insight-aggregator-log-pod-cluster-namespace-name-200) | OK | OK |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-200-schema) |
+| [400](#get-insight-aggregator-log-pod-cluster-namespace-name-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-400-schema) |
+| [401](#get-insight-aggregator-log-pod-cluster-namespace-name-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-401-schema) |
+| [404](#get-insight-aggregator-log-pod-cluster-namespace-name-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-404-schema) |
 
 #### Responses
 
 
-##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-200"></span> 200 - OK
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-200"></span> 200 - OK
 Status: OK
 
-###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-200-schema"></span> Schema
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-200-schema"></span> Schema
    
   
 
 [AggregatorLogEntry](#aggregator-log-entry)
 
-##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-400"></span> 400 - Bad Request
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-400"></span> 400 - Bad Request
 Status: Bad Request
 
-###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-400-schema"></span> Schema
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-400-schema"></span> Schema
    
   
 
 
 
-##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-401"></span> 401 - Unauthorized
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-401"></span> 401 - Unauthorized
 Status: Unauthorized
 
-###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-401-schema"></span> Schema
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-401-schema"></span> Schema
    
   
 
 
 
-##### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-404"></span> 404 - Not Found
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-404"></span> 404 - Not Found
 Status: Not Found
 
-###### <span id="get-insight-aggregator-pod-cluster-namespace-name-log-404-schema"></span> Schema
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-404-schema"></span> Schema
    
   
 
@@ -2256,6 +2326,26 @@ Status: Internal Server Error
 
 
 ## Models
+
+### <span id="aggregator-event"></span> aggregator.Event
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| count | integer| `int64` |  | |  |  |
+| firstTimestamp | string| `string` |  | |  |  |
+| lastTimestamp | string| `string` |  | |  |  |
+| message | string| `string` |  | |  |  |
+| reason | string| `string` |  | |  |  |
+| type | string| `string` |  | |  |  |
+
+
 
 ### <span id="aggregator-log-entry"></span> aggregator.LogEntry
 
