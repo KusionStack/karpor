@@ -133,5 +133,18 @@
   "Connected": "Connected",
   "Disconnected": "Disconnected",
   "FailedToParsePodDetails": "Failed to parse pod details",
-  "CopiedToClipboard": "Copied to clipboard"
+  "CopiedToClipboard": "Copied to clipboard",
+  "Metrics": {
+    "Tooltips": {
+      "NodeCount": "Total number of nodes in the cluster",
+      "ServerVersion": "Kubernetes server version running on the cluster",
+      "ReadyNodes": "Number of nodes in Ready state and able to accept pods",
+      "Pods": "Current number of pods running vs maximum pods that can be scheduled",
+      "CPU": "CPU Usage / Total CPU",
+      "Memory": "Memory Usage / Total Memory",
+      "MetricsServer": "Metrics Server is used to collect resource metrics from Kubelets"
+    }
+  },
+  "Enabled": "Enabled",
+  "Disabled": "Disabled"
 }
