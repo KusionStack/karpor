@@ -102,7 +102,91 @@ var doc = `{
                 }
             }
         },
-        "/insight/aggregator/pod/{cluster}/{namespace}/{name}/log": {
+        "/insight/aggregator/event/{cluster}/{namespace}/{name}": {
+            "get": {
+                "description": "This endpoint streams resource events in real-time using SSE. It supports event type filtering and automatic updates.",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Stream resource events using Server-Sent Events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The cluster name",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The namespace name",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource kind",
+                        "name": "kind",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource API version",
+                        "name": "apiVersion",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event type filter (Normal or Warning)",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/aggregator.Event"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/aggregator/log/pod/{cluster}/{namespace}/{name}": {
             "get": {
                 "description": "This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.",
                 "produces": [
@@ -1771,6 +1855,29 @@ var doc = `{
         }
     },
     "definitions": {
+        "aggregator.Event": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "firstTimestamp": {
+                    "type": "string"
+                },
+                "lastTimestamp": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "aggregator.LogEntry": {
             "type": "object",
             "properties": {

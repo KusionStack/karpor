@@ -71,7 +71,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
       setLogs([]) // Clear logs when switching containers or reconnecting
     }
 
-    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/pod/${cluster}/${namespace}/${podName}/log?container=${container}`
+    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?container=${container}`
     const eventSource = new EventSource(url)
     eventSourceRef.current = eventSource
 

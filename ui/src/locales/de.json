@@ -1,6 +1,6 @@
 {
   "Help": "Hilfe",
-  "ReadOnlyMode": "Schreibgeschützter Modus",
+  "ReadOnlyMode": "Nur-Lese-Modus",
   "Search": "Suche",
   "Cluster": "Kluster",
   "Insight": "Übersicht",
@@ -128,8 +128,8 @@
   "PleaseEnterValidSQLStatement": "Bitte geben Sie eine gültige SQL-Anweisung ein.",
   "NoClusterAndJumpToClusterPage": "Das System ist derzeit nicht mit einem Cluster verbunden. Bitte registrieren Sie sich zuerst bei einem Cluster.",
   "Logout": "Ausloggen",
-  "TokenCreationGuide": "Token ist ein Zugangsschlüssel für das Hub-Cluster. Erfahren Sie mehr: <a href='{{linkUrl}}' target='_blank'>[Wie erstelle ich ein Token]</a>",
-  "LoginFailedAndCheck": "Login fehlgeschlagen, bitte überprüfen Sie, ob der Token gültig ist",
+  "TokenCreationGuide": "Token ist die Berechtigung für den Zugriff auf den Hub-Cluster. Erfahren Sie mehr: <a href='{{linkUrl}}' target='_blank'>[Wie erstelle ich ein Token]</a>",
+  "LoginFailedAndCheck": "Anmeldung fehlgeschlagen, bitte überprüfen Sie, ob das Token gültig ist",
   "UnLoginAndTokenLogin": "Derzeit nicht eingeloggt, bitte Token eingeben, um sich einzuloggen",
   "LoginSuccess": "Erfolgreich eingeloggt",
   "Login": "Einloggen",
@@ -145,5 +145,18 @@
   "Disconnected": "Getrennt",
   "FailedToParsePodDetails": "Pod-Details konnten nicht analysiert werden",
   "SelectContainer": "Container auswählen",
-  "CopiedToClipboard": "In die Zwischenablage kopiert"
+  "CopiedToClipboard": "In die Zwischenablage kopiert",
+  "Metrics": {
+    "Tooltips": {
+      "NodeCount": "Gesamtzahl der Knoten im Cluster",
+      "ServerVersion": "Kubernetes-Serverversion, die auf dem Cluster läuft",
+      "ReadyNodes": "Anzahl der Knoten im Ready-Zustand, die Pods akzeptieren können",
+      "Pods": "Aktuelle Anzahl laufender Pods im Vergleich zur maximalen Anzahl planbarer Pods",
+      "CPU": "CPU-Auslastung / Gesamt-CPU",
+      "Memory": "Speichernutzung / Gesamtspeicher",
+      "MetricsServer": "Metrics Server wird verwendet, um Ressourcenmetriken von Kubelets zu sammeln"
+    }
+  },
+  "Enabled": "Aktiviert",
+  "Disabled": "Deaktiviert"
 }

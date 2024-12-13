@@ -56,9 +56,9 @@ type Event struct {
 // @Param        apiVersion  query     string  true   "The resource API version"
 // @Param        type        query     string  false  "Event type filter (Normal or Warning)"
 // @Success      200         {array}   Event
-// @Failure      400         {object}  ErrorResponse
-// @Failure      401         {object}  ErrorResponse
-// @Failure      404         {object}  ErrorResponse
+// @Failure      400         {string}  string  "Bad Request"
+// @Failure      401         {string}  string  "Unauthorized"
+// @Failure      404         {string}  string  "Not Found"
 // @Router       /insight/aggregator/event/{cluster}/{namespace}/{name} [get]
 func GetEvents(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

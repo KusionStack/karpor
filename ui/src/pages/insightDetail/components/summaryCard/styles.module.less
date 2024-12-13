@@ -7,7 +7,7 @@
   box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  overflow: hidden; // 防止子元素溢出
+  overflow: hidden; // Prevent child elements from overflowing
 
   &:hover {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
@@ -32,9 +32,9 @@
   border-left: 1px solid rgba(0, 0, 0, 0.06);
   min-width: 0;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; // 提供更好的移动端滚动体验
+  -webkit-overflow-scrolling: touch; // Better scrolling experience on mobile devices
 
-  // 自定义滚动条样式
+  // Custom scrollbar styles
   &::-webkit-scrollbar {
     height: 6px;
   }
@@ -58,7 +58,7 @@
     gap: 16px;
     padding: 4px;
     flex-wrap: nowrap;
-    min-width: min-content; // 确保内容不会被压缩
+    min-width: min-content; // Ensure content is not compressed
 
     .item {
       position: relative;
@@ -66,9 +66,13 @@
       background: rgba(0, 0, 0, 0.02);
       border-radius: 8px;
       transition: all 0.3s ease;
-      flex: 0 0 auto; // 防止项目被压缩
+      flex: 0 0 auto; // Prevent items from being compressed
       min-width: 100px;
       max-width: fit-content;
+      height: 70px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
 
       &:hover {
         background: rgba(0, 0, 0, 0.04);
@@ -78,12 +82,19 @@
         font-weight: 600;
       }
 
+      &.with_trend {
+        min-width: 140px;
+      }
+
       .label {
         color: rgba(0, 0, 0, 0.45);
         font-size: 13px;
         font-weight: 500;
         margin-bottom: 4px;
         white-space: nowrap;
+        display: flex;
+        align-items: center;
+        min-height: 20px;
       }
 
       .value {
@@ -95,17 +106,148 @@
         font-weight: 500;
         cursor: pointer;
         transition: all 0.2s ease;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        flex: 1;
 
         &:hover {
           color: #1890ff;
         }
+      }
+    }
+  }
+}
 
-        &:active {
-          opacity: 0.7;
+.trend_chart {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+
+  .chart_container {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .chart_svg {
+      width: 100%;
+      height: 100%;
+      background-color: rgba(250, 250, 250, 0.45);
+
+      .line {
+        stroke: #597ef7;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+
+      .area {
+        fill: url(#areaGradient);
+      }
+
+      defs {
+        .area-gradient {
+          stop {
+            &.start {
+              stop-color: #e6f7ff;
+              stop-opacity: 0.3;
+            }
+            &.end {
+              stop-color: #f0f5ff;
+              stop-opacity: 0.05;
+            }
+          }
+        }
+      }
+
+      .point_group {
+        .point_halo {
+          display: none;
+        }
+
+        .point {
+          r: 1.5;
+          fill: #597ef7;
+          opacity: 0;
+          display: none;
         }
       }
     }
   }
+
+  .value_text {
+    position: absolute;
+    top: 50%;
+    right: 2px;
+    transform: translate(0, -50%);
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: monospace;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    opacity: 0;
+
+    .loading {
+      color: rgba(0, 0, 0, 0.45);
+      font-style: italic;
+    }
+
+    .current {
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+    }
+
+    .hover_text {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      color: rgba(0, 0, 0, 0.45);
+      margin-left: 2px;
+    }
+
+    .unit {
+      color: rgba(0, 0, 0, 0.65);
+      margin-left: 1px;
+      flex-shrink: 0;
+    }
+  }
+
+  &:hover {
+    .value_text {
+      transform: translate(-50%, -50%);
+      left: 50%;
+      right: auto;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 2px;
+      z-index: 2;
+      opacity: 1;
+
+      .current {
+        color: rgba(0, 0, 0, 0.85);
+        font-weight: 500;
+      }
+
+      .hover_text {
+        opacity: 1;
+      }
+
+      .unit {
+        color: rgba(0, 0, 0, 0.65);
+      }
+    }
+  }
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  height: 24px;
 }
 
 .popoverItem {

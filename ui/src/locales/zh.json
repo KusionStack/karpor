@@ -122,6 +122,17 @@
   "Copy": "复制",
   "CopySuccess": "复制成功",
   "CopiedToClipboard": "已复制到剪贴板",
+  "Metrics": {
+    "Tooltips": {
+      "NodeCount": "集群中的节点总数",
+      "ServerVersion": "集群运行的 Kubernetes 服务器版本",
+      "ReadyNodes": "处于就绪状态且可以接受 Pod 的节点数量",
+      "Pods": "当前运行的 Pod 数量与可调度的最大 Pod 数量比较",
+      "CPU": "CPU 使用量 / CPU 总量",
+      "Memory": "内存使用量 / 内存总量",
+      "MetricsServer": "Metrics Server 用于从 Kubelet 收集资源指标"
+    }
+  },
   "TotalResourceGroupRules": "资源组规则数量",
   "TotalResources": "资源总数",
   "ClusterCount": "集群数量",
@@ -145,5 +156,7 @@
   "Connected": "已连接",
   "Disconnected": "已断开",
   "FailedToParsePodDetails": "解析 Pod 详情失败",
-  "SelectContainer": "选择容器"
+  "SelectContainer": "选择容器",
+  "Enabled": "已启用",
+  "Disabled": "未启用"
 }
