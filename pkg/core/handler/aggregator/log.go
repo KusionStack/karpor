@@ -21,6 +21,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"github.com/KusionStack/karpor/pkg/core/manager/cluster"
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
@@ -147,4 +148,80 @@ func writeLogSSEError(w http.ResponseWriter, errMsg string) {
 	data, _ := json.Marshal(logEntry)
 	fmt.Fprintf(w, "data: %s\n\n", data)
 	w.(http.Flusher).Flush()
+}
+
+// DiagnoseRequest represents the request body for log diagnosis
+type DiagnoseRequest struct {
+	Logs     []string `json:"logs"`
+	Language string   `json:"language"` // Language code for AI response
+}
+
+// DiagnoseResponse represents the response for log diagnosis
+type DiagnoseResponse struct {
+	Diagnosis string `json:"diagnosis"`
+}
+
+// DiagnosePodLogs returns an HTTP handler function that performs AI diagnosis on pod logs
+//
+// @Summary      Diagnose pod logs using AI
+// @Description  This endpoint analyzes pod logs using AI to identify issues and provide solutions
+// @Tags         insight
+// @Accept       json
+// @Produce      text/event-stream
+// @Param        request body DiagnoseRequest true "The logs to analyze"
+// @Success      200  {object}  DiagnosisEvent
+// @Failure      400  {string}  string "Bad Request"
+// @Failure      500  {string}  string "Internal Server Error"
+// @Router       /insight/aggregator/log/diagnosis/stream [post]
+func DiagnosePodLogs(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+
+		if err := ai.CheckAIManager(aiMgr); err != nil {
+			logger.Error(err, "AI manager is not available")
+			http.Error(w, "AI service is not available", http.StatusServiceUnavailable)
+			return
+		}
+
+		// Parse request body
+		var req DiagnoseRequest
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			http.Error(w, "invalid request body", http.StatusBadRequest)
+			return
+		}
+
+		// Set headers for SSE
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("X-Accel-Buffering", "no")
+
+		flusher, ok := w.(http.Flusher)
+		if !ok {
+			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			return
+		}
+
+		// Create channel for diagnosis events
+		eventChan := make(chan *ai.DiagnosisEvent, 10)
+		go func() {
+			if err := aiMgr.DiagnoseLogs(ctx, req.Logs, req.Language, eventChan); err != nil {
+				// Error already sent through eventChan
+				return
+			}
+		}()
+
+		// Stream events to client
+		for event := range eventChan {
+			data, err := json.Marshal(event)
+			if err != nil {
+				logger.Error(err, "Failed to marshal diagnosis event")
+				continue
+			}
+			fmt.Fprintf(w, "data: %s\n\n", data)
+			flusher.Flush()
+		}
+	}
 }
