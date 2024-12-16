@@ -96,7 +96,7 @@ export interface InsightTab {
 export const insightTabsList: InsightTab[] = [
   { value: 'Topology', label: 'ResourceTopology' },
   { value: 'YAML', label: 'YAML' },
-  { value: 'Event', label: 'Event' },
+  { value: 'Events', label: 'EventAggregator' },
 ]
 
 export const defaultSqlExamples = [

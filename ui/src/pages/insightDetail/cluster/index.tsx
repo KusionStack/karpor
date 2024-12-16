@@ -343,7 +343,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList?.filter(item => item?.value !== 'Event')}
+            list={insightTabsList?.filter(item => item?.value !== 'Events')}
             current={currentTab}
             onChange={handleTabChange}
           />

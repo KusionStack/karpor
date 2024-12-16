@@ -27,7 +27,7 @@
   "Rescan": "Neu scannen",
   "CheckAllIssues": "Alle Fehler prüfen",
   "ResourceTopology": "Ressourcen Topologie",
-  "LogAggregator": "Log",
+  "LogAggregator": "Logs",
   "LogAggregator.ConnectedTip": "Erfolgreich mit Container {{container}} verbunden",
   "LogAggregator.DisconnectedTip": "Verbindung verloren. Versuche erneut zu verbinden...",
   "EventAggregator": "Ereignis",
