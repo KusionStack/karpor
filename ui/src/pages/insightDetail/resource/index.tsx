@@ -49,8 +49,8 @@ const ClusterDetail = () => {
   useEffect(() => {
     const initialTabList = [...insightTabsList]
     if (kind === 'Pod') {
-      if (!initialTabList.find(tab => tab.value === 'Log')) {
-        initialTabList.push({ value: 'Log', label: 'LogAggregator' })
+      if (!initialTabList.find(tab => tab.value === 'Logs')) {
+        initialTabList.push({ value: 'Logs', label: 'LogAggregator' })
       }
     }
     setTabList(initialTabList)
@@ -389,7 +389,7 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
-    if (currentTab === 'Event') {
+    if (currentTab === 'Events') {
       return (
         <EventAggregator
           cluster={cluster as string}
@@ -400,7 +400,7 @@ const ClusterDetail = () => {
         />
       )
     }
-    if (currentTab === 'Log' && kind === 'Pod') {
+    if (currentTab === 'Logs' && kind === 'Pod') {
       return (
         <PodLogs
           cluster={cluster as string}

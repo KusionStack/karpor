@@ -45,7 +45,7 @@ const ClusterDetail = () => {
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
   const [tabList, setTabList] = useState<InsightTab[]>(
-    insightTabsList?.filter(item => item?.value !== 'Event'),
+    insightTabsList?.filter(item => item?.value !== 'Events'),
   )
 
   useEffect(() => {
