@@ -32,7 +32,6 @@ import { useAxios } from '@/utils/request'
 import styles from './styles.module.less'
 
 const { Search } = Input
-const { t } = useTranslation()
 const Option = AutoComplete.Option
 
 export const CustomDropdown = props => {
@@ -47,9 +46,7 @@ export const CustomDropdown = props => {
         >
           <Option value={option.value}>
             <span>{option.value}</span> -{' '}
-            <span style={{ color: '#999' }}>
-              {option.value || t('DefaultTag')}
-            </span>
+            <span style={{ color: '#999' }}>{option.value || <></>}</span>
           </Option>
         </div>
       ))}
@@ -58,7 +55,6 @@ export const CustomDropdown = props => {
 }
 
 const Result = () => {
-  const { t } = useTranslation()
   const location = useLocation()
   const navigate = useNavigate()
   const [pageData, setPageData] = useState<any>()
@@ -75,6 +71,8 @@ const Result = () => {
   const [naturalOptions, setNaturalOptions] = useState(
     getHistoryList('naturalHistory') || [],
   )
+
+  const { t } = useTranslation()
 
   function cacheNaturalHistory(key, val) {
     const result = cacheHistory(key, val)

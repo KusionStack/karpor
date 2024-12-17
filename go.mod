@@ -63,6 +63,7 @@ require (
 	sigs.k8s.io/yaml v1.3.0
 )
 
+
 require (
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/Masterminds/goutils v1.1.1 // indirect
@@ -174,4 +175,9 @@ require (
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 )
 
-replace github.com/KusionStack/karpor/hack/cert-generator => ./hack/cert-generator
+replace (
+	github.com/KusionStack/karpor/hack/cert-generator => ./hack/cert-generator
+	// the below fixes the "go list -m all" execution
+	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.26.1
+	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.26.1
+)
