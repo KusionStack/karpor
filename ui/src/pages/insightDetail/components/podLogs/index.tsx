@@ -10,8 +10,8 @@ import {
   Spin,
   DatePicker,
   Input,
+  InputNumber,
   Modal,
-  Switch,
 } from 'antd'
 import {
   PauseCircleOutlined,
@@ -32,11 +32,13 @@ import styles from './styles.module.less'
 import Markdown from 'react-markdown'
 import { useSelector } from 'react-redux'
 import debounce from 'lodash.debounce'
+import dayjs from 'dayjs'
 
 interface LogEntry {
   timestamp: string
   content: string
   error?: string
+  id?: string
 }
 
 interface PodLogsProps {
@@ -68,13 +70,17 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const [isPaused, setIsPaused] = useState(false)
   const [isConnected, setConnected] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastTimestamp, setLastTimestamp] = useState<string | null>(null)
+  const [isReconnecting, setIsReconnecting] = useState(false)
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const lastErrorRef = useRef<number>(0)
   const [diagnosisStatus, setDiagnosisStatus] =
     useState<DiagnosisStatus>('idle')
   const [diagnosis, setDiagnosis] = useState('')
   const [isStreaming, setStreaming] = useState(false)
   const [settings, setSettings] = useState<LogSettings>({
-    timestamps: false,
-    tailLines: 1000,
+    timestamps: true,
+    tailLines: 100,
   })
   const [showSettings, setShowSettings] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -112,57 +118,121 @@ const PodLogs: React.FC<PodLogsProps> = ({
       return
     }
 
-    // Clean up previous connection
-    if (eventSourceRef.current) {
-      eventSourceRef.current.close()
-      setLogs([]) // Clear logs when switching containers or reconnecting
-    }
+    const setupEventSource = () => {
+      // Clean up previous connection
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+      }
 
-    const params = new URLSearchParams({
-      container,
-      ...(settings.since && { since: settings.since }),
-      ...(settings.sinceTime && { sinceTime: settings.sinceTime }),
-      ...(settings.tailLines && { tailLines: String(settings.tailLines) }),
-      ...(settings.timestamps && { timestamps: 'true' }),
-    })
+      const params = new URLSearchParams({
+        container,
+        timestamps: 'true',
+      })
 
-    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
-    const eventSource = new EventSource(url)
-    eventSourceRef.current = eventSource
+      // Add tailLines only for initial connection
+      if (settings.tailLines && !isReconnecting) {
+        params.append('tailLines', String(settings.tailLines))
+      }
 
-    eventSource.onopen = () => {
-      setConnected(true)
-      setError(null)
-    }
+      // Add since parameter if specified
+      if (settings.since) {
+        params.append('since', settings.since)
+      }
 
-    eventSource.onmessage = event => {
-      try {
-        const logEntry: LogEntry = JSON.parse(event.data)
+      // Add sinceTime parameter if specified
+      if (settings.sinceTime) {
+        params.append('sinceTime', settings.sinceTime)
+      }
 
-        if (logEntry.error) {
-          setError(logEntry.error)
+      // Add last timestamp for reconnection
+      if (isReconnecting && lastTimestamp) {
+        params.append('sinceTime', lastTimestamp)
+      }
+
+      const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
+      const eventSource = new EventSource(url)
+      eventSourceRef.current = eventSource
+
+      eventSource.onopen = () => {
+        setConnected(true)
+        setError(null)
+        // Only clear reconnecting flag if connection is stable
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current)
+          reconnectTimeoutRef.current = null
+        }
+        reconnectTimeoutRef.current = setTimeout(() => {
+          setIsReconnecting(false)
+        }, 1000) // Wait for 1 second to ensure connection is stable
+      }
+
+      eventSource.onmessage = event => {
+        try {
+          const logEntry: LogEntry = JSON.parse(event.data)
+
+          if (logEntry.error) {
+            setError(logEntry.error)
+            return
+          }
+
+          // Generate a unique ID for the log entry
+          logEntry.id = `${logEntry.timestamp}-${logEntry.content.length}-${logEntry.content.slice(0, 20)}`
+
+          // Track the latest timestamp for reconnection
+          if (logEntry.timestamp) {
+            setLastTimestamp(logEntry.timestamp)
+          }
+
+          setLogs(prev => {
+            // Prevent duplicate logs by comparing unique IDs
+            const isDuplicate = prev.some(
+              existingLog => existingLog.id === logEntry.id,
+            )
+            if (isDuplicate) {
+              return prev
+            }
+            return [...prev, logEntry]
+          })
+
+          // Auto-scroll to bottom for new logs
+          if (logsEndRef.current) {
+            logsEndRef.current.scrollIntoView({ behavior: 'smooth' })
+          }
+        } catch (error) {
+          console.error('Failed to parse log entry:', error)
+        }
+      }
+
+      eventSource.onerror = err => {
+        console.error('EventSource error:', err)
+        const now = Date.now()
+        // Prevent rapid reconnection attempts
+        if (now - lastErrorRef.current < 1000) {
           return
         }
+        lastErrorRef.current = now
 
-        setLogs(prev => [...prev, logEntry])
-
-        // Auto-scroll to bottom
-        if (logsEndRef.current) {
-          logsEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        setConnected(false)
+        // Only set reconnecting if we're not already in that state
+        if (!isReconnecting) {
+          setIsReconnecting(true)
         }
-      } catch (error) {
-        console.error('Failed to parse log entry:', error)
+
+        // Clean up and retry connection
+        eventSource.close()
+        setTimeout(setupEventSource, 1000)
       }
     }
 
-    eventSource.onerror = err => {
-      console.error('EventSource error:', err)
-      setConnected(false)
-      // SSE will automatically reconnect, no manual handling needed
-    }
+    setupEventSource()
 
     return () => {
-      eventSource.close()
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+      }
+      if (eventSourceRef.current) {
+        eventSourceRef.current.close()
+      }
     }
   }, [cluster, namespace, podName, container, isPaused, settings])
 
@@ -303,36 +373,157 @@ const PodLogs: React.FC<PodLogsProps> = ({
     debouncedDiagnose()
   }, [debouncedDiagnose])
 
-  const handleDownload = async () => {
+  const handleDownloadLogs = async () => {
     try {
-      const params = new URLSearchParams({
-        container,
-        download: 'true',
-        ...(settings.since && { since: settings.since }),
-        ...(settings.sinceTime && { sinceTime: settings.sinceTime }),
-        ...(settings.timestamps && { timestamps: 'true' }),
-      })
+      // Get visible logs based on current filter/highlight mode
+      const visibleLogs = logs.filter(
+        log =>
+          searchMode === 'highlight' ||
+          log.content.toLowerCase().includes(searchText.toLowerCase()),
+      )
 
-      const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
-      const response = await axios.get(url, { responseType: 'blob' })
+      // Format logs with timestamps
+      const logContent = visibleLogs
+        .map(log => `${log.timestamp} ${log.content}`)
+        .join('\n')
 
-      const blob = new Blob([response.data], { type: 'text/plain' })
-      const downloadUrl = window.URL.createObjectURL(blob)
-      const link = document.createElement('a')
-      link.href = downloadUrl
-      link.download = `${podName}-${container}.log`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      window.URL.revokeObjectURL(downloadUrl)
+      // Create blob and download
+      const blob = new Blob([logContent], { type: 'text/plain' })
+      const url = window.URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `pod-logs-${podName}-${new Date().toISOString()}.txt`
+      document.body.appendChild(a)
+      a.click()
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
     } catch (error) {
       console.error('Failed to download logs:', error)
-      message.error(t('LogAggregator.DownloadError'))
+      message.error(t('Failed to download logs'))
     }
   }
 
   const handleSettingsChange = (newSettings: Partial<LogSettings>) => {
     setSettings(prev => ({ ...prev, ...newSettings }))
+    // Clear existing logs when settings change
+    setLogs([])
+    setLastTimestamp(null)
+
+    // Reconnect with new settings
+    handleDisconnect()
+    handleConnect()
+  }
+
+  const handleConnect = () => {
+    if (!podName) return
+
+    setError(null)
+    setStreaming(true)
+    setIsReconnecting(false)
+
+    const params = new URLSearchParams({
+      timestamps: 'true',
+    })
+
+    // Add tailLines only for initial connection
+    if (settings.tailLines && !isReconnecting) {
+      params.append('tailLines', String(settings.tailLines))
+    }
+
+    // Add since parameter if specified
+    if (settings.since) {
+      params.append('since', settings.since)
+    }
+
+    // Add sinceTime parameter if specified
+    if (settings.sinceTime) {
+      params.append('sinceTime', settings.sinceTime)
+    }
+
+    // Add last timestamp for reconnection
+    if (isReconnecting && lastTimestamp) {
+      params.append('sinceTime', lastTimestamp)
+    }
+
+    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
+    const eventSource = new EventSource(url)
+    eventSourceRef.current = eventSource
+
+    eventSource.onopen = () => {
+      setConnected(true)
+      setError(null)
+      // Only clear reconnecting flag if connection is stable
+      if (reconnectTimeoutRef.current) {
+        clearTimeout(reconnectTimeoutRef.current)
+        reconnectTimeoutRef.current = null
+      }
+      reconnectTimeoutRef.current = setTimeout(() => {
+        setIsReconnecting(false)
+      }, 1000) // Wait for 1 second to ensure connection is stable
+    }
+
+    eventSource.onmessage = event => {
+      try {
+        const logEntry: LogEntry = JSON.parse(event.data)
+
+        if (logEntry.error) {
+          setError(logEntry.error)
+          return
+        }
+
+        // Generate a unique ID for the log entry
+        logEntry.id = `${logEntry.timestamp}-${logEntry.content.length}-${logEntry.content.slice(0, 20)}`
+
+        // Track the latest timestamp for reconnection
+        if (logEntry.timestamp) {
+          setLastTimestamp(logEntry.timestamp)
+        }
+
+        setLogs(prev => {
+          // Prevent duplicate logs by comparing unique IDs
+          const isDuplicate = prev.some(
+            existingLog => existingLog.id === logEntry.id,
+          )
+          if (isDuplicate) {
+            return prev
+          }
+          return [...prev, logEntry]
+        })
+
+        // Auto-scroll to bottom for new logs
+        if (logsEndRef.current) {
+          logsEndRef.current.scrollIntoView({ behavior: 'smooth' })
+        }
+      } catch (error) {
+        console.error('Failed to parse log entry:', error)
+      }
+    }
+
+    eventSource.onerror = err => {
+      console.error('EventSource error:', err)
+      const now = Date.now()
+      // Prevent rapid reconnection attempts
+      if (now - lastErrorRef.current < 1000) {
+        return
+      }
+      lastErrorRef.current = now
+
+      setConnected(false)
+      // Only set reconnecting if we're not already in that state
+      if (!isReconnecting) {
+        setIsReconnecting(true)
+      }
+
+      // Clean up and retry connection
+      eventSource.close()
+      setTimeout(handleConnect, 1000)
+    }
+  }
+
+  const handleDisconnect = () => {
+    if (eventSourceRef.current) {
+      eventSourceRef.current.close()
+    }
   }
 
   const renderSettingsModal = () => (
@@ -340,45 +531,49 @@ const PodLogs: React.FC<PodLogsProps> = ({
       title={t('LogAggregator.Settings')}
       open={showSettings}
       onCancel={() => setShowSettings(false)}
-      onOk={() => setShowSettings(false)}
+      footer={null}
+      keyboard={true}
+      centered
+      maskClosable={true}
+      width={400}
     >
-      <Space direction="vertical" style={{ width: '100%' }}>
+      <Space direction="vertical" style={{ width: '100%', padding: '8px 0' }}>
         <div>
-          <div>{t('LogAggregator.Since')}</div>
+          <div style={{ marginBottom: '8px' }}>
+            {t('LogAggregator.TailLines')}
+          </div>
+          <InputNumber
+            value={settings.tailLines}
+            onChange={value =>
+              handleSettingsChange({ tailLines: value as number })
+            }
+            min={1}
+            max={10000}
+            style={{ width: '100%' }}
+          />
+        </div>
+        <div>
+          <div style={{ marginBottom: '8px' }}>{t('LogAggregator.Since')}</div>
           <Input
-            placeholder="1h, 2d"
             value={settings.since}
             onChange={e => handleSettingsChange({ since: e.target.value })}
+            placeholder="e.g. 1h, 2d"
+            style={{ width: '100%' }}
           />
         </div>
         <div>
-          <div>{t('LogAggregator.SinceTime')}</div>
+          <div style={{ marginBottom: '8px' }}>
+            {t('LogAggregator.SinceTime')}
+          </div>
           <DatePicker
             showTime
-            onChange={date =>
+            value={settings.sinceTime ? dayjs(settings.sinceTime) : null}
+            onChange={value =>
               handleSettingsChange({
-                sinceTime: date ? date.toISOString() : undefined,
+                sinceTime: value ? value.toISOString() : undefined,
               })
             }
-          />
-        </div>
-        <div>
-          <div>{t('LogAggregator.TailLines')}</div>
-          <Input
-            type="number"
-            value={settings.tailLines}
-            onChange={e =>
-              handleSettingsChange({
-                tailLines: parseInt(e.target.value),
-              })
-            }
-          />
-        </div>
-        <div>
-          <div>{t('LogAggregator.ShowTimestamps')}</div>
-          <Switch
-            checked={settings.timestamps}
-            onChange={checked => handleSettingsChange({ timestamps: checked })}
+            style={{ width: '100%' }}
           />
         </div>
       </Space>
@@ -503,7 +698,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 type="text"
                 className={styles.actionButton}
                 icon={<DownloadOutlined />}
-                onClick={handleDownload}
+                onClick={handleDownloadLogs}
               />
             </Tooltip>
             <Tooltip title={t('LogAggregator.Settings')}>
