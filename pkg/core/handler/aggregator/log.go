@@ -18,7 +18,10 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/KusionStack/karpor/pkg/core/manager/ai"
@@ -27,13 +30,14 @@ import (
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/utils/pointer"
 )
 
 // LogEntry represents a single log entry with timestamp and content
 type LogEntry struct {
-	Timestamp string `json:"timestamp"`
+	Timestamp string `json:"timestamp,omitempty"`
 	Content   string `json:"content"`
 	Error     string `json:"error,omitempty"`
 }
@@ -43,11 +47,16 @@ type LogEntry struct {
 // @Summary      Stream pod logs using Server-Sent Events
 // @Description  This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
 // @Tags         insight
-// @Produce      text/event-stream
-// @Param        cluster    path      string  true   "The cluster name"
-// @Param        namespace  path      string  true   "The namespace name"
-// @Param        name       path      string  true   "The pod name"
-// @Param        container  query     string  false  "The container name (optional if pod has only one container)"
+// @Produce      text/event-stream, application/json
+// @Param        cluster     path      string  true   "The cluster name"
+// @Param        namespace   path      string  true   "The namespace name"
+// @Param        name        path      string  true   "The pod name"
+// @Param        container   query     string  false  "The container name (optional if pod has only one container)"
+// @Param        since       query     string  false  "Only return logs newer than a relative duration like 5s, 2m, or 3h"
+// @Param        sinceTime   query     string  false  "Only return logs after a specific date (RFC3339)"
+// @Param        timestamps  query     bool    false  "Include timestamps in log output"
+// @Param        tailLines   query     int     false  "Number of lines from the end of the logs to show"
+// @Param        download    query     bool    false  "Download logs as file instead of streaming"
 // @Success      200        {object}  LogEntry
 // @Failure      400        {string}  string  "Bad Request"
 // @Failure      401        {string}  string  "Unauthorized"
@@ -55,12 +64,6 @@ type LogEntry struct {
 // @Router       /insight/aggregator/log/pod/{cluster}/{namespace}/{name} [get]
 func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		// Set SSE headers
-		w.Header().Set("Content-Type", "text/event-stream")
-		w.Header().Set("Cache-Control", "no-cache")
-		w.Header().Set("Connection", "keep-alive")
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-
 		// Extract the context and logger from the request
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
@@ -70,6 +73,11 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		namespace := chi.URLParam(r, "namespace")
 		name := chi.URLParam(r, "name")
 		container := r.URL.Query().Get("container")
+		since := r.URL.Query().Get("since")
+		sinceTime := r.URL.Query().Get("sinceTime")
+		timestamps := r.URL.Query().Get("timestamps") == "true"
+		tailLines := r.URL.Query().Get("tailLines")
+		download := r.URL.Query().Get("download") == "true"
 
 		if cluster == "" || namespace == "" || name == "" {
 			writeLogSSEError(w, "cluster, namespace and name are required")
@@ -89,9 +97,31 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 
 		// Configure log streaming options
 		opts := &corev1.PodLogOptions{
-			Container: container,
-			Follow:    true,
-			TailLines: pointer.Int64(1000),
+			Container:  container,
+			Follow:     !download, // Don't follow if downloading
+			Timestamps: timestamps,
+		}
+
+		// Parse and set since time
+		if since != "" {
+			duration, err := time.ParseDuration(since)
+			if err == nil {
+				opts.SinceSeconds = pointer.Int64(int64(duration.Seconds()))
+			}
+		} else if sinceTime != "" {
+			t, err := time.Parse(time.RFC3339, sinceTime)
+			if err == nil {
+				opts.SinceTime = &metav1.Time{Time: t}
+			}
+		}
+
+		// Parse and set tail lines
+		if tailLines != "" {
+			if lines, err := strconv.ParseInt(tailLines, 10, 64); err == nil {
+				opts.TailLines = pointer.Int64(lines)
+			}
+		} else if !download {
+			opts.TailLines = pointer.Int64(1000) // Default to last 1000 lines for streaming
 		}
 
 		// Get log stream from the pod
@@ -103,38 +133,55 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		}
 		defer stream.Close()
 
-		// Create a done channel to handle client disconnection
-		done := r.Context().Done()
-		go func() {
-			<-done
-			stream.Close()
-		}()
+		// Handle download request
+		if download {
+			w.Header().Set("Content-Type", "text/plain")
+			w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%s-%s.log", name, container))
+			io.Copy(w, stream)
+			return
+		}
 
-		// Read and send logs
+		// Set SSE headers for streaming
+		w.Header().Set("Content-Type", "text/event-stream")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Header().Set("Connection", "keep-alive")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+
+		// Create a scanner to read the log stream
 		scanner := bufio.NewScanner(stream)
-		for scanner.Scan() {
-			select {
-			case <-done:
-				return
-			default:
-				logEntry := LogEntry{
-					Timestamp: time.Now().Format(time.RFC3339Nano),
-					Content:   scanner.Text(),
-				}
+		scanner.Split(bufio.ScanLines)
 
+		// Send logs as SSE events
+		for scanner.Scan() {
+			line := scanner.Text()
+			parts := strings.SplitN(line, " ", 2)
+			if len(parts) == 2 && timestamps {
+				logEntry := LogEntry{
+					Timestamp: parts[0],
+					Content:   parts[1],
+				}
 				data, err := json.Marshal(logEntry)
 				if err != nil {
-					writeLogSSEError(w, fmt.Sprintf("failed to marshal log entry: %v", err))
-					return
+					logger.Error(err, "Failed to marshal log entry")
+					continue
 				}
-
 				fmt.Fprintf(w, "data: %s\n\n", data)
-				w.(http.Flusher).Flush()
+			} else {
+				logEntry := LogEntry{
+					Content: line,
+				}
+				data, err := json.Marshal(logEntry)
+				if err != nil {
+					logger.Error(err, "Failed to marshal log entry")
+					continue
+				}
+				fmt.Fprintf(w, "data: %s\n\n", data)
 			}
+			w.(http.Flusher).Flush()
 		}
 
 		if err := scanner.Err(); err != nil {
-			writeLogSSEError(w, fmt.Sprintf("error reading log stream: %v", err))
+			logger.Error(err, "Error reading log stream")
 		}
 	}
 }
@@ -142,8 +189,7 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 // writeLogSSEError writes an error message to the SSE stream
 func writeLogSSEError(w http.ResponseWriter, errMsg string) {
 	logEntry := LogEntry{
-		Timestamp: time.Now().Format(TimeFormat),
-		Error:     errMsg,
+		Error: errMsg,
 	}
 	data, _ := json.Marshal(logEntry)
 	fmt.Fprintf(w, "data: %s\n\n", data)
