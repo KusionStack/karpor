@@ -172,6 +172,7 @@ func setupRestAPIV1(
 		r.Get("/events", eventshandler.GetEvents(insightMgr, genericConfig))
 		r.Get("/detail", detailhandler.GetDetail(clusterMgr, insightMgr, genericConfig))
 		r.Get("/aggregator/log/pod/{cluster}/{namespace}/{name}", aggregatorhandler.GetPodLogs(clusterMgr, genericConfig))
+		r.Post("/aggregator/log/diagnosis/stream", aggregatorhandler.DiagnosePodLogs(aiMgr, genericConfig))
 		r.Get("/aggregator/event/{cluster}/{namespace}/{name}", aggregatorhandler.GetEvents(clusterMgr, genericConfig))
 	})
 

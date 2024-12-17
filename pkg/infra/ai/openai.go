@@ -67,3 +67,53 @@ func (c *OpenAIClient) Generate(ctx context.Context, prompt string) (string, err
 	}
 	return resp.Choices[0].Message.Content, nil
 }
+
+func (c *OpenAIClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
+	// Create chat completion stream with streaming enabled
+	stream, err := c.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
+		Model: c.model,
+		Messages: []openai.ChatCompletionMessage{
+			{
+				Role:    openai.ChatMessageRoleUser,
+				Content: prompt,
+			},
+		},
+		Temperature: c.temperature,
+		TopP:        c.topP,
+		Stream:      true,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// Create buffered channel for response chunks
+	resultChan := make(chan string, 100)
+
+	// Start goroutine to handle streaming response
+	go func() {
+		defer close(resultChan)
+		defer stream.Close()
+
+		for {
+			response, err := stream.Recv()
+			if err != nil {
+				if err.Error() == "EOF" {
+					return
+				}
+				// Send error as a special message
+				resultChan <- "ERROR: " + err.Error()
+				return
+			}
+
+			// Send non-empty content chunks
+			if len(response.Choices) > 0 {
+				chunk := response.Choices[0].Delta.Content
+				if chunk != "" {
+					resultChan <- chunk
+				}
+			}
+		}
+	}()
+
+	return resultChan, nil
+}

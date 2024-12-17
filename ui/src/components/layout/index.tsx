@@ -17,6 +17,7 @@ import {
   setIsLogin,
   setGithubBadge,
   setIsUnsafeMode,
+  setAIOptions,
 } from '@/store/modules/globalSlice'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
@@ -70,6 +71,7 @@ const LayoutPage = () => {
       dispatch(setIsUnsafeMode(!response?.CoreOptions?.EnableRBAC))
       dispatch(setVersionNumber(response?.Version))
       dispatch(setGithubBadge(response?.CoreOptions?.GithubBadge))
+      dispatch(setAIOptions(response?.AIOptions))
     }
   }, [response, dispatch])
 

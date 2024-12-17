@@ -44,6 +44,10 @@ type AIProvider interface {
 	// Generate generates a response from the AI service based on
 	// the provided prompt and service type.
 	Generate(ctx context.Context, prompt string) (string, error)
+	// GenerateStream generates a streaming response from the AI service
+	// based on the provided prompt. It returns a channel that will receive
+	// chunks of the response as they are generated.
+	GenerateStream(ctx context.Context, prompt string) (<-chan string, error)
 }
 
 // AIConfig represents the configuration settings for an AI client.

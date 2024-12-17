@@ -52,3 +52,31 @@ func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string
 
 	return resp[0].GeneratedText[len(prompt):], nil
 }
+
+func (c *HuggingfaceClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
+	// Hugging Face API doesn't support streaming yet, so we simulate streaming output
+	resultChan := make(chan string, 100)
+
+	go func() {
+		defer close(resultChan)
+
+		resp, err := c.Generate(ctx, prompt)
+		if err != nil {
+			resultChan <- "ERROR: " + err.Error()
+			return
+		}
+
+		// Simulate streaming by sending response character by character
+		// Note: This is not ideal for production use
+		// Consider waiting for native streaming support from Hugging Face API
+		for _, char := range resp {
+			select {
+			case <-ctx.Done():
+				return
+			case resultChan <- string(char):
+			}
+		}
+	}()
+
+	return resultChan, nil
+}

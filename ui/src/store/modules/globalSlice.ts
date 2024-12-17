@@ -6,6 +6,7 @@ type InitialState = {
   isLogin: boolean
   githubBadge: boolean
   isUnsafeMode: any
+  aiOptions: any
 }
 
 const initialState: InitialState = {
@@ -14,6 +15,7 @@ const initialState: InitialState = {
   isLogin: false,
   githubBadge: false,
   isUnsafeMode: undefined,
+  aiOptions: null,
 }
 
 export const globalSlice = createSlice({
@@ -35,6 +37,9 @@ export const globalSlice = createSlice({
     setIsUnsafeMode: (state, action) => {
       state.isUnsafeMode = action.payload
     },
+    setAIOptions: (state, action) => {
+      state.aiOptions = action.payload
+    },
   },
 })
 
@@ -44,6 +49,7 @@ export const {
   setIsLogin,
   setGithubBadge,
   setIsUnsafeMode,
+  setAIOptions,
 } = globalSlice.actions
 
 export default globalSlice.reducer
