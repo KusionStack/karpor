@@ -8,6 +8,10 @@ import {
   Tooltip,
   message,
   Spin,
+  DatePicker,
+  Input,
+  Modal,
+  Switch,
 } from 'antd'
 import {
   PauseCircleOutlined,
@@ -16,6 +20,10 @@ import {
   RobotOutlined,
   CloseOutlined,
   PoweroffOutlined,
+  DownloadOutlined,
+  SettingOutlined,
+  HighlightOutlined,
+  FilterOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
@@ -40,6 +48,13 @@ interface PodLogsProps {
 
 type DiagnosisStatus = 'idle' | 'init' | 'streaming' | 'complete' | 'error'
 
+interface LogSettings {
+  since?: string
+  sinceTime?: string
+  tailLines?: number
+  timestamps: boolean
+}
+
 const PodLogs: React.FC<PodLogsProps> = ({
   cluster,
   namespace,
@@ -57,6 +72,15 @@ const PodLogs: React.FC<PodLogsProps> = ({
     useState<DiagnosisStatus>('idle')
   const [diagnosis, setDiagnosis] = useState('')
   const [isStreaming, setStreaming] = useState(false)
+  const [settings, setSettings] = useState<LogSettings>({
+    timestamps: false,
+    tailLines: 1000,
+  })
+  const [showSettings, setShowSettings] = useState(false)
+  const [searchText, setSearchText] = useState('')
+  const [searchMode, setSearchMode] = useState<'highlight' | 'filter'>(
+    'highlight',
+  )
   const logsEndRef = useRef<HTMLDivElement>(null)
   const diagnosisEndRef = useRef<HTMLDivElement>(null)
   const eventSourceRef = useRef<EventSource | null>(null)
@@ -94,7 +118,15 @@ const PodLogs: React.FC<PodLogsProps> = ({
       setLogs([]) // Clear logs when switching containers or reconnecting
     }
 
-    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?container=${container}`
+    const params = new URLSearchParams({
+      container,
+      ...(settings.since && { since: settings.since }),
+      ...(settings.sinceTime && { sinceTime: settings.sinceTime }),
+      ...(settings.tailLines && { tailLines: String(settings.tailLines) }),
+      ...(settings.timestamps && { timestamps: 'true' }),
+    })
+
+    const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
     const eventSource = new EventSource(url)
     eventSourceRef.current = eventSource
 
@@ -132,7 +164,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
     return () => {
       eventSource.close()
     }
-  }, [cluster, namespace, podName, container, isPaused])
+  }, [cluster, namespace, podName, container, isPaused, settings])
 
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
 
@@ -271,27 +303,113 @@ const PodLogs: React.FC<PodLogsProps> = ({
     debouncedDiagnose()
   }, [debouncedDiagnose])
 
-  // Auto scroll to the bottom of diagnosis content
-  useEffect(() => {
-    if (diagnosisEndRef.current && diagnosisStatus === 'streaming') {
-      // Use requestAnimationFrame to ensure scrolling after the next frame render
-      requestAnimationFrame(() => {
-        diagnosisEndRef.current?.scrollIntoView({
-          behavior: 'auto', // Use auto for faster response
-          block: 'end', // Ensure scrolling to bottom
-        })
+  const handleDownload = async () => {
+    try {
+      const params = new URLSearchParams({
+        container,
+        download: 'true',
+        ...(settings.since && { since: settings.since }),
+        ...(settings.sinceTime && { sinceTime: settings.sinceTime }),
+        ...(settings.timestamps && { timestamps: 'true' }),
       })
-    }
-  }, [diagnosis]) // Only listen to diagnosis changes
 
-  // Clean up diagnosis connection on unmount
-  useEffect(() => {
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
+      const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/log/pod/${cluster}/${namespace}/${podName}?${params}`
+      const response = await axios.get(url, { responseType: 'blob' })
+
+      const blob = new Blob([response.data], { type: 'text/plain' })
+      const downloadUrl = window.URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = downloadUrl
+      link.download = `${podName}-${container}.log`
+      document.body.appendChild(link)
+      link.click()
+      document.body.removeChild(link)
+      window.URL.revokeObjectURL(downloadUrl)
+    } catch (error) {
+      console.error('Failed to download logs:', error)
+      message.error(t('LogAggregator.DownloadError'))
     }
-  }, [])
+  }
+
+  const handleSettingsChange = (newSettings: Partial<LogSettings>) => {
+    setSettings(prev => ({ ...prev, ...newSettings }))
+  }
+
+  const renderSettingsModal = () => (
+    <Modal
+      title={t('LogAggregator.Settings')}
+      open={showSettings}
+      onCancel={() => setShowSettings(false)}
+      onOk={() => setShowSettings(false)}
+    >
+      <Space direction="vertical" style={{ width: '100%' }}>
+        <div>
+          <div>{t('LogAggregator.Since')}</div>
+          <Input
+            placeholder="1h, 2d"
+            value={settings.since}
+            onChange={e => handleSettingsChange({ since: e.target.value })}
+          />
+        </div>
+        <div>
+          <div>{t('LogAggregator.SinceTime')}</div>
+          <DatePicker
+            showTime
+            onChange={date =>
+              handleSettingsChange({
+                sinceTime: date ? date.toISOString() : undefined,
+              })
+            }
+          />
+        </div>
+        <div>
+          <div>{t('LogAggregator.TailLines')}</div>
+          <Input
+            type="number"
+            value={settings.tailLines}
+            onChange={e =>
+              handleSettingsChange({
+                tailLines: parseInt(e.target.value),
+              })
+            }
+          />
+        </div>
+        <div>
+          <div>{t('LogAggregator.ShowTimestamps')}</div>
+          <Switch
+            checked={settings.timestamps}
+            onChange={checked => handleSettingsChange({ timestamps: checked })}
+          />
+        </div>
+      </Space>
+    </Modal>
+  )
+
+  const highlightSearchText = (text: string) => {
+    if (!searchText) return text
+
+    try {
+      const parts = text.split(new RegExp(`(${searchText})`, 'gi'))
+      return parts.map((part, i) =>
+        part.toLowerCase() === searchText.toLowerCase() ? (
+          <span key={i} className={styles.highlight}>
+            {part}
+          </span>
+        ) : (
+          part
+        ),
+      )
+    } catch (e) {
+      return text
+    }
+  }
+
+  const filterLogs = (logs: LogEntry[]) => {
+    if (!searchText || searchMode === 'highlight') return logs
+    return logs.filter(log =>
+      log.content.toLowerCase().includes(searchText.toLowerCase()),
+    )
+  }
 
   return (
     <div className={styles.podLogs}>
@@ -311,6 +429,40 @@ const PodLogs: React.FC<PodLogsProps> = ({
             size={8}
             style={{ display: 'flex', alignItems: 'center' }}
           >
+            <Input.Search
+              placeholder={t('LogAggregator.SearchPlaceholder')}
+              style={{ width: 180 }}
+              value={searchText}
+              onChange={e => setSearchText(e.target.value)}
+              allowClear
+              className={styles.searchInput}
+              suffix={
+                <Tooltip
+                  title={
+                    searchMode === 'highlight'
+                      ? t('LogAggregator.SearchModeHighlight')
+                      : t('LogAggregator.SearchModeFilter')
+                  }
+                >
+                  <span
+                    className={`${styles.searchButton} ${
+                      searchMode === 'filter' ? styles.active : ''
+                    }`}
+                    onClick={() =>
+                      setSearchMode(mode =>
+                        mode === 'highlight' ? 'filter' : 'highlight',
+                      )
+                    }
+                  >
+                    {searchMode === 'highlight' ? (
+                      <HighlightOutlined style={{ fontSize: '14px' }} />
+                    ) : (
+                      <FilterOutlined style={{ fontSize: '14px' }} />
+                    )}
+                  </span>
+                </Tooltip>
+              }
+            />
             <Tooltip
               title={
                 isPaused
@@ -346,6 +498,22 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 />
               </Tooltip>
             )}
+            <Tooltip title={t('LogAggregator.DownloadLogs')}>
+              <Button
+                type="text"
+                className={styles.actionButton}
+                icon={<DownloadOutlined />}
+                onClick={handleDownload}
+              />
+            </Tooltip>
+            <Tooltip title={t('LogAggregator.Settings')}>
+              <Button
+                type="text"
+                className={styles.actionButton}
+                icon={<SettingOutlined />}
+                onClick={() => setShowSettings(true)}
+              />
+            </Tooltip>
             <Tooltip
               title={
                 isConnected
@@ -370,13 +538,15 @@ const PodLogs: React.FC<PodLogsProps> = ({
       <div className={styles.content}>
         <div className={styles.logsContainer}>
           <div className={styles.logs}>
-            {logs.map((log, index) => (
+            {filterLogs(logs).map((log, index) => (
               <div key={index} className={styles.logEntry}>
                 <span className={styles.timestamp}>{log.timestamp}</span>
                 <span
                   className={log.error ? styles.errorContent : styles.content}
                 >
-                  {log.content}
+                  {searchMode === 'highlight'
+                    ? highlightSearchText(log.content)
+                    : log.content}
                 </span>
               </div>
             ))}
@@ -453,6 +623,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
           )}
         </div>
       </div>
+      {renderSettingsModal()}
     </div>
   )
 }

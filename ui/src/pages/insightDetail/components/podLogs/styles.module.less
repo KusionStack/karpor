@@ -662,6 +662,92 @@
         word-break: break-all;
         color: #f14c4c;
       }
+
+      .highlight {
+        background-color: #ffd700;
+        color: #000000;
+        border-radius: 2px;
+        padding: 0 2px;
+      }
+    }
+  }
+
+  .searchButton {
+    color: rgba(0, 0, 0, 0.45);
+    transition: color 0.3s;
+    cursor: pointer;
+    padding: 0;
+    margin: 0 4px;
+    font-size: 14px;
+    vertical-align: middle;
+    display: inline-flex;
+    align-items: center;
+
+    &:hover {
+      color: rgba(0, 0, 0, 0.85);
+    }
+
+    &.active {
+      color: #1677ff;
+    }
+  }
+
+  .searchInput {
+    :global {
+      .ant-input-affix-wrapper {
+        background-color: #ffffff;
+        border-color: #d9d9d9;
+        padding: 4px 8px;
+
+        .ant-input-suffix {
+          margin-left: 2px;
+        }
+
+        .ant-input-clear-icon {
+          margin-left: 2px;
+          margin-right: 2px;
+        }
+
+        &:hover {
+          border-color: #4096ff;
+        }
+
+        &:focus, &-focused {
+          border-color: #1677ff;
+          box-shadow: 0 0 0 2px rgba(5, 145, 255, 0.1);
+        }
+      }
+
+      .ant-input {
+        background-color: transparent;
+        color: rgba(0, 0, 0, 0.88);
+
+        &::placeholder {
+          color: rgba(0, 0, 0, 0.25);
+        }
+      }
+
+      .ant-input-clear-icon {
+        color: rgba(0, 0, 0, 0.25);
+        
+        &:hover {
+          color: rgba(0, 0, 0, 0.45);
+        }
+      }
+
+      .ant-input-search-button {
+        border-left-color: #d9d9d9;
+        background-color: transparent;
+        color: rgba(0, 0, 0, 0.45);
+        width: 28px;
+        min-width: 28px;
+
+        &:hover {
+          color: rgba(0, 0, 0, 0.85);
+          border-color: #d9d9d9;
+          background-color: rgba(0, 0, 0, 0.02);
+        }
+      }
     }
   }
 
@@ -689,7 +775,11 @@
       }
 
       .ant-drawer-header {
-        background: linear-gradient(135deg, #2b1d3c 0%, #1f2b3c 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(147, 112, 219, 0.15) 0%,
+          rgba(43, 29, 60, 0.95) 100%
+        );
         border-bottom: 1px solid rgba(147, 112, 219, 0.2);
         padding: 16px 24px;
 
