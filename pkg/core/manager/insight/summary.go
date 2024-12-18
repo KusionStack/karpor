@@ -27,6 +27,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
+const (
+	PodStatusRunning    = "Running"
+	PodStatusTerminated = "Terminated"
+	PodStatusUnknown    = "Unknown"
+	PodStatusWaiting    = "Waiting"
+)
+
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	serverVersion, err := client.ClientSet.DiscoveryClient.ServerVersion()
@@ -217,35 +224,35 @@ func (i *InsightManager) GetResourceGroupSummary(ctx context.Context, client *mu
 func GetPodStatus(obj map[string]any) string {
 	containerStatuses, found, err := unstructured.NestedSlice(obj, "status", "containerStatuses")
 	if err != nil || !found || len(containerStatuses) == 0 {
-		return "Unknown"
+		return PodStatusUnknown
 	}
 	firstContainer, ok := containerStatuses[0].(map[string]any)
 	if !ok {
-		return "Unknown"
+		return PodStatusUnknown
 	}
 	state, found := firstContainer["state"]
 	if !found {
-		return "Unknown"
+		return PodStatusUnknown
 	}
 	stateMap, ok := state.(map[string]interface{})
 	if !ok {
-		return "Unknown"
+		return PodStatusUnknown
 	}
 	if stateMap["running"] != nil {
-		return "Running"
+		return PodStatusRunning
 	}
 	if stateMap["waiting"] != nil {
 		waitMap, ok := stateMap["waiting"].(map[string]any)
 		if !ok {
-			return "Waiting"
+			return PodStatusWaiting
 		}
 		if reason, ok := waitMap["reason"].(string); ok && reason != "" {
 			return reason
 		}
-		return "Waiting"
+		return PodStatusWaiting
 	}
 	if stateMap["terminated"] != nil {
-		return "Terminated"
+		return PodStatusTerminated
 	}
-	return "Unknown"
+	return PodStatusUnknown
 }
