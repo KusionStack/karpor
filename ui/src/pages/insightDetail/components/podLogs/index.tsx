@@ -12,6 +12,7 @@ import {
   Input,
   InputNumber,
   Modal,
+  Switch,
 } from 'antd'
 import {
   PauseCircleOutlined,
@@ -55,6 +56,7 @@ interface LogSettings {
   sinceTime?: string
   tailLines?: number
   timestamps: boolean
+  isShowConnect?: boolean
 }
 
 const PodLogs: React.FC<PodLogsProps> = ({
@@ -81,6 +83,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const [settings, setSettings] = useState<LogSettings>({
     timestamps: true,
     tailLines: 100,
+    isShowConnect: false,
   })
   const [showSettings, setShowSettings] = useState(false)
   const [searchText, setSearchText] = useState('')
@@ -576,6 +579,17 @@ const PodLogs: React.FC<PodLogsProps> = ({
             style={{ width: '100%' }}
           />
         </div>
+        <div>
+          <div style={{ marginBottom: '8px' }}>
+            {t('LogAggregator.SinceTime')}
+          </div>
+          <Switch
+            value={settings.isShowConnect}
+            onChange={val => {
+              setSettings({ ...settings, isShowConnect: val })
+            }}
+          />
+        </div>
       </Space>
     </Modal>
   )
@@ -709,24 +723,26 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 onClick={() => setShowSettings(true)}
               />
             </Tooltip>
-            <Tooltip
-              title={
-                isConnected
-                  ? t('LogAggregator.ConnectedTip', { container })
-                  : t('LogAggregator.DisconnectedTip')
-              }
-            >
-              <div className={styles.connectionStatus}>
-                <Badge
-                  status={isConnected ? 'success' : 'error'}
-                  text={t(
-                    isConnected
-                      ? 'LogAggregator.Connected'
-                      : 'LogAggregator.Disconnected',
-                  )}
-                />
-              </div>
-            </Tooltip>
+            {settings?.isShowConnect && (
+              <Tooltip
+                title={
+                  isConnected
+                    ? t('LogAggregator.ConnectedTip', { container })
+                    : t('LogAggregator.DisconnectedTip')
+                }
+              >
+                <div className={styles.connectionStatus}>
+                  <Badge
+                    status={isConnected ? 'success' : 'error'}
+                    text={t(
+                      isConnected
+                        ? 'LogAggregator.Connected'
+                        : 'LogAggregator.Disconnected',
+                    )}
+                  />
+                </div>
+              </Tooltip>
+            )}
           </Space>
         </div>
       )}
