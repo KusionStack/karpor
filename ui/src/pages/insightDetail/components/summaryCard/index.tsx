@@ -1,10 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Progress, message, Tooltip } from 'antd'
+import { Progress, message, Tooltip, Tag } from 'antd'
 import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
 import { getDataType } from '@/utils/tools'
 import dayjs from 'dayjs'
+import classNames from 'classnames'
 
 import styles from './styles.module.less'
 
@@ -224,7 +225,6 @@ const PopoverCard = ({
 
   return (
     <div
-      className={styles.value}
       onClick={handleClick}
       style={{
         ...style,
@@ -307,16 +307,6 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
     convertUnits.bytesToGB,
   )
 
-  const getStatusColor = (status: string): string => {
-    const colorMap = {
-      Running: 'rgb(34, 197, 94)', // Green
-      Terminated: 'rgb(156, 163, 175)', // Gray
-      Unkown: 'rgb(239, 68, 68)', // Red
-      default: 'rgb(245, 158, 11)', // Orange
-    }
-    return colorMap[status] || colorMap['default']
-  }
-
   return (
     <div className={styles.summary_card}>
       <Progress
@@ -352,10 +342,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
             {summary?.resource?.status && (
               <div className={styles.item}>
                 <div className={styles.label}>Status </div>
-                <PopoverCard
-                  data={summary?.resource?.status}
-                  style={{ color: getStatusColor(summary?.resource?.status) }}
-                />
+                <Tag
+                  className={classNames(styles.status, {
+                    [styles['status-running']]:
+                      summary?.resource?.status === 'Running',
+                    [styles['status-terminated']]:
+                      summary?.resource?.status === 'Terminated',
+                    [styles['status-unknown']]:
+                      summary?.resource?.status === 'Unknown',
+                    [styles['status-default']]: ![
+                      'Running',
+                      'Terminated',
+                      'Unknown',
+                    ].includes(summary?.resource?.status),
+                  })}
+                >
+                  {summary?.resource?.status}
+                </Tag>
               </div>
             )}
           </div>

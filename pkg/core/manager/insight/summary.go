@@ -256,3 +256,40 @@ func GetPodStatus(obj map[string]any) string {
 	}
 	return PodStatusUnknown
 }
+
+// GetPodStatus returns the status of a pod
+func GetPodStatusbak(obj map[string]any) string {
+	containerStatuses, found, err := unstructured.NestedSlice(obj, "status", "containerStatuses")
+	if err != nil || !found || len(containerStatuses) == 0 {
+		return PodStatusUnknown
+	}
+	firstContainer, ok := containerStatuses[0].(map[string]any)
+	if !ok {
+		return PodStatusUnknown
+	}
+	state, found := firstContainer["state"]
+	if !found {
+		return PodStatusUnknown
+	}
+	stateMap, ok := state.(map[string]interface{})
+	if !ok {
+		return PodStatusUnknown
+	}
+	if stateMap["running"] != nil {
+		return PodStatusRunning
+	}
+	if stateMap["waiting"] != nil {
+		waitMap, ok := stateMap["waiting"].(map[string]any)
+		if !ok {
+			return PodStatusWaiting
+		}
+		if reason, ok := waitMap["reason"].(string); ok && reason != "" {
+			return reason
+		}
+		return PodStatusWaiting
+	}
+	if stateMap["terminated"] != nil {
+		return PodStatusTerminated
+	}
+	return PodStatusUnknown
+}
