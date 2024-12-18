@@ -23,6 +23,7 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
@@ -146,6 +147,11 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 		return nil, err
 	}
 
+	Status := ""
+	if obj.GetKind() == "Pod" {
+		Status = GetPodStatus(obj.Object)
+	}
+
 	return &ResourceSummary{
 		Resource: entity.ResourceGroup{
 			Name:       obj.GetName(),
@@ -153,6 +159,7 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 			APIVersion: obj.GetAPIVersion(),
 			Cluster:    resourceGroup.Cluster,
 			Kind:       obj.GetKind(),
+			Status:     Status,
 		},
 		CreationTimestamp: obj.GetCreationTimestamp(),
 		ResourceVersion:   obj.GetResourceVersion(),
@@ -204,4 +211,41 @@ func (i *InsightManager) GetResourceGroupSummary(ctx context.Context, client *mu
 		ResourceGroup: resourceGroup,
 		CountByGVK:    topFiveCount,
 	}, nil
+}
+
+// GetPodStatus returns the status of a pod
+func GetPodStatus(obj map[string]any) string {
+	containerStatuses, found, err := unstructured.NestedSlice(obj, "status", "containerStatuses")
+	if err != nil || !found || len(containerStatuses) == 0 {
+		return "Unknown"
+	}
+	firstContainer, ok := containerStatuses[0].(map[string]any)
+	if !ok {
+		return "Unknown"
+	}
+	state, found := firstContainer["state"]
+	if !found {
+		return "Unknown"
+	}
+	stateMap, ok := state.(map[string]interface{})
+	if !ok {
+		return "Unknown"
+	}
+	if stateMap["running"] != nil {
+		return "Running"
+	}
+	if stateMap["waiting"] != nil {
+		waitMap, ok := stateMap["waiting"].(map[string]any)
+		if !ok {
+			return "Waiting"
+		}
+		if reason, ok := waitMap["reason"].(string); ok && reason != "" {
+			return reason
+		}
+		return "Waiting"
+	}
+	if stateMap["terminated"] != nil {
+		return "Terminated"
+	}
+	return "Unknown"
 }

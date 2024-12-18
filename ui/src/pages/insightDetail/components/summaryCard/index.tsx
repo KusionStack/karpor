@@ -201,7 +201,13 @@ const copyToClipboard = (text: string, t: any) => {
   })
 }
 
-const PopoverCard = ({ data }: any) => {
+const PopoverCard = ({
+  data,
+  style,
+}: {
+  data: any
+  style?: React.CSSProperties
+}) => {
   const { t } = useTranslation()
 
   if (!data) {
@@ -217,7 +223,18 @@ const PopoverCard = ({ data }: any) => {
   }
 
   return (
-    <div className={styles.value} onClick={handleClick}>
+    <div
+      className={styles.value}
+      onClick={handleClick}
+      style={{
+        ...style,
+        backgroundColor: style?.color || 'transparent',
+        color: style?.color ? 'white' : 'black',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        display: 'inline-block',
+      }}
+    >
       {displayText}
     </div>
   )
@@ -290,6 +307,16 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
     convertUnits.bytesToGB,
   )
 
+  const getStatusColor = (status: string): string => {
+    const colorMap = {
+      Running: 'rgb(34, 197, 94)', // Green
+      Terminated: 'rgb(156, 163, 175)', // Gray
+      Unkown: 'rgb(239, 68, 68)', // Red
+      default: 'rgb(245, 158, 11)', // Orange
+    }
+    return colorMap[status] || colorMap['default']
+  }
+
   return (
     <div className={styles.summary_card}>
       <Progress
@@ -322,6 +349,15 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               <div className={styles.label}>Name </div>
               <PopoverCard data={summary?.resource?.name} />
             </div>
+            {summary?.resource?.status && (
+              <div className={styles.item}>
+                <div className={styles.label}>Status </div>
+                <PopoverCard
+                  data={summary?.resource?.status}
+                  style={{ color: getStatusColor(summary?.resource?.status) }}
+                />
+              </div>
+            )}
           </div>
         )}
         {type === 'kind' && (
