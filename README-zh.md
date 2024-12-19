@@ -169,6 +169,7 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/iamryanchia"><img src="https://avatars.githubusercontent.com/u/41557860?v=4?s=80" width="80px;" alt="iamryanchia"/><br /><sub><b>iamryanchia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=iamryanchia" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/cheny-alf"><img src="https://avatars.githubusercontent.com/u/71162267?v=4?s=80" width="80px;" alt="cheny-alf"/><br /><sub><b>cheny-alf</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=cheny-alf" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajp152k"><img src="https://avatars.githubusercontent.com/u/42045620?v=4?s=80" width="80px;" alt="Raj"/><br /><sub><b>Raj</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajp152k" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
