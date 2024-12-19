@@ -49,6 +49,7 @@ type ResourceGroup struct {
 	Name        string            `json:"name,omitempty"        yaml:"name,omitempty"`
 	Labels      map[string]string `json:"labels,omitempty"      yaml:"labels,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+	Status      string            `json:"status,omitempty"      yaml:"status,omitempty"`
 }
 
 // Hash returns a unique string representation of the ResourceGroup that can be
