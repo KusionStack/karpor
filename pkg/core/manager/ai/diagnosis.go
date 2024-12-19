@@ -123,3 +123,66 @@ func (a *AIManager) DiagnoseLogsHandler(ctx context.Context, logs []string, lang
 		flusher.Flush()
 	}
 }
+
+// DiagnoseEvents analyzes Kubernetes events using LLM and returns diagnostic information through a streaming channel
+func (a *AIManager) DiagnoseEvents(ctx context.Context, events []Event, language string, eventChan chan<- *DiagnosisEvent) error {
+	defer close(eventChan)
+
+	// Convert events to text format
+	var eventsText strings.Builder
+	for _, event := range events {
+		eventsText.WriteString(fmt.Sprintf("[%s] %s: %s (Count: %d, First: %s, Last: %s)\n",
+			event.Type, event.Reason, event.Message, event.Count,
+			event.FirstTimestamp, event.LastTimestamp))
+	}
+
+	// Send start event
+	eventChan <- &DiagnosisEvent{
+		Type:    "start",
+		Content: "Starting event analysis...",
+	}
+
+	// Get prompt template and add language instruction
+	servicePrompt := ServicePromptMap[EventDiagnosisType]
+	if language == "" {
+		language = "English"
+	}
+	prompt := fmt.Sprintf(servicePrompt, language, eventsText.String())
+
+	// Generate diagnosis using LLM with streaming
+	stream, err := a.client.GenerateStream(ctx, prompt)
+	if err != nil {
+		errEvent := &DiagnosisEvent{
+			Type:    "error",
+			Content: fmt.Sprintf("Failed to analyze events: %v", err),
+		}
+		eventChan <- errEvent
+		return fmt.Errorf("failed to generate event diagnosis: %v", err)
+	}
+
+	var fullContent strings.Builder
+	for chunk := range stream {
+		if strings.HasPrefix(chunk, "ERROR:") {
+			errEvent := &DiagnosisEvent{
+				Type:    "error",
+				Content: fmt.Sprintf("Failed to receive diagnosis: %v", strings.TrimPrefix(chunk, "ERROR: ")),
+			}
+			eventChan <- errEvent
+			return fmt.Errorf("failed to receive diagnosis chunk: %v", chunk)
+		}
+
+		fullContent.WriteString(chunk)
+		eventChan <- &DiagnosisEvent{
+			Type:    "chunk",
+			Content: chunk,
+		}
+	}
+
+	// Send complete event
+	eventChan <- &DiagnosisEvent{
+		Type:    "complete",
+		Content: fullContent.String(),
+	}
+
+	return nil
+}

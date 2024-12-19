@@ -1,5 +1,42 @@
 definitions:
-  aggregator.Event:
+  aggregator.DiagnoseRequest:
+    properties:
+      language:
+        description: Language code for AI response
+        type: string
+      logs:
+        items:
+          type: string
+        type: array
+    type: object
+  aggregator.EventDiagnoseRequest:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/ai.Event'
+        type: array
+      language:
+        type: string
+    type: object
+  aggregator.LogEntry:
+    properties:
+      content:
+        type: string
+      error:
+        type: string
+      timestamp:
+        type: string
+    type: object
+  ai.DiagnosisEvent:
+    properties:
+      content:
+        description: Event content
+        type: string
+      type:
+        description: 'Event type: start/chunk/error/complete'
+        type: string
+    type: object
+  ai.Event:
     properties:
       count:
         type: integer
@@ -12,15 +49,6 @@ definitions:
       reason:
         type: string
       type:
-        type: string
-    type: object
-  aggregator.LogEntry:
-    properties:
-      content:
-        type: string
-      error:
-        type: string
-      timestamp:
         type: string
     type: object
   cluster.ClusterPayload:
@@ -294,7 +322,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/aggregator.Event'
+              $ref: '#/definitions/ai.Event'
             type: array
         "400":
           description: Bad Request
@@ -309,6 +337,68 @@ paths:
           schema:
             type: string
       summary: Stream resource events using Server-Sent Events
+      tags:
+      - insight
+  /insight/aggregator/event/diagnosis/stream:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint analyzes events using AI to identify issues and provide
+        solutions
+      parameters:
+      - description: The events to analyze
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aggregator.EventDiagnoseRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ai.DiagnosisEvent'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Diagnose events using AI
+      tags:
+      - insight
+  /insight/aggregator/log/diagnosis/stream:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint analyzes pod logs using AI to identify issues and
+        provide solutions
+      parameters:
+      - description: The logs to analyze
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/aggregator.DiagnoseRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ai.DiagnosisEvent'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Diagnose pod logs using AI
       tags:
       - insight
   /insight/aggregator/log/pod/{cluster}/{namespace}/{name}:
@@ -335,8 +425,30 @@ paths:
         in: query
         name: container
         type: string
+      - description: Only return logs newer than a relative duration like 5s, 2m,
+          or 3h
+        in: query
+        name: since
+        type: string
+      - description: Only return logs after a specific date (RFC3339)
+        in: query
+        name: sinceTime
+        type: string
+      - description: Include timestamps in log output
+        in: query
+        name: timestamps
+        type: boolean
+      - description: Number of lines from the end of the logs to show
+        in: query
+        name: tailLines
+        type: integer
+      - description: Download logs as file instead of streaming
+        in: query
+        name: download
+        type: boolean
       produces:
       - text/event-stream
+      - application/json
       responses:
         "200":
           description: OK
