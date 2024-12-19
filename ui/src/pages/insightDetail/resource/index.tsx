@@ -164,7 +164,6 @@ const ClusterDetail = () => {
   const { response: summaryResponse, refetch: summaryRefetch } = useAxios({
     url: '/rest-api/v1/insight/summary',
     method: 'GET',
-    manual: true,
   })
 
   useEffect(() => {
@@ -194,12 +193,12 @@ const ClusterDetail = () => {
   } = useAxios({
     url: '/rest-api/v1/insight/topology',
     method: 'GET',
-    manual: true,
   })
 
   useEffect(() => {
     if (topologyDataResponse?.success) {
-      setMultiTopologyData(topologyDataResponse?.data)
+      const data = topologyDataResponse?.data
+      setMultiTopologyData(data)
     }
   }, [topologyDataResponse])
 

@@ -1,85 +1,137 @@
-import React, { memo, useLayoutEffect, useRef, useState } from 'react'
+import React, { useLayoutEffect, useRef, useState, useEffect } from 'react'
 import { Select } from 'antd'
 import G6 from '@antv/g6'
-import type { IAbstractGraph, IG6GraphEvent } from '@antv/g6'
-import type { Point } from '@antv/g-base/lib/types'
-import { useLocation, useNavigate } from 'react-router-dom'
+import type {
+  GraphOptions,
+  IG6GraphEvent,
+  IGroup,
+  ModelConfig,
+  Item,
+} from '@antv/g6'
+import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
-import {
-  Rect,
-  Group,
-  createNodeFromReact,
-  appenAutoShapeListener,
-  Image,
-} from '@antv/g6-react-node'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
-import transferPng from '@/assets/transfer.png'
-import NodeLabel from './nodeLabel'
+import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
 
-function getTextSize(str: string, maxWidth: number, fontSize: number) {
-  const width = G6.Util.getTextSize(str, fontSize)?.[0]
-  return width > maxWidth ? maxWidth : width
+interface NodeModel {
+  id: string
+  name?: string
+  label?: string
+  resourceGroup?: {
+    name: string
+  }
+  data?: {
+    count?: number
+  }
 }
 
-function fittingString(str: any, maxWidth: number, fontSize: number) {
+interface NodeConfig extends ModelConfig {
+  data?: {
+    name?: string
+    count?: number
+  }
+  label?: string
+  id?: string
+  resourceGroup?: {
+    name: string
+    [key: string]: any
+  }
+}
+
+function getTextWidth(str: string, fontSize: number) {
+  const canvas = document.createElement('canvas')
+  const context = canvas.getContext('2d')!
+  context.font = `${fontSize}px sans-serif`
+  return context.measureText(str).width
+}
+
+function fittingString(str: string, maxWidth: number, fontSize: number) {
   const ellipsis = '...'
-  const ellipsisLength = G6.Util.getTextSize(ellipsis, fontSize)?.[0]
-  let currentWidth = 0
-  let res = str
-  const pattern = new RegExp('[\u4E00-\u9FA5]+') // distinguish the Chinese charactors and letters
-  str?.split('')?.forEach((letter, i) => {
-    if (currentWidth > maxWidth - ellipsisLength) return
-    if (pattern?.test(letter)) {
-      // Chinese charactors
-      currentWidth += fontSize
-    } else {
-      // get the width of single letter according to the fontSize
-      currentWidth += G6.Util.getLetterWidth(letter, fontSize)
+  const ellipsisLength = getTextWidth(ellipsis, fontSize)
+
+  if (maxWidth <= 0) {
+    return ''
+  }
+
+  const width = getTextWidth(str, fontSize)
+  if (width <= maxWidth) {
+    return str
+  }
+
+  let len = str.length
+  while (len > 0) {
+    const substr = str.substring(0, len)
+    const subWidth = getTextWidth(substr, fontSize)
+
+    if (subWidth + ellipsisLength <= maxWidth) {
+      return substr + ellipsis
     }
-    if (currentWidth > maxWidth - ellipsisLength) {
-      res = `${str?.substr(0, i)}${ellipsis}`
-    }
-  })
-  return res
+
+    len--
+  }
+
+  return str
 }
 
-type propsType = {
-  value?: Record<string, any>[]
-  open?: boolean
-  hiddenButtonInfo?: any
-  itemWidth?: number
+function getNodeName(cfg: NodeConfig, type: string) {
+  if (type === 'resource') {
+    const [left, right] = cfg?.id?.split(':') || []
+    const leftList = left?.split('.')
+    const leftListLength = leftList?.length || 0
+    const leftLast = leftList?.[leftListLength - 1]
+    return `${leftLast}:${right}`
+  }
+  const list = cfg?.label?.split('.')
+  const len = list?.length || 0
+  return list?.[len - 1] || ''
+}
+
+interface OverviewTooltipProps {
   type: string
+  itemWidth: number
+  hiddenButtonInfo: {
+    x: number
+    y: number
+    e?: IG6GraphEvent
+  }
+  open: boolean
 }
 
-// eslint-disable-next-line react/display-name
-const OverviewTooltip = memo((props: propsType) => {
-  const model = props?.hiddenButtonInfo?.e.item?.get('model')
+const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
+  type,
+  hiddenButtonInfo,
+}) => {
+  const model = hiddenButtonInfo?.e?.item?.get('model') as NodeModel
   const boxStyle: any = {
     background: '#fff',
     border: '1px solid #f5f5f5',
     position: 'absolute',
-    top: props?.hiddenButtonInfo?.y - 60 || -500,
-    left: props?.hiddenButtonInfo?.x || -500,
+    top: hiddenButtonInfo?.y || -500,
+    left: hiddenButtonInfo?.x + 14 || -500,
+    transform: 'translate(-50%, -100%)',
     zIndex: 5,
-    padding: 10,
+    padding: '6px 12px',
     borderRadius: 8,
-    fontSize: 12,
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
   }
+
   const itemStyle = {
-    color: '#646566',
-    margin: '10px 5px',
+    color: '#333',
+    fontSize: 14,
+    whiteSpace: 'nowrap',
   }
+
   return (
     <div style={boxStyle}>
       <div style={itemStyle}>
-        {props?.type === 'cluster' ? model?.label : model?.id}
+        {type === 'cluster' ? model?.label : model?.id}
       </div>
     </div>
   )
-})
+}
 
 type IProps = {
   topologyData: any
@@ -103,12 +155,11 @@ const TopologyMap = ({
   handleChangeCluster,
 }: IProps) => {
   const { t } = useTranslation()
-  const ref = useRef(null)
   const graphRef = useRef<any>()
-  let graph: IAbstractGraph | null = null
+  const ref = useRef<HTMLDivElement>(null)
+  let graph: any | null = null
   const location = useLocation()
-  const { from, type, query } = queryString.parse(location?.search)
-  const navigate = useNavigate()
+  const { type } = queryString.parse(location?.search)
   const [tooltipopen, setTooltipopen] = useState(false)
   const [itemWidth, setItemWidth] = useState<number>(100)
   const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
@@ -117,325 +168,414 @@ const TopologyMap = ({
     e?: IG6GraphEvent
   }>({ x: -500, y: -500, e: undefined })
 
-  function getName(cfg: any) {
-    if (type === 'resource') {
-      const [left, right] = cfg?.id?.split(':')
-      const leftList = left?.split('.')
-      const leftListLength = leftList?.length
-      const leftLast = leftList?.[leftListLength - 1]
-      return `${leftLast}:${right}`
-    }
-    const list = cfg?.label?.split('.')
-    const len = list?.length
-    return list?.[len - 1]
-  }
-
-  function handleTransfer(evt, cfg) {
-    evt.defaultPrevented = true
-    evt.stopPropagation()
-    const resourceGroup = cfg?.data?.resourceGroup
-    const objParams = {
-      from,
-      type: 'kind',
-      cluster: resourceGroup?.cluster,
-      apiVersion: resourceGroup?.apiVersion,
-      kind: resourceGroup?.kind,
-      query,
-    }
-    const urlStr = queryString.stringify(objParams)
-    navigate(`/insightDetail/kind?${urlStr}`)
-  }
-
-  function handleMouseEnter(evt) {
-    const model = evt?.item?.get('model')
-    graph.setItemState(evt.item, 'hoverState', true)
-    const { x, y } = graph?.getCanvasByPoint(model.x, model.y) as Point
-    const node = graph?.findById(model.id)?.getBBox()
-    if (node) {
-      setItemWidth(node?.maxX - node?.minX)
-    }
-    setHiddenButtontooltip({ x, y, e: evt })
-    setTooltipopen(true)
-  }
-  function handleMouseLeave(evt) {
-    graph.setItemState(evt.item, 'hoverState', false)
-    setTooltipopen(false)
-  }
-
-  function handleClickNode(cfg) {
-    setTooltipopen(false)
-    onTopologyNodeClick(cfg)
-  }
-
-  const Card = ({ cfg }: any) => {
-    const displayName = fittingString(getName(cfg), 190, 16)
-
+  const handleMouseEnter = (evt: IG6GraphEvent) => {
+    const node = evt.item
+    const model = node.getModel() as NodeModel
     const isHighLight =
       type === 'resource'
-        ? cfg?.resourceGroup?.name === tableName
-        : displayName === tableName
-    return (
-      <Group draggable>
-        <Rect
-          style={{
-            width: 250,
-            height: 'auto',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'center',
-            fill: isHighLight ? '#fff' : '#C6E5FF',
-            shadowColor: '#eee',
-            shadowBlur: 30,
-            radius: [8],
-            stroke: '#C6E5FF',
-          }}
-          draggable
-        >
-          <Rect
-            onClick={() => handleClickNode(cfg)}
-            style={{
-              cursor: 'pointer',
-              stroke: 'transparent',
-              fill: 'transparent',
-              display: 'flex',
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              margin: [0, 10],
-            }}
-          >
-            <Rect
-              onClick={() => handleClickNode(cfg)}
-              style={{
-                stroke: 'transparent',
-                fill: 'transparent',
-              }}
-            >
-              <NodeLabel
-                onClick={() => handleClickNode(cfg)}
-                onMouseOver={evt => handleMouseEnter(evt)}
-                onMouseLeave={evt => handleMouseLeave(evt)}
-                width={getTextSize(
-                  getName(cfg),
-                  type !== 'cluster' ? 240 : 190,
-                  16,
-                )}
-                customStyle={{
-                  fill: '#000',
-                  fontSize: 16,
-                  margin: [10, 0],
-                }}
-              >
-                {displayName}
-              </NodeLabel>
-              {typeof cfg?.data?.count === 'number' && (
-                <NodeLabel
-                  onClick={event => handleMouseEnter(event)}
-                  customStyle={{
-                    fill: '#000',
-                    fontSize: 16,
-                    margin: [5, 0],
-                  }}
-                >
-                  {`${cfg?.data?.count}`}
-                </NodeLabel>
-              )}
-            </Rect>
-            {type === 'cluster' && (
-              <Rect>
-                <Image
-                  onClick={event => handleTransfer(event, cfg)}
-                  style={{
-                    cursor: 'pointer',
-                    img: transferPng,
-                    width: 20,
-                    height: 20,
-                  }}
-                />
-              </Rect>
-            )}
-          </Rect>
-        </Rect>
-      </Group>
-    )
+        ? model?.resourceGroup?.name === tableName
+        : model?.name === tableName
+    if (!isHighLight) {
+      graph.setItemState(node, 'hover', true)
+    }
+    const bbox = evt.item.getBBox()
+    const point = graph.getCanvasByPoint(bbox.centerX, bbox.minY)
+    if (bbox) {
+      setItemWidth(bbox.width)
+    }
+    setHiddenButtontooltip({ x: point.x, y: point.y, e: evt })
+    setTooltipopen(true)
   }
 
-  G6.registerNode('card-node', createNodeFromReact(Card))
+  const handleMouseLeave = (evt: IG6GraphEvent) => {
+    const node = evt.item
+    graph.setItemState(node, 'hover', false)
+    setTooltipopen(false)
+  }
 
-  G6.registerEdge(
-    'custom-polyline',
+  useEffect(() => {
+    if (!graph) return
+
+    graph.on('node:click', evt => {
+      const node = evt.item
+      const model = node.getModel()
+      setTooltipopen(false)
+
+      graph.getNodes().forEach(n => {
+        graph.setItemState(n, 'selected', false)
+      })
+      graph.setItemState(node, 'selected', true)
+
+      onTopologyNodeClick?.(model)
+    })
+
+    graph.on('node:mouseenter', evt => {
+      const node = evt.item
+      if (!graph.findById(node.getModel().id)?.hasState('selected')) {
+        graph.setItemState(node, 'hover', true)
+      }
+      handleMouseEnter(evt)
+    })
+
+    graph.on('node:mouseleave', evt => {
+      const node = evt.item
+      if (!graph.findById(node.getModel().id)?.hasState('selected')) {
+        graph.setItemState(node, 'hover', false)
+      }
+      handleMouseLeave(evt)
+    })
+
+    return () => {
+      graph.off('node:click')
+      graph.off('node:mouseenter')
+      graph.off('node:mouseleave')
+    }
+  }, [graph])
+
+  useEffect(() => {
+    if (!graph || !topologyData?.nodes?.length) return
+
+    const processedData = {
+      ...topologyData,
+      nodes: topologyData.nodes.map(node => ({
+        ...node,
+        draggable: true,
+      })),
+    }
+
+    // 延迟一帧执行渲染，确保 DOM 已经准备好
+    requestAnimationFrame(() => {
+      if (graph && !graph.get('destroyed')) {
+        graph.data(processedData)
+        graph.render()
+
+        graph.fitView()
+        if (topologyData.nodes.length < 5) {
+          const width = ref.current?.scrollWidth || 800
+          const height = ref.current?.scrollHeight || 800
+          graph.zoomTo(1.2, { x: width / 2, y: height / 2 })
+        }
+      }
+    })
+  }, [graph, topologyData])
+
+  useEffect(() => {
+    if (!graph || !tableName) return
+
+    const nodes = graph.getNodes()
+    nodes.forEach(node => {
+      const model = node.getModel()
+      const displayName = getNodeName(model, type as string)
+      const isHighLight =
+        type === 'resource'
+          ? model?.resourceGroup?.name === tableName
+          : displayName === tableName
+
+      if (isHighLight) {
+        graph.setItemState(node, 'selected', true)
+      } else {
+        graph.setItemState(node, 'selected', false)
+      }
+    })
+  }, [graph, tableName, type])
+
+  G6.registerNode(
+    'card-node',
     {
-      getPath(points) {
-        const [sourcePoint, endPoint] = points
-        const x = (sourcePoint.x + endPoint.x) / 2
-        const y1 = sourcePoint.y
-        const y2 = endPoint.y
-        const path = [
-          ['M', sourcePoint.x, sourcePoint.y],
-          ['L', x, y1],
-          ['L', x, y2],
-          ['L', endPoint.x, endPoint.y],
-        ]
-        return path
-      },
-      afterDraw(cfg, group) {
-        const keyshape = group.find(ele => ele.get('name') === 'edge-shape')
-        const style = keyshape.attr()
-        const halo = group.addShape('path', {
+      draw(cfg: NodeConfig, group: IGroup) {
+        const displayName = getNodeName(cfg, type as string)
+        const count = cfg.data?.count
+        const isHighLight =
+          type === 'resource'
+            ? cfg?.resourceGroup?.name === tableName
+            : displayName === tableName
+
+        // Create main container
+        const rect = group.addShape('rect', {
           attrs: {
-            ...style,
-            lineWidth: 8,
-            opacity: 0.3,
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 48,
+            radius: 6,
+            fill: isHighLight ? '#e6f4ff' : '#ffffff',
+            stroke: isHighLight ? '#1677ff' : '#e6f4ff',
+            lineWidth: 1,
+            shadowColor: isHighLight
+              ? 'rgba(22,119,255,0.12)'
+              : 'rgba(0,0,0,0.06)',
+            shadowBlur: 8,
+            shadowOffsetX: 0,
+            shadowOffsetY: 2,
+            cursor: 'pointer',
           },
-          name: 'edge-halo',
+          name: 'node-container',
         })
-        halo.hide()
+
+        // Add background
+        group.addShape('rect', {
+          attrs: {
+            x: 0,
+            y: 0,
+            width: 200,
+            height: 48,
+            radius: 6,
+            fill: isHighLight ? '#f0f5ff' : '#ffffff',
+            opacity: 0.8,
+          },
+          name: 'node-background',
+        })
+
+        // Add side accent
+        group.addShape('rect', {
+          attrs: {
+            x: 0,
+            y: 0,
+            width: 3,
+            height: 48,
+            radius: [3, 0, 0, 3],
+            fill: '#1677ff',
+            opacity: isHighLight ? 0.8 : 0.4,
+          },
+          name: 'node-accent',
+        })
+
+        // Add Kubernetes icon
+        const iconSize = 28
+        const kind = cfg?.resourceGroup?.kind || ''
+        group.addShape('image', {
+          attrs: {
+            x: 16,
+            y: (48 - iconSize) / 2,
+            width: iconSize,
+            height: iconSize,
+            img: ICON_MAP[kind as keyof typeof ICON_MAP] || ICON_MAP.Kubernetes,
+          },
+          name: 'node-icon',
+        })
+
+        // Add title text
+        group.addShape('text', {
+          attrs: {
+            x: 52,
+            y: 24,
+            text: fittingString(displayName || '', 100, 14),
+            fontSize: 14,
+            fontWeight: isHighLight ? 600 : 500,
+            fill: '#1677ff',
+            cursor: 'pointer',
+            textBaseline: 'middle',
+            fontFamily:
+              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+          },
+          name: 'node-label',
+        })
+
+        if (typeof count === 'number') {
+          const textWidth = getTextWidth(`${count}`, 12)
+          const circleSize = Math.max(textWidth + 12, 20)
+          const circleX = 170
+          const circleY = 24
+
+          // Add count background
+          group.addShape('circle', {
+            attrs: {
+              x: circleX,
+              y: circleY,
+              r: circleSize / 2,
+              fill: '#f0f5ff',
+            },
+            name: 'count-background',
+          })
+
+          // Add count text
+          group.addShape('text', {
+            attrs: {
+              x: circleX,
+              y: circleY,
+              text: `${count}`,
+              fontSize: 12,
+              fontWeight: 500,
+              fill: '#1677ff',
+              textAlign: 'center',
+              textBaseline: 'middle',
+              fontFamily:
+                '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
+            },
+            name: 'count-text',
+          })
+        }
+
+        return rect
       },
-      afterUpdate(cfg, item) {
+
+      setState(name: string, value: boolean, item: Item) {
         const group = item.getContainer()
-        const keyshape = group.find(ele => ele.get('name') === 'edge-shape')
-        const halo = group?.find(ele => ele.get('name') === 'edge-halo')
-        const path = keyshape.attr('path')
-        halo.attr('path', path)
-      },
-      setState(name, value, item) {
-        const group = item.getContainer()
-        if (name === 'hover') {
-          const halo = group?.find(ele => ele.get('name') === 'edge-halo')
+        const nodeContainer = group.findAllByName('node-container')[0]
+        const nodeBackground = group.findAllByName('node-background')[0]
+        const nodeAccent = group.findAllByName('node-accent')[0]
+
+        if (name === 'selected' || name === 'hover') {
           if (value) {
-            halo.show()
+            // Highlight state
+            nodeContainer.attr('fill', '#e6f4ff')
+            nodeContainer.attr('stroke', '#1677ff')
+            nodeContainer.attr('shadowColor', 'rgba(22,119,255,0.12)')
+            nodeBackground.attr('fill', '#f0f5ff')
+            nodeAccent.attr('opacity', 0.8)
           } else {
-            halo.hide()
+            // Normal state
+            nodeContainer.attr('fill', '#ffffff')
+            nodeContainer.attr('stroke', '#e6f4ff')
+            nodeContainer.attr('shadowColor', 'rgba(0,0,0,0.06)')
+            nodeBackground.attr('fill', '#ffffff')
+            nodeAccent.attr('opacity', 0.4)
           }
         }
       },
     },
-    'cubic',
+    'single-node',
+  )
+
+  G6.registerEdge(
+    'running-edge',
+    {
+      afterDraw(cfg, group) {
+        const shape = group?.get('children')[0]
+        if (!shape) return
+
+        // Get the path shape
+        const startPoint = shape.getPoint(0)
+
+        // Create animated circle
+        const circle = group.addShape('circle', {
+          attrs: {
+            x: startPoint.x,
+            y: startPoint.y,
+            fill: '#1677ff',
+            r: 2,
+            opacity: 0.8,
+          },
+          name: 'running-circle',
+        })
+
+        // Add movement animation
+        circle.animate(
+          ratio => {
+            const point = shape.getPoint(ratio)
+            return {
+              x: point.x,
+              y: point.y,
+            }
+          },
+          {
+            repeat: true,
+            duration: 2000,
+          },
+        )
+      },
+      setState(name, value, item) {
+        const shape = item.get('keyShape')
+        if (name === 'hover') {
+          shape.attr('stroke', value ? '#1677ff' : '#c2c8d1')
+          shape.attr('lineWidth', value ? 2 : 1)
+          shape.attr('strokeOpacity', value ? 1 : 0.7)
+        }
+      },
+    },
+    'cubic', // Extend from built-in cubic edge
   )
 
   useLayoutEffect(() => {
-    setTooltipopen(false)
-    if (topologyData) {
-      ;(async () => {
-        const container = document.getElementById('overviewContainer')
-        const width = container?.scrollWidth || 800
-        const height = container?.scrollHeight || 400
-        const toolbar = new G6.ToolBar()
-        if (!graph && container) {
-          // eslint-disable-next-line
-          graphRef.current = graph = new G6.Graph({
-            container,
-            width,
-            height,
-            fitCenter: true,
-            fitView: true,
-            fitViewPadding: 20,
-            plugins: [toolbar],
-            enabledStack: true,
-            modes: {
-              default: ['drag-canvas', 'drag-node', 'click-select'],
-            },
-            layout: {
-              type: 'dagre',
-              rankdir: 'LR',
-              align: 'UL',
-              nodesepFunc: () => 1,
-              ranksepFunc: () => 1,
-            },
-            defaultNode: {
-              type: 'card-node',
-              size: [240, 45],
-            },
-            defaultEdge: {
-              type: 'polyline',
-              sourceAnchor: 1,
-              targetAnchor: 0,
-              style: {
-                radius: 10,
-                offset: 20,
-                endArrow: true,
-                lineWidth: 2,
-                stroke: '#C0C5D7',
-              },
-            },
-            edgeStateStyles: {
-              hover: {
-                lineWidth: 6,
-              },
-            },
-            nodeStateStyles: {
-              selected: {
-                stroke: '#2F54EB',
-                lineWidth: 2,
-              },
-              hoverState: {
-                lineWidth: 3,
-              },
-              clickState: {
-                stroke: '#2F54EB',
-                lineWidth: 2,
-              },
-            },
-          })
-          graph.read(topologyData)
-          appenAutoShapeListener(graph)
-          if (topologyData?.nodes?.length < 5) {
-            graph?.zoomTo(1.5, { x: width / 2, y: height / 2 }, true, {
-              duration: 10,
-            })
-            setTimeout(() => {
-              if (graphRef?.current) {
-                graphRef?.current?.fitCenter()
-              }
-            }, 100)
-          }
-          graph.on('card-node-transfer-keyshape:click', evt => {
-            const model = evt?.item?.get('model')
-            evt.defaultPrevented = true
-            evt.stopPropagation()
-            const resourceGroup = model?.data?.resourceGroup
-            const objParams = {
-              from,
-              type: 'kind',
-              cluster: resourceGroup?.cluster,
-              apiVersion: resourceGroup?.apiVersion,
-              kind: resourceGroup?.kind,
-              query,
-            }
-            const urlStr = queryString.stringify(objParams)
-            navigate(`/insightDetail/kind?${urlStr}`)
-          })
-          graph.on('edge:mouseenter', evt => {
-            graph.setItemState(evt.item, 'hover', true)
-          })
-          graph.on('edge:mouseleave', evt => {
-            graph.setItemState(evt.item, 'hover', false)
-          })
-          if (typeof window !== 'undefined') {
-            window.onresize = () => {
-              if (!graph || graph.get('destroyed')) return
-              if (
-                !container ||
-                !container.scrollWidth ||
-                !container.scrollHeight
-              )
-                return
-              graph.changeSize(container?.scrollWidth, container?.scrollHeight)
-            }
-          }
-        }
-      })()
+    if (!ref.current) return
+    const container = ref.current
+
+    const width = container.scrollWidth
+    const height = container.scrollHeight || 800
+
+    const options: GraphOptions = {
+      container,
+      width,
+      height,
+      modes: {
+        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
+      },
+      layout: {
+        type: 'dagre',
+        rankdir: 'LR',
+        nodesep: 25,
+        ranksep: 60,
+        align: 'UR',
+        controlPoints: true,
+        sortByCombo: false,
+        preventOverlap: true,
+        nodeSize: [200, 60],
+        workerEnabled: true,
+        clustering: false,
+        clusterNodeSize: [200, 60],
+        // Optimize edge layout
+        edgeFeedbackStyle: {
+          stroke: '#c2c8d1',
+          lineWidth: 1,
+          strokeOpacity: 0.5,
+          endArrow: true,
+        },
+      },
+      defaultNode: {
+        type: 'card-node',
+        size: [200, 60],
+        style: {
+          fill: '#fff',
+          stroke: '#e5e6e8',
+          radius: 4,
+          shadowColor: 'rgba(0,0,0,0.05)',
+          shadowBlur: 4,
+          shadowOffsetX: 0,
+          shadowOffsetY: 2,
+          cursor: 'pointer',
+        },
+        draggable: true,
+      },
+      defaultEdge: {
+        type: 'running-edge',
+        style: {
+          radius: 10,
+          offset: 5,
+          endArrow: {
+            path: G6.Arrow.triangle(4, 6, 0),
+            d: 0,
+            fill: '#c2c8d1',
+          },
+          stroke: '#c2c8d1',
+          lineWidth: 1,
+          strokeOpacity: 0.7,
+          curveness: 0.5,
+        },
+        labelCfg: {
+          autoRotate: true,
+          style: {
+            fill: '#86909c',
+            fontSize: 12,
+          },
+        },
+      },
+      fitView: true,
+      fitViewPadding: [20, 40],
+      animate: false,
     }
+
+    if (!graph) {
+      graph = new G6.Graph(options)
+      graphRef.current = graph
+    }
+
     return () => {
-      try {
-        if (graph) {
-          graph.destroy()
-          graphRef.current = null
-        }
-      } catch (error) {}
+      if (graph) {
+        graph.destroy()
+        graph = null
+      }
     }
-    // eslint-disable-next-line
-  }, [topologyData, tableName])
+  }, [])
 
   return (
     <div
@@ -445,7 +585,7 @@ const TopologyMap = ({
       {topologyLoading ? (
         <Loading />
       ) : (
-        <div ref={ref} id="overviewContainer" className={styles.g6_overview}>
+        <div ref={ref} className={styles.g6_overview}>
           <div className={styles.cluster_select}>
             <Select
               style={{ minWidth: 100 }}
@@ -462,14 +602,14 @@ const TopologyMap = ({
               })}
             </Select>
           </div>
-          {tooltipopen ? (
+          {tooltipopen && (
             <OverviewTooltip
               type={type as string}
               itemWidth={itemWidth}
               hiddenButtonInfo={hiddenButtontooltip}
               open={tooltipopen}
             />
-          ) : null}
+          )}
         </div>
       )}
     </div>
