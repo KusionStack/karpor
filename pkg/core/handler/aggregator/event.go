@@ -206,10 +206,10 @@ type EventDiagnoseRequest struct {
 // @Tags         insight
 // @Accept       json
 // @Produce      text/event-stream
-// @Param        request body EventDiagnoseRequest true "The events to analyze"
-// @Success      200  {object}  ai.DiagnosisEvent
-// @Failure      400  {string}  string "Bad Request"
-// @Failure      500  {string}  string "Internal Server Error"
+// @Param        request  body      EventDiagnoseRequest  true  "The events to analyze"
+// @Success      200      {object}  ai.DiagnosisEvent
+// @Failure      400      {string}  string  "Bad Request"
+// @Failure      500      {string}  string  "Internal Server Error"
 // @Router       /insight/aggregator/event/diagnosis/stream [post]
 func DiagnoseEvents(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

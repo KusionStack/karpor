@@ -47,7 +47,7 @@ type LogEntry struct {
 // @Summary      Stream pod logs using Server-Sent Events
 // @Description  This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
 // @Tags         insight
-// @Produce      text/event-stream, application/json
+// @Produce      text/event-stream,application/json
 // @Param        cluster     path      string  true   "The cluster name"
 // @Param        namespace   path      string  true   "The namespace name"
 // @Param        name        path      string  true   "The pod name"
@@ -57,10 +57,10 @@ type LogEntry struct {
 // @Param        timestamps  query     bool    false  "Include timestamps in log output"
 // @Param        tailLines   query     int     false  "Number of lines from the end of the logs to show"
 // @Param        download    query     bool    false  "Download logs as file instead of streaming"
-// @Success      200        {object}  LogEntry
-// @Failure      400        {string}  string  "Bad Request"
-// @Failure      401        {string}  string  "Unauthorized"
-// @Failure      404        {string}  string  "Not Found"
+// @Success      200         {object}  LogEntry
+// @Failure      400         {string}  string  "Bad Request"
+// @Failure      401         {string}  string  "Unauthorized"
+// @Failure      404         {string}  string  "Not Found"
 // @Router       /insight/aggregator/log/pod/{cluster}/{namespace}/{name} [get]
 func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -214,10 +214,10 @@ type DiagnoseResponse struct {
 // @Tags         insight
 // @Accept       json
 // @Produce      text/event-stream
-// @Param        request body DiagnoseRequest true "The logs to analyze"
-// @Success      200  {object}  DiagnosisEvent
-// @Failure      400  {string}  string "Bad Request"
-// @Failure      500  {string}  string "Internal Server Error"
+// @Param        request  body      DiagnoseRequest  true  "The logs to analyze"
+// @Success      200      {object}  ai.DiagnosisEvent
+// @Failure      400      {string}  string  "Bad Request"
+// @Failure      500      {string}  string  "Internal Server Error"
 // @Router       /insight/aggregator/log/diagnosis/stream [post]
 func DiagnosePodLogs(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
