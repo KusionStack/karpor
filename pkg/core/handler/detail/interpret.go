@@ -37,10 +37,10 @@ type InterpretRequest struct {
 // @Tags         insight
 // @Accept       json
 // @Produce      text/event-stream
-// @Param        request body InterpretRequest true "The YAML content to interpret"
-// @Success      200  {object}  ai.InterpretEvent
-// @Failure      400  {string}  string "Bad Request"
-// @Failure      500  {string}  string "Internal Server Error"
+// @Param        request  body      InterpretRequest  true  "The YAML content to interpret"
+// @Success      200      {object}  ai.InterpretEvent
+// @Failure      400      {string}  string  "Bad Request"
+// @Failure      500      {string}  string  "Internal Server Error"
 // @Router       /insight/yaml/interpret/stream [post]
 func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
