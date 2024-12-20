@@ -240,6 +240,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
   }, [cluster, namespace, podName, container, isPaused, settings])
 
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
+  const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
 
   const debouncedDiagnose = useCallback(
     debounce(async () => {
@@ -696,7 +697,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 onClick={() => setLogs([])}
               />
             </Tooltip>
-            {aiOptions?.AIAuthToken && (
+            {isAIEnabled && (
               <Tooltip title={t('LogAggregator.DiagnoseLogs')}>
                 <Button
                   type="text"
