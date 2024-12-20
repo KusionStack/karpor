@@ -161,9 +161,7 @@ const TopologyMap = ({
 }: IProps) => {
   const navigate = useNavigate()
   const { t } = useTranslation()
-  // const graphRef = useRef<any>()
   const ref = useRef<HTMLDivElement>(null)
-  // let graph: any | null = null
   const [graph, setGraph] = useState<any>()
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
@@ -253,7 +251,6 @@ const TopologyMap = ({
       })),
     }
 
-    // 延迟一帧执行渲染，确保 DOM 已经准备好
     requestAnimationFrame(() => {
       if (graph && !graph.destroyed) {
         graph.data(processedData)
