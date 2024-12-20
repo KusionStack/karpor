@@ -158,7 +158,7 @@ jobs:
           echo "::set-output name=new_chart_version::$new_chart_version"
 
       - name: Checkout Target repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: KusionStack/charts
           path: charts
