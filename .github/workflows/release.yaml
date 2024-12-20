@@ -83,61 +83,61 @@ jobs:
         id: get_version
         run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
 
-      # - name: Login to Docker Hub
-      #   uses: docker/login-action@v2
-      #   with:
-      #     username: ${{ secrets.DOCKERHUB_USERNAME }}
-      #     password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      # - name: Set up QEMU
-      #   uses: docker/setup-qemu-action@v2
-      # - name: Set up Docker Buildx
-      #   uses: docker/setup-buildx-action@v2
-      # - name: Set up Go
-      #   uses: actions/setup-go@v5
-      #   with:
-      #     go-version: '1.22'
-      # - name: Set up Node.js
-      #   uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '20'
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '20'
 
-      # - name: Install npm packages and build UI
-      #   working-directory: ./ui
-      #   run: |
-      #     npm install
-      #     # Using 'CI=false' prevents build errors due to warnings.
-      #     # It bypasses the 'process.env.CI = true' setting in CI environments
-      #     # that treats warnings as errors, ensuring a successful build.
-      #     CI=false npm run build
-      #     touch build/.gitkeep
+      - name: Install npm packages and build UI
+        working-directory: ./ui
+        run: |
+          npm install
+          # Using 'CI=false' prevents build errors due to warnings.
+          # It bypasses the 'process.env.CI = true' setting in CI environments
+          # that treats warnings as errors, ensuring a successful build.
+          CI=false npm run build
+          touch build/.gitkeep
 
-      # - name: Determine GoReleaser Config with Regex
-      #   run: |
-      #     tag=${GITHUB_REF#refs/tags/}
-      #     alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
-      #     beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
-      #     rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
-      #     release='v[0-9]+.[0-9]+.[0-9]+'
-      #     if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
-      #       echo "Match found for alpha or beta tag"
-      #       echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
-      #     elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
-      #       echo "Match found for rc or release tag"
-      #       echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
-      #     else
-      #       echo "No match found"
-      #       exit 1
-      #     fi
+      - name: Determine GoReleaser Config with Regex
+        run: |
+          tag=${GITHUB_REF#refs/tags/}
+          alpha='v[0-9]+.[0-9]+.[0-9]+-alpha.[0-9]+'
+          beta='v[0-9]+.[0-9]+.[0-9]+-beta.[0-9]+'
+          rc='v[0-9]+.[0-9]+.[0-9]+-rc.[0-9]+'
+          release='v[0-9]+.[0-9]+.[0-9]+'
+          if [[ $tag =~ $alpha ]] || [[ $tag =~ $beta ]]; then
+            echo "Match found for alpha or beta tag"
+            echo "GO_RELEASER_CONFIG=.goreleaser-dev.yml" >> $GITHUB_ENV
+          elif [[ $tag =~ $rc ]] || [[ $tag =~ $release ]]; then
+            echo "Match found for rc or release tag"
+            echo "GO_RELEASER_CONFIG=.goreleaser.yml" >> $GITHUB_ENV
+          else
+            echo "No match found"
+            exit 1
+          fi
 
-      # - name: Release the karpor with GoReleaser
-      #   uses: goreleaser/goreleaser-action@v2
-      #   with:
-      #     distribution: goreleaser
-      #     version: latest
-      #     args: release --clean --config .goreleaser/${{ env.GO_RELEASER_CONFIG }}
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Release the karpor with GoReleaser
+        uses: goreleaser/goreleaser-action@v2
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean --config .goreleaser/${{ env.GO_RELEASER_CONFIG }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Get new chart version from the chart repo
         id: get_chart_version
