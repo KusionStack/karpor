@@ -163,6 +163,7 @@ jobs:
           repository: KusionStack/charts
           path: charts
           token: ${{ secrets.CHART_UPDATER_PAT }}
+          fetch-depth: 0
 
       - name: Bump version in the related HelmChart Chart.yaml
         uses: fjogeleit/yaml-update-action@main
