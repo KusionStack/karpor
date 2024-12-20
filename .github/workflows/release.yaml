@@ -162,7 +162,7 @@ jobs:
         with:
           repository: KusionStack/charts
           path: charts
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CHART_UPDATER_PAT }}
 
       - name: Bump version in the related HelmChart Chart.yaml
         uses: fjogeleit/yaml-update-action@main
@@ -175,7 +175,7 @@ jobs:
           targetBranch: chart-version-updater
           createPR: false
           message: 'refactor: bump karpor version to ${{ steps.get_version.outputs.VERSION }}'
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.CHART_UPDATER_PAT }}
           workDir: charts
 
       - name: Log Test Outputs  # Log outputs for debugging
