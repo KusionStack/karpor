@@ -1,33 +1,21 @@
-import React, { useLayoutEffect, useRef, useState, useEffect } from 'react'
+import React, { useLayoutEffect, useRef, useState } from 'react'
 import { Select } from 'antd'
 import G6 from '@antv/g6'
 import type {
-  GraphOptions,
   IG6GraphEvent,
   IGroup,
   ModelConfig,
-  Item,
+  IAbstractGraph,
 } from '@antv/g6'
 import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
+// import { appenAutoShapeListener } from '@antv/g6-react-node'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
-import { ICON_MAP } from '@/utils/images'
 import transferImg from '@/assets/transfer.png'
+import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
-
-interface NodeModel {
-  id: string
-  name?: string
-  label?: string
-  resourceGroup?: {
-    name: string
-  }
-  data?: {
-    count?: number
-  }
-}
 
 interface NodeConfig extends ModelConfig {
   data?: {
@@ -43,6 +31,21 @@ interface NodeConfig extends ModelConfig {
   resourceGroup?: {
     name: string
     [key: string]: any
+  }
+}
+
+interface NodeModel {
+  id: string
+  name?: string
+  label?: string
+  resourceGroup?: {
+    name: string
+  }
+  data?: {
+    count?: number
+    resourceGroup?: {
+      name: string
+    }
   }
 }
 
@@ -159,12 +162,13 @@ const TopologyMap = ({
   clusterOptions,
   handleChangeCluster,
 }: IProps) => {
-  const navigate = useNavigate()
   const { t } = useTranslation()
-  const ref = useRef<HTMLDivElement>(null)
-  const [graph, setGraph] = useState<any>()
+  const ref = useRef(null)
+  const graphRef = useRef<any>()
+  let graph: IAbstractGraph | null = null
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
+  const navigate = useNavigate()
   const [tooltipopen, setTooltipopen] = useState(false)
   const [itemWidth, setItemWidth] = useState<number>(100)
   const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
@@ -173,118 +177,22 @@ const TopologyMap = ({
     e?: IG6GraphEvent
   }>({ x: -500, y: -500, e: undefined })
 
-  const handleMouseEnter = (evt: IG6GraphEvent) => {
-    const node = evt.item
-    const model = node.getModel() as NodeModel
-    const isHighLight =
-      type === 'resource'
-        ? model?.resourceGroup?.name === tableName
-        : model?.name === tableName
-    if (!isHighLight) {
-      graph.setItemState(node, 'hover', true)
-    }
+  function handleMouseEnter(evt) {
+    graph.setItemState(evt.item, 'hoverState', true)
+    // graph.setItemState(evt.item, 'hoverState', true)
     const bbox = evt.item.getBBox()
     const point = graph.getCanvasByPoint(bbox.centerX, bbox.minY)
     if (bbox) {
       setItemWidth(bbox.width)
     }
-    setHiddenButtontooltip({ x: point.x, y: point.y, e: evt })
+    setHiddenButtontooltip({ x: point.x, y: point.y - 5, e: evt })
     setTooltipopen(true)
   }
 
   const handleMouseLeave = (evt: IG6GraphEvent) => {
-    const node = evt.item
-    graph.setItemState(node, 'hover', false)
+    graph.setItemState(evt.item, 'hoverState', false)
     setTooltipopen(false)
   }
-
-  useEffect(() => {
-    if (!graph) return
-
-    graph.on('node:click', evt => {
-      const node = evt.item
-      const model = node.getModel()
-      setTooltipopen(false)
-
-      graph.getNodes().forEach(n => {
-        graph.setItemState(n, 'selected', false)
-      })
-      graph.setItemState(node, 'selected', true)
-
-      onTopologyNodeClick?.(model)
-    })
-
-    graph.on('node:mouseenter', evt => {
-      const node = evt.item
-      if (!graph.findById(node.getModel().id)?.hasState('selected')) {
-        graph.setItemState(node, 'hover', true)
-      }
-      handleMouseEnter(evt)
-    })
-
-    graph.on('node:mouseleave', evt => {
-      const node = evt.item
-      if (!graph.findById(node.getModel()?.id)?.hasState('selected')) {
-        graph.setItemState(node, 'hover', false)
-      }
-      handleMouseLeave(evt)
-    })
-
-    return () => {
-      if (graph) {
-        graph?.off('node:click')
-        graph?.off('node:mouseenter')
-        graph?.off('node:mouseleave')
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [graph])
-
-  useEffect(() => {
-    if (!graph || !topologyData?.nodes?.length) return
-
-    const processedData = {
-      ...topologyData,
-      nodes: topologyData.nodes.map(node => ({
-        ...node,
-        draggable: true,
-      })),
-    }
-
-    requestAnimationFrame(() => {
-      if (graph && !graph.destroyed) {
-        graph.data(processedData)
-        graph.render()
-
-        graph.fitView()
-        if (topologyData.nodes.length < 5) {
-          const width = ref.current?.scrollWidth || 800
-          const height = ref.current?.scrollHeight || 800
-          graph.zoomTo(1.2, { x: width / 2, y: height / 2 })
-        }
-      }
-    })
-  }, [graph, topologyData])
-
-  useEffect(() => {
-    if (!graph || !tableName) return
-
-    const nodes = graph.getNodes()
-    nodes.forEach(node => {
-      const model = node.getModel()
-      const displayName = getNodeName(model, type as string)
-      const isHighLight =
-        type === 'resource'
-          ? model?.resourceGroup?.name === tableName
-          : displayName === tableName
-
-      if (isHighLight) {
-        graph.setItemState(node, 'selected', true)
-      } else {
-        graph.setItemState(node, 'selected', false)
-      }
-    })
-  }, [graph, tableName, type])
 
   G6.registerNode(
     'card-node',
@@ -460,31 +368,6 @@ const TopologyMap = ({
           })
         }
       },
-
-      setState(name: string, value: boolean, item: Item) {
-        const group = item.getContainer()
-        const nodeContainer = group.findAllByName('node-container')?.[0]
-        const nodeBackground = group.findAllByName('node-background')?.[0]
-        const nodeAccent = group.findAllByName('node-accent')?.[0]
-
-        if (name === 'selected' || name === 'hover') {
-          if (value) {
-            // Highlight state
-            nodeContainer?.attr('fill', '#e6f4ff')
-            nodeContainer?.attr('stroke', '#1677ff')
-            nodeContainer?.attr('shadowColor', 'rgba(22,119,255,0.12)')
-            nodeBackground?.attr('fill', '#f0f5ff')
-            nodeAccent?.attr('opacity', 0.8)
-          } else {
-            // Normal state
-            nodeContainer?.attr('fill', '#ffffff')
-            nodeContainer?.attr('stroke', '#e6f4ff')
-            nodeContainer?.attr('shadowColor', 'rgba(0,0,0,0.06)')
-            nodeBackground?.attr('fill', '#ffffff')
-            nodeAccent?.attr('opacity', 0.4)
-          }
-        }
-      },
     },
     'single-node',
   )
@@ -539,137 +422,194 @@ const TopologyMap = ({
   )
 
   useLayoutEffect(() => {
-    if (!ref.current) return
-    const container = ref.current
-
-    const width = container.scrollWidth
-    const height = container.scrollHeight || 800
-
-    const options: GraphOptions = {
-      container,
-      width,
-      height,
-      modes: {
-        default: ['drag-canvas', 'zoom-canvas', 'drag-node'],
-      },
-      layout: {
-        type: 'dagre',
-        rankdir: 'LR',
-        nodesep: 25,
-        ranksep: 60,
-        align: 'UR',
-        controlPoints: true,
-        sortByCombo: false,
-        preventOverlap: true,
-        nodeSize: [200, 60],
-        workerEnabled: true,
-        clustering: false,
-        clusterNodeSize: [200, 60],
-        // Optimize edge layout
-        edgeFeedbackStyle: {
-          stroke: '#c2c8d1',
-          lineWidth: 1,
-          strokeOpacity: 0.5,
-          endArrow: true,
-        },
-      },
-      defaultNode: {
-        type: 'card-node',
-        size: [200, 60],
-        style: {
-          fill: '#fff',
-          stroke: '#e5e6e8',
-          radius: 4,
-          shadowColor: 'rgba(0,0,0,0.05)',
-          shadowBlur: 4,
-          shadowOffsetX: 0,
-          shadowOffsetY: 2,
-          cursor: 'pointer',
-        },
-        draggable: true,
-      },
-      defaultEdge: {
-        type: 'running-edge',
-        style: {
-          radius: 10,
-          offset: 5,
-          endArrow: {
-            path: G6.Arrow.triangle(4, 6, 0),
-            d: 0,
-            fill: '#c2c8d1',
+    setTooltipopen(false)
+    if (topologyData) {
+      const container = document.getElementById('overviewContainer')
+      const width = container?.scrollWidth || 800
+      const height = container?.scrollHeight || 400
+      const toolbar = new G6.ToolBar()
+      if (!graph && container) {
+        // eslint-disable-next-line
+        graphRef.current = graph = new G6.Graph({
+          container,
+          width,
+          height,
+          fitCenter: true,
+          fitView: topologyData?.nodes?.length >= 3,
+          fitViewPadding: 20,
+          plugins: [toolbar],
+          enabledStack: true,
+          modes: {
+            default: ['drag-canvas', 'drag-node', 'click-select'],
           },
-          stroke: '#c2c8d1',
-          lineWidth: 1,
-          strokeOpacity: 0.7,
-          curveness: 0.5,
-        },
-        labelCfg: {
-          autoRotate: true,
-          style: {
-            fill: '#86909c',
-            fontSize: 12,
+          layout: {
+            type: 'dagre',
+            rankdir: 'LR',
+            nodesep: 25,
+            ranksep: 60,
+            align: 'UR',
+            controlPoints: true,
+            sortByCombo: false,
+            preventOverlap: true,
+            nodeSize: [200, 60],
+            workerEnabled: true,
+            clustering: false,
+            clusterNodeSize: [200, 60],
+            // Optimize edge layout
+            edgeFeedbackStyle: {
+              stroke: '#c2c8d1',
+              lineWidth: 1,
+              strokeOpacity: 0.5,
+              endArrow: true,
+            },
           },
-        },
-      },
-      fitView: true,
-      fitViewPadding: [20, 40],
-      animate: false,
-    }
+          defaultNode: {
+            type: 'card-node',
+            size: [200, 60],
+            style: {
+              fill: '#fff',
+              stroke: '#e5e6e8',
+              radius: 4,
+              shadowColor: 'rgba(0,0,0,0.05)',
+              shadowBlur: 4,
+              shadowOffsetX: 0,
+              shadowOffsetY: 2,
+              cursor: 'pointer',
+            },
+            draggable: true,
+          },
+          defaultEdge: {
+            type: 'running-edge',
+            style: {
+              radius: 10,
+              offset: 5,
+              endArrow: {
+                path: G6.Arrow.triangle(4, 6, 0),
+                d: 0,
+                fill: '#c2c8d1',
+              },
+              stroke: '#c2c8d1',
+              lineWidth: 1,
+              strokeOpacity: 0.7,
+              curveness: 0.5,
+            },
+            labelCfg: {
+              autoRotate: true,
+              style: {
+                fill: '#86909c',
+                fontSize: 12,
+              },
+            },
+          },
+          edgeStateStyles: {
+            hover: {
+              lineWidth: 2,
+            },
+          },
+          nodeStateStyles: {
+            selected: {
+              // fill: '#e6f4ff',
+              stroke: '#1677ff',
+              shadowColor: 'rgba(22,119,255,0.12)',
+              fill: '#f0f5ff',
+              opacity: 0.8,
+            },
+            hoverState: {
+              stroke: '#1677ff',
+              shadowColor: 'rgba(22,119,255,0.12)',
+              fill: '#f0f5ff',
+              opacity: 0.8,
+            },
+            clickState: {
+              stroke: '#1677ff',
+              shadowColor: 'rgba(22,119,255,0.12)',
+              fill: '#f0f5ff',
+              opacity: 0.8,
+            },
+          },
+        })
+        graph.read(topologyData)
+        // appenAutoShapeListener(graph)
+        graph.on('node:click', evt => {
+          const node = evt.item
+          const model = node.getModel()
+          setTooltipopen(false)
 
-    if (!graph) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      const newGraph = new G6.Graph(options)
-      setGraph(newGraph)
-    }
+          graph.getNodes().forEach(n => {
+            graph.setItemState(n, 'selected', false)
+          })
+          graph.setItemState(node, 'selected', true)
+          onTopologyNodeClick?.(model)
+        })
 
-    return () => {
-      if (graph) {
-        graph?.destroy()
-        setGraph(null)
+        graph.on('node:mouseenter', evt => {
+          const node = evt.item
+          if (!graph.findById(node.getModel().id)?.hasState('selected')) {
+            graph.setItemState(node, 'hover', true)
+          }
+          handleMouseEnter(evt)
+        })
+
+        graph.on('node:mouseleave', evt => {
+          handleMouseLeave(evt)
+        })
+
+        if (typeof window !== 'undefined') {
+          window.onresize = () => {
+            if (!graph || graph.get('destroyed')) return
+            if (!container || !container.scrollWidth || !container.scrollHeight)
+              return
+            graph.changeSize(container?.scrollWidth, container?.scrollHeight)
+          }
+        }
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    return () => {
+      try {
+        if (graph) {
+          graph.destroy()
+          graphRef.current = null
+        }
+      } catch (error) {}
+    }
+    // eslint-disable-next-line
+  }, [topologyData, tableName])
 
   return (
     <div
       className={styles.g6_topology}
       style={{ height: isResource ? 450 : 400 }}
     >
-      <div ref={ref} className={styles.g6_overview}>
-        <div
-          className={styles.g6_topology_loading}
-          style={{
-            display: topologyLoading ? 'block' : 'none',
-          }}
-        >
-          <Loading />
+      {topologyLoading ? (
+        <Loading />
+      ) : (
+        <div ref={ref} id="overviewContainer" className={styles.g6_overview}>
+          <div className={styles.cluster_select}>
+            <Select
+              style={{ minWidth: 100 }}
+              placeholder=""
+              value={selectedCluster}
+              onChange={handleChangeCluster}
+            >
+              {clusterOptions?.map(item => {
+                return (
+                  <Select.Option key={item}>
+                    {item === 'ALL' ? t('AllClusters') : item}
+                  </Select.Option>
+                )
+              })}
+            </Select>
+          </div>
+          {tooltipopen ? (
+            <OverviewTooltip
+              type={type as string}
+              itemWidth={itemWidth}
+              hiddenButtonInfo={hiddenButtontooltip}
+              open={tooltipopen}
+            />
+          ) : null}
         </div>
-        <div className={styles.cluster_select}>
-          <Select
-            style={{ minWidth: 100 }}
-            placeholder=""
-            value={selectedCluster}
-            onChange={handleChangeCluster}
-          >
-            {clusterOptions?.map(item => {
-              return (
-                <Select.Option key={item}>
-                  {item === 'ALL' ? t('AllClusters') : item}
-                </Select.Option>
-              )
-            })}
-          </Select>
-        </div>
-        {tooltipopen && (
-          <OverviewTooltip
-            type={type as string}
-            itemWidth={itemWidth}
-            hiddenButtonInfo={hiddenButtontooltip}
-            open={tooltipopen}
-          />
-        )}
-      </div>
+      )}
     </div>
   )
 }
