@@ -174,9 +174,9 @@ jobs:
           value: ${{ steps.get_version.outputs.VERSION }}
           branch: bump-karpor-to-${{ steps.get_version.outputs.VERSION }}
           targetBranch: master
-          message: 'bump app version to ${{ steps.get_version.outputs.VERSION }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
+          message: 'chore(karpor): bump app version to ${{ steps.get_version.outputs.VERSION }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
           createPR: true
-          title: 'chore(karpor): {{message}}'
+          title: '${{ inputs.message }}'
           description: |
             This PR updates the Karpor Helm chart with the following changes:
             - Bump the `appVersion` to `${{ steps.get_version.outputs.VERSION }}`
