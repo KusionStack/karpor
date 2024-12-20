@@ -136,7 +136,17 @@
   "CreateTime": "Creation Timestamp",
   "InDevelopment": "In Development",
   "InputClusterName": "Input Cluster Name",
-  "YAML": "YAML",
+  "YAML": {
+    "NoContent": "No content to interpret",
+    "Interpret": "AI Interpret",
+    "InterpretResult": "Interpretation Result",
+    "InterpretInProgress": "Interpreting...",
+    "StopInterpret": "Stop Interpreting",
+    "InterpretConnectionError": "Interpretation connection error",
+    "FailedToStartInterpret": "Failed to start interpretation",
+    "FailedToInterpret": "Failed to interpret",
+    "TabName": "YAML"
+  },
   "Yesterday": "Yesterday",
   "Collapse": "Collapse",
   "Expand": "Expand",

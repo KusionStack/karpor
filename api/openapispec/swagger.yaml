@@ -1097,6 +1097,46 @@ paths:
         namespace, cluster, apiVersion and kind.
       tags:
       - insight
+  /rest-api/v1/insight/yaml/interpret/stream:
+    post:
+      description: This endpoint interprets YAML content using AI and returns the interpretation
+        result as a stream.
+      consumes:
+      - application/json
+      produces:
+      - text/event-stream
+      parameters:
+      - in: body
+        name: body
+        required: true
+        schema:
+          type: object
+          properties:
+            yaml:
+              type: string
+              description: The YAML content to interpret
+            language:
+              type: string
+              description: The language code for the response (e.g., 'en', 'zh')
+      responses:
+        "200":
+          description: A stream of interpretation events
+          schema:
+            type: object
+            properties:
+              type:
+                type: string
+                description: Event type (start, chunk, error, complete)
+              content:
+                type: string
+                description: Event content
+        "400":
+          description: Bad request
+        "500":
+          description: Internal server error
+      summary: Interpret YAML content using AI and return the result as a stream.
+      tags:
+      - insight
   /rest-api/v1/resource-group-rule:
     post:
       consumes:

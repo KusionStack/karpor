@@ -16,9 +16,7 @@ package ai
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
-	"net/http"
 	"strings"
 )
 
@@ -87,39 +85,4 @@ func (a *AIManager) DiagnoseLogs(ctx context.Context, logs []string, language st
 	}
 
 	return nil
-}
-
-// DiagnoseLogsHandler handles the HTTP streaming response for log diagnosis
-func (a *AIManager) DiagnoseLogsHandler(ctx context.Context, logs []string, language string, w http.ResponseWriter) {
-	// Set headers for SSE
-	w.Header().Set("Content-Type", "text/event-stream")
-	w.Header().Set("Cache-Control", "no-cache")
-	w.Header().Set("Connection", "keep-alive")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("X-Accel-Buffering", "no")
-
-	flusher, ok := w.(http.Flusher)
-	if !ok {
-		http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
-		return
-	}
-
-	// Create channel for diagnosis events
-	eventChan := make(chan *DiagnosisEvent, 10)
-	go func() {
-		if err := a.DiagnoseLogs(ctx, logs, language, eventChan); err != nil {
-			// Error already sent through eventChan
-			return
-		}
-	}()
-
-	// Stream events to client
-	for event := range eventChan {
-		data, err := json.Marshal(event)
-		if err != nil {
-			continue
-		}
-		fmt.Fprintf(w, "data: %s\n\n", data)
-		flusher.Flush()
-	}
 }

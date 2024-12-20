@@ -26,6 +26,8 @@ const (
 	SQLFixType PromptType = "sqlfix"
 	// LogDiagnosisType represents the prompt type for log diagnosis
 	LogDiagnosisType PromptType = "log_diagnosis"
+	// YAMLInterpretType represents the prompt type for YAML interpretation
+	YAMLInterpretType PromptType = "yaml_interpret"
 )
 
 var ServicePromptMap = map[PromptType]string{
@@ -119,4 +121,40 @@ Please provide:
 4. Any relevant Kubernetes best practices that could help prevent similar issues
 
 Format your response in markdown with clear sections.`,
+
+	YAMLInterpretType: `You are a Kubernetes YAML expert. Your task is to analyze and interpret the YAML configuration in language %s.
+
+YAML to interpret:
+%s
+
+Please provide a detailed analysis including:
+1. Resource Type and Purpose
+   - What kind of Kubernetes resource this is
+   - The intended purpose and function of this resource
+
+2. Key Configurations
+   - Important settings and their implications (include line numbers in [Line X] format)
+   - Default values and any custom configurations
+   - Resource requirements and limits
+
+3. Relationships and Dependencies
+   - References to other resources (if any)
+   - Required configurations or prerequisites
+   - Service connections and networking details
+
+4. Best Practices Analysis
+   - Alignment with Kubernetes best practices
+   - Security considerations
+   - Performance implications
+   - Potential improvements or optimizations
+
+5. Potential Issues
+   - Missing or misconfigured settings
+   - Security concerns
+   - Resource allocation issues
+   - Common pitfalls to avoid
+
+Note: When referencing specific configurations or values, always include their line numbers in brackets, e.g., [Line X] or [Line X-Y].
+
+Format your response in markdown with clear sections. Focus on providing practical insights that help understand and optimize the configuration.`,
 }

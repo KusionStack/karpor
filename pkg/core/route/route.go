@@ -174,6 +174,7 @@ func setupRestAPIV1(
 		r.Get("/aggregator/log/pod/{cluster}/{namespace}/{name}", aggregatorhandler.GetPodLogs(clusterMgr, genericConfig))
 		r.Post("/aggregator/log/diagnosis/stream", aggregatorhandler.DiagnosePodLogs(aiMgr, genericConfig))
 		r.Get("/aggregator/event/{cluster}/{namespace}/{name}", aggregatorhandler.GetEvents(clusterMgr, genericConfig))
+		r.Post("/yaml/interpret/stream", detailhandler.InterpretYAML(aiMgr, genericConfig))
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {

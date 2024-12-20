@@ -138,7 +138,17 @@
   "CreateTime": "Data de criação",
   "InDevelopment": "Em desenvolvimento",
   "InputClusterName": "Insira o nome do Cluster",
-  "YAML": "YAML",
+  "YAML": {
+    "NoContent": "Sem conteúdo para interpretar",
+    "Interpret": "Interpretação IA",
+    "InterpretResult": "Resultado da Interpretação",
+    "InterpretInProgress": "Interpretando...",
+    "StopInterpret": "Parar Interpretação",
+    "InterpretConnectionError": "Erro de conexão na interpretação",
+    "FailedToStartInterpret": "Falha ao iniciar interpretação",
+    "FailedToInterpret": "Falha na interpretação",
+    "TabName": "YAML"
+  },
   "Yesterday": "Ontem",
   "Collapse": "Colapsar",
   "Expand": "Expandir",
