@@ -16,7 +16,6 @@ package search
 
 import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime"
 )
 
 type SearchManager struct{}
@@ -27,13 +26,16 @@ func NewSearchManager() *SearchManager {
 }
 
 type UniResource struct {
-	Cluster string         `json:"cluster"`
-	Object  runtime.Object `json:"object"`
+	Cluster string `json:"cluster"`
+	Object  any    `json:"object"`
+	SyncAt  string `json:"syncAt"`
+	Deleted bool   `json:"deleted"`
 }
 
 type UniResourceList struct {
 	metav1.TypeMeta
 	Items       []UniResource `json:"items"`
+	SQLQuery    string        `json:"sqlQuery"`
 	Total       int           `json:"total"`
 	CurrentPage int           `json:"currentPage"`
 	PageSize    int           `json:"pageSize"`

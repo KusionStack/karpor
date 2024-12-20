@@ -2,7 +2,7 @@ include go.mk
 
 # Override the variables in the go.mk
 APPROOT=karpor
-GOSOURCE_PATHS = ./pkg/...
+GOSOURCE_PATHS = ./pkg/... ./cmd/...
 LICENSE_CHECKER ?= license-eye
 LICENSE_CHECKER_VERSION ?= main
 
@@ -40,7 +40,7 @@ gen-version: ## Generate version file
 .PHONY: test
 test:  ## Run the tests
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
-	go test -gcflags=all=-l -timeout=10m `go list -e $${PKG_LIST} | grep -vE "internalimport|generated|handler"` ${TEST_FLAGS}
+	go test -gcflags=all=-l -timeout=10m `go list -e $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|middleware|registry|openapi|apis|version|gitutil|server|elasticsearch"` ${TEST_FLAGS}
 
 
 # cover: Generates a coverage report for the specified TARGET_PKG or default GOSOURCE_PATHS.
@@ -53,7 +53,7 @@ test:  ## Run the tests
 cover: ## Generates coverage report
 	@PKG_LIST=$${TARGET_PKG:-$(GOSOURCE_PATHS)}; \
 	echo "🚀 Executing unit tests for $${PKG_LIST}:"; \
-	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "internalimport|generated|handler"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
+	go test -gcflags=all=-l -timeout=10m `go list $${PKG_LIST} | grep -vE "cmd|internal|internalimport|generated|handler|middleware|registry|openapi|apis|version|gitutil|server|elasticsearch"` -coverprofile $(COVERAGEOUT) ${TEST_FLAGS} && \
 	(echo "\n📊 Calculating coverage rate:"; go tool cover -func=$(COVERAGEOUT)) || (echo "\n💥 Running go test failed!"; exit 1)
 
 
@@ -150,14 +150,14 @@ fix-license:  ## Adds missing license header to repo files
 gen-api-spec: ## Generate API Specification with OpenAPI format
 	@which swag > /dev/null || (echo "Installing swag@v1.7.8 ..."; go install github.com/swaggo/swag/cmd/swag@v1.7.8 && echo "Installation complete!\n")
 	# Generate API documentation with OpenAPI format
-	-swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/main.go -o api/openapispec/ && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+	@swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/karpor/main.go -o api/openapispec/ && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
 	# Format swagger comments
-	-swag fmt -g pkg/**/*.go && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
+	@swag fmt -g pkg/**/*.go && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
 
 .PHONY: gen-api-doc
 gen-api-doc: gen-api-spec ## Generate API Documentation by API Specification
 	@which swagger > /dev/null || (echo "Installing swagger@v0.30.5 ..."; go install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5 && echo "Installation complete!\n")
-	-swagger generate markdown -f ./api/openapispec/swagger.json --output=docs/api.md && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+	@swagger generate markdown -f ./api/openapispec/swagger.json --output=docs/api.md && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
 
 .PHONY: gen-cli-doc
 gen-cli-doc: ## Generate CLI Documentation

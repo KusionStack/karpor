@@ -64,6 +64,8 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().SyncResourceses().Informer()}, nil
 	case searchv1beta1.SchemeGroupVersion.WithResource("transformrules"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().TransformRules().Informer()}, nil
+	case searchv1beta1.SchemeGroupVersion.WithResource("trimrules"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Search().V1beta1().TrimRules().Informer()}, nil
 
 	}
 

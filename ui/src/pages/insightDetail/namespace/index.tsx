@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import KarporTabs from '@/components/tabs'
 import Yaml from '@/components/yaml'
 import { capitalized, generateTopologyData } from '@/utils/tools'
-import { insightTabsList } from '@/utils/constants'
+import { insightTabsList, InsightTab } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
@@ -29,7 +29,9 @@ const ClusterDetail = () => {
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState('Topology')
+  const [currentTab, setCurrentTab] = useState(
+    urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
+  )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState<any>()
   const [yamlData, setYamlData] = useState('')
@@ -42,6 +44,30 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+  const [tabList, setTabList] = useState<InsightTab[]>(
+    insightTabsList?.filter(item => item?.value !== 'Events'),
+  )
+
+  useEffect(() => {
+    if (urlParams?.deleted === 'true') {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology' && urlParams?.deleted === 'true') {
+          item.disabled = true
+        }
+        return item
+      })
+      setTabList(tmp)
+    } else {
+      const tmp = tabList?.map(item => {
+        if (item?.value === 'Topology') {
+          item.disabled = false
+        }
+        return item
+      })
+      setTabList(tmp)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlParams?.deleted])
 
   useEffect(() => {
     if (selectedCluster) {
@@ -126,7 +152,7 @@ const ClusterDetail = () => {
 
   const { response: clusterDetailResponse, refetch: clusterDetailRefetch } =
     useAxios({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/detail',
       method: 'GET',
     })
 
@@ -138,7 +164,7 @@ const ClusterDetail = () => {
 
   function getClusterDetail() {
     clusterDetailRefetch({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/detail',
       option: {
         params: {
           cluster,
@@ -189,6 +215,8 @@ const ClusterDetail = () => {
   }, [topologyDataResponse])
 
   function getTopologyData() {
+    if (urlParams?.deleted === 'true') return
+
     topologyDataRefetch({
       option: {
         params: {
@@ -395,11 +423,10 @@ const ClusterDetail = () => {
         </div>
       </div>
 
-      {/* 拓扑图 */}
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList}
+            list={tabList}
             current={currentTab}
             onChange={handleTabChange}
           />

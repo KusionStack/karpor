@@ -20,6 +20,7 @@ import (
 )
 
 type CoreOptions struct {
+	EnableRBAC   bool
 	ReadOnlyMode bool
 	GithubBadge  bool
 	Version      bool
@@ -45,6 +46,7 @@ func (o *CoreOptions) AddFlags(fs *pflag.FlagSet) {
 		return
 	}
 
+	fs.BoolVar(&o.EnableRBAC, "enable-rbac", false, "trun on to enable RBAC authorization")
 	fs.BoolVar(&o.ReadOnlyMode, "read-only-mode", false, "turn on the read only mode")
 	fs.BoolVar(&o.GithubBadge, "github-badge", false, "whether to display the github badge")
 	fs.BoolVarP(&o.Version, "version", "V", o.Version, "Print version and exit")

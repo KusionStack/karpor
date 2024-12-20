@@ -37,7 +37,7 @@ type Pagination struct {
 }
 
 // Search performs a search operation with the given query string, pattern type, and pagination settings.
-func (s *Storage) Search(ctx context.Context, queryStr string, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
+func (s *Storage) Search(ctx context.Context, queryStr, patternType string, pagination *storage.Pagination) (*storage.SearchResult, error) {
 	var sr *storage.SearchResult
 	var err error
 
@@ -47,7 +47,7 @@ func (s *Storage) Search(ctx context.Context, queryStr string, patternType strin
 		if err != nil {
 			return nil, errors.Wrap(err, "search by DSL failed")
 		}
-	case storage.SQLPatternType:
+	case storage.SQLPatternType, storage.NLPatternType:
 		sr, err = s.searchBySQL(ctx, queryStr, pagination)
 		if err != nil {
 			return nil, errors.Wrap(err, "search by SQL failed")
@@ -87,7 +87,7 @@ func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *st
 
 // searchBySQL performs a search operation using an SQL string and pagination settings.
 func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	dsl, _, err := sql2es.Convert(sqlStr)
+	dsl, _, err := sql2es.ConvertWithDefaultFilter(sqlStr, &sql2es.DeletedFilter)
 	if err != nil {
 		return nil, err
 	}

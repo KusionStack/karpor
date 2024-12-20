@@ -81,12 +81,22 @@ export const defaultKeywords = [
 export const tabsList = [
   { label: 'KeywordSearch', value: 'keyword', disabled: true },
   { label: 'SQLSearch', value: 'sql' },
+  {
+    label: 'SearchByNaturalLanguage',
+    value: 'natural',
+  },
 ]
 
-export const insightTabsList = [
-  { label: 'ResourceTopology', value: 'Topology' },
-  { label: 'YAML', value: 'YAML' },
-  { label: 'KubernetesEvents', value: 'K8s', disabled: true },
+export interface InsightTab {
+  value: string
+  label: string
+  disabled?: boolean
+}
+
+export const insightTabsList: InsightTab[] = [
+  { value: 'Topology', label: 'ResourceTopology' },
+  { value: 'YAML', label: 'YAML' },
+  { value: 'Events', label: 'EventAggregator' },
 ]
 
 export const defaultSqlExamples = [

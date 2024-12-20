@@ -56,6 +56,10 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRule":                 schema_kubernetes_apis_search_v1beta1_TransformRule(ref),
 		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleList":             schema_kubernetes_apis_search_v1beta1_TransformRuleList(ref),
 		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec":             schema_kubernetes_apis_search_v1beta1_TransformRuleSpec(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRule":                      schema_kubernetes_apis_search_v1beta1_TrimRule(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleList":                  schema_kubernetes_apis_search_v1beta1_TrimRuleList(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleRetainFields":          schema_kubernetes_apis_search_v1beta1_TrimRuleRetainFields(ref),
+		"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleSpec":                  schema_kubernetes_apis_search_v1beta1_TrimRuleSpec(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                                                  schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                                              schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                                               schema_pkg_apis_meta_v1_APIResource(ref),
@@ -712,12 +716,32 @@ func schema_kubernetes_apis_search_v1beta1_ResourceSyncRule(ref common.Reference
 							Format:      "",
 						},
 					},
+					"trim": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Trim defines the trimming strategy for the resources of the current type.",
+							Ref:         ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleSpec"),
+						},
+					},
+					"trimRefName": {
+						SchemaProps: spec.SchemaProps{
+							Description: "TrimRefName is the name of the TrimRule.",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"remainAfterDeleted": {
+						SchemaProps: spec.SchemaProps{
+							Description: "RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 				},
 				Required: []string{"apiVersion", "resource"},
 			},
 		},
 		Dependencies: []string{
-			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.Selector", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TransformRuleSpec", "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.Duration"},
 	}
 }
 
@@ -1160,6 +1184,143 @@ func schema_kubernetes_apis_search_v1beta1_TransformRuleSpec(ref common.Referenc
 				Required: []string{"type", "valueTemplate"},
 			},
 		},
+	}
+}
+
+func schema_kubernetes_apis_search_v1beta1_TrimRule(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Description: "TrimRule defines the strategy of trimming k8s objects, which can save informer memory by discarding redundant fields.",
+				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"),
+						},
+					},
+					"spec": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleSpec"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleSpec", "k8s.io/apimachinery/pkg/apis/meta/v1.ObjectMeta"},
+	}
+}
+
+func schema_kubernetes_apis_search_v1beta1_TrimRuleList(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"kind": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Kind is a string value representing the REST resource this object represents. Servers may infer this from the endpoint the client submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"apiVersion": {
+						SchemaProps: spec.SchemaProps{
+							Description: "APIVersion defines the versioned schema of this representation of an object. Servers should convert recognized schemas to the latest internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources",
+							Type:        []string{"string"},
+							Format:      "",
+						},
+					},
+					"metadata": {
+						SchemaProps: spec.SchemaProps{
+							Default: map[string]interface{}{},
+							Ref:     ref("k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"),
+						},
+					},
+					"items": {
+						SchemaProps: spec.SchemaProps{
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRule"),
+									},
+								},
+							},
+						},
+					},
+				},
+				Required: []string{"items"},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRule", "k8s.io/apimachinery/pkg/apis/meta/v1.ListMeta"},
+	}
+}
+
+func schema_kubernetes_apis_search_v1beta1_TrimRuleRetainFields(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"jsonPaths": {
+						SchemaProps: spec.SchemaProps{
+							Description: "JSONPaths specifies the path of the field to be retained. For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/",
+							Type:        []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: "",
+										Type:    []string{"string"},
+										Format:  "",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_kubernetes_apis_search_v1beta1_TrimRuleSpec(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"retain": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Retain specifies which fields should be retained after trimming.",
+							Default:     map[string]interface{}{},
+							Ref:         ref("github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleRetainFields"),
+						},
+					},
+				},
+			},
+		},
+		Dependencies: []string{
+			"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1.TrimRuleRetainFields"},
 	}
 }
 

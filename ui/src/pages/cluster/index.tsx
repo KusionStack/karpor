@@ -148,9 +148,7 @@ const Cluster = () => {
     putClusterRefetch({
       url: `/rest-api/v1/cluster/${lastDetail?.metadata?.name}`,
       option: {
-        data: {
-          values,
-        },
+        data: values,
       },
       callbackFn: callback,
     })

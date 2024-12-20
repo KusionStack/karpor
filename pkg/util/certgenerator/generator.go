@@ -32,7 +32,7 @@ const hubClusterKubeConfigTemplate = `apiVersion: v1
 clusters:
 - cluster:
     insecure-skip-tls-verify: true
-    server: https://127.0.0.1:7443
+    server: https://karpor-server.%s.svc:7443
   name: karpor
 contexts:
 - context:
@@ -54,7 +54,7 @@ type Generator struct {
 	kubeConfigName string
 }
 
-func NewGenerator(cfg *rest.Config, namespace string, certName string, kubeConfigName string) (*Generator, error) {
+func NewGenerator(cfg *rest.Config, namespace, certName, kubeConfigName string) (*Generator, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("cfg is required buit was nil")
 	}
@@ -189,5 +189,5 @@ func generateAdminKubeconfig(namespace string, cert *x509.Certificate, key crypt
 	if err != nil {
 		return "", fmt.Errorf("unable to marshal private key to PEM %s", err)
 	}
-	return fmt.Sprintf(hubClusterKubeConfigTemplate, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
+	return fmt.Sprintf(hubClusterKubeConfigTemplate, namespace, base64.StdEncoding.EncodeToString(certData), base64.StdEncoding.EncodeToString(keyData)), nil
 }

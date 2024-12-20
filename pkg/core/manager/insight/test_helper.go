@@ -30,7 +30,6 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
-	"k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
 )
 
 // mockMultiClusterClient returns a mock MultiClusterClient for testing purposes.
@@ -40,7 +39,7 @@ func mockMultiClusterClient() *multicluster.MultiClusterClient {
 			DiscoveryClient: &discovery.DiscoveryClient{},
 		},
 		DynamicClient: &dynamic.DynamicClient{},
-		MetricsClient: &v1beta1.MetricsV1beta1Client{},
+		MetricsClient: nil,
 	}
 }
 
@@ -468,6 +467,10 @@ func (FakeCoreV1) Nodes() v1.NodeInterface {
 	return &FakeNode{}
 }
 
+func (FakeCoreV1) Pods(namespace string) v1.PodInterface {
+	return &FakePod{}
+}
+
 type FakeNode struct {
 	v1.NodeInterface
 }
@@ -484,6 +487,22 @@ func (f *FakeNode) List(ctx context.Context, opts metav1.ListOptions) (*coreV1.N
 						"memory": resource.MustParse("2Gi"),
 						"pods":   resource.MustParse("10"),
 					},
+				},
+			},
+		},
+	}, nil
+}
+
+type FakePod struct {
+	v1.PodInterface
+}
+
+func (f *FakePod) List(ctx context.Context, opts metav1.ListOptions) (*coreV1.PodList, error) {
+	return &coreV1.PodList{
+		Items: []coreV1.Pod{
+			{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test-pod",
 				},
 			},
 		},

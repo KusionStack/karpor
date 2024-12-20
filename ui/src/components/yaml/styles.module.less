@@ -1,28 +1,232 @@
 .yaml_content {
-  position: relative;
+  height: 100%;
   overflow-y: auto;
+  border-radius: 8px;
+  position: relative;
+  background: #1e1e1e;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-1px);
+
+    .copy {
+      opacity: 1;
+      transform: scale(1.02);
+    }
+  }
 
   .copy {
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 16px;
+    right: 24px;
+    z-index: 10;
+    opacity: 0.95;
+    transform: translateY(0);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      background: linear-gradient(45deg, #7cdce7, #7ec699);
+      border-radius: 6px;
+      z-index: -1;
+      opacity: 0;
+      transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    :global {
+      .ant-btn {
+        background: rgba(30, 30, 30, 0.95);
+        color: #7cdce7;
+        border: 1px solid rgba(124, 220, 231, 0.3);
+        height: 28px;
+        padding: 10px;
+        font-weight: 500;
+        font-family: 'JetBrains Mono', monospace;
+        letter-spacing: 0.5px;
+        backdrop-filter: blur(4px);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 0 2px rgba(20, 20, 20, 0.3);
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+
+        .anticon {
+          font-size: 14px;
+          transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        &:hover {
+          color: #fff;
+          border-color: rgba(124, 220, 231, 0.4);
+          transform: translateY(-1px);
+          box-shadow: 0 0 3px rgba(20, 20, 20, 0.4);
+          background: rgba(35, 35, 35, 0.95);
+
+          .anticon {
+            transform: scale(1.1);
+          }
+        }
+
+        &:active {
+          transform: translateY(0);
+          box-shadow: 0 0 1px rgba(20, 20, 20, 0.3);
+          background: rgba(28, 28, 28, 0.95);
+        }
+      }
+    }
+
+    &:hover {
+      &::before {
+        opacity: 0.1;
+      }
+    }
   }
 
-  .yaml_box {
-    width: 100%;
-    height: 500px;
-    max-height: 800px;
-    min-height: 300px;
-    padding: 1.5rem 2rem;
-    overflow-y: auto;
-    font:
-      1.1em Inconsolata,
-      monospace;
-    color: #fff;
-    word-break: break-all;
-    white-space: pre-wrap;
-    background-color: #000;
-    border-radius: 8px;
-    box-sizing: border-box;
+  .yaml_container {
+    height: 100%;
+
+    .yaml_box {
+      width: 100%;
+      height: 100%;
+      padding: 16px 20px;
+      overflow-y: auto;
+      font-family: 'JetBrains Mono', 'Fira Code', Menlo, Monaco, Consolas,
+        monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e0e0e0;
+      word-break: break-all;
+      white-space: pre-wrap;
+      background-color: #1e1e1e;
+      border-radius: 8px;
+      box-sizing: border-box;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+
+      &::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 4px;
+      }
+
+      &::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 4px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
+      }
+
+      :global {
+        .hljs {
+          background: transparent;
+          padding: 0;
+          transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+          &-attr {
+            color: #7cdce7;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              color: lighten(#7cdce7, 10%);
+            }
+          }
+
+          &-string {
+            color: #7ec699;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              color: lighten(#7ec699, 10%);
+            }
+          }
+
+          &-number {
+            color: #f08d49;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              color: lighten(#f08d49, 10%);
+            }
+          }
+
+          &-boolean {
+            color: #cc99cd;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              color: lighten(#cc99cd, 10%);
+            }
+          }
+
+          &-null {
+            color: #cc99cd;
+            transition: color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+            &:hover {
+              color: lighten(#cc99cd, 10%);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+.resizeHandle {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  cursor: row-resize;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) scaleX(0.6);
+    width: 60px;
+    height: 2px;
+    background: rgba(47, 84, 235, 0.1);
+    border-radius: 1px;
+    opacity: 0;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  &:hover {
+    background: rgba(47, 84, 235, 0.08);
+
+    &::after {
+      opacity: 1;
+      transform: translate(-50%, -50%) scaleX(1);
+      background: rgba(47, 84, 235, 0.3);
+    }
+  }
+
+  &:active {
+    background: rgba(47, 84, 235, 0.15);
+
+    &::after {
+      opacity: 1;
+      background: rgba(47, 84, 235, 0.4);
+      transform: translate(-50%, -50%) scaleX(1.2);
+      box-shadow: 0 0 10px rgba(47, 84, 235, 0.3);
+    }
   }
 }

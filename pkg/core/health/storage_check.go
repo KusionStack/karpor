@@ -18,6 +18,7 @@ package health
 
 import (
 	"context"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 )
 

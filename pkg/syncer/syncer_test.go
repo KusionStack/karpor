@@ -20,6 +20,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
@@ -132,7 +133,11 @@ func TestResourceSyncer_Run(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			s := NewResourceSyncer("cluster1", nil, v1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "services"}, &elasticsearch.Storage{})
 			m := mockey.Mock((*informerSource).HasSynced).Return(true).Build()
+			m2 := mockey.Mock((*elasticsearch.Storage).Refresh).Return(nil).Build()
+			m3 := mockey.Mock((*elasticsearch.Storage).SearchByQuery).Return(&storage.SearchResult{}, nil).Build()
 			defer m.UnPatch()
+			defer m2.UnPatch()
+			defer m3.UnPatch()
 			ctx, cancel := context.WithTimeout(context.TODO(), 1*time.Second)
 			defer cancel()
 			err := s.Run(ctx)
@@ -283,4 +288,16 @@ func (q *fakeQueue) Add(item interface{}) {
 		q.queue = []interface{}{}
 	}
 	q.queue = append(q.queue, item)
+}
+
+func TestResourceSyncer_parseTransformer(t *testing.T) {
+	s := &ResourceSyncer{
+		source: &informerSource{
+			ResourceSyncRule: v1beta1.ResourceSyncRule{Transform: &v1beta1.TransformRuleSpec{Type: "patch"}},
+			cluster:          "clusterName",
+		},
+	}
+
+	_, err := s.parseTransformer()
+	require.NoError(t, err)
 }

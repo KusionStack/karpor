@@ -42,13 +42,14 @@ const (
 
 // ResourceGroup represents information required to locate a resource or multi resources.
 type ResourceGroup struct {
-	Cluster     string            `json:"cluster,omitempty" yaml:"cluster,omitempty"`
-	APIVersion  string            `json:"apiVersion,omitempty" yaml:"apiVersion,omitempty"`
-	Kind        string            `json:"kind,omitempty" yaml:"kind,omitempty"`
-	Namespace   string            `json:"namespace,omitempty" yaml:"namespace,omitempty"`
-	Name        string            `json:"name,omitempty" yaml:"name,omitempty"`
-	Labels      map[string]string `json:"labels,omitempty" yaml:"labels,omitempty"`
+	Cluster     string            `json:"cluster,omitempty"     yaml:"cluster,omitempty"`
+	APIVersion  string            `json:"apiVersion,omitempty"  yaml:"apiVersion,omitempty"`
+	Kind        string            `json:"kind,omitempty"        yaml:"kind,omitempty"`
+	Namespace   string            `json:"namespace,omitempty"   yaml:"namespace,omitempty"`
+	Name        string            `json:"name,omitempty"        yaml:"name,omitempty"`
+	Labels      map[string]string `json:"labels,omitempty"      yaml:"labels,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty" yaml:"annotations,omitempty"`
+	Status      string            `json:"status,omitempty"      yaml:"status,omitempty"`
 }
 
 // Hash returns a unique string representation of the ResourceGroup that can be
@@ -87,6 +88,34 @@ func (rg *ResourceGroup) Hash() ResourceGroupHash {
 	}
 
 	return ResourceGroupHash(hash.String())
+}
+
+// ToTerms converts the ResourceGroup to ES query terms.
+func (rg *ResourceGroup) ToTerms() map[string]any {
+	terms := map[string]any{}
+
+	setIfNotEmpty := func(key string, val any) {
+		switch val := val.(type) {
+		case string:
+			if len(val) != 0 {
+				terms[key] = val
+			}
+		case map[string]string:
+			if len(val) != 0 {
+				terms[key] = val
+			}
+		}
+	}
+
+	setIfNotEmpty("cluster", rg.Cluster)
+	setIfNotEmpty("apiVersion", rg.APIVersion)
+	setIfNotEmpty("kind", rg.Kind)
+	setIfNotEmpty("namespace", rg.Namespace)
+	setIfNotEmpty("name", rg.Name)
+	setIfNotEmpty("labels", rg.Labels)
+	setIfNotEmpty("annotations", rg.Annotations)
+
+	return terms
 }
 
 // ToSQL generates a SQL query string based on the ResourceGroup.

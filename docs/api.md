@@ -2,6 +2,7 @@
 
 
 # Karpor
+Karpor is a brand new Kubernetes visualization tool that focuses on search, insights, and AI at its core
   
 
 ## Informations
@@ -26,9 +27,18 @@
 
 ### Produces
   * application/json
+  * text/event-stream
   * text/plain
 
 ## All endpoints
+
+###  authn
+
+| Method  | URI     | Name   | Summary |
+|---------|---------|--------|---------|
+| GET | /authn | [get authn](#get-authn) | Get returns an authn result of user's token. |
+  
+
 
 ###  cluster
 
@@ -56,6 +66,8 @@
 
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
+| GET | /insight/aggregator/event/{cluster}/{namespace}/{name} | [get insight aggregator event cluster namespace name](#get-insight-aggregator-event-cluster-namespace-name) | Stream resource events using Server-Sent Events |
+| GET | /insight/aggregator/log/pod/{cluster}/{namespace}/{name} | [get insight aggregator log pod cluster namespace name](#get-insight-aggregator-log-pod-cluster-namespace-name) | Stream pod logs using Server-Sent Events |
 | GET | /rest-api/v1/insight/audit | [get rest API v1 insight audit](#get-rest-api-v1-insight-audit) | Audit based on resource group. |
 | GET | /rest-api/v1/insight/detail | [get rest API v1 insight detail](#get-rest-api-v1-insight-detail) | GetDetail returns a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/events | [get rest API v1 insight events](#get-rest-api-v1-insight-events) | GetEvents returns events for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
@@ -63,6 +75,8 @@
 | GET | /rest-api/v1/insight/stats | [get rest API v1 insight stats](#get-rest-api-v1-insight-stats) | Get returns a global statistics info. |
 | GET | /rest-api/v1/insight/summary | [get rest API v1 insight summary](#get-rest-api-v1-insight-summary) | Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
+| POST | /insight/aggregator/event/diagnosis/stream | [post insight aggregator event diagnosis stream](#post-insight-aggregator-event-diagnosis-stream) | Diagnose events using AI |
+| POST | /insight/aggregator/log/diagnosis/stream | [post insight aggregator log diagnosis stream](#post-insight-aggregator-log-diagnosis-stream) | Diagnose pod logs using AI |
   
 
 
@@ -284,6 +298,94 @@ Status: Internal Server Error
 
 
 
+### <span id="get-authn"></span> Get returns an authn result of user's token. (*GetAuthn*)
+
+```
+GET /authn
+```
+
+This endpoint returns an authn result.
+
+#### Produces
+  * application/json
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-authn-200) | OK | OK |  | [schema](#get-authn-200-schema) |
+| [400](#get-authn-400) | Bad Request | Bad Request |  | [schema](#get-authn-400-schema) |
+| [401](#get-authn-401) | Unauthorized | Unauthorized |  | [schema](#get-authn-401-schema) |
+| [404](#get-authn-404) | Not Found | Not Found |  | [schema](#get-authn-404-schema) |
+| [405](#get-authn-405) | Method Not Allowed | Method Not Allowed |  | [schema](#get-authn-405-schema) |
+| [429](#get-authn-429) | Too Many Requests | Too Many Requests |  | [schema](#get-authn-429-schema) |
+| [500](#get-authn-500) | Internal Server Error | Internal Server Error |  | [schema](#get-authn-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-authn-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-authn-200-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-authn-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-authn-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-authn-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-405"></span> 405 - Method Not Allowed
+Status: Method Not Allowed
+
+###### <span id="get-authn-405-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-authn-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-authn-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-authn-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="get-endpoints"></span> List all available endpoints (*GetEndpoints*)
 
 ```
@@ -310,6 +412,148 @@ List all registered endpoints in the router
 Status: OK
 
 ###### <span id="get-endpoints-200-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-insight-aggregator-event-cluster-namespace-name"></span> Stream resource events using Server-Sent Events (*GetInsightAggregatorEventClusterNamespaceName*)
+
+```
+GET /insight/aggregator/event/{cluster}/{namespace}/{name}
+```
+
+This endpoint streams resource events in real-time using SSE. It supports event type filtering and automatic updates.
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| cluster | `path` | string | `string` |  | ✓ |  | The cluster name |
+| name | `path` | string | `string` |  | ✓ |  | The resource name |
+| namespace | `path` | string | `string` |  | ✓ |  | The namespace name |
+| apiVersion | `query` | string | `string` |  | ✓ |  | The resource API version |
+| kind | `query` | string | `string` |  | ✓ |  | The resource kind |
+| type | `query` | string | `string` |  |  |  | Event type filter (Normal or Warning) |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-insight-aggregator-event-cluster-namespace-name-200) | OK | OK |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-200-schema) |
+| [400](#get-insight-aggregator-event-cluster-namespace-name-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-400-schema) |
+| [401](#get-insight-aggregator-event-cluster-namespace-name-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-401-schema) |
+| [404](#get-insight-aggregator-event-cluster-namespace-name-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-event-cluster-namespace-name-404-schema) |
+
+#### Responses
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-200-schema"></span> Schema
+   
+  
+
+[][AiEvent](#ai-event)
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-event-cluster-namespace-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-insight-aggregator-event-cluster-namespace-name-404-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-insight-aggregator-log-pod-cluster-namespace-name"></span> Stream pod logs using Server-Sent Events (*GetInsightAggregatorLogPodClusterNamespaceName*)
+
+```
+GET /insight/aggregator/log/pod/{cluster}/{namespace}/{name}
+```
+
+This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
+
+#### Produces
+  * application/json
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| cluster | `path` | string | `string` |  | ✓ |  | The cluster name |
+| name | `path` | string | `string` |  | ✓ |  | The pod name |
+| namespace | `path` | string | `string` |  | ✓ |  | The namespace name |
+| container | `query` | string | `string` |  |  |  | The container name (optional if pod has only one container) |
+| download | `query` | boolean | `bool` |  |  |  | Download logs as file instead of streaming |
+| since | `query` | string | `string` |  |  |  | Only return logs newer than a relative duration like 5s, 2m, or 3h |
+| sinceTime | `query` | string | `string` |  |  |  | Only return logs after a specific date (RFC3339) |
+| tailLines | `query` | integer | `int64` |  |  |  | Number of lines from the end of the logs to show |
+| timestamps | `query` | boolean | `bool` |  |  |  | Include timestamps in log output |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-insight-aggregator-log-pod-cluster-namespace-name-200) | OK | OK |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-200-schema) |
+| [400](#get-insight-aggregator-log-pod-cluster-namespace-name-400) | Bad Request | Bad Request |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-400-schema) |
+| [401](#get-insight-aggregator-log-pod-cluster-namespace-name-401) | Unauthorized | Unauthorized |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-401-schema) |
+| [404](#get-insight-aggregator-log-pod-cluster-namespace-name-404) | Not Found | Not Found |  | [schema](#get-insight-aggregator-log-pod-cluster-namespace-name-404-schema) |
+
+#### Responses
+
+
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-200"></span> 200 - OK
+Status: OK
+
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-200-schema"></span> Schema
+   
+  
+
+[AggregatorLogEntry](#aggregator-log-entry)
+
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-insight-aggregator-log-pod-cluster-namespace-name-404-schema"></span> Schema
    
   
 
@@ -1467,7 +1711,7 @@ This endpoint returns an array of Kubernetes runtime Object matched using the qu
 |------|--------|------|---------|-----------| :------: |---------|-------------|
 | page | `query` | string | `string` |  |  |  | The current page to fetch. Default to 1 |
 | pageSize | `query` | string | `string` |  |  |  | The size of the page. Default to 10 |
-| pattern | `query` | string | `string` |  | ✓ |  | The search pattern. Can be either sql or dsl. Required |
+| pattern | `query` | string | `string` |  | ✓ |  | The search pattern. Can be either sql, dsl or nl. Required |
 | query | `query` | string | `string` |  | ✓ |  | The query to use for search. Required |
 
 #### All responses
@@ -1542,6 +1786,120 @@ Status: Too Many Requests
 Status: Internal Server Error
 
 ###### <span id="get-rest-api-v1-search-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="post-insight-aggregator-event-diagnosis-stream"></span> Diagnose events using AI (*PostInsightAggregatorEventDiagnosisStream*)
+
+```
+POST /insight/aggregator/event/diagnosis/stream
+```
+
+This endpoint analyzes events using AI to identify issues and provide solutions
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [AggregatorEventDiagnoseRequest](#aggregator-event-diagnose-request) | `models.AggregatorEventDiagnoseRequest` | | ✓ | | The events to analyze |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-aggregator-event-diagnosis-stream-200) | OK | OK |  | [schema](#post-insight-aggregator-event-diagnosis-stream-200-schema) |
+| [400](#post-insight-aggregator-event-diagnosis-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-aggregator-event-diagnosis-stream-400-schema) |
+| [500](#post-insight-aggregator-event-diagnosis-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-aggregator-event-diagnosis-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-200-schema"></span> Schema
+   
+  
+
+[AiDiagnosisEvent](#ai-diagnosis-event)
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="post-insight-aggregator-log-diagnosis-stream"></span> Diagnose pod logs using AI (*PostInsightAggregatorLogDiagnosisStream*)
+
+```
+POST /insight/aggregator/log/diagnosis/stream
+```
+
+This endpoint analyzes pod logs using AI to identify issues and provide solutions
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [AggregatorDiagnoseRequest](#aggregator-diagnose-request) | `models.AggregatorDiagnoseRequest` | | ✓ | | The logs to analyze |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-aggregator-log-diagnosis-stream-200) | OK | OK |  | [schema](#post-insight-aggregator-log-diagnosis-stream-200-schema) |
+| [400](#post-insight-aggregator-log-diagnosis-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-aggregator-log-diagnosis-stream-400-schema) |
+| [500](#post-insight-aggregator-log-diagnosis-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-aggregator-log-diagnosis-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-200-schema"></span> Schema
+   
+  
+
+[AiDiagnosisEvent](#ai-diagnosis-event)
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-500-schema"></span> Schema
    
   
 
@@ -2091,6 +2449,91 @@ Status: Internal Server Error
 
 ## Models
 
+### <span id="aggregator-diagnose-request"></span> aggregator.DiagnoseRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| language | string| `string` |  | | Language code for AI response |  |
+| logs | []string| `[]string` |  | |  |  |
+
+
+
+### <span id="aggregator-event-diagnose-request"></span> aggregator.EventDiagnoseRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| events | [][AiEvent](#ai-event)| `[]*AiEvent` |  | |  |  |
+| language | string| `string` |  | |  |  |
+
+
+
+### <span id="aggregator-log-entry"></span> aggregator.LogEntry
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | |  |  |
+| error | string| `string` |  | |  |  |
+| timestamp | string| `string` |  | |  |  |
+
+
+
+### <span id="ai-diagnosis-event"></span> ai.DiagnosisEvent
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | | Event content |  |
+| type | string| `string` |  | | Event type: start/chunk/error/complete |  |
+
+
+
+### <span id="ai-event"></span> ai.Event
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| count | integer| `int64` |  | |  |  |
+| firstTimestamp | string| `string` |  | |  |  |
+| lastTimestamp | string| `string` |  | |  |  |
+| message | string| `string` |  | |  |  |
+| reason | string| `string` |  | |  |  |
+| type | string| `string` |  | |  |  |
+
+
+
 ### <span id="cluster-cluster-payload"></span> cluster.ClusterPayload
 
 
@@ -2104,7 +2547,7 @@ Status: Internal Server Error
 |------|------|---------|:--------:| ------- |-------------|---------|
 | description | string| `string` |  | | ClusterDescription is the description of cluster to be created |  |
 | displayName | string| `string` |  | | ClusterDisplayName is the display name of cluster to be created |  |
-| kubeconfig | string| `string` |  | | ClusterKubeConfig is the kubeconfig of cluster to be created |  |
+| kubeConfig | string| `string` |  | | ClusterKubeConfig is the kubeconfig of cluster to be created |  |
 
 
 

@@ -8,6 +8,7 @@ import Yaml from '@/components/yaml'
 import { capitalized, generateResourceTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import ExceptionList from '../components/exceptionList'
@@ -15,9 +16,10 @@ import EventDetail from '../components/eventDetail'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
+import PodLogs from '../components/podLogs'
+import EventAggregator from '../components/eventAggregator'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
 const ClusterDetail = () => {
   const { t, i18n } = useTranslation()
@@ -28,7 +30,9 @@ const ClusterDetail = () => {
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
   const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState('Topology')
+  const [currentTab, setCurrentTab] = useState(
+    urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
+  )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [yamlData, setYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
@@ -39,6 +43,36 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+
+  const [tabList, setTabList] = useState(insightTabsList)
+
+  useEffect(() => {
+    const initialTabList = [...insightTabsList]
+    if (kind === 'Pod') {
+      if (!initialTabList.find(tab => tab.value === 'Logs')) {
+        initialTabList.push({ value: 'Logs', label: 'LogAggregator' })
+      }
+    }
+    setTabList(initialTabList)
+  }, [kind])
+
+  useEffect(() => {
+    if (urlParams?.deleted === 'true') {
+      setTabList(prev =>
+        prev.map(item => ({
+          ...item,
+          disabled: item.value === 'Topology' && urlParams?.deleted === 'true',
+        })),
+      )
+    } else {
+      setTabList(prev =>
+        prev.map(item => ({
+          ...item,
+          disabled: false,
+        })),
+      )
+    }
+  }, [urlParams?.deleted])
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
@@ -101,7 +135,7 @@ const ClusterDetail = () => {
 
   const { response: clusterDetailResponse, refetch: clusterDetailRefetch } =
     useAxios({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/score',
       method: 'GET',
     })
 
@@ -113,7 +147,7 @@ const ClusterDetail = () => {
 
   function getClusterDetail() {
     clusterDetailRefetch({
-      url: `/rest-api/v1/cluster/${cluster}`,
+      url: '/rest-api/v1/insight/detail',
       option: {
         params: {
           cluster,
@@ -170,6 +204,7 @@ const ClusterDetail = () => {
   }, [topologyDataResponse])
 
   function getTopologyData() {
+    if (urlParams?.deleted === 'true') return
     topologyDataRefetch({
       option: {
         params: {
@@ -354,6 +389,27 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
+    if (currentTab === 'Events') {
+      return (
+        <EventAggregator
+          cluster={cluster as string}
+          namespace={namespace as string}
+          name={name as string}
+          kind={kind as string}
+          apiVersion={apiVersion as string}
+        />
+      )
+    }
+    if (currentTab === 'Logs' && kind === 'Pod') {
+      return (
+        <PodLogs
+          cluster={cluster as string}
+          namespace={namespace as string}
+          podName={name as string}
+          yamlData={yamlData}
+        />
+      )
+    }
     if (currentTab === 'K8s') {
       return (
         <K8sEvent
@@ -390,7 +446,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList}
+            list={tabList}
             current={currentTab}
             onChange={handleTabChange}
           />

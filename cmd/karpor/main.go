@@ -24,8 +24,10 @@ import (
 	"k8s.io/component-base/cli"
 )
 
-// @title    Karpor
-// @version  1.0
+// @title           Karpor
+// @version         1.0
+// @description     Karpor is a brand new Kubernetes visualization tool that focuses on search, insights, and AI at its core
+
 func main() {
 	ctx := genericapiserver.SetupSignalContext()
 

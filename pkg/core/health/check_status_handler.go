@@ -20,12 +20,13 @@ package health
 
 import (
 	"context"
-	"github.com/pkg/errors"
-	"golang.org/x/sync/errgroup"
 	"net/http"
 	"sort"
 	"strings"
 	"sync"
+
+	"github.com/pkg/errors"
+	"golang.org/x/sync/errgroup"
 )
 
 var (
@@ -65,13 +66,13 @@ func NewCheckStatuses(n int) *CheckStatuses {
 // FailureNotification represents the configuration for failure
 // notifications.
 type FailureNotification struct {
-	Threshold uint32
 	Chan      chan error
+	Threshold uint32
 }
 
 type CheckStatuses struct {
-	sync.RWMutex
 	m map[string]bool
+	sync.RWMutex
 }
 
 // Get returns the value and existence status for the specified key.

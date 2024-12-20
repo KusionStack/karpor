@@ -60,12 +60,32 @@ type ClusterTopology struct {
 	Relationship  map[string]string    `json:"relationship"`
 }
 
+type MetricPoint struct {
+	Timestamp metav1.Time `json:"timestamp"`
+	Value     float64     `json:"value"`
+}
+
+type ResourceMetrics struct {
+	Points []MetricPoint `json:"points"`
+}
+
 type ClusterDetail struct {
-	NodeCount      int    `json:"nodeCount"`
-	ServerVersion  string `json:"serverVersion"`
-	MemoryCapacity int64  `json:"memoryCapacity"`
-	CPUCapacity    int64  `json:"cpuCapacity"`
-	PodsCapacity   int64  `json:"podsCapacity"`
+	NodeCount     int    `json:"nodeCount"`
+	ServerVersion string `json:"serverVersion"`
+	ReadyNodes    int    `json:"readyNodes"`
+	NotReadyNodes int    `json:"notReadyNodes"`
+
+	MemoryCapacity int64   `json:"memoryCapacity"`
+	MemoryUsage    float64 `json:"memoryUsage"`
+	CPUCapacity    int64   `json:"cpuCapacity"`
+	CPUUsage       float64 `json:"cpuUsage"`
+	PodsCapacity   int64   `json:"podsCapacity"`
+	PodsUsage      int64   `json:"podsUsage"`
+
+	MetricsEnabled bool `json:"metricsEnabled"`
+
+	CPUMetrics    ResourceMetrics `json:"cpuMetrics"`
+	MemoryMetrics ResourceMetrics `json:"memoryMetrics"`
 }
 
 // Audit-related

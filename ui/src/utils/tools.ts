@@ -199,3 +199,33 @@ export function getTextSizeByCanvas(
   canvas.remove()
   return width + 2
 }
+
+export function getHistoryList(key) {
+  return localStorage?.getItem(key)
+    ? JSON.parse(localStorage?.getItem(key))
+    : []
+}
+
+export function deleteHistoryByItem(key, val: string) {
+  const lastHistory: any = localStorage.getItem(key)
+  const tmp = lastHistory ? JSON.parse(lastHistory) : []
+  if (tmp?.length > 0 && tmp?.includes(val)) {
+    const newList = tmp?.filter(item => item !== val)
+    localStorage.setItem(key, JSON.stringify(newList))
+  }
+}
+
+export function cacheHistory(key, val: string) {
+  const lastHistory: any = localStorage.getItem(key)
+  const tmp = lastHistory ? JSON.parse(lastHistory) : []
+  const newList = [val, ...tmp?.filter(item => item !== val)]
+  localStorage.setItem(key, JSON.stringify(newList))
+  return getHistoryList(key)
+}
+
+export function formatTime(
+  time: string,
+  format = 'YYYY-MM-DD HH:mm:ss',
+): string {
+  return moment(time).format(format)
+}

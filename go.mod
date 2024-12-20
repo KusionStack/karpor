@@ -1,6 +1,6 @@
 module github.com/KusionStack/karpor
 
-go 1.19
+go 1.22
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -15,10 +15,12 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
-	github.com/google/uuid v1.3.0
+	github.com/google/uuid v1.4.0
+	github.com/hupe1980/go-huggingface v0.0.15
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
+	github.com/sashabaranov/go-openai v1.27.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.8.4
@@ -44,7 +46,6 @@ require (
 	k8s.io/dynamic-resource-allocation v0.26.1
 	k8s.io/klog/v2 v2.80.1
 	k8s.io/kms v0.26.1
-	k8s.io/kube-aggregator v0.26.1
 	k8s.io/kube-controller-manager v0.26.1
 	k8s.io/kube-openapi v0.0.0-20230106171958-10e5f0effbd2
 	k8s.io/kube-proxy v0.26.1
@@ -56,7 +57,6 @@ require (
 	k8s.io/metrics v0.26.1
 	k8s.io/mount-utils v0.26.1
 	k8s.io/pod-security-admission v0.26.1
-	k8s.io/sample-apiserver v0.26.1
 	k8s.io/utils v0.0.0-20221128185143-99ec85e7a448
 	sigs.k8s.io/controller-runtime v0.14.6
 	sigs.k8s.io/structured-merge-diff/v4 v4.2.3
@@ -174,4 +174,9 @@ require (
 	sigs.k8s.io/json v0.0.0-20220713155537-f223a00ba0e2 // indirect
 )
 
-replace github.com/KusionStack/karpor/hack/cert-generator => ./hack/cert-generator
+replace (
+	github.com/KusionStack/karpor/hack/cert-generator => ./hack/cert-generator
+	// the below fixes the "go list -m all" execution
+	k8s.io/kube-aggregator => k8s.io/kube-aggregator v0.26.1
+	k8s.io/sample-apiserver => k8s.io/sample-apiserver v0.26.1
+)

@@ -23,6 +23,62 @@ var doc = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/authn": {
+            "get": {
+                "description": "This endpoint returns an authn result.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authn"
+                ],
+                "summary": "Get returns an authn result of user's token.",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "405": {
+                        "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/endpoints": {
             "get": {
                 "description": "List all registered endpoints in the router",
@@ -39,6 +95,280 @@ var doc = `{
                 "responses": {
                     "200": {
                         "description": "Endpoints listed successfully",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/aggregator/event/diagnosis/stream": {
+            "post": {
+                "description": "This endpoint analyzes events using AI to identify issues and provide solutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Diagnose events using AI",
+                "parameters": [
+                    {
+                        "description": "The events to analyze",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.EventDiagnoseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.DiagnosisEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/aggregator/event/{cluster}/{namespace}/{name}": {
+            "get": {
+                "description": "This endpoint streams resource events in real-time using SSE. It supports event type filtering and automatic updates.",
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Stream resource events using Server-Sent Events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The cluster name",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The namespace name",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource kind",
+                        "name": "kind",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The resource API version",
+                        "name": "apiVersion",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "Event type filter (Normal or Warning)",
+                        "name": "type",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/ai.Event"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/aggregator/log/diagnosis/stream": {
+            "post": {
+                "description": "This endpoint analyzes pod logs using AI to identify issues and provide solutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Diagnose pod logs using AI",
+                "parameters": [
+                    {
+                        "description": "The logs to analyze",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.DiagnoseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.DiagnosisEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/aggregator/log/pod/{cluster}/{namespace}/{name}": {
+            "get": {
+                "description": "This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.",
+                "produces": [
+                    "text/event-stream",
+                    "application/json"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Stream pod logs using Server-Sent Events",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The cluster name",
+                        "name": "cluster",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The namespace name",
+                        "name": "namespace",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The pod name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "The container name (optional if pod has only one container)",
+                        "name": "container",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only return logs newer than a relative duration like 5s, 2m, or 3h",
+                        "name": "since",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only return logs after a specific date (RFC3339)",
+                        "name": "sinceTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include timestamps in log output",
+                        "name": "timestamps",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of lines from the end of the logs to show",
+                        "name": "tailLines",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Download logs as file instead of streaming",
+                        "name": "download",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.LogEntry"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "string"
                         }
@@ -1581,7 +1911,7 @@ var doc = `{
                     },
                     {
                         "type": "string",
-                        "description": "The search pattern. Can be either sql or dsl. Required",
+                        "description": "The search pattern. Can be either sql, dsl or nl. Required",
                         "name": "pattern",
                         "in": "query",
                         "required": true
@@ -1648,6 +1978,85 @@ var doc = `{
         }
     },
     "definitions": {
+        "aggregator.DiagnoseRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "description": "Language code for AI response",
+                    "type": "string"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "aggregator.EventDiagnoseRequest": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ai.Event"
+                    }
+                },
+                "language": {
+                    "type": "string"
+                }
+            }
+        },
+        "aggregator.LogEntry": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "ai.DiagnosisEvent": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "Event content",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Event type: start/chunk/error/complete",
+                    "type": "string"
+                }
+            }
+        },
+        "ai.Event": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "integer"
+                },
+                "firstTimestamp": {
+                    "type": "string"
+                },
+                "lastTimestamp": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "reason": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string"
+                }
+            }
+        },
         "cluster.ClusterPayload": {
             "type": "object",
             "properties": {
@@ -1659,7 +2068,7 @@ var doc = `{
                     "description": "ClusterDisplayName is the display name of cluster to be created",
                     "type": "string"
                 },
-                "kubeconfig": {
+                "kubeConfig": {
                     "description": "ClusterKubeConfig is the kubeconfig of cluster to be created",
                     "type": "string"
                 }
@@ -1901,7 +2310,7 @@ var SwaggerInfo = swaggerInfo{
 	BasePath:    "",
 	Schemes:     []string{},
 	Title:       "Karpor",
-	Description: "",
+	Description: "Karpor is a brand new Kubernetes visualization tool that focuses on search, insights, and AI at its core",
 }
 
 type s struct{}

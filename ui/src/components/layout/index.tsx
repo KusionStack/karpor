@@ -16,6 +16,8 @@ import {
   setVersionNumber,
   setIsLogin,
   setGithubBadge,
+  setIsUnsafeMode,
+  setAIOptions,
 } from '@/store/modules/globalSlice'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
@@ -52,9 +54,8 @@ const LayoutPage = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const dispatch = useDispatch()
-  const { isReadOnlyMode, versionNumber, isLogin, githubBadge } = useSelector(
-    (state: any) => state.globalSlice,
-  )
+  const { isReadOnlyMode, versionNumber, isLogin, githubBadge, isUnsafeMode } =
+    useSelector((state: any) => state.globalSlice)
   const { i18n, t } = useTranslation()
 
   const { response } = useAxios({
@@ -67,8 +68,10 @@ const LayoutPage = () => {
   useEffect(() => {
     if (response) {
       dispatch(setServerConfigMode(response?.CoreOptions?.ReadOnlyMode))
+      dispatch(setIsUnsafeMode(!response?.CoreOptions?.EnableRBAC))
       dispatch(setVersionNumber(response?.Version))
       dispatch(setGithubBadge(response?.CoreOptions?.GithubBadge))
+      dispatch(setAIOptions(response?.AIOptions))
     }
   }, [response, dispatch])
 
@@ -135,7 +138,7 @@ const LayoutPage = () => {
   function handleMenuClick(event) {
     if (event.key === '/search') {
       navigate('/search')
-    } else if (!isLogin && !isReadOnlyMode && ['/login']?.includes(pathname)) {
+    } else if (!isLogin && !isUnsafeMode && ['/login']?.includes(pathname)) {
       return
     } else if (event?.domEvent.metaKey && event?.domEvent.button === 0) {
       const { origin } = window.location
@@ -165,12 +168,12 @@ const LayoutPage = () => {
   useEffect(() => {
     if (
       !isLogin &&
-      !isReadOnlyMode &&
+      !isUnsafeMode &&
       !['/login', '/', '/search']?.includes(pathname)
     ) {
       navigate('/login')
     }
-  }, [isLogin, isReadOnlyMode, navigate, pathname])
+  }, [isLogin, isUnsafeMode, navigate, pathname])
 
   function handleLogout() {
     message.info(t('LogoutSuccess'))
@@ -276,7 +279,7 @@ const LayoutPage = () => {
               <QuestionCircleOutlined style={{ color: '#646566' }} />
             </span>
           </div>
-          {isLogin && !isReadOnlyMode && (
+          {isLogin && !isUnsafeMode && (
             <div className={styles.logout} style={{ padding: '2px 5px' }}>
               <Button style={{ padding: 0 }} type="link" onClick={handleLogout}>
                 {t('Logout')}
@@ -288,7 +291,7 @@ const LayoutPage = () => {
       <div className={styles.content}>
         <div className={styles.right}>
           {!isLogin &&
-          !isReadOnlyMode &&
+          !isUnsafeMode &&
           !['/login', '/', '/search']?.includes(pathname) ? null : (
             <div className={styles.right_content}>
               <Outlet />

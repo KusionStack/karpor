@@ -37,7 +37,8 @@ type RESTStorageProvider struct {
 }
 
 func NewRESTStorageProvider(serviceAccouuntIssuer serviceaccount.TokenGenerator,
-	serviceAccountMaxExpiration time.Duration) *RESTStorageProvider {
+	serviceAccountMaxExpiration time.Duration,
+) *RESTStorageProvider {
 	return &RESTStorageProvider{
 		ServiceAccountIssuer:        serviceAccouuntIssuer,
 		ServiceAccountMaxExpiration: serviceAccountMaxExpiration,

@@ -20,9 +20,50 @@ import (
 	"strings"
 
 	"github.com/xwb1989/sqlparser"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
-func Convert(sql string) (dsl string, table string, err error) {
+var DeletedFilter = sqlparser.ComparisonExpr{
+	Operator: sqlparser.EqualStr,
+	Left:     &sqlparser.ColName{Name: sqlparser.NewColIdent("deleted")},
+	Right:    sqlparser.NewStrVal([]byte("false")),
+}
+
+func applyDefaultFilter(sel *sqlparser.Select, filter sqlparser.Expr) *sqlparser.Select {
+	if filter == nil {
+		return sel
+	}
+
+	getColNames := func(node sqlparser.SQLNode) sets.Set[string] {
+		names := sets.Set[string]{}
+		node.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
+			switch node.(type) {
+			case sqlparser.ColIdent, *sqlparser.ColIdent:
+				names.Insert(fmt.Sprintf("%v", node))
+			}
+			return true, nil
+		})
+		return names
+	}
+
+	selColNames := getColNames(sel.Where)
+	filterColNames := getColNames(filter)
+
+	if selColNames.Intersection(filterColNames).Len() > 0 {
+		return sel
+	}
+
+	sel.AddWhere(filter)
+	return sel
+}
+
+func Convert(sql string) (dsl, table string, err error) {
+	return ConvertWithDefaultFilter(sql, nil)
+}
+
+// ConvertWithDefaultFilter appends the filter to sql where clause if the
+// filter column names have no intersection with where clause.
+func ConvertWithDefaultFilter(sql string, filter sqlparser.Expr) (dsl, table string, err error) {
 	stmt, err := sqlparser.Parse(sql)
 	if err != nil {
 		return "", "", err
@@ -39,10 +80,11 @@ func Convert(sql string) (dsl string, table string, err error) {
 		return "", "", fmt.Errorf("only one table supported")
 	}
 
+	sel = applyDefaultFilter(sel, filter)
 	return handleSelect(sel)
 }
 
-func handleSelect(sel *sqlparser.Select) (dsl string, esType string, err error) {
+func handleSelect(sel *sqlparser.Select) (dsl, esType string, err error) {
 	var rootParent sqlparser.Expr
 
 	queryMapStr, err := handleSelectWhere(&sel.Where.Expr, true, &rootParent)
@@ -134,7 +176,7 @@ func buildNestedFuncStrValue(nestedFunc *sqlparser.FuncExpr) (string, error) {
 	return "", fmt.Errorf("unsupported function " + nestedFunc.Name.String())
 }
 
-func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereAndExpr(expr, parent *sqlparser.Expr) (string, error) {
 	andExpr := (*expr).(*sqlparser.AndExpr)
 	leftExpr := andExpr.Left
 	rightExpr := andExpr.Right
@@ -162,7 +204,7 @@ func handleSelectWhereAndExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (str
 	return fmt.Sprintf(`{"bool" : {"must" : [%v]}}`, resultStr), nil
 }
 
-func handleSelectWhereOrExpr(expr *sqlparser.Expr, parent *sqlparser.Expr) (string, error) {
+func handleSelectWhereOrExpr(expr, parent *sqlparser.Expr) (string, error) {
 	orExpr := (*expr).(*sqlparser.OrExpr)
 	leftExpr := orExpr.Left
 	rightExpr := orExpr.Right

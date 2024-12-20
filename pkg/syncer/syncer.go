@@ -15,17 +15,23 @@
 package syncer
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"strings"
+	"text/template"
 	"time"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/transform"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
+	sprig "github.com/Masterminds/sprig/v3"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/dynamic"
@@ -35,7 +41,13 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-const defaultWorkers = 10
+const (
+	defaultWorkers = 10
+
+	// purgeMarker indicates it's time to prune the storage.
+	// As k8s object name cannot use underscore, we can use this name in workqueue without collision.
+	purgeMarker = "__purge_marker__"
+)
 
 // deleted is a type that represents a deleted Kubernetes object.
 type deleted struct {
@@ -52,6 +64,9 @@ type ResourceSyncer struct {
 	cancel context.CancelFunc
 
 	logger logr.Logger
+
+	transformFunc clientgocache.TransformFunc
+	startTime     time.Time
 }
 
 // NewResourceSyncer creates a new instance of the ResourceSyncer with the given parameters.
@@ -112,6 +127,8 @@ func (s *ResourceSyncer) enqueue(obj client.Object) {
 
 // Run starts the ResourceSyncer and its workers to process Kubernetes object events.
 func (s *ResourceSyncer) Run(ctx context.Context) error {
+	s.startTime = time.Now()
+
 	s.ctx, s.cancel = context.WithCancel(ctx)
 
 	defer utilruntime.HandleCrash()
@@ -122,9 +139,19 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 	// Wait for the caches to be synced before starting workers
 	s.logger.Info("Waiting for informer caches to sync")
 
+	if transformFunc, err := s.parseTransformer(); err != nil {
+		s.logger.Error(err, "error in parsing transform rule")
+	} else {
+		s.transformFunc = transformFunc
+	}
+
 	if ok := clientgocache.WaitForCacheSync(s.ctx.Done(), s.source.HasSynced); !ok {
 		return fmt.Errorf("failed to wait for caches to sync")
 	}
+
+	// We push the purgeMarker after cacheSync, meaning that when the purgeMarker
+	// is read from the queue, almost all resources have been synced.
+	s.queue.Add(purgeMarker)
 
 	workers := s.source.SyncRule().MaxConcurrent
 	if workers <= 0 {
@@ -149,6 +176,28 @@ func (s *ResourceSyncer) runWorker(ctx context.Context) {
 	}
 }
 
+func (s *ResourceSyncer) purgeStorage(ctx context.Context) {
+	err := s.storage.Refresh(ctx)
+	if err != nil {
+		s.logger.Error(err, "error in refreshing storage")
+		return
+	}
+
+	r := s.SyncRule()
+	gvr, err := parseGVR(&r)
+	if err != nil {
+		s.logger.Error(err, "error in parsing GVR")
+		return
+	}
+
+	// TODO: Use interface instead of struct
+	esPurger := utils.NewESPurger(s.storage.(*elasticsearch.Storage), s.source.Cluster(), gvr, s.source, s.OnDelete)
+	if err := esPurger.Purge(ctx, s.startTime); err != nil {
+		s.logger.Error(err, "error in purging ES")
+		return
+	}
+}
+
 // processNextWorkItem processes the next work item from the queue, returning true if work continues.
 func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 	item, shutdown := s.queue.Get()
@@ -156,16 +205,40 @@ func (s *ResourceSyncer) processNextWorkItem(ctx context.Context) bool {
 		return false
 	}
 	key := item.(string)
+
+	if key == purgeMarker {
+		s.purgeStorage(ctx)
+		return true
+	}
+
 	func() {
 		defer s.queue.Done(item)
 
 		if err := s.sync(ctx, key); err != nil {
-			s.queue.AddRateLimited(item)
-			return
+			// Retry 12 times, about 20 seconds.
+			if s.queue.NumRequeues(item) < 12 {
+				s.queue.AddRateLimited(item)
+				return
+			} else {
+				s.logger.Error(err, "retry reached max times", "key", key)
+			}
 		}
 		s.queue.Forget(item)
 	}()
 	return true
+}
+
+func (s *ResourceSyncer) saveResource(ctx context.Context, obj runtime.Object) error {
+	return s.storage.SaveResource(ctx, s.source.Cluster(), obj)
+}
+
+func (s *ResourceSyncer) deleteResource(ctx context.Context, obj runtime.Object) error {
+	remainAfterDeleted := s.source.SyncRule().RemainAfterDeleted
+	if remainAfterDeleted {
+		return s.storage.SoftDeleteResource(ctx, s.source.Cluster(), obj)
+	}
+
+	return s.storage.DeleteResource(ctx, s.source.Cluster(), obj)
 }
 
 // sync synchronizes the specified resource based on the key provided.
@@ -175,15 +248,22 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 		return err
 	}
 
+	if exists && s.transformFunc != nil {
+		val, err = s.transformFunc(val)
+		if err != nil {
+			return err
+		}
+	}
+
 	var op string
 	if exists {
 		op = "save"
 		obj := val.(*unstructured.Unstructured)
-		err = s.storage.SaveResource(ctx, s.source.Cluster(), obj)
+		err = s.saveResource(ctx, obj)
 	} else {
 		op = "delete"
 		obj := genUnObj(s.SyncRule(), key)
-		err = s.storage.DeleteResource(ctx, s.source.Cluster(), obj)
+		err = s.deleteResource(ctx, obj)
 		if errors.Is(err, elasticsearch.ErrNotFound) {
 			s.logger.Error(err, "failed to sync", "key", key, "op", op)
 			err = nil
@@ -199,6 +279,50 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 	return nil
 }
 
+// parseTransformer creates and returns a transformation function for the informerSource based on the ResourceSyncRule's transformers.
+func (s *ResourceSyncer) parseTransformer() (clientgocache.TransformFunc, error) {
+	t := s.source.SyncRule().Transform
+	if t == nil {
+		return nil, nil
+	}
+
+	fn, found := transform.GetTransformFunc(t.Type)
+	if !found {
+		return nil, fmt.Errorf("unsupported transform type %q", t.Type)
+	}
+
+	tmpl, err := newTemplate(t.ValueTemplate, s.source.Cluster())
+	if err != nil {
+		return nil, errors.Wrap(err, "invalid transform template")
+	}
+
+	return func(obj interface{}) (ret interface{}, err error) {
+		defer func() {
+			if err != nil {
+				s.logger.Error(err, "error in transforming object")
+			}
+		}()
+
+		u, ok := obj.(*unstructured.Unstructured)
+		if !ok {
+			return nil, fmt.Errorf("transform: object's type should be *unstructured.Unstructured, but received %T", obj)
+		}
+
+		templateData := struct {
+			*unstructured.Unstructured
+			Cluster string
+		}{
+			Unstructured: u,
+			Cluster:      s.source.Cluster(),
+		}
+		var buf bytes.Buffer
+		if err := tmpl.Execute(&buf, templateData); err != nil {
+			return nil, errors.Wrap(err, "transform: error rendering template")
+		}
+		return fn(obj, buf.String())
+	}, nil
+}
+
 // genUnObj creates a new unstructured.Unstructured object based on the ResourceSyncRule and key.
 func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{}
@@ -212,4 +336,10 @@ func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructure
 		obj.SetName(keys[1])
 	}
 	return obj
+}
+
+// newTemplate creates and returns a new text template from the provided string, which can be used for processing templates in the syncer.
+func newTemplate(tmpl, cluster string) (*template.Template, error) {
+	clusterFuncs, _ := transform.GetClusterTmplFuncs(cluster)
+	return template.New("transformTemplate").Funcs(sprig.FuncMap()).Funcs(clusterFuncs).Parse(tmpl)
 }

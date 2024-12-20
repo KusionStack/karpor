@@ -3,57 +3,320 @@
   align-items: center;
   padding: 20px;
   background: #fff;
-  border-radius: 8px;
+  border-radius: 12px;
   box-sizing: border-box;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  overflow: hidden; // Prevent child elements from overflowing
+
+  &:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  }
+
+  :global {
+    .ant-progress-text {
+      color: #1890ff;
+      font-weight: 600;
+      font-size: 20px;
+    }
+  }
 }
+
+
+.status {
+  min-width: 54px;
+  position: relative;
+  overflow: hidden;
+
+  &-running {
+    color: #52c41a;
+    background: #f6ffed;
+    border-color: #b7eb8f;
+
+    &:hover {
+      background: #f6ffed;
+    }
+  }
+
+  &-unknown {
+    background: #fff2e8;
+    border-color: #ffbb96;
+    color: #fa541c;
+
+    &:hover {
+      background: #fff7e6;
+    }
+  }
+  &-terminated {
+    background: #989897;
+    border-color: #353434;
+    color:  #353434;
+    &:hover {
+      background: #fff7e6;
+    }
+  }
+  &-unknown {
+    color: #ff4d4f;
+    background: #fff2f0;
+    border-color: #ffccc7;
+
+    &:hover {
+      background: #fff7e6;
+    }
+  }
+  &-default {
+    color: #faad14;
+    background: #fffbe6;
+    border-color: #ffe58f;
+
+    &:hover {
+      background: #fff7e6;
+    }
+  }
+}
+
 
 .summary {
   display: flex;
-  padding: 20px;
+  padding: 0 20px;
   margin-left: 20px;
   flex: 1;
   align-items: center;
   box-sizing: border-box;
+  border-left: 1px solid rgba(0, 0, 0, 0.06);
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; // Better scrolling experience on mobile devices
+
+  // Custom scrollbar styles
+  &::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 3px;
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.2);
+    }
+  }
 
   .field_box {
     display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 4px;
+    flex-wrap: nowrap;
+    min-width: min-content; // Ensure content is not compressed
 
     .item {
-      margin-right: 30px;
-      margin-bottom: 12px;
-      font-weight: 400;
-      line-height: 22px;
+      position: relative;
+      padding: 12px 16px;
+      background: rgba(0, 0, 0, 0.02);
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      flex: 0 0 auto; // Prevent items from being compressed
+      min-width: 100px;
+      max-width: fit-content;
+      height: 70px;
+      box-sizing: border-box;
+      display: flex;
+      flex-direction: column;
+
+      &:hover {
+        background: rgba(0, 0, 0, 0.04);
+      }
 
       &.namespaceStat {
-        font-weight: bold;
+        font-weight: 600;
+      }
+
+      &.with_trend {
+        min-width: 140px;
       }
 
       .label {
-        margin-right: 5px;
-        margin-bottom: 10px;
-        color: rgb(0 0 0 / 48%);
+        color: rgba(0, 0, 0, 0.45);
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+        white-space: nowrap;
+        display: flex;
+        align-items: center;
+        min-height: 20px;
       }
 
       .value {
         overflow: hidden;
-        font-size: 18px;
-        color: rgb(0 0 0 / 89%);
+        font-size: 15px;
+        color: rgba(0, 0, 0, 0.85);
         text-overflow: ellipsis;
         white-space: nowrap;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        flex: 1;
+
+        &:hover {
+          color: #1890ff;
+        }
       }
     }
   }
 }
 
+.trend_chart {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  display: flex;
+  align-items: center;
+
+  .chart_container {
+    position: absolute;
+    inset: 0;
+    border-radius: 3px;
+    overflow: hidden;
+
+    .chart_svg {
+      width: 100%;
+      height: 100%;
+      background-color: rgba(250, 250, 250, 0.45);
+
+      .line {
+        stroke: #597ef7;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        fill: none;
+      }
+
+      .area {
+        fill: url(#areaGradient);
+      }
+
+      defs {
+        .area-gradient {
+          stop {
+            &.start {
+              stop-color: #e6f7ff;
+              stop-opacity: 0.3;
+            }
+            &.end {
+              stop-color: #f0f5ff;
+              stop-opacity: 0.05;
+            }
+          }
+        }
+      }
+
+      .point_group {
+        .point_halo {
+          display: none;
+        }
+
+        .point {
+          r: 1.5;
+          fill: #597ef7;
+          opacity: 0;
+          display: none;
+        }
+      }
+    }
+  }
+
+  .value_text {
+    position: absolute;
+    top: 50%;
+    right: 2px;
+    transform: translate(0, -50%);
+    font-size: 10px;
+    white-space: nowrap;
+    pointer-events: none;
+    font-family: monospace;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    opacity: 0;
+
+    .loading {
+      color: rgba(0, 0, 0, 0.45);
+      font-style: italic;
+    }
+
+    .current {
+      color: rgba(0, 0, 0, 0.85);
+      font-weight: 500;
+    }
+
+    .hover_text {
+      opacity: 0;
+      transition: opacity 0.2s ease;
+      color: rgba(0, 0, 0, 0.45);
+      margin-left: 2px;
+    }
+
+    .unit {
+      color: rgba(0, 0, 0, 0.65);
+      margin-left: 1px;
+      flex-shrink: 0;
+    }
+  }
+
+  &:hover {
+    .value_text {
+      transform: translate(-50%, -50%);
+      left: 50%;
+      right: auto;
+      padding: 2px 6px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 2px;
+      z-index: 2;
+      opacity: 1;
+
+      .current {
+        color: rgba(0, 0, 0, 0.85);
+        font-weight: 500;
+      }
+
+      .hover_text {
+        opacity: 1;
+      }
+
+      .unit {
+        color: rgba(0, 0, 0, 0.65);
+      }
+    }
+  }
+}
+
+.trend {
+  display: flex;
+  align-items: center;
+  height: 24px;
+}
+
 .popoverItem {
-  margin-bottom: 5px;
+  margin-bottom: 8px;
+  padding: 4px 0;
 
   .popoverLabel {
-    margin-right: 5px;
-    color: rgb(0 0 0 / 48%);
+    margin-right: 8px;
+    color: rgba(0, 0, 0, 0.45);
+    font-size: 13px;
+    font-weight: 500;
   }
 
   .popoverValue {
-    color: rgb(0 0 0 / 89%);
+    color: rgba(0, 0, 0, 0.85);
+    font-weight: 500;
   }
 }

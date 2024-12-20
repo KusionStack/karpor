@@ -15,8 +15,9 @@
 package clusterinstall
 
 import (
-	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"testing"
+
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/stretchr/testify/require"
@@ -103,8 +104,10 @@ func TestConvertKubeconfigToCluster(t *testing.T) {
 				},
 				ExecProvider: &clientcmdapi.ExecConfig{
 					Command: "aws",
-					Args: []string{"--region", "xxx", "eks", "get-token", "--cluster-name",
-						"exec-cluster"},
+					Args: []string{
+						"--region", "xxx", "eks", "get-token", "--cluster-name",
+						"exec-cluster",
+					},
 					Env:                nil,
 					APIVersion:         "client.authentication.k8s.io/v1beta1",
 					InstallHint:        "",

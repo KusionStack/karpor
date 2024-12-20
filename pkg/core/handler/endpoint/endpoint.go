@@ -49,7 +49,7 @@ func listEndpoints(log logr.Logger, r chi.Router) []string {
 	var endpoints []string
 
 	// Walk through the routes to collect endpoints
-	walkFunc := func(method string, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
+	walkFunc := func(method, route string, handler http.Handler, middlewares ...func(http.Handler) http.Handler) error {
 		endpoint := fmt.Sprintf("%s\t%s", method, route)
 		endpoints = append(endpoints, endpoint)
 		return nil

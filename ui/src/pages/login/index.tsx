@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { InfoCircleFilled, QuestionCircleOutlined } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { setIsLogin } from '@/store/modules/globalSlice'
 import { useAxios } from '@/utils/request'
 
@@ -15,6 +15,7 @@ const Login = () => {
   const navigate = useNavigate()
   const [value, setValue] = useState('')
   const [errorMessage, setErrorMessage] = useState('')
+  const { isUnsafeMode } = useSelector((state: any) => state.globalSlice)
 
   const { response, refetch } = useAxios({
     url: `/rest-api/v1/authn`,
@@ -31,7 +32,7 @@ const Login = () => {
     refetch({
       option: {
         headers: {
-          Authorization: `Bearer ${value}`,
+          Authorization: isUnsafeMode ? '' : `Bearer ${value}`,
         },
         params: {},
       },

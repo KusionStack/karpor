@@ -18,78 +18,179 @@
 
 # options for analysis running
 run:
-  timeout: 10m
-  go: '1.19'
+  timeout: 8m
+  go: '1.22'
 
 linters:
   disable-all: true
   enable: # please keep this alphabetized
-    - bodyclose
-    - contextcheck
-    - depguard
-    - dogsled
-    - dupl
-    - errorlint
-    - errname
-    - exportloopref
-    - forbidigo
-    - gosimple
-    - gocritic
-    - goconst
-    - gofumpt
-    - govet
-    - ineffassign
-    - loggercheck
-    - misspell
-    - nolintlint
-    - nilerr
-    - nilnil
-    - prealloc
-    - predeclared
-    - staticcheck
-    - stylecheck
-    - tagliatelle
-    - tparallel
-    - typecheck
-    - unconvert
-    - unparam
-    - unused
-    - usestdlibvars
-    - wastedassign
-    - whitespace
+    - bodyclose     # Checks whether HTTP response body is closed successfully
+    - contextcheck  # Check whether the function uses a non-inherited context
+    - dogsled      # Checks assignments with too many blank identifiers (e.g. x, _, _, _, := f())
+    - errorlint    # Find code that will cause problems with the error wrapping scheme
+    - errname      # Checks that sentinel errors are prefixed with the Err and error types are suffixed with the Error
+    - copyloopvar  # Checks for range loop variables that are used after the loop in goroutines
+    - forbidigo    # Forbids identifiers
+    - gocritic     # Provides diagnostics that check for bugs, performance and style issues
+    - goconst      # Finds repeated strings that could be replaced by a constant
+    - gofumpt      # Checks whether code was gofumpt-ed
+    - gosimple     # Specializes in simplifying code
+    - ineffassign  # Detects when assignments to existing variables are not used
+    - loggercheck  # Checks key value pairs for common logger libraries
+    - misspell     # Finds commonly misspelled English words
+    - nilerr       # Finds the code that returns nil even if it checks that the error is not nil
+    - nilnil       # Checks that there is no simultaneous return of nil error and an invalid value
+    - nolintlint   # Reports ill-formed or insufficient nolint directives
+    - prealloc     # Finds slice declarations that could potentially be pre-allocated
+    - predeclared  # Finds code that shadows one of Go's predeclared identifiers
+    - staticcheck  # Go static analysis
+    - stylecheck   # Stylecheck is a replacement for golint
+    - tagliatelle  # Checks the struct tags case
+    - tenv        # tenv is analyzer that detects using os.Setenv instead of t.Setenv since Go1.17
+    - thelper     # thelper detects golang test helpers without t.Helper() call
+    - tparallel    # Detects inappropriate usage of t.Parallel() method in your Go test codes
+    - unconvert    # Remove unnecessary type conversions
+    - unparam      # Reports unused function parameters
+    - unused       # Checks Go code for unused constants, variables, functions and types
+    - usestdlibvars # Detects the possibility to use variables/constants from the Go standard library
+    - whitespace   # Tool for detection of leading and trailing whitespace
 
 linters-settings:
   gofumpt:
-    # Choose whether or not to use the extra rules that are disabled
-    # by default
     extra-rules: false
   tagliatelle:
-    # Check the struck tag name case.
     case:
-      # Use the struct field name to check the name of the struct tag.
-      # Default: false
       use-field-name: true
       rules:
-        # Any struct tag type can be used.
-        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`, `header`.
+        # Support string case: `camel`, `pascal`, `kebab`, `snake`, `upperSnake`, `goCamel`, `goPascal`, `goKebab`, `goSnake`, `upper`, `lower`
         json: goCamel
         yaml: goCamel
         xml: goCamel
         toml: goCamel
   errorlint:
-    # Check whether fmt.Errorf uses the %w verb for formatting errors.
-    # See the https://github.com/polyfloyd/go-errorlint for caveats.
-    # Default: true
+    # Check whether fmt.Errorf uses the %w verb for formatting errors
     errorf: false
+  govet:
+    enable:
+      - asmdecl
+      - assign
+      - atomic
+      - bools
+      - buildtag
+      - cgocall
+      - composites
+      - copylocks
+      - errorsas
+      - fieldalignment
+      - framepointer
+      - httpresponse
+      - ifaceassert
+      - loopclosure
+      - lostcancel
+      - nilfunc
+      - printf
+      - shift
+      - stdmethods
+      - stringintconv
+      - structtag
+      - testinggoroutine
+      - tests
+      - unmarshal
+      - unreachable
+      - unsafeptr
+      - unusedresult
+    disable:
+      - buildssa
+      - fieldalignment
+    settings:
+      printf:
+        funcs:
+          - (github.com/sirupsen/logrus.FieldLogger).Infof
+          - (github.com/sirupsen/logrus.FieldLogger).Warnf
+          - (github.com/sirupsen/logrus.FieldLogger).Errorf
+          - (github.com/sirupsen/logrus.FieldLogger).Fatalf
 
 issues:
-  exclude:
-    - "G306: Expect WriteFile permissions to be 0600 or less"
-    - "ST1018: string literal contains Unicode control characters, consider using escape sequences instead"
-    - "ifElseChain: rewrite if-else to switch statement"
-    - "S1000: should use for range instead of for { select {} }"
-    - "SA4004: the surrounding loop is unconditionally terminated"
-    - "copylocks: call of c\\.Post copies lock value: kusionstack\\.io/kclvm-go/pkg/spec/gpyrpc\\.Ping_Args contains google\\.golang\\.org/protobuf/internal/impl\\.MessageState contains sync\\.Mutex"
+  exclude-rules:
+    - path: _test\.go
+      linters:
+        - gocyclo
+        - errcheck
+        - dupl
+        - gosec
+    - path: \.pb\.go
+      linters:
+        - all
+    - path: \.gen\.go
+      linters:
+        - all
+    - path: pkg/kubernetes/.*
+      linters:
+        - goanalysis_metalinter
+    - path: pkg/kubernetes/internalimport/internal_import\.go$
+      linters:
+        - all
+    - path: internal_import\.go$
+      linters:
+        - typecheck
+        - govet
+    - text: "import .* is a program, not an importable package"
+      linters:
+        - typecheck
+    - text: "json\\(goCamel\\): got 'metadata'"  # Allow 'metadata' as standard k8s field name
+      linters:
+        - tagliatelle
+    - path: pkg/syncer/source\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/syncer\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/jsonextracter/jsonpath\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/syncer/jsonextracter/jsonpath\.go
+      text: "`\\(\\*JSONPath\\)\\.evalRecursive` - `node` is unused"
+      linters:
+        - unparam
+    - path: pkg/syncer/jsonextracter/fieldpath\.go
+      text: "return both a `nil` error and an invalid value"
+      linters:
+        - nilnil
+    - path: pkg/core/manager/cluster/manager_test\.go
+      text: "`newMockCluster` - `name` always receives"
+      linters:
+        - unparam
+    # Allow fmt.Println in version generation script
+    - path: pkg/version/scripts/gen/gen\.go
+      text: "use of `fmt.Println`"
+      linters:
+        - forbidigo
+    # Allow fmt.Println in version commands
+    - path: cmd/(cert-generator|karpor)/.*
+      text: "use of `fmt.Println`"
+      linters:
+        - forbidigo
+    - path: cmd/karpor/app/server\.go
+      linters:
+        - contextcheck
+  exclude-dirs:
+    - "pkg/kubernetes/generated"  # Generated code
+    - "pkg/kubernetes/openapi"    # Generated OpenAPI code
+    - "api/openapispec"          # Generated API specs
+    - "hack"                     # Scripts and tools
+    - vendor                     # Third-party dependencies
+    - third_party               # Third-party code
+    - test                      # Test files
   exclude-files:
+    - internal_import\.go$
     - pkg/kubernetes/openapi/zz_generated.openapi.go
-    - pkg/kubernetes/internalimport/internal_import.go
+  exclude:
+    - "G306: Expect WriteFile permissions to be 0600 or less"        # Security warning for file permissions
+    - "ST1018: string literal contains Unicode control characters"   # Style issue for string literals
+    - "ifElseChain: rewrite if-else to switch statement"            # Style suggestion
+    - "S1000: should use for range instead of for { select {} }"    # Style suggestion
+    - "SA4004: the surrounding loop is unconditionally terminated"   # Code structure warning

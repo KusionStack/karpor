@@ -19,7 +19,9 @@ const ClusterCertificate = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const { cluster } = queryString.parse(location?.search)
-  const { isReadOnlyMode } = useSelector((state: any) => state.globalSlice)
+  const { isReadOnlyMode, isUnsafeMode } = useSelector(
+    (state: any) => state.globalSlice,
+  )
   const [newYamlContent, setNewYamlContent] = useState<any>()
   const [lastYamlContent, setLastYamlContent] = useState('')
   const [lastYamlContentJson, setLastYamlContentJson] = useState<any>()
@@ -42,7 +44,7 @@ const ClusterCertificate = () => {
   const { response: addResponse, refetch: addRefetch } = useAxios({
     url: '',
     manual: true,
-    method: 'POST',
+    method: 'PUT',
   })
 
   const { response: queryDetailResponse, refetch: queryDetailRefetch } =
@@ -124,9 +126,11 @@ const ClusterCertificate = () => {
     name: 'file',
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
-      Authorization: localStorage.getItem('token')
-        ? `Bearer ${localStorage.getItem('token')}`
-        : '',
+      Authorization: isUnsafeMode
+        ? ''
+        : localStorage.getItem('token')
+          ? `Bearer ${localStorage.getItem('token')}`
+          : '',
     },
     method: 'POST',
     data: {

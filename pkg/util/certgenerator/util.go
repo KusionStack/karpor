@@ -164,6 +164,9 @@ func NewSignedCert(cfg Config, key crypto.Signer, caCert *x509.Certificate, caKe
 
 // EncodeCertPEM returns PEM-endcoded certificate data
 func EncodeCertPEM(cert *x509.Certificate) []byte {
+	if cert == nil {
+		return nil
+	}
 	block := pem.Block{
 		Type:  CertificateBlockType,
 		Bytes: cert.Raw,

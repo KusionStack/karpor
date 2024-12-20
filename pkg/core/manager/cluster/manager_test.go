@@ -132,7 +132,7 @@ func TestCreateCluster(t *testing.T) {
 		clusterName          string
 		displayName          string
 		description          string
-		kubeconfig           string
+		kubeConfig           string
 		expectError          bool
 		expectedErrorMessage string
 	}{
@@ -141,7 +141,7 @@ func TestCreateCluster(t *testing.T) {
 			clusterName: "new-cluster",
 			displayName: "New Cluster",
 			description: "This is a new cluster.",
-			kubeconfig:  newMockKubeConfig(),
+			kubeConfig:  newMockKubeConfig(),
 			expectError: false,
 		},
 		{
@@ -149,7 +149,7 @@ func TestCreateCluster(t *testing.T) {
 			clusterName:          "existing-cluster",
 			displayName:          "Existing Cluster",
 			description:          "This cluster already exists.",
-			kubeconfig:           newMockKubeConfig(),
+			kubeConfig:           newMockKubeConfig(),
 			expectError:          true,
 			expectedErrorMessage: "cluster existing-cluster already exists. Try updating it instead",
 		},
@@ -158,7 +158,7 @@ func TestCreateCluster(t *testing.T) {
 			clusterName:          "invalid-kubeconfig-cluster",
 			displayName:          "Invalid KubeConfig Cluster",
 			description:          "This cluster has invalid kubeconfig.",
-			kubeconfig:           "invalid",
+			kubeConfig:           "invalid",
 			expectError:          true,
 			expectedErrorMessage: "failed to parse kubeconfig",
 		},
@@ -172,7 +172,7 @@ func TestCreateCluster(t *testing.T) {
 				tc.clusterName,
 				tc.displayName,
 				tc.description,
-				tc.kubeconfig,
+				tc.kubeConfig,
 			)
 
 			if tc.expectError {
@@ -272,27 +272,27 @@ func TestUpdateCredential(t *testing.T) {
 	testCases := []struct {
 		name          string
 		clusterName   string
-		kubeconfig    string
+		kubeConfig    string
 		expectError   bool
 		expectedError string
 	}{
 		{
 			name:        "Update credential successfully",
 			clusterName: "existing-cluster",
-			kubeconfig:  newMockKubeConfig(),
+			kubeConfig:  newMockKubeConfig(),
 			expectError: false,
 		},
 		{
 			name:          "Attempt to update credential for non-existing cluster",
 			clusterName:   "non-existing-cluster",
-			kubeconfig:    newMockKubeConfig(),
+			kubeConfig:    newMockKubeConfig(),
 			expectError:   true,
 			expectedError: "\"non-existing-cluster\" not found",
 		},
 		{
 			name:          "Update credential with invalid kubeconfig",
 			clusterName:   "existing-cluster",
-			kubeconfig:    "invalid-kubeconfig",
+			kubeConfig:    "invalid-kubeconfig",
 			expectError:   true,
 			expectedError: "failed to parse kubeconfig",
 		},
@@ -304,7 +304,7 @@ func TestUpdateCredential(t *testing.T) {
 				context.TODO(),
 				&multicluster.MultiClusterClient{},
 				tc.clusterName,
-				tc.kubeconfig,
+				tc.kubeConfig,
 			)
 			if tc.expectError {
 				require.Error(t, err)
