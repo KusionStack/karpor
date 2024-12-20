@@ -8,11 +8,12 @@ import type {
   ModelConfig,
   Item,
 } from '@antv/g6'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
+import transferImg from '@/assets/transfer.png'
 
 import styles from './style.module.less'
 
@@ -32,6 +33,10 @@ interface NodeConfig extends ModelConfig {
   data?: {
     name?: string
     count?: number
+    resourceGroup?: {
+      name: string
+      [key: string]: any
+    }
   }
   label?: string
   id?: string
@@ -154,12 +159,14 @@ const TopologyMap = ({
   clusterOptions,
   handleChangeCluster,
 }: IProps) => {
+  const navigate = useNavigate()
   const { t } = useTranslation()
-  const graphRef = useRef<any>()
+  // const graphRef = useRef<any>()
   const ref = useRef<HTMLDivElement>(null)
-  let graph: any | null = null
+  // let graph: any | null = null
+  const [graph, setGraph] = useState<any>()
   const location = useLocation()
-  const { type } = queryString.parse(location?.search)
+  const { from, type, query } = queryString.parse(location?.search)
   const [tooltipopen, setTooltipopen] = useState(false)
   const [itemWidth, setItemWidth] = useState<number>(100)
   const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
@@ -219,17 +226,20 @@ const TopologyMap = ({
 
     graph.on('node:mouseleave', evt => {
       const node = evt.item
-      if (!graph.findById(node.getModel().id)?.hasState('selected')) {
+      if (!graph.findById(node.getModel()?.id)?.hasState('selected')) {
         graph.setItemState(node, 'hover', false)
       }
       handleMouseLeave(evt)
     })
 
     return () => {
-      graph.off('node:click')
-      graph.off('node:mouseenter')
-      graph.off('node:mouseleave')
+      if (graph) {
+        graph?.off('node:click')
+        graph?.off('node:mouseenter')
+        graph?.off('node:mouseleave')
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [graph])
 
   useEffect(() => {
@@ -245,7 +255,7 @@ const TopologyMap = ({
 
     // 延迟一帧执行渲染，确保 DOM 已经准备好
     requestAnimationFrame(() => {
-      if (graph && !graph.get('destroyed')) {
+      if (graph && !graph.destroyed) {
         graph.data(processedData)
         graph.render()
 
@@ -287,15 +297,16 @@ const TopologyMap = ({
         const count = cfg.data?.count
         const isHighLight =
           type === 'resource'
-            ? cfg?.resourceGroup?.name === tableName
+            ? cfg?.data?.resourceGroup?.name === tableName
             : displayName === tableName
+        const nodeWidth = type === 'cluster' ? 240 : 200
 
         // Create main container
         const rect = group.addShape('rect', {
           attrs: {
             x: 0,
             y: 0,
-            width: 200,
+            width: nodeWidth,
             height: 48,
             radius: 6,
             fill: isHighLight ? '#e6f4ff' : '#ffffff',
@@ -317,7 +328,7 @@ const TopologyMap = ({
           attrs: {
             x: 0,
             y: 0,
-            width: 200,
+            width: nodeWidth,
             height: 48,
             radius: 6,
             fill: isHighLight ? '#f0f5ff' : '#ffffff',
@@ -341,8 +352,8 @@ const TopologyMap = ({
         })
 
         // Add Kubernetes icon
-        const iconSize = 28
-        const kind = cfg?.resourceGroup?.kind || ''
+        const iconSize = 32
+        const kind = cfg?.data?.resourceGroup?.kind || ''
         group.addShape('image', {
           attrs: {
             x: 16,
@@ -406,30 +417,74 @@ const TopologyMap = ({
           })
         }
 
+        if (type === 'cluster') {
+          const iconTransferSize = 20
+          group.addShape('image', {
+            attrs: {
+              x: 210,
+              y: 14,
+              width: iconTransferSize,
+              height: iconTransferSize,
+              img: transferImg,
+            },
+            name: 'transfer-icon',
+          })
+        }
         return rect
+      },
+
+      afterDraw(cfg: NodeConfig, group: IGroup) {
+        const transferIcon = group.find(
+          element => element.get('name') === 'transfer-icon',
+        )
+        if (transferIcon) {
+          transferIcon.on('mouseenter', evt => {
+            evt.defaultPrevented = true
+            evt.stopPropagation()
+            transferIcon.attr('cursor', 'pointer')
+          })
+          transferIcon.on('mouseleave', () => {
+            transferIcon.attr('cursor', '')
+          })
+          transferIcon.on('click', evt => {
+            evt.defaultPrevented = true
+            evt.stopPropagation()
+            const resourceGroup = cfg?.data?.resourceGroup
+            const objParams = {
+              from,
+              type: 'kind',
+              cluster: resourceGroup?.cluster,
+              apiVersion: resourceGroup?.apiVersion,
+              kind: resourceGroup?.kind,
+              query,
+            }
+            const urlStr = queryString.stringify(objParams)
+            navigate(`/insightDetail/kind?${urlStr}`)
+          })
+        }
       },
 
       setState(name: string, value: boolean, item: Item) {
         const group = item.getContainer()
-        const nodeContainer = group.findAllByName('node-container')[0]
-        const nodeBackground = group.findAllByName('node-background')[0]
-        const nodeAccent = group.findAllByName('node-accent')[0]
+        const nodeContainer = group.findAllByName('node-container')?.[0]
+        const nodeBackground = group.findAllByName('node-background')?.[0]
+        const nodeAccent = group.findAllByName('node-accent')?.[0]
 
         if (name === 'selected' || name === 'hover') {
           if (value) {
             // Highlight state
-            nodeContainer.attr('fill', '#e6f4ff')
-            nodeContainer.attr('stroke', '#1677ff')
-            nodeContainer.attr('shadowColor', 'rgba(22,119,255,0.12)')
-            nodeBackground.attr('fill', '#f0f5ff')
-            nodeAccent.attr('opacity', 0.8)
+            nodeContainer?.attr('fill', '#e6f4ff')
+            nodeContainer?.attr('stroke', '#1677ff')
+            nodeContainer?.attr('shadowColor', 'rgba(22,119,255,0.12)')
+            nodeBackground?.attr('fill', '#f0f5ff')
+            nodeAccent?.attr('opacity', 0.8)
           } else {
             // Normal state
-            nodeContainer.attr('fill', '#ffffff')
-            nodeContainer.attr('stroke', '#e6f4ff')
-            nodeContainer.attr('shadowColor', 'rgba(0,0,0,0.06)')
-            nodeBackground.attr('fill', '#ffffff')
-            nodeAccent.attr('opacity', 0.4)
+            nodeContainer?.attr('fill', '#ffffff')
+            nodeContainer?.attr('stroke', '#e6f4ff')
+            nodeContainer?.attr('shadowColor', 'rgba(0,0,0,0.06)')
+            nodeBackground?.attr('fill', '#ffffff')
+            nodeAccent?.attr('opacity', 0.4)
           }
         }
       },
@@ -477,9 +532,9 @@ const TopologyMap = ({
       setState(name, value, item) {
         const shape = item.get('keyShape')
         if (name === 'hover') {
-          shape.attr('stroke', value ? '#1677ff' : '#c2c8d1')
-          shape.attr('lineWidth', value ? 2 : 1)
-          shape.attr('strokeOpacity', value ? 1 : 0.7)
+          shape?.attr('stroke', value ? '#1677ff' : '#c2c8d1')
+          shape?.attr('lineWidth', value ? 2 : 1)
+          shape?.attr('strokeOpacity', value ? 1 : 0.7)
         }
       },
     },
@@ -565,16 +620,18 @@ const TopologyMap = ({
     }
 
     if (!graph) {
-      graph = new G6.Graph(options)
-      graphRef.current = graph
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      const newGraph = new G6.Graph(options)
+      setGraph(newGraph)
     }
 
     return () => {
       if (graph) {
-        graph.destroy()
-        graph = null
+        graph?.destroy()
+        setGraph(null)
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
@@ -582,36 +639,40 @@ const TopologyMap = ({
       className={styles.g6_topology}
       style={{ height: isResource ? 450 : 400 }}
     >
-      {topologyLoading ? (
-        <Loading />
-      ) : (
-        <div ref={ref} className={styles.g6_overview}>
-          <div className={styles.cluster_select}>
-            <Select
-              style={{ minWidth: 100 }}
-              placeholder=""
-              value={selectedCluster}
-              onChange={handleChangeCluster}
-            >
-              {clusterOptions?.map(item => {
-                return (
-                  <Select.Option key={item}>
-                    {item === 'ALL' ? t('AllClusters') : item}
-                  </Select.Option>
-                )
-              })}
-            </Select>
-          </div>
-          {tooltipopen && (
-            <OverviewTooltip
-              type={type as string}
-              itemWidth={itemWidth}
-              hiddenButtonInfo={hiddenButtontooltip}
-              open={tooltipopen}
-            />
-          )}
+      <div ref={ref} className={styles.g6_overview}>
+        <div
+          className={styles.g6_topology_loading}
+          style={{
+            display: topologyLoading ? 'block' : 'none',
+          }}
+        >
+          <Loading />
         </div>
-      )}
+        <div className={styles.cluster_select}>
+          <Select
+            style={{ minWidth: 100 }}
+            placeholder=""
+            value={selectedCluster}
+            onChange={handleChangeCluster}
+          >
+            {clusterOptions?.map(item => {
+              return (
+                <Select.Option key={item}>
+                  {item === 'ALL' ? t('AllClusters') : item}
+                </Select.Option>
+              )
+            })}
+          </Select>
+        </div>
+        {tooltipopen && (
+          <OverviewTooltip
+            type={type as string}
+            itemWidth={itemWidth}
+            hiddenButtonInfo={hiddenButtontooltip}
+            open={tooltipopen}
+          />
+        )}
+      </div>
     </div>
   )
 }
