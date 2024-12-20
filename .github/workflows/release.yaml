@@ -179,8 +179,8 @@ jobs:
           title: ''
           description: |
             This PR updates the Karpor Helm chart with the following changes:
-            - Bump the `appVersion` to ${{ steps.get_version.outputs.VERSION }}
-            - Bump the `version` to ${{ steps.get_chart_version.outputs.new_chart_version }}
+            - Bump the `appVersion` to `${{ steps.get_version.outputs.VERSION }}`
+            - Bump the `version` to `${{ steps.get_chart_version.outputs.new_chart_version }}`
 
             These updates ensure that the chart reflects the latest Karpor release.
 
