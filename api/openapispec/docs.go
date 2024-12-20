@@ -376,6 +376,52 @@ var doc = `{
                 }
             }
         },
+        "/insight/yaml/interpret/stream": {
+            "post": {
+                "description": "This endpoint analyzes YAML content using AI to provide detailed interpretation and insights",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Interpret YAML using AI",
+                "parameters": [
+                    {
+                        "description": "The YAML content to interpret",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/detail.InterpretRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.InterpretEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/rest-api/v1/cluster/config/file": {
             "post": {
                 "description": "Uploads a KubeConfig file for cluster, with a maximum size of 2MB.",
@@ -2057,6 +2103,19 @@ var doc = `{
                 }
             }
         },
+        "ai.InterpretEvent": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "Event content or error message",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Event type: start, chunk, error, complete",
+                    "type": "string"
+                }
+            }
+        },
         "cluster.ClusterPayload": {
             "type": "object",
             "properties": {
@@ -2099,6 +2158,17 @@ var doc = `{
                 }
             }
         },
+        "detail.InterpretRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "yaml": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ResourceGroup": {
             "type": "object",
             "properties": {
@@ -2127,6 +2197,9 @@ var doc = `{
                     "type": "string"
                 },
                 "namespace": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

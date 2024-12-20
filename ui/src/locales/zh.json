@@ -147,7 +147,17 @@
   "CreateTime": "创建时间",
   "InDevelopment": "开发中",
   "InputClusterName": "请输入集群名称",
-  "YAML": "YAML",
+  "YAML": {
+    "NoContent": "没有可解读的内容",
+    "Interpret": "AI 解读",
+    "InterpretResult": "解读结果",
+    "InterpretInProgress": "正在解读中...",
+    "StopInterpret": "停止解读",
+    "InterpretConnectionError": "解读连接出错",
+    "FailedToStartInterpret": "启动解读失败",
+    "FailedToInterpret": "解读失败",
+    "TabName": "YAML"
+  },
   "Yesterday": "昨天",
   "Collapse": "折叠",
   "Expand": "展开",

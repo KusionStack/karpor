@@ -77,6 +77,7 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | POST | /insight/aggregator/event/diagnosis/stream | [post insight aggregator event diagnosis stream](#post-insight-aggregator-event-diagnosis-stream) | Diagnose events using AI |
 | POST | /insight/aggregator/log/diagnosis/stream | [post insight aggregator log diagnosis stream](#post-insight-aggregator-log-diagnosis-stream) | Diagnose pod logs using AI |
+| POST | /insight/yaml/interpret/stream | [post insight yaml interpret stream](#post-insight-yaml-interpret-stream) | Interpret YAML using AI |
   
 
 
@@ -1905,6 +1906,63 @@ Status: Internal Server Error
 
 
 
+### <span id="post-insight-yaml-interpret-stream"></span> Interpret YAML using AI (*PostInsightYamlInterpretStream*)
+
+```
+POST /insight/yaml/interpret/stream
+```
+
+This endpoint analyzes YAML content using AI to provide detailed interpretation and insights
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [DetailInterpretRequest](#detail-interpret-request) | `models.DetailInterpretRequest` | | ✓ | | The YAML content to interpret |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-yaml-interpret-stream-200) | OK | OK |  | [schema](#post-insight-yaml-interpret-stream-200-schema) |
+| [400](#post-insight-yaml-interpret-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-yaml-interpret-stream-400-schema) |
+| [500](#post-insight-yaml-interpret-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-yaml-interpret-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-yaml-interpret-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-yaml-interpret-stream-200-schema"></span> Schema
+   
+  
+
+[AiInterpretEvent](#ai-interpret-event)
+
+##### <span id="post-insight-yaml-interpret-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-yaml-interpret-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-yaml-interpret-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-yaml-interpret-stream-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="post-rest-api-v1-cluster-cluster-name"></span> Create creates a cluster resource. (*PostRestAPIV1ClusterClusterName*)
 
 ```
@@ -2534,6 +2592,22 @@ Status: Internal Server Error
 
 
 
+### <span id="ai-interpret-event"></span> ai.InterpretEvent
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | | Event content or error message |  |
+| type | string| `string` |  | | Event type: start, chunk, error, complete |  |
+
+
+
 ### <span id="cluster-cluster-payload"></span> cluster.ClusterPayload
 
 
@@ -2584,6 +2658,22 @@ Status: Internal Server Error
 
 
 
+### <span id="detail-interpret-request"></span> detail.InterpretRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| language | string| `string` |  | |  |  |
+| yaml | string| `string` |  | |  |  |
+
+
+
 ### <span id="entity-resource-group"></span> entity.ResourceGroup
 
 
@@ -2602,6 +2692,7 @@ Status: Internal Server Error
 | labels | map of string| `map[string]string` |  | |  |  |
 | name | string| `string` |  | |  |  |
 | namespace | string| `string` |  | |  |  |
+| status | string| `string` |  | |  |  |
 
 
 
