@@ -9,7 +9,6 @@ import type {
 } from '@antv/g6'
 import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
-// import { appenAutoShapeListener } from '@antv/g6-react-node'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
 import transferImg from '@/assets/transfer.png'
@@ -529,7 +528,6 @@ const TopologyMap = ({
           },
         })
         graph.read(topologyData)
-        // appenAutoShapeListener(graph)
         graph.on('node:click', evt => {
           const node = evt.item
           const model = node.getModel()
