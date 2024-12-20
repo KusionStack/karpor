@@ -1,11 +1,31 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Table, Select, Spin, Empty, Alert, Input, Skeleton } from 'antd'
-import { SearchOutlined } from '@ant-design/icons'
+import React, { useEffect, useRef, useState, useCallback } from 'react'
+import {
+  Table,
+  Select,
+  Spin,
+  Empty,
+  Alert,
+  Input,
+  Skeleton,
+  Button,
+  Space,
+  message,
+  Tooltip,
+} from 'antd'
+import {
+  SearchOutlined,
+  RobotOutlined,
+  CloseOutlined,
+  PoweroffOutlined,
+} from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { formatTime } from '@/utils/tools'
 import axios from 'axios'
 import classNames from 'classnames'
 import styles from './styles.module.less'
+import Markdown from 'react-markdown'
+import { useSelector } from 'react-redux'
+import debounce from 'lodash.debounce'
 
 interface Event {
   type: string
@@ -31,14 +51,24 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   kind,
   apiVersion,
 }) => {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string>()
   const [eventType, setEventType] = useState<string>()
   const [hasEvents, setHasEvents] = useState(false)
   const [searchText, setSearchText] = useState('')
+  const [diagnosis, setDiagnosis] = useState('')
+  const [diagnosisStatus, setDiagnosisStatus] = useState<
+    'idle' | 'loading' | 'streaming' | 'complete' | 'error'
+  >('idle')
+  const [isStreaming, setStreaming] = useState(false)
   const eventSource = useRef<EventSource>()
+  const diagnosisEndRef = useRef<HTMLDivElement>(null)
+  const abortControllerRef = useRef<AbortController | null>(null)
+
+  const { aiOptions } = useSelector((state: any) => state.globalSlice)
+  const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
 
   useEffect(() => {
     if (!cluster || !namespace || !name || !kind || !apiVersion) {
@@ -79,13 +109,13 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
           setEvents(events)
           setHasEvents(events.length > 0 || hasEvents)
         } catch (error) {
-          setError(t('EventAggregator.Error'))
+          setError(t('EventAggregator.ConnectionError'))
         }
       }
 
       eventSource.current.onerror = () => {
         setLoading(false)
-        setError(t('EventAggregator.Error'))
+        setError(t('EventAggregator.ConnectionError'))
         eventSource.current?.close()
         setTimeout(connect, 5000)
       }
@@ -162,6 +192,222 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     },
   ]
 
+  const debouncedDiagnose = useCallback(
+    debounce(async () => {
+      try {
+        if (!events.length) {
+          message.warning(t('EventAggregator.NoEvents'))
+          return
+        }
+
+        // Reset diagnosis state
+        setDiagnosis('')
+        setDiagnosisStatus('loading')
+        setStreaming(true)
+
+        // Cancel any existing SSE connection
+        if (abortControllerRef.current) {
+          abortControllerRef.current.abort()
+        }
+
+        // Create new AbortController for this request
+        const abortController = new AbortController()
+        abortControllerRef.current = abortController
+
+        // Create new fetch request for diagnosis
+        const url = `${axios.defaults.baseURL}/rest-api/v1/insight/aggregator/event/diagnosis/stream`
+
+        // Send POST request and handle SSE response
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'text/event-stream',
+          },
+          body: JSON.stringify({
+            events: events.map(event => ({
+              type: event.type,
+              reason: event.reason,
+              message: event.message,
+              count: event.count,
+              lastTimestamp: event.lastTimestamp,
+              firstTimestamp: event.firstTimestamp,
+            })),
+            language: i18n.language,
+          }),
+          signal: abortController.signal,
+        })
+
+        if (!response.ok) {
+          throw new Error(response.statusText)
+        }
+
+        // Create a reader from the response body stream
+        const reader = response.body?.getReader()
+        const decoder = new TextDecoder()
+
+        if (!reader) {
+          throw new Error('No response body')
+        }
+
+        // Read the stream
+        const processStream = async () => {
+          try {
+            let buffer = ''
+            let streaming = true
+            while (streaming) {
+              const { done, value } = await reader.read()
+
+              if (done) {
+                streaming = false
+                setDiagnosisStatus('complete')
+                setStreaming(false)
+                break
+              }
+
+              // Decode the chunk and add to buffer
+              buffer += decoder.decode(value, { stream: true })
+
+              // Process complete events in buffer
+              const lines = buffer.split('\n\n')
+              buffer = lines.pop() || '' // Keep the last incomplete event in buffer
+
+              for (const line of lines) {
+                if (!line.trim()) continue
+
+                try {
+                  const eventData = line.replace('data: ', '')
+                  const diagEvent = JSON.parse(eventData)
+
+                  switch (diagEvent.type) {
+                    case 'start':
+                      setDiagnosisStatus('streaming')
+                      break
+                    case 'chunk':
+                      setDiagnosis(prev => prev + diagEvent.content)
+                      // Scroll to bottom of diagnosis
+                      if (diagnosisEndRef.current) {
+                        diagnosisEndRef.current.scrollIntoView({
+                          behavior: 'smooth',
+                        })
+                      }
+                      break
+                    case 'error':
+                      streaming = false
+                      setDiagnosisStatus('error')
+                      setStreaming(false)
+                      message.error(diagEvent.content)
+                      reader.cancel()
+                      return
+                    case 'complete':
+                      streaming = false
+                      setDiagnosisStatus('complete')
+                      setStreaming(false)
+                      reader.cancel()
+                      return
+                  }
+                } catch (error) {
+                  console.error('Failed to parse diagnosis event:', error)
+                }
+              }
+            }
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              console.log('Diagnosis stream aborted')
+            } else {
+              console.error('Error reading stream:', error)
+              setDiagnosisStatus('error')
+              setStreaming(false)
+              message.error(t('EventAggregator.DiagnosisConnectionError'))
+            }
+          }
+        }
+
+        processStream()
+      } catch (error) {
+        console.error('Failed to start diagnosis:', error)
+        setDiagnosisStatus('error')
+        setStreaming(false)
+        message.error(t('EventAggregator.FailedToDiagnoseLogs'))
+      }
+    }, 500),
+    [events, t, i18n.language],
+  )
+
+  const startDiagnosis = useCallback(() => {
+    debouncedDiagnose()
+  }, [debouncedDiagnose])
+
+  const renderDiagnosisWindow = () => {
+    if (diagnosisStatus === 'idle') {
+      return null
+    }
+
+    return (
+      <div className={styles.diagnosisPanel}>
+        <div className={styles.diagnosisHeader}>
+          <Space>
+            <RobotOutlined />
+            {t('EventAggregator.DiagnosisResult')}
+          </Space>
+          <Space>
+            {isStreaming && (
+              <Tooltip
+                title={t('EventAggregator.StopDiagnosis')}
+                placement="bottom"
+              >
+                <Button
+                  type="text"
+                  className={styles.stopButton}
+                  icon={<PoweroffOutlined />}
+                  onClick={() => {
+                    if (abortControllerRef.current) {
+                      abortControllerRef.current.abort()
+                      setDiagnosisStatus('complete')
+                      setStreaming(false)
+                    }
+                  }}
+                />
+              </Tooltip>
+            )}
+            <Button
+              type="text"
+              icon={<CloseOutlined />}
+              onClick={() => {
+                if (abortControllerRef.current) {
+                  abortControllerRef.current.abort()
+                }
+                setDiagnosisStatus('idle')
+                setDiagnosis('')
+                setStreaming(false)
+              }}
+            />
+          </Space>
+        </div>
+        <div className={styles.diagnosisContent}>
+          {diagnosisStatus === 'loading' ||
+          (diagnosisStatus === 'streaming' && !diagnosis) ? (
+            <div className={styles.diagnosisLoading}>
+              <Spin />
+              <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+            </div>
+          ) : diagnosisStatus === 'error' ? (
+            <Alert
+              type="error"
+              message={t('EventAggregator.DiagnosisFailed')}
+              description={t('EventAggregator.TryAgainLater')}
+            />
+          ) : (
+            <div className={styles.diagnosisResult}>
+              <Markdown>{diagnosis}</Markdown>
+              <div ref={diagnosisEndRef} />
+            </div>
+          )}
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -187,6 +433,20 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
                   { value: 'Warning', label: t('EventAggregator.Warning') },
                 ]}
               />
+              <Space>
+                {isAIEnabled && (
+                  <Tooltip title={t('EventAggregator.Diagnose')}>
+                    <Button
+                      type="text"
+                      className={styles.actionButton}
+                      icon={<span className={styles.magicWand}>✨</span>}
+                      onClick={startDiagnosis}
+                      loading={diagnosisStatus === 'streaming'}
+                      disabled={!hasEvents || diagnosisStatus === 'streaming'}
+                    />
+                  </Tooltip>
+                )}
+              </Space>
             </>
           )}
         </div>
@@ -196,26 +456,33 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
         <Alert message={error} type="error" showIcon className={styles.error} />
       )}
 
-      <Spin spinning={loading}>
-        {loading ? (
-          <Skeleton active paragraph={{ rows: 5 }} />
-        ) : events.length > 0 ? (
-          <Table
-            dataSource={filteredEvents}
-            columns={columns}
-            rowKey={record =>
-              `${record.type}-${record.reason}-${record.message}-${record.count}-${record.lastTimestamp}`
-            }
-            pagination={false}
-            size="small"
-          />
-        ) : (
-          <Empty
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            description={t('EventAggregator.NoEvents')}
-          />
-        )}
-      </Spin>
+      <div className={styles.content}>
+        <div
+          className={classNames(styles.tableContainer, {
+            [styles.withDiagnosis]: diagnosisStatus !== 'idle',
+          })}
+        >
+          {loading ? (
+            <Skeleton active paragraph={{ rows: 5 }} />
+          ) : events.length > 0 ? (
+            <Table
+              dataSource={filteredEvents}
+              columns={columns}
+              rowKey={record =>
+                `${record.type}-${record.reason}-${record.message}-${record.count}-${record.lastTimestamp}`
+              }
+              pagination={false}
+              size="small"
+            />
+          ) : (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description={t('EventAggregator.NoEvents')}
+            />
+          )}
+        </div>
+        {renderDiagnosisWindow()}
+      </div>
     </div>
   )
 }

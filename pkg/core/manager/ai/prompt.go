@@ -26,6 +26,8 @@ const (
 	SQLFixType PromptType = "sqlfix"
 	// LogDiagnosisType represents the prompt type for log diagnosis
 	LogDiagnosisType PromptType = "log_diagnosis"
+	// EventDiagnosisType represents the prompt type for event diagnosis
+	EventDiagnosisType PromptType = "event_diagnosis"
 	// YAMLInterpretType represents the prompt type for YAML interpretation
 	YAMLInterpretType PromptType = "yaml_interpret"
 )
@@ -121,6 +123,25 @@ Please provide:
 4. Any relevant Kubernetes best practices that could help prevent similar issues
 
 Format your response in markdown with clear sections.`,
+
+	EventDiagnosisType: `You are a Kubernetes expert specialized in diagnosing system and application issues through event analysis.
+Please analyze the following Kubernetes events and provide your diagnosis in %s.
+Focus on:
+1. Identify any issues or potential problems
+2. Explain the root causes
+3. Suggest specific solutions or preventive measures
+4. Prioritize critical issues that need immediate attention
+
+Events:
+%s
+
+Please structure your response with clear sections:
+1. Summary of Issues
+2. Detailed Analysis
+3. Recommendations
+4. Next Steps
+
+Be specific and include technical details when relevant.`,
 
 	YAMLInterpretType: `You are a Kubernetes YAML expert. Your task is to analyze and interpret the YAML configuration in language %s.
 
