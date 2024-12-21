@@ -79,7 +79,7 @@ export function generateTopologyData(data) {
   for (const key in data) {
     const relationships = data[key].relationship
     for (const targetKey in relationships) {
-      const relationType = relationships[targetKey]
+      const relationType = relationships?.[targetKey]
       if (relationType === 'child') {
         addEdge(key, targetKey)
       } else if (relationType === 'parent') {
@@ -96,7 +96,13 @@ export function generateResourceTopologyData(data) {
   const edges = []
 
   const addNode = (id, label, resourceGroup) => {
-    nodes.push({ id, label, resourceGroup })
+    nodes.push({
+      id,
+      label,
+      data: {
+        resourceGroup,
+      },
+    })
   }
 
   const uniqueEdges = new Set()
@@ -109,16 +115,16 @@ export function generateResourceTopologyData(data) {
   }
 
   Object.keys(data).forEach(key => {
-    const entity = data[key]
+    const entity = data?.[key]
 
-    addNode(key, key.split(':')[1].split('.')[1], entity?.resourceGroup)
+    addNode(key, key?.split(':')?.[1]?.split('.')?.[1], entity?.resourceGroup)
 
-    entity.children.forEach(child => {
+    entity?.children?.forEach(child => {
       addEdge(key, child)
     })
 
-    if (entity.Parents) {
-      entity.Parents.forEach(parent => {
+    if (entity?.Parents) {
+      entity?.Parents?.forEach(parent => {
         addEdge(parent, key)
       })
     }
