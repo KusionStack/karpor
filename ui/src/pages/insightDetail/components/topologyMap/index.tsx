@@ -178,7 +178,6 @@ const TopologyMap = ({
 
   function handleMouseEnter(evt) {
     graph.setItemState(evt.item, 'hoverState', true)
-    // graph.setItemState(evt.item, 'hoverState', true)
     const bbox = evt.item.getBBox()
     const point = graph.getCanvasByPoint(bbox.centerX, bbox.minY)
     if (bbox) {
@@ -414,7 +413,6 @@ const TopologyMap = ({
       const height = container?.scrollHeight || 400
       const toolbar = new G6.ToolBar()
       if (!graph && container) {
-        // eslint-disable-next-line
         graphRef.current = graph = new G6.Graph({
           container,
           width,
@@ -461,7 +459,6 @@ const TopologyMap = ({
               shadowOffsetY: 2,
               cursor: 'pointer',
             },
-            // draggable: true,
           },
           defaultEdge: {
             type: 'running-edge',
@@ -493,7 +490,6 @@ const TopologyMap = ({
           },
           nodeStateStyles: {
             selected: {
-              // fill: '#e6f4ff',
               stroke: '#1677ff',
               shadowColor: 'rgba(22,119,255,0.12)',
               fill: '#f0f5ff',
@@ -547,14 +543,6 @@ const TopologyMap = ({
           }
         }
       }
-    }
-    return () => {
-      try {
-        // if (graph) {
-        //   graph.destroy()
-        //   graphRef.current = null
-        // }
-      } catch (error) {}
     }
     // eslint-disable-next-line
   }, [topologyData, tableName])
