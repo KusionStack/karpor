@@ -15,7 +15,6 @@ import transferImg from '@/assets/transfer.png'
 import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
-
 interface NodeConfig extends ModelConfig {
   data?: {
     name?: string
@@ -151,6 +150,8 @@ type IProps = {
   clusterOptions?: string[]
 }
 
+let graph: IAbstractGraph | null = null
+
 const TopologyMap = ({
   onTopologyNodeClick,
   topologyData,
@@ -164,7 +165,6 @@ const TopologyMap = ({
   const { t } = useTranslation()
   const ref = useRef(null)
   const graphRef = useRef<any>()
-  let graph: IAbstractGraph | null = null
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
   const navigate = useNavigate()
@@ -225,20 +225,6 @@ const TopologyMap = ({
             cursor: 'pointer',
           },
           name: 'node-container',
-        })
-
-        // Add background
-        group.addShape('rect', {
-          attrs: {
-            x: 0,
-            y: 0,
-            width: nodeWidth,
-            height: 48,
-            radius: 6,
-            fill: isHighLight ? '#f0f5ff' : '#ffffff',
-            opacity: 0.8,
-          },
-          name: 'node-background',
         })
 
         // Add side accent
@@ -475,7 +461,7 @@ const TopologyMap = ({
               shadowOffsetY: 2,
               cursor: 'pointer',
             },
-            draggable: true,
+            // draggable: true,
           },
           defaultEdge: {
             type: 'running-edge',
@@ -564,10 +550,10 @@ const TopologyMap = ({
     }
     return () => {
       try {
-        if (graph) {
-          graph.destroy()
-          graphRef.current = null
-        }
+        // if (graph) {
+        //   graph.destroy()
+        //   graphRef.current = null
+        // }
       } catch (error) {}
     }
     // eslint-disable-next-line

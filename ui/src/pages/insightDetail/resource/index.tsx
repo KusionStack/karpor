@@ -337,7 +337,9 @@ const ClusterDetail = () => {
   }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   function onTopologyNodeClick(node: any) {
-    const { resourceGroup } = node || {}
+    const {
+      data: { resourceGroup },
+    } = node || {}
     const paramsObj = {
       apiVersion: resourceGroup?.apiVersion,
       cluster: resourceGroup?.cluster,
