@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip } from 'antd'
@@ -37,7 +37,7 @@ const ClusterDetail = () => {
   const [yamlData, setYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditStat, setAuditStat] = useState<any>()
-  const [tableName, setTableName] = useState('')
+  const [tableName, setTableName] = useState('Pod')
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
@@ -47,6 +47,8 @@ const ClusterDetail = () => {
   const [tabList, setTabList] = useState<InsightTab[]>(
     insightTabsList?.filter(item => item?.value !== 'Events'),
   )
+
+  const drawRef = useRef(null)
 
   useEffect(() => {
     if (urlParams?.deleted === 'true') {
@@ -363,6 +365,16 @@ const ClusterDetail = () => {
     setSelectedCluster(val)
   }
 
+  useEffect(() => {
+    if (selectedCluster && currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateTopologyData(multiTopologyData?.[selectedCluster])
+      drawRef.current?.drawGraph(topologyData)
+    }
+  }, [multiTopologyData, selectedCluster, currentTab])
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -373,11 +385,11 @@ const ClusterDetail = () => {
         return (
           <>
             <TopologyMap
+              ref={drawRef}
               tableName={tableName}
               selectedCluster={selectedCluster}
               handleChangeCluster={handleChangeCluster}
               clusterOptions={clusterOptions}
-              topologyData={topologyData}
               topologyLoading={topologyLoading}
               onTopologyNodeClick={onTopologyNodeClick}
             />

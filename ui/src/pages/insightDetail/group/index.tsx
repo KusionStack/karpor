@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip } from 'antd'
@@ -38,6 +38,8 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+
+  const drawRef = useRef(null)
 
   function getUrlParams() {
     const obj = {}
@@ -274,8 +276,9 @@ const ClusterDetail = () => {
     if (multiTopologyData) {
       const clusterKeys = Object.keys(multiTopologyData)
       setClusterOptions(['ALL', ...clusterKeys])
-      setSelectedCluster('ALL' || clusterKeys?.[0])
+      setSelectedCluster(selectedCluster || 'ALL')
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [multiTopologyData])
 
   useEffect(() => {
@@ -322,14 +325,16 @@ const ClusterDetail = () => {
     return urlSqlParams
   }
 
+  const selectedClusterRef = useRef()
+  selectedClusterRef.current = selectedCluster
   function onTopologyNodeClick(node) {
     const { resourceGroup } = node?.data || {}
     setTableName(resourceGroup?.kind)
     const sqlParams = generateSqlParams({
       ...resourceGroup,
-      ...(selectedCluster === 'ALL'
+      ...(selectedClusterRef?.current === 'ALL'
         ? {}
-        : { cluster: resultUrlParams?.cluster || selectedCluster }),
+        : { cluster: selectedClusterRef?.current || resultUrlParams?.cluster }),
       ...generateUrlSqlParams(),
     })
     const sqlStr = `select * from resources where ${sqlParams}`
@@ -407,6 +412,21 @@ const ClusterDetail = () => {
     }
   }
 
+  useEffect(() => {
+    let topologyData
+    if (selectedCluster) {
+      if (selectedCluster === 'ALL' && multiTopologyData) {
+        topologyData = generateAllClusterTopologyData()
+      } else {
+        topologyData =
+          multiTopologyData &&
+          selectedCluster &&
+          generateTopologyData(multiTopologyData?.[selectedCluster])
+      }
+      drawRef.current?.drawGraph(topologyData)
+    }
+  }, [multiTopologyData, selectedCluster])
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       let topologyData
@@ -422,11 +442,11 @@ const ClusterDetail = () => {
         return (
           <>
             <TopologyMap
+              ref={drawRef}
               tableName={tableName}
               selectedCluster={selectedCluster}
               handleChangeCluster={handleChangeCluster}
               clusterOptions={clusterOptions}
-              topologyData={topologyData}
               topologyLoading={topologyLoading}
               onTopologyNodeClick={onTopologyNodeClick}
             />

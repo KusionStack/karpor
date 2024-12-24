@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip } from 'antd'
@@ -45,6 +45,8 @@ const ClusterDetail = () => {
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
   const [tabList, setTabList] = useState(insightTabsList)
+
+  const drawRef = useRef(null)
 
   useEffect(() => {
     const initialTabList = [...insightTabsList]
@@ -366,6 +368,16 @@ const ClusterDetail = () => {
     setSelectedCluster(val)
   }
 
+  useEffect(() => {
+    if (selectedCluster && currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateResourceTopologyData(multiTopologyData?.[selectedCluster])
+      drawRef.current?.drawGraph(topologyData)
+    }
+  }, [multiTopologyData, selectedCluster, currentTab])
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -375,12 +387,12 @@ const ClusterDetail = () => {
       if (topologyData?.nodes?.length > 0) {
         return (
           <TopologyMap
+            ref={drawRef}
             tableName={name as string}
             isResource={true}
             selectedCluster={selectedCluster}
             handleChangeCluster={handleChangeCluster}
             clusterOptions={clusterOptions}
-            topologyData={topologyData}
             topologyLoading={topologyLoading}
             onTopologyNodeClick={onTopologyNodeClick}
           />

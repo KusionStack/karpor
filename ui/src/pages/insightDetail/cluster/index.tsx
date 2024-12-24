@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip } from 'antd'
@@ -41,6 +41,8 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+
+  const drawRef = useRef(null)
 
   useEffect(() => {
     if (selectedCluster) {
@@ -196,6 +198,16 @@ const ClusterDetail = () => {
   }, [multiTopologyData])
 
   useEffect(() => {
+    if (selectedCluster && currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateTopologyData(multiTopologyData?.[selectedCluster])
+      drawRef.current?.drawGraph(topologyData)
+    }
+  }, [multiTopologyData, selectedCluster, currentTab])
+
+  useEffect(() => {
     getClusterDetail()
     getAudit(false)
     getAuditScore()
@@ -292,11 +304,11 @@ const ClusterDetail = () => {
         return (
           <>
             <TopologyMap
+              ref={drawRef}
               tableName={tableName}
               selectedCluster={selectedCluster}
               handleChangeCluster={handleChangeCluster}
               clusterOptions={clusterOptions}
-              topologyData={topologyData}
               topologyLoading={topologyLoading}
               onTopologyNodeClick={onTopologyNodeClick}
             />

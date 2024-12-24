@@ -23,7 +23,7 @@ import axios from 'axios'
 import styles from './styles.module.less'
 import Markdown from 'react-markdown'
 import { useSelector } from 'react-redux'
-import debounce from 'lodash.debounce'
+import { debounce } from 'lodash'
 
 interface LogEntry {
   timestamp: string
