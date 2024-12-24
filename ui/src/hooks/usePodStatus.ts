@@ -1,5 +1,6 @@
 import { useAxios } from '@/utils/request'
 import { useState, useEffect, useRef, useCallback } from 'react'
+import axios from 'axios'
 
 export const usePodStatus = (
   cluster: string,
@@ -11,7 +12,7 @@ export const usePodStatus = (
   const initialized = useRef(false)
 
   const { response: summaryResponse, refetch: summaryRefetch } = useAxios({
-    url: '/rest-api/v1/insight/summary',
+    url: `${axios.defaults.baseURL}/rest-api/v1/insight/summary`,
     method: 'GET',
     manual: true,
   })
