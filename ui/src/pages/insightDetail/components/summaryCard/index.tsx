@@ -5,7 +5,6 @@ import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
 import { getDataType } from '@/utils/tools'
 import dayjs from 'dayjs'
-import classNames from 'classnames'
 
 import styles from './styles.module.less'
 
@@ -343,19 +342,14 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               <div className={styles.item}>
                 <div className={styles.label}>Status </div>
                 <Tag
-                  className={classNames(styles.status, {
-                    [styles['status-running']]:
-                      summary?.resource?.status === 'Running',
-                    [styles['status-terminated']]:
-                      summary?.resource?.status === 'Terminated',
-                    [styles['status-unknown']]:
-                      summary?.resource?.status === 'Unknown',
-                    [styles['status-default']]: ![
-                      'Running',
-                      'Terminated',
-                      'Unknown',
-                    ].includes(summary?.resource?.status),
-                  })}
+                  className={styles.status}
+                  color={
+                    {
+                      Running: 'success',
+                      Terminating: 'default',
+                      Unknown: 'error',
+                    }[summary?.resource?.status] || 'warning'
+                  }
                 >
                   {summary?.resource?.status}
                 </Tag>
