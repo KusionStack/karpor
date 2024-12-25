@@ -36,10 +36,13 @@ const (
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+	// get server version and measure latency
+	start := time.Now()
 	serverVersion, err := client.ClientSet.DiscoveryClient.ServerVersion()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get server version: %w", err)
 	}
+	latency := time.Since(start).Milliseconds()
 
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
@@ -56,7 +59,6 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 		readyNodes     int
 		notReadyNodes  int
 		metricsEnabled bool
-		latency        int64
 		cpuMetrics     ResourceMetrics
 		memoryMetrics  ResourceMetrics
 	)
@@ -130,16 +132,6 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 	if err != nil {
 		return nil, fmt.Errorf("failed to get pods: %w", err)
 	}
-
-	// calculate latency
-	start := time.Now()
-	_, err = client.ClientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{
-		Limit: 1,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to measure API server latency: %w", err)
-	}
-	latency = time.Since(start).Milliseconds()
 
 	return &ClusterDetail{
 		NodeCount:      len(nodes.Items),
