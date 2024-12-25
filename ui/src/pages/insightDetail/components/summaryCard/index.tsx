@@ -346,7 +346,7 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
                   color={
                     {
                       Running: 'success',
-                      Terminating: 'default',
+                      Terminated: 'default',
                       Unknown: 'error',
                     }[summary?.resource?.status] || 'warning'
                   }
