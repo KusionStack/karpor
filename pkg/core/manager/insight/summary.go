@@ -36,10 +36,13 @@ const (
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+	// get server version and measure latency
+	start := time.Now()
 	serverVersion, err := client.ClientSet.DiscoveryClient.ServerVersion()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get server version: %w", err)
 	}
+	latency := time.Since(start).Milliseconds()
 
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
@@ -144,6 +147,7 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 		MetricsEnabled: metricsEnabled,
 		CPUMetrics:     cpuMetrics,
 		MemoryMetrics:  memoryMetrics,
+		Latency:        latency,
 	}, nil
 }
 

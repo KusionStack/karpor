@@ -1,10 +1,12 @@
 import React from 'react'
-import { Button, Popconfirm } from 'antd'
+import { Button, Popconfirm, Tag } from 'antd'
 import { useSelector } from 'react-redux'
 import { useTranslation } from 'react-i18next'
 import { utcDateToLocalDate } from '@/utils/tools'
 import k8sPng from '@/assets/kubernetes.png'
 import EditPopForm from '../editPopForm'
+import { useClusterLatency } from '@/hooks/useClusterLatency'
+import { LoadingOutlined } from '@ant-design/icons'
 
 import styles from './styles.module.less'
 
@@ -30,6 +32,11 @@ const ClusterCard = (props: IProps) => {
     handleSubmit,
     customStyle,
   } = props
+
+  const { latency, loading: latencyLoading } = useClusterLatency(
+    item?.metadata?.name,
+  )
+
   return (
     <div className={styles.card} style={customStyle}>
       <div className={styles.left} onClick={() => goDetailPage(item)}>
@@ -43,11 +50,34 @@ const ClusterCard = (props: IProps) => {
                 <>
                   {item?.spec?.displayName}
                   <span style={{ color: '#808080' }}>
-                    （{item?.metadata?.name}）
+                    &nbsp;({item?.metadata?.name})
                   </span>
                 </>
               ) : (
                 <span>{item?.metadata?.name}</span>
+              )}
+            </div>
+            <div className={styles.latency}>
+              {latencyLoading ? (
+                <LoadingOutlined
+                  style={{ fontSize: '14px', color: '#1890ff' }}
+                  spin
+                />
+              ) : (
+                <span>
+                  <Tag
+                    className="ml-2"
+                    color={
+                      latency.current < 100
+                        ? 'success'
+                        : latency.current < 300
+                          ? 'warning'
+                          : 'error'
+                    }
+                  >
+                    {latency.current}ms
+                  </Tag>
+                </span>
               )}
             </div>
           </div>

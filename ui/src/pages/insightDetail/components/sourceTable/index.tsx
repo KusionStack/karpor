@@ -32,7 +32,7 @@ export const PodStatusCell = ({ cluster, namespace, name }) => {
   const color =
     {
       Running: 'success',
-      Terminating: 'default',
+      Terminated: 'default',
       Unknown: 'error',
     }[status.current] || 'warning'
 
