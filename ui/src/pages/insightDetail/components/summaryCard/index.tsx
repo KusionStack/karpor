@@ -532,6 +532,12 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
             </>
           )}
           {summary?.countByGVK ? renderStatistics(summary?.countByGVK) : null}
+          {summary?.latency && (
+            <div className={styles.item}>
+              <div className={styles.label}>Latency</div>
+              <div className={styles.value}>{summary?.latency}ms</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
