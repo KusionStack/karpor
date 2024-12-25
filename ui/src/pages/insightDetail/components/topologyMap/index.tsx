@@ -399,26 +399,26 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
 
   function initGraph() {
     const container = containerRef.current
-    const width = container?.scrollWidth || 800
-    const height = container?.scrollHeight || 400
+    const width = container?.scrollWidth
+    const height = container?.scrollHeight
     const toolbar = new G6.ToolBar()
     return new G6.Graph({
       container,
       width,
       height,
-      fitView: true,
-      fitViewPadding: 20,
+      fitCenter: true,
       plugins: [toolbar],
       enabledStack: true,
       modes: {
         default: ['drag-canvas', 'drag-node', 'click-select'],
       },
+      animate: true,
       layout: {
         type: 'dagre',
         rankdir: 'LR',
-        nodesep: 25,
-        ranksep: 60,
-        align: 'UR',
+        align: 'UL',
+        nodesep: 15,
+        ranksep: 40,
         controlPoints: true,
         sortByCombo: false,
         preventOverlap: true,
@@ -567,7 +567,7 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         graphRef.current.clear()
         graphRef.current.changeData(topologyData)
         setTimeout(() => {
-          graphRef.current.fitView()
+          graphRef.current.fitCenter()
         }, 100)
         setHightLight()
       }
@@ -583,28 +583,28 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
       className={styles.g6_topology}
       style={{ height: isResource ? 450 : 400 }}
     >
+      <div className={styles.cluster_select}>
+        <Select
+          style={{ minWidth: 100 }}
+          placeholder=""
+          value={selectedCluster}
+          onChange={handleChangeCluster}
+        >
+          {clusterOptions?.map(item => {
+            return (
+              <Select.Option key={item}>
+                {item === 'ALL' ? t('AllClusters') : item}
+              </Select.Option>
+            )
+          })}
+        </Select>
+      </div>
       <div ref={containerRef} className={styles.g6_overview}>
         <div
           className={styles.g6_loading}
           style={{ display: topologyLoading ? 'block' : 'none' }}
         >
           <Loading />
-        </div>
-        <div className={styles.cluster_select}>
-          <Select
-            style={{ minWidth: 100 }}
-            placeholder=""
-            value={selectedCluster}
-            onChange={handleChangeCluster}
-          >
-            {clusterOptions?.map(item => {
-              return (
-                <Select.Option key={item}>
-                  {item === 'ALL' ? t('AllClusters') : item}
-                </Select.Option>
-              )
-            })}
-          </Select>
         </div>
         {tooltipopen ? (
           <OverviewTooltip
