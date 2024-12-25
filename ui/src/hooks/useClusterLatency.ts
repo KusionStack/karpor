@@ -35,7 +35,7 @@ export const useClusterLatency = (cluster: string) => {
     }
   }, [cluster, summaryRefetch])
 
-  // 组件首次加载时执行
+  // Only execute once when component is first mounted
   useEffect(() => {
     if (!initialized.current) {
       initialized.current = true
