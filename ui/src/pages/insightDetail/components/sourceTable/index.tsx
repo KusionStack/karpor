@@ -207,7 +207,7 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
         columns={columns}
         dataSource={tableData}
         rowKey={record => {
-          return `${record?.object?.metadata?.name}_${record?.object?.metadata?.namespace}_${record?.object?.apiVersion}_${record?.object?.kind}`
+          return `${record?.cluster}_${record?.object?.metadata?.name}_${record?.object?.metadata?.namespace}_${record?.object?.apiVersion}_${record?.object?.kind}`
         }}
         onChange={handleTableChange}
         pagination={{

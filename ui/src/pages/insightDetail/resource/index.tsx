@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { Breadcrumb, Tooltip } from 'antd'
@@ -45,6 +45,8 @@ const ClusterDetail = () => {
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
   const [tabList, setTabList] = useState(insightTabsList)
+
+  const drawRef = useRef(null)
 
   useEffect(() => {
     const initialTabList = [...insightTabsList]
@@ -164,7 +166,6 @@ const ClusterDetail = () => {
   const { response: summaryResponse, refetch: summaryRefetch } = useAxios({
     url: '/rest-api/v1/insight/summary',
     method: 'GET',
-    manual: true,
   })
 
   useEffect(() => {
@@ -194,12 +195,12 @@ const ClusterDetail = () => {
   } = useAxios({
     url: '/rest-api/v1/insight/topology',
     method: 'GET',
-    manual: true,
   })
 
   useEffect(() => {
     if (topologyDataResponse?.success) {
-      setMultiTopologyData(topologyDataResponse?.data)
+      const data = topologyDataResponse?.data
+      setMultiTopologyData(data)
     }
   }, [topologyDataResponse])
 
@@ -338,7 +339,9 @@ const ClusterDetail = () => {
   }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
   function onTopologyNodeClick(node: any) {
-    const { resourceGroup } = node || {}
+    const {
+      data: { resourceGroup },
+    } = node || {}
     const paramsObj = {
       apiVersion: resourceGroup?.apiVersion,
       cluster: resourceGroup?.cluster,
@@ -365,6 +368,16 @@ const ClusterDetail = () => {
     setSelectedCluster(val)
   }
 
+  useEffect(() => {
+    if (selectedCluster && currentTab === 'Topology') {
+      const topologyData =
+        multiTopologyData &&
+        selectedCluster &&
+        generateResourceTopologyData(multiTopologyData?.[selectedCluster])
+      drawRef.current?.drawGraph(topologyData)
+    }
+  }, [multiTopologyData, selectedCluster, currentTab])
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -374,12 +387,12 @@ const ClusterDetail = () => {
       if (topologyData?.nodes?.length > 0) {
         return (
           <TopologyMap
+            ref={drawRef}
             tableName={name as string}
             isResource={true}
             selectedCluster={selectedCluster}
             handleChangeCluster={handleChangeCluster}
             clusterOptions={clusterOptions}
-            topologyData={topologyData}
             topologyLoading={topologyLoading}
             onTopologyNodeClick={onTopologyNodeClick}
           />
