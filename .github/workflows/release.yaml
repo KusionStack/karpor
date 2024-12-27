@@ -170,7 +170,22 @@ jobs:
           token: ${{ secrets.CHART_UPDATER_PAT }}
           fetch-depth: 0
 
-      - name: Bump version in the related HelmChart Chart.yaml
+      - name: Bump version in the HelmChart README.md Badges
+        run: |
+          # Read the README.md file
+          readme_file="charts/charts/karpor/README.md"
+          
+          # Update Version badge
+          sed -i "s/Version: [0-9]\+\.[0-9]\+\.[0-9]\+/Version: ${{ steps.get_chart_version.outputs.new_chart_version }}/g" "$readme_file"
+          
+          # Update AppVersion badge
+          sed -i "s/AppVersion: [0-9]\+\.[0-9]\+\.[0-9]\+/AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}/g" "$readme_file"
+          
+          # Verify the changes
+          echo "Updated README.md content:"
+          cat "$readme_file"
+
+      - name: Bump version in the HelmChart Chart.yaml
         uses: fjogeleit/yaml-update-action@main
         env:
           COMMIT_MESSAGE: 'chore(karpor): bump app version to ${{ steps.get_chart_version.outputs.new_app_version }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
