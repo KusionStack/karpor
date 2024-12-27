@@ -417,8 +417,10 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         type: 'dagre',
         rankdir: 'LR',
         align: 'UL',
-        nodesep: 15,
+        nodesep: 10,
         ranksep: 40,
+        nodesepFunc: () => 1,
+        ranksepFunc: () => 1,
         controlPoints: true,
         sortByCombo: false,
         preventOverlap: true,
@@ -515,6 +517,10 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
 
   function drawGraph(topologyData) {
     if (topologyData) {
+      if (type === 'resource') {
+        graphRef.current?.destroy()
+        graphRef.current = null
+      }
       if (!graphRef.current) {
         graphRef.current = initGraph()
         graphRef.current?.read(topologyData)
