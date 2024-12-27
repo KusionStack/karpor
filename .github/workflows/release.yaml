@@ -187,7 +187,11 @@ jobs:
           
           # Update AppVersion badge
           sed -i "s/AppVersion: [0-9]\+\.[0-9]\+\.[0-9]\+/AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}/g" "$readme_file"
-          
+
+          # Output updated README content
+          echo "Updated README.md:"
+          cat "$readme_file"
+
           # Add and commit the changes
           cd charts
           git add charts/karpor/README.md
