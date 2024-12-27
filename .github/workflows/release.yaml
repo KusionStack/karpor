@@ -184,12 +184,12 @@ jobs:
           
           # Update Version badge and its link
           sed -i -E '
-            s#!\[Version: ([0-9]+\.[0-9]+\.[0-9]+)\]([^)]+)#![Version: ${{ steps.get_chart_version.outputs.new_chart_version }}](https://img.shields.io/badge/Version-${{ steps.get_chart_version.outputs.new_chart_version }}-informational?style=flat-square)#g
+            s#!\[Version: ([0-9]+\.[0-9]+\.[0-9]+)\]([^)]+)#![Version: ${{ steps.get_chart_version.outputs.new_chart_version }}](https://img.shields.io/badge/Version-${{ steps.get_chart_version.outputs.new_chart_version }}-informational?style=flat-square#g
           ' "$readme_file"
           
           # Update AppVersion badge and its link
           sed -i -E '
-            s#!\[AppVersion: ([0-9]+\.[0-9]+\.[0-9]+[^]]*)\]([^)]+)#![AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}](https://img.shields.io/badge/AppVersion-${{ steps.get_chart_version.outputs.new_app_version }}-informational?style=flat-square)#g
+            s#!\[AppVersion: ([0-9]+\.[0-9]+\.[0-9]+[^]]*)\]([^)]+)#![AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}](https://img.shields.io/badge/AppVersion-${{ steps.get_chart_version.outputs.new_app_version }}-informational?style=flat-square#g
           ' "$readme_file"
 
           # Output updated README content
