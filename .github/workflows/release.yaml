@@ -170,37 +170,6 @@ jobs:
           token: ${{ secrets.CHART_UPDATER_PAT }}
           fetch-depth: 0
 
-      - name: Create new branch for update chart
-        run: |
-          cd charts
-          git config --global user.name 'karpor-chart-updater[bot]'
-          git config --global user.email 'karpor-chart-updater[bot]@users.noreply.github.com'
-          git checkout -b bump-karpor-to-${{ steps.get_chart_version.outputs.new_app_version }}
-
-      - name: Update README.md badges
-        run: |
-          # Read the README.md file
-          readme_file="charts/charts/karpor/README.md"
-          
-          # Update Version badge and its link
-          sed -i -E '
-            s#!\[Version: ([0-9]+\.[0-9]+\.[0-9]+)\]([^)]+)#![Version: ${{ steps.get_chart_version.outputs.new_chart_version }}](https://img.shields.io/badge/Version-${{ steps.get_chart_version.outputs.new_chart_version }}-informational?style=flat-square#g
-          ' "$readme_file"
-          
-          # Update AppVersion badge and its link
-          sed -i -E '
-            s#!\[AppVersion: ([0-9]+\.[0-9]+\.[0-9]+[^]]*)\]([^)]+)#![AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}](https://img.shields.io/badge/AppVersion-${{ steps.get_chart_version.outputs.new_app_version }}-informational?style=flat-square#g
-          ' "$readme_file"
-
-          # Output updated README content
-          echo "Updated README.md:"
-          cat "$readme_file"
-
-          # Add and commit the changes
-          cd charts
-          git add charts/karpor/README.md
-          git commit -m "docs(karpor): update version badges in README.md"
-
       - name: Update Chart.yaml and create PR
         uses: fjogeleit/yaml-update-action@main
         env:
@@ -227,6 +196,33 @@ jobs:
           labels: 'karpor-chart-updater[bot]'
           token: ${{ secrets.CHART_UPDATER_PAT }}
           workDir: charts
+
+      - name: Update README.md badges and push
+        run: |
+          cd charts
+          # Checkout the branch created by yaml-update-action
+          git config --global user.name 'karpor-chart-updater[bot]'
+          git config --global user.email 'karpor-chart-updater[bot]@users.noreply.github.com'
+          git fetch origin
+          git checkout bump-karpor-to-${{ steps.get_chart_version.outputs.new_app_version }}
+          
+          # Update badges in README.md
+          readme_file="charts/karpor/README.md"
+          
+          # Update Version badge and its link
+          sed -i -E '
+            s#!\[Version: ([0-9]+\.[0-9]+\.[0-9]+)\]([^)]+)#![Version: ${{ steps.get_chart_version.outputs.new_chart_version }}](https://img.shields.io/badge/Version-${{ steps.get_chart_version.outputs.new_chart_version }}-informational?style=flat-square#g
+          ' "$readme_file"
+          
+          # Update AppVersion badge and its link
+          sed -i -E '
+            s#!\[AppVersion: ([0-9]+\.[0-9]+\.[0-9]+[^]]*)\]([^)]+)#![AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}](https://img.shields.io/badge/AppVersion-${{ steps.get_chart_version.outputs.new_app_version }}-informational?style=flat-square#g
+          ' "$readme_file"
+
+          # Commit and push the changes
+          git add "$readme_file"
+          git commit -m "docs(karpor): update version badges in README.md"
+          git push origin bump-karpor-to-${{ steps.get_chart_version.outputs.new_app_version }}
 
       - name: Log Test Outputs  # Log outputs for debugging
         run: |
