@@ -155,7 +155,12 @@ jobs:
           patch=$(echo "$version" | cut -d. -f3)
           new_chart_version="${major}.${minor}.$((patch + 1))"
           echo "New chart version is: $new_chart_version"
+          # Calculate appVersion by removing 'v' prefix from VERSION
+          new_app_version="${{ steps.get_version.outputs.VERSION }}"
+          new_app_version="${new_app_version#v}"
+          echo "New app version is: $new_app_version"
           echo "::set-output name=new_chart_version::$new_chart_version"
+          echo "::set-output name=new_app_version::$new_app_version"
 
       - name: Checkout Target repository
         uses: actions/checkout@v4
@@ -168,20 +173,20 @@ jobs:
       - name: Bump version in the related HelmChart Chart.yaml
         uses: fjogeleit/yaml-update-action@main
         env:
-          COMMIT_MESSAGE: 'chore(karpor): bump app version to ${{ steps.get_version.outputs.VERSION }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
+          COMMIT_MESSAGE: 'chore(karpor): bump app version to ${{ steps.get_chart_version.outputs.new_app_version }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
         with:
           repository: KusionStack/charts
           valueFile: 'charts/karpor/Chart.yaml'
-          changes: '{"version":"${{ steps.get_chart_version.outputs.new_chart_version }}", "appVersion":"${{ steps.get_version.outputs.VERSION }}"}'
-          value: ${{ steps.get_version.outputs.VERSION }}
-          branch: bump-karpor-to-${{ steps.get_version.outputs.VERSION }}
+          changes: '{"version":"${{ steps.get_chart_version.outputs.new_chart_version }}", "appVersion":"${{ steps.get_chart_version.outputs.new_app_version }}"}'
+          value: ${{ steps.get_chart_version.outputs.new_app_version }}
+          branch: bump-karpor-to-${{ steps.get_chart_version.outputs.new_app_version }}
           targetBranch: master
           message: ${{ env.COMMIT_MESSAGE }}
           createPR: true
           title: ${{ env.COMMIT_MESSAGE }}
           description: |
             This PR updates the Karpor Helm chart with the following changes:
-            - Bump the `appVersion` to `${{ steps.get_version.outputs.VERSION }}`
+            - Bump the `appVersion` to `${{ steps.get_chart_version.outputs.new_app_version }}`
             - Bump the `version` to `${{ steps.get_chart_version.outputs.new_chart_version }}`
 
             These updates ensure that the chart reflects the latest Karpor release.
@@ -195,4 +200,4 @@ jobs:
         run: |
           echo "Testing complete. Check the logs for details."
           echo "New chart version: ${{ steps.get_chart_version.outputs.new_chart_version }}"
-          echo "App version: ${{ steps.get_version.outputs.VERSION }}"
+          echo "New app version: ${{ steps.get_chart_version.outputs.new_app_version }}"
