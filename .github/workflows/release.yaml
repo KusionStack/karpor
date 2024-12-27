@@ -170,7 +170,14 @@ jobs:
           token: ${{ secrets.CHART_UPDATER_PAT }}
           fetch-depth: 0
 
-      - name: Bump version in the HelmChart README.md Badges
+      - name: Create new branch for update chart
+        run: |
+          cd charts
+          git config --global user.name 'karpor-chart-updater[bot]'
+          git config --global user.email 'karpor-chart-updater[bot]@users.noreply.github.com'
+          git checkout -b bump-karpor-to-${{ steps.get_chart_version.outputs.new_app_version }}
+
+      - name: Update README.md badges
         run: |
           # Read the README.md file
           readme_file="charts/charts/karpor/README.md"
@@ -181,11 +188,12 @@ jobs:
           # Update AppVersion badge
           sed -i "s/AppVersion: [0-9]\+\.[0-9]\+\.[0-9]\+/AppVersion: ${{ steps.get_chart_version.outputs.new_app_version }}/g" "$readme_file"
           
-          # Verify the changes
-          echo "Updated README.md content:"
-          cat "$readme_file"
+          # Add and commit the changes
+          cd charts
+          git add charts/karpor/README.md
+          git commit -m "docs(karpor): update version badges in README.md"
 
-      - name: Bump version in the HelmChart Chart.yaml
+      - name: Update Chart.yaml and create PR
         uses: fjogeleit/yaml-update-action@main
         env:
           COMMIT_MESSAGE: 'chore(karpor): bump app version to ${{ steps.get_chart_version.outputs.new_app_version }}, chart version to ${{ steps.get_chart_version.outputs.new_chart_version }}'
@@ -203,6 +211,7 @@ jobs:
             This PR updates the Karpor Helm chart with the following changes:
             - Bump the `appVersion` to `${{ steps.get_chart_version.outputs.new_app_version }}`
             - Bump the `version` to `${{ steps.get_chart_version.outputs.new_chart_version }}`
+            - Update version badges in README.md
 
             These updates ensure that the chart reflects the latest Karpor release.
 
