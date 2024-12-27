@@ -102,6 +102,52 @@ var doc = `{
                 }
             }
         },
+        "/insight/aggregator/event/diagnosis/stream": {
+            "post": {
+                "description": "This endpoint analyzes events using AI to identify issues and provide solutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Diagnose events using AI",
+                "parameters": [
+                    {
+                        "description": "The events to analyze",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.EventDiagnoseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.DiagnosisEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/insight/aggregator/event/{cluster}/{namespace}/{name}": {
             "get": {
                 "description": "This endpoint streams resource events in real-time using SSE. It supports event type filtering and automatic updates.",
@@ -161,7 +207,7 @@ var doc = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/aggregator.Event"
+                                "$ref": "#/definitions/ai.Event"
                             }
                         }
                     },
@@ -186,11 +232,58 @@ var doc = `{
                 }
             }
         },
+        "/insight/aggregator/log/diagnosis/stream": {
+            "post": {
+                "description": "This endpoint analyzes pod logs using AI to identify issues and provide solutions",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Diagnose pod logs using AI",
+                "parameters": [
+                    {
+                        "description": "The logs to analyze",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/aggregator.DiagnoseRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.DiagnosisEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/insight/aggregator/log/pod/{cluster}/{namespace}/{name}": {
             "get": {
                 "description": "This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.",
                 "produces": [
-                    "text/event-stream"
+                    "text/event-stream",
+                    "application/json"
                 ],
                 "tags": [
                     "insight"
@@ -223,6 +316,36 @@ var doc = `{
                         "description": "The container name (optional if pod has only one container)",
                         "name": "container",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only return logs newer than a relative duration like 5s, 2m, or 3h",
+                        "name": "since",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Only return logs after a specific date (RFC3339)",
+                        "name": "sinceTime",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Include timestamps in log output",
+                        "name": "timestamps",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Number of lines from the end of the logs to show",
+                        "name": "tailLines",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Download logs as file instead of streaming",
+                        "name": "download",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -246,6 +369,52 @@ var doc = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/insight/yaml/interpret/stream": {
+            "post": {
+                "description": "This endpoint analyzes YAML content using AI to provide detailed interpretation and insights",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Interpret YAML using AI",
+                "parameters": [
+                    {
+                        "description": "The YAML content to interpret",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/detail.InterpretRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.InterpretEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
                         "schema": {
                             "type": "string"
                         }
@@ -1855,7 +2024,63 @@ var doc = `{
         }
     },
     "definitions": {
-        "aggregator.Event": {
+        "aggregator.DiagnoseRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "description": "Language code for AI response",
+                    "type": "string"
+                },
+                "logs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "aggregator.EventDiagnoseRequest": {
+            "type": "object",
+            "properties": {
+                "events": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ai.Event"
+                    }
+                },
+                "language": {
+                    "type": "string"
+                }
+            }
+        },
+        "aggregator.LogEntry": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "error": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "string"
+                }
+            }
+        },
+        "ai.DiagnosisEvent": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "description": "Event content",
+                    "type": "string"
+                },
+                "type": {
+                    "description": "Event type: start/chunk/error/complete",
+                    "type": "string"
+                }
+            }
+        },
+        "ai.Event": {
             "type": "object",
             "properties": {
                 "count": {
@@ -1878,16 +2103,15 @@ var doc = `{
                 }
             }
         },
-        "aggregator.LogEntry": {
+        "ai.InterpretEvent": {
             "type": "object",
             "properties": {
                 "content": {
+                    "description": "Event content or error message",
                     "type": "string"
                 },
-                "error": {
-                    "type": "string"
-                },
-                "timestamp": {
+                "type": {
+                    "description": "Event type: start, chunk, error, complete",
                     "type": "string"
                 }
             }
@@ -1934,6 +2158,17 @@ var doc = `{
                 }
             }
         },
+        "detail.InterpretRequest": {
+            "type": "object",
+            "properties": {
+                "language": {
+                    "type": "string"
+                },
+                "yaml": {
+                    "type": "string"
+                }
+            }
+        },
         "entity.ResourceGroup": {
             "type": "object",
             "properties": {
@@ -1962,6 +2197,9 @@ var doc = `{
                     "type": "string"
                 },
                 "namespace": {
+                    "type": "string"
+                },
+                "status": {
                     "type": "string"
                 }
             }

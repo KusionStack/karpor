@@ -20,3 +20,13 @@ var (
 	ErrMissingAuthToken = errors.New("auth token is required")
 	ErrInvalidQuery     = errors.New("query is invalid")
 )
+
+// Event represents a Kubernetes event for diagnosis
+type Event struct {
+	Type           string `json:"type"`
+	Reason         string `json:"reason"`
+	Message        string `json:"message"`
+	Count          int32  `json:"count"`
+	LastTimestamp  string `json:"lastTimestamp"`
+	FirstTimestamp string `json:"firstTimestamp"`
+}

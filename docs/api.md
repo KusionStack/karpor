@@ -75,6 +75,9 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 | GET | /rest-api/v1/insight/stats | [get rest API v1 insight stats](#get-rest-api-v1-insight-stats) | Get returns a global statistics info. |
 | GET | /rest-api/v1/insight/summary | [get rest API v1 insight summary](#get-rest-api-v1-insight-summary) | Get returns a Kubernetes resource summary by name, namespace, cluster, apiVersion and kind. |
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
+| POST | /insight/aggregator/event/diagnosis/stream | [post insight aggregator event diagnosis stream](#post-insight-aggregator-event-diagnosis-stream) | Diagnose events using AI |
+| POST | /insight/aggregator/log/diagnosis/stream | [post insight aggregator log diagnosis stream](#post-insight-aggregator-log-diagnosis-stream) | Diagnose pod logs using AI |
+| POST | /insight/yaml/interpret/stream | [post insight yaml interpret stream](#post-insight-yaml-interpret-stream) | Interpret YAML using AI |
   
 
 
@@ -455,7 +458,7 @@ Status: OK
    
   
 
-[][AggregatorEvent](#aggregator-event)
+[][AiEvent](#ai-event)
 
 ##### <span id="get-insight-aggregator-event-cluster-namespace-name-400"></span> 400 - Bad Request
 Status: Bad Request
@@ -493,6 +496,7 @@ GET /insight/aggregator/log/pod/{cluster}/{namespace}/{name}
 This endpoint streams pod logs in real-time using SSE. It supports container selection and automatic reconnection.
 
 #### Produces
+  * application/json
   * text/event-stream
 
 #### Parameters
@@ -503,6 +507,11 @@ This endpoint streams pod logs in real-time using SSE. It supports container sel
 | name | `path` | string | `string` |  | ✓ |  | The pod name |
 | namespace | `path` | string | `string` |  | ✓ |  | The namespace name |
 | container | `query` | string | `string` |  |  |  | The container name (optional if pod has only one container) |
+| download | `query` | boolean | `bool` |  |  |  | Download logs as file instead of streaming |
+| since | `query` | string | `string` |  |  |  | Only return logs newer than a relative duration like 5s, 2m, or 3h |
+| sinceTime | `query` | string | `string` |  |  |  | Only return logs after a specific date (RFC3339) |
+| tailLines | `query` | integer | `int64` |  |  |  | Number of lines from the end of the logs to show |
+| timestamps | `query` | boolean | `bool` |  |  |  | Include timestamps in log output |
 
 #### All responses
 | Code | Status | Description | Has headers | Schema |
@@ -1783,6 +1792,177 @@ Status: Internal Server Error
 
 
 
+### <span id="post-insight-aggregator-event-diagnosis-stream"></span> Diagnose events using AI (*PostInsightAggregatorEventDiagnosisStream*)
+
+```
+POST /insight/aggregator/event/diagnosis/stream
+```
+
+This endpoint analyzes events using AI to identify issues and provide solutions
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [AggregatorEventDiagnoseRequest](#aggregator-event-diagnose-request) | `models.AggregatorEventDiagnoseRequest` | | ✓ | | The events to analyze |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-aggregator-event-diagnosis-stream-200) | OK | OK |  | [schema](#post-insight-aggregator-event-diagnosis-stream-200-schema) |
+| [400](#post-insight-aggregator-event-diagnosis-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-aggregator-event-diagnosis-stream-400-schema) |
+| [500](#post-insight-aggregator-event-diagnosis-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-aggregator-event-diagnosis-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-200-schema"></span> Schema
+   
+  
+
+[AiDiagnosisEvent](#ai-diagnosis-event)
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-aggregator-event-diagnosis-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-aggregator-event-diagnosis-stream-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="post-insight-aggregator-log-diagnosis-stream"></span> Diagnose pod logs using AI (*PostInsightAggregatorLogDiagnosisStream*)
+
+```
+POST /insight/aggregator/log/diagnosis/stream
+```
+
+This endpoint analyzes pod logs using AI to identify issues and provide solutions
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [AggregatorDiagnoseRequest](#aggregator-diagnose-request) | `models.AggregatorDiagnoseRequest` | | ✓ | | The logs to analyze |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-aggregator-log-diagnosis-stream-200) | OK | OK |  | [schema](#post-insight-aggregator-log-diagnosis-stream-200-schema) |
+| [400](#post-insight-aggregator-log-diagnosis-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-aggregator-log-diagnosis-stream-400-schema) |
+| [500](#post-insight-aggregator-log-diagnosis-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-aggregator-log-diagnosis-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-200-schema"></span> Schema
+   
+  
+
+[AiDiagnosisEvent](#ai-diagnosis-event)
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-aggregator-log-diagnosis-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-aggregator-log-diagnosis-stream-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="post-insight-yaml-interpret-stream"></span> Interpret YAML using AI (*PostInsightYamlInterpretStream*)
+
+```
+POST /insight/yaml/interpret/stream
+```
+
+This endpoint analyzes YAML content using AI to provide detailed interpretation and insights
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [DetailInterpretRequest](#detail-interpret-request) | `models.DetailInterpretRequest` | | ✓ | | The YAML content to interpret |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-yaml-interpret-stream-200) | OK | OK |  | [schema](#post-insight-yaml-interpret-stream-200-schema) |
+| [400](#post-insight-yaml-interpret-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-yaml-interpret-stream-400-schema) |
+| [500](#post-insight-yaml-interpret-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-yaml-interpret-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-yaml-interpret-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-yaml-interpret-stream-200-schema"></span> Schema
+   
+  
+
+[AiInterpretEvent](#ai-interpret-event)
+
+##### <span id="post-insight-yaml-interpret-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-yaml-interpret-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-yaml-interpret-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-yaml-interpret-stream-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="post-rest-api-v1-cluster-cluster-name"></span> Create creates a cluster resource. (*PostRestAPIV1ClusterClusterName*)
 
 ```
@@ -2327,7 +2507,72 @@ Status: Internal Server Error
 
 ## Models
 
-### <span id="aggregator-event"></span> aggregator.Event
+### <span id="aggregator-diagnose-request"></span> aggregator.DiagnoseRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| language | string| `string` |  | | Language code for AI response |  |
+| logs | []string| `[]string` |  | |  |  |
+
+
+
+### <span id="aggregator-event-diagnose-request"></span> aggregator.EventDiagnoseRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| events | [][AiEvent](#ai-event)| `[]*AiEvent` |  | |  |  |
+| language | string| `string` |  | |  |  |
+
+
+
+### <span id="aggregator-log-entry"></span> aggregator.LogEntry
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | |  |  |
+| error | string| `string` |  | |  |  |
+| timestamp | string| `string` |  | |  |  |
+
+
+
+### <span id="ai-diagnosis-event"></span> ai.DiagnosisEvent
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| content | string| `string` |  | | Event content |  |
+| type | string| `string` |  | | Event type: start/chunk/error/complete |  |
+
+
+
+### <span id="ai-event"></span> ai.Event
 
 
   
@@ -2347,7 +2592,7 @@ Status: Internal Server Error
 
 
 
-### <span id="aggregator-log-entry"></span> aggregator.LogEntry
+### <span id="ai-interpret-event"></span> ai.InterpretEvent
 
 
   
@@ -2358,9 +2603,8 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| content | string| `string` |  | |  |  |
-| error | string| `string` |  | |  |  |
-| timestamp | string| `string` |  | |  |  |
+| content | string| `string` |  | | Event content or error message |  |
+| type | string| `string` |  | | Event type: start, chunk, error, complete |  |
 
 
 
@@ -2414,6 +2658,22 @@ Status: Internal Server Error
 
 
 
+### <span id="detail-interpret-request"></span> detail.InterpretRequest
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| language | string| `string` |  | |  |  |
+| yaml | string| `string` |  | |  |  |
+
+
+
 ### <span id="entity-resource-group"></span> entity.ResourceGroup
 
 
@@ -2432,6 +2692,7 @@ Status: Internal Server Error
 | labels | map of string| `map[string]string` |  | |  |  |
 | name | string| `string` |  | |  |  |
 | namespace | string| `string` |  | |  |  |
+| status | string| `string` |  | |  |  |
 
 
 

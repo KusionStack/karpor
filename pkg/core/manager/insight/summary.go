@@ -23,15 +23,26 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+)
+
+const (
+	PodStatusRunning    = "Running"
+	PodStatusTerminated = "Terminated"
+	PodStatusUnknown    = "Unknown"
+	PodStatusWaiting    = "Waiting"
 )
 
 // GetDetailsForCluster returns ClusterDetail object for a given cluster
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
+	// get server version and measure latency
+	start := time.Now()
 	serverVersion, err := client.ClientSet.DiscoveryClient.ServerVersion()
 	if err != nil {
 		return nil, fmt.Errorf("failed to get server version: %w", err)
 	}
+	latency := time.Since(start).Milliseconds()
 
 	// Get the list of nodes
 	nodes, err := client.ClientSet.CoreV1().Nodes().List(ctx, metav1.ListOptions{})
@@ -136,6 +147,7 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 		MetricsEnabled: metricsEnabled,
 		CPUMetrics:     cpuMetrics,
 		MemoryMetrics:  memoryMetrics,
+		Latency:        latency,
 	}, nil
 }
 
@@ -146,6 +158,11 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 		return nil, err
 	}
 
+	Status := ""
+	if obj.GetKind() == "Pod" {
+		Status = GetPodStatus(obj.Object)
+	}
+
 	return &ResourceSummary{
 		Resource: entity.ResourceGroup{
 			Name:       obj.GetName(),
@@ -153,6 +170,7 @@ func (i *InsightManager) GetResourceSummary(ctx context.Context, client *multicl
 			APIVersion: obj.GetAPIVersion(),
 			Cluster:    resourceGroup.Cluster,
 			Kind:       obj.GetKind(),
+			Status:     Status,
 		},
 		CreationTimestamp: obj.GetCreationTimestamp(),
 		ResourceVersion:   obj.GetResourceVersion(),
@@ -204,4 +222,41 @@ func (i *InsightManager) GetResourceGroupSummary(ctx context.Context, client *mu
 		ResourceGroup: resourceGroup,
 		CountByGVK:    topFiveCount,
 	}, nil
+}
+
+// GetPodStatus returns the status of a pod
+func GetPodStatus(obj map[string]any) string {
+	containerStatuses, found, err := unstructured.NestedSlice(obj, "status", "containerStatuses")
+	if err != nil || !found || len(containerStatuses) == 0 {
+		return PodStatusUnknown
+	}
+	firstContainer, ok := containerStatuses[0].(map[string]any)
+	if !ok {
+		return PodStatusUnknown
+	}
+	state, found := firstContainer["state"]
+	if !found {
+		return PodStatusUnknown
+	}
+	stateMap, ok := state.(map[string]interface{})
+	if !ok {
+		return PodStatusUnknown
+	}
+	if stateMap["running"] != nil {
+		return PodStatusRunning
+	}
+	if stateMap["waiting"] != nil {
+		waitMap, ok := stateMap["waiting"].(map[string]any)
+		if !ok {
+			return PodStatusWaiting
+		}
+		if reason, ok := waitMap["reason"].(string); ok && reason != "" {
+			return reason
+		}
+		return PodStatusWaiting
+	}
+	if stateMap["terminated"] != nil {
+		return PodStatusTerminated
+	}
+	return PodStatusUnknown
 }

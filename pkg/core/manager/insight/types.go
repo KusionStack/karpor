@@ -82,6 +82,9 @@ type ClusterDetail struct {
 	PodsCapacity   int64   `json:"podsCapacity"`
 	PodsUsage      int64   `json:"podsUsage"`
 
+	// Latency is the latency of the cluster in milliseconds
+	Latency int64 `json:"latency"`
+
 	MetricsEnabled bool `json:"metricsEnabled"`
 
 	CPUMetrics    ResourceMetrics `json:"cpuMetrics"`

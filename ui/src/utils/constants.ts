@@ -95,7 +95,7 @@ export interface InsightTab {
 
 export const insightTabsList: InsightTab[] = [
   { value: 'Topology', label: 'ResourceTopology' },
-  { value: 'YAML', label: 'YAML' },
+  { value: 'YAML', label: 'YAML.TabName' },
   { value: 'Events', label: 'EventAggregator' },
 ]
 

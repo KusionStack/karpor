@@ -27,6 +27,7 @@ import Loading from '@/components/loading'
 import { ICON_MAP } from '@/utils/images'
 import { searchSqlPrefix, tabsList } from '@/utils/constants'
 import { useAxios } from '@/utils/request'
+import { PodStatusCell } from '@/pages/insightDetail/components/sourceTable'
 // import useDebounce from '@/hooks/useDebounce'
 
 import styles from './styles.module.less'
@@ -297,7 +298,16 @@ const Result = () => {
                   className={styles.top}
                   onClick={() => handleTitleClick(item, item?.object?.kind)}
                 >
-                  {item?.object?.metadata?.name || '--'}
+                  <span style={{ marginRight: 8 }}>
+                    {item?.object?.metadata?.name || '--'}
+                  </span>
+                  {item?.object?.kind === 'Pod' && (
+                    <PodStatusCell
+                      cluster={item?.cluster}
+                      namespace={item?.object?.metadata?.namespace}
+                      name={item?.object?.metadata?.name}
+                    />
+                  )}
                 </div>
                 <div className={styles.bottom}>
                   <div

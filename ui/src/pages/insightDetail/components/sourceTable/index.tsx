@@ -1,10 +1,11 @@
-import { SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined, LoadingOutlined } from '@ant-design/icons'
 import { Button, Input, Space, Table, Tag } from 'antd'
 import queryString from 'query-string'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useLocation, useNavigate } from 'react-router-dom'
 import useDebounce from '@/hooks/useDebounce'
+import { usePodStatus } from '@/hooks/usePodStatus'
 import { useAxios } from '@/utils/request'
 
 import styles from './style.module.less'
@@ -21,6 +22,21 @@ const defaultSearchParams = {
   current: 1,
   pageSize: 10,
   total: 0,
+}
+
+export const PodStatusCell = ({ cluster, namespace, name }) => {
+  const { status, loading } = usePodStatus(cluster, namespace, name)
+  if (loading) {
+    return <LoadingOutlined />
+  }
+  const color =
+    {
+      Running: 'success',
+      Terminated: 'default',
+      Unknown: 'error',
+    }[status.current] || 'warning'
+
+  return <Tag color={color}>{status.current}</Tag>
 }
 
 const SourceTable = ({ queryStr, tableName }: IProps) => {
@@ -64,6 +80,22 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
         </Button>
       ),
     },
+    ...(tableName === 'Pod'
+      ? [
+          {
+            dataIndex: 'status',
+            key: 'status',
+            title: 'Status',
+            render: (_, record) => (
+              <PodStatusCell
+                cluster={record?.cluster}
+                namespace={record?.object?.metadata?.namespace}
+                name={record?.object?.metadata?.name}
+              />
+            ),
+          },
+        ]
+      : []),
     {
       dataIndex: 'cluster',
       key: 'cluster',
@@ -86,14 +118,6 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
       key: 'kind',
       title: 'Kind',
       render: (_, record) => record?.object?.kind,
-    },
-    {
-      dataIndex: 'deleted',
-      key: 'deleted',
-      title: 'status',
-      render: text => {
-        return text ? <Tag color="error">{t('Deleted')}</Tag> : null
-      },
     },
   ]
 

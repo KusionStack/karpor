@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Progress, message, Tooltip } from 'antd'
+import { Progress, message, Tooltip, Tag } from 'antd'
 import { useLocation } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
@@ -201,7 +201,13 @@ const copyToClipboard = (text: string, t: any) => {
   })
 }
 
-const PopoverCard = ({ data }: any) => {
+const PopoverCard = ({
+  data,
+  style,
+}: {
+  data: any
+  style?: React.CSSProperties
+}) => {
   const { t } = useTranslation()
 
   if (!data) {
@@ -217,7 +223,17 @@ const PopoverCard = ({ data }: any) => {
   }
 
   return (
-    <div className={styles.value} onClick={handleClick}>
+    <div
+      onClick={handleClick}
+      style={{
+        ...style,
+        backgroundColor: style?.color || 'transparent',
+        color: style?.color ? 'white' : 'black',
+        padding: '2px 6px',
+        borderRadius: '4px',
+        display: 'inline-block',
+      }}
+    >
       {displayText}
     </div>
   )
@@ -322,6 +338,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               <div className={styles.label}>Name </div>
               <PopoverCard data={summary?.resource?.name} />
             </div>
+            {summary?.resource?.status && (
+              <div className={styles.item}>
+                <div className={styles.label}>Status </div>
+                <Tag
+                  className={styles.status}
+                  color={
+                    {
+                      Running: 'success',
+                      Terminated: 'default',
+                      Unknown: 'error',
+                    }[summary?.resource?.status] || 'warning'
+                  }
+                >
+                  {summary?.resource?.status}
+                </Tag>
+              </div>
+            )}
           </div>
         )}
         {type === 'kind' && (
@@ -499,6 +532,12 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
             </>
           )}
           {summary?.countByGVK ? renderStatistics(summary?.countByGVK) : null}
+          {summary?.latency && (
+            <div className={styles.item}>
+              <div className={styles.label}>Latency</div>
+              <div className={styles.value}>{summary?.latency}ms</div>
+            </div>
+          )}
         </div>
       </div>
     </div>
