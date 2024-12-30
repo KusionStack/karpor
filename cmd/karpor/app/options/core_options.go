@@ -24,6 +24,7 @@ type CoreOptions struct {
 	ReadOnlyMode bool
 	GithubBadge  bool
 	Version      bool
+	EnableAI     bool
 }
 
 func NewCoreOptions() *CoreOptions {

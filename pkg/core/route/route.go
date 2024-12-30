@@ -15,8 +15,12 @@
 package route
 
 import (
+	"encoding/json"
 	"errors"
 	"expvar"
+	"fmt"
+	"net/http"
+	"strings"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	aggregatorhandler "github.com/KusionStack/karpor/pkg/core/handler/aggregator"
@@ -125,7 +129,7 @@ func NewCoreRoute(
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
 	// Expose server configuration and runtime statistics.
-	router.Get("/server-configs", expvar.Handler().ServeHTTP)
+	router.Get("/server-configs", customExpvarHandler().ServeHTTP)
 
 	healthhandler.Register(router, generalStorage)
 	return router, nil
@@ -187,4 +191,41 @@ func setupRestAPIV1(
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
 	r.Get("/authn", authnhandler.Get())
+}
+
+func customExpvarHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json; charset=utf-8")
+
+		first := true
+		w.Write([]byte("{\n"))
+		expvar.Do(func(kv expvar.KeyValue) {
+			if !first {
+				w.Write([]byte(",\n"))
+			}
+			first = false
+
+			if kv.Key == "cmdline" {
+				handleCmdline(w, kv.Value)
+				return
+			}
+
+			fmt.Fprintf(w, "%q: %s", kv.Key, kv.Value)
+		})
+		w.Write([]byte("\n}\n"))
+	})
+}
+
+func handleCmdline(w http.ResponseWriter, v expvar.Var) {
+	var cmdline []string
+	json.Unmarshal([]byte(v.String()), &cmdline)
+
+	for i, arg := range cmdline {
+		if strings.Contains(arg, "token=") {
+			cmdline[i] = strings.Split(arg, "=")[0] + "=<hidden>"
+		}
+	}
+
+	output, _ := json.Marshal(cmdline)
+	fmt.Fprintf(w, "%q: %s", "cmdline", output)
 }
