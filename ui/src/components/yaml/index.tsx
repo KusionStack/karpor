@@ -44,6 +44,7 @@ const Yaml = (props: IProps) => {
   const [isStreaming, setStreaming] = useState(false)
   const abortControllerRef = useRef<AbortController | null>(null)
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
+  const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
 
   useEffect(() => {
     const yamlStatusJson = yaml2json(data)
@@ -276,7 +277,7 @@ const Yaml = (props: IProps) => {
                   {t('Copy')}
                 </Button>
               )}
-              {aiOptions?.AIAuthToken && (
+              {isAIEnabled && (
                 <Tooltip title={t('YAML.Interpret')}>
                   <Button
                     type="primary"
