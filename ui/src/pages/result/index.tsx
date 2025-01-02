@@ -28,6 +28,7 @@ import { ICON_MAP } from '@/utils/images'
 import { searchSqlPrefix, tabsList } from '@/utils/constants'
 import { useAxios } from '@/utils/request'
 import { PodStatusCell } from '@/pages/insightDetail/components/sourceTable'
+import { useSelector } from 'react-redux'
 // import useDebounce from '@/hooks/useDebounce'
 
 import styles from './styles.module.less'
@@ -412,11 +413,19 @@ const Result = () => {
     label: renderOption(val),
   }))
 
+  const { aiOptions } = useSelector((state: any) => state.globalSlice)
+  const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
+
+  const updatedTabsList = tabsList.map(tab => ({
+    ...tab,
+    disabled: tab.value === 'natural' ? !isAIEnabled : tab.disabled,
+  }))
+
   return (
     <div className={styles.container}>
       <div className={styles.searchTab}>
         <KarporTabs
-          list={tabsList}
+          list={updatedTabsList}
           current={searchType}
           onChange={handleTabChange}
         />
