@@ -49,6 +49,7 @@ interface NodeModel {
 
 function getTextWidth(str: string, fontSize: number) {
   const canvas = document.createElement('canvas')
+  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const context = canvas.getContext('2d')!
   context.font = `${fontSize}px sans-serif`
   return context.measureText(str).width

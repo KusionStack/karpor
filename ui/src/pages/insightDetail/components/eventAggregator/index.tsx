@@ -14,7 +14,6 @@ import {
 } from 'antd'
 import {
   SearchOutlined,
-  RobotOutlined,
   CloseOutlined,
   PoweroffOutlined,
 } from '@ant-design/icons'
@@ -22,10 +21,12 @@ import { useTranslation } from 'react-i18next'
 import { formatTime } from '@/utils/tools'
 import axios from 'axios'
 import classNames from 'classnames'
-import styles from './styles.module.less'
 import Markdown from 'react-markdown'
 import { useSelector } from 'react-redux'
-import debounce from 'lodash.debounce'
+import { debounce } from 'lodash'
+import aiSummarySvg from '@/assets/ai-summary.svg'
+
+import styles from './styles.module.less'
 
 interface Event {
   type: string
@@ -347,7 +348,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       <div className={styles.diagnosisPanel}>
         <div className={styles.diagnosisHeader}>
           <Space>
-            <RobotOutlined />
+            <img src={aiSummarySvg} alt="ai summary" />
             {t('EventAggregator.DiagnosisResult')}
           </Space>
           <Space>
@@ -384,25 +385,27 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             />
           </Space>
         </div>
-        <div className={styles.diagnosisContent}>
-          {diagnosisStatus === 'loading' ||
-          (diagnosisStatus === 'streaming' && !diagnosis) ? (
-            <div className={styles.diagnosisLoading}>
-              <Spin />
-              <p>{t('EventAggregator.DiagnosisInProgress')}</p>
-            </div>
-          ) : diagnosisStatus === 'error' ? (
-            <Alert
-              type="error"
-              message={t('EventAggregator.DiagnosisFailed')}
-              description={t('EventAggregator.TryAgainLater')}
-            />
-          ) : (
-            <div className={styles.diagnosisResult}>
-              <Markdown>{diagnosis}</Markdown>
-              <div ref={diagnosisEndRef} />
-            </div>
-          )}
+        <div className={styles.diagnosisBody}>
+          <div className={styles.diagnosisContent}>
+            {diagnosisStatus === 'loading' ||
+            (diagnosisStatus === 'streaming' && !diagnosis) ? (
+              <div className={styles.diagnosisLoading}>
+                <Spin />
+                <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+              </div>
+            ) : diagnosisStatus === 'error' ? (
+              <Alert
+                type="error"
+                message={t('EventAggregator.DiagnosisFailed')}
+                description={t('EventAggregator.TryAgainLater')}
+              />
+            ) : (
+              <div className={styles.diagnosisResult}>
+                <Markdown>{diagnosis}</Markdown>
+                <div ref={diagnosisEndRef} />
+              </div>
+            )}
+          </div>
         </div>
       </div>
     )
@@ -466,6 +469,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             <Skeleton active paragraph={{ rows: 5 }} />
           ) : events.length > 0 ? (
             <Table
+              style={{ height: 600, overflow: 'auto' }}
               dataSource={filteredEvents}
               columns={columns}
               rowKey={record =>
