@@ -28,6 +28,7 @@ import logoFull from '@/assets/img/logo-full.svg'
 import SqlSearch from '@/components/sqlSearch'
 import { defaultSqlExamples, tabsList } from '@/utils/constants'
 import { deleteHistoryByItem, getHistoryList } from '@/utils/tools'
+import { useSelector } from 'react-redux'
 
 const { Search } = Input
 
@@ -124,6 +125,14 @@ const SearchPage = () => {
     label: renderOption(val),
   }))
 
+  const { aiOptions } = useSelector((state: any) => state.globalSlice)
+  const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
+
+  const updatedTabsList = tabsList.map(tab => ({
+    ...tab,
+    disabled: tab.value === 'natural' ? !isAIEnabled : tab.disabled,
+  }))
+
   return (
     <div className={styles.search_container}>
       <div className={styles.search}>
@@ -132,7 +141,7 @@ const SearchPage = () => {
         </div>
         <div className={styles.searchTab}>
           <KarporTabs
-            list={tabsList}
+            list={updatedTabsList}
             current={searchType}
             onChange={handleTabChange}
           />
