@@ -30,12 +30,14 @@ import {
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
 import axios from 'axios'
-import styles from './styles.module.less'
 import Markdown from 'react-markdown'
 import { useSelector } from 'react-redux'
 import { debounce } from 'lodash'
 import dayjs from 'dayjs'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import aiSummarySvg from '@/assets/ai-summary.svg'
+
+import styles from './styles.module.less'
 
 interface LogEntry {
   timestamp: string
@@ -797,7 +799,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
             <div className={styles.diagnosisPanel}>
               <div className={styles.diagnosisHeader}>
                 <Space>
-                  <span className={styles.magicWand}>✨</span>
+                  <img src={aiSummarySvg} alt="ai summary" />
                   {t('LogAggregator.DiagnosisResult')}
                 </Space>
                 <Space>
