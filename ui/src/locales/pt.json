@@ -58,6 +58,7 @@
   "LogAggregator.SearchPlaceholder": "Pesquisar logs...",
   "LogAggregator.SearchModeHighlight": "Modo de Destaque",
   "LogAggregator.SearchModeFilter": "Modo de Filtro",
+  "LogAggregator.FullScreen": "Tela Cheia",
   "EventAggregator": "Evento",
   "EventAggregator.Type": "Tipo de Evento",
   "EventAggregator.Normal": "Normal",

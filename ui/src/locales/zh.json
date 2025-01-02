@@ -56,6 +56,7 @@
   "LogAggregator.SearchPlaceholder": "搜索日志...",
   "LogAggregator.SearchModeHighlight": "高亮模式",
   "LogAggregator.SearchModeFilter": "过滤模式",
+  "LogAggregator.FullScreen": "全屏",
   "EventAggregator": "事件",
   "EventAggregator.Type": "事件类型",
   "EventAggregator.Normal": "正常",

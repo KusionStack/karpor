@@ -5,7 +5,6 @@ import { Resizable } from 're-resizable'
 import { useTranslation } from 'react-i18next'
 import {
   CopyOutlined,
-  RobotOutlined,
   CloseOutlined,
   PoweroffOutlined,
 } from '@ant-design/icons'
@@ -17,6 +16,7 @@ import { useSelector } from 'react-redux'
 import Markdown from 'react-markdown'
 import axios from 'axios'
 import i18n from '@/i18n'
+import aiSummarySvg from '@/assets/ai-summary.svg'
 
 import styles from './styles.module.less'
 
@@ -193,6 +193,11 @@ const Yaml = (props: IProps) => {
                         break
                       case 'chunk':
                         setInterpret(prev => prev + interpretEvent.content)
+                        if (interpretEndRef.current) {
+                          interpretEndRef.current.scrollIntoView({
+                            behavior: 'smooth',
+                          })
+                        }
                         break
                       case 'error':
                         streaming = false
@@ -264,100 +269,100 @@ const Yaml = (props: IProps) => {
         }}
       >
         <div className={styles.yaml_content} style={{ height: props?.height }}>
-          <div className={styles.copy}>
-            <Space>
-              {data && (
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={copy}
-                  disabled={!data}
-                  icon={<CopyOutlined />}
-                >
-                  {t('Copy')}
-                </Button>
-              )}
-              {isAIEnabled && (
-                <Tooltip title={t('YAML.Interpret')}>
+          <div className={styles.yaml_container}>
+            <div className={styles.copy}>
+              <Space>
+                {data && (
                   <Button
                     type="primary"
                     size="small"
-                    icon={<span className={styles.magicWand}>✨</span>}
-                    onClick={handleInterpret}
-                    disabled={!data || isStreaming}
+                    onClick={copy}
+                    disabled={!data}
+                    icon={<CopyOutlined />}
                   >
-                    {t('YAML.Interpret')}
+                    {t('Copy')}
                   </Button>
-                </Tooltip>
-              )}
-            </Space>
-          </div>
-          <div className={styles.yaml_container}>
+                )}
+                {isAIEnabled && (
+                  <Tooltip title={t('YAML.Interpret')}>
+                    <Button
+                      type="primary"
+                      size="small"
+                      icon={<span className={styles.magicWand}>✨</span>}
+                      onClick={handleInterpret}
+                      disabled={!data || isStreaming}
+                    >
+                      {t('YAML.Interpret')}
+                    </Button>
+                  </Tooltip>
+                )}
+              </Space>
+            </div>
             <div
               className={styles.yaml_box}
               style={{ height: props?.height }}
               ref={yamlRef as any}
             />
-            {interpretStatus !== 'idle' && (
-              <div className={styles.diagnosisPanel}>
-                <div className={styles.diagnosisHeader}>
-                  <Space>
-                    <RobotOutlined />
-                    {t('YAML.InterpretResult')}
-                  </Space>
-                  <Space>
-                    {interpretStatus === 'streaming' && (
-                      <Tooltip
-                        title={t('YAML.StopInterpret')}
-                        placement="bottom"
-                      >
-                        <Button
-                          type="text"
-                          className={styles.stopButton}
-                          icon={<PoweroffOutlined />}
-                          onClick={() => {
-                            if (abortControllerRef.current) {
-                              abortControllerRef.current.abort()
-                              setInterpretStatus('complete' as InterpretStatus)
-                            }
-                          }}
-                        />
-                      </Tooltip>
-                    )}
-                    <Button
-                      type="text"
-                      icon={<CloseOutlined />}
-                      onClick={() =>
-                        setInterpretStatus('idle' as InterpretStatus)
-                      }
-                    />
-                  </Space>
-                </div>
-                <div className={styles.diagnosisBody}>
-                  <div
-                    className={styles.diagnosisContent}
-                    ref={diagnosisContentRef}
+          </div>
+          {interpretStatus !== 'idle' && (
+            <div
+              className={styles.diagnosisPanel}
+              style={{ height: moduleHeight }}
+            >
+              <div className={styles.diagnosisHeader}>
+                <Space>
+                  <img src={aiSummarySvg} alt="ai summary" />
+                  {t('YAML.InterpretResult')}
+                </Space>
+                <Space>
+                  {interpretStatus === 'streaming' && (
+                    <Tooltip title={t('YAML.StopInterpret')} placement="bottom">
+                      <Button
+                        type="text"
+                        className={styles.stopButton}
+                        icon={<PoweroffOutlined />}
+                        onClick={() => {
+                          if (abortControllerRef.current) {
+                            abortControllerRef.current.abort()
+                            setInterpretStatus('complete' as InterpretStatus)
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                  <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() =>
+                      setInterpretStatus('idle' as InterpretStatus)
+                    }
+                  />
+                </Space>
+              </div>
+              <div className={styles.diagnosisBody}>
+                <div
+                  className={styles.diagnosisContent}
+                  ref={diagnosisContentRef}
+                >
+                  <Markdown
+                    className={styles.markdownContent}
+                    rehypePlugins={[]}
+                    remarkPlugins={[]}
                   >
-                    <Markdown
-                      className={styles.markdownContent}
-                      rehypePlugins={[]}
-                      remarkPlugins={[]}
-                    >
-                      {interpret}
-                    </Markdown>
-                    {interpretStatus === 'streaming' && (
-                      <div className={styles.streamingIndicator}>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                      </div>
-                    )}
-                    <div ref={interpretEndRef} />
-                  </div>
+                    {interpret}
+                  </Markdown>
+                  {interpretStatus === 'streaming' && (
+                    <div className={styles.streamingIndicator}>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                    </div>
+                  )}
+                  <div ref={interpretEndRef} />
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </Resizable>
     </div>

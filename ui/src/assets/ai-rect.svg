@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="445px" height="523px" viewBox="0 0 445 523" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>矩形</title>
+    <defs>
+        <radialGradient cx="-9.75781955e-15%" cy="-2.94902991e-15%" fx="-9.75781955e-15%" fy="-2.94902991e-15%" r="154.374412%" gradientTransform="translate(-0, -0), scale(1, 0.8503), rotate(49.6259), scale(1, 0.7252), translate(0, 0)" id="radialGradient-1">
+            <stop stop-color="#FCF8FF" offset="0%"></stop>
+            <stop stop-color="#EBD7FF" offset="100%"></stop>
+        </radialGradient>
+        <radialGradient cx="97.1384676%" cy="97.969778%" fx="97.1384676%" fy="97.969778%" r="155.081296%" gradientTransform="translate(0.9714, 0.9797), scale(1, 0.8503), rotate(-148.6488), scale(1, 0.8733), translate(-0.9714, -0.9797)" id="radialGradient-2">
+            <stop stop-color="#DAE4FF" offset="0%"></stop>
+            <stop stop-color="#E1D2E7" stop-opacity="0.0174278846" offset="100%"></stop>
+        </radialGradient>
+        <radialGradient cx="-1.86482774e-15%" cy="100%" fx="-1.86482774e-15%" fy="100%" r="111.22884%" gradientTransform="translate(-0, 1), scale(1, 0.8503), rotate(-46.1397), scale(1, 0.8733), translate(0, -1)" id="radialGradient-3">
+            <stop stop-color="#DAE4FF" offset="0%"></stop>
+            <stop stop-color="#E1D2E7" stop-opacity="0.0174278846" offset="100%"></stop>
+        </radialGradient>
+        <radialGradient cx="117.838105%" cy="-8.62748416%" fx="117.838105%" fy="-8.62748416%" r="144.599333%" gradientTransform="translate(1.1784, -0.0863), scale(1, 0.8503), rotate(141.7162), scale(1, 0.8733), translate(-1.1784, 0.0863)" id="radialGradient-4">
+            <stop stop-color="#F8F5FF" offset="0%"></stop>
+            <stop stop-color="#F3E7F9" stop-opacity="0.0174278846" offset="100%"></stop>
+        </radialGradient>
+        <rect id="path-5" x="0" y="0" width="443" height="521" rx="12"></rect>
+    </defs>
+    <g id="karpor12月交互设计稿" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" stroke-linecap="square">
+        <g id="logs-tab-AI诊断窗口" transform="translate(-973, -187)">
+            <g id="矩形" transform="translate(974, 188)">
+                <use fill="url(#radialGradient-1)" xlink:href="#path-5"></use>
+                <use fill="url(#radialGradient-2)" xlink:href="#path-5"></use>
+                <use fill="url(#radialGradient-3)" xlink:href="#path-5"></use>
+                <use stroke="#FFFFFF" stroke-width="2" fill="url(#radialGradient-4)" xlink:href="#path-5"></use>
+            </g>
+        </g>
+    </g>
+</svg>

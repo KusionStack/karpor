@@ -1,7 +1,6 @@
 .podLogs {
   display: flex;
   flex-direction: column;
-  height: 100%;
   padding: 8px;
 
   .toolbar {
@@ -20,23 +19,147 @@
     }
   }
 
+  .magicWand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    background: linear-gradient(135deg, #722ed1 0%, #1890ff 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transform: rotate(-15deg);
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 0 2px rgba(114, 46, 209, 0.3));
+    position: relative;
+
+    &::before {
+      content: '✨';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, #722ed1 0%, #1890ff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      opacity: 0.5;
+      filter: blur(4px);
+      transform: scale(1.2);
+      z-index: -1;
+    }
+  }
+
+  .actionButton {
+    height: 32px;
+    width: 32px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+
+    .anticon {
+      font-size: 16px;
+    }
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.06);
+    }
+
+    &:active {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    &[disabled] {
+      color: rgba(0, 0, 0, 0.25);
+      background: transparent;
+      cursor: not-allowed;
+    }
+
+
+
+    &:not(:disabled) {
+      &:hover {
+        background: rgba(114, 46, 209, 0.08);
+
+        .magicWand {
+          transform: rotate(0deg) scale(1.2);
+          filter: drop-shadow(0 0 4px rgba(114, 46, 209, 0.5));
+
+          &::before {
+            opacity: 0.8;
+            transform: scale(1.4);
+            filter: blur(6px);
+          }
+        }
+      }
+
+      &:active {
+        background: rgba(114, 46, 209, 0.12);
+
+        .magicWand {
+          transform: rotate(-25deg) scale(0.95);
+          filter: drop-shadow(0 0 2px rgba(114, 46, 209, 0.3));
+
+          &::before {
+            opacity: 0.3;
+            transform: scale(1.1);
+            filter: blur(3px);
+          }
+        }
+      }
+    }
+
+    &[disabled] .magicWand {
+      opacity: 0.5;
+      filter: none;
+
+      &::before {
+        opacity: 0;
+      }
+    }
+
+    &.ant-btn-loading .magicWand {
+      opacity: 0;
+    }
+  }
+
   .content {
     flex: 1;
-    min-height: 0;
     position: relative;
+
+    .exitFull {
+      position: absolute;
+      right: 15px;
+      top: 15px;
+      color: #222;
+      background: rgba(255, 255, 255, .9);
+
+      &:hover {
+        background: #fff;
+      }
+    }
   }
 
   .logsContainer {
-    height: 100%;
+    height: 600px;
     display: flex;
     gap: 16px;
     position: relative;
   }
 
+  .fullScreenConatiner {
+    flex: 1;
+  }
+
   .logs {
     flex: 1;
     min-width: 0;
-    height: 100%;
+    height: 600px;
+    box-sizing: border-box;
+    overflow: scroll;
     overflow: auto;
     background: #1e1e1e;
     border-radius: 8px;
@@ -67,22 +190,14 @@
   }
 
   .diagnosisPanel {
-    position: absolute;
-    right: 12px;
-    top: 12px;
     width: 400px;
-    max-height: calc(100% - 24px);
-    background: #2b1d3c;
+    height: 600px;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
-    border: 1px solid rgba(147, 112, 219, 0.2);
-    box-shadow:
-      0 8px 24px rgba(0, 0, 0, 0.3),
-      0 2px 4px rgba(147, 112, 219, 0.1),
-      0 0 1px rgba(147, 112, 219, 0.2);
     backdrop-filter: blur(8px);
     z-index: 10;
+    background-image: radial-gradient(ellipse 489px 674px at 6px 0px, #fcf8ff 0%, #ebd7ff 100%), radial-gradient(ellipse 587px 672px at 433px 513px, #dae4ffa1 0%, #e1d2e704 100%), radial-gradient(ellipse 346px 396px at 15px 506px, #dae4ffa3 0%, #e1d2e704 100%), radial-gradient(ellipse 583px 668px at 436px 8px, #f8f5ff 0%, #f3e7f904 100%);
     animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -91,15 +206,10 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
-    background: linear-gradient(
-      135deg,
-      rgba(147, 112, 219, 0.15) 0%,
-      rgba(43, 29, 60, 0.95) 100%
-    );
     border-bottom: 1px solid rgba(147, 112, 219, 0.2);
     border-radius: 12px 12px 0 0;
-    color: #e6e6fa;
-    font-size: 14px;
+    color: #000;
+    font-size: 16px;
     font-weight: 500;
     backdrop-filter: blur(4px);
 
@@ -111,7 +221,6 @@
     }
 
     button {
-      color: rgba(230, 230, 250, 0.85);
       transition: all 0.3s ease;
       border-radius: 6px;
       width: 28px;
@@ -135,11 +244,10 @@
   .diagnosisBody {
     flex: 1;
     overflow-y: auto;
-    background: #1e1e1e;
-    color: #d4d4d4;
+    border-radius: 12px;
+    margin-bottom: 10px;
 
     .stopButton {
-      color: rgba(255, 255, 255, 0.45);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       width: 28px;
       height: 28px;
@@ -224,7 +332,7 @@
       min-height: 200px;
       gap: 16px;
       text-align: center;
-      color: #d4d4d4;
+      color: #000;
 
       :global(.ant-spin) {
         .ant-spin-dot-item {
@@ -239,12 +347,9 @@
     }
 
     .diagnosisContent {
-      height: 100%;
       overflow-y: auto;
-      color: #d4d4d4;
-      background: #2b1d3c;
+      color: #000;
       border-radius: 8px;
-      border: 1px solid rgba(147, 112, 219, 0.2);
       padding: 16px;
 
       .diagnosisLoading {
@@ -286,18 +391,23 @@
           h1 {
             font-size: 24px;
           }
+
           h2 {
             font-size: 20px;
           }
+
           h3 {
             font-size: 18px;
           }
+
           h4 {
             font-size: 16px;
           }
+
           h5 {
             font-size: 14px;
           }
+
           h6 {
             font-size: 13px;
           }
@@ -394,12 +504,10 @@
           hr {
             border: none;
             height: 1px;
-            background: linear-gradient(
-              to right,
-              rgba(147, 112, 219, 0.1),
-              rgba(147, 112, 219, 0.4),
-              rgba(147, 112, 219, 0.1)
-            );
+            background: linear-gradient(to right,
+                rgba(147, 112, 219, 0.1),
+                rgba(147, 112, 219, 0.4),
+                rgba(147, 112, 219, 0.1));
             margin: 24px 0;
           }
         }
@@ -435,7 +543,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: #e6e6fa;
+    color: #fff;
 
     p {
       margin-top: 16px;
@@ -443,14 +551,13 @@
   }
 
   .diagnosisContent {
-    color: rgba(230, 230, 250, 0.85);
     font-size: 14px;
     line-height: 1.6;
 
     h1,
     h2,
     h3 {
-      color: #e6e6fa;
+      color: #000;
       margin-bottom: 16px;
       font-weight: 600;
       letter-spacing: -0.01em;
@@ -496,7 +603,7 @@
     }
 
     pre {
-      background: rgba(20, 15, 30, 0.8);
+      background: #000;
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 16px;
@@ -506,6 +613,7 @@
       code {
         background: none;
         padding: 0;
+        color: #fff;
       }
     }
   }
@@ -523,111 +631,6 @@
 
     :global(.ant-select) {
       min-width: 200px;
-    }
-  }
-
-  .actionButton {
-    height: 32px;
-    width: 32px;
-    padding: 0;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-
-    .anticon {
-      font-size: 16px;
-    }
-
-    &:hover {
-      background: rgba(0, 0, 0, 0.06);
-    }
-
-    &:active {
-      background: rgba(0, 0, 0, 0.1);
-    }
-
-    &[disabled] {
-      color: rgba(0, 0, 0, 0.25);
-      background: transparent;
-      cursor: not-allowed;
-    }
-
-    .magicWand {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 20px;
-      background: linear-gradient(135deg, #722ed1 0%, #1890ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      transform: rotate(-15deg);
-      transition: all 0.3s ease;
-      filter: drop-shadow(0 0 2px rgba(114, 46, 209, 0.3));
-      position: relative;
-
-      &::before {
-        content: '✨';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, #722ed1 0%, #1890ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        opacity: 0.5;
-        filter: blur(4px);
-        transform: scale(1.2);
-        z-index: -1;
-      }
-    }
-
-    &:not(:disabled) {
-      &:hover {
-        background: rgba(114, 46, 209, 0.08);
-
-        .magicWand {
-          transform: rotate(0deg) scale(1.2);
-          filter: drop-shadow(0 0 4px rgba(114, 46, 209, 0.5));
-
-          &::before {
-            opacity: 0.8;
-            transform: scale(1.4);
-            filter: blur(6px);
-          }
-        }
-      }
-
-      &:active {
-        background: rgba(114, 46, 209, 0.12);
-
-        .magicWand {
-          transform: rotate(-25deg) scale(0.95);
-          filter: drop-shadow(0 0 2px rgba(114, 46, 209, 0.3));
-
-          &::before {
-            opacity: 0.3;
-            transform: scale(1.1);
-            filter: blur(3px);
-          }
-        }
-      }
-    }
-
-    &[disabled] .magicWand {
-      opacity: 0.5;
-      filter: none;
-
-      &::before {
-        opacity: 0;
-      }
-    }
-
-    &.ant-btn-loading .magicWand {
-      opacity: 0;
     }
   }
 
@@ -757,6 +760,7 @@
       opacity: 0;
       transform: translateX(20px);
     }
+
     to {
       opacity: 1;
       transform: translateX(0);
@@ -776,11 +780,9 @@
       }
 
       .ant-drawer-header {
-        background: linear-gradient(
-          135deg,
-          rgba(147, 112, 219, 0.15) 0%,
-          rgba(43, 29, 60, 0.95) 100%
-        );
+        background: linear-gradient(135deg,
+            rgba(147, 112, 219, 0.15) 0%,
+            rgba(43, 29, 60, 0.95) 100%);
         border-bottom: 1px solid rgba(147, 112, 219, 0.2);
         padding: 16px 24px;
 
@@ -798,6 +800,7 @@
 
         .ant-drawer-close {
           color: rgba(230, 230, 250, 0.85);
+
           &:hover {
             color: #fff;
             background: rgba(147, 112, 219, 0.2);
