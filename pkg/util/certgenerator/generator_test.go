@@ -84,10 +84,12 @@ func TestNewGenerator(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Mock kubernetes.NewForConfig if needed
 			if tc.cfg != nil {
 				mockey.Mock(kubernetes.NewForConfig).Return(&kubernetes.Clientset{}, nil).Build()
-				defer mockey.UnPatchAll()
 			}
 
 			generator, err := NewGenerator(tc.cfg, tc.namespace, tc.certName, tc.kubeConfigName)
@@ -148,9 +150,11 @@ func TestGenerator_Generate(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			err := generator.Generate(context.Background())
 			if tc.expectError {
@@ -203,9 +207,11 @@ func TestGenerator_applyConfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			err := generator.applyConfig(context.Background(), &x509.Certificate{}, nil, "test-kubeconfig")
 			if tc.expectError {
@@ -257,9 +263,11 @@ func TestGenerator_applyCertToSecret(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			err := generator.applyCertToSecret(context.Background(), &x509.Certificate{}, nil)
 			if tc.expectError {
@@ -307,9 +315,11 @@ func TestGenerator_applyKubeConfigToConfigMap(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			err := generator.applyKubeConfigToConfigMap(context.Background(), "test-kubeconfig")
 			if tc.expectError {
@@ -378,9 +388,11 @@ func TestGenerateConfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			caCert, caKey, kubeConfig, err := generateConfig(tc.namespace)
 			if tc.expectError {
@@ -424,9 +436,11 @@ func TestGenerateCA(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			cert, key, err := generateCA()
 			if tc.expectError {
@@ -468,9 +482,11 @@ func TestGenerateCert(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			cert, key, err := generateCert(&x509.Certificate{}, &rsa.PrivateKey{})
 			if tc.expectError {
@@ -514,9 +530,11 @@ func TestGenerateAdminKubeconfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			mockey.UnPatchAll()
+			defer mockey.UnPatchAll()
+
 			// Setup mocks
 			tc.mockSetup()
-			defer mockey.UnPatchAll()
 
 			kubeconfig, err := generateAdminKubeconfig(tc.namespace, tc.caCert, tc.caKey)
 			if tc.expectError {
