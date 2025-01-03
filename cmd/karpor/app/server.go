@@ -108,7 +108,9 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		return o.SearchStorageOptions
 	}))
 	expvar.Publish("AIOptions", expvar.Func(func() interface{} {
-		return o.AIOptions
+		displayOpts := *o.AIOptions
+		displayOpts.AIAuthToken = "[hidden]"
+		return &displayOpts
 	}))
 	expvar.Publish("Version", expvar.Func(func() interface{} {
 		return version.GetVersion()
@@ -191,6 +193,12 @@ func (o *Options) Complete() error {
 	if err != nil {
 		return fmt.Errorf("create token generator failed: %w", err)
 	}
+
+	// set enableAI true if AIBaseURL is not empty
+	if o.AIOptions.AIBaseURL != "" {
+		o.CoreOptions.EnableAI = true
+	}
+
 	return nil
 }
 
