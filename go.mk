@@ -1,9 +1,12 @@
 # go.mk is a Go project general Makefile, encapsulated some common Target.
 # Project repository: https://github.com/elliotxx/go-makefile
 
+# Define GO command with a default value that can be overridden. e.g. GO ?= go1.22.6
+GO ?= go
+
 APPROOT     		?= $(shell basename $(PWD))
-GOPKG       		?= $(shell go list 2>/dev/null)
-GOPKGS      		?= $(shell go list ./... 2>/dev/null)
+GOPKG       		?= $(shell $(GO) list 2>/dev/null)
+GOPKGS      		?= $(shell $(GO) list ./... 2>/dev/null)
 GOSOURCES   		?= $(shell find . -type f -name '*.go' ! -path '*Godeps/_workspace*')
 # You can also customize GOSOURCE_PATHS, e.g. ./pkg/... ./cmd/...
 GOSOURCE_PATHS		?= ././...
@@ -28,19 +31,19 @@ help:  ## This help message :)
 
 .PHONY: cover-html
 cover-html:  ## Generates coverage report and displays it in the browser
-	go tool cover -html=$(COVERAGEOUT)
+	$(GO) tool cover -html=$(COVERAGEOUT)
 
 .PHONY: lint
 lint:  ## Lint, will not fix but sets exit code on error
-	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
+	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; $(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
 	$(GOLINTER) run $(GOSOURCE_PATHS) --fast --verbose --print-resources-usage
 
 .PHONY: lint-fix
 lint-fix:  ## Lint, will try to fix errors and modify code
-	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; go install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
+	@which $(GOLINTER) > /dev/null || (echo "Installing $(GOLINTER)@$(GOLINTER_VERSION) ..."; $(GO) install github.com/golangci/golangci-lint/cmd/golangci-lint@$(GOLINTER_VERSION) && echo -e "Installation complete!\n")
 	$(GOLINTER) run $(GOSOURCE_PATHS) --fix
 
 .PHONY: doc
 doc:  ## Start the documentation server with godoc
-	@which godoc > /dev/null || (echo "Installing godoc@latest ..."; go install golang.org/x/tools/cmd/godoc@latest && echo -e "Installation complete!\n")
+	@which godoc > /dev/null || (echo "Installing godoc@latest ..."; $(GO) install golang.org/x/tools/cmd/godoc@latest && echo -e "Installation complete!\n")
 	godoc -http=:6060
