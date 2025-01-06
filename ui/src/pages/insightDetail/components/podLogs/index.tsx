@@ -831,7 +831,9 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 </Space>
               </div>
               <div className={styles.diagnosisBody}>
-                {diagnosisStatus === ('loading' as DiagnosisStatus) ? (
+                {diagnosisStatus === ('loading' as DiagnosisStatus) ||
+                (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+                  !diagnosis) ? (
                   <div className={styles.diagnosisContent}>
                     <div className={styles.diagnosisLoading}>
                       <Spin />
@@ -841,6 +843,11 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
                   <div className={styles.diagnosisContent}>
                     <Markdown>{diagnosis}</Markdown>
+                    <div className={styles.streamingIndicator}>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                    </div>
                     <div
                       ref={diagnosisEndRef}
                       style={{ float: 'left', clear: 'both' }}

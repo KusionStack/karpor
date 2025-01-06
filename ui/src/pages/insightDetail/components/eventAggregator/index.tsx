@@ -402,6 +402,13 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             ) : (
               <div className={styles.diagnosisResult}>
                 <Markdown>{diagnosis}</Markdown>
+                {diagnosisStatus === 'streaming' && (
+                  <div className={styles.streamingIndicator}>
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                  </div>
+                )}
                 <div ref={diagnosisEndRef} />
               </div>
             )}

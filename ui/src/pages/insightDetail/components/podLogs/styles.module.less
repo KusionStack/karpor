@@ -191,13 +191,19 @@
 
   .diagnosisPanel {
     width: 400px;
-    height: 600px;
+    min-height: 200px;
+    max-height: min(100%, 600px);
+    background: #2b1d3c;
     border-radius: 12px;
     display: flex;
     flex-direction: column;
+    border: 1px solid rgba(147, 112, 219, 0.2);
+    box-shadow:
+      0 8px 24px rgba(0, 0, 0, 0.3),
+      0 2px 4px rgba(147, 112, 219, 0.1),
+      0 0 1px rgba(147, 112, 219, 0.2);
     backdrop-filter: blur(8px);
     z-index: 10;
-    background-image: radial-gradient(ellipse 489px 674px at 6px 0px, #fcf8ff 0%, #ebd7ff 100%), radial-gradient(ellipse 587px 672px at 433px 513px, #dae4ffa1 0%, #e1d2e704 100%), radial-gradient(ellipse 346px 396px at 15px 506px, #dae4ffa3 0%, #e1d2e704 100%), radial-gradient(ellipse 583px 668px at 436px 8px, #f8f5ff 0%, #f3e7f904 100%);
     animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
@@ -206,10 +212,13 @@
     justify-content: space-between;
     align-items: center;
     padding: 12px;
+    background: linear-gradient(135deg,
+        rgba(147, 112, 219, 0.15) 0%,
+        rgba(43, 29, 60, 0.95) 100%);
     border-bottom: 1px solid rgba(147, 112, 219, 0.2);
     border-radius: 12px 12px 0 0;
-    color: #000;
-    font-size: 16px;
+    color: #e6e6fa;
+    font-size: 14px;
     font-weight: 500;
     backdrop-filter: blur(4px);
 
@@ -221,6 +230,7 @@
     }
 
     button {
+      color: rgba(230, 230, 250, 0.85);
       transition: all 0.3s ease;
       border-radius: 6px;
       width: 28px;
@@ -244,10 +254,12 @@
   .diagnosisBody {
     flex: 1;
     overflow-y: auto;
+    background: #1e1e1e;
+    color: #d4d4d4;
     border-radius: 12px;
-    margin-bottom: 10px;
 
     .stopButton {
+      color: rgba(255, 255, 255, 0.45);
       transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
       width: 28px;
       height: 28px;
@@ -332,7 +344,7 @@
       min-height: 200px;
       gap: 16px;
       text-align: center;
-      color: #000;
+      color: #d4d4d4;
 
       :global(.ant-spin) {
         .ant-spin-dot-item {
@@ -347,10 +359,37 @@
     }
 
     .diagnosisContent {
+      height: 100%;
       overflow-y: auto;
-      color: #000;
+      color: #d4d4d4;
+      background: #2b1d3c;
       border-radius: 8px;
+      border: 1px solid rgba(147, 112, 219, 0.2);
       padding: 16px;
+
+      .streamingIndicator {
+        margin: 18px 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          background-color: #1890ff;
+          border-radius: 50%;
+          opacity: 0.3;
+          animation: dotPulse 1.4s infinite;
+
+          &:nth-child(2) {
+            animation-delay: 0.2s;
+          }
+
+          &:nth-child(3) {
+            animation-delay: 0.4s;
+          }
+        }
+      }
 
       .diagnosisLoading {
         height: 100%;
@@ -543,7 +582,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    color: #fff;
+    color: #e6e6fa;
 
     p {
       margin-top: 16px;
@@ -551,13 +590,14 @@
   }
 
   .diagnosisContent {
+    color: rgba(230, 230, 250, 0.85);
     font-size: 14px;
     line-height: 1.6;
 
     h1,
     h2,
     h3 {
-      color: #000;
+      color: #e6e6fa;
       margin-bottom: 16px;
       font-weight: 600;
       letter-spacing: -0.01em;
@@ -603,7 +643,7 @@
     }
 
     pre {
-      background: #000;
+      background: rgba(20, 15, 30, 0.8);
       padding: 16px;
       border-radius: 8px;
       margin-bottom: 16px;
@@ -613,7 +653,6 @@
       code {
         background: none;
         padding: 0;
-        color: #fff;
       }
     }
   }
@@ -905,5 +944,19 @@
         }
       }
     }
+  }
+}
+
+@keyframes dotPulse {
+  0% {
+    opacity: 0.3;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.3;
   }
 }
