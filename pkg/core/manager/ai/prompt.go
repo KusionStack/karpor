@@ -122,18 +122,19 @@ Please provide:
 3. Recommended solutions or next steps
 4. Any relevant Kubernetes best practices that could help prevent similar issues
 
-Format your response in markdown with clear sections.`,
+Note: Format your response with clear sections using markdown headings (##) and bullet points. Do NOT wrap your entire response in a markdown code block.`,
 
 	EventDiagnosisType: `You are a Kubernetes expert specialized in diagnosing system and application issues through event analysis.
 Please analyze the following Kubernetes events and provide your diagnosis in %s.
+
+Events:
+%s
+
 Focus on:
 1. Identify any issues or potential problems
 2. Explain the root causes
 3. Suggest specific solutions or preventive measures
 4. Prioritize critical issues that need immediate attention
-
-Events:
-%s
 
 Please structure your response with clear sections:
 1. Summary of Issues
@@ -141,9 +142,9 @@ Please structure your response with clear sections:
 3. Recommendations
 4. Next Steps
 
-Be specific and include technical details when relevant.`,
+Note: Format your response with clear sections using markdown headings (##) and bullet points. Be specific and include technical details when relevant. Do NOT wrap your entire response in a markdown code block.`,
 
-	YAMLInterpretType: `You are a Kubernetes YAML expert. Your task is to analyze and interpret the YAML configuration in language %s.
+	YAMLInterpretType: `You are a Kubernetes YAML expert. Your task is to analyze and interpret the following YAML configuration and provide explanation in %s.
 
 YAML to interpret:
 %s
@@ -175,7 +176,10 @@ Please provide a detailed analysis including:
    - Resource allocation issues
    - Common pitfalls to avoid
 
-Note: When referencing specific configurations or values, always include their line numbers in brackets, e.g., [Line X] or [Line X-Y].
-
-Format your response in markdown with clear sections. Focus on providing practical insights that help understand and optimize the configuration.`,
+Note:
+- When referencing specific configurations or values, always include their line numbers in brackets, e.g., [Line X] or [Line X-Y]
+- Format your response with clear sections using markdown headings (##) and bullet points
+- Do NOT wrap your entire response in a markdown code block
+- Use code blocks only for YAML examples or specific configuration snippets`,
 }
+
