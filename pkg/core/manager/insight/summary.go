@@ -38,9 +38,10 @@ const (
 func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multicluster.MultiClusterClient, name string) (*ClusterDetail, error) {
 	// get server version and measure latency
 	start := time.Now()
+	serverVersionStr := "v0.0.0-unknown" // default version when error occurs
 	serverVersion, err := client.ClientSet.DiscoveryClient.ServerVersion()
-	if err != nil {
-		return nil, fmt.Errorf("failed to get server version: %w", err)
+	if err == nil {
+		serverVersionStr = serverVersion.String()
 	}
 	latency := time.Since(start).Milliseconds()
 
@@ -135,7 +136,7 @@ func (i *InsightManager) GetDetailsForCluster(ctx context.Context, client *multi
 
 	return &ClusterDetail{
 		NodeCount:      len(nodes.Items),
-		ServerVersion:  serverVersion.String(),
+		ServerVersion:  serverVersionStr,
 		MemoryCapacity: memoryCapacity,
 		MemoryUsage:    memoryUsage,
 		CPUCapacity:    cpuCapacity,
