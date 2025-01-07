@@ -289,7 +289,6 @@ const Yaml = (props: IProps) => {
                         <Tooltip title={t('LogAggregator.FullScreen')}>
                           <Button
                             type="text"
-                            className={styles.actionButton}
                             icon={<FullscreenOutlined />}
                             onClick={handle.enter}
                           />
@@ -310,7 +309,6 @@ const Yaml = (props: IProps) => {
                         <Tooltip title={t('LogAggregator.FullScreen')}>
                           <Button
                             type="text"
-                            className={styles.actionButton}
                             icon={<FullscreenExitOutlined />}
                             onClick={handle.exit}
                           />
@@ -327,7 +325,9 @@ const Yaml = (props: IProps) => {
                         onClick={handleInterpret}
                         disabled={!data || isStreaming}
                       >
-                        {t('YAML.Interpret')}
+                        <span style={{ fontSize: 14, marginTop: 2 }}>
+                          {t('YAML.Interpret')}
+                        </span>
                       </Button>
                     </Tooltip>
                   )}
@@ -342,12 +342,14 @@ const Yaml = (props: IProps) => {
           </FullScreen>
           {interpretStatus !== 'idle' && (
             <div
-              className={styles.diagnosisPanel}
+              className={styles.yaml_content_diagnosisPanel}
               style={{ height: moduleHeight }}
             >
-              <div className={styles.diagnosisHeader}>
+              <div className={styles.yaml_content_diagnosisHeader}>
                 <Space>
-                  <img src={aiSummarySvg} alt="ai summary" />
+                  <div className={styles.yaml_content_diagnosisHeader_aiIcon}>
+                    <img src={aiSummarySvg} alt="ai summary" />
+                  </div>
                   {t('YAML.InterpretResult')}
                 </Space>
                 <Space>
@@ -375,34 +377,35 @@ const Yaml = (props: IProps) => {
                   />
                 </Space>
               </div>
-              <div className={styles.diagnosisBody}>
-                <div className={styles.diagnosisContent}>
-                  {interpretStatus === 'loading' ||
-                  (interpretStatus === 'streaming' && !interpret) ? (
-                    <div className={styles.diagnosisLoading}>
-                      <Spin />
-                      <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+              <div className={styles.yaml_content_diagnosisContent}>
+                {interpretStatus === 'loading' ||
+                (interpretStatus === 'streaming' && !interpret) ? (
+                  <div className={styles.yaml_content_diagnosisLoading}>
+                    <Spin />
+                    <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+                  </div>
+                ) : interpretStatus === 'streaming' ? (
+                  <div>
+                    <Markdown>{interpret}</Markdown>
+                    <div className={styles.yaml_content_streamingIndicator}>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
                     </div>
-                  ) : interpretStatus === 'error' ? (
-                    <Alert
-                      type="error"
-                      message={t('EventAggregator.DiagnosisFailed')}
-                      description={t('EventAggregator.TryAgainLater')}
+                    <div
+                      ref={interpretEndRef}
+                      style={{ float: 'left', clear: 'both' }}
                     />
-                  ) : (
-                    <div className={styles.diagnosisResult}>
-                      <Markdown>{interpret}</Markdown>
-                      {interpretStatus === 'streaming' && (
-                        <div className={styles.streamingIndicator}>
-                          <span className={styles.dot}></span>
-                          <span className={styles.dot}></span>
-                          <span className={styles.dot}></span>
-                        </div>
-                      )}
-                      <div ref={interpretEndRef} />
-                    </div>
-                  )}
-                </div>
+                  </div>
+                ) : interpretStatus === 'error' ? (
+                  <Alert
+                    type="error"
+                    message={t('EventAggregator.DiagnosisFailed')}
+                    description={t('EventAggregator.TryAgainLater')}
+                  />
+                ) : (
+                  <Markdown>{interpret}</Markdown>
+                )}
               </div>
             </div>
           )}

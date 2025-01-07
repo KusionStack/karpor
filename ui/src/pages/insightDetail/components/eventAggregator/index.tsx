@@ -96,19 +96,19 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
 
       eventSource.current.onmessage = event => {
         try {
-          const events: Event[] = JSON.parse(event.data)
+          const events: Event[] = JSON.parse(event?.data)
 
           if (
-            events.length === 1 &&
-            events[0].type === 'Warning' &&
-            events[0].reason === 'Error'
+            events?.length === 1 &&
+            events?.[0]?.type === 'Warning' &&
+            events?.[0].reason === 'Error'
           ) {
             setError(events[0].message)
             return
           }
 
           setEvents(events)
-          setHasEvents(events.length > 0 || hasEvents)
+          setHasEvents(events?.length > 0 || hasEvents)
         } catch (error) {
           setError(t('EventAggregator.ConnectionError'))
         }
@@ -339,16 +339,32 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     debouncedDiagnose()
   }, [debouncedDiagnose])
 
+  const isVertical = filteredEvents?.length <= 6
+  const events_content_styles: React.CSSProperties = isVertical
+    ? { flexDirection: 'column' }
+    : { flexDirection: 'row' }
+  const events_content_withDiagnosis_style: React.CSSProperties = isVertical
+    ? { width: '100%' }
+    : { width: 'calc(100% - 424px)', height: 600, overflowY: 'scroll' }
+  const events_content_diagnosisPanel_style: React.CSSProperties = isVertical
+    ? { width: '100%', height: 300 }
+    : { width: 400, height: 600 }
+
   const renderDiagnosisWindow = () => {
     if (diagnosisStatus === 'idle') {
       return null
     }
 
     return (
-      <div className={styles.diagnosisPanel}>
-        <div className={styles.diagnosisHeader}>
+      <div
+        className={styles.events_content_diagnosisPanel}
+        style={events_content_diagnosisPanel_style}
+      >
+        <div className={styles.events_content_diagnosisHeader}>
           <Space>
-            <img src={aiSummarySvg} alt="ai summary" />
+            <div className={styles.events_content_diagnosisHeader_aiIcon}>
+              <img src={aiSummarySvg} alt="ai summary" />
+            </div>
             {t('EventAggregator.DiagnosisResult')}
           </Space>
           <Space>
@@ -359,7 +375,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
               >
                 <Button
                   type="text"
-                  className={styles.stopButton}
+                  className={styles.events_content_diagnosisHeader_stopButton}
                   icon={<PoweroffOutlined />}
                   onClick={() => {
                     if (abortControllerRef.current) {
@@ -385,47 +401,48 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             />
           </Space>
         </div>
-        <div className={styles.diagnosisBody}>
-          <div className={styles.diagnosisContent}>
-            {diagnosisStatus === 'loading' ||
-            (diagnosisStatus === 'streaming' && !diagnosis) ? (
-              <div className={styles.diagnosisLoading}>
-                <Spin />
-                <p>{t('EventAggregator.DiagnosisInProgress')}</p>
-              </div>
-            ) : diagnosisStatus === 'error' ? (
-              <Alert
-                type="error"
-                message={t('EventAggregator.DiagnosisFailed')}
-                description={t('EventAggregator.TryAgainLater')}
-              />
-            ) : (
-              <div className={styles.diagnosisResult}>
-                <Markdown>{diagnosis}</Markdown>
-                {diagnosisStatus === 'streaming' && (
-                  <div className={styles.streamingIndicator}>
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                  </div>
-                )}
-                <div ref={diagnosisEndRef} />
-              </div>
-            )}
-          </div>
+        <div className={styles.events_content_diagnosisContent}>
+          {diagnosisStatus === 'loading' ||
+          (diagnosisStatus === 'streaming' && !diagnosis) ? (
+            <div className={styles.events_content_diagnosisLoading}>
+              <Spin />
+              <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+            </div>
+          ) : diagnosisStatus === 'error' ? (
+            <Alert
+              type="error"
+              message={t('EventAggregator.DiagnosisFailed')}
+              description={t('EventAggregator.TryAgainLater')}
+            />
+          ) : (
+            <>
+              <Markdown>{diagnosis}</Markdown>
+              {diagnosisStatus === 'streaming' && (
+                <div className={styles.events_content_streamingIndicator}>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                </div>
+              )}
+              <div ref={diagnosisEndRef} />
+            </>
+          )}
         </div>
       </div>
     )
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
-        <div className={styles.toolBar}>
+    <div
+      className={styles.events_container}
+      // style={{ flexDirection: 'column' }}
+    >
+      <div className={styles.events_header}>
+        <div className={styles.events_toolBar}>
           {hasEvents && (
             <>
               <Input
-                className={styles.searchInput}
+                className={styles.events_toolBar_searchInput}
                 placeholder={t('EventAggregator.SearchEvents')}
                 prefix={<SearchOutlined />}
                 allowClear
@@ -433,7 +450,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
                 onChange={e => handleSearch(e.target.value)}
               />
               <Select
-                className={styles.typeFilter}
+                className={styles.events_toolBar_typeFilter}
                 placeholder={t('EventAggregator.Type')}
                 allowClear
                 value={eventType}
@@ -448,8 +465,12 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
                   <Tooltip title={t('EventAggregator.Diagnose')}>
                     <Button
                       type="text"
-                      className={styles.actionButton}
-                      icon={<span className={styles.magicWand}>✨</span>}
+                      className={styles.events_toolBar_actionButton}
+                      icon={
+                        <span className={styles.events_toolBar_magicWand}>
+                          ✨
+                        </span>
+                      }
                       onClick={startDiagnosis}
                       loading={diagnosisStatus === 'streaming'}
                       disabled={!hasEvents || diagnosisStatus === 'streaming'}
@@ -463,20 +484,25 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
       </div>
 
       {error && (
-        <Alert message={error} type="error" showIcon className={styles.error} />
+        <Alert
+          message={error}
+          type="error"
+          showIcon
+          className={styles.events_error}
+        />
       )}
 
-      <div className={styles.content}>
+      <div className={styles.events_content} style={events_content_styles}>
         <div
-          className={classNames(styles.tableContainer, {
-            [styles.withDiagnosis]: diagnosisStatus !== 'idle',
+          className={classNames(styles.events_content_tableContainer, {
+            [styles.events_content_withDiagnosis]: diagnosisStatus !== 'idle',
           })}
+          style={events_content_withDiagnosis_style}
         >
           {loading ? (
             <Skeleton active paragraph={{ rows: 5 }} />
           ) : events.length > 0 ? (
             <Table
-              style={{ height: 600, overflow: 'auto' }}
               dataSource={filteredEvents}
               columns={columns}
               rowKey={record =>

@@ -799,7 +799,9 @@ const PodLogs: React.FC<PodLogsProps> = ({
             <div className={styles.diagnosisPanel}>
               <div className={styles.diagnosisHeader}>
                 <Space>
-                  <img src={aiSummarySvg} alt="ai summary" />
+                  <div className={styles.diagnosisHeader_aiIcon}>
+                    <img src={aiSummarySvg} alt="ai summary" />
+                  </div>
                   {t('LogAggregator.DiagnosisResult')}
                 </Space>
                 <Space>
@@ -830,18 +832,16 @@ const PodLogs: React.FC<PodLogsProps> = ({
                   />
                 </Space>
               </div>
-              <div className={styles.diagnosisBody}>
+              <div className={styles.diagnosisContent}>
                 {diagnosisStatus === ('loading' as DiagnosisStatus) ||
                 (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
                   !diagnosis) ? (
-                  <div className={styles.diagnosisContent}>
-                    <div className={styles.diagnosisLoading}>
-                      <Spin />
-                      <span>{t('LogAggregator.PreparingDiagnosis')}</span>
-                    </div>
+                  <div className={styles.diagnosisLoading}>
+                    <Spin />
+                    <span>{t('LogAggregator.PreparingDiagnosis')}</span>
                   </div>
                 ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
-                  <div className={styles.diagnosisContent}>
+                  <div>
                     <Markdown>{diagnosis}</Markdown>
                     <div className={styles.streamingIndicator}>
                       <span className={styles.dot}></span>
@@ -864,9 +864,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className={styles.diagnosisContent}>
-                    <Markdown>{diagnosis}</Markdown>
-                  </div>
+                  <Markdown>{diagnosis}</Markdown>
                 )}
               </div>
             </div>
