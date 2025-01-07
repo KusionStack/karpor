@@ -18,22 +18,26 @@ import {
   PauseCircleOutlined,
   PlayCircleOutlined,
   ClearOutlined,
-  RobotOutlined,
   CloseOutlined,
   PoweroffOutlined,
   DownloadOutlined,
   SettingOutlined,
   HighlightOutlined,
   FilterOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
 import axios from 'axios'
-import styles from './styles.module.less'
 import Markdown from 'react-markdown'
 import { useSelector } from 'react-redux'
-import debounce from 'lodash.debounce'
+import { debounce } from 'lodash'
 import dayjs from 'dayjs'
+import { FullScreen, useFullScreenHandle } from 'react-full-screen'
+import aiSummarySvg from '@/assets/ai-summary.svg'
+
+import styles from './styles.module.less'
 
 interface LogEntry {
   timestamp: string
@@ -66,6 +70,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
   yamlData,
 }) => {
   const { t, i18n } = useTranslation()
+  const handle = useFullScreenHandle()
   const [container, setContainer] = useState<string>('')
   const [containers, setContainers] = useState<string[]>([])
   const [logs, setLogs] = useState<LogEntry[]>([])
@@ -324,6 +329,11 @@ const PodLogs: React.FC<PodLogsProps> = ({
                           break
                         case 'chunk':
                           setDiagnosis(prev => prev + diagEvent.content)
+                          if (diagnosisEndRef.current) {
+                            diagnosisEndRef.current.scrollIntoView({
+                              behavior: 'smooth',
+                            })
+                          }
                           break
                         case 'error':
                           streaming = false
@@ -716,6 +726,14 @@ const PodLogs: React.FC<PodLogsProps> = ({
                 onClick={handleDownloadLogs}
               />
             </Tooltip>
+            <Tooltip title={t('LogAggregator.FullScreen')}>
+              <Button
+                type="text"
+                className={styles.actionButton}
+                icon={<FullscreenOutlined />}
+                onClick={handle.enter}
+              />
+            </Tooltip>
             <Tooltip title={t('LogAggregator.Settings')}>
               <Button
                 type="text"
@@ -749,26 +767,41 @@ const PodLogs: React.FC<PodLogsProps> = ({
       )}
       <div className={styles.content}>
         <div className={styles.logsContainer}>
-          <div className={styles.logs}>
-            {filterLogs(logs).map((log, index) => (
-              <div key={index} className={styles.logEntry}>
-                <span className={styles.timestamp}>{log.timestamp}</span>
-                <span
-                  className={log.error ? styles.errorContent : styles.content}
-                >
-                  {searchMode === 'highlight'
-                    ? highlightSearchText(log.content)
-                    : log.content}
-                </span>
-              </div>
-            ))}
-            <div ref={logsEndRef} />
-          </div>
+          <FullScreen handle={handle} className={styles.fullScreenConatiner}>
+            <div
+              className={styles.logs}
+              style={{ height: handle.active ? '100vh' : '100%' }}
+            >
+              {filterLogs(logs).map((log, index) => (
+                <div key={index} className={styles.logEntry}>
+                  <span className={styles.timestamp}>{log.timestamp}</span>
+                  <span
+                    className={log.error ? styles.errorContent : styles.content}
+                  >
+                    {searchMode === 'highlight'
+                      ? highlightSearchText(log.content)
+                      : log.content}
+                  </span>
+                </div>
+              ))}
+              <div ref={logsEndRef} />
+            </div>
+            {handle.active && (
+              <Button
+                type="text"
+                className={`${styles.actionButton} ${styles.exitFull}`}
+                icon={<FullscreenExitOutlined />}
+                onClick={handle.exit}
+              />
+            )}
+          </FullScreen>
           {diagnosisStatus !== 'idle' && (
             <div className={styles.diagnosisPanel}>
               <div className={styles.diagnosisHeader}>
                 <Space>
-                  <RobotOutlined />
+                  <div className={styles.diagnosisHeader_aiIcon}>
+                    <img src={aiSummarySvg} alt="ai summary" />
+                  </div>
                   {t('LogAggregator.DiagnosisResult')}
                 </Space>
                 <Space>
@@ -799,17 +832,22 @@ const PodLogs: React.FC<PodLogsProps> = ({
                   />
                 </Space>
               </div>
-              <div className={styles.diagnosisBody}>
-                {diagnosisStatus === ('loading' as DiagnosisStatus) ? (
-                  <div className={styles.diagnosisContent}>
-                    <div className={styles.diagnosisLoading}>
-                      <Spin />
-                      <span>{t('LogAggregator.PreparingDiagnosis')}</span>
-                    </div>
+              <div className={styles.diagnosisContent}>
+                {diagnosisStatus === ('loading' as DiagnosisStatus) ||
+                (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+                  !diagnosis) ? (
+                  <div className={styles.diagnosisLoading}>
+                    <Spin />
+                    <span>{t('LogAggregator.PreparingDiagnosis')}</span>
                   </div>
                 ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
-                  <div className={styles.diagnosisContent}>
+                  <div>
                     <Markdown>{diagnosis}</Markdown>
+                    <div className={styles.streamingIndicator}>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                    </div>
                     <div
                       ref={diagnosisEndRef}
                       style={{ float: 'left', clear: 'both' }}
@@ -826,15 +864,14 @@ const PodLogs: React.FC<PodLogsProps> = ({
                     />
                   </div>
                 ) : (
-                  <div className={styles.diagnosisContent}>
-                    <Markdown>{diagnosis}</Markdown>
-                  </div>
+                  <Markdown>{diagnosis}</Markdown>
                 )}
               </div>
             </div>
           )}
         </div>
       </div>
+
       {renderSettingsModal()}
     </div>
   )

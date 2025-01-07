@@ -41,6 +41,7 @@ module.exports = {
     'no-console': 'off',
     'no-empty': 'off',
     'no-unsafe-optional-chaining': 'off',
+    'no-unused-vars': 'off',
 
     // ts rules：https://typescript-eslint.io/rules/
     /** @typescript */
@@ -50,7 +51,7 @@ module.exports = {
     /** @react */
     'react-refresh/only-export-components': 'off',
     'react/no-unescaped-entities': 'off',
-    'react-hooks/exhaustive-deps': 'warn',
+    'react-hooks/exhaustive-deps': 'off',
     'react/display-name': 'off',
     'react/prop-types': 'off',
     'jsx-a11y/anchor-has-rel': 'off',

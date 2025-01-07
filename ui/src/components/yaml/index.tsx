@@ -1,13 +1,14 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import type { LegacyRef } from 'react'
-import { Button, message, Space, Tooltip } from 'antd'
+import { Alert, Button, message, Space, Spin, Tooltip } from 'antd'
 import { Resizable } from 're-resizable'
 import { useTranslation } from 'react-i18next'
 import {
   CopyOutlined,
-  RobotOutlined,
   CloseOutlined,
   PoweroffOutlined,
+  FullscreenExitOutlined,
+  FullscreenOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -16,14 +17,22 @@ import { yaml2json } from '@/utils/tools'
 import { useSelector } from 'react-redux'
 import Markdown from 'react-markdown'
 import axios from 'axios'
+import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import i18n from '@/i18n'
+import aiSummarySvg from '@/assets/ai-summary.svg'
 
 import styles from './styles.module.less'
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 hljs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 
-type InterpretStatus = 'idle' | 'init' | 'streaming' | 'complete' | 'error'
+type InterpretStatus =
+  | 'idle'
+  | 'init'
+  | 'streaming'
+  | 'complete'
+  | 'error'
+  | 'loading'
 
 type IProps = {
   data: any
@@ -32,6 +41,7 @@ type IProps = {
 
 const Yaml = (props: IProps) => {
   const { t } = useTranslation()
+  const handle = useFullScreenHandle()
   const yamlRef = useRef<LegacyRef<HTMLDivElement> | undefined>()
   const diagnosisContentRef = useRef<HTMLDivElement>(null)
   const interpretEndRef = useRef<HTMLDivElement>(null)
@@ -193,6 +203,11 @@ const Yaml = (props: IProps) => {
                         break
                       case 'chunk':
                         setInterpret(prev => prev + interpretEvent.content)
+                        if (interpretEndRef.current) {
+                          interpretEndRef.current.scrollIntoView({
+                            behavior: 'smooth',
+                          })
+                        }
                         break
                       case 'error':
                         streaming = false
@@ -264,100 +279,136 @@ const Yaml = (props: IProps) => {
         }}
       >
         <div className={styles.yaml_content} style={{ height: props?.height }}>
-          <div className={styles.copy}>
-            <Space>
-              {data && (
-                <Button
-                  type="primary"
-                  size="small"
-                  onClick={copy}
-                  disabled={!data}
-                  icon={<CopyOutlined />}
-                >
-                  {t('Copy')}
-                </Button>
-              )}
-              {isAIEnabled && (
-                <Tooltip title={t('YAML.Interpret')}>
-                  <Button
-                    type="primary"
-                    size="small"
-                    icon={<span className={styles.magicWand}>✨</span>}
-                    onClick={handleInterpret}
-                    disabled={!data || isStreaming}
-                  >
-                    {t('YAML.Interpret')}
-                  </Button>
-                </Tooltip>
-              )}
-            </Space>
-          </div>
-          <div className={styles.yaml_container}>
-            <div
-              className={styles.yaml_box}
-              style={{ height: props?.height }}
-              ref={yamlRef as any}
-            />
-            {interpretStatus !== 'idle' && (
-              <div className={styles.diagnosisPanel}>
-                <div className={styles.diagnosisHeader}>
-                  <Space>
-                    <RobotOutlined />
-                    {t('YAML.InterpretResult')}
-                  </Space>
-                  <Space>
-                    {interpretStatus === 'streaming' && (
-                      <Tooltip
-                        title={t('YAML.StopInterpret')}
-                        placement="bottom"
-                      >
+          <FullScreen handle={handle} className={styles.fullScreenConatiner}>
+            <div className={styles.yaml_container}>
+              <div className={styles.copy}>
+                <Space>
+                  {data && (
+                    <>
+                      {!handle.active && (
+                        <Tooltip title={t('LogAggregator.FullScreen')}>
+                          <Button
+                            type="text"
+                            icon={<FullscreenOutlined />}
+                            onClick={handle.enter}
+                          />
+                        </Tooltip>
+                      )}
+                      {!handle.active && (
                         <Button
-                          type="text"
-                          className={styles.stopButton}
-                          icon={<PoweroffOutlined />}
-                          onClick={() => {
-                            if (abortControllerRef.current) {
-                              abortControllerRef.current.abort()
-                              setInterpretStatus('complete' as InterpretStatus)
-                            }
-                          }}
-                        />
-                      </Tooltip>
-                    )}
-                    <Button
-                      type="text"
-                      icon={<CloseOutlined />}
-                      onClick={() =>
-                        setInterpretStatus('idle' as InterpretStatus)
-                      }
-                    />
-                  </Space>
-                </div>
-                <div className={styles.diagnosisBody}>
-                  <div
-                    className={styles.diagnosisContent}
-                    ref={diagnosisContentRef}
-                  >
-                    <Markdown
-                      className={styles.markdownContent}
-                      rehypePlugins={[]}
-                      remarkPlugins={[]}
-                    >
-                      {interpret}
-                    </Markdown>
-                    {interpretStatus === 'streaming' && (
-                      <div className={styles.streamingIndicator}>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                      </div>
-                    )}
-                    <div ref={interpretEndRef} />
-                  </div>
-                </div>
+                          type="primary"
+                          size="small"
+                          onClick={copy}
+                          disabled={!data}
+                          icon={<CopyOutlined />}
+                        >
+                          {t('Copy')}
+                        </Button>
+                      )}
+                      {handle.active && (
+                        <Tooltip title={t('LogAggregator.FullScreen')}>
+                          <Button
+                            type="text"
+                            icon={<FullscreenExitOutlined />}
+                            onClick={handle.exit}
+                          />
+                        </Tooltip>
+                      )}
+                    </>
+                  )}
+                  {isAIEnabled && !handle.active && (
+                    <Tooltip title={t('YAML.Interpret')}>
+                      <Button
+                        type="primary"
+                        size="small"
+                        icon={<span className={styles.magicWand}>✨</span>}
+                        onClick={handleInterpret}
+                        disabled={!data || isStreaming}
+                      >
+                        <span style={{ fontSize: 14, marginTop: 2 }}>
+                          {t('YAML.Interpret')}
+                        </span>
+                      </Button>
+                    </Tooltip>
+                  )}
+                </Space>
               </div>
-            )}
-          </div>
+              <div
+                className={styles.yaml_box}
+                style={{ height: props?.height }}
+                ref={yamlRef as any}
+              />
+            </div>
+          </FullScreen>
+          {interpretStatus !== 'idle' && (
+            <div
+              className={styles.yaml_content_diagnosisPanel}
+              style={{ height: moduleHeight }}
+            >
+              <div className={styles.yaml_content_diagnosisHeader}>
+                <Space>
+                  <div className={styles.yaml_content_diagnosisHeader_aiIcon}>
+                    <img src={aiSummarySvg} alt="ai summary" />
+                  </div>
+                  {t('YAML.InterpretResult')}
+                </Space>
+                <Space>
+                  {interpretStatus === 'streaming' && (
+                    <Tooltip title={t('YAML.StopInterpret')} placement="bottom">
+                      <Button
+                        type="text"
+                        className={styles.stopButton}
+                        icon={<PoweroffOutlined />}
+                        onClick={() => {
+                          if (abortControllerRef.current) {
+                            abortControllerRef.current.abort()
+                            setInterpretStatus('complete' as InterpretStatus)
+                          }
+                        }}
+                      />
+                    </Tooltip>
+                  )}
+                  <Button
+                    type="text"
+                    icon={<CloseOutlined />}
+                    onClick={() =>
+                      setInterpretStatus('idle' as InterpretStatus)
+                    }
+                  />
+                </Space>
+              </div>
+              <div className={styles.yaml_content_diagnosisContent}>
+                {interpretStatus === 'loading' ||
+                (interpretStatus === 'streaming' && !interpret) ? (
+                  <div className={styles.yaml_content_diagnosisLoading}>
+                    <Spin />
+                    <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+                  </div>
+                ) : interpretStatus === 'streaming' ? (
+                  <div>
+                    <Markdown>{interpret}</Markdown>
+                    <div className={styles.yaml_content_streamingIndicator}>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                    </div>
+                    <div
+                      ref={interpretEndRef}
+                      style={{ float: 'left', clear: 'both' }}
+                    />
+                  </div>
+                ) : interpretStatus === 'error' ? (
+                  <Alert
+                    type="error"
+                    message={t('EventAggregator.DiagnosisFailed')}
+                    description={t('EventAggregator.TryAgainLater')}
+                  />
+                ) : (
+                  <Markdown>{interpret}</Markdown>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </Resizable>
     </div>
