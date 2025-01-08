@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"k8s.io/apiserver/pkg/server"
@@ -40,6 +41,9 @@ type InterpretRequest struct {
 // @Param        request  body      InterpretRequest  true  "The YAML content to interpret"
 // @Success      200      {object}  ai.InterpretEvent
 // @Failure      400      {string}  string  "Bad Request"
+// @Failure      401      {string}  string  "Unauthorized"
+// @Failure      429      {string}  string  "Too Many Requests"
+// @Failure      404      {string}  string  "Not Found"
 // @Failure      500      {string}  string  "Internal Server Error"
 // @Router       /insight/yaml/interpret/stream [post]
 func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
@@ -48,16 +52,19 @@ func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerF
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
+		// Begin the interpretation process, logging the start
+		logger.Info("Starting YAML interpretation in handler ...")
+
 		// Parse request body
 		var req InterpretRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			http.Error(w, fmt.Sprintf("invalid request format: %v", err), http.StatusBadRequest)
+			handler.FailureRender(ctx, w, r, fmt.Errorf("invalid request format: %v", err))
 			return
 		}
 
 		// Validate request
 		if req.YAML == "" {
-			http.Error(w, "YAML content is required", http.StatusBadRequest)
+			handler.FailureRender(ctx, w, r, fmt.Errorf("YAML content is required"))
 			return
 		}
 		if req.Language == "" {
@@ -73,7 +80,7 @@ func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerF
 
 		flusher, ok := w.(http.Flusher)
 		if !ok {
-			http.Error(w, "Streaming unsupported", http.StatusInternalServerError)
+			handler.FailureRender(ctx, w, r, fmt.Errorf("streaming unsupported"))
 			return
 		}
 
