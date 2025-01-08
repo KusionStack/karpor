@@ -66,7 +66,7 @@ func (a *AIManager) InterpretIssues(ctx context.Context, auditData *AuditData, l
 	// Build issue details
 	summary.WriteString("\nIssue Details:\n")
 	for _, group := range auditData.IssueGroups {
-		summary.WriteString(fmt.Sprintf("\n## Issue\n"))
+		summary.WriteString("\n## Issue\n")
 		summary.WriteString(fmt.Sprintf("Title: %s\n", group.Issue.Title))
 		summary.WriteString(fmt.Sprintf("Severity: %s\n", group.Issue.Severity))
 		summary.WriteString(fmt.Sprintf("Scanner: %s\n", group.Issue.Scanner))
