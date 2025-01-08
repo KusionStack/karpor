@@ -99,6 +99,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const diagnosisEndRef = useRef<HTMLDivElement>(null)
   const eventSourceRef = useRef<EventSource | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (yamlData) {
@@ -631,6 +632,9 @@ const PodLogs: React.FC<PodLogsProps> = ({
     )
   }
 
+  const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
+  const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
+
   return (
     <div className={styles.podLogs}>
       {error && (
@@ -832,40 +836,44 @@ const PodLogs: React.FC<PodLogsProps> = ({
                   />
                 </Space>
               </div>
-              <div className={styles.diagnosisContent}>
-                {diagnosisStatus === ('loading' as DiagnosisStatus) ||
-                (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
-                  !diagnosis) ? (
-                  <div className={styles.diagnosisLoading}>
-                    <Spin />
-                    <span>{t('LogAggregator.PreparingDiagnosis')}</span>
-                  </div>
-                ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
-                  <div>
-                    <Markdown>{diagnosis}</Markdown>
-                    <div className={styles.streamingIndicator}>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
+              <div className={styles.diagnosisBody}>
+                <div className={styles.diagnosisContent} ref={contentRef}>
+                  {diagnosisStatus === ('loading' as DiagnosisStatus) ||
+                  (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+                    !diagnosis) ? (
+                    <div className={styles.diagnosisLoading}>
+                      <Spin />
+                      <span>{t('LogAggregator.PreparingDiagnosis')}</span>
                     </div>
-                    <div
-                      ref={diagnosisEndRef}
-                      style={{ float: 'left', clear: 'both' }}
-                    />
-                  </div>
-                ) : diagnosisStatus === ('error' as DiagnosisStatus) ? (
-                  <div className={styles.diagnosisError}>
-                    <Alert
-                      type="error"
-                      message={t('LogAggregator.DiagnosisError')}
-                      description={
-                        diagnosis || t('LogAggregator.TryAgainLater')
-                      }
-                    />
-                  </div>
-                ) : (
-                  <Markdown>{diagnosis}</Markdown>
-                )}
+                  ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
+                    <div style={{ marginBottom: 30 }}>
+                      <Markdown>{diagnosis}</Markdown>
+                      <div
+                        className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
+                      >
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                      </div>
+                      <div
+                        ref={diagnosisEndRef}
+                        style={{ float: 'left', clear: 'both' }}
+                      />
+                    </div>
+                  ) : diagnosisStatus === ('error' as DiagnosisStatus) ? (
+                    <div className={styles.diagnosisError}>
+                      <Alert
+                        type="error"
+                        message={t('LogAggregator.DiagnosisError')}
+                        description={
+                          diagnosis || t('LogAggregator.TryAgainLater')
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <Markdown>{diagnosis}</Markdown>
+                  )}
+                </div>
               </div>
             </div>
           )}
