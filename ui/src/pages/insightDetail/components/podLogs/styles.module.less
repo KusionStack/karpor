@@ -176,8 +176,6 @@
       cursor: not-allowed;
     }
 
-
-
     &:not(:disabled) {
       &:hover {
         background: rgba(114, 46, 209, 0.08);
@@ -233,7 +231,7 @@
       right: 15px;
       top: 15px;
       color: #222;
-      background: rgba(255, 255, 255, .9);
+      background: rgba(255, 255, 255, 0.9);
 
       &:hover {
         background: #fff;
@@ -412,7 +410,6 @@
               }
             }
           }
-
 
           button {
             color: rgba(230, 230, 250, 0.85);
@@ -714,10 +711,12 @@
               hr {
                 border: none;
                 height: 1px;
-                background: linear-gradient(to right,
-                    rgba(147, 112, 219, 0.1),
-                    rgba(147, 112, 219, 0.4),
-                    rgba(147, 112, 219, 0.1));
+                background: linear-gradient(
+                  to right,
+                  rgba(147, 112, 219, 0.1),
+                  rgba(147, 112, 219, 0.4),
+                  rgba(147, 112, 219, 0.1)
+                );
                 margin: 24px 0;
               }
             }
@@ -740,9 +739,11 @@
       }
 
       .ant-drawer-header {
-        background: linear-gradient(135deg,
-            rgba(147, 112, 219, 0.15) 0%,
-            rgba(43, 29, 60, 0.95) 100%);
+        background: linear-gradient(
+          135deg,
+          rgba(147, 112, 219, 0.15) 0%,
+          rgba(43, 29, 60, 0.95) 100%
+        );
         border-bottom: 1px solid rgba(147, 112, 219, 0.2);
         padding: 16px 24px;
 

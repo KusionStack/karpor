@@ -198,5 +198,30 @@
     }
   },
   "Enabled": "Ativado",
-  "Disabled": "Desativado"
+  "Disabled": "Desativado",
+  "ExceptionList": {
+    "NoIssues": "Nenhum problema encontrado",
+    "NoIssuesFound": "Nenhum problema encontrado",
+    "InterpretConnectionError": "Falha na conexão do diagnóstico",
+    "FailedToDiagnoseLogs": "Falha no diagnóstico dos logs",
+    "Diagnose": "Diagnóstico IA",
+    "InterpretResult": "Resultado do Diagnóstico IA",
+    "StopInterpret": "Parar Diagnóstico",
+    "InterpretInProgress": "Analisando...",
+    "InterpretFailed": "Falha no diagnóstico",
+    "TryAgainLater": "Por favor, tente novamente mais tarde",
+    "Rescan": "Reescanear",
+    "Collapse": "Recolher",
+    "Expand": "Expandir",
+    "CheckAllIssues": "Verificar Todos os Problemas",
+    "ViewIssueDetail": "Ver Detalhes do Problema",
+    "Occur": "Ocorre",
+    "Times": "vezes",
+    "CollectedFrom": "Coletado de",
+    "Tool": "Ferramenta",
+    "Description": "Descrição",
+    "High": "Alto",
+    "Medium": "Médio",
+    "Low": "Baixo"
+  }
 }

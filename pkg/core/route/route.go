@@ -176,6 +176,7 @@ func setupRestAPIV1(
 		r.Post("/aggregator/log/diagnosis/stream", aggregatorhandler.DiagnosePodLogs(aiMgr, genericConfig))
 		r.Post("/aggregator/event/diagnosis/stream", aggregatorhandler.DiagnoseEvents(aiMgr, genericConfig))
 		r.Post("/yaml/interpret/stream", detailhandler.InterpretYAML(aiMgr, genericConfig))
+		r.Post("/issue/interpret/stream", scannerhandler.InterpretIssues(aiMgr, genericConfig))
 	})
 
 	r.Route("/resource-group-rule", func(r chi.Router) {

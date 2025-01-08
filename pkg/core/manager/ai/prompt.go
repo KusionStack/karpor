@@ -30,6 +30,8 @@ const (
 	EventDiagnosisType PromptType = "event_diagnosis"
 	// YAMLInterpretType represents the prompt type for YAML interpretation
 	YAMLInterpretType PromptType = "yaml_interpret"
+	// IssueInterpretType represents the prompt type for issue interpretation
+	IssueInterpretType PromptType = "issue_interpret"
 )
 
 var ServicePromptMap = map[PromptType]string{
@@ -181,4 +183,44 @@ Note:
 - Format your response with clear sections using markdown headings (##) and bullet points
 - Do NOT wrap your entire response in a markdown code block
 - Use code blocks only for YAML examples or specific configuration snippets`,
+
+	IssueInterpretType: `Please analyze the following Kubernetes resource issues in %s language:
+
+%s
+
+Please provide a comprehensive analysis including:
+
+1. Overall Status Summary
+   - Total number of issues and affected resources
+   - Distribution of issues by severity level
+   - Key patterns or trends in the issues
+
+2. Critical Issues Analysis
+   - Detailed analysis of high-severity issues
+   - Potential impact on system stability and security
+   - Urgency of remediation
+
+3. Resource Impact Analysis
+   - Most affected resources or resource types
+   - Common patterns in affected resources
+   - Potential system-wide implications
+
+4. Root Cause Analysis
+   - Common underlying causes
+   - Environmental or configuration factors
+   - Potential systemic issues
+
+5. Remediation Recommendations
+   - Prioritized action items
+   - Best practices to prevent similar issues
+   - Long-term improvement suggestions
+
+6. Risk Assessment
+   - Current security implications
+   - Potential operational impacts
+   - Compliance considerations
+
+Please format your response with clear sections using markdown headings (##) and bullet points.
+Focus on providing actionable insights and clear explanations.
+Include specific examples where relevant but maintain a strategic overview.`,
 }

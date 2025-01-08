@@ -196,5 +196,30 @@
     }
   },
   "Enabled": "Aktiviert",
-  "Disabled": "Deaktiviert"
+  "Disabled": "Deaktiviert",
+  "ExceptionList": {
+    "NoIssues": "Keine Probleme gefunden",
+    "NoIssuesFound": "Keine Probleme gefunden",
+    "InterpretConnectionError": "Diagnoseverbindung fehlgeschlagen",
+    "FailedToDiagnoseLogs": "Protokolldiagnose fehlgeschlagen",
+    "Diagnose": "KI-Diagnose",
+    "InterpretResult": "KI-Diagnoseergebnis",
+    "StopInterpret": "Diagnose stoppen",
+    "InterpretInProgress": "Analyse läuft...",
+    "InterpretFailed": "Diagnose fehlgeschlagen",
+    "TryAgainLater": "Bitte versuchen Sie es später erneut",
+    "Rescan": "Erneut scannen",
+    "Collapse": "Einklappen",
+    "Expand": "Ausklappen",
+    "CheckAllIssues": "Alle Probleme prüfen",
+    "ViewIssueDetail": "Problemdetails anzeigen",
+    "Occur": "Tritt auf",
+    "Times": "mal",
+    "CollectedFrom": "Gesammelt von",
+    "Tool": "Werkzeug",
+    "Description": "Beschreibung",
+    "High": "Hoch",
+    "Medium": "Mittel",
+    "Low": "Niedrig"
+  }
 }
