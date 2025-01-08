@@ -376,6 +376,70 @@ var doc = `{
                 }
             }
         },
+        "/insight/issue/interpret/stream": {
+            "post": {
+                "description": "This endpoint analyzes scanner issues using AI to provide detailed interpretation and insights",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/event-stream"
+                ],
+                "tags": [
+                    "insight"
+                ],
+                "summary": "Interpret scanner issues using AI",
+                "parameters": [
+                    {
+                        "description": "The audit data to interpret",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/scanner.InterpretRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/ai.InterpretEvent"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/insight/yaml/interpret/stream": {
             "post": {
                 "description": "This endpoint analyzes YAML content using AI to provide detailed interpretation and insights",
@@ -409,6 +473,24 @@ var doc = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
                         "schema": {
                             "type": "string"
                         }
@@ -969,7 +1051,7 @@ var doc = `{
                     "200": {
                         "description": "Audit results",
                         "schema": {
-                            "$ref": "#/definitions/scanner.AuditData"
+                            "$ref": "#/definitions/ai.AuditData"
                         }
                     },
                     "400": {
@@ -2067,6 +2149,29 @@ var doc = `{
                 }
             }
         },
+        "ai.AuditData": {
+            "type": "object",
+            "properties": {
+                "bySeverity": {
+                    "type": "object",
+                    "additionalProperties": {
+                        "type": "integer"
+                    }
+                },
+                "issueGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/ai.IssueGroup"
+                    }
+                },
+                "issueTotal": {
+                    "type": "integer"
+                },
+                "resourceTotal": {
+                    "type": "integer"
+                }
+            }
+        },
         "ai.DiagnosisEvent": {
             "type": "object",
             "properties": {
@@ -2113,6 +2218,20 @@ var doc = `{
                 "type": {
                     "description": "Event type: start, chunk, error, complete",
                     "type": "string"
+                }
+            }
+        },
+        "ai.IssueGroup": {
+            "type": "object",
+            "properties": {
+                "issue": {
+                    "$ref": "#/definitions/scanner.Issue"
+                },
+                "resourceGroups": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/entity.ResourceGroup"
+                    }
                 }
             }
         },
@@ -2296,26 +2415,16 @@ var doc = `{
                 }
             }
         },
-        "scanner.AuditData": {
+        "scanner.InterpretRequest": {
             "type": "object",
             "properties": {
-                "bySeverity": {
-                    "type": "object",
-                    "additionalProperties": {
-                        "type": "integer"
-                    }
+                "auditData": {
+                    "description": "The audit data to interpret",
+                    "$ref": "#/definitions/ai.AuditData"
                 },
-                "issueGroups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/scanner.IssueGroup"
-                    }
-                },
-                "issueTotal": {
-                    "type": "integer"
-                },
-                "resourceTotal": {
-                    "type": "integer"
+                "language": {
+                    "description": "Language for interpretation",
+                    "type": "string"
                 }
             }
         },
@@ -2337,20 +2446,6 @@ var doc = `{
                 "title": {
                     "description": "Title is a brief summary of the issue.",
                     "type": "string"
-                }
-            }
-        },
-        "scanner.IssueGroup": {
-            "type": "object",
-            "properties": {
-                "issue": {
-                    "$ref": "#/definitions/scanner.Issue"
-                },
-                "resourceGroups": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/entity.ResourceGroup"
-                    }
                 }
             }
         },

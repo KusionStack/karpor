@@ -27,6 +27,21 @@ definitions:
       timestamp:
         type: string
     type: object
+  ai.AuditData:
+    properties:
+      bySeverity:
+        additionalProperties:
+          type: integer
+        type: object
+      issueGroups:
+        items:
+          $ref: '#/definitions/ai.IssueGroup'
+        type: array
+      issueTotal:
+        type: integer
+      resourceTotal:
+        type: integer
+    type: object
   ai.DiagnosisEvent:
     properties:
       content:
@@ -59,6 +74,15 @@ definitions:
       type:
         description: 'Event type: start, chunk, error, complete'
         type: string
+    type: object
+  ai.IssueGroup:
+    properties:
+      issue:
+        $ref: '#/definitions/scanner.Issue'
+      resourceGroups:
+        items:
+          $ref: '#/definitions/entity.ResourceGroup'
+        type: array
     type: object
   cluster.ClusterPayload:
     properties:
@@ -189,20 +213,14 @@ definitions:
       name:
         type: string
     type: object
-  scanner.AuditData:
+  scanner.InterpretRequest:
     properties:
-      bySeverity:
-        additionalProperties:
-          type: integer
-        type: object
-      issueGroups:
-        items:
-          $ref: '#/definitions/scanner.IssueGroup'
-        type: array
-      issueTotal:
-        type: integer
-      resourceTotal:
-        type: integer
+      auditData:
+        $ref: '#/definitions/ai.AuditData'
+        description: The audit data to interpret
+      language:
+        description: Language for interpretation
+        type: string
     type: object
   scanner.Issue:
     properties:
@@ -220,15 +238,6 @@ definitions:
       title:
         description: Title is a brief summary of the issue.
         type: string
-    type: object
-  scanner.IssueGroup:
-    properties:
-      issue:
-        $ref: '#/definitions/scanner.Issue'
-      resourceGroups:
-        items:
-          $ref: '#/definitions/entity.ResourceGroup'
-        type: array
     type: object
   unstructured.Unstructured:
     properties:
@@ -487,6 +496,49 @@ paths:
       summary: Stream pod logs using Server-Sent Events
       tags:
       - insight
+  /insight/issue/interpret/stream:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint analyzes scanner issues using AI to provide detailed
+        interpretation and insights
+      parameters:
+      - description: The audit data to interpret
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/scanner.InterpretRequest'
+      produces:
+      - text/event-stream
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/ai.InterpretEvent'
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Interpret scanner issues using AI
+      tags:
+      - insight
   /insight/yaml/interpret/stream:
     post:
       consumes:
@@ -509,6 +561,18 @@ paths:
             $ref: '#/definitions/ai.InterpretEvent'
         "400":
           description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
           schema:
             type: string
         "500":
@@ -883,7 +947,7 @@ paths:
         "200":
           description: Audit results
           schema:
-            $ref: '#/definitions/scanner.AuditData'
+            $ref: '#/definitions/ai.AuditData'
         "400":
           description: Bad Request
           schema:

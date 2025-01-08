@@ -77,6 +77,7 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 | GET | /rest-api/v1/insight/topology | [get rest API v1 insight topology](#get-rest-api-v1-insight-topology) | GetTopology returns a topology map for a Kubernetes resource by name, namespace, cluster, apiVersion and kind. |
 | POST | /insight/aggregator/event/diagnosis/stream | [post insight aggregator event diagnosis stream](#post-insight-aggregator-event-diagnosis-stream) | Diagnose events using AI |
 | POST | /insight/aggregator/log/diagnosis/stream | [post insight aggregator log diagnosis stream](#post-insight-aggregator-log-diagnosis-stream) | Diagnose pod logs using AI |
+| POST | /insight/issue/interpret/stream | [post insight issue interpret stream](#post-insight-issue-interpret-stream) | Interpret scanner issues using AI |
 | POST | /insight/yaml/interpret/stream | [post insight yaml interpret stream](#post-insight-yaml-interpret-stream) | Interpret YAML using AI |
   
 
@@ -793,7 +794,7 @@ Status: OK
    
   
 
-[ScannerAuditData](#scanner-audit-data)
+[AiAuditData](#ai-audit-data)
 
 ##### <span id="get-rest-api-v1-insight-audit-400"></span> 400 - Bad Request
 Status: Bad Request
@@ -1906,6 +1907,93 @@ Status: Internal Server Error
 
 
 
+### <span id="post-insight-issue-interpret-stream"></span> Interpret scanner issues using AI (*PostInsightIssueInterpretStream*)
+
+```
+POST /insight/issue/interpret/stream
+```
+
+This endpoint analyzes scanner issues using AI to provide detailed interpretation and insights
+
+#### Consumes
+  * application/json
+
+#### Produces
+  * text/event-stream
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| request | `body` | [ScannerInterpretRequest](#scanner-interpret-request) | `models.ScannerInterpretRequest` | | ✓ | | The audit data to interpret |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#post-insight-issue-interpret-stream-200) | OK | OK |  | [schema](#post-insight-issue-interpret-stream-200-schema) |
+| [400](#post-insight-issue-interpret-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-issue-interpret-stream-400-schema) |
+| [401](#post-insight-issue-interpret-stream-401) | Unauthorized | Unauthorized |  | [schema](#post-insight-issue-interpret-stream-401-schema) |
+| [404](#post-insight-issue-interpret-stream-404) | Not Found | Not Found |  | [schema](#post-insight-issue-interpret-stream-404-schema) |
+| [429](#post-insight-issue-interpret-stream-429) | Too Many Requests | Too Many Requests |  | [schema](#post-insight-issue-interpret-stream-429-schema) |
+| [500](#post-insight-issue-interpret-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-issue-interpret-stream-500-schema) |
+
+#### Responses
+
+
+##### <span id="post-insight-issue-interpret-stream-200"></span> 200 - OK
+Status: OK
+
+###### <span id="post-insight-issue-interpret-stream-200-schema"></span> Schema
+   
+  
+
+[AiInterpretEvent](#ai-interpret-event)
+
+##### <span id="post-insight-issue-interpret-stream-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="post-insight-issue-interpret-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-issue-interpret-stream-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="post-insight-issue-interpret-stream-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-issue-interpret-stream-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="post-insight-issue-interpret-stream-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-issue-interpret-stream-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="post-insight-issue-interpret-stream-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-issue-interpret-stream-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="post-insight-issue-interpret-stream-500-schema"></span> Schema
+   
+  
+
+
+
 ### <span id="post-insight-yaml-interpret-stream"></span> Interpret YAML using AI (*PostInsightYamlInterpretStream*)
 
 ```
@@ -1931,6 +2019,9 @@ This endpoint analyzes YAML content using AI to provide detailed interpretation 
 |------|--------|-------------|:-----------:|--------|
 | [200](#post-insight-yaml-interpret-stream-200) | OK | OK |  | [schema](#post-insight-yaml-interpret-stream-200-schema) |
 | [400](#post-insight-yaml-interpret-stream-400) | Bad Request | Bad Request |  | [schema](#post-insight-yaml-interpret-stream-400-schema) |
+| [401](#post-insight-yaml-interpret-stream-401) | Unauthorized | Unauthorized |  | [schema](#post-insight-yaml-interpret-stream-401-schema) |
+| [404](#post-insight-yaml-interpret-stream-404) | Not Found | Not Found |  | [schema](#post-insight-yaml-interpret-stream-404-schema) |
+| [429](#post-insight-yaml-interpret-stream-429) | Too Many Requests | Too Many Requests |  | [schema](#post-insight-yaml-interpret-stream-429-schema) |
 | [500](#post-insight-yaml-interpret-stream-500) | Internal Server Error | Internal Server Error |  | [schema](#post-insight-yaml-interpret-stream-500-schema) |
 
 #### Responses
@@ -1949,6 +2040,33 @@ Status: OK
 Status: Bad Request
 
 ###### <span id="post-insight-yaml-interpret-stream-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-yaml-interpret-stream-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="post-insight-yaml-interpret-stream-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-yaml-interpret-stream-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="post-insight-yaml-interpret-stream-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="post-insight-yaml-interpret-stream-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="post-insight-yaml-interpret-stream-429-schema"></span> Schema
    
   
 
@@ -2556,6 +2674,24 @@ Status: Internal Server Error
 
 
 
+### <span id="ai-audit-data"></span> ai.AuditData
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| bySeverity | map of integer| `map[string]int64` |  | |  |  |
+| issueGroups | [][AiIssueGroup](#ai-issue-group)| `[]*AiIssueGroup` |  | |  |  |
+| issueTotal | integer| `int64` |  | |  |  |
+| resourceTotal | integer| `int64` |  | |  |  |
+
+
+
 ### <span id="ai-diagnosis-event"></span> ai.DiagnosisEvent
 
 
@@ -2605,6 +2741,22 @@ Status: Internal Server Error
 |------|------|---------|:--------:| ------- |-------------|---------|
 | content | string| `string` |  | | Event content or error message |  |
 | type | string| `string` |  | | Event type: start, chunk, error, complete |  |
+
+
+
+### <span id="ai-issue-group"></span> ai.IssueGroup
+
+
+  
+
+
+
+**Properties**
+
+| Name | Type | Go type | Required | Default | Description | Example |
+|------|------|---------|:--------:| ------- |-------------|---------|
+| issue | [ScannerIssue](#scanner-issue)| `ScannerIssue` |  | |  |  |
+| resourceGroups | [][EntityResourceGroup](#entity-resource-group)| `[]*EntityResourceGroup` |  | |  |  |
 
 
 
@@ -2789,7 +2941,7 @@ of issues across different severity categories. |  |
 
 
 
-### <span id="scanner-audit-data"></span> scanner.AuditData
+### <span id="scanner-interpret-request"></span> scanner.InterpretRequest
 
 
   
@@ -2800,10 +2952,8 @@ of issues across different severity categories. |  |
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| bySeverity | map of integer| `map[string]int64` |  | |  |  |
-| issueGroups | [][ScannerIssueGroup](#scanner-issue-group)| `[]*ScannerIssueGroup` |  | |  |  |
-| issueTotal | integer| `int64` |  | |  |  |
-| resourceTotal | integer| `int64` |  | |  |  |
+| auditData | [AiAuditData](#ai-audit-data)| `AiAuditData` |  | | The audit data to interpret |  |
+| language | string| `string` |  | | Language for interpretation |  |
 
 
 
@@ -2822,22 +2972,6 @@ of issues across different severity categories. |  |
 | scanner | string| `string` |  | | Scanner is the name of the scanner that discovered the issue. |  |
 | severity | integer| `int64` |  | | Severity indicates how critical the issue is, using the IssueSeverityLevel constants. |  |
 | title | string| `string` |  | | Title is a brief summary of the issue. |  |
-
-
-
-### <span id="scanner-issue-group"></span> scanner.IssueGroup
-
-
-  
-
-
-
-**Properties**
-
-| Name | Type | Go type | Required | Default | Description | Example |
-|------|------|---------|:--------:| ------- |-------------|---------|
-| issue | [ScannerIssue](#scanner-issue)| `ScannerIssue` |  | |  |  |
-| resourceGroups | [][EntityResourceGroup](#entity-resource-group)| `[]*EntityResourceGroup` |  | |  |  |
 
 
 
