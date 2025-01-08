@@ -67,6 +67,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const eventSource = useRef<EventSource>()
   const diagnosisEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
 
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
@@ -350,6 +351,9 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     ? { width: '100%', height: 300 }
     : { width: 400, height: 600 }
 
+  const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
+  const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
+
   const renderDiagnosisWindow = () => {
     if (diagnosisStatus === 'idle') {
       return null
@@ -401,42 +405,46 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             />
           </Space>
         </div>
-        <div className={styles.events_content_diagnosisContent}>
-          {diagnosisStatus === 'loading' ||
-          (diagnosisStatus === 'streaming' && !diagnosis) ? (
-            <div className={styles.events_content_diagnosisLoading}>
-              <Spin />
-              <p>{t('EventAggregator.DiagnosisInProgress')}</p>
-            </div>
-          ) : diagnosisStatus === 'error' ? (
-            <Alert
-              type="error"
-              message={t('EventAggregator.DiagnosisFailed')}
-              description={t('EventAggregator.TryAgainLater')}
-            />
-          ) : (
-            <>
-              <Markdown>{diagnosis}</Markdown>
-              {diagnosisStatus === 'streaming' && (
-                <div className={styles.events_content_streamingIndicator}>
-                  <span className={styles.dot}></span>
-                  <span className={styles.dot}></span>
-                  <span className={styles.dot}></span>
-                </div>
-              )}
-              <div ref={diagnosisEndRef} />
-            </>
-          )}
+        <div className={styles.events_content_diagnosisBody}>
+          <div
+            className={styles.events_content_diagnosisContent}
+            ref={contentRef}
+          >
+            {diagnosisStatus === 'loading' ||
+            (diagnosisStatus === 'streaming' && !diagnosis) ? (
+              <div className={styles.events_content_diagnosisLoading}>
+                <Spin />
+                <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+              </div>
+            ) : diagnosisStatus === 'error' ? (
+              <Alert
+                type="error"
+                message={t('EventAggregator.DiagnosisFailed')}
+                description={t('EventAggregator.TryAgainLater')}
+              />
+            ) : (
+              <>
+                <Markdown>{diagnosis}</Markdown>
+                {diagnosisStatus === 'streaming' && (
+                  <div
+                    className={`${styles.events_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - (isVertical ? 300 : 600) >= 0 ? styles.events_content_streamingIndicatorFixed : ''}`}
+                  >
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                  </div>
+                )}
+                <div ref={diagnosisEndRef} />
+              </>
+            )}
+          </div>
         </div>
       </div>
     )
   }
 
   return (
-    <div
-      className={styles.events_container}
-      // style={{ flexDirection: 'column' }}
-    >
+    <div className={styles.events_container}>
       <div className={styles.events_header}>
         <div className={styles.events_toolBar}>
           {hasEvents && (

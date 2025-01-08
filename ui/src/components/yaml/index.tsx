@@ -45,6 +45,7 @@ const Yaml = (props: IProps) => {
   const yamlRef = useRef<LegacyRef<HTMLDivElement> | undefined>()
   const diagnosisContentRef = useRef<HTMLDivElement>(null)
   const interpretEndRef = useRef<HTMLDivElement>(null)
+  const contentRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<MutationObserver | null>(null)
   const { data } = props
   const [moduleHeight, setModuleHeight] = useState<number>(500)
@@ -254,6 +255,8 @@ const Yaml = (props: IProps) => {
       setStreaming(false)
     }
   }
+  const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
+  const dotToTopHeight = interpretEndRef.current?.getBoundingClientRect()?.top
 
   return (
     <div style={{ paddingBottom: 20 }}>
@@ -377,35 +380,45 @@ const Yaml = (props: IProps) => {
                   />
                 </Space>
               </div>
-              <div className={styles.yaml_content_diagnosisContent}>
-                {interpretStatus === 'loading' ||
-                (interpretStatus === 'streaming' && !interpret) ? (
-                  <div className={styles.yaml_content_diagnosisLoading}>
-                    <Spin />
-                    <p>{t('EventAggregator.DiagnosisInProgress')}</p>
-                  </div>
-                ) : interpretStatus === 'streaming' ? (
-                  <div>
-                    <Markdown>{interpret}</Markdown>
-                    <div className={styles.yaml_content_streamingIndicator}>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
+              <div className={styles.yaml_content_diagnosisBody}>
+                <div
+                  className={styles.yaml_content_diagnosisContent}
+                  ref={contentRef}
+                >
+                  {interpretStatus === 'loading' ||
+                  (interpretStatus === 'streaming' && !interpret) ? (
+                    <div className={styles.yaml_content_diagnosisLoading}>
+                      <Spin />
+                      <p>{t('EventAggregator.DiagnosisInProgress')}</p>
                     </div>
-                    <div
-                      ref={interpretEndRef}
-                      style={{ float: 'left', clear: 'both' }}
+                  ) : interpretStatus === 'streaming' ? (
+                    <>
+                      <Markdown>{interpret}</Markdown>
+                      <div
+                        ref={interpretEndRef}
+                        style={{
+                          float: 'left',
+                          clear: 'both',
+                        }}
+                      />
+                      <div
+                        className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
+                      >
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                        <span className={styles.dot}></span>
+                      </div>
+                    </>
+                  ) : interpretStatus === 'error' ? (
+                    <Alert
+                      type="error"
+                      message={t('EventAggregator.DiagnosisFailed')}
+                      description={t('EventAggregator.TryAgainLater')}
                     />
-                  </div>
-                ) : interpretStatus === 'error' ? (
-                  <Alert
-                    type="error"
-                    message={t('EventAggregator.DiagnosisFailed')}
-                    description={t('EventAggregator.TryAgainLater')}
-                  />
-                ) : (
-                  <Markdown>{interpret}</Markdown>
-                )}
+                  ) : (
+                    <Markdown>{interpret}</Markdown>
+                  )}
+                </div>
               </div>
             </div>
           )}
