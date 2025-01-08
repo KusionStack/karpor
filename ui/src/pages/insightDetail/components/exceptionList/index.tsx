@@ -293,7 +293,9 @@ const ExceptionList = ({
             />
           ) : (
             <>
-              <Markdown>{interpret}</Markdown>
+              <div className={styles.interpret_result}>
+                <Markdown>{interpret}</Markdown>
+              </div>
               {interpretStatus === 'streaming' && (
                 <div className={styles.streaming_indicator}>
                   <span className={styles.dot}></span>
