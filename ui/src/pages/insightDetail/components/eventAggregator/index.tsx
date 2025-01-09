@@ -340,7 +340,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     debouncedDiagnose()
   }, [debouncedDiagnose])
 
-  const isVertical = filteredEvents?.length <= 6
+  const isVertical = filteredEvents?.length <= 3
   const events_content_styles: React.CSSProperties = isVertical
     ? { flexDirection: 'column' }
     : { flexDirection: 'row' }
