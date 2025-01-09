@@ -200,5 +200,30 @@
   "DefaultTag": "默认标签",
   "FailedToParsePodDetails": "解析 Pod 详情失败",
   "Enabled": "已启用",
-  "Disabled": "未启用"
+  "Disabled": "未启用",
+  "ExceptionList": {
+    "NoIssues": "未发现问题",
+    "NoIssuesFound": "未发现问题",
+    "InterpretConnectionError": "诊断连接失败",
+    "FailedToInterpretLogs": "日志解读失败",
+    "Interpret": "AI 解读",
+    "InterpretResult": "AI 解读结果",
+    "StopInterpret": "停止诊断",
+    "InterpretInProgress": "分析中...",
+    "InterpretFailed": "诊断失败",
+    "TryAgainLater": "请稍后重试",
+    "Rescan": "重新扫描",
+    "Collapse": "收起",
+    "Expand": "展开",
+    "CheckAllIssues": "查看所有问题",
+    "ViewIssueDetail": "查看问题详情",
+    "Occur": "出现",
+    "Times": "次",
+    "CollectedFrom": "收集自",
+    "Tool": "工具",
+    "Description": "描述",
+    "High": "高",
+    "Medium": "中",
+    "Low": "低"
+  }
 }

@@ -30,6 +30,8 @@ const (
 	EventDiagnosisType PromptType = "event_diagnosis"
 	// YAMLInterpretType represents the prompt type for YAML interpretation
 	YAMLInterpretType PromptType = "yaml_interpret"
+	// IssueInterpretType represents the prompt type for issue interpretation
+	IssueInterpretType PromptType = "issue_interpret"
 )
 
 var ServicePromptMap = map[PromptType]string{
@@ -181,4 +183,20 @@ Note:
 - Format your response with clear sections using markdown headings (##) and bullet points
 - Do NOT wrap your entire response in a markdown code block
 - Use code blocks only for YAML examples or specific configuration snippets`,
+
+	IssueInterpretType: `You are a Kubernetes expert specialized in analyzing security issues and providing solutions.
+Please analyze the following issues and provide your insights in %s.
+
+Issues Summary:
+%s
+
+Please provide a concise analysis focusing on:
+1. Brief summary of the most critical issues (1-2 sentences)
+2. Detailed solutions with specific examples, including:
+   - Exact code or configuration changes needed
+   - Before and after examples
+   - Common pitfalls to avoid
+3. Best practices and preventive measures
+
+Note: Format your response with clear sections using markdown headings (##) and bullet points. Do NOT wrap your entire response in a markdown code block.`,
 }

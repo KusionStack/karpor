@@ -176,8 +176,6 @@
       cursor: not-allowed;
     }
 
-
-
     &:not(:disabled) {
       &:hover {
         background: rgba(114, 46, 209, 0.08);
@@ -233,7 +231,7 @@
       right: 15px;
       top: 15px;
       color: #222;
-      background: rgba(255, 255, 255, .9);
+      background: rgba(255, 255, 255, 0.9);
 
       &:hover {
         background: #fff;
@@ -415,7 +413,6 @@
             }
           }
 
-
           button {
             color: rgba(230, 230, 250, 0.85);
             transition: all 0.3s ease;
@@ -479,34 +476,7 @@
             box-sizing: border-box;
             word-wrap: break-word;
 
-            .streamingIndicator {
-              display: flex;
-              align-items: center;
-              gap: 4px;
 
-              .dot {
-                width: 6px;
-                height: 6px;
-                background-color: #4447c3;
-                border-radius: 50%;
-                opacity: 0.3;
-                animation: dotPulse 1.4s infinite;
-
-                &:nth-child(2) {
-                  animation-delay: 0.2s;
-                }
-
-                &:nth-child(3) {
-                  animation-delay: 0.4s;
-                }
-              }
-            }
-
-            .streamingIndicatorFixed {
-              position: fixed;
-              bottom: 16px;
-              left: 16px;
-            }
 
             .diagnosisLoading,
             .diagnosisError {
@@ -737,6 +707,37 @@
                 }
               }
             }
+          }
+
+          .streamingIndicator {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 16px;
+
+            .dot {
+              width: 6px;
+              height: 6px;
+              background-color: #4447c3;
+              border-radius: 50%;
+              opacity: 0.3;
+              animation: dotPulse 1.4s infinite;
+
+              &:nth-child(2) {
+                animation-delay: 0.2s;
+              }
+
+              &:nth-child(3) {
+                animation-delay: 0.4s;
+              }
+            }
+          }
+
+          .streamingIndicatorFixed {
+            position: sticky;
+            bottom: 0;
+            left: 0;
+            right: 0;
           }
         }
       }

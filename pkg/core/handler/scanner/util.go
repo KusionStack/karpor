@@ -18,19 +18,20 @@ import (
 	"sort"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/core/manager/ai"
 	"github.com/KusionStack/karpor/pkg/infra/scanner"
 )
 
 // convertScanResultToAuditData converts the scanner.ScanResult to an AuditData
 // structure containing aggregated issue and resource data.
-func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
-	issueGroups := make([]*IssueGroup, 0, len(sr.ByIssue()))
+func convertScanResultToAuditData(sr scanner.ScanResult) *ai.AuditData {
+	issueGroups := make([]*ai.IssueGroup, 0, len(sr.ByIssue()))
 	bySeverity := map[string]int{}
 
 	// Iterate through each issue in the ScanResult and create corresponding
 	// IssueGroup entries.
 	for issue, resources := range sr.ByIssue() {
-		issueGroup := &IssueGroup{
+		issueGroup := &ai.IssueGroup{
 			Issue:          issue,
 			ResourceGroups: []entity.ResourceGroup{},
 		}
@@ -59,7 +60,7 @@ func convertScanResultToAuditData(sr scanner.ScanResult) *AuditData {
 	})
 
 	// Construct the AuditData structure.
-	return &AuditData{
+	return &ai.AuditData{
 		IssueTotal:    sr.IssueTotal(),
 		ResourceTotal: len(sr.ByResource()),
 		BySeverity:    bySeverity,

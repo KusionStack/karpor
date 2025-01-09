@@ -849,13 +849,6 @@ const PodLogs: React.FC<PodLogsProps> = ({
                     <div style={{ marginBottom: 30 }}>
                       <Markdown>{diagnosis}</Markdown>
                       <div
-                        className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
-                      >
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                      </div>
-                      <div
                         ref={diagnosisEndRef}
                         style={{ float: 'left', clear: 'both' }}
                       />
@@ -874,6 +867,16 @@ const PodLogs: React.FC<PodLogsProps> = ({
                     <Markdown>{diagnosis}</Markdown>
                   )}
                 </div>
+                {diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+                  diagnosis && (
+                    <div
+                      className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
+                    >
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                      <span className={styles.dot}></span>
+                    </div>
+                  )}
               </div>
             </div>
           )}

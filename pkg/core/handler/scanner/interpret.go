@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package detail
+package scanner
 
 import (
 	"encoding/json"
@@ -25,35 +25,35 @@ import (
 	"k8s.io/apiserver/pkg/server"
 )
 
-// InterpretRequest represents the request body for YAML interpretation
+// InterpretRequest represents the request body for issue interpretation
 type InterpretRequest struct {
-	YAML     string `json:"yaml"`
-	Language string `json:"language"`
+	AuditData *ai.AuditData `json:"auditData"` // The audit data to interpret
+	Language  string        `json:"language"`  // Language for interpretation
 }
 
-// InterpretYAML returns an HTTP handler function that performs AI interpretation on YAML content
+// InterpretIssues returns an HTTP handler function that performs AI interpretation on scanner issues
 //
-// @Summary      Interpret YAML using AI
-// @Description  This endpoint analyzes YAML content using AI to provide detailed interpretation and insights
+// @Summary      Interpret scanner issues using AI
+// @Description  This endpoint analyzes scanner issues using AI to provide detailed interpretation and insights
 // @Tags         insight
 // @Accept       json
 // @Produce      text/event-stream
-// @Param        request  body      InterpretRequest  true  "The YAML content to interpret"
+// @Param        request  body      InterpretRequest  true  "The audit data to interpret"
 // @Success      200      {object}  ai.InterpretEvent
 // @Failure      400      {string}  string  "Bad Request"
 // @Failure      401      {string}  string  "Unauthorized"
 // @Failure      429      {string}  string  "Too Many Requests"
 // @Failure      404      {string}  string  "Not Found"
 // @Failure      500      {string}  string  "Internal Server Error"
-// @Router       /insight/yaml/interpret/stream [post]
-func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
+// @Router       /insight/issue/interpret/stream [post]
+func InterpretIssues(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// Extract the context and logger from the request
 		ctx := r.Context()
 		logger := ctxutil.GetLogger(ctx)
 
 		// Begin the interpretation process, logging the start
-		logger.Info("Starting YAML interpretation in handler ...")
+		logger.Info("Starting issue interpretation in handler ...")
 
 		// Parse request body
 		var req InterpretRequest
@@ -62,9 +62,12 @@ func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerF
 			return
 		}
 
+		// Log successful decoding of the request body
+		logger.Info("Successfully decoded the request body", "auditData", req.AuditData)
+
 		// Validate request
-		if req.YAML == "" {
-			handler.FailureRender(ctx, w, r, fmt.Errorf("YAML content is required"))
+		if req.AuditData == nil {
+			handler.FailureRender(ctx, w, r, fmt.Errorf("audit data is required"))
 			return
 		}
 		if req.Language == "" {
@@ -87,8 +90,8 @@ func InterpretYAML(aiMgr *ai.AIManager, c *server.CompletedConfig) http.HandlerF
 		// Create channel for interpretation events
 		eventChan := make(chan *ai.InterpretEvent, 10)
 		go func() {
-			if err := aiMgr.InterpretYAML(ctx, req.YAML, req.Language, eventChan); err != nil {
-				logger.Error(err, "Failed to interpret YAML")
+			if err := aiMgr.InterpretIssues(ctx, req.AuditData, req.Language, eventChan); err != nil {
+				logger.Error(err, "Failed to interpret issues")
 				// Error will be sent through eventChan
 			}
 		}()

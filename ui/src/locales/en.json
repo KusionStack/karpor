@@ -200,5 +200,30 @@
     }
   },
   "Enabled": "Enabled",
-  "Disabled": "Disabled"
+  "Disabled": "Disabled",
+  "ExceptionList": {
+    "NoIssues": "No Issues Found",
+    "NoIssuesFound": "No Issues Found",
+    "InterpretConnectionError": "Interpret connection failed",
+    "FailedToInterpretLogs": "Failed to interpret logs",
+    "Interpret": "AI Interpret",
+    "InterpretResult": "AI Interpret Result",
+    "StopInterpret": "Stop Interpret",
+    "InterpretInProgress": "Analyzing...",
+    "InterpretFailed": "Interpret Failed",
+    "TryAgainLater": "Please try again later",
+    "Rescan": "Re-scan",
+    "Collapse": "Collapse",
+    "Expand": "Expand",
+    "CheckAllIssues": "Check All Issues",
+    "ViewIssueDetail": "View Issue Detail",
+    "Occur": "Occurs",
+    "Times": "times",
+    "CollectedFrom": "Collected from",
+    "Tool": "Tool",
+    "Description": "Description",
+    "High": "High",
+    "Medium": "Medium",
+    "Low": "Low"
+  }
 }

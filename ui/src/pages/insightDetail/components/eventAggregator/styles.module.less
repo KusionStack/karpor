@@ -247,7 +247,18 @@
       flex-direction: column;
       backdrop-filter: blur(8px);
       z-index: 10;
-      background-image: radial-gradient(ellipse 489px 674px at 6px 0px, #fcf8ff 0%, #ebd7ff 100%), radial-gradient(ellipse 587px 672px at 433px 513px, #dae4ffa1 0%, #e1d2e704 100%), radial-gradient(ellipse 346px 396px at 15px 506px, #dae4ffa3 0%, #e1d2e704 100%), radial-gradient(ellipse 583px 668px at 436px 8px, #f8f5ff 0%, #f3e7f904 100%);
+      background-image: radial-gradient(ellipse 489px 674px at 6px 0px,
+          #fcf8ff 0%,
+          #ebd7ff 100%),
+        radial-gradient(ellipse 587px 672px at 433px 513px,
+          #dae4ffa1 0%,
+          #e1d2e704 100%),
+        radial-gradient(ellipse 346px 396px at 15px 506px,
+          #dae4ffa3 0%,
+          #e1d2e704 100%),
+        radial-gradient(ellipse 583px 668px at 436px 8px,
+          #f8f5ff 0%,
+          #f3e7f904 100%);
       animation: slideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
       .events_content_diagnosisHeader {
@@ -448,34 +459,6 @@
             }
           }
 
-          .events_content_streamingIndicator {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-
-            .dot {
-              width: 6px;
-              height: 6px;
-              background-color: #4447c3;
-              border-radius: 50%;
-              opacity: 0.3;
-              animation: dotPulse 1.4s infinite;
-
-              &:nth-child(2) {
-                animation-delay: 0.2s;
-              }
-
-              &:nth-child(3) {
-                animation-delay: 0.4s;
-              }
-            }
-          }
-
-          .events_content_streamingIndicatorFixed {
-            position: fixed;
-            bottom: 16px;
-            left: 16px;
-          }
 
           .events_content_diagnosisLoading {
             display: flex;
@@ -646,12 +629,40 @@
           }
         }
 
-      }
+        .events_content_streamingIndicator {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          padding: 16px;
 
+          .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #4447c3;
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: dotPulse 1.4s infinite;
+
+            &:nth-child(2) {
+              animation-delay: 0.2s;
+            }
+
+            &:nth-child(3) {
+              animation-delay: 0.4s;
+            }
+          }
+        }
+
+        .events_content_streamingIndicatorFixed {
+          position: sticky;
+          bottom: 0;
+          left: 0;
+          right: 0;
+        }
+      }
     }
   }
 }
-
 
 .tag {
   display: inline-flex;
