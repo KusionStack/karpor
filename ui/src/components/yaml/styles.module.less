@@ -220,11 +220,9 @@
       justify-content: space-between;
       align-items: center;
       padding: 12px;
-      background: linear-gradient(
-        135deg,
-        rgba(147, 112, 219, 0.15) 0%,
-        rgba(43, 29, 60, 0.95) 100%
-      );
+      background: linear-gradient(135deg,
+          rgba(147, 112, 219, 0.15) 0%,
+          rgba(43, 29, 60, 0.95) 100%);
       border-bottom: 1px solid rgba(147, 112, 219, 0.2);
       border-radius: 12px 12px 0 0;
       color: #e6e6fa;
@@ -366,34 +364,7 @@
         box-sizing: border-box;
         word-wrap: break-word;
 
-        .yaml_content_streamingIndicator {
-          display: flex;
-          align-items: center;
-          gap: 4px;
 
-          .dot {
-            width: 6px;
-            height: 6px;
-            background-color: #4447c3;
-            border-radius: 50%;
-            opacity: 0.3;
-            animation: dotPulse 1.4s infinite;
-
-            &:nth-child(2) {
-              animation-delay: 0.2s;
-            }
-
-            &:nth-child(3) {
-              animation-delay: 0.4s;
-            }
-          }
-        }
-
-        .yaml_content_streamingIndicatorFixed {
-          position: fixed;
-          bottom: 16px;
-          left: 16px;
-        }
 
         .yaml_content_diagnosisLoading {
           height: 100%;
@@ -614,16 +585,45 @@
             hr {
               border: none;
               height: 1px;
-              background: linear-gradient(
-                to right,
-                rgba(147, 112, 219, 0.1),
-                rgba(147, 112, 219, 0.4),
-                rgba(147, 112, 219, 0.1)
-              );
+              background: linear-gradient(to right,
+                  rgba(147, 112, 219, 0.1),
+                  rgba(147, 112, 219, 0.4),
+                  rgba(147, 112, 219, 0.1));
               margin: 24px 0;
             }
           }
         }
+      }
+
+      .yaml_content_streamingIndicator {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        padding: 16px;
+
+        .dot {
+          width: 6px;
+          height: 6px;
+          background-color: #4447c3;
+          border-radius: 50%;
+          opacity: 0.3;
+          animation: dotPulse 1.4s infinite;
+
+          &:nth-child(2) {
+            animation-delay: 0.2s;
+          }
+
+          &:nth-child(3) {
+            animation-delay: 0.4s;
+          }
+        }
+      }
+
+      .yaml_content_streamingIndicatorFixed {
+        position: sticky;
+        bottom: 0;
+        left: 0;
+        right: 0;
       }
     }
   }
@@ -687,6 +687,7 @@
 }
 
 @keyframes sparkle {
+
   0%,
   100% {
     filter: drop-shadow(0 0 4px rgba(147, 112, 219, 0.4));

@@ -425,19 +425,19 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             ) : (
               <>
                 <Markdown>{diagnosis}</Markdown>
-                {diagnosisStatus === 'streaming' && (
-                  <div
-                    className={`${styles.events_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - (isVertical ? 300 : 600) >= 0 ? styles.events_content_streamingIndicatorFixed : ''}`}
-                  >
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                  </div>
-                )}
                 <div ref={diagnosisEndRef} />
               </>
             )}
           </div>
+          {diagnosisStatus === 'streaming' && diagnosis && (
+            <div
+              className={`${styles.events_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - (isVertical ? 300 : 600) >= 0 ? styles.events_content_streamingIndicatorFixed : ''}`}
+            >
+              <span className={styles.dot}></span>
+              <span className={styles.dot}></span>
+              <span className={styles.dot}></span>
+            </div>
+          )}
         </div>
       </div>
     )

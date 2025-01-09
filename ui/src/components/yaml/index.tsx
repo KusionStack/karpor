@@ -401,13 +401,6 @@ const Yaml = (props: IProps) => {
                           clear: 'both',
                         }}
                       />
-                      <div
-                        className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
-                      >
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                        <span className={styles.dot}></span>
-                      </div>
                     </>
                   ) : interpretStatus === 'error' ? (
                     <Alert
@@ -419,6 +412,15 @@ const Yaml = (props: IProps) => {
                     <Markdown>{interpret}</Markdown>
                   )}
                 </div>
+                {interpretStatus === 'streaming' && interpret && (
+                  <div
+                    className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
+                  >
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                  </div>
+                )}
               </div>
             </div>
           )}
