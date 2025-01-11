@@ -306,6 +306,12 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
     convertUnits.bytesToGB,
   )
 
+  const getLatencyLevel = (latency: number) => {
+    if (latency <= 100) return 'normal'
+    if (latency <= 500) return 'warning'
+    return 'error'
+  }
+
   return (
     <div className={styles.summary_card}>
       <Progress
@@ -489,17 +495,22 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
 
             <div className={styles.item}>
               <div className={styles.label}>Metrics Server</div>
-              <div className={styles.value}>
-                <MetricTooltip
-                  value={
-                    summary?.metricsEnabled === undefined
-                      ? '--'
-                      : summary?.metricsEnabled
-                        ? t('Enabled')
-                        : t('Disabled')
-                  }
-                  tooltipKey="MetricsServer"
-                />
+              <div
+                className={`${styles.value} ${styles['metrics-server']} ${
+                  summary?.metricsEnabled ? styles.enabled : styles.disabled
+                }`}
+              >
+                {summary?.metricsEnabled ? (
+                  <span>
+                    <i className="anticon anticon-check" />
+                    Enabled
+                  </span>
+                ) : (
+                  <span>
+                    <i className="anticon anticon-close" />
+                    Disabled
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -535,7 +546,11 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
           {summary?.latency && (
             <div className={styles.item}>
               <div className={styles.label}>Latency</div>
-              <div className={styles.value}>{summary?.latency}ms</div>
+              <div
+                className={`${styles.value} ${styles.latency} ${styles[getLatencyLevel(summary.latency)]}`}
+              >
+                {summary.latency}ms
+              </div>
             </div>
           )}
         </div>
