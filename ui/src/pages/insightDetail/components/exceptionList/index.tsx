@@ -7,6 +7,7 @@ import {
   DownOutlined,
   PoweroffOutlined,
   CloseOutlined,
+  RedoOutlined,
 } from '@ant-design/icons'
 import Loading from '@/components/loading'
 import { SEVERITY_MAP } from '@/utils/constants'
@@ -79,8 +80,6 @@ const ExceptionList = ({
   function handleClick() {
     setIsShowList(!isShowList)
   }
-  const iconStyle = { marginLeft: 5, color: '#646566' }
-
   const debouncedInterpret = useCallback(
     debounce(async () => {
       try {
@@ -364,20 +363,28 @@ const ExceptionList = ({
                 />
               </Tooltip>
             )}
-            <Button onClick={rescan}>{t('ExceptionList.Rescan')}</Button>
-            <div className={styles.header_right_action} onClick={handleClick}>
-              {isShowList ? (
-                <span>
-                  {t('ExceptionList.Collapse')}
-                  <UpOutlined style={iconStyle} />
-                </span>
-              ) : (
-                <span>
-                  {t('ExceptionList.Expand')}
-                  <DownOutlined style={iconStyle} />
-                </span>
-              )}
-            </div>
+            <Tooltip title={t('ExceptionList.Rescan')}>
+              <Button
+                className={styles.header_right_action}
+                icon={<RedoOutlined />}
+                onClick={rescan}
+                type="text"
+              />
+            </Tooltip>
+            <Tooltip
+              title={
+                isShowList
+                  ? t('ExceptionList.Collapse')
+                  : t('ExceptionList.Expand')
+              }
+            >
+              <Button
+                className={styles.header_right_action}
+                icon={isShowList ? <UpOutlined /> : <DownOutlined />}
+                onClick={handleClick}
+                type="text"
+              />
+            </Tooltip>
           </div>
         </div>
         {isShowList && (
