@@ -84,7 +84,7 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
       <b>Multi-Cluster e Multi-Nuvem/Nuvem Híbrida</b><br />Suporta nativamente Multi-Cluster e Multi-Nuvem/Nuvem Híbrida.
     </td>
     <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg" alt="Baixo Impacto" />
+      <img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png" alt="Baixo Impacto" />
     </td>
   </tr>
 </table>

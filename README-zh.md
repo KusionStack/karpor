@@ -87,7 +87,7 @@ https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5a
       <b>Kubernetes AIOps</b><br />利用 AI 驱动的洞察，自动化和优化 Kubernetes 管理
     </td>
     <td width="60%">
-      <kbd><img src="https://kusionstack.io/karpor/assets/misc/coming-soon.jpeg"  /></kbd>
+      <kbd><img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png"  /></kbd>
     </td>
   </tr>
 </table>
