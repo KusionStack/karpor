@@ -16,12 +16,13 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 )
 
 // ReadOnlyMode disallows non-GET requests in read-only mode.
 func ReadOnlyMode(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
+		if r.Method != http.MethodGet && !strings.HasSuffix(r.URL.Path, "/stream") {
 			http.Error(w, "The server is currently in read-only mode.", http.StatusMethodNotAllowed)
 			return
 		}
