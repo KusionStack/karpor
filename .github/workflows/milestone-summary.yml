@@ -6,7 +6,7 @@ on:
     types: [created, edited, deleted]
   # Trigger on issue events
   issues:
-    types: [opened, edited, deleted, transferred, milestoned, demilestoned]
+    types: [opened, edited, deleted, transferred, milestoned, demilestoned, labeled, unlabeled]
 
 jobs:
   plan:
