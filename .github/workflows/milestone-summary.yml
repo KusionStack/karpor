@@ -31,5 +31,6 @@ jobs:
               "area/syncer",
               "bug",
               "enhancement",
+              "governance",
               "documentation"
             ]
