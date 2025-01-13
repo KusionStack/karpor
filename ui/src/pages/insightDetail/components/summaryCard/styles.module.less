@@ -18,6 +18,9 @@
       color: #1890ff;
       font-weight: 600;
       font-size: 20px;
+      font-family: 'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Mono',
+        monospace;
+      letter-spacing: -0.5px;
     }
   }
 }
@@ -79,7 +82,16 @@
       }
 
       &.namespaceStat {
-        font-weight: 600;
+        font-weight: 500;
+
+        .value {
+          font-size: 16px;
+          letter-spacing: -0.4px;
+          background: linear-gradient(45deg, #1890ff, #69c0ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          text-shadow: 0 1px 2px rgba(24, 144, 255, 0.1);
+        }
       }
 
       &.with_trend {
@@ -89,18 +101,21 @@
       .label {
         color: rgba(0, 0, 0, 0.45);
         font-size: 13px;
-        font-weight: 500;
-        margin-bottom: 4px;
+        font-weight: 450;
+        margin-bottom: 6px;
         white-space: nowrap;
         display: flex;
         align-items: center;
         min-height: 20px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI',
+          Roboto, sans-serif;
+        letter-spacing: -0.1px;
       }
 
       .value {
         overflow: hidden;
-        font-size: 15px;
-        color: rgba(0, 0, 0, 0.85);
+        font-size: 13px;
+        color: rgba(0, 0, 0, 0.88);
         text-overflow: ellipsis;
         white-space: nowrap;
         font-weight: 500;
@@ -110,6 +125,92 @@
         display: flex;
         align-items: center;
         flex: 1;
+
+        &.latency {
+          font-family: 'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Mono',
+            monospace;
+          letter-spacing: 0;
+
+          &.normal {
+            color: #52c41a;
+            &:hover {
+              background: linear-gradient(45deg, #237804, #52c41a);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+            }
+          }
+
+          &.warning {
+            color: #faad14;
+            &:hover {
+              background: linear-gradient(45deg, #d48806, #faad14);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+            }
+          }
+
+          &.error {
+            color: #ff4d4f;
+            &:hover {
+              background: linear-gradient(45deg, #cf1322, #ff4d4f);
+              -webkit-background-clip: text;
+              -webkit-text-fill-color: transparent;
+            }
+          }
+        }
+
+        &.metrics-server {
+          font-size: 12px;
+          padding: 2px 8px;
+          border-radius: 12px;
+          font-weight: 500;
+          letter-spacing: 0.2px;
+          transition: all 0.3s ease;
+          cursor: default;
+          height: 22px;
+
+          &.enabled {
+            background: rgba(82, 196, 26, 0.1);
+            color: #52c41a;
+            border: 1px solid rgba(82, 196, 26, 0.2);
+
+            &::before {
+              content: '';
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              background: #52c41a;
+              margin-right: 6px;
+              box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.2);
+            }
+
+            &:hover {
+              background: rgba(82, 196, 26, 0.15);
+              border-color: rgba(82, 196, 26, 0.3);
+            }
+          }
+
+          &.disabled {
+            background: rgba(0, 0, 0, 0.04);
+            color: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+
+            &::before {
+              content: '';
+              width: 6px;
+              height: 6px;
+              border-radius: 50%;
+              background: rgba(0, 0, 0, 0.25);
+              margin-right: 6px;
+              box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+            }
+
+            &:hover {
+              background: rgba(0, 0, 0, 0.06);
+              border-color: rgba(0, 0, 0, 0.15);
+            }
+          }
+        }
 
         &:hover {
           color: #1890ff;

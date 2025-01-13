@@ -3,26 +3,52 @@
   font-weight: 400;
   color: rgb(0 0 0 / 65%);
   align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto,
+    sans-serif;
 
   .title {
     display: flex;
-    margin-right: 20px;
+    margin-right: 24px;
     cursor: pointer;
     align-items: center;
+    font-size: 14px;
+    transition: all 0.2s ease;
+
+    &:hover {
+      color: rgb(0 0 0 / 88%);
+
+      .num {
+        background: rgb(0 0 0 / 06%);
+        transform: scale(1);
+      }
+    }
 
     &.active {
-      padding: 10px;
-      background: rgb(22 119 255 / 10%);
+      padding: 8px 12px;
+      background: rgb(22 119 255 / 8%);
       border-radius: 8px;
+      color: rgb(22 119 255);
+      font-weight: 500;
+
+      .num {
+        background: rgb(22 119 255 / 12%);
+        color: rgb(22 119 255);
+        transform: scale(1);
+      }
     }
   }
 
   .num {
-    padding: 2px 10px;
-    margin-left: 5px;
-    font-size: 12px;
-    background-color: rgb(0 0 0 / 3%);
-    border-radius: 10px;
-    transform: scale(0.8);
+    padding: 2px 12px;
+    margin-left: 8px;
+    font-family: 'SF Mono', SFMono-Regular, ui-monospace, 'Cascadia Mono',
+      'Segoe UI Mono', 'Liberation Mono', Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    font-weight: 500;
+    background: rgb(0 0 0 / 04%);
+    border-radius: 12px;
+    transform: scale(0.95);
+    transition: all 0.2s ease;
+    letter-spacing: -0.2px;
   }
 }
