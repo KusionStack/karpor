@@ -116,7 +116,7 @@ export const useAxios = ({
     try {
       const res = await axios({
         url: newOptions?.url,
-        method: method.toLowerCase(),
+        method: (newOptions?.method || method).toLowerCase(),
         ...newOptions?.option,
       })
       handleResponse(res, newOptions?.callbackFn, newOptions?.successParams)
