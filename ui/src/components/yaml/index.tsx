@@ -13,12 +13,12 @@ import {
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
 import 'highlight.js/styles/lightfair.css'
-import { yaml2json } from '@/utils/tools'
 import { useSelector } from 'react-redux'
 import Markdown from 'react-markdown'
 import axios from 'axios'
 import { FullScreen, useFullScreenHandle } from 'react-full-screen'
 import i18n from '@/i18n'
+import { yaml2json } from '@/utils/tools'
 import aiSummarySvg from '@/assets/ai-summary.svg'
 
 import styles from './styles.module.less'
@@ -56,6 +56,7 @@ const Yaml = (props: IProps) => {
   const abortControllerRef = useRef<AbortController | null>(null)
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
+  const diagnosisBodyRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const yamlStatusJson = yaml2json(data)
@@ -70,13 +71,11 @@ const Yaml = (props: IProps) => {
   // Function to scroll to the bottom of the container
   const scrollToBottom = useCallback(() => {
     if (diagnosisContentRef.current && interpretStatus === 'streaming') {
-      const container = diagnosisContentRef.current
-      const scrollHeight = container.scrollHeight
-      const height = container.clientHeight
-      const maxScroll = scrollHeight - height
-      container.scrollTo({
-        top: maxScroll,
-        behavior: 'auto',
+      const diagnosisBodyBodyScrollHeight =
+        diagnosisBodyRef.current.scrollHeight
+      diagnosisBodyRef.current.scrollTo({
+        top: diagnosisBodyBodyScrollHeight,
+        behavior: 'smooth',
       })
     }
   }, [interpretStatus])
@@ -132,7 +131,7 @@ const Yaml = (props: IProps) => {
 
       // Reset interpret state
       setInterpret('')
-      setInterpretStatus('loading' as InterpretStatus)
+      setInterpretStatus('loading')
 
       // Cancel any existing SSE connection
       if (abortControllerRef.current) {
@@ -183,7 +182,7 @@ const Yaml = (props: IProps) => {
 
                 if (done) {
                   streaming = false
-                  setInterpretStatus('complete' as InterpretStatus)
+                  setInterpretStatus('complete')
                   break
                 }
 
@@ -200,7 +199,7 @@ const Yaml = (props: IProps) => {
 
                     switch (interpretEvent.type) {
                       case 'start':
-                        setInterpretStatus('streaming' as InterpretStatus)
+                        setInterpretStatus('streaming')
                         break
                       case 'chunk':
                         setInterpret(prev => prev + interpretEvent.content)
@@ -212,13 +211,13 @@ const Yaml = (props: IProps) => {
                         break
                       case 'error':
                         streaming = false
-                        setInterpretStatus('error' as InterpretStatus)
+                        setInterpretStatus('error')
                         message.error(interpretEvent.content)
                         reader.cancel()
                         break
                       case 'complete':
                         streaming = false
-                        setInterpretStatus('complete' as InterpretStatus)
+                        setInterpretStatus('complete')
                         reader.cancel()
                         break
                     }
@@ -232,7 +231,7 @@ const Yaml = (props: IProps) => {
                 console.log('Interpret stream aborted')
               } else {
                 console.error('Error reading stream:', error)
-                setInterpretStatus('error' as InterpretStatus)
+                setInterpretStatus('error')
                 message.error(t('YAML.InterpretConnectionError'))
               }
             }
@@ -243,20 +242,18 @@ const Yaml = (props: IProps) => {
         .catch(error => {
           if (error.name !== 'AbortError') {
             console.error('Failed to start interpret:', error)
-            setInterpretStatus('error' as InterpretStatus)
+            setInterpretStatus('error')
             message.error(t('YAML.FailedToStartInterpret'))
           }
         })
     } catch (error) {
       console.error('Failed to start interpret:', error)
-      setInterpretStatus('error' as InterpretStatus)
+      setInterpretStatus('error')
       message.error(t('YAML.FailedToInterpret'))
     } finally {
       setStreaming(false)
     }
   }
-  const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
-  const dotToTopHeight = interpretEndRef.current?.getBoundingClientRect()?.top
 
   return (
     <div style={{ paddingBottom: 20 }}>
@@ -365,7 +362,7 @@ const Yaml = (props: IProps) => {
                         onClick={() => {
                           if (abortControllerRef.current) {
                             abortControllerRef.current.abort()
-                            setInterpretStatus('complete' as InterpretStatus)
+                            setInterpretStatus('complete')
                           }
                         }}
                       />
@@ -374,13 +371,14 @@ const Yaml = (props: IProps) => {
                   <Button
                     type="text"
                     icon={<CloseOutlined />}
-                    onClick={() =>
-                      setInterpretStatus('idle' as InterpretStatus)
-                    }
+                    onClick={() => setInterpretStatus('idle')}
                   />
                 </Space>
               </div>
-              <div className={styles.yaml_content_diagnosisBody}>
+              <div
+                className={styles.yaml_content_diagnosisBody}
+                ref={diagnosisBodyRef}
+              >
                 <div
                   className={styles.yaml_content_diagnosisContent}
                   ref={contentRef}
@@ -413,9 +411,7 @@ const Yaml = (props: IProps) => {
                   )}
                 </div>
                 {interpretStatus === 'streaming' && interpret && (
-                  <div
-                    className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
-                  >
+                  <div className={styles.yaml_content_streamingIndicator}>
                     <span className={styles.dot}></span>
                     <span className={styles.dot}></span>
                     <span className={styles.dot}></span>

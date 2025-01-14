@@ -53,7 +53,13 @@ interface PodLogsProps {
   yamlData?: string
 }
 
-type DiagnosisStatus = 'idle' | 'init' | 'streaming' | 'complete' | 'error'
+type DiagnosisStatus =
+  | 'idle'
+  | 'init'
+  | 'streaming'
+  | 'complete'
+  | 'error'
+  | 'loading'
 
 interface LogSettings {
   since?: string
@@ -258,7 +264,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
 
         // Reset diagnosis state
         setDiagnosis('')
-        setDiagnosisStatus('loading' as DiagnosisStatus)
+        setDiagnosisStatus('loading')
 
         // Cancel any existing SSE connection
         if (abortControllerRef.current) {
@@ -309,7 +315,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
 
                   if (done) {
                     streaming = false
-                    setDiagnosisStatus('complete' as DiagnosisStatus)
+                    setDiagnosisStatus('complete')
                     break
                   }
 
@@ -326,7 +332,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
 
                       switch (diagEvent.type) {
                         case 'start':
-                          setDiagnosisStatus('streaming' as DiagnosisStatus)
+                          setDiagnosisStatus('streaming')
                           break
                         case 'chunk':
                           setDiagnosis(prev => prev + diagEvent.content)
@@ -338,13 +344,13 @@ const PodLogs: React.FC<PodLogsProps> = ({
                           break
                         case 'error':
                           streaming = false
-                          setDiagnosisStatus('error' as DiagnosisStatus)
+                          setDiagnosisStatus('error')
                           message.error(diagEvent.content)
                           reader.cancel()
                           break
                         case 'complete':
                           streaming = false
-                          setDiagnosisStatus('complete' as DiagnosisStatus)
+                          setDiagnosisStatus('complete')
                           reader.cancel()
                           break
                       }
@@ -358,7 +364,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                   console.log('Diagnosis stream aborted')
                 } else {
                   console.error('Error reading stream:', error)
-                  setDiagnosisStatus('error' as DiagnosisStatus)
+                  setDiagnosisStatus('error')
                   message.error(t('LogAggregator.DiagnosisConnectionError'))
                 }
               }
@@ -369,13 +375,13 @@ const PodLogs: React.FC<PodLogsProps> = ({
           .catch(error => {
             if (error.name !== 'AbortError') {
               console.error('Failed to start diagnosis:', error)
-              setDiagnosisStatus('error' as DiagnosisStatus)
+              setDiagnosisStatus('error')
               message.error(t('LogAggregator.FailedToStartDiagnosis'))
             }
           })
       } catch (error) {
         console.error('Failed to start diagnosis:', error)
-        setDiagnosisStatus('error' as DiagnosisStatus)
+        setDiagnosisStatus('error')
         message.error(t('LogAggregator.FailedToDiagnoseLogs'))
       } finally {
         setStreaming(false)
@@ -821,7 +827,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                         onClick={() => {
                           if (abortControllerRef.current) {
                             abortControllerRef.current.abort()
-                            setDiagnosisStatus('complete' as DiagnosisStatus)
+                            setDiagnosisStatus('complete')
                           }
                         }}
                       />
@@ -830,22 +836,19 @@ const PodLogs: React.FC<PodLogsProps> = ({
                   <Button
                     type="text"
                     icon={<CloseOutlined />}
-                    onClick={() =>
-                      setDiagnosisStatus('idle' as DiagnosisStatus)
-                    }
+                    onClick={() => setDiagnosisStatus('idle')}
                   />
                 </Space>
               </div>
               <div className={styles.diagnosisBody}>
                 <div className={styles.diagnosisContent} ref={contentRef}>
-                  {diagnosisStatus === ('loading' as DiagnosisStatus) ||
-                  (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
-                    !diagnosis) ? (
+                  {diagnosisStatus === 'loading' ||
+                  (diagnosisStatus === 'streaming' && !diagnosis) ? (
                     <div className={styles.diagnosisLoading}>
                       <Spin />
                       <span>{t('LogAggregator.PreparingDiagnosis')}</span>
                     </div>
-                  ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
+                  ) : diagnosisStatus === 'streaming' ? (
                     <div style={{ marginBottom: 30 }}>
                       <Markdown>{diagnosis}</Markdown>
                       <div
@@ -853,7 +856,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
                         style={{ float: 'left', clear: 'both' }}
                       />
                     </div>
-                  ) : diagnosisStatus === ('error' as DiagnosisStatus) ? (
+                  ) : diagnosisStatus === 'error' ? (
                     <div className={styles.diagnosisError}>
                       <Alert
                         type="error"
@@ -867,16 +870,15 @@ const PodLogs: React.FC<PodLogsProps> = ({
                     <Markdown>{diagnosis}</Markdown>
                   )}
                 </div>
-                {diagnosisStatus === ('streaming' as DiagnosisStatus) &&
-                  diagnosis && (
-                    <div
-                      className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
-                    >
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                    </div>
-                  )}
+                {diagnosisStatus === 'streaming' && diagnosis && (
+                  <div
+                    className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
+                  >
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                    <span className={styles.dot}></span>
+                  </div>
+                )}
               </div>
             </div>
           )}
