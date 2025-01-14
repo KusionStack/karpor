@@ -30,7 +30,11 @@ jobs:
               "area/storage",
               "area/syncer",
               "bug",
+              "chore",
               "enhancement",
               "governance",
+              "security",
+              "testing",
+              "logistics",
               "documentation"
             ]
