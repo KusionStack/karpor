@@ -185,8 +185,10 @@
     display: flex;
     position: relative;
     gap: 16px;
+    box-sizing: border-box;
 
     .events_content_tableContainer {
+      box-sizing: border-box;
       flex: 1;
       transition: width 0.3s ease;
 
@@ -240,7 +242,6 @@
 
     .events_content_diagnosisPanel {
       width: 400px;
-      height: 600px;
       border-radius: 12px;
       display: flex;
       flex-direction: column;
@@ -919,4 +920,3 @@
     transform: rotate(360deg);
   }
 }
-
