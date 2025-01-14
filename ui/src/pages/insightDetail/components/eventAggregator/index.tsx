@@ -68,6 +68,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const diagnosisEndRef = useRef<HTMLDivElement>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const tableContainerRef = useRef<HTMLDivElement>(null)
 
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
@@ -346,10 +347,13 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     : { flexDirection: 'row' }
   const events_content_withDiagnosis_style: React.CSSProperties = isVertical
     ? { width: '100%' }
-    : { width: 'calc(100% - 424px)', height: 600, overflowY: 'scroll' }
+    : { width: 'calc(100% - 424px)' }
+  const tableHeight = tableContainerRef?.current
+    ? tableContainerRef?.current.getBoundingClientRect()?.height
+    : 400
   const events_content_diagnosisPanel_style: React.CSSProperties = isVertical
     ? { width: '100%', height: 300 }
-    : { width: 400, height: 600 }
+    : { width: 400, height: tableHeight || 400 }
 
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
@@ -502,6 +506,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
 
       <div className={styles.events_content} style={events_content_styles}>
         <div
+          ref={tableContainerRef}
           className={classNames(styles.events_content_tableContainer, {
             [styles.events_content_withDiagnosis]: diagnosisStatus !== 'idle',
           })}
