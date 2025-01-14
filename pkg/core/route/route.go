@@ -15,8 +15,10 @@
 package route
 
 import (
+	"encoding/json"
 	"errors"
 	"expvar"
+	"net/http"
 
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	aggregatorhandler "github.com/KusionStack/karpor/pkg/core/handler/aggregator"
@@ -125,7 +127,7 @@ func NewCoreRoute(
 	router.Get("/endpoints", endpointhandler.Endpoints(router))
 
 	// Expose server configuration and runtime statistics.
-	router.Get("/server-configs", expvar.Handler().ServeHTTP)
+	router.Get("/server-configs", customVarHandler().ServeHTTP)
 
 	healthhandler.Register(router, generalStorage)
 	return router, nil
@@ -188,4 +190,30 @@ func setupRestAPIV1(
 	r.Get("/resource-group-rules", resourcegrouprulehandler.List(resourceGroupMgr))
 	r.Get("/resource-groups/{resourceGroupRuleName}", resourcegrouphandler.List(resourceGroupMgr))
 	r.Get("/authn", authnhandler.Get())
+}
+
+func customVarHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		w.Write([]byte("{"))
+		first := true
+
+		expvar.Do(func(kv expvar.KeyValue) {
+			if kv.Key == "memstats" || kv.Key == "cmdline" {
+				return // Skip memstats and cmdline
+			}
+			if !first {
+				w.Write([]byte(","))
+			} else {
+				first = false
+			}
+
+			b, _ := json.Marshal(kv.Key)
+			w.Write(b)
+			w.Write([]byte(":"))
+			w.Write([]byte(kv.Value.String()))
+		})
+		w.Write([]byte("}"))
+	})
 }

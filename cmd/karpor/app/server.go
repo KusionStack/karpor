@@ -108,7 +108,9 @@ func NewServerCommand(ctx context.Context) *cobra.Command {
 		return o.SearchStorageOptions
 	}))
 	expvar.Publish("AIOptions", expvar.Func(func() interface{} {
-		return o.AIOptions
+		displayOpts := *o.AIOptions
+		displayOpts.AIAuthToken = "[hidden]"
+		return &displayOpts
 	}))
 	expvar.Publish("Version", expvar.Func(func() interface{} {
 		return version.GetVersion()
