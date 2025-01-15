@@ -44,7 +44,7 @@ Karpor 是一个现代化的 Kubernetes 可视化工具，核心特性聚焦在 
 
 **当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
 
-https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
+https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
 ## 为什么选择 Karpor？
 

@@ -44,7 +44,7 @@ We hope to become a **small and beautiful, vendor-neutral, developer-friendly, c
 
 **Current Status**: We are iterating [v0.6.0 Milestone](https://github.com/KusionStack/karpor/milestone/5), welcome to join the [discussion](https://github.com/KusionStack/karpor/discussions/624).
 
-https://github.com/KusionStack/karpor/assets/49401013/7cf31cc0-7123-42f6-8543-5addcbf4975c
+https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
 ## Why Karpor?
 
