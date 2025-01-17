@@ -36,5 +36,6 @@ jobs:
               "security",
               "testing",
               "logistics",
+              "integration",
               "documentation"
             ]
