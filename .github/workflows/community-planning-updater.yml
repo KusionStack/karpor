@@ -1,4 +1,4 @@
-name: Milestone Planning
+name: Community Planning Updater
 
 on:
   # Trigger on milestone events
@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Generate Milestone Planning
-        uses: elliotxx/auto-milestone-summary-action@v1
+        uses: elliotxx/community-planning-updater@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           planning_label: planning
