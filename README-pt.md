@@ -17,6 +17,7 @@
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentação</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
   [Português]
 </p>
 
@@ -183,3 +184,4 @@ Caso tenha alguma pergunta, sinta-se à vontade para entrar em contato conosco p
 - **Canais do Slack:**
   - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Discussões técnicas sobre Karpor e KusionStack
   - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - Discussões gerais, anúncios e atualizações da comunidade
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
