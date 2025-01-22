@@ -1,23 +1,23 @@
 <div align="center">
 <p></p><p></p>
 <p>
-    <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg"> 
+    <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg">
 </p>
 
 <h1 style="font-size: 1.5em;">
-    Intelligence for Kubernetes
+    Kubernetesのためのインテリジェンス
 </h1>
 
 <p align="center">
-  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 现场演示</b></a> •
-  <a href="https://kusionstack.io/zh/karpor/" target="_blank"><b>🌐 官网</b></a> •
-  <a href="https://kusionstack.io/zh/karpor/getting-started/quick-start" target="_blank"><b>⚡️ 快速开始</b></a> •
-  <a href="https://kusionstack.io/zh/karpor" target="_blank"><b>📚 文档</b></a> •
-  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 讨论</b></a><br>
+  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 ライブデモ</b></a> •
+  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 ウェブサイト</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ クイックスタート</b></a> •
+  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 ドキュメント</b></a> •
+  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 ディスカッション</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
-  [中文]
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
-  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
+  [日本語]
 </p>
 
 [![GitHub Release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
@@ -37,28 +37,28 @@
 
 </div>
 
-## Karpor 是什么？
+## Karporとは？
 
-Karpor 是一个现代化的 Kubernetes 可视化工具，核心特性聚焦在 **搜索、洞察、智能** ，它可以从任何云平台上获得对 Kubernetes 跨集群的关键可见性提供给开发者和平台团队，帮助他们更好地理解集群并做出决策。
+KarporはKubernetesのためのインテリジェンスです。高度な**検索**、**洞察**、**AI**をKubernetesに提供します。基本的には**Kubernetesの可視化ツール**です。Karporを使用すると、任意のクラウド上のKubernetesクラスターに関する重要な可視性を得ることができます。
 
-我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！
+私たちは**小さく美しい、ベンダーニュートラル、開発者に優しい、コミュニティ主導**のオープンソースプロジェクトになることを目指しています！
 
-**当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
+**現在のステータス**: [v0.7.0](https://github.com/KusionStack/karpor/issues/723)を反復中です。 [ディスカッション](https://github.com/KusionStack/karpor/discussions/737)に参加してください。
 
 https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
-## 为什么选择 Karpor？
+## なぜKarporを選ぶのか？
 
-<h3 align="center">🔍 搜索</h3>
+<h3 align="center">🔍 検索</h3>
 
 <table>
   <tr>
     <td>
-      <b>自动同步</b><br />自动同步您在多云平台管理的任何集群中的资源<br /><br/>
-      <b>强大灵活的查询</b><br />以快速简单的方式有效地检索和定位跨集群的资源
+      <b>自動同期</b><br />マルチクラウドプラットフォームで管理されている任意のクラスターのリソースを自動的に同期します。<br /><br/>
+      <b>強力で柔軟なクエリ</b><br />複数のクラスターにわたるリソースを迅速かつ簡単に効果的に検索し、見つけることができます。
     </td>
     <td width="60%">
-      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg"  /></kbd>
+      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
     </td>
   </tr>
 </table>
@@ -68,72 +68,72 @@ https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 <table>
   <tr>
     <td width="60%">
-      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg"  /></kbd>
+      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
     <td>
-      <b>安全合规</b><br />了解您在多个集群和合规标准中的合规性状态<br /><br/>
-      <b>资源拓扑</b><br />提供包含资源运行上下文信息的关系拓扑和逻辑视图<br /><br/>
-      <b>成本优化</b><br />即将推出
+      <b>コンプライアンスガバナンス</b><br />複数のクラスターおよびコンプライアンス基準にわたるコンプライアンスステータスを理解します。<br /><br/>
+      <b>リソーストポロジー</b><br />運用コンテキスト内の関連リソースの論理およびトポロジービュー。<br /><br/>
+      <b>コスト最適化</b><br />近日公開予定。
     </td>
   </tr>
 </table>
 
-<h3 align="center">✨ 智能</h3>
+<h3 align="center">✨ AI</h3>
 
 <table>
   <tr>
     <td>
-      <b>自然语言操作</b><br />使用自然语言与 Kubernetes 交互，实现更直观的操作<br /><br />
-      <b>情境化 AI 响应</b><br />获得智能的、情境化的辅助，满足您的需求<br /><br />
-      <b>Kubernetes AIOps</b><br />利用 AI 驱动的洞察，自动化和优化 Kubernetes 管理
+      <b>自然言語操作</b><br />Kubernetesと自然言語で対話し、より直感的な操作を実現します。<br /><br />
+      <b>コンテキストに応じたAI応答</b><br />ニーズを理解するスマートでコンテキストに応じた支援を受けます。<br /><br />
+      <b>KubernetesのためのAIOps</b><br />AIによる洞察を活用して、Kubernetesの管理を自動化および最適化します。
     </td>
     <td width="60%">
-      <kbd><img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png"  /></kbd>
+      <kbd><img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png" /></kbd>
     </td>
   </tr>
 </table>
 
 </br>
 
-## 🌈 愿景
+## 🌈 私たちのビジョン
 
-现如今，Kubernetes 生态系统日益复杂是一个不可否认的趋势，这一趋势越来越难以驾驭。这种复杂性不仅增加了运维的难度，也降低了用户采纳新技术的速度，从而限制了他们充分利用 Kubernetes 的潜力。
+Kubernetesエコシステムの複雑さが増すことは否定できないトレンドであり、ますます管理が難しくなっています。この複雑さは、運用と保守の負担を増やすだけでなく、ユーザーが新しい技術を採用する速度を遅くし、Kubernetesの潜在能力を十分に活用する能力を制限します。
 
-我们希望 Karpor 围绕着搜索、洞察和AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
+一般的に、Karporは検索、洞察、AIに焦点を当て、**Kubernetesのますます複雑な迷路を突破する**ことを目指し、次の**価値提案**を達成します：
 
 ![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
-## ⚙️ 安装
+## ⚙️ インストール
 
-### 使用 Helm 安装
+### Helmでインストール
 
-Karpor 可以通过 helm v3.5+ 简单安装，这是一个简单的命令行工具，您可以从[这里](https://helm.sh/docs/intro/install/)获取。
+Karporはhelm v3.5+で簡単にインストールできます。これはシンプルなコマンドラインツールで、[こちら](https://helm.sh/docs/intro/install/)から入手できます。
 
-如果您感兴趣，您也可以直接查看 [Karpor Chart Repo](https://github.com/KusionStack/charts)。
+興味がある場合は、[Karpor Chart Repo](https://github.com/KusionStack/charts)を直接見ることもできます。
 
 ```bash
-$ helm repo add kusionstack https://kusionstack.github.io/charts 
+$ helm repo add kusionstack https://kusionstack.github.io/charts
 $ helm repo update
 $ helm install karpor kusionstack/karpor
 ```
 
-有关安装的更多信息，请查看官方网站上的 [安装指南](https://kusionstack.io/zh/karpor/getting-started/installation)。
+インストールに関する詳細情報については、公式ウェブサイトの[インストールガイド](https://kusionstack.io/karpor/getting-started/installation)を参照してください。
 
-## 📖 文档
+## 📖 ドキュメント
 
-详细的文档可在 [Karpor 官网](https://kusionstack.io/zh/karpor) 查阅。
+詳細なドキュメントは[Karporウェブサイト](https://kusionstack.io/karpor)で入手できます。
 
-## 🤝 如何贡献
+## 🤝 どのように貢献するか
 
-Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢迎每个人与我们共同参与建设。
+Karporはまだ初期段階にあり、多くの機能が必要ですので、皆さんが私たちと一緒に構築に参加することを歓迎します。
 
-- 如果您不知道如何 **开始贡献**，您可以阅读[贡献指南](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)，您将了解所有细节。
-- 如果您不知道 **从哪些问题开始**，我们准备了[社区任务 | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463)，您可以选择您喜欢的问题。
-- 如果您有任何 **问题**，请[提交问题](https://github.com/KusionStack/karpor/issues)或[在讨论中发帖](https://github.com/KusionStack/karpor/discussions/new/choose)，我们将尽快回答。
+- **貢献を始める方法**がわからない場合は、[貢献ガイド](https://kusionstack.io/karpor/developer-guide/contribution-guide)を読んでください。すべての詳細がわかります。
+- **どの問題から始めるか**がわからない場合は、[コミュニティタスク | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463)を用意しました。好きな問題を選ぶことができます。
+- **質問がある場合**は、[Issueを提出](https://github.com/KusionStack/karpor/issues)するか、[ディスカッションに投稿](https://github.com/KusionStack/karpor/discussions/new/choose)してください。できるだけ早く回答します。
 
-## 🎖︎ 贡献者
+## 🎖︎ 貢献者
 
-感谢这些了不起的人！来[加入我们](https://kusionstack.io/zh/karpor/developer-guide/contribution-guide)吧！
+これらの素晴らしい人々に感謝します！来て[参加してください](https://kusionstack.io/karpor/developer-guide/contribution-guide)！
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -180,14 +180,18 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## ☎️ 联系方式
+## ☎️ 連絡先
 
-如果您有任何问题，欢迎通过以下方式联系我们：
+質問がある場合は、以下の方法でお気軽にお問い合わせください：
 
-- **Slack 频道：**
-  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Karpor 和 KusionStack 的技术讨论
-  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - 一般性讨论、公告和社区动态
-- [钉钉群](https://page.dingtalk.com/wow/dingtalk/act/en-home)：`42753001`（中文）
-- 微信群（中文）：添加微信小助手，拉你进用户群
+- **Slackチャンネル：**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - KarporおよびKusionStackに関する技術的なディスカッション
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - 一般的なディスカッション、発表、およびコミュニティの更新
+- [DingTalkグループ](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (中国語)
+- WeChatグループ（中国語）：WeChatアシスタントを追加して、ユーザーグループに参加してください。
 
   <img src="assets/img/wechat.png" width="200" height="200"/>
+
+
+## ライセンス
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_large)
