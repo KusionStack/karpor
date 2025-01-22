@@ -39,11 +39,11 @@
 
 ## Karpor 是什么？
 
-Karpor 是一个现代化的 Kubernetes 可视化工具，核心特性聚焦在 **搜索、洞察、智能** ，它可以从任何云平台上获得对 Kubernetes 跨集群的关键可见性提供给开发者和平台团队，帮助他们更好地理解集群并做出决策。
+Karpor 是智能化的 Kubernetes 平台，它为 Kubernetes 带来了高级的搜索、洞察和 AI 功能，本质上是一个 Kubernetes 可视化工具。通过 Karpor，您可以在任何云平台上获得对 Kubernetes 集群的关键可见性。
 
 我们立志成为一个 **小而美、厂商中立、开发者友好、社区驱动** 的开源项目！
 
-**当前状态**: 我们正在迭代 [v0.5.0 里程碑](https://github.com/KusionStack/karpor/milestone/4),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/528).
+**当前状态**: 我们正在迭代 [v0.7.0](https://github.com/KusionStack/karpor/issues/723),  欢迎加入 [讨论](https://github.com/KusionStack/karpor/discussions/737).
 
 https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
@@ -99,7 +99,7 @@ https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
 现如今，Kubernetes 生态系统日益复杂是一个不可否认的趋势，这一趋势越来越难以驾驭。这种复杂性不仅增加了运维的难度，也降低了用户采纳新技术的速度，从而限制了他们充分利用 Kubernetes 的潜力。
 
-我们希望 Karpor 围绕着搜索、洞察和AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
+我们希望 Karpor 围绕着搜索、洞察和 AI，**击穿 Kubernetes 愈演愈烈的复杂性**，达成以下**价值主张**：
 
 ![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
