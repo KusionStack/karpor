@@ -168,6 +168,7 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/iamryanchia"><img src="https://avatars.githubusercontent.com/u/41557860?v=4?s=80" width="80px;" alt="iamryanchia"/><br /><sub><b>iamryanchia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=iamryanchia" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/cheny-alf"><img src="https://avatars.githubusercontent.com/u/71162267?v=4?s=80" width="80px;" alt="cheny-alf"/><br /><sub><b>cheny-alf</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=cheny-alf" title="Tests">⚠️</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajp152k"><img src="https://avatars.githubusercontent.com/u/42045620?v=4?s=80" width="80px;" alt="Raj"/><br /><sub><b>Raj</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajp152k" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://wavee.world/invitation/b96d00e6-b802-4a1b-8a66-2e3854a01ffd"><img src="https://avatars.githubusercontent.com/u/22633385?v=4?s=80" width="80px;" alt="Ikko Eltociear Ashimine"/><br /><sub><b>Ikko Eltociear Ashimine</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=eltociear" title="Documentation">📖</a></td>
     </tr>
   </tbody>
 </table>
