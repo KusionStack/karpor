@@ -1,38 +1,248 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
 import { Select } from 'antd'
-import G6 from '@antv/g6'
-import type {
-  IG6GraphEvent,
-  IGroup,
-  ModelConfig,
-  IAbstractGraph,
+import { Circle, Rect as GRect, Text as GText } from '@antv/g'
+import {
+  Graph,
+  NodeEvent,
+  ExtensionCategory,
+  register,
+  Rect,
+  Label,
+  Badge,
+  CommonEvent,
+  CubicHorizontal,
+  subStyleProps,
 } from '@antv/g6'
 import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
-import transferImg from '@/assets/transfer.png'
-import { ICON_MAP } from '@/utils/images'
+// import transferImg from '@/assets/transfer.png'
+// import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
-interface NodeConfig extends ModelConfig {
-  data?: {
-    name?: string
-    count?: number
-    resourceGroup?: {
-      name: string
-      [key: string]: any
+
+class CardNode extends Rect {
+  get data() {
+    return this.context.model.getNodeLikeDatum(this.id)
+  }
+
+  get childrenData() {
+    return this.context.model.getChildrenData(this.id)
+  }
+
+  // getLabelStyle(attributes) {
+  //   const [width, height]: any = this.getSize(attributes)
+  //   return {
+  //     x: -width / 2 + 8,
+  //     y: -height / 2 + 16,
+  //     text: this.data.name,
+  //     fontSize: 12,
+  //     opacity: 0.85,
+  //     fill: '#000',
+  //     cursor: 'pointer',
+  //   }
+  // }
+
+  getPriceStyle(attributes) {
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: -width / 2 + 8,
+      y: height / 2 - 8,
+      text: this.data.label,
+      fontSize: 16,
+      fill: '#000',
+      opacity: 0.85,
     }
   }
-  label?: string
-  id?: string
-  resourceGroup?: {
-    name: string
-    [key: string]: any
+
+  drawPriceShape(attributes, container) {
+    const priceStyle: any = this.getPriceStyle(attributes)
+    this.upsert('price', GText, priceStyle, container)
+  }
+
+  getCurrencyStyle(attributes) {
+    const [, height]: any = this.getSize(attributes)
+    return {
+      x: this.shapeMap['price'].getLocalBounds().max[0] + 4,
+      y: height / 2 - 8,
+      text: this.data.currency,
+      fontSize: 12,
+      fill: '#000',
+      opacity: 0.75,
+    }
+  }
+
+  drawCurrencyShape(attributes, container) {
+    const currencyStyle: any = this.getCurrencyStyle(attributes)
+    this.upsert('currency', GText, currencyStyle, container)
+  }
+
+  getPercentStyle(attributes) {
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: width / 2 - 4,
+      y: height / 2 - 8,
+      text: `${((Number(this.data.variableValue) || 0) * 100).toFixed(2)}%`,
+      fontSize: 12,
+      textAlign: 'right',
+      fill: '#f50',
+    }
+  }
+
+  drawPercentShape(attributes, container) {
+    const percentStyle: any = this.getPercentStyle(attributes)
+    this.upsert('percent', GText, percentStyle, container)
+  }
+
+  getTriangleStyle(attributes) {
+    const percentMinX = this.shapeMap['percent'].getLocalBounds().min[0]
+    const [, height]: any = this.getSize(attributes)
+    return {
+      fill: '#1677ff',
+      x: this.data.variableUp ? percentMinX - 18 : percentMinX,
+      y: height / 2 - 16,
+      fontFamily: 'iconfont',
+      fontSize: 16,
+      text: '\ue62d',
+      transform: this.data.variableUp ? [] : [['rotate', 180]],
+    }
+  }
+
+  drawTriangleShape(attributes, container) {
+    const triangleStyle: any = this.getTriangleStyle(attributes)
+    this.upsert('triangle', Label, triangleStyle, container)
+  }
+
+  getVariableStyle(attributes) {
+    const [, height]: any = this.getSize(attributes)
+    return {
+      fill: '#000',
+      fontSize: 16,
+      opacity: 0.45,
+      text: this.data.variableName,
+      textAlign: 'right',
+      x: this.shapeMap['triangle'].getLocalBounds().min[0] - 4,
+      y: height / 2 - 8,
+    }
+  }
+
+  drawVariableShape(attributes, container) {
+    const variableStyle: any = this.getVariableStyle(attributes)
+    this.upsert('variable', GText, variableStyle, container)
+  }
+
+  getCollapseStyle(attributes) {
+    if (this.childrenData.length === 0) return false
+    const { collapsed } = attributes
+    const [width]: any = this.getSize(attributes)
+    return {
+      backgroundFill: '#fff',
+      backgroundHeight: 16,
+      backgroundLineWidth: 1,
+      backgroundRadius: 0,
+      backgroundStroke: '#aaa',
+      backgroundWidth: 16,
+      cursor: 'pointer',
+      fill: '#aaa',
+      fontSize: 16,
+      text: collapsed ? '+' : '-',
+      textAlign: 'center',
+      textBaseline: 'middle',
+      x: width / 2,
+      y: 0,
+    }
+  }
+
+  drawCollapseShape(attributes, container) {
+    const collapseStyle: any = this.getCollapseStyle(attributes)
+    const btn = this.upsert('collapse', Badge, collapseStyle, container)
+
+    if (btn && !Reflect.has(btn, '__bind__')) {
+      Reflect.set(btn, '__bind__', true)
+      btn.addEventListener(CommonEvent.CLICK, () => {
+        const { collapsed } = this.attributes
+        const graph = this.context.graph
+        if (collapsed) graph.expandElement(this.id)
+        else graph.collapseElement(this.id)
+      })
+    }
+  }
+
+  getProcessBarStyle(attributes) {
+    const { rate } = this.data
+    const { radius } = attributes
+    const color = 'orange'
+    // const percent = `${Number(rate) * 100}%`
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: -width / 2,
+      y: height / 2 - 4,
+      width: width,
+      height: 4,
+      radius: [0, 0, radius, radius],
+      fill: `linear-gradient(to right, ${color} ${'20%'}, ${'#aaa'} ${'60%'})`,
+    }
+  }
+
+  drawProcessBarShape(attributes, container) {
+    const processBarStyle = this.getProcessBarStyle(attributes)
+    this.upsert('process-bar', GRect, processBarStyle, container)
+  }
+
+  getKeyStyle(attributes) {
+    const keyStyle = super.getKeyStyle(attributes)
+    return {
+      ...keyStyle,
+      fill: '#fff',
+      lineWidth: 1,
+      stroke: '#aaa',
+    }
+  }
+
+  render(attributes = this.parsedAttributes, container) {
+    super.render(attributes, container)
+    // this.getLabelStyle(attributes)
+    this.drawPriceShape(attributes, container)
+    this.drawCurrencyShape(attributes, container)
+    this.drawPercentShape(attributes, container)
+    this.drawTriangleShape(attributes, container)
+    this.drawVariableShape(attributes, container)
+    this.drawProcessBarShape(attributes, container)
+    this.drawCollapseShape(attributes, container)
   }
 }
 
-interface NodeModel {
+class FlyMarkerCubic extends CubicHorizontal {
+  getMarkerStyle(attributes) {
+    return {
+      r: 4,
+      fill: '#1677ff',
+      opacity: 0.7,
+      // stroke: '#c2c8d1',
+      offsetPath: this.shapeMap.key,
+      ...subStyleProps(attributes, 'marker'),
+    }
+  }
+
+  onCreate() {
+    const marker = this.upsert(
+      'marker',
+      Circle,
+      this.getMarkerStyle(this.attributes),
+      this,
+    )
+    marker.animate([{ offsetDistance: 0 }, { offsetDistance: 1 }], {
+      duration: 3000,
+      iterations: Infinity,
+    })
+  }
+}
+
+register(ExtensionCategory.NODE, 'card-node', CardNode)
+register(ExtensionCategory.EDGE, 'running-cubic', FlyMarkerCubic)
+
+export interface NodeModel {
   id: string
   name?: string
   label?: string
@@ -55,7 +265,7 @@ function getTextWidth(str: string, fontSize: number) {
   return context.measureText(str).width
 }
 
-function fittingString(str: string, maxWidth: number, fontSize: number) {
+export function fittingString(str: string, maxWidth: number, fontSize: number) {
   const ellipsis = '...'
   const ellipsisLength = getTextWidth(ellipsis, fontSize)
 
@@ -83,7 +293,7 @@ function fittingString(str: string, maxWidth: number, fontSize: number) {
   return str
 }
 
-function getNodeName(cfg: NodeConfig, type: string) {
+export function getNodeName(cfg: any, type: string) {
   if (type === 'resource') {
     const [left, right] = cfg?.id?.split(':') || []
     const leftList = left?.split('.')
@@ -94,50 +304,6 @@ function getNodeName(cfg: NodeConfig, type: string) {
   const list = cfg?.label?.split('.')
   const len = list?.length || 0
   return list?.[len - 1] || ''
-}
-
-interface OverviewTooltipProps {
-  type: string
-  itemWidth: number
-  hiddenButtonInfo: {
-    x: number
-    y: number
-    e?: IG6GraphEvent
-  }
-  open: boolean
-}
-
-const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
-  type,
-  hiddenButtonInfo,
-}) => {
-  const model = hiddenButtonInfo?.e?.item?.get('model') as NodeModel
-  const boxStyle: any = {
-    background: '#fff',
-    border: '1px solid #f5f5f5',
-    position: 'absolute',
-    top: hiddenButtonInfo?.y || -500,
-    left: hiddenButtonInfo?.x + 14 || -500,
-    transform: 'translate(-50%, -100%)',
-    zIndex: 5,
-    padding: '6px 12px',
-    borderRadius: 8,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-  }
-
-  const itemStyle = {
-    color: '#333',
-    fontSize: 14,
-    whiteSpace: 'nowrap',
-  }
-
-  return (
-    <div style={boxStyle}>
-      <div style={itemStyle}>
-        {type === 'cluster' ? model?.label : model?.id}
-      </div>
-    </div>
-  )
 }
 
 type IProps = {
@@ -156,270 +322,59 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
     onTopologyNodeClick,
     topologyLoading,
     isResource,
-    tableName,
     selectedCluster,
     clusterOptions,
     handleChangeCluster,
   } = props
   const { t } = useTranslation()
   const containerRef = useRef(null)
-  const graphRef = useRef<IAbstractGraph | null>(null)
+  const graphRef = useRef<any>(null)
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
   const navigate = useNavigate()
-  const [tooltipopen, setTooltipopen] = useState(false)
-  const [itemWidth, setItemWidth] = useState<number>(100)
-  const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
-    x: number
-    y: number
-    e?: IG6GraphEvent
-  }>({ x: -500, y: -500, e: undefined })
+  console.log(from, query, navigate, '==query====')
 
   function handleMouseEnter(evt) {
     graphRef.current?.setItemState(evt.item, 'hoverState', true)
-    const bbox = evt.item.getBBox()
-    const point = graphRef.current?.getCanvasByPoint(bbox.centerX, bbox.minY)
-    if (bbox) {
-      setItemWidth(bbox.width)
-    }
-    setHiddenButtontooltip({ x: point.x, y: point.y - 5, e: evt })
-    setTooltipopen(true)
   }
 
-  const handleMouseLeave = (evt: IG6GraphEvent) => {
+  const handleMouseLeave = (evt: any) => {
     graphRef.current?.setItemState(evt.item, 'hoverState', false)
-    setTooltipopen(false)
   }
 
-  G6.registerNode(
-    'card-node',
-    {
-      draw(cfg: NodeConfig, group: IGroup) {
-        const displayName = getNodeName(cfg, type as string)
-        const count = cfg.data?.count
-        const nodeWidth = type === 'cluster' ? 240 : 200
-
-        // Create main container
-        const rect = group.addShape('rect', {
-          attrs: {
-            x: 0,
-            y: 0,
-            width: nodeWidth,
-            height: 48,
-            radius: 6,
-            fill: '#ffffff',
-            stroke: '#e6f4ff',
-            lineWidth: 1,
-            shadowColor: 'rgba(0,0,0,0.06)',
-            shadowBlur: 8,
-            shadowOffsetX: 0,
-            shadowOffsetY: 2,
-            cursor: 'pointer',
-          },
-          name: 'node-container',
-        })
-
-        // Add side accent
-        group.addShape('rect', {
-          attrs: {
-            x: 0,
-            y: 0,
-            width: 3,
-            height: 48,
-            radius: [3, 0, 0, 3],
-            fill: '#1677ff',
-            opacity: 0.4,
-          },
-          name: 'node-accent',
-        })
-
-        // Add Kubernetes icon
-        const iconSize = 32
-        const kind = cfg?.data?.resourceGroup?.kind || ''
-        group.addShape('image', {
-          attrs: {
-            x: 16,
-            y: (48 - iconSize) / 2,
-            width: iconSize,
-            height: iconSize,
-            img: ICON_MAP[kind as keyof typeof ICON_MAP] || ICON_MAP.Kubernetes,
-          },
-          name: 'node-icon',
-        })
-
-        // Add title text
-        group.addShape('text', {
-          attrs: {
-            x: 52,
-            y: 24,
-            text: fittingString(displayName || '', 100, 14),
-            fontSize: 14,
-            fontWeight: 500,
-            fill: '#1677ff',
-            cursor: 'pointer',
-            textBaseline: 'middle',
-            fontFamily:
-              '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-          },
-          name: 'node-label',
-        })
-
-        if (typeof count === 'number') {
-          const textWidth = getTextWidth(`${count}`, 12)
-          const circleSize = Math.max(textWidth + 12, 20)
-          const circleX = 170
-          const circleY = 24
-
-          // Add count background
-          group.addShape('circle', {
-            attrs: {
-              x: circleX,
-              y: circleY,
-              r: circleSize / 2,
-              fill: '#f0f5ff',
-            },
-            name: 'count-background',
-          })
-
-          // Add count text
-          group.addShape('text', {
-            attrs: {
-              x: circleX,
-              y: circleY,
-              text: `${count}`,
-              fontSize: 12,
-              fontWeight: 500,
-              fill: '#1677ff',
-              textAlign: 'center',
-              textBaseline: 'middle',
-              fontFamily:
-                '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial',
-            },
-            name: 'count-text',
-          })
-        }
-
-        if (type === 'cluster') {
-          const iconTransferSize = 20
-          group.addShape('image', {
-            attrs: {
-              x: 210,
-              y: 14,
-              width: iconTransferSize,
-              height: iconTransferSize,
-              img: transferImg,
-            },
-            name: 'transfer-icon',
-          })
-        }
-        return rect
-      },
-
-      afterDraw(cfg: NodeConfig, group: IGroup) {
-        const transferIcon = group.find(
-          element => element.get('name') === 'transfer-icon',
-        )
-        if (transferIcon) {
-          transferIcon.on('mouseenter', evt => {
-            evt.defaultPrevented = true
-            evt.stopPropagation()
-            transferIcon.attr('cursor', 'pointer')
-          })
-          transferIcon.on('mouseleave', () => {
-            transferIcon.attr('cursor', '')
-          })
-          transferIcon.on('click', evt => {
-            evt.defaultPrevented = true
-            evt.stopPropagation()
-            const resourceGroup = cfg?.data?.resourceGroup
-            const objParams = {
-              from,
-              type: 'kind',
-              cluster: resourceGroup?.cluster,
-              apiVersion: resourceGroup?.apiVersion,
-              kind: resourceGroup?.kind,
-              query,
-            }
-            const urlStr = queryString.stringify(objParams)
-            navigate(`/insightDetail/kind?${urlStr}`)
-          })
-        }
-      },
-    },
-    'single-node',
-  )
-
-  G6.registerEdge(
-    'running-edge',
-    {
-      afterDraw(cfg, group) {
-        const shape = group?.get('children')[0]
-        if (!shape) return
-
-        // Get the path shape
-        const startPoint = shape.getPoint(0)
-
-        // Create animated circle
-        const circle = group.addShape('circle', {
-          attrs: {
-            x: startPoint.x,
-            y: startPoint.y,
-            fill: '#1677ff',
-            r: 2,
-            opacity: 0.8,
-          },
-          name: 'running-circle',
-        })
-
-        // Add movement animation
-        circle.animate(
-          ratio => {
-            const point = shape.getPoint(ratio)
-            return {
-              x: point.x,
-              y: point.y,
-            }
-          },
-          {
-            repeat: true,
-            duration: 2000,
-          },
-        )
-      },
-      setState(name, value, item) {
-        const shape = item.get('keyShape')
-        if (name === 'hover') {
-          shape?.attr('stroke', value ? '#1677ff' : '#c2c8d1')
-          shape?.attr('lineWidth', value ? 2 : 1)
-          shape?.attr('strokeOpacity', value ? 1 : 0.7)
-        }
-      },
-    },
-    'cubic', // Extend from built-in cubic edge
-  )
-
-  function initGraph() {
+  function initGraph(data) {
     const container = containerRef.current
     const width = container?.scrollWidth
     const height = container?.scrollHeight
-    const toolbar = new G6.ToolBar()
-    return new G6.Graph({
+    return new Graph({
       container,
       width,
       height,
-      fitCenter: true,
-      plugins: [toolbar],
-      enabledStack: true,
-      modes: {
-        default: ['drag-canvas', 'drag-node', 'click-select'],
+      data,
+      padding: [20, 20, 20, 20],
+      autoFit: {
+        type: 'center',
       },
-      animate: true,
+      plugins: [
+        {
+          type: 'tooltip',
+          getContent: (e, items) => {
+            console.log(items, '===items===')
+            let result = `<h4>Custom Content</h4>`
+            items.forEach(item => {
+              result += `<div>Type: ${item.data.resourceGroup?.kind}</div>`
+            })
+            return result
+          },
+        },
+      ],
+      behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element', 'click-select'],
       layout: {
         type: 'dagre',
         rankdir: 'LR',
         align: 'UL',
-        nodesep: 10,
-        ranksep: 40,
+        // nodesep: 10,
+        // ranksep: 40,
         nodesepFunc: () => 1,
         ranksepFunc: () => 1,
         controlPoints: true,
@@ -437,82 +392,27 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
           endArrow: true,
         },
       },
-      defaultNode: {
+      node: {
         type: 'card-node',
-        size: [200, 60],
         style: {
+          size: [200, 48],
           fill: '#fff',
-          stroke: '#e5e6e8',
-          radius: 4,
+          stroke: '#1677fff',
+          radius: 8,
           shadowColor: 'rgba(0,0,0,0.05)',
-          shadowBlur: 4,
-          shadowOffsetX: 0,
-          shadowOffsetY: 2,
           cursor: 'pointer',
         },
       },
-      defaultEdge: {
-        type: 'running-edge',
+      edge: {
+        type: 'running-cubic',
         style: {
           radius: 10,
           offset: 5,
-          endArrow: {
-            path: G6.Arrow.triangle(4, 6, 0),
-            d: 0,
-            fill: '#c2c8d1',
-          },
-          stroke: '#c2c8d1',
+          endArrow: true,
           lineWidth: 1,
-          strokeOpacity: 0.7,
           curveness: 0.5,
         },
-        labelCfg: {
-          autoRotate: true,
-          style: {
-            fill: '#86909c',
-            fontSize: 12,
-          },
-        },
       },
-      edgeStateStyles: {
-        hover: {
-          lineWidth: 2,
-        },
-      },
-      nodeStateStyles: {
-        selected: {
-          stroke: '#1677ff',
-          shadowColor: 'rgba(22,119,255,0.12)',
-          fill: '#f0f5ff',
-          opacity: 0.8,
-        },
-        hoverState: {
-          stroke: '#1677ff',
-          shadowColor: 'rgba(22,119,255,0.12)',
-          fill: '#f0f5ff',
-          opacity: 0.8,
-        },
-        clickState: {
-          stroke: '#1677ff',
-          shadowColor: 'rgba(22,119,255,0.12)',
-          fill: '#f0f5ff',
-          opacity: 0.8,
-        },
-      },
-    })
-  }
-
-  function setHightLight() {
-    graphRef.current.getNodes().forEach(node => {
-      const model: any = node.getModel()
-      const displayName = getNodeName(model, type as string)
-      const isHighLight =
-        type === 'resource'
-          ? model?.data?.resourceGroup?.name === tableName
-          : displayName === tableName
-      if (isHighLight) {
-        graphRef.current?.setItemState(node, 'selected', true)
-      }
     })
   }
 
@@ -523,15 +423,12 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         graphRef.current = null
       }
       if (!graphRef.current) {
-        graphRef.current = initGraph()
-        graphRef.current?.read(topologyData)
+        graphRef.current = initGraph(topologyData)
+        graphRef.current?.render()
 
-        setHightLight()
-
-        graphRef.current?.on('node:click', evt => {
+        graphRef.current?.on(NodeEvent.CLICK, evt => {
           const node = evt.item
           const model = node.getModel()
-          setTooltipopen(false)
           graphRef.current?.getNodes().forEach(n => {
             graphRef.current?.setItemState(n, 'selected', false)
           })
@@ -539,20 +436,20 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
           onTopologyNodeClick?.(model)
         })
 
-        graphRef.current?.on('node:mouseenter', evt => {
-          const node = evt.item
-          if (
-            !graphRef.current
-              ?.findById(node.getModel().id)
-              ?.hasState('selected')
-          ) {
-            graphRef.current?.setItemState(node, 'hover', true)
-          }
-          handleMouseEnter(evt)
+        graphRef.current?.on(NodeEvent.POINTER_ENTER, evt => {
+          // const node = evt.item
+          // if (
+          //   !graphRef.current
+          //     ?.findById(node.getModel().id)
+          //     ?.hasState('selected')
+          // ) {
+          //   graphRef.current?.setItemState(node, 'hover', true)
+          // }
+          // handleMouseEnter(evt)
         })
 
-        graphRef.current?.on('node:mouseleave', evt => {
-          handleMouseLeave(evt)
+        graphRef.current?.on(NodeEvent.POINTER_LEAVE, evt => {
+          // handleMouseLeave(evt)
         })
 
         if (typeof window !== 'undefined') {
@@ -572,11 +469,10 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         }
       } else {
         graphRef.current.clear()
-        graphRef.current.changeData(topologyData)
+        graphRef.current.render()
         setTimeout(() => {
-          graphRef.current.fitCenter()
+          graphRef.current.autoFit()
         }, 100)
-        setHightLight()
       }
     }
   }
@@ -613,14 +509,6 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         >
           <Loading />
         </div>
-        {tooltipopen ? (
-          <OverviewTooltip
-            type={type as string}
-            itemWidth={itemWidth}
-            hiddenButtonInfo={hiddenButtontooltip}
-            open={tooltipopen}
-          />
-        ) : null}
       </div>
     </div>
   )

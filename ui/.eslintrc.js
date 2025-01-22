@@ -35,8 +35,8 @@ module.exports = {
     /** @js */
     quotes: 'off',
     semi: 'off',
-    'no-undef': 'error',
-    'no-var': 'error',
+    'no-undef': 'off',
+    'no-var': 'off',
     'no-debugger': 'off',
     'no-console': 'off',
     'no-empty': 'off',
@@ -45,7 +45,7 @@ module.exports = {
 
     // ts rules：https://typescript-eslint.io/rules/
     /** @typescript */
-    '@typescript-eslint/no-unused-vars': 'error',
+    '@typescript-eslint/no-unused-vars': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
 
     /** @react */

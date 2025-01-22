@@ -4,10 +4,8 @@
   "private": true,
   "dependencies": {
     "@ant-design/icons": "^5.2.6",
-    "@antv/g2": "^5.1.13",
-    "@antv/g2plot": "^2.4.31",
-    "@antv/g6": "^4.8.23",
-    "@antv/g6-react-node": "^1.4.8",
+    "@antv/g": "^6.1.20",
+    "@antv/g6": "^5.0.42",
     "@codemirror/autocomplete": "^6.13.0",
     "@codemirror/basic-setup": "^0.20.0",
     "@codemirror/highlight": "^0.19.8",
