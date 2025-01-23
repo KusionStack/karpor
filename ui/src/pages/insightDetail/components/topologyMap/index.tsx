@@ -1,6 +1,6 @@
 import React, { forwardRef, useImperativeHandle, useRef } from 'react'
 import { Select } from 'antd'
-import { Circle, Rect as GRect, Text as GText } from '@antv/g'
+import { Circle, Rect as GRect, Text as GText, Image } from '@antv/g'
 import {
   Graph,
   NodeEvent,
@@ -12,250 +12,17 @@ import {
   CommonEvent,
   CubicHorizontal,
   subStyleProps,
+  LabelStyleProps,
+  IPointerEvent,
 } from '@antv/g6'
 import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
-// import transferImg from '@/assets/transfer.png'
-// import { ICON_MAP } from '@/utils/images'
+import transferImg from '@/assets/transfer.png'
+import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
-
-class CardNode extends Rect {
-  get data() {
-    return this.context.model.getNodeLikeDatum(this.id)
-  }
-
-  get childrenData() {
-    return this.context.model.getChildrenData(this.id)
-  }
-
-  // getLabelStyle(attributes) {
-  //   const [width, height]: any = this.getSize(attributes)
-  //   return {
-  //     x: -width / 2 + 8,
-  //     y: -height / 2 + 16,
-  //     text: this.data.name,
-  //     fontSize: 12,
-  //     opacity: 0.85,
-  //     fill: '#000',
-  //     cursor: 'pointer',
-  //   }
-  // }
-
-  getPriceStyle(attributes) {
-    const [width, height]: any = this.getSize(attributes)
-    return {
-      x: -width / 2 + 8,
-      y: height / 2 - 8,
-      text: this.data.label,
-      fontSize: 16,
-      fill: '#000',
-      opacity: 0.85,
-    }
-  }
-
-  drawPriceShape(attributes, container) {
-    const priceStyle: any = this.getPriceStyle(attributes)
-    this.upsert('price', GText, priceStyle, container)
-  }
-
-  getCurrencyStyle(attributes) {
-    const [, height]: any = this.getSize(attributes)
-    return {
-      x: this.shapeMap['price'].getLocalBounds().max[0] + 4,
-      y: height / 2 - 8,
-      text: this.data.currency,
-      fontSize: 12,
-      fill: '#000',
-      opacity: 0.75,
-    }
-  }
-
-  drawCurrencyShape(attributes, container) {
-    const currencyStyle: any = this.getCurrencyStyle(attributes)
-    this.upsert('currency', GText, currencyStyle, container)
-  }
-
-  getPercentStyle(attributes) {
-    const [width, height]: any = this.getSize(attributes)
-    return {
-      x: width / 2 - 4,
-      y: height / 2 - 8,
-      text: `${((Number(this.data.variableValue) || 0) * 100).toFixed(2)}%`,
-      fontSize: 12,
-      textAlign: 'right',
-      fill: '#f50',
-    }
-  }
-
-  drawPercentShape(attributes, container) {
-    const percentStyle: any = this.getPercentStyle(attributes)
-    this.upsert('percent', GText, percentStyle, container)
-  }
-
-  getTriangleStyle(attributes) {
-    const percentMinX = this.shapeMap['percent'].getLocalBounds().min[0]
-    const [, height]: any = this.getSize(attributes)
-    return {
-      fill: '#1677ff',
-      x: this.data.variableUp ? percentMinX - 18 : percentMinX,
-      y: height / 2 - 16,
-      fontFamily: 'iconfont',
-      fontSize: 16,
-      text: '\ue62d',
-      transform: this.data.variableUp ? [] : [['rotate', 180]],
-    }
-  }
-
-  drawTriangleShape(attributes, container) {
-    const triangleStyle: any = this.getTriangleStyle(attributes)
-    this.upsert('triangle', Label, triangleStyle, container)
-  }
-
-  getVariableStyle(attributes) {
-    const [, height]: any = this.getSize(attributes)
-    return {
-      fill: '#000',
-      fontSize: 16,
-      opacity: 0.45,
-      text: this.data.variableName,
-      textAlign: 'right',
-      x: this.shapeMap['triangle'].getLocalBounds().min[0] - 4,
-      y: height / 2 - 8,
-    }
-  }
-
-  drawVariableShape(attributes, container) {
-    const variableStyle: any = this.getVariableStyle(attributes)
-    this.upsert('variable', GText, variableStyle, container)
-  }
-
-  getCollapseStyle(attributes) {
-    if (this.childrenData.length === 0) return false
-    const { collapsed } = attributes
-    const [width]: any = this.getSize(attributes)
-    return {
-      backgroundFill: '#fff',
-      backgroundHeight: 16,
-      backgroundLineWidth: 1,
-      backgroundRadius: 0,
-      backgroundStroke: '#aaa',
-      backgroundWidth: 16,
-      cursor: 'pointer',
-      fill: '#aaa',
-      fontSize: 16,
-      text: collapsed ? '+' : '-',
-      textAlign: 'center',
-      textBaseline: 'middle',
-      x: width / 2,
-      y: 0,
-    }
-  }
-
-  drawCollapseShape(attributes, container) {
-    const collapseStyle: any = this.getCollapseStyle(attributes)
-    const btn = this.upsert('collapse', Badge, collapseStyle, container)
-
-    if (btn && !Reflect.has(btn, '__bind__')) {
-      Reflect.set(btn, '__bind__', true)
-      btn.addEventListener(CommonEvent.CLICK, () => {
-        const { collapsed } = this.attributes
-        const graph = this.context.graph
-        if (collapsed) graph.expandElement(this.id)
-        else graph.collapseElement(this.id)
-      })
-    }
-  }
-
-  getProcessBarStyle(attributes) {
-    const { rate } = this.data
-    const { radius } = attributes
-    const color = 'orange'
-    // const percent = `${Number(rate) * 100}%`
-    const [width, height]: any = this.getSize(attributes)
-    return {
-      x: -width / 2,
-      y: height / 2 - 4,
-      width: width,
-      height: 4,
-      radius: [0, 0, radius, radius],
-      fill: `linear-gradient(to right, ${color} ${'20%'}, ${'#aaa'} ${'60%'})`,
-    }
-  }
-
-  drawProcessBarShape(attributes, container) {
-    const processBarStyle = this.getProcessBarStyle(attributes)
-    this.upsert('process-bar', GRect, processBarStyle, container)
-  }
-
-  getKeyStyle(attributes) {
-    const keyStyle = super.getKeyStyle(attributes)
-    return {
-      ...keyStyle,
-      fill: '#fff',
-      lineWidth: 1,
-      stroke: '#aaa',
-    }
-  }
-
-  render(attributes = this.parsedAttributes, container) {
-    super.render(attributes, container)
-    // this.getLabelStyle(attributes)
-    this.drawPriceShape(attributes, container)
-    this.drawCurrencyShape(attributes, container)
-    this.drawPercentShape(attributes, container)
-    this.drawTriangleShape(attributes, container)
-    this.drawVariableShape(attributes, container)
-    this.drawProcessBarShape(attributes, container)
-    this.drawCollapseShape(attributes, container)
-  }
-}
-
-class FlyMarkerCubic extends CubicHorizontal {
-  getMarkerStyle(attributes) {
-    return {
-      r: 4,
-      fill: '#1677ff',
-      opacity: 0.7,
-      // stroke: '#c2c8d1',
-      offsetPath: this.shapeMap.key,
-      ...subStyleProps(attributes, 'marker'),
-    }
-  }
-
-  onCreate() {
-    const marker = this.upsert(
-      'marker',
-      Circle,
-      this.getMarkerStyle(this.attributes),
-      this,
-    )
-    marker.animate([{ offsetDistance: 0 }, { offsetDistance: 1 }], {
-      duration: 3000,
-      iterations: Infinity,
-    })
-  }
-}
-
-register(ExtensionCategory.NODE, 'card-node', CardNode)
-register(ExtensionCategory.EDGE, 'running-cubic', FlyMarkerCubic)
-
-export interface NodeModel {
-  id: string
-  name?: string
-  label?: string
-  resourceGroup?: {
-    name: string
-  }
-  data?: {
-    count?: number
-    resourceGroup?: {
-      name: string
-    }
-  }
-}
 
 function getTextWidth(str: string, fontSize: number) {
   const canvas = document.createElement('canvas')
@@ -306,6 +73,204 @@ export function getNodeName(cfg: any, type: string) {
   return list?.[len - 1] || ''
 }
 
+class CardNode extends Rect {
+  get data() {
+    return this.context.model.getNodeLikeDatum(this.id)
+  }
+
+  get childrenData() {
+    return this.context.model.getChildrenData(this.id)
+  }
+
+  getIconStyle(attributes): any {
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: -width / 2 + 8,
+      y: -height / 2 + 8,
+      width: 32,
+      height: 32,
+      src:
+        ICON_MAP?.[(this.data?.data?.resourceGroup as any)?.kind as any] ||
+        transferImg,
+      fontSize: 16,
+      fill: '#000',
+      opacity: 0.85,
+    }
+  }
+
+  drawIconShape(attributes, container) {
+    const iconStyle: any = this.getIconStyle(attributes)
+    this.upsert('data', Image, iconStyle, container)
+  }
+
+  getLabelStyle(attributes): LabelStyleProps {
+    const [width, height]: any = this.getSize(attributes)
+    const text: any = this.data.label
+    return {
+      x: -width / 2 + 45,
+      y: -height / 2 + 16,
+      text: text,
+      fontSize: 14,
+      opacity: 0.85,
+      fill: '#1677ff',
+      fontWeight: 600,
+      cursor: 'pointer',
+    }
+  }
+
+  getTypeStyle(attributes) {
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: -width / 2 + 45,
+      y: -height / 2 + 40,
+      text: (this.data?.data?.resourceGroup as any)?.kind,
+      fontSize: 12,
+      fill: '#999',
+      opacity: 0.85,
+    }
+  }
+
+  drawTypeShape(attributes, container) {
+    const typeStyle: any = this.getTypeStyle(attributes)
+    this.upsert('price', GText, typeStyle, container)
+  }
+
+  getLeftBarStyle(attributes) {
+    const { radius } = attributes
+    const color = '#1677ff'
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: -width / 2,
+      y: -height / 2,
+      width: 3,
+      height: height,
+      radius: [radius, 0, 0, radius],
+      // fill: `linear-gradient(to bottom, ${'#fff'} ${'0%'},${color} ${'50%'}, ${'#fff'} ${'100%'})`,
+      fill: color,
+      opacity: 0.3,
+    }
+  }
+
+  drawLeftBarShape(attributes, container) {
+    const leftBarStyle = this.getLeftBarStyle(attributes)
+    this.upsert('process-bar', GRect, leftBarStyle, container)
+  }
+
+  getCountStyle(attributes) {
+    const color = '#1677ff'
+    const [width, height]: any = this.getSize(attributes)
+    const circleHeight = 24
+    return {
+      x: width / 2 - 28,
+      y: -height / 2 + 12,
+      width: circleHeight,
+      height: circleHeight,
+      radius: [
+        circleHeight / 2,
+        circleHeight / 2,
+        circleHeight / 2,
+        circleHeight / 2,
+      ],
+      fill: color,
+      opacity: 0.2,
+    }
+  }
+
+  drawCountShape(attributes, container) {
+    const countStyle = this.getCountStyle(attributes)
+    this.upsert('countCircle', GRect, countStyle, container)
+  }
+
+  getCountTextStyle(attributes) {
+    const color = '#1677ff'
+    const [width, height]: any = this.getSize(attributes)
+    return {
+      x: width / 2 - 26,
+      y: -height / 2 + 34,
+      text: `${this.data?.data?.count}`,
+      // text: (this.data?.data?.resourceGroup as any)?.kind,
+      fontSize: 12,
+      fill: color,
+      opacity: 0.85,
+    }
+  }
+
+  drawCountTextShape(attributes, container) {
+    const countStyle: any = this.getCountTextStyle(attributes)
+    this.upsert('count', GText, countStyle, container)
+  }
+
+  getKeyStyle(attributes) {
+    const keyStyle = super.getKeyStyle(attributes)
+    return {
+      ...keyStyle,
+      fill: '#fff',
+      lineWidth: 1,
+      stroke: '#fff',
+      shadowColor: 'rgba(0,0,0,0.05)',
+      shadowBlur: 4,
+      shadowOffsetX: 0,
+      shadowOffsetY: 2,
+    }
+  }
+
+  render(attributes = this.parsedAttributes, container) {
+    console.log(this.data, '=====render this.data====')
+
+    super.render(attributes, container)
+    this.drawIconShape(attributes, container)
+    this.drawTypeShape(attributes, container)
+    this.drawLeftBarShape(attributes, container)
+    if (typeof this.data?.data?.count === 'number') {
+      this.drawCountShape(attributes, container)
+      this.drawCountTextShape(attributes, container)
+    }
+  }
+}
+
+class FlyMarkerCubic extends CubicHorizontal {
+  getMarkerStyle(attributes) {
+    return {
+      r: 2,
+      fill: '#1677ff',
+      opacity: 0.7,
+      offsetPath: this.shapeMap.key,
+      ...subStyleProps(attributes, 'marker'),
+    }
+  }
+
+  onCreate() {
+    const marker = this.upsert(
+      'marker',
+      Circle,
+      this.getMarkerStyle(this.attributes),
+      this,
+    )
+    marker.animate([{ offsetDistance: 0 }, { offsetDistance: 1 }], {
+      duration: 3000,
+      iterations: Infinity,
+    })
+  }
+}
+
+register(ExtensionCategory.NODE, 'card-node', CardNode)
+register(ExtensionCategory.EDGE, 'running-cubic', FlyMarkerCubic)
+
+export interface NodeModel {
+  id: string
+  name?: string
+  label?: string
+  resourceGroup?: {
+    name: string
+  }
+  data?: {
+    count?: number
+    resourceGroup?: {
+      name: string
+    }
+  }
+}
+
 type IProps = {
   topologyData?: any
   topologyLoading?: boolean
@@ -335,11 +300,11 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
   console.log(from, query, navigate, '==query====')
 
   function handleMouseEnter(evt) {
-    graphRef.current?.setItemState(evt.item, 'hoverState', true)
+    graphRef.current?.setElementState(evt.item, 'active', true)
   }
 
   const handleMouseLeave = (evt: any) => {
-    graphRef.current?.setItemState(evt.item, 'hoverState', false)
+    graphRef.current?.setElementState(evt.item, 'active', false)
   }
 
   function initGraph(data) {
@@ -368,7 +333,12 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
           },
         },
       ],
-      behaviors: ['drag-canvas', 'zoom-canvas', 'drag-element', 'click-select'],
+      behaviors: [
+        'hover-activate',
+        'drag-canvas',
+        'drag-element',
+        'click-select',
+      ],
       layout: {
         type: 'dagre',
         rankdir: 'LR',
@@ -397,10 +367,18 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         style: {
           size: [200, 48],
           fill: '#fff',
-          stroke: '#1677fff',
+          stroke: '#fff',
           radius: 8,
           shadowColor: 'rgba(0,0,0,0.05)',
           cursor: 'pointer',
+        },
+        state: {
+          active: {
+            fill: '#f50',
+          },
+          selected: {
+            fill: '#1677ff',
+          },
         },
       },
       edge: {
@@ -437,38 +415,52 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         })
 
         graphRef.current?.on(NodeEvent.POINTER_ENTER, evt => {
+          console.log(evt, '===evt=====')
           // const node = evt.item
+          // return
           // if (
           //   !graphRef.current
           //     ?.findById(node.getModel().id)
           //     ?.hasState('selected')
           // ) {
-          //   graphRef.current?.setItemState(node, 'hover', true)
+          //   graphRef.current?.setItemState(node, 'active', true)
           // }
+          graphRef.current.updateNodeData([
+            {
+              id: evt?.target.id,
+              style: {
+                labelText: 'Hovered',
+                fill: 'lightgreen',
+                labelFill: 'lightgreen',
+              },
+            },
+          ])
+          graphRef.current.draw()
           // handleMouseEnter(evt)
         })
 
         graphRef.current?.on(NodeEvent.POINTER_LEAVE, evt => {
-          // handleMouseLeave(evt)
+          handleMouseLeave(evt)
         })
 
         if (typeof window !== 'undefined') {
           window.onresize = () => {
-            if (!graphRef.current || graphRef.current?.get('destroyed')) return
+            console.log(graphRef.current, '==graphRef.current=')
+            if (!graphRef.current) return
             if (
               !containerRef ||
               !containerRef.current?.scrollWidth ||
               !containerRef.current?.scrollHeight
             )
               return
-            graphRef.current?.changeSize(
+            graphRef.current?.setSize(
               containerRef?.current?.scrollWidth,
               containerRef.current?.scrollHeight,
             )
           }
         }
       } else {
-        graphRef.current.clear()
+        graphRef.current.setData(topologyData)
         graphRef.current.render()
         setTimeout(() => {
           graphRef.current.autoFit()
