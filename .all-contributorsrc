@@ -255,6 +255,15 @@
       "contributions": [
         "tool"
       ]
+    },
+    {
+      "login": "Cookiery",
+      "name": "Cookie",
+      "avatar_url": "https://avatars.githubusercontent.com/u/33125275?v=4",
+      "profile": "https://github.com/Cookiery",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
