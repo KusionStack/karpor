@@ -123,6 +123,10 @@ func (s *Storage) GetResource(ctx context.Context, cluster string, obj runtime.O
 		return err
 	}
 
+    if len(resp.Hits.Hits) == 0 {
+		return fmt.Errorf("no resource found for cluster: %s, namespace: %s, name: %s", cluster, unObj.GetNamespace(), unObj.GetName())
+	}
+
 	res, err := storage.Map2Resource(resp.Hits.Hits[0].Source)
 	if err != nil {
 		return err
