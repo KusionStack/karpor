@@ -59,6 +59,7 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 | Method  | URI     | Name   | Summary |
 |---------|---------|--------|---------|
 | GET | /endpoints | [get endpoints](#get-endpoints) | List all available endpoints |
+| GET | /server-configs | [get server configs](#get-server-configs) | Get server configurations |
   
 
 
@@ -1793,6 +1794,34 @@ Status: Internal Server Error
 
 
 
+### <span id="get-server-configs"></span> Get server configurations (*GetServerConfigs*)
+
+```
+GET /server-configs
+```
+
+Returns server configuration
+
+#### Produces
+  * application/json
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-server-configs-200) | OK | Server configurations |  | [schema](#get-server-configs-200-schema) |
+
+#### Responses
+
+
+##### <span id="get-server-configs-200"></span> 200 - Server configurations
+Status: OK
+
+###### <span id="get-server-configs-200-schema"></span> Schema
+   
+  
+
+any
+
 ### <span id="post-insight-aggregator-event-diagnosis-stream"></span> Diagnose events using AI (*PostInsightAggregatorEventDiagnosisStream*)
 
 ```
@@ -2894,16 +2923,10 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.
-This count can be used to understand the overall number of problems
-that need to be addressed. |  |
+| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.</br>This count can be used to understand the overall number of problems</br>that need to be addressed. |  |
 | resourceTotal | integer| `int64` |  | | ResourceTotal is the count of unique resources audited during the scan. |  |
-| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on
-the number and severity of issues. It provides a quantitative measure
-of the security posture of the resources in the manifest. |  |
-| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective
-number of occurrences. It allows for a quick overview of the distribution
-of issues across different severity categories. |  |
+| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on</br>the number and severity of issues. It provides a quantitative measure</br>of the security posture of the resources in the manifest. |  |
+| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective</br>number of occurrences. It allows for a quick overview of the distribution</br>of issues across different severity categories. |  |
 
 
 
@@ -2986,8 +3009,6 @@ of issues across different severity categories. |  |
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or
-map[string]interface{}
-children. |  |
+| object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or</br>map[string]interface{}</br>children. |  |
 
 

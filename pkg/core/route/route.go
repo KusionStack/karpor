@@ -192,6 +192,12 @@ func setupRestAPIV1(
 	r.Get("/authn", authnhandler.Get())
 }
 
+// @Summary      Get server configurations
+// @Description  Returns server configuration
+// @Tags         debug
+// @Produce      json
+// @Success      200  {object}  map[string]interface{}  "Server configurations"
+// @Router       /server-configs [get]
 func customVarHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
