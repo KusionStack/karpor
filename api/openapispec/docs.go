@@ -2103,6 +2103,27 @@ var doc = `{
                     }
                 }
             }
+        },
+        "/server-configs": {
+            "get": {
+                "description": "Returns server configuration",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "debug"
+                ],
+                "summary": "Get server configurations",
+                "responses": {
+                    "200": {
+                        "description": "Server configurations",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {

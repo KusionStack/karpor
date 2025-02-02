@@ -1658,4 +1658,18 @@ paths:
         using the query from context.
       tags:
       - search
+  /server-configs:
+    get:
+      description: Returns server configuration
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Server configurations
+          schema:
+            additionalProperties: true
+            type: object
+      summary: Get server configurations
+      tags:
+      - debug
 swagger: "2.0"
