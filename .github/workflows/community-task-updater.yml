@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Update Community Tasks
+      - name: Community Tasks Updater
         uses: elliotxx/osp-action@v1
         with:
           # Optional: version of OSP to use (default: latest)
