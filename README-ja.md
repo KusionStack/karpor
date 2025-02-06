@@ -174,6 +174,7 @@ Karporはまだ初期段階にあり、多くの機能が必要ですので、�
       <td align="center" valign="top" width="14.28%"><a href="https://wavee.world/invitation/b96d00e6-b802-4a1b-8a66-2e3854a01ffd"><img src="https://avatars.githubusercontent.com/u/22633385?v=4?s=80" width="80px;" alt="Ikko Eltociear Ashimine"/><br /><sub><b>Ikko Eltociear Ashimine</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=eltociear" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wujunwei"><img src="https://avatars.githubusercontent.com/u/14191653?v=4?s=80" width="80px;" alt="Adam"/><br /><sub><b>Adam</b></sub></a><br /><a href="#tool-wujunwei" title="Tools">🔧</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Cookiery"><img src="https://avatars.githubusercontent.com/u/33125275?v=4?s=80" width="80px;" alt="Cookie"/><br /><sub><b>Cookie</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://jinjia.jsisu.com/"><img src="https://avatars.githubusercontent.com/u/28686975?v=4?s=80" width="80px;" alt="jinjia"/><br /><sub><b>jinjia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=jinjiaKarl" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
