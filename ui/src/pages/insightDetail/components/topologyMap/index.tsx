@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
+import React, { forwardRef, useImperativeHandle, useRef } from 'react'
 import { Select } from 'antd'
 import G6 from '@antv/g6'
 import type {
@@ -10,6 +10,7 @@ import type {
 import { useLocation, useNavigate } from 'react-router-dom'
 import queryString from 'query-string'
 import { useTranslation } from 'react-i18next'
+import insertCss from 'insert-css'
 import Loading from '@/components/loading'
 import transferImg from '@/assets/transfer.png'
 import { ICON_MAP } from '@/utils/images'
@@ -96,50 +97,6 @@ function getNodeName(cfg: NodeConfig, type: string) {
   return list?.[len - 1] || ''
 }
 
-interface OverviewTooltipProps {
-  type: string
-  itemWidth: number
-  hiddenButtonInfo: {
-    x: number
-    y: number
-    e?: IG6GraphEvent
-  }
-  open: boolean
-}
-
-const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
-  type,
-  hiddenButtonInfo,
-}) => {
-  const model = hiddenButtonInfo?.e?.item?.get('model') as NodeModel
-  const boxStyle: any = {
-    background: '#fff',
-    border: '1px solid #f5f5f5',
-    position: 'absolute',
-    top: hiddenButtonInfo?.y || -500,
-    left: hiddenButtonInfo?.x + 14 || -500,
-    transform: 'translate(-50%, -100%)',
-    zIndex: 5,
-    padding: '6px 12px',
-    borderRadius: 8,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-  }
-
-  const itemStyle = {
-    color: '#333',
-    fontSize: 14,
-    whiteSpace: 'nowrap',
-  }
-
-  return (
-    <div style={boxStyle}>
-      <div style={itemStyle}>
-        {type === 'cluster' ? model?.label : model?.id}
-      </div>
-    </div>
-  )
-}
-
 type IProps = {
   topologyData?: any
   topologyLoading?: boolean
@@ -150,6 +107,78 @@ type IProps = {
   selectedCluster?: string
   clusterOptions?: string[]
 }
+
+insertCss(`
+  .g6-component-tooltip {
+    background: #fff;
+    border: 1px solid #f5f5f5;
+    padding: 6px 12px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  .tooltip-item {
+    color: #333;
+    font-size: 14px;
+    white-space: nowrap;
+  }
+  .tooltip-item-label {
+    color: #999;
+    font-size: 14px;
+    margin-right: 5px;
+  }
+  .tooltip-item-status {
+    padding: 2px 5px;
+    border-radius: 6px;
+  }
+  .tooltip-item-destroyed {
+    color: rgba(0,0,0,0.88);
+    background: #fafafa;
+    border: 1px solid #d9d9d9;
+  }
+  .tooltip-item-applied {
+    color: #1778ff;
+    background: #e6f4ff;
+    border: 1px solid #91caff;
+  }
+  .tooltip-item-failed,.tooltip-item-unknown {
+    color: #ff4d4f;
+    background: #fff2f0;
+    border: 1px solid #ffccc7;
+  }
+`)
+
+const tooltip = new G6.Tooltip({
+  offsetX: 10,
+  offsetY: 10,
+  itemTypes: ['node', 'edge'],
+  getContent: (event: any) => {
+    const model = event?.item?.get('model') as NodeModel
+    const { data } = model as any
+    const outDiv = document.createElement('div')
+    outDiv.style.width = 'fit-content'
+    //outDiv.style.padding = '0px 0px 20px 0px';
+    outDiv.innerHTML = `
+      <div class="tooltip-box">
+        <div class="tooltip-item">
+          ${model?.id || model?.label}
+        </div>
+        <div class="tooltip-item">
+          <span class="tooltip-item-label">apiVersion: </span>
+          ${data?.resourceGroup?.apiVersion}
+        </div>
+        <div class="tooltip-item">
+          <span class="tooltip-item-label">cluster: </span>
+          ${data?.resourceGroup?.cluster}
+        </div>
+        <div class="tooltip-item">
+          <span class="tooltip-item-label">kind: </span>
+          ${data?.resourceGroup?.kind}
+        </div>
+      </div>
+    `
+    return outDiv
+  },
+})
 
 const TopologyMap = forwardRef((props: IProps, drawRef) => {
   const {
@@ -167,28 +196,13 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
   const location = useLocation()
   const { from, type, query } = queryString.parse(location?.search)
   const navigate = useNavigate()
-  const [tooltipopen, setTooltipopen] = useState(false)
-  const [itemWidth, setItemWidth] = useState<number>(100)
-  const [hiddenButtontooltip, setHiddenButtontooltip] = useState<{
-    x: number
-    y: number
-    e?: IG6GraphEvent
-  }>({ x: -500, y: -500, e: undefined })
 
   function handleMouseEnter(evt) {
     graphRef.current?.setItemState(evt.item, 'hoverState', true)
-    const bbox = evt.item.getBBox()
-    const point = graphRef.current?.getCanvasByPoint(bbox.centerX, bbox.minY)
-    if (bbox) {
-      setItemWidth(bbox.width)
-    }
-    setHiddenButtontooltip({ x: point.x, y: point.y - 5, e: evt })
-    setTooltipopen(true)
   }
 
   const handleMouseLeave = (evt: IG6GraphEvent) => {
     graphRef.current?.setItemState(evt.item, 'hoverState', false)
-    setTooltipopen(false)
   }
 
   G6.registerNode(
@@ -408,7 +422,7 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
       width,
       height,
       fitCenter: true,
-      plugins: [toolbar],
+      plugins: [toolbar, tooltip],
       enabledStack: true,
       modes: {
         default: ['drag-canvas', 'drag-node', 'click-select'],
@@ -531,7 +545,6 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         graphRef.current?.on('node:click', evt => {
           const node = evt.item
           const model = node.getModel()
-          setTooltipopen(false)
           graphRef.current?.getNodes().forEach(n => {
             graphRef.current?.setItemState(n, 'selected', false)
           })
@@ -613,14 +626,6 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
         >
           <Loading />
         </div>
-        {tooltipopen ? (
-          <OverviewTooltip
-            type={type as string}
-            itemWidth={itemWidth}
-            hiddenButtonInfo={hiddenButtontooltip}
-            open={tooltipopen}
-          />
-        ) : null}
       </div>
     </div>
   )

@@ -37,6 +37,7 @@
     "highlight.js": "^11.9.0",
     "i18next": "^23.10.0",
     "i18next-browser-languagedetector": "^7.2.0",
+    "insert-css": "^2.0.0",
     "js-yaml": "^4.1.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
