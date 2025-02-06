@@ -52,22 +52,30 @@ type AIProvider interface {
 
 // AIConfig represents the configuration settings for an AI client.
 type AIConfig struct {
-	Name        string
-	AuthToken   string
-	BaseURL     string
-	Model       string
-	Temperature float32
-	TopP        float32
+	Name         string
+	AuthToken    string
+	BaseURL      string
+	Model        string
+	Temperature  float32
+	TopP         float32
+	ProxyEnabled bool
+	HTTPProxy    string
+	HTTPSProxy   string
+	NoProxy      string
 }
 
 func ConvertToAIConfig(c registry.ExtraConfig) AIConfig {
 	return AIConfig{
-		Name:        c.AIBackend,
-		AuthToken:   c.AIAuthToken,
-		BaseURL:     c.AIBaseURL,
-		Model:       c.AIModel,
-		Temperature: c.AITemperature,
-		TopP:        c.AITopP,
+		Name:         c.AIBackend,
+		AuthToken:    c.AIAuthToken,
+		BaseURL:      c.AIBaseURL,
+		Model:        c.AIModel,
+		Temperature:  c.AITemperature,
+		TopP:         c.AITopP,
+		ProxyEnabled: c.AIProxyEnabled,
+		HTTPProxy:    c.AIHTTPProxy,
+		HTTPSProxy:   c.AIHTTPSProxy,
+		NoProxy:      c.AINoProxy,
 	}
 }
 
