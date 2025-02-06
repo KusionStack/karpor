@@ -35,4 +35,4 @@ jobs:
           args: >-
             plan
             --priority-labels priority/critical,priority/important-soon,priority/important-longterm,priority/awaiting-more-evidence
-            --category-labels area/cli,area/ai,area/search,area/insight,area/cluster-mgmt,area/experience,area/installation,area/performance,area/server,area/storage,area/syncer,bug,chore,enhancement,governance,security,testing,logistics,integration,documentation
+            --category-labels area/cli,area/ai,area/search,area/insight,area/cluster-mgmt,area/experience,area/installation,area/performance,area/server,area/storage,area/syncer,bug,chore,enhancement,governance,security,testing,logistics,integration,documentation,growth
