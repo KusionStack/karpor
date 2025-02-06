@@ -1,9 +1,6 @@
-name: Community Planning Updater
+name: Community Task Updater
 
 on:
-  # Trigger on milestone events
-  milestone:
-    types: [created, edited, deleted]
   # Trigger on issue events
   issues:
     types: [opened, edited, deleted, transferred, milestoned, demilestoned, labeled, unlabeled, assigned, unassigned]
@@ -13,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Community Planning Updater
+      - name: Community Tasks Updater
         uses: elliotxx/osp-action@v1
         with:
           # Optional: version of OSP to use (default: latest)
@@ -25,15 +22,18 @@ jobs:
           # Optional: GitHub token (default: ${{ github.token }})
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
+          # Optional: enable debug mode (default: false)
+          debug: false
+
           # Optional: skip caching (default: false)
           skip-cache: false
 
-          # Optional: enable debug mode
-          debug: false
-
           # Optional: additional OSP arguments
           args: >-
-            plan
+            onboard
             --dry-run
-            --priority-labels priority/critical,priority/important-soon,priority/important-longterm,priority/awaiting-more-evidence
+            --onboard-labels 'help wanted,good first issue'
+            --difficulty-labels 'easy,medium,hard'
             --category-labels area/cli,area/ai,area/search,area/insight,area/cluster-mgmt,area/experience,area/installation,area/performance,area/server,area/storage,area/syncer,bug,chore,enhancement,governance,security,testing,logistics,integration,documentation
+            --target-title 'Community tasks | 新手任务清单 🎖︎'
+
