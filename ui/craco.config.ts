@@ -1,11 +1,7 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const CracoLessPlugin = require('craco-less')
 const CompressionPlugin = require('compression-webpack-plugin')
-const HappyPack = require('happypack')
-const os = require('os')
 const path = require('path')
-const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
-
 const { whenProd } = require('@craco/craco')
 
 module.exports = {
@@ -40,12 +36,6 @@ module.exports = {
             threshold: 10240,
             minRatio: 0.8,
             deleteOriginalAssets: false,
-          }),
-
-          new HappyPack({
-            id: 'babel',
-            loaders: ['babel-loader'],
-            threadPool: happyThreadPool,
           }),
         )
       })
