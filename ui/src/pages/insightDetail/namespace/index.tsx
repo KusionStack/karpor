@@ -8,19 +8,17 @@ import Yaml from '@/components/yaml'
 import { capitalized, generateTopologyData } from '@/utils/tools'
 import { insightTabsList, InsightTab } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
+import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
-import K8sEvent from '../components/k8sEvent'
-import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
-const ClusterDetail = () => {
+const NamespaceDetail = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
@@ -28,7 +26,6 @@ const ClusterDetail = () => {
   const { type, apiVersion, cluster, kind, namespace, name, key, from, query } =
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
-  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState(
     urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
   )
@@ -255,10 +252,6 @@ const ClusterDetail = () => {
     setDrawerVisible(true)
   }
 
-  function showK8sDrawer() {
-    setK8sDrawerVisible(true)
-  }
-
   function onItemClick(item) {
     setModalVisible(true)
     setCurrentItem(item)
@@ -401,16 +394,6 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
-    if (currentTab === 'K8s') {
-      return (
-        <K8sEvent
-          rescan={rescan}
-          exceptionList={[1, 2, 3, 4, 5]}
-          showDrawer={showK8sDrawer}
-          onItemClick={onItemClick}
-        />
-      )
-    }
   }
 
   return (
@@ -451,10 +434,6 @@ const ClusterDetail = () => {
         exceptionList={auditList}
         exceptionStat={auditStat}
       />
-      <K8sEventDrawer
-        open={k8sDrawerVisible}
-        onClose={() => setK8sDrawerVisible(false)}
-      />
       <EventDetail
         open={modalVisible}
         cancel={() => setModalVisible(false)}
@@ -464,4 +443,4 @@ const ClusterDetail = () => {
   )
 }
 
-export default ClusterDetail
+export default NamespaceDetail

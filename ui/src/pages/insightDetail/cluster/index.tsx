@@ -8,17 +8,15 @@ import Yaml from '@/components/yaml'
 import { capitalized, generateTopologyData } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import Kubernetes from '@/assets/kubernetes.png'
+import { useAxios } from '@/utils/request'
 import SourceTable from '../components/sourceTable'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
-import K8sEvent from '../components/k8sEvent'
-import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
 const ClusterDetail = () => {
   const location = useLocation()
@@ -27,7 +25,6 @@ const ClusterDetail = () => {
   const { type, cluster, kind, namespace, name, key, from, query, apiVersion } =
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
-  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
   const [currentTab, setCurrentTab] = useState('Topology')
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
@@ -228,10 +225,6 @@ const ClusterDetail = () => {
     setDrawerVisible(true)
   }
 
-  function showK8sDrawer() {
-    setK8sDrawerVisible(true)
-  }
-
   function onItemClick(item) {
     setModalVisible(true)
     setCurrentItem(item)
@@ -320,16 +313,6 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
-    if (currentTab === 'K8s') {
-      return (
-        <K8sEvent
-          rescan={rescan}
-          exceptionList={[1, 2, 3, 4, 5]}
-          showDrawer={showK8sDrawer}
-          onItemClick={onItemClick}
-        />
-      )
-    }
   }
 
   return (
@@ -367,10 +350,6 @@ const ClusterDetail = () => {
         onClose={() => setDrawerVisible(false)}
         exceptionList={auditList}
         exceptionStat={auditStat}
-      />
-      <K8sEventDrawer
-        open={k8sDrawerVisible}
-        onClose={() => setK8sDrawerVisible(false)}
       />
       <EventDetail
         open={modalVisible}

@@ -13,15 +13,13 @@ import ExceptionDrawer from '../components/exceptionDrawer'
 import TopologyMap from '../components/topologyMap'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
-import K8sEvent from '../components/k8sEvent'
-import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
 import PodLogs from '../components/podLogs'
 import EventAggregator from '../components/eventAggregator'
 
 import styles from './styles.module.less'
 
-const ClusterDetail = () => {
+const ResourceDetail = () => {
   const { t, i18n } = useTranslation()
   const navigate = useNavigate()
   const location = useLocation()
@@ -29,12 +27,11 @@ const ClusterDetail = () => {
   const { type, apiVersion, cluster, kind, namespace, name, key, from, query } =
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
-  const [k8sDrawerVisible, setK8sDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState(
+  const [currentTab, setCurrentTab] = useState<string>(
     urlParams?.deleted === 'true' ? 'YAML' : 'Topology',
   )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
-  const [yamlData, setYamlData] = useState('')
+  const [yamlData, setYamlData] = useState<string | undefined>('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditStat, setAuditStat] = useState<any>()
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
@@ -94,7 +91,7 @@ const ClusterDetail = () => {
     }
   }, [auditResponse])
 
-  function getAudit(isRescan) {
+  function getAudit(isRescan: boolean) {
     auditRefetch({
       option: {
         params: {
@@ -235,10 +232,6 @@ const ClusterDetail = () => {
 
   function showDrawer() {
     setDrawerVisible(true)
-  }
-
-  function showK8sDrawer() {
-    setK8sDrawerVisible(true)
   }
 
   function onItemClick(item) {
@@ -423,16 +416,6 @@ const ClusterDetail = () => {
         />
       )
     }
-    if (currentTab === 'K8s') {
-      return (
-        <K8sEvent
-          rescan={rescan}
-          exceptionList={[1, 2, 3, 4, 5]}
-          showDrawer={showK8sDrawer}
-          onItemClick={onItemClick}
-        />
-      )
-    }
   }
 
   return (
@@ -472,10 +455,6 @@ const ClusterDetail = () => {
         exceptionList={auditList}
         exceptionStat={auditStat}
       />
-      <K8sEventDrawer
-        open={k8sDrawerVisible}
-        onClose={() => setK8sDrawerVisible(false)}
-      />
       <EventDetail
         open={modalVisible}
         cancel={() => setModalVisible(false)}
@@ -485,4 +464,4 @@ const ClusterDetail = () => {
   )
 }
 
-export default ClusterDetail
+export default ResourceDetail
