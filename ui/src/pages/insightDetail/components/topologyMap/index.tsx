@@ -37,12 +37,18 @@ interface NodeModel {
   name?: string
   label?: string
   resourceGroup?: {
-    name: string
+    name?: string
+    apiVersion: string
+    cluster: string
+    kind: string
   }
   data?: {
     count?: number
     resourceGroup?: {
-      name: string
+      name?: string
+      apiVersion: string
+      cluster: string
+      kind: string
     }
   }
 }
@@ -52,7 +58,7 @@ function getTextWidth(str: string, fontSize: number) {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const context = canvas.getContext('2d')!
   context.font = `${fontSize}px sans-serif`
-  return context.measureText(str).width
+  return context?.measureText(str)?.width
 }
 
 function fittingString(str: string, maxWidth: number, fontSize: number) {
@@ -125,8 +131,18 @@ const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
   }
 
+  const {
+    data: { resourceGroup },
+  } = model
+
   const itemStyle = {
     color: '#333',
+    fontSize: 14,
+    whiteSpace: 'nowrap',
+  }
+
+  const labelStyle = {
+    color: '#8a8a8a',
     fontSize: 14,
     whiteSpace: 'nowrap',
   }
@@ -135,6 +151,18 @@ const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
     <div style={boxStyle}>
       <div style={itemStyle}>
         {type === 'cluster' ? model?.label : model?.id}
+      </div>
+      <div style={itemStyle}>
+        <span style={labelStyle}>apiVersion: </span>
+        {resourceGroup?.apiVersion}
+      </div>
+      <div style={itemStyle}>
+        <span style={labelStyle}>cluster: </span>
+        {resourceGroup?.cluster}
+      </div>
+      <div style={itemStyle}>
+        <span style={labelStyle}>kind: </span>
+        {resourceGroup?.kind}
       </div>
     </div>
   )
