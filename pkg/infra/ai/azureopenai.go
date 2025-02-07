@@ -34,6 +34,10 @@ func (c *AzureAIClient) Configure(cfg AIConfig) error {
 
 	defaultConfig := openai.DefaultAzureConfig(cfg.AuthToken, cfg.BaseURL)
 
+	if cfg.ProxyEnabled {
+		defaultConfig.HTTPClient.Transport = GetProxyHTTPClient(cfg)
+	}
+
 	client := openai.NewClientWithConfig(defaultConfig)
 	if client == nil {
 		return errors.New("error creating Azure OpenAI client")

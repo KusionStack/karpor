@@ -16,8 +16,12 @@ package ai
 
 import (
 	"context"
+	"net/http"
+	"net/url"
+	"strings"
 
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"k8s.io/klog/v2"
 )
 
 const (
@@ -86,4 +90,47 @@ func NewClient(name string) AIProvider {
 	}
 	// default client
 	return &OpenAIClient{}
+}
+
+// GetProxyHTTPClient returns a new http.Transport with proxy configuration
+func GetProxyHTTPClient(cfg AIConfig) *http.Transport {
+	noProxyList := strings.Split(cfg.NoProxy, ",")
+
+	return &http.Transport{
+		Proxy: func(req *http.Request) (*url.URL, error) {
+			host := req.URL.Host
+			// Check if host matches NoProxy list
+			for _, np := range noProxyList {
+				if np = strings.TrimSpace(np); np != "" {
+					// exact match
+					if host == np {
+						klog.Infof("Skip proxy for %s: exact match in no_proxy list", host)
+						return nil, nil
+					}
+					// Domain suffix match with dot to prevent false positives
+					// e.g. pattern "le.com", it would incorrectly match host "example.com".
+					if !strings.HasPrefix(np, ".") {
+						np = "." + np
+					}
+					if strings.HasSuffix(host, np) {
+						klog.Infof("Skip proxy for %s: suffix match with %s in no_proxy list", host, np)
+						return nil, nil
+					}
+				}
+			}
+
+			var proxyURL string
+			if req.URL.Scheme == "https" && cfg.HTTPSProxy != "" {
+				proxyURL = cfg.HTTPSProxy
+			} else if req.URL.Scheme == "http" && cfg.HTTPProxy != "" {
+				proxyURL = cfg.HTTPProxy
+			}
+
+			if proxyURL != "" {
+				klog.Infof("Using proxy %s for %s", proxyURL, req.URL)
+				return url.Parse(proxyURL)
+			}
+			return nil, nil
+		},
+	}
 }

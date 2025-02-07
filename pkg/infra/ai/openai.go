@@ -17,12 +17,8 @@ package ai
 import (
 	"context"
 	"errors"
-	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/sashabaranov/go-openai"
-	"k8s.io/klog/v2"
 )
 
 type OpenAIClient struct {
@@ -38,46 +34,8 @@ func (c *OpenAIClient) Configure(cfg AIConfig) error {
 		defaultConfig.BaseURL = cfg.BaseURL
 	}
 
-	// Add proxy configuration
 	if cfg.ProxyEnabled {
-		noProxyList := strings.Split(cfg.NoProxy, ",")
-		defaultConfig.HTTPClient.Transport = &http.Transport{
-			Proxy: func(req *http.Request) (*url.URL, error) {
-				host := req.URL.Host
-				// Check if host matches NoProxy list
-				for _, np := range noProxyList {
-					if np = strings.TrimSpace(np); np != "" {
-						// exact match
-						if host == np {
-							klog.Infof("Skip proxy for %s: exact match in no_proxy list", host)
-							return nil, nil
-						}
-						// Domain suffix match with dot to prevent false positives
-						// e.g. "le.com", it would incorrectly match "example.com".
-						if !strings.HasPrefix(np, ".") {
-							np = "." + np
-						}
-						if strings.HasSuffix(host, np) {
-							klog.Infof("Skip proxy for %s: suffix match with %s in no_proxy list", host, np)
-							return nil, nil
-						}
-					}
-				}
-
-				var proxyURL string
-				if req.URL.Scheme == "https" && cfg.HTTPSProxy != "" {
-					proxyURL = cfg.HTTPSProxy
-				} else if req.URL.Scheme == "http" && cfg.HTTPProxy != "" {
-					proxyURL = cfg.HTTPProxy
-				}
-
-				if proxyURL != "" {
-					klog.Infof("Using proxy %s for %s", proxyURL, req.URL)
-					return url.Parse(proxyURL)
-				}
-				return nil, nil
-			},
-		}
+		defaultConfig.HTTPClient.Transport = GetProxyHTTPClient(cfg)
 	}
 
 	client := openai.NewClientWithConfig(defaultConfig)

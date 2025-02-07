@@ -16,6 +16,7 @@ package ai
 
 import (
 	"context"
+	"net/http"
 
 	"github.com/hupe1980/go-huggingface"
 )
@@ -27,9 +28,16 @@ type HuggingfaceClient struct {
 }
 
 func (c *HuggingfaceClient) Configure(cfg AIConfig) error {
-	client := huggingface.NewInferenceClient(cfg.AuthToken)
+	if cfg.ProxyEnabled {
+		c.client = huggingface.NewInferenceClient(cfg.AuthToken, func(o *huggingface.InferenceClientOptions) {
+			o.HTTPClient = &http.Client{
+				Transport: GetProxyHTTPClient(cfg),
+			}
+		})
+	} else {
+		c.client = huggingface.NewInferenceClient(cfg.AuthToken)
+	}
 
-	c.client = client
 	c.model = cfg.Model
 	c.temperature = cfg.Temperature
 	return nil
