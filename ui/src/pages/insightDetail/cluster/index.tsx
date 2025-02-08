@@ -18,6 +18,33 @@ import SummaryCard from '../components/summaryCard'
 
 import styles from './styles.module.less'
 
+type IssueGroupsType = Array<{
+  issue: {
+    scanner: string
+    message: string
+    severity: string
+    title: string
+  }
+  resourceGroups: Array<{
+    apiVersion: string
+    cluster: string
+    kind: string
+    name: string
+    namespace: string
+  }>
+}>
+
+type AuditDataType = {
+  bySeverity: {
+    High?: number
+    Medium?: number
+    Low?: number
+  }
+  issueGroups: IssueGroupsType
+  issueTotal: number
+  resourceTotal: number
+}
+
 const ClusterDetail = () => {
   const location = useLocation()
   const { t, i18n } = useTranslation()
@@ -25,13 +52,13 @@ const ClusterDetail = () => {
   const { type, cluster, kind, namespace, name, key, from, query, apiVersion } =
     urlParams
   const [drawerVisible, setDrawerVisible] = useState<boolean>(false)
-  const [currentTab, setCurrentTab] = useState('Topology')
+  const [currentTab, setCurrentTab] = useState<string>('Topology')
   const [modalVisible, setModalVisible] = useState<boolean>(false)
-  const [tableQueryStr, setTableQueryStr] = useState('')
-  const [yamlData, setYamlData] = useState('')
-  const [auditList, setAuditList] = useState<any>([])
+  const [tableQueryStr, setTableQueryStr] = useState<string>('')
+  const [yamlData, setYamlData] = useState<string>('')
+  const [auditList, setAuditList] = useState<AuditDataType | undefined>()
   const [auditStat, setAuditStat] = useState<any>()
-  const [tableName, setTableName] = useState('Pod')
+  const [tableName, setTableName] = useState<string>('Pod')
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
   const [summary, setSummary] = useState<any>()
   const [currentItem, setCurrentItem] = useState<any>()
