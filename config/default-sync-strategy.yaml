@@ -50,3 +50,6 @@ spec:
     - apiVersion: v1
       resource: secrets
       transformRefName: only-metadata
+    - apiVersion: networking.k8s.io/v1
+      resource: ingresses
+      transformRefName: only-metadata
