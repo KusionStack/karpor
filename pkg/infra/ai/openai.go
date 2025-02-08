@@ -34,6 +34,10 @@ func (c *OpenAIClient) Configure(cfg AIConfig) error {
 		defaultConfig.BaseURL = cfg.BaseURL
 	}
 
+	if cfg.ProxyEnabled {
+		defaultConfig.HTTPClient.Transport = GetProxyHTTPClient(cfg)
+	}
+
 	client := openai.NewClientWithConfig(defaultConfig)
 	if client == nil {
 		return errors.New("error creating OpenAI client")

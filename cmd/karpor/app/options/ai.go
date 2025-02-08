@@ -26,6 +26,11 @@ type AIOptions struct {
 	AIModel       string
 	AITemperature float32
 	AITopP        float32
+	// proxy options
+	AIProxyEnabled bool
+	AIHTTPProxy    string
+	AIHTTPSProxy   string
+	AINoProxy      string
 }
 
 const (
@@ -51,6 +56,10 @@ func (o *AIOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.AIModel = o.AIModel
 	config.AITemperature = o.AITemperature
 	config.AITopP = o.AITopP
+	config.AIProxyEnabled = o.AIProxyEnabled
+	config.AIHTTPProxy = o.AIHTTPProxy
+	config.AIHTTPSProxy = o.AIHTTPSProxy
+	config.AINoProxy = o.AINoProxy
 	return nil
 }
 
@@ -66,4 +75,8 @@ func (o *AIOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.AIModel, "ai-model", defaultModel, "The ai model")
 	fs.Float32Var(&o.AITemperature, "ai-temperature", defaultTemperature, "The ai temperature")
 	fs.Float32Var(&o.AITopP, "ai-top-p", defaultTopP, "The ai top-p")
+	fs.BoolVar(&o.AIProxyEnabled, "ai-proxy-enabled", false, "The ai proxy enable")
+	fs.StringVar(&o.AIHTTPProxy, "ai-http-proxy", "", "The ai http proxy")
+	fs.StringVar(&o.AIHTTPSProxy, "ai-https-proxy", "", "The ai https proxy")
+	fs.StringVar(&o.AINoProxy, "ai-no-proxy", "", "The ai no-proxy")
 }
