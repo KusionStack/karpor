@@ -8,11 +8,11 @@ export function truncationPageData({ list, page, pageSize }) {
     : []
 }
 
-export function utcDateToLocalDate(date, FMT = 'YYYY-MM-DD HH:mm:ss') {
+export function utcDateToLocalDate(date: Date, FMT = 'YYYY-MM-DD HH:mm:ss') {
   return moment.utc(date).local().format(FMT)
 }
 
-function pow1024(num) {
+function pow1024(num: number) {
   return Math.pow(1024, num)
 }
 
@@ -132,7 +132,7 @@ export function generateResourceTopologyData(data) {
   return { nodes, edges }
 }
 
-export function getDataType(data) {
+export function getDataType(data: any) {
   const map = new Map()
   map.set('[object String]', 'String')
   map.set('[object Number]', 'Number')
@@ -170,7 +170,11 @@ export function hasDuplicatesOfObjectArray(array) {
   return false
 }
 
-export function filterKeywordsOfArray(list, keywords, attribute) {
+export function filterKeywordsOfArray(
+  list: any[],
+  keywords: string[],
+  attribute: string,
+) {
   const result = []
   if (keywords?.length === 1) {
     list?.forEach((item: any) => {
@@ -206,13 +210,13 @@ export function getTextSizeByCanvas(
   return width + 2
 }
 
-export function getHistoryList(key) {
+export function getHistoryList(key: string) {
   return localStorage?.getItem(key)
     ? JSON.parse(localStorage?.getItem(key))
     : []
 }
 
-export function deleteHistoryByItem(key, val: string) {
+export function deleteHistoryByItem(key: string, val: string) {
   const lastHistory: any = localStorage.getItem(key)
   const tmp = lastHistory ? JSON.parse(lastHistory) : []
   if (tmp?.length > 0 && tmp?.includes(val)) {
@@ -221,7 +225,7 @@ export function deleteHistoryByItem(key, val: string) {
   }
 }
 
-export function cacheHistory(key, val: string) {
+export function cacheHistory(key: string, val: string) {
   const lastHistory: any = localStorage.getItem(key)
   const tmp = lastHistory ? JSON.parse(lastHistory) : []
   const newList = [val, ...tmp?.filter(item => item !== val)]

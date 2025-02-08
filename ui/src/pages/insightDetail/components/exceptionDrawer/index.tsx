@@ -6,12 +6,13 @@ import { filterKeywordsOfArray, truncationPageData } from '@/utils/tools'
 import { DEFALUT_PAGE_SIZE_10, SEVERITY_MAP } from '@/utils/constants'
 import ExceptionStat from '../exceptionStat'
 import TagVariableSizeList from '../tagVariableSizeList'
+import { IssueResponse, ResourceScore } from '../../types'
 
 import styles from './style.module.less'
 
 type IProps = {
-  exceptionStat?: any
-  exceptionList: any
+  exceptionStat?: ResourceScore
+  exceptionList: IssueResponse
   onClose: () => void
   open: boolean
 }
@@ -22,8 +23,8 @@ const ExceptionDrawer = ({ open, onClose, exceptionList }: IProps) => {
     pageSize: DEFALUT_PAGE_SIZE_10,
     total: 0,
   })
-  const [searchValue, setSearchValue] = useState('')
-  const [currentKey, setCurrentKey] = useState('All')
+  const [searchValue, setSearchValue] = useState<string>('')
+  const [currentKey, setCurrentKey] = useState<string>('All')
   const [showPageData, setShowPageData] = useState([])
 
   const { t } = useTranslation()

@@ -15,7 +15,7 @@ import transferImg from '@/assets/transfer.png'
 import { ICON_MAP } from '@/utils/images'
 
 import styles from './style.module.less'
-interface NodeConfig extends ModelConfig {
+export interface NodeConfig extends ModelConfig {
   data?: {
     name?: string
     count?: number

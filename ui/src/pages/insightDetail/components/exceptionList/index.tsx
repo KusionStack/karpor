@@ -17,14 +17,16 @@ import axios from 'axios'
 import { debounce } from 'lodash'
 import Markdown from 'react-markdown'
 import aiSummarySvg from '@/assets/ai-summary.svg'
-import styles from './style.module.less'
 import classNames from 'classnames'
+import { IssueGroup, IssueResponse } from '../../types'
+
+import styles from './style.module.less'
 
 type IProps = {
-  exceptionList: any
+  exceptionList: IssueResponse
   rescan: () => void
   showDrawer: () => void
-  onItemClick: (val: string) => void
+  onItemClick: (val: IssueGroup) => void
   exceptionStat: any
   auditLoading: boolean
 }

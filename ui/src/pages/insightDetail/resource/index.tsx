@@ -10,12 +10,19 @@ import { insightTabsList } from '@/utils/constants'
 import { ICON_MAP } from '@/utils/images'
 import { useAxios } from '@/utils/request'
 import ExceptionDrawer from '../components/exceptionDrawer'
-import TopologyMap from '../components/topologyMap'
+import TopologyMap, { NodeConfig } from '../components/topologyMap'
 import ExceptionList from '../components/exceptionList'
 import EventDetail from '../components/eventDetail'
 import SummaryCard from '../components/summaryCard'
 import PodLogs from '../components/podLogs'
 import EventAggregator from '../components/eventAggregator'
+import {
+  IssueGroup,
+  IssueResponse,
+  ResourceScore,
+  ResourceSummaryInfo,
+  TopologyClusterResourceData,
+} from '../types'
 
 import styles from './styles.module.less'
 
@@ -32,13 +39,14 @@ const ResourceDetail = () => {
   )
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [yamlData, setYamlData] = useState<string | undefined>('')
-  const [auditList, setAuditList] = useState<any>([])
-  const [auditStat, setAuditStat] = useState<any>()
+  const [auditList, setAuditList] = useState<IssueResponse>()
+  const [auditStat, setAuditStat] = useState<ResourceScore>()
   const [breadcrumbItems, setBreadcrumbItems] = useState([])
-  const [summary, setSummary] = useState<any>()
-  const [currentItem, setCurrentItem] = useState<any>()
-  const [multiTopologyData, setMultiTopologyData] = useState<any>()
-  const [selectedCluster, setSelectedCluster] = useState<any>()
+  const [summary, setSummary] = useState<ResourceSummaryInfo>()
+  const [currentItem, setCurrentItem] = useState<IssueGroup>()
+  const [multiTopologyData, setMultiTopologyData] =
+    useState<TopologyClusterResourceData>()
+  const [selectedCluster, setSelectedCluster] = useState<string>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
 
   const [tabList, setTabList] = useState(insightTabsList)
@@ -234,12 +242,12 @@ const ResourceDetail = () => {
     setDrawerVisible(true)
   }
 
-  function onItemClick(item) {
+  function onItemClick(item: IssueGroup) {
     setModalVisible(true)
     setCurrentItem(item)
   }
 
-  function replacePage(item) {
+  function replacePage(item: string) {
     const obj = { from, type, apiVersion, query }
     const list = ['cluster', 'kind', 'namespace', 'name']
     for (let i = 0; i < list?.length; i++) {
@@ -331,7 +339,7 @@ const ResourceDetail = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [from, key, cluster, kind, namespace, name, i18n?.language])
 
-  function onTopologyNodeClick(node: any) {
+  function onTopologyNodeClick(node: NodeConfig) {
     const {
       data: { resourceGroup },
     } = node || {}

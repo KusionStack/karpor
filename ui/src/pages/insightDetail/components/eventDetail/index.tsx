@@ -3,12 +3,13 @@ import { Button, Modal, Tag } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { SEVERITY_MAP } from '@/utils/constants'
 import TagVariableSizeList from '../tagVariableSizeList'
+import { IssueGroup } from '../../types'
 
 import styles from './style.module.less'
 
 type IProps = {
   open: boolean
-  detail: any
+  detail: IssueGroup
   cancel: () => void
 }
 
