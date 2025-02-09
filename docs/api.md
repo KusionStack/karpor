@@ -2924,16 +2924,10 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.<br>
-This count can be used to understand the overall number of problems<br>
-that need to be addressed. |  |
+| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.</br>This count can be used to understand the overall number of problems</br>that need to be addressed. |  |
 | resourceTotal | integer| `int64` |  | | ResourceTotal is the count of unique resources audited during the scan. |  |
-| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on<br>
-the number and severity of issues. It provides a quantitative measure<br>
-of the security posture of the resources in the manifest. |  |
-| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective<br>
-number of occurrences. It allows for a quick overview of the distribution<br>
-of issues across different severity categories. |  |
+| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on</br>the number and severity of issues. It provides a quantitative measure</br>of the security posture of the resources in the manifest. |  |
+| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective</br>number of occurrences. It allows for a quick overview of the distribution</br>of issues across different severity categories. |  |
 
 
 
@@ -3016,6 +3010,5 @@ of issues across different severity categories. |  |
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| object | [interface{}](#interface)| `interface{}` | | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or</br>map[string]interface{}</br>children. | |
-
+| object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or</br>map[string]interface{}</br>children. |  |
 
