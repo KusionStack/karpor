@@ -1622,6 +1622,10 @@ paths:
         in: query
         name: page
         type: string
+      - description: The keyword to use for search. Optional
+        in: query
+        name: keyword
+        type: string
       produces:
       - application/json
       responses:

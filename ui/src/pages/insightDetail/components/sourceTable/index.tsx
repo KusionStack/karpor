@@ -195,7 +195,6 @@ const SourceTable = ({ queryStr, tableName }: IProps) => {
           <Input
             value={keyword}
             allowClear
-            disabled
             onChange={event => setKeyword(event?.target?.value)}
             placeholder={t('FilterByName')}
             suffix={<SearchOutlined />}

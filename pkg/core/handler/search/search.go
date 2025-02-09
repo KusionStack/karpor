@@ -15,6 +15,7 @@
 package search
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -38,6 +39,7 @@ import (
 // @Param        pattern   query     string          true   "The search pattern. Can be either sql, dsl or nl. Required"
 // @Param        pageSize  query     string          false  "The size of the page. Default to 10"
 // @Param        page      query     string          false  "The current page to fetch. Default to 1"
+// @Param        keyword   query     string          false  "The keyword to use for search. Optional"
 // @Success      200       {array}   runtime.Object  "Array of runtime.Object"
 // @Failure      400       {string}  string          "Bad Request"
 // @Failure      401       {string}  string          "Unauthorized"
@@ -57,6 +59,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		searchPattern := r.URL.Query().Get("pattern")
 		searchPageSize, _ := strconv.Atoi(r.URL.Query().Get("pageSize"))
 		searchPage, _ := strconv.Atoi(r.URL.Query().Get("page"))
+		searchKeyword := r.URL.Query().Get("keyword")
 
 		format := r.URL.Query().Get("format")
 		formatter, err := ParseObjectFormatter(format)
@@ -70,6 +73,12 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		}
 		if searchPage <= 1 {
 			searchPage = 1
+		}
+		if searchKeyword != "" && searchQuery != "" {
+			if searchPattern == storage.SQLPatternType {
+				searchQuery = fmt.Sprintf("%s AND (name LIKE '%%%s%%' OR namespace LIKE '%%%s%%')",
+					searchQuery, searchKeyword, searchKeyword)
+			}
 		}
 
 		query := searchQuery
