@@ -314,6 +314,10 @@ const ClusterDetail = () => {
     setSelectedCluster(val)
   }
 
+  function refreshYaml() {
+    getClusterDetail()
+  }
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -338,7 +342,7 @@ const ClusterDetail = () => {
       }
     }
     if (currentTab === 'YAML') {
-      return <Yaml data={yamlData || ''} />
+      return <Yaml data={yamlData || ''} refreshYaml={refreshYaml} />
     }
   }
 

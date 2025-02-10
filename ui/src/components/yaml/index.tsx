@@ -9,6 +9,7 @@ import {
   PoweroffOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -37,6 +38,7 @@ type InterpretStatus =
 type IProps = {
   data: any
   height?: string | number
+  refreshYaml?: () => void
 }
 
 const Yaml = (props: IProps) => {
@@ -47,7 +49,7 @@ const Yaml = (props: IProps) => {
   const interpretEndRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<MutationObserver | null>(null)
-  const { data } = props
+  const { data, refreshYaml } = props
   const [moduleHeight, setModuleHeight] = useState<number>(500)
   const [interpretStatus, setInterpretStatus] =
     useState<InterpretStatus>('idle')
@@ -286,6 +288,15 @@ const Yaml = (props: IProps) => {
             <div className={styles.yaml_container}>
               <div className={styles.copy}>
                 <Space>
+                  {refreshYaml && (
+                    <Tooltip title={t('LogAggregator.FullScreen')}>
+                      <Button
+                        type="text"
+                        icon={<ReloadOutlined />}
+                        onClick={refreshYaml}
+                      />
+                    </Tooltip>
+                  )}
                   {data && (
                     <>
                       {!handle.active && (

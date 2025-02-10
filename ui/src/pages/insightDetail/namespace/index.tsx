@@ -368,6 +368,10 @@ const NamespaceDetail = () => {
     }
   }, [multiTopologyData, selectedCluster, currentTab])
 
+  function refreshYaml() {
+    getClusterDetail()
+  }
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -392,7 +396,7 @@ const NamespaceDetail = () => {
       }
     }
     if (currentTab === 'YAML') {
-      return <Yaml data={yamlData || ''} />
+      return <Yaml data={yamlData || ''} refreshYaml={refreshYaml} />
     }
   }
 

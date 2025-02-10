@@ -55,7 +55,7 @@ const ResourceDetail = () => {
 
   useEffect(() => {
     const initialTabList = [...insightTabsList]
-    if (kind === 'Pod') {
+    if (kind === 'Pod' || kind === 'Deployment') {
       if (!initialTabList.find(tab => tab.value === 'Logs')) {
         initialTabList.push({ value: 'Logs', label: 'LogAggregator' })
       }
@@ -379,6 +379,10 @@ const ResourceDetail = () => {
     }
   }, [multiTopologyData, selectedCluster, currentTab])
 
+  function refreshYaml() {
+    getClusterDetail()
+  }
+
   function renderTabPane() {
     if (currentTab === 'Topology') {
       const topologyData =
@@ -401,7 +405,7 @@ const ResourceDetail = () => {
       }
     }
     if (currentTab === 'YAML') {
-      return <Yaml data={yamlData || ''} />
+      return <Yaml data={yamlData || ''} refreshYaml={refreshYaml} />
     }
     if (currentTab === 'Events') {
       return (
@@ -414,7 +418,7 @@ const ResourceDetail = () => {
         />
       )
     }
-    if (currentTab === 'Logs' && kind === 'Pod') {
+    if (currentTab === 'Logs' && (kind === 'Pod' || kind === 'Deployment')) {
       return (
         <PodLogs
           cluster={cluster as string}
