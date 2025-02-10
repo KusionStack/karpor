@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/core/manager/ai"
@@ -76,6 +77,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		}
 		if searchKeyword != "" && searchQuery != "" {
 			if searchPattern == storage.SQLPatternType {
+				searchKeyword = strings.ReplaceAll(searchKeyword, " ", "")
 				searchQuery = fmt.Sprintf("%s AND (name LIKE '%%%s%%' OR namespace LIKE '%%%s%%')",
 					searchQuery, searchKeyword, searchKeyword)
 			}
