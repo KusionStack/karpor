@@ -76,6 +76,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 			searchPage = 1
 		}
 		if searchKeyword != "" && searchQuery != "" {
+			// TODO: Refactor to support keyword search in different search patterns (NL, DSL, etc.)
 			if searchPattern == storage.SQLPatternType {
 				searchKeyword = strings.ReplaceAll(searchKeyword, " ", "")
 				searchQuery = fmt.Sprintf("%s AND (name LIKE '%%%s%%' OR namespace LIKE '%%%s%%')",
