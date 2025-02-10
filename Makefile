@@ -23,10 +23,10 @@ CGO_ENABLED ?= 0
 # Check if the SKIP_UI_BUILD flag is set to control the UI building process.
 # If the flag is not set, the BUILD_UI variable is assigned the value 'build-ui'.
 # If the flag is set, the BUILD_UI variable remains empty.
-ifndef SKIP_UI_BUILD
-    BUILD_UI = build-ui
-else
+ifeq ($(SKIP_UI_BUILD),true)
     BUILD_UI =
+else
+    BUILD_UI = build-ui
 endif
 
 # If you encounter an error like "panic: permission denied" on MacOS,
@@ -148,16 +148,16 @@ fix-license:  ## Adds missing license header to repo files
 
 .PHONY: gen-api-spec
 gen-api-spec: ## Generate API Specification with OpenAPI format
-	@which swag > /dev/null || (echo "Installing swag@v1.7.8 ..."; $(GO) install github.com/swaggo/swag/cmd/swag@v1.7.8 && echo "Installation complete!\n")
+	@which $(GOPATH)/bin/swag > /dev/null || (echo "Installing swag@v1.7.8 ..."; $(GO) install github.com/swaggo/swag/cmd/swag@v1.7.8 && echo "Installation complete!\n")
 	# Generate API documentation with OpenAPI format
-	@swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/karpor/main.go -o api/openapispec/ && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+	@$(GOPATH)/bin/swag init --parseDependency --parseInternal --parseDepth 1 -g cmd/karpor/main.go -o api/openapispec/ && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
 	# Format swagger comments
-	@swag fmt -g pkg/**/*.go && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
+	@$(GOPATH)/bin/swag fmt -g pkg/**/*.go && echo "🎉 Done!" || (echo "💥 Failed!"; exit 1)
 
 .PHONY: gen-api-doc
 gen-api-doc: gen-api-spec ## Generate API Documentation by API Specification
-	@which swagger > /dev/null || (echo "Installing swagger@v0.30.5 ..."; $(GO) install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5 && echo "Installation complete!\n")
-	@swagger generate markdown -f ./api/openapispec/swagger.json --output=docs/api.md && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+	@which $(GOPATH)/bin/swagger > /dev/null || (echo "Installing swagger@v0.30.5 ..."; $(GO) install github.com/go-swagger/go-swagger/cmd/swagger@v0.30.5 && echo "Installation complete!\n")
+	@$(GOPATH)/bin/swagger generate markdown -f ./api/openapispec/swagger.json --output=docs/api.md && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
 
 .PHONY: gen-cli-doc
 gen-cli-doc: ## Generate CLI Documentation

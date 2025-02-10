@@ -1712,6 +1712,7 @@ This endpoint returns an array of Kubernetes runtime Object matched using the qu
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
+| keyword | `query` | string | `string` |  |  |  | The keyword to use for search. Optional |
 | page | `query` | string | `string` |  |  |  | The current page to fetch. Default to 1 |
 | pageSize | `query` | string | `string` |  |  |  | The size of the page. Default to 10 |
 | pattern | `query` | string | `string` |  | ✓ |  | The search pattern. Can be either sql, dsl or nl. Required |
@@ -3010,5 +3011,4 @@ Status: Internal Server Error
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
 | object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or</br>map[string]interface{}</br>children. |  |
-
 

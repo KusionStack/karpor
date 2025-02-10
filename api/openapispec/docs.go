@@ -2055,6 +2055,12 @@ var doc = `{
                         "description": "The current page to fetch. Default to 1",
                         "name": "page",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "The keyword to use for search. Optional",
+                        "name": "keyword",
+                        "in": "query"
                     }
                 ],
                 "responses": {
