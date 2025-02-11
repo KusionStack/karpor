@@ -292,3 +292,33 @@ check: ## Check the lint, test, and build
 	@$(MAKE) build || (echo "❌ Build check failed!" && exit 1)
 	@echo "✅ Build check passed!"
 	@echo "🎉 All checks passed successfully!"
+
+# controller-gen path
+CONTROLLER_GEN = ${GOPATH}/bin/controller-gen
+# controller-gen version
+CONTROLLER_GEN_VERSION = v0.17.1
+
+# Target: install-controller-gen
+# Description: Install controller_gen.
+# Usage:
+#   make install-controller-gen
+.PHONY: install-controller-gen
+install-controller-gen:
+	$(GO) install sigs.k8s.io/controller-tools/cmd/controller-gen@$(CONTROLLER_GEN_VERSION)
+
+# Target: generate-crds
+# Description: Generate CRDs into a special dir.
+# Usage:
+#   make generate-crds
+.PHONY: generate-crds
+generate-crds:
+	@# generate rbac, webhook and crds
+	$(CONTROLLER_GEN) crd  paths="./pkg/kubernetes/apis/cluster/v1beta1/..." output:crd:artifacts:config=config/crds/
+	$(CONTROLLER_GEN) crd  paths="./pkg/kubernetes/apis/search/v1beta1/..." output:crd:artifacts:config=config/crds/
+
+# Target: manifests
+# Description: Install controller_gen and generate CRDs into a special dir.
+# Usage:
+#   make manifests
+.PHONY: manifests
+manifests: install-controller-gen generate-crds

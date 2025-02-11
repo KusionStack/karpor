@@ -32,3 +32,23 @@ var DefaultRelationship []byte
 
 //go:embed default-sync-strategy.yaml
 var DefaultSyncStrategy []byte
+
+var CrdList = [][]byte{ClustersCrd, SyncRegistriesCrd, SyncResourcesCrd, TransformRulesCrd, TrimRulesCrd}
+
+//go:embed crds/cluster.karpor.io_clusters.yaml
+var ClustersCrd []byte
+
+//go:embed crds/search.karpor.io_syncregistries.yaml
+var SyncRegistriesCrd []byte
+
+//go:embed crds/search.karpor.io_syncresources.yaml
+var SyncResourcesCrd []byte
+
+//go:embed crds/search.karpor.io_transformrules.yaml
+var TransformRulesCrd []byte
+
+//go:embed crds/search.karpor.io_trimrules.yaml
+var TrimRulesCrd []byte
+
+//go:embed agent.tpl
+var AgentTpl []byte
