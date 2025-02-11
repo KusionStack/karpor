@@ -19,17 +19,18 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/topology"
 )
 
 func TestInsightManager_GetTopologyForCluster(t *testing.T) {
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	mockey.Mock(topology.GVRNamespaced).Return(true).Build()
 	defer mockey.UnPatchAll()
 
@@ -88,7 +89,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -155,7 +156,7 @@ func TestInsightManager_GetTopologyForResource(t *testing.T) {
 
 func TestInsightManager_GetTopologyForClusterNamespace(t *testing.T) {
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	mockey.Mock(topology.GVRNamespaced).Return(true).Build()
 	defer mockey.UnPatchAll()
 

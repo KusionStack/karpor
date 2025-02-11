@@ -99,7 +99,7 @@ func (c *FakeTransformRules) Update(ctx context.Context, transformRule *v1beta1.
 // Delete takes name of the transformRule and deletes it. Returns an error if one occurs.
 func (c *FakeTransformRules) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(transformrulesResource, name, opts), &v1beta1.TransformRule{})
+		Invokes(testing.NewRootDeleteAction(transformrulesResource, name), &v1beta1.TransformRule{})
 	return err
 }
 

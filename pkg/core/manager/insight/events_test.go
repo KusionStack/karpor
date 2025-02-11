@@ -18,11 +18,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
 )
 
 func TestInsightManager_GetResourceEvents(t *testing.T) {
@@ -31,7 +32,7 @@ func TestInsightManager_GetResourceEvents(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockEventResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -87,7 +88,7 @@ func TestInsightManager_GetNamespaceGVKEvents(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockEventResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -141,7 +142,8 @@ func TestInsightManager_GetNamespaceEvents(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockEventResource{}).Build()
+
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -197,7 +199,7 @@ func TestInsightManager_GetGVKEvents(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockEventResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -253,7 +255,7 @@ func TestInsightManager_GetClusterEvents(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockEventResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockEventResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases

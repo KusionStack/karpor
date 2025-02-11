@@ -76,6 +76,7 @@ type SearchStorage interface {
 type SearchStorageGetter interface {
 	GetSearchStorage() (SearchStorage, error)
 }
+
 type ResourceStorageGetter interface {
 	GetResourceStorage() (ResourceStorage, error)
 }

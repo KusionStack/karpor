@@ -22,9 +22,10 @@ import (
 	"testing"
 	"time"
 
+	"k8s.io/klog/v2/klogr"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/mock"
@@ -33,12 +34,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
-	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 )
 
 var _ SingleClusterSyncManager = &fakeSingleClusterSyncManager{}
@@ -168,7 +170,7 @@ func Test_singleClusterSyncManager_Start(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &singleClusterSyncManager{logger: klog.NewKlogr()}
+			s := &singleClusterSyncManager{logger: klogr.New()}
 			err := s.Start(context.TODO())
 			time.Sleep(1 * time.Second)
 			if tt.wantErr {
@@ -195,7 +197,7 @@ func Test_singleClusterSyncManager_Stop(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			s := &singleClusterSyncManager{
-				logger: klog.NewKlogr(),
+				logger: klogr.New(),
 				ch:     make(chan struct{}),
 				ctx:    ctx,
 				cancel: cancel,
@@ -237,7 +239,7 @@ func Test_singleClusterSyncManager_process(t *testing.T) {
 			defer m.UnPatch()
 			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 			s := &singleClusterSyncManager{
-				logger: klog.NewKlogr(),
+				logger: klogr.New(),
 				ch:     make(chan struct{}),
 				ctx:    ctx,
 				cancel: cancel,
@@ -302,7 +304,7 @@ func Test_singleClusterSyncManager_handleSyncResourcesUpdate(t *testing.T) {
 				syncResources: syncResources,
 				syncers:       syncers,
 				stopped:       false,
-				logger:        klog.NewKlogr(),
+				logger:        klogr.New(),
 			}
 
 			m := mockey.Mock((*wait.Group).StartWithContext).Return().Build()

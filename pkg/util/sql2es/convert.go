@@ -34,8 +34,8 @@ func applyDefaultFilter(sel *sqlparser.Select, filter sqlparser.Expr) *sqlparser
 		return sel
 	}
 
-	getColNames := func(node sqlparser.SQLNode) sets.Set[string] {
-		names := sets.Set[string]{}
+	getColNames := func(node sqlparser.SQLNode) sets.String {
+		names := sets.String{}
 		node.WalkSubtree(func(node sqlparser.SQLNode) (kontinue bool, err error) {
 			switch node.(type) {
 			case sqlparser.ColIdent, *sqlparser.ColIdent:
