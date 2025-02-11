@@ -5,7 +5,7 @@ metadata:
 spec:
   finalizers:
   - kubernetes
-{{- if eq .Mode "pull" }}
+{{- if eq .ClusterMode "pull" }}
 ---
 apiVersion: v1
 data:
@@ -67,12 +67,12 @@ spec:
         - --cluster-mode={{ .ClusterMode }}
         command:
         - /karpor
-{{- if eq .Mode "pull" }}
+{{- if eq .ClusterMode "pull" }}
         env:
         - name: KUBECONFIG
           value: /etc/karpor/config
 {{- end }}
-        image: kusionstack/karpor:v0.5.9
+        image: kusionstack/karpor:{{ .AgentImageTag }}
         imagePullPolicy: IfNotPresent
         name: karpor-agent
         ports:
@@ -107,7 +107,7 @@ spec:
             ephemeral-storage: 1Gi
             memory: 128Mi
 {{- end }}
-{{- if eq .Mode "pull" }}
+{{- if eq .ClusterMode "pull" }}
         volumeMounts:
         - mountPath: /etc/karpor/
           name: karpor-kubeconfig
@@ -115,7 +115,7 @@ spec:
       dnsPolicy: ClusterFirst
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
-{{- if eq .Mode "pull" }}
+{{- if eq .ClusterMode "pull" }}
       volumes:
       - configMap:
           defaultMode: 420

@@ -365,11 +365,9 @@ func TestGenerateConfig(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockey.UnPatchAll()
-			defer mockey.UnPatchAll()
-
 			// Setup mocks
 			tc.mockSetup()
+			defer mockey.UnPatchAll()
 
 			caCert, caKey, kubeConfig, err := generateConfig(tc.namespace)
 			if tc.expectError {
@@ -413,11 +411,9 @@ func TestGenerateCA(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockey.UnPatchAll()
-			defer mockey.UnPatchAll()
-
 			// Setup mocks
 			tc.mockSetup()
+			defer mockey.UnPatchAll()
 
 			cert, key, err := generateCA()
 			if tc.expectError {

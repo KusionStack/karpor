@@ -496,7 +496,7 @@ metadata:
   annotations:
     kubectl.kubernetes.io/last-applied-configuration: '[redacted]'
   name: existing-cluster
-spec:go
+spec:
   access:
     credential:
       caBundle: sensitive-ca-bundle

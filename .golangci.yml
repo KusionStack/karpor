@@ -100,7 +100,6 @@ linters-settings:
       - unsafeptr
       - unusedresult
     disable:
-      - buildssa
       - fieldalignment
     settings:
       printf:

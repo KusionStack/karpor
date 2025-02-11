@@ -47,6 +47,7 @@ type syncerOptions struct {
 	ElasticSearchAddresses []string
 
 	ExternalEndpoint string
+	AgentImageTag    string
 
 	CaCertFile string
 	CaKeyFile  string
@@ -58,12 +59,13 @@ func NewSyncerOptions() *syncerOptions {
 
 func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&o.HighAvailability, "high-availability", false, "Whether to use high-availability feature.")
-	fs.BoolVar(&o.OnlyPushMode, "only-pull-mode", false, "Only push mode in high availability feature.")
+	fs.BoolVar(&o.OnlyPushMode, "only-push-mode", false, "Only push mode in high availability feature.")
 
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
 	fs.StringVar(&o.ExternalEndpoint, "external-addresses", "", "The external address that expose to user cluster in pull mode.")
+	fs.StringVar(&o.AgentImageTag, "agent-image-tag", "v0.0.0", "The agent image tag.")
 
 	fs.StringVar(&o.CaCertFile, "ca-cert-file", defaultCertFile, "Root CA certificate file for karpor server.")
 	fs.StringVar(&o.CaKeyFile, "ca-key-file", defaultKeyFile, "Root KEY file for karpor server..")
@@ -117,7 +119,7 @@ func runSyncer(ctx context.Context, options *syncerOptions) error {
 	}
 
 	//nolint:contextcheck
-	if err = syncer.NewSyncReconciler(es, options.HighAvailability, options.ElasticSearchAddresses, options.ExternalEndpoint, caCert, caKey).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewSyncReconciler(es, options.HighAvailability, options.ElasticSearchAddresses, options.ExternalEndpoint, options.AgentImageTag, caCert, caKey).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}
