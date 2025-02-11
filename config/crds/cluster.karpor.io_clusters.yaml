@@ -1,0 +1,139 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
+  name: clusters.cluster.karpor.io
+spec:
+  group: cluster.karpor.io
+  names:
+    kind: Cluster
+    listKind: ClusterList
+    plural: clusters
+    singular: cluster
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: Cluster is an extension type to access a cluster
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              access:
+                properties:
+                  caBundle:
+                    format: byte
+                    type: string
+                  credential:
+                    properties:
+                      execConfig:
+                        properties:
+                          apiVersion:
+                            type: string
+                          args:
+                            items:
+                              type: string
+                            type: array
+                          command:
+                            type: string
+                          env:
+                            items:
+                              properties:
+                                name:
+                                  type: string
+                                value:
+                                  type: string
+                              required:
+                              - name
+                              - value
+                              type: object
+                            type: array
+                          installHint:
+                            type: string
+                          interactiveMode:
+                            type: string
+                          provideClusterInfo:
+                            type: boolean
+                        required:
+                        - args
+                        - command
+                        - env
+                        - provideClusterInfo
+                        type: object
+                      serviceAccountToken:
+                        type: string
+                      type:
+                        type: string
+                      x509:
+                        properties:
+                          certificate:
+                            format: byte
+                            type: string
+                          privateKey:
+                            format: byte
+                            type: string
+                        required:
+                        - certificate
+                        - privateKey
+                        type: object
+                    required:
+                    - type
+                    type: object
+                  endpoint:
+                    type: string
+                  insecure:
+                    type: boolean
+                required:
+                - endpoint
+                type: object
+              description:
+                type: string
+              displayName:
+                type: string
+              finalized:
+                type: boolean
+              level:
+                description: cluster scale level, optional value 1, 2, 3, default
+                  1
+                type: integer
+              mode:
+                type: string
+              provider:
+                type: string
+            required:
+            - access
+            - displayName
+            - level
+            - provider
+            type: object
+          status:
+            properties:
+              healthy:
+                type: boolean
+            type: object
+        required:
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
