@@ -21,7 +21,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,6 +34,8 @@ import (
 	"k8s.io/client-go/dynamic/fake"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/tools/cache"
+
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
 type OP uint
@@ -196,7 +197,7 @@ func TestInformerWithTransformer(t *testing.T) {
 	}
 
 	tests := []struct {
-		transFunc cache.TransformFunc
+		transFunc TransformFunc
 		updates   []struct {
 			action string
 			data   interface{}

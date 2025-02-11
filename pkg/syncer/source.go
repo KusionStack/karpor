@@ -21,6 +21,7 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/internal"
 	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
@@ -194,7 +195,7 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 	}
 
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
-	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
+	cache, informer := syncercache.NewInformerWithTransformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
 	return cache, informer, nil
 }
 
@@ -238,7 +239,7 @@ func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 	return selectors, nil
 }
 
-func (s *informerSource) parseTrimer() (clientgocache.TransformFunc, error) {
+func (s *informerSource) parseTrimer() (syncercache.TransformFunc, error) {
 	t := s.ResourceSyncRule.Trim
 	if t == nil || len(t.Retain.JSONPaths) == 0 {
 		return nil, nil
