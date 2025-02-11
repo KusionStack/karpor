@@ -16,9 +16,9 @@ import TopologyMap from '../components/topologyMap'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
+import { useAxios, isHighAvailability } from '@/utils/request'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
 
 const ClusterDetail = () => {
   const location = useLocation()
@@ -32,6 +32,7 @@ const ClusterDetail = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
   const [yamlData, setYamlData] = useState('')
+  const [highAvailabilityYamlData, setHighAvailabilityYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditStat, setAuditStat] = useState<any>()
   const [tableName, setTableName] = useState('Pod')
@@ -41,6 +42,7 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+  const [tabList, setTabList] = useState(insightTabsList)
 
   const drawRef = useRef(null)
 
@@ -124,15 +126,37 @@ const ClusterDetail = () => {
       method: 'GET',
     })
 
+  const {
+    response: highAvailabilityClusterDetailResponse,
+    refetch: highAvailabilityClusterDetailRefetch,
+  } = useAxios({
+    url: `/rest-api/v1/cluster/${cluster}/agentYml`,
+    method: 'GET',
+  })
+
   useEffect(() => {
     if (clusterDetailResponse?.success) {
       setYamlData(clusterDetailResponse?.data)
+    }
+    if (highAvailabilityClusterDetailResponse?.success) {
+      setHighAvailabilityYamlData(highAvailabilityClusterDetailResponse?.data)
     }
   }, [clusterDetailResponse])
 
   function getClusterDetail() {
     clusterDetailRefetch({
       url: `/rest-api/v1/cluster/${cluster}`,
+      option: {
+        params: {
+          format: 'yaml',
+        },
+      },
+    })
+  }
+
+  function getHighAvailabilityClusterDetail() {
+    highAvailabilityClusterDetailRefetch({
+      url: `/rest-api/v1/cluster/${cluster}/agentYml`,
       option: {
         params: {
           format: 'yaml',
@@ -208,13 +232,25 @@ const ClusterDetail = () => {
   }, [multiTopologyData, selectedCluster, currentTab])
 
   useEffect(() => {
-    getClusterDetail()
+    if (isHighAvailability) {
+      getHighAvailabilityClusterDetail()
+    } else {
+      getClusterDetail()
+    }
+
     getAudit(false)
     getAuditScore()
     getSummary()
     getTopologyData()
     if (type === 'kind' && kind) {
       setTableName(kind as any)
+    }
+    if (isHighAvailability) {
+      const initialTabList = [...insightTabsList]
+      if (!initialTabList.find(tab => tab.value === 'AgentYaml')) {
+        initialTabList.push({ value: 'AgentYaml', label: 'Agent Yaml' })
+      }
+      setTabList(initialTabList)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, type])
@@ -320,6 +356,9 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
+    if (currentTab === 'AgentYaml') {
+      return <Yaml data={highAvailabilityYamlData || ''} />
+    }
     if (currentTab === 'K8s') {
       return (
         <K8sEvent
@@ -355,7 +394,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList?.filter(item => item?.value !== 'Events')}
+            list={tabList?.filter(item => item?.value !== 'Events')}
             current={currentTab}
             onChange={handleTabChange}
           />

@@ -7,6 +7,9 @@ import { setIsLogin } from '@/store/modules/globalSlice'
 export const HOST = ''
 axios.defaults.baseURL = HOST
 
+export const isHighAvailability =
+  process.env.REACT_APP_DEPLOY_MODE === 'HIGH_AVAILABILITY'
+
 axios.interceptors.request.use(
   config => {
     const token = localStorage.getItem('token')
