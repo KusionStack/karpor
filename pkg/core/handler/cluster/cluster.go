@@ -249,7 +249,7 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Param        displayName  formData  string      true  "cluster display name"
 // @Param        description  formData  string      true  "cluster description"
 // @Param        clusterMode  formData  string      true  "cluster mode"
-// @Param        clusterLevel formData  int      true  "cluster scale level"
+// @Param        clusterLevel formData  int         true  "cluster scale level"
 // @Success      200          {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
 // @Failure      400          {string}  string      "The uploaded file is too large or the request is invalid."
 // @Failure      500          {string}  string      "Internal server error."
@@ -279,8 +279,8 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		clusterLevel := r.FormValue("clusterLevel")
 		level, err := strconv.Atoi(clusterLevel)
 		if err != nil {
-			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "failed to parse cluster level"))
-			return
+			log.Info("failed to parse cluster level")
+			level = 1
 		}
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
@@ -424,6 +424,8 @@ func GetAgentYml(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) 
 		}
 
 		agentYaml, err := clusterMgr.GetAgentYamlForCluster(r.Context(), client, cluster)
-		handler.HandleResult(w, r, ctx, err, agentYaml)
+		handler.HandleResult(w, r, ctx, err, map[string]string{
+			"agentYml": string(agentYaml),
+		})
 	}
 }
