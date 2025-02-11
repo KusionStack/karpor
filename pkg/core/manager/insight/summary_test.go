@@ -18,15 +18,16 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/resource"
 	"k8s.io/apimachinery/pkg/version"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/discovery"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
 )
 
 func TestInsightManager_GetResourceSummary(t *testing.T) {
@@ -36,7 +37,7 @@ func TestInsightManager_GetResourceSummary(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -95,7 +96,7 @@ func TestInsightManager_GetGVKSummary(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -152,7 +153,7 @@ func TestInsightManager_GetNamespaceSummary(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases

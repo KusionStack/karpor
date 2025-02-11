@@ -35,7 +35,7 @@ import (
 // MultiClusterClient represents the client used to interact with multiple Kubernetes clusters.
 type MultiClusterClient struct {
 	ClientSet     *kubernetes.Clientset
-	DynamicClient *dynamic.DynamicClient
+	DynamicClient dynamic.Interface
 	MetricsClient *metricsv1beta1.MetricsV1beta1Client
 }
 
@@ -94,7 +94,7 @@ func BuildHubClients(
 // the request
 func BuildSpokeClients(
 	ctx context.Context,
-	hubDynamicClient *dynamic.DynamicClient,
+	hubDynamicClient dynamic.Interface,
 	name string,
 ) (*MultiClusterClient, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")

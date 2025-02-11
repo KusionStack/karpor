@@ -81,8 +81,7 @@ type SyncReconciler struct {
 }
 
 // NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
-func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, storageAddresses []string,
-	externalEndpoint string, caCert *x509.Certificate, caKey crypto.Signer) *SyncReconciler {
+func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, storageAddresses []string, externalEndpoint string, caCert *x509.Certificate, caKey crypto.Signer) *SyncReconciler {
 	return &SyncReconciler{
 		storage:          storage,
 		highAvailability: highAvailability,

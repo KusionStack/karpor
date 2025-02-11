@@ -105,7 +105,7 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 }
 
 // BuildBuiltinRelationshipGraph returns the relationship graph built from the YAML describing resource relationships
-func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+func BuildBuiltinRelationshipGraph(ctx context.Context, client dynamic.Interface) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// TODO: Obtaining topological relationship from CR in the future.
@@ -192,7 +192,7 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicC
 }
 
 // BuildRelationshipGraph builds the complete relationship graph including the built-in one and customer-specified one
-func BuildRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+func BuildRelationshipGraph(ctx context.Context, client dynamic.Interface) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	res, rg, _ := BuildBuiltinRelationshipGraph(ctx, client)
 	// TODO: Also include customized relationship graph
 	return res, rg, nil
@@ -236,7 +236,7 @@ func RelationshipEquals(r, relation *Relationship) bool {
 }
 
 // CountRelationshipGraph returns the same RelationshipGraph with the count for each resource
-func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
+func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient dynamic.Interface, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	for _, node := range rg.RelationshipNodes {

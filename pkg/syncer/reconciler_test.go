@@ -17,13 +17,10 @@ package syncer
 
 import (
 	"context"
+	"crypto"
+	"crypto/x509"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -35,6 +32,12 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 	"sigs.k8s.io/controller-runtime/pkg/event"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 )
 
 func Test_buildClusterConfig(t *testing.T) {
@@ -462,22 +465,40 @@ func TestSyncReconciler_getRegistries(t *testing.T) {
 
 func TestNewSyncReconciler(t *testing.T) {
 	tests := []struct {
-		name    string
-		storage storage.ResourceStorage
+		name             string
+		storage          storage.ResourceStorage
+		highAvailability bool
+		storageAddresses []string
+		externalEndpoint string
+		caCert           *x509.Certificate
+		caKey            crypto.Signer
 	}{
 		{
 			"test nil",
+			nil,
+			false,
+			[]string{"127.0.0.1"},
+			"127.0.0.1",
+			nil,
 			nil,
 		},
 		{
 			"test not nil",
 			&elasticsearch.Storage{},
+			false,
+			[]string{"127.0.0.1"},
+			"127.0.0.1",
+			nil,
+			nil,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := NewSyncReconciler(tt.storage)
+			got := NewSyncReconciler(tt.storage, tt.highAvailability, tt.storageAddresses,
+				tt.externalEndpoint, tt.caCert, tt.caKey)
 			require.Equal(t, got.storage, tt.storage)
+			require.Equal(t, got.highAvailability, tt.highAvailability)
+			require.Equal(t, got.storageAddresses, tt.storageAddresses)
 		})
 	}
 }

@@ -18,14 +18,15 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/require"
-	"k8s.io/klog/v2"
+	"k8s.io/klog/v2/klogr"
+
+	"github.com/KusionStack/karpor/pkg/core/middleware"
 )
 
 func TestGetLogger(t *testing.T) {
-	mockLogger := klog.NewKlogr().WithName("mock")
+	mockLogger := klogr.New().WithName("mock")
 	tests := []struct {
 		name           string
 		ctx            context.Context
@@ -41,7 +42,7 @@ func TestGetLogger(t *testing.T) {
 			name: "Logger not in context",
 			ctx:  context.Background(),
 			// Expect the logger type to be klogr.Logger as default.
-			expectedLogger: klog.NewKlogr(),
+			expectedLogger: klogr.New(),
 		},
 	}
 

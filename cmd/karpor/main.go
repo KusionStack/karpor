@@ -17,10 +17,8 @@ limitations under the License.
 package main
 
 import (
-	"os"
-
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/component-base/cli"
+	"k8s.io/klog/v2"
 
 	"github.com/KusionStack/karpor/cmd/karpor/app"
 )
@@ -39,6 +37,7 @@ func main() {
 	cmd.AddCommand(syncCmd)
 	cmd.AddCommand(agentCmd)
 
-	code := cli.Run(cmd)
-	os.Exit(code)
+	if err := cmd.Execute(); err != nil {
+		klog.Fatal(err)
+	}
 }

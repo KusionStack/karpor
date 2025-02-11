@@ -20,18 +20,19 @@ import (
 	"context"
 	"errors"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 )
 
 // GetChildResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the child GVK in the current namespace
-func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, childRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
+func GetChildResourcesList(ctx context.Context, client dynamic.Interface, childRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	childAPIVersion := childRelation.Group + "/" + childRelation.Version
@@ -59,7 +60,7 @@ func GetChildResourcesList(ctx context.Context, client *dynamic.DynamicClient, c
 // GetChildren returns a graph that includes all of the child resources for the current obj that are described by the childRelation
 func GetChildren(
 	ctx context.Context,
-	client *dynamic.DynamicClient,
+	client dynamic.Interface,
 	obj unstructured.Unstructured,
 	childRelation *Relationship,
 	namespace, objName string,
@@ -131,7 +132,7 @@ func GetChildren(
 func GetChildrenByOwnerReference(
 	ctx context.Context,
 	childResList *unstructured.UnstructuredList,
-	client *dynamic.DynamicClient,
+	client dynamic.Interface,
 	obj unstructured.Unstructured,
 	childGVK schema.GroupVersionKind,
 	relationshipGraph graph.Graph[string, RelationshipGraphNode],
