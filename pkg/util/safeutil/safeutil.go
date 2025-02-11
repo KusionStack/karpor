@@ -19,10 +19,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/elliotxx/safe"
 	"github.com/go-logr/logr"
-	"k8s.io/klog/v2"
+	"k8s.io/klog/v2/klogr"
+
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 )
 
 // LoggerRecoverHandler returns a recover handler by the given logger.
@@ -65,7 +66,7 @@ func LoggerRecoverHandler(logger logr.Logger) safe.RecoverHandler {
 //
 //	safeutil.Go(func(){...})
 func Go(do safe.DoFunc) {
-	safe.GoR(do, LoggerRecoverHandler(klog.NewKlogr()))
+	safe.GoR(do, LoggerRecoverHandler(klogr.New()))
 }
 
 // GoL starts a recoverable goroutine with a given logger.
