@@ -28,6 +28,14 @@ const (
 	CredentialTypeOIDC                CredentialType = "OIDC"
 )
 
+const (
+	PullClusterMode = "pull"
+	PushClusterMode = "push"
+)
+
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:subresource:status
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -59,6 +67,9 @@ type ClusterSpec struct {
 	Description string `json:"description"`
 	DisplayName string `json:"displayName"`
 	Finalized   *bool  `json:"finalized,omitempty"`
+	Mode        string `json:"mode,omitempty"`
+	// cluster scale level, optional value 1, 2, 3, default 1
+	Level int `json:"level"`
 }
 
 type ClusterStatus struct {

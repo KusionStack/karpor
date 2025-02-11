@@ -17,126 +17,133 @@ limitations under the License.
 package v1beta1
 
 import (
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+    metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
+// +kubebuilder:subresource:status
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncRegistry struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+    metav1.TypeMeta   `json:",inline"`
+    metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +optional
-	Spec SyncRegistrySpec `json:"spec,omitempty"`
+    // +optional
+    Spec SyncRegistrySpec `json:"spec,omitempty"`
 
-	// +optional
-	Status SyncRegistryStatus `json:"status,omitempty"`
+    // +optional
+    Status SyncRegistryStatus `json:"status,omitempty"`
 }
 
 type SyncRegistrySpec struct {
-	// Clusters is the list of the target clusters to be be synced from.
-	// +optional
-	Clusters []string `json:"clusters,omitempty"`
+    // Clusters is the list of the target clusters to be be synced from.
+    // +optional
+    Clusters []string `json:"clusters,omitempty"`
 
-	// ClusterLabelSelector is used to filter the target clusters that need to be synced from.
-	// +optional
-	ClusterLabelSelector *metav1.LabelSelector `json:"clusterLabelSelector,omitempty"`
+    // ClusterLabelSelector is used to filter the target clusters that need to be synced from.
+    // +optional
+    ClusterLabelSelector *metav1.LabelSelector `json:"clusterLabelSelector,omitempty"`
 
-	// +optional
-	SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
+    // +optional
+    SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
 
-	// +optional
-	SyncResourcesRefName string `json:"syncResourcesRefName,omitempty"`
+    // +optional
+    SyncResourcesRefName string `json:"syncResourcesRefName,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncRegistryList struct {
-	metav1.TypeMeta `json:",inline"`
+    metav1.TypeMeta `json:",inline"`
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+    // +optional
+    metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []SyncRegistry `json:"items"`
+    Items []SyncRegistry `json:"items"`
 }
 
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncResources struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+    metav1.TypeMeta   `json:",inline"`
+    metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec SyncResourcesSpec `json:"spec,omitempty"`
+    Spec SyncResourcesSpec `json:"spec,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type SyncResourcesList struct {
-	metav1.TypeMeta `json:",inline"`
+    metav1.TypeMeta `json:",inline"`
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+    // +optional
+    metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []SyncResources `json:"items"`
+    Items []SyncResources `json:"items"`
 }
 
 type SyncResourcesSpec struct {
-	// +optional
-	SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
+    // +optional
+    SyncResources []ResourceSyncRule `json:"syncResources,omitempty"`
 }
 
 // ResourceSyncRule is used to specify the way to sync the specified resource
 type ResourceSyncRule struct {
-	// APIVersion represents the group version of the target resource.
-	// +required
-	APIVersion string `json:"apiVersion"`
+    // APIVersion represents the group version of the target resource.
+    // +required
+    APIVersion string `json:"apiVersion"`
 
-	// Resource is the the target resource.
-	// +required
-	Resource string `json:"resource"`
+    // Resource is the the target resource.
+    // +required
+    Resource string `json:"resource"`
 
-	// Namespace specifies the namespace in which the ListWatch of the target resources is limited
-	// to.
-	// +optional
-	Namespace string `json:"namespace,omitempty"`
+    // Namespace specifies the namespace in which the ListWatch of the target resources is limited
+    // to.
+    // +optional
+    Namespace string `json:"namespace,omitempty"`
 
-	// ResynPeriod is the period to resync
-	ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
+    // ResynPeriod is the period to resync
+    ResyncPeriod *metav1.Duration `json:"resyncPeriod,omitempty"`
 
-	// MaxConcurrent is the maximum number of workers (default: 10)
-	// +optional
-	MaxConcurrent int `json:"maxConcurrent,omitempty"`
+    // MaxConcurrent is the maximum number of workers (default: 10)
+    // +optional
+    MaxConcurrent int `json:"maxConcurrent,omitempty"`
 
-	// Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
-	// +optional
-	Selectors []Selector `json:"selectors,omitempty"`
+    // Selectors are used to filter the target resources to sync. Multiple selectors are ORed.
+    // +optional
+    Selectors []Selector `json:"selectors,omitempty"`
 
-	// Transform is the rule applied to the original resource to transform it to the desired target
-	// resource.
-	// +optional
-	Transform *TransformRuleSpec `json:"transform,omitempty"`
+    // Transform is the rule applied to the original resource to transform it to the desired target
+    // resource.
+    // +optional
+    Transform *TransformRuleSpec `json:"transform,omitempty"`
 
-	// TransformRefName is the name of the TransformRule
-	// +optional
-	TransformRefName string `json:"transformRefName,omitempty"`
+    // TransformRefName is the name of the TransformRule
+    // +optional
+    TransformRefName string `json:"transformRefName,omitempty"`
 
-	// Trim defines the trimming strategy for the resources of the current type.
-	// +optional
-	Trim *TrimRuleSpec `json:"trim,omitempty"`
+    // Trim defines the trimming strategy for the resources of the current type.
+    // +optional
+    Trim *TrimRuleSpec `json:"trim,omitempty"`
 
-	// TrimRefName is the name of the TrimRule.
-	// +optional
-	TrimRefName string `json:"trimRefName,omitempty"`
+    // TrimRefName is the name of the TrimRule.
+    // +optional
+    TrimRefName string `json:"trimRefName,omitempty"`
 
-	// RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.
-	// +optional
-	RemainAfterDeleted bool `json:"remainAfterDeleted,omitempty"`
+    // RemainAfterDeleted indicates whether the resource should remain in ES after being deleted in k8s.
+    // +optional
+    RemainAfterDeleted bool `json:"remainAfterDeleted,omitempty"`
 }
 
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -144,37 +151,39 @@ type ResourceSyncRule struct {
 // TrimRule defines the strategy of trimming k8s objects, which can save
 // informer memory by discarding redundant fields.
 type TrimRule struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+    metav1.TypeMeta   `json:",inline"`
+    metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +optional
-	Spec TrimRuleSpec `json:"spec,omitempty"`
+    // +optional
+    Spec TrimRuleSpec `json:"spec,omitempty"`
 }
 
 type TrimRuleSpec struct {
-	// Retain specifies which fields should be retained after trimming.
-	// +optional
-	Retain TrimRuleRetainFields `json:"retain,omitempty"`
+    // Retain specifies which fields should be retained after trimming.
+    // +optional
+    Retain TrimRuleRetainFields `json:"retain,omitempty"`
 }
 
 type TrimRuleRetainFields struct {
-	// JSONPaths specifies the path of the field to be retained.
-	// For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/
-	// +optional
-	JSONPaths []string `json:"jsonPaths,omitempty"`
+    // JSONPaths specifies the path of the field to be retained.
+    // For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/
+    // +optional
+    JSONPaths []string `json:"jsonPaths,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type TrimRuleList struct {
-	metav1.TypeMeta `json:",inline"`
+    metav1.TypeMeta `json:",inline"`
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+    // +optional
+    metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []TrimRule `json:"items"`
+    Items []TrimRule `json:"items"`
 }
 
+// +kubebuilder:object:root=true
+// +kubebuilder:resource:scope=Cluster
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -182,95 +191,95 @@ type TrimRuleList struct {
 // TransformRule is used to define the rule to transform the original resource into the desired
 // target resource.
 type TransformRule struct {
-	metav1.TypeMeta   `json:",inline"`
-	metav1.ObjectMeta `json:"metadata,omitempty"`
+    metav1.TypeMeta   `json:",inline"`
+    metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	// +optional
-	Spec TransformRuleSpec `json:"spec,omitempty"`
+    // +optional
+    Spec TransformRuleSpec `json:"spec,omitempty"`
 }
 
 type TransformRuleSpec struct {
-	// Type is the type of transformer.
-	// +required
-	Type string `json:"type"`
+    // Type is the type of transformer.
+    // +required
+    Type string `json:"type"`
 
-	// ValueTemplate is the template of the input data to be paased to the transformer
-	// +required
-	ValueTemplate string `json:"valueTemplate"`
+    // ValueTemplate is the template of the input data to be paased to the transformer
+    // +required
+    ValueTemplate string `json:"valueTemplate"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
 
 type TransformRuleList struct {
-	metav1.TypeMeta `json:",inline"`
+    metav1.TypeMeta `json:",inline"`
 
-	// +optional
-	metav1.ListMeta `json:"metadata,omitempty"`
+    // +optional
+    metav1.ListMeta `json:"metadata,omitempty"`
 
-	Items []TransformRule `json:"items"`
+    Items []TransformRule `json:"items"`
 }
 
 // Selector represents a resource filter
 type Selector struct {
-	// LabelSelector is a filter to select resources by labels.
-	// If non-nil and non-empty, only the resource match this filter will be selected.
-	// +optional
-	LabelSelector *metav1.LabelSelector `json:"labelSelector,omitempty"`
+    // LabelSelector is a filter to select resources by labels.
+    // If non-nil and non-empty, only the resource match this filter will be selected.
+    // +optional
+    LabelSelector *metav1.LabelSelector `json:"labelSelector,omitempty"`
 
-	// FieldSelector is a filter to select resources by fields.
-	// If non-nil and non-empty, only the resource match this filter will be selected.
-	// +optional
-	FieldSelector *FieldSelector `json:"fieldSelector,omitempty"`
+    // FieldSelector is a filter to select resources by fields.
+    // If non-nil and non-empty, only the resource match this filter will be selected.
+    // +optional
+    FieldSelector *FieldSelector `json:"fieldSelector,omitempty"`
 }
 
 // FieldSelector is a field filter.
 type FieldSelector struct {
-	// MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
-	// map means that the specified field should have an exact match with the specified value.
-	// Multiple entries are ANDed.
-	// +optional
-	MatchFields map[string]string `json:"matchFields,omitempty"`
-	// ServerSupported indicates whether the matchFields is supported by the API server.
-	// If not supported, the client-side filtering will be utilized instead."
-	// +optional
-	ServerSupported bool `json:"serverSupported,omitempty"`
+    // MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
+    // map means that the specified field should have an exact match with the specified value.
+    // Multiple entries are ANDed.
+    // +optional
+    MatchFields map[string]string `json:"matchFields,omitempty"`
+    // ServerSupported indicates whether the matchFields is supported by the API server.
+    // If not supported, the client-side filtering will be utilized instead."
+    // +optional
+    ServerSupported bool `json:"serverSupported,omitempty"`
 }
 
 type SyncRegistryStatus struct {
-	// +optional
-	Clusters []ClusterResourcesSyncCondition `json:"clusters"`
+    // +optional
+    Clusters []ClusterResourcesSyncCondition `json:"clusters"`
 
-	// +required
-	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
+    // +required
+    LastTransitionTime metav1.Time `json:"lastTransitionTime"`
 }
 
 type ClusterResourcesSyncCondition struct {
-	// +required
-	Cluster string `json:"cluster"`
+    // +required
+    Cluster string `json:"cluster"`
 
-	// +required
-	Status string `json:"status"`
+    // +required
+    Status string `json:"status"`
 
-	// +optional
-	Resources []ResourceSyncCondition `json:"resources"`
+    // +optional
+    Resources []ResourceSyncCondition `json:"resources"`
 }
 
 type ResourceSyncCondition struct {
-	// +required
-	APIVersion string `json:"apiVersion"`
+    // +required
+    APIVersion string `json:"apiVersion"`
 
-	// +required
-	Kind string `json:"kind"`
+    // +required
+    Kind string `json:"kind"`
 
-	// +required
-	Status string `json:"status"`
+    // +required
+    Status string `json:"status"`
 
-	// +optional
-	Reason string `json:"reason,omitempty"`
+    // +optional
+    Reason string `json:"reason,omitempty"`
 
-	// +optional
-	Message string `json:"message,omitempty"`
+    // +optional
+    Message string `json:"message,omitempty"`
 
-	// +required
-	LastTransitionTime metav1.Time `json:"lastTransitionTime"`
+    // +required
+    LastTransitionTime metav1.Time `json:"lastTransitionTime"`
 }
