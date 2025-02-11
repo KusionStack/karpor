@@ -17,9 +17,6 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -28,8 +25,13 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 )
 
 // mockMultiClusterClient returns a mock MultiClusterClient for testing purposes.
@@ -38,7 +40,7 @@ func mockMultiClusterClient() *multicluster.MultiClusterClient {
 		ClientSet: &kubernetes.Clientset{
 			DiscoveryClient: &discovery.DiscoveryClient{},
 		},
-		DynamicClient: &dynamic.DynamicClient{},
+		DynamicClient: &fake.FakeDynamicClient{},
 		MetricsClient: nil,
 	}
 }

@@ -22,6 +22,13 @@ import (
 	"io/fs"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"k8s.io/apiserver/pkg/registry/generic"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	serverstorage "k8s.io/apiserver/pkg/server/storage"
+	"k8s.io/klog/v2"
+	rbacrest "k8s.io/kubernetes/pkg/registry/rbac/rest"
+
 	"github.com/KusionStack/karpor/pkg/core/route"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	clusterstorage "github.com/KusionStack/karpor/pkg/kubernetes/registry/cluster"
@@ -29,12 +36,6 @@ import (
 	searchstorage "github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/ui"
-	"github.com/go-chi/chi/v5"
-	"k8s.io/apiserver/pkg/registry/generic"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	serverstorage "k8s.io/apiserver/pkg/server/storage"
-	"k8s.io/klog/v2"
-	rbacrest "k8s.io/kubernetes/pkg/registry/rbac/rest"
 )
 
 // KarporServer is the carrier of the main process of Karpor.
@@ -183,7 +184,7 @@ func (s *KarporServer) InstallAPIs(
 	apiGroupsInfo := []*genericapiserver.APIGroupInfo{}
 	for _, restStorageProvider := range restStorageProviders {
 		groupName := restStorageProvider.GroupName()
-		apiGroupInfo, err := restStorageProvider.NewRESTStorage(
+		apiGroupInfo, _, err := restStorageProvider.NewRESTStorage(
 			apiResourceConfigSource,
 			restOptionsGetter,
 		)
