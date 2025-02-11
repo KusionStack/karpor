@@ -134,6 +134,8 @@ const ClusterCertificate = () => {
     },
     method: 'POST',
     data: {
+      clusterMode: form.getFieldValue('clusterMode'),
+      clusterLevel: form.getFieldValue('clusterLevel'),
       name: lastYamlContentJson?.metadata?.name,
       description: lastYamlContentJson?.spec?.description,
       displayName: lastYamlContentJson?.spec?.displayName,

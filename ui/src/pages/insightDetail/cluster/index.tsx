@@ -5,7 +5,7 @@ import { Breadcrumb, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import KarporTabs from '@/components/tabs'
 import Yaml from '@/components/yaml'
-import { capitalized, generateTopologyData } from '@/utils/tools'
+import { capitalized, generateTopologyData, yaml2json } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import Kubernetes from '@/assets/kubernetes.png'
 import SourceTable from '../components/sourceTable'
@@ -16,9 +16,10 @@ import TopologyMap from '../components/topologyMap'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
+import { useAxios, isHighAvailability } from '@/utils/request'
 
 import styles from './styles.module.less'
-import { useAxios } from '@/utils/request'
+import AgentYaml from '@/components/agentYaml'
 
 const ClusterDetail = () => {
   const location = useLocation()
@@ -32,6 +33,8 @@ const ClusterDetail = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
   const [yamlData, setYamlData] = useState('')
+  const [yamlDataJSON, setYamlDataJSON] = useState('')
+  const [highAvailabilityYamlData, setHighAvailabilityYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditStat, setAuditStat] = useState<any>()
   const [tableName, setTableName] = useState('Pod')
@@ -41,6 +44,7 @@ const ClusterDetail = () => {
   const [multiTopologyData, setMultiTopologyData] = useState<any>()
   const [selectedCluster, setSelectedCluster] = useState<any>()
   const [clusterOptions, setClusterOptions] = useState<string[]>([])
+  const [tabList, setTabList] = useState(insightTabsList)
 
   const drawRef = useRef(null)
 
@@ -124,15 +128,40 @@ const ClusterDetail = () => {
       method: 'GET',
     })
 
+  const {
+    response: highAvailabilityClusterDetailResponse,
+    refetch: highAvailabilityClusterDetailRefetch,
+  } = useAxios({
+    url: `/rest-api/v1/cluster/${cluster}/agentYml`,
+    method: 'GET',
+  })
+
   useEffect(() => {
     if (clusterDetailResponse?.success) {
       setYamlData(clusterDetailResponse?.data)
+      setYamlDataJSON(yaml2json(clusterDetailResponse?.data)?.data as any)
+    }
+    if (highAvailabilityClusterDetailResponse?.success) {
+      setHighAvailabilityYamlData(
+        highAvailabilityClusterDetailResponse?.data?.agentYml,
+      )
     }
   }, [clusterDetailResponse])
 
   function getClusterDetail() {
     clusterDetailRefetch({
       url: `/rest-api/v1/cluster/${cluster}`,
+      option: {
+        params: {
+          format: 'yaml',
+        },
+      },
+    })
+  }
+
+  function getHighAvailabilityClusterDetail() {
+    highAvailabilityClusterDetailRefetch({
+      url: `/rest-api/v1/cluster/${cluster}/agentYml`,
       option: {
         params: {
           format: 'yaml',
@@ -208,7 +237,19 @@ const ClusterDetail = () => {
   }, [multiTopologyData, selectedCluster, currentTab])
 
   useEffect(() => {
+    if (isHighAvailability) {
+      const initialTabList = [...insightTabsList]
+      if (!initialTabList.find(tab => tab.value === 'AgentYaml')) {
+        initialTabList.push({ value: 'AgentYaml', label: 'Agent Yaml' })
+      }
+      setTabList(initialTabList)
+    }
+
     getClusterDetail()
+    if (isHighAvailability) {
+      getHighAvailabilityClusterDetail()
+    }
+
     getAudit(false)
     getAuditScore()
     getSummary()
@@ -216,6 +257,7 @@ const ClusterDetail = () => {
     if (type === 'kind' && kind) {
       setTableName(kind as any)
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, type])
 
@@ -320,6 +362,9 @@ const ClusterDetail = () => {
     if (currentTab === 'YAML') {
       return <Yaml data={yamlData || ''} />
     }
+    if (currentTab === 'AgentYaml') {
+      return <AgentYaml data={highAvailabilityYamlData || ''} />
+    }
     if (currentTab === 'K8s') {
       return (
         <K8sEvent
@@ -340,7 +385,11 @@ const ClusterDetail = () => {
         items={breadcrumbItems}
       />
       <div className={styles.module}>
-        <SummaryCard auditStat={auditStat} summary={summary} />
+        <SummaryCard
+          auditStat={auditStat}
+          summary={summary}
+          yamlDataJSON={yamlDataJSON}
+        />
         <div className={styles.exception_event}>
           <ExceptionList
             auditLoading={auditLoading}
@@ -355,7 +404,7 @@ const ClusterDetail = () => {
       <div className={styles.tab_content}>
         <div className={styles.tab_header}>
           <KarporTabs
-            list={insightTabsList?.filter(item => item?.value !== 'Events')}
+            list={tabList?.filter(item => item?.value !== 'Events')}
             current={currentTab}
             onChange={handleTabChange}
           />
