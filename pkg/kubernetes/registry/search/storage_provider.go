@@ -54,7 +54,7 @@ func (p RESTStorageProvider) GroupName() string {
 func (p RESTStorageProvider) NewRESTStorage(
 	apiResourceConfigSource serverstorage.APIResourceConfigSource,
 	restOptionsGetter generic.RESTOptionsGetter,
-) (genericapiserver.APIGroupInfo, error) {
+) (genericapiserver.APIGroupInfo, bool, error) {
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
 		search.GroupName,
 		scheme.Scheme,
@@ -64,11 +64,11 @@ func (p RESTStorageProvider) NewRESTStorage(
 
 	storageMap, err := p.v1beta1Storage(restOptionsGetter)
 	if err != nil {
-		return genericapiserver.APIGroupInfo{}, err
+		return genericapiserver.APIGroupInfo{}, false, err
 	}
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = storageMap
-	return apiGroupInfo, nil
+	return apiGroupInfo, true, nil
 }
 
 func (p RESTStorageProvider) v1beta1Storage(

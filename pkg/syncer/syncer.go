@@ -22,11 +22,6 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karpor/pkg/syncer/transform"
-	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	sprig "github.com/Masterminds/sprig/v3"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
@@ -39,6 +34,13 @@ import (
 	"k8s.io/client-go/util/workqueue"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
+	"github.com/KusionStack/karpor/pkg/syncer/transform"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
 const (
@@ -65,7 +67,7 @@ type ResourceSyncer struct {
 
 	logger logr.Logger
 
-	transformFunc clientgocache.TransformFunc
+	transformFunc syncercache.TransformFunc
 	startTime     time.Time
 }
 
@@ -280,7 +282,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 }
 
 // parseTransformer creates and returns a transformation function for the informerSource based on the ResourceSyncRule's transformers.
-func (s *ResourceSyncer) parseTransformer() (clientgocache.TransformFunc, error) {
+func (s *ResourceSyncer) parseTransformer() (syncercache.TransformFunc, error) {
 	t := s.source.SyncRule().Transform
 	if t == nil {
 		return nil, nil

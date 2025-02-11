@@ -110,7 +110,7 @@ func (c *FakeSyncRegistries) UpdateStatus(ctx context.Context, syncRegistry *v1b
 // Delete takes name of the syncRegistry and deletes it. Returns an error if one occurs.
 func (c *FakeSyncRegistries) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteActionWithOptions(syncregistriesResource, name, opts), &v1beta1.SyncRegistry{})
+		Invokes(testing.NewRootDeleteAction(syncregistriesResource, name), &v1beta1.SyncRegistry{})
 	return err
 }
 

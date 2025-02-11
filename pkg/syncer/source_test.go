@@ -21,6 +21,7 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/mock"
@@ -196,7 +197,7 @@ func Test_informerSource_Start(t *testing.T) {
 	t.Run("test no error", func(t *testing.T) {
 		mockey.Mock((*utils.ESImporter).ImportTo).Return(nil).Build()
 		informer := &controllertest.FakeInformer{}
-		mockey.Mock(clientgocache.NewTransformingInformer).Return(clientgocache.NewStore(clientgocache.DeletionHandlingMetaNamespaceKeyFunc), informer).Build()
+		mockey.Mock(cache.NewInformerWithTransformer).Return(clientgocache.NewStore(clientgocache.DeletionHandlingMetaNamespaceKeyFunc), informer).Build()
 		defer mockey.UnPatchAll()
 		s := &informerSource{
 			ResourceSyncRule: v1beta1.ResourceSyncRule{APIVersion: "v1", Resource: "pods"},

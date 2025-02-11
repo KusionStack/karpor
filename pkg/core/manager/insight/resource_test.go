@@ -19,12 +19,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
 )
 
 // TestGetResource tests the TestGetResource method of the InsightManager for
@@ -35,7 +36,7 @@ func TestGetResource(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
@@ -109,7 +110,7 @@ func TestInsightManager_GetYAMLForResource(t *testing.T) {
 	require.NoError(t, err, "Unexpected error initializing InsightManager")
 
 	// Set up mocks for dynamic client
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	// Test cases
