@@ -20,6 +20,7 @@ before:
     # You may remove this if you don't use go modules.
     - go mod tidy
     - make gen-version
+    - make manifest
 
 builds:
   - id: "karpor"
