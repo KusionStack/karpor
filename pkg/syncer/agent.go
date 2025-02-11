@@ -1,9 +1,31 @@
+// Copyright The Karpor Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package syncer
 
 import (
 	"context"
+	"fmt"
+	"os"
+	"os/user"
+	"path"
+	"path/filepath"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/clientcmd"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/event"
@@ -89,5 +111,42 @@ func (r *AgentReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 		return reconcile.Result{}, r.stopCluster(ctx, cluster.Name)
 	}
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy())
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInAgent)
+}
+
+func buildClusterConfigInAgent(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
+	loadingRules := &clientcmd.ClientConfigLoadingRules{
+		WarnIfAllMissing: false,
+		Precedence:       []string{clientcmd.RecommendedHomeFile},
+		MigrationRules: map[string]string{
+			clientcmd.RecommendedHomeFile: filepath.Join(os.Getenv("HOME"), clientcmd.RecommendedHomeDir, ".kubeconfig"),
+		},
+	}
+	if _, ok := os.LookupEnv("HOME"); !ok {
+		u, err := user.Current()
+		if err != nil {
+			return nil, fmt.Errorf("could not get current user: %v", err)
+		}
+		loadingRules.Precedence = append(loadingRules.Precedence, path.Join(u.HomeDir, clientcmd.RecommendedHomeDir, clientcmd.RecommendedFileName))
+	}
+	cfg, err := loadConfigWithContext("", loadingRules, "")
+	if err != nil {
+		return nil, err
+	}
+	if cfg.QPS == 0.0 {
+		cfg.QPS = 20.0
+		cfg.Burst = 30.0
+	}
+	return cfg, nil
+}
+
+func loadConfigWithContext(apiServerURL string, loader clientcmd.ClientConfigLoader, context string) (*rest.Config, error) {
+	return clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+		loader,
+		&clientcmd.ConfigOverrides{
+			ClusterInfo: clientcmdapi.Cluster{
+				Server: apiServerURL,
+			},
+			CurrentContext: context,
+		}).ClientConfig()
 }
