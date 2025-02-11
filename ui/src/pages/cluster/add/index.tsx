@@ -1,17 +1,28 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Input, Space, Button, Upload, message, notification } from 'antd'
+import {
+  Form,
+  Input,
+  Space,
+  Button,
+  Upload,
+  message,
+  notification,
+  Select,
+} from 'antd'
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import { HOST, useAxios } from '@/utils/request'
+import { HOST, isHighAvailability, useAxios } from '@/utils/request'
 import Yaml from '@/components/yaml'
 import { fireConfetti } from '@/utils/confetti'
 
 import styles from './styles.module.less'
 
 const { TextArea } = Input
+
+const { Option } = Select
 
 const RegisterCluster = () => {
   const { t } = useTranslation()
@@ -161,6 +172,41 @@ const RegisterCluster = () => {
           >
             <TextArea autoSize={{ minRows: 3 }} />
           </Form.Item>
+          {isHighAvailability && (
+            <>
+              <Form.Item
+                name="clusterMode"
+                label={t('ClusterMode')}
+                rules={[{ required: true }]}
+              >
+                <Select>
+                  <Option key="pull" value="pull">
+                    pull
+                  </Option>
+                  <Option key="push" value="push">
+                    push
+                  </Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="clusterLevel"
+                label={t('ClusterLevel')}
+                rules={[{ required: true }]}
+              >
+                <Select>
+                  <Option key="1" value={1}>
+                    1
+                  </Option>
+                  <Option key="2" value={2}>
+                    2
+                  </Option>
+                  <Option key="3" value={3}>
+                    3
+                  </Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
           <Form.Item
             label="kubeConfig"
             name="kubeConfig"
