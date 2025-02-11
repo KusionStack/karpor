@@ -1,0 +1,188 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
+  name: syncresources.search.karpor.io
+spec:
+  group: search.karpor.io
+  names:
+    kind: SyncResources
+    listKind: SyncResourcesList
+    plural: syncresources
+    singular: syncresources
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              syncResources:
+                items:
+                  description: ResourceSyncRule is used to specify the way to sync
+                    the specified resource
+                  properties:
+                    apiVersion:
+                      description: APIVersion represents the group version of the
+                        target resource.
+                      type: string
+                    maxConcurrent:
+                      description: 'MaxConcurrent is the maximum number of workers
+                        (default: 10)'
+                      type: integer
+                    namespace:
+                      description: |-
+                        Namespace specifies the namespace in which the ListWatch of the target resources is limited
+                        to.
+                      type: string
+                    remainAfterDeleted:
+                      description: RemainAfterDeleted indicates whether the resource
+                        should remain in ES after being deleted in k8s.
+                      type: boolean
+                    resource:
+                      description: Resource is the the target resource.
+                      type: string
+                    resyncPeriod:
+                      description: ResynPeriod is the period to resync
+                      type: string
+                    selectors:
+                      description: Selectors are used to filter the target resources
+                        to sync. Multiple selectors are ORed.
+                      items:
+                        description: Selector represents a resource filter
+                        properties:
+                          fieldSelector:
+                            description: |-
+                              FieldSelector is a filter to select resources by fields.
+                              If non-nil and non-empty, only the resource match this filter will be selected.
+                            properties:
+                              matchFields:
+                                additionalProperties:
+                                  type: string
+                                description: |-
+                                  MatchFields is a map of {field,value} pairs. A single {field,value} in the matchFields
+                                  map means that the specified field should have an exact match with the specified value.
+                                  Multiple entries are ANDed.
+                                type: object
+                              serverSupported:
+                                description: |-
+                                  ServerSupported indicates whether the matchFields is supported by the API server.
+                                  If not supported, the client-side filtering will be utilized instead."
+                                type: boolean
+                            type: object
+                          labelSelector:
+                            description: |-
+                              LabelSelector is a filter to select resources by labels.
+                              If non-nil and non-empty, only the resource match this filter will be selected.
+                            properties:
+                              matchExpressions:
+                                description: matchExpressions is a list of label selector
+                                  requirements. The requirements are ANDed.
+                                items:
+                                  description: |-
+                                    A label selector requirement is a selector that contains values, a key, and an operator that
+                                    relates the key and values.
+                                  properties:
+                                    key:
+                                      description: key is the label key that the selector
+                                        applies to.
+                                      type: string
+                                    operator:
+                                      description: |-
+                                        operator represents a key's relationship to a set of values.
+                                        Valid operators are In, NotIn, Exists and DoesNotExist.
+                                      type: string
+                                    values:
+                                      description: |-
+                                        values is an array of string values. If the operator is In or NotIn,
+                                        the values array must be non-empty. If the operator is Exists or DoesNotExist,
+                                        the values array must be empty. This array is replaced during a strategic
+                                        merge patch.
+                                      items:
+                                        type: string
+                                      type: array
+                                  required:
+                                  - key
+                                  - operator
+                                  type: object
+                                type: array
+                              matchLabels:
+                                additionalProperties:
+                                  type: string
+                                description: |-
+                                  matchLabels is a map of {key,value} pairs. A single {key,value} in the matchLabels
+                                  map is equivalent to an element of matchExpressions, whose key field is "key", the
+                                  operator is "In", and the values array contains only "value". The requirements are ANDed.
+                                type: object
+                            type: object
+                            x-kubernetes-map-type: atomic
+                        type: object
+                      type: array
+                    transform:
+                      description: |-
+                        Transform is the rule applied to the original resource to transform it to the desired target
+                        resource.
+                      properties:
+                        type:
+                          description: Type is the type of transformer.
+                          type: string
+                        valueTemplate:
+                          description: ValueTemplate is the template of the input
+                            data to be paased to the transformer
+                          type: string
+                      required:
+                      - type
+                      - valueTemplate
+                      type: object
+                    transformRefName:
+                      description: TransformRefName is the name of the TransformRule
+                      type: string
+                    trim:
+                      description: Trim defines the trimming strategy for the resources
+                        of the current type.
+                      properties:
+                        retain:
+                          description: Retain specifies which fields should be retained
+                            after trimming.
+                          properties:
+                            jsonPaths:
+                              description: |-
+                                JSONPaths specifies the path of the field to be retained.
+                                For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/
+                              items:
+                                type: string
+                              type: array
+                          type: object
+                      type: object
+                    trimRefName:
+                      description: TrimRefName is the name of the TrimRule.
+                      type: string
+                  required:
+                  - apiVersion
+                  - resource
+                  type: object
+                type: array
+            type: object
+        type: object
+    served: true
+    storage: true

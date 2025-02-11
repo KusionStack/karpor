@@ -20,11 +20,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/core/manager/cluster"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
 	_ "k8s.io/api/core/v1"
@@ -33,6 +28,12 @@ import (
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/tools/clientcmd"
 	k8syaml "sigs.k8s.io/yaml"
+
+	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/core/manager/cluster"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 )
 
 // Get returns an HTTP handler function that reads a cluster
@@ -112,7 +113,8 @@ func Create(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 		}
 
 		client, _ := multicluster.BuildMultiClusterClient(r.Context(), c.LoopbackClientConfig, "")
-		clusterCreated, err := clusterMgr.CreateCluster(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription, payload.ClusterKubeConfig)
+		clusterCreated, err := clusterMgr.CreateCluster(r.Context(), client, cluster, payload.ClusterDisplayName, payload.ClusterDescription,
+			payload.ClusterMode, payload.ClusterKubeConfig, payload.ClusterLevel)
 		handler.HandleResult(w, r, ctx, err, clusterCreated)
 	}
 }
@@ -246,6 +248,8 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Param        name         formData  string      true  "cluster name"
 // @Param        displayName  formData  string      true  "cluster display name"
 // @Param        description  formData  string      true  "cluster description"
+// @Param        clusterMode  formData  string      true  "cluster mode"
+// @Param        clusterLevel formData  int      true  "cluster scale level"
 // @Success      200          {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
 // @Failure      400          {string}  string      "The uploaded file is too large or the request is invalid."
 // @Failure      500          {string}  string      "Internal server error."
@@ -271,6 +275,13 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		name := r.FormValue("name")
 		displayName := r.FormValue("displayName")
 		description := r.FormValue("description")
+		clusterMode := r.FormValue("clusterMode")
+		clusterLevel := r.FormValue("clusterLevel")
+		level, err := strconv.Atoi(clusterLevel)
+		if err != nil {
+			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "failed to parse cluster level"))
+			return
+		}
 		file, fileHeader, err := r.FormFile("file")
 		if err != nil {
 			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "failed to get uploaded file"))
@@ -297,7 +308,7 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 		}
 
 		// Convert the rest.Config to Cluster object.
-		clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, restConfig)
+		clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(name, displayName, description, clusterMode, level, restConfig)
 		if err != nil {
 			handler.FailureRender(ctx, w, r, errors.Wrapf(err, "error convert kubeconfig to cluster"))
 			return
@@ -379,5 +390,40 @@ func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 			log.Error(err, "failed to validate kubeconfig")
 			handler.FailureWithCodeRender(ctx, w, r, err, http.StatusBadRequest)
 		}
+	}
+}
+
+// GetAgentYml returns an HTTP handler function to obtain the agent yaml of the special cluster.
+//
+// @Summary      Get agent yaml
+// @Description  Obtain the agent yaml in secret for cluster.
+// @Tags         cluster
+// @Accept       plain
+// @Accept       json
+// @Produce      json
+// @Param        clusterName  path      string  true  "The name of the cluster"
+// @Success      200      {string}  string           "Verification passed server version"
+// @Failure      400      {object}  string           "Bad Request"
+// @Failure      401      {object}  string           "Unauthorized"
+// @Failure      429      {object}  string           "Too Many Requests"
+// @Failure      404      {object}  string           "Not Found"
+// @Failure      500      {object}  string           "Internal Server Error"
+// @Router       /rest-api/v1/cluster/{clusterName}/agentYml [get]
+func GetAgentYml(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Extract the context and logger from the request.
+		ctx := r.Context()
+		logger := ctxutil.GetLogger(ctx)
+		cluster := chi.URLParam(r, "clusterName")
+		logger.Info("Getting cluster...", "cluster", cluster)
+
+		client, err := multicluster.BuildHubClients(r.Context(), c.LoopbackClientConfig)
+		if err != nil {
+			handler.FailureRender(ctx, w, r, err)
+			return
+		}
+
+		agentYaml, err := clusterMgr.GetAgentYamlForCluster(r.Context(), client, cluster)
+		handler.HandleResult(w, r, ctx, err, agentYaml)
 	}
 }
