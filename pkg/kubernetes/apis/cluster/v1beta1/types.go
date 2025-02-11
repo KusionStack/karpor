@@ -33,6 +33,10 @@ const (
 	PushClusterMode = "push"
 )
 
+const (
+	ClusterFinalizer = "finalizers.cluster.karpor.io"
+)
+
 // +kubebuilder:object:root=true
 // +kubebuilder:resource:scope=Cluster
 // +kubebuilder:subresource:status

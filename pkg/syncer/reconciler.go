@@ -77,14 +77,14 @@ type SyncReconciler struct {
     storageAddresses []string
 
     externalEndpoint string
+    agentImageTag    string
 
     caCert *x509.Certificate
     caKey  crypto.Signer
 }
 
 // NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
-func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, storageAddresses []string,
-    externalEndpoint string, caCert *x509.Certificate, caKey crypto.Signer) *SyncReconciler {
+func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, storageAddresses []string, externalEndpoint, agentImageTag string, caCert *x509.Certificate, caKey crypto.Signer) *SyncReconciler {
     return &SyncReconciler{
         storage:          storage,
         highAvailability: highAvailability,
@@ -92,6 +92,7 @@ func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, s
         externalEndpoint: externalEndpoint,
         caCert:           caCert,
         caKey:            caKey,
+        agentImageTag:    agentImageTag,
     }
 }
 
@@ -156,7 +157,7 @@ func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateL
 }
 
 // Reconcile is the main entry point for the syncer reconciler, which is called whenever there is a change in the watched resources.
-func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
+func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (res reconcile.Result, retErr error) {
     logger := ctrl.LoggerFrom(ctx)
 
     var cluster clusterv1beta1.Cluster
@@ -168,9 +169,26 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
         return reconcile.Result{}, err
     }
 
+    defer func() {
+        // patch of delete finalizer for high availability cluster.
+        if r.isReconcilerEnabled(&cluster) {
+            err := r.client.Update(ctx, &cluster)
+            if err != nil && !apierrors.IsNotFound(err) {
+                retErr = err
+            }
+        }
+    }()
+
     if !cluster.DeletionTimestamp.IsZero() {
         logger.Info("cluster is being deleted", "cluster", cluster.Name)
-        return reconcile.Result{}, r.stopCluster(ctx, cluster.Name)
+        err := r.stopCluster(ctx, cluster.Name)
+        if err != nil {
+            return reconcile.Result{}, err
+        }
+        if r.isReconcilerEnabled(&cluster) {
+            cluster.SetFinalizers(nil)
+        }
+        return reconcile.Result{}, nil
     }
 
     // TODO: it's danger
@@ -180,14 +198,19 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
     // }
 
     if r.highAvailability {
+        // set finalizer for cluster.
+        cluster.SetFinalizers([]string{clusterv1beta1.ClusterFinalizer})
         if cluster.Spec.Mode == clusterv1beta1.PushClusterMode {
             return reconcile.Result{}, r.handleClusterAddOrUpdateForPush(ctx, cluster.DeepCopy())
         }
         // default pull mode
-        return reconcile.Result{}, r.handleClusterAddOrUpdateForPull(ctx, cluster.DeepCopy())
+        if r.isReconcilerEnabled(&cluster) {
+            return reconcile.Result{}, r.handleClusterAddOrUpdateForPull(ctx, cluster.DeepCopy())
+        }
+        return reconcile.Result{}, nil
     }
 
-    return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy())
+    return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer)
 }
 
 // stopCluster stops the reconciliation process for the given cluster.
@@ -198,6 +221,21 @@ func (r *SyncReconciler) stopCluster(ctx context.Context, clusterName string) er
         return err
     }
     r.mgr.Stop(ctx, clusterName)
+
+    if r.highAvailability {
+        // delete secret
+        secretName := fmt.Sprintf("%s-agent", clusterName)
+        err := r.client.Delete(ctx, &v1.Secret{
+            ObjectMeta: metav1.ObjectMeta{
+                Name:      secretName,
+                Namespace: "karpor",
+            },
+        })
+        if err != nil && !apierrors.IsNotFound(err) {
+            return err
+        }
+    }
+
     logger.Info("syncing cluster has been stopped", "cluster", clusterName)
     return nil
 }
@@ -211,7 +249,7 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 }
 
 // handleClusterAddOrUpdate is responsible for handling the addition or update of a cluster resource.
-func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster, buildClusterConfig func(cluster *clusterv1beta1.Cluster) (*rest.Config, error)) error {
     logger := ctrl.LoggerFrom(ctx)
 
     resources, pendingWildcards, err := r.getResources(ctx, cluster)
@@ -705,6 +743,7 @@ func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv
     return normalized, nil
 }
 
+// extractTransformRule extras transform rules from syncrule
 func (r *SyncReconciler) extractTransformRule(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.TransformRule, error) {
     var rule searchv1beta1.TransformRule
     if rsr.Transform != nil {
@@ -721,6 +760,7 @@ func (r *SyncReconciler) extractTransformRule(ctx context.Context, rsr *searchv1
     return &rule, nil
 }
 
+// extractTransformRule extras trim rules from syncrule
 func (r *SyncReconciler) extractTrimRule(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.TrimRule, error) {
     var rule searchv1beta1.TrimRule
     if rsr.Trim != nil {
@@ -876,6 +916,98 @@ func renderYamlFile(cluster *clusterv1beta1.Cluster, storageAddresses []string, 
     return renderedTemplate.String(), nil
 }
 
+// renderYamlFile render agent yaml use known parameters.
+func (r *SyncReconciler) renderYamlFile(cluster *clusterv1beta1.Cluster, certData, keyData string) (string, error) {
+    c := template.Config{
+        ClusterName:      cluster.Name,
+        Level:            cluster.Spec.Level,
+        StorageAddresses: r.storageAddresses,
+        ClusterMode:      cluster.Spec.Mode,
+        AgentImageTag:    r.agentImageTag,
+    }
+
+    if cluster.Spec.Mode == clusterv1beta1.PullClusterMode {
+        c.ExternalEndpoint = r.externalEndpoint
+        c.CaCert = certData
+        c.CaKey = keyData
+    }
+
+    agentYml, err := templateUtil.New("").Parse(string(config.AgentTpl))
+    if err != nil {
+        return "", errors.Wrap(err, "failed to parse agent yaml")
+    }
+
+    var renderedTemplate bytes.Buffer
+    err = agentYml.Execute(&renderedTemplate, c)
+    if err != nil {
+        return "", errors.Wrap(err, "failed to render agent yaml")
+    }
+
+    return renderedTemplate.String(), nil
+}
+
+// isReconcilerEnabled verify if execute for cluster object, which can compatible for existed non-ha cluster.
+func (r *SyncReconciler) isReconcilerEnabled(cluster *clusterv1beta1.Cluster) bool {
+    if r.highAvailability && cluster.Spec.Mode != clusterv1beta1.PushClusterMode && r.caCert == nil && r.caKey == nil {
+        return false
+    }
+    return true
+}
+
+// buildClusterConfigInSyncer creates a rest.Config object for the given cluster in syncer.
+func buildClusterConfigInSyncer(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
+    access := cluster.Spec.Access
+    if len(access.Endpoint) == 0 {
+        return nil, fmt.Errorf("cluster %s's endpoint is empty", cluster.Name)
+    }
+    config := rest.Config{
+        Host: access.Endpoint,
+    }
+    if access.Insecure != nil {
+        config.TLSClientConfig.Insecure = *access.Insecure
+    }
+    if len(access.CABundle) > 0 {
+        config.TLSClientConfig.CAData = access.CABundle
+    }
+    if access.Credential != nil {
+        switch access.Credential.Type {
+        case clusterv1beta1.CredentialTypeServiceAccountToken:
+            config.BearerToken = access.Credential.ServiceAccountToken
+        case clusterv1beta1.CredentialTypeX509Certificate:
+            if access.Credential.X509 == nil {
+                return nil, fmt.Errorf("cert and key is required for x509 credential type")
+            }
+            config.TLSClientConfig.CertData = access.Credential.X509.Certificate
+            config.TLSClientConfig.KeyData = access.Credential.X509.PrivateKey
+        case clusterv1beta1.CredentialTypeOIDC:
+            if access.Credential.ExecConfig == nil {
+                return nil, fmt.Errorf("ExecConfig is required for Exec credential type")
+            }
+            var env []clientcmdapi.ExecEnvVar
+            for _, envValue := range access.Credential.ExecConfig.Env {
+                tempEnv := clientcmdapi.ExecEnvVar{
+                    Name:  envValue.Name,
+                    Value: envValue.Value,
+                }
+                env = append(env, tempEnv)
+            }
+            config.ExecProvider = &clientcmdapi.ExecConfig{
+                Command:            access.Credential.ExecConfig.Command,
+                Args:               access.Credential.ExecConfig.Args,
+                Env:                env,
+                APIVersion:         access.Credential.ExecConfig.APIVersion,
+                InstallHint:        access.Credential.ExecConfig.InstallHint,
+                ProvideClusterInfo: access.Credential.ExecConfig.ProvideClusterInfo,
+                InteractiveMode:    clientcmdapi.ExecInteractiveMode(access.Credential.ExecConfig.InteractiveMode),
+            }
+        default:
+            return nil, fmt.Errorf("unknown credential type %v", access.Credential.Type)
+        }
+    }
+    return &config, nil
+}
+
+// applyAgentYmlSecret apply agent yml
 func applyAgentYmlSecret(ctx context.Context, cli client.Client, cluster *clusterv1beta1.Cluster, content []byte) error {
     secretName := fmt.Sprintf("%s-agent", cluster.Name)
     newAgentSecret := &v1.Secret{
