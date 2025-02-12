@@ -72,13 +72,66 @@ format:  ## Format source code of frontend and backend
 update-codegen: ## Update generated code
 	hack/update-codegen.sh
 
+# VERSION file handling targets
+# These targets are used to manage the VERSION file during build process.
+# save-version: Creates a backup of the current VERSION file
+# restore-version: Restores the VERSION file from backup and removes the backup file
+VERSION_FILE := pkg/version/VERSION
+VERSION_BACKUP := $(VERSION_FILE).bak
+.PHONY: save-version
+save-version:
+	@if [ -f $(VERSION_FILE) ]; then \
+		echo "📦 Backing up VERSION file..."; \
+		cp $(VERSION_FILE) $(VERSION_BACKUP); \
+	fi
+
+.PHONY: restore-version
+restore-version:
+	@if [ -f $(VERSION_BACKUP) ]; then \
+		echo "📦 Restoring VERSION file..."; \
+		cp $(VERSION_BACKUP) $(VERSION_FILE); \
+		rm $(VERSION_BACKUP); \
+	fi
+
 # Build-related targets
 
-# Target: build-all
-# Description: Builds for all supported platforms (Darwin, Linux, Windows).
-# Usage: make build-all
-.PHONY: build-all
-build-all: build-darwin build-linux build-windows ## Build for all platforms
+# Internal build targets without version handling
+# These targets perform the actual build operation for each platform.
+# They are prefixed with '_' to indicate they are internal and should not be called directly.
+# Each target is responsible for:
+# 1. Cleaning the platform-specific build directory
+# 2. Building the binary with correct GOOS and GOARCH
+.PHONY: _build-darwin
+_build-darwin:
+	@rm -rf ./_build/darwin
+	@echo "🚀 Building karpor-server for darwin platform ..."
+	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
+		$(GO) build -o ./_build/darwin/$(APPROOT) \
+		./cmd/karpor || exit 1
+
+.PHONY: _build-linux
+_build-linux:
+	@rm -rf ./_build/linux
+	@echo "🚀 Building karpor-server for linux platform ..."
+	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
+		$(GO) build -o ./_build/linux/$(APPROOT) \
+		./cmd/karpor || exit 1
+	
+.PHONY: _build-windows
+_build-windows:
+	@rm -rf ./_build/windows
+	@echo "🚀 Building karpor-server for windows platform ..."
+	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
+		$(GO) build -o ./_build/windows/$(APPROOT).exe \
+		./cmd/karpor || exit 1
+
+# Public build targets with version handling
+# These targets provide the complete build workflow for each platform:
+# 1. Backup the current VERSION file (save-version)
+# 2. Generate a new version (gen-version)
+# 3. Build the binary (_build-xxx)
+# 4. Restore the original VERSION file (restore-version)
+# If build fails, the VERSION file will still be restored
 
 # Target: build-darwin
 # Description: Builds for macOS platform.
@@ -89,12 +142,9 @@ build-all: build-darwin build-linux build-windows ## Build for all platforms
 #   make build-darwin GOARCH=arm64
 #   make build-darwin GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-darwin
-build-darwin: gen-version $(BUILD_UI) ## Build for MacOS (Darwin)
-	@rm -rf ./_build/darwin
-	@echo "🚀 Building karpor-server for darwin platform ..."
-	GOOS=darwin GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-		$(GO) build -o ./_build/darwin/$(APPROOT) \
-		./cmd/karpor
+build-darwin: save-version gen-version $(BUILD_UI) ## Build for MacOS (Darwin)
+	@$(MAKE) _build-darwin || ($(MAKE) restore-version && exit 1)
+	@$(MAKE) restore-version
 
 # Target: build-linux
 # Description: Builds for Linux platform.
@@ -105,12 +155,9 @@ build-darwin: gen-version $(BUILD_UI) ## Build for MacOS (Darwin)
 #   make build-linux GOARCH=arm64
 #   make build-linux GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-linux
-build-linux: gen-version $(BUILD_UI) ## Build for Linux
-	@rm -rf ./_build/linux
-	@echo "🚀 Building karpor-server for linux platform ..."
-	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-		$(GO) build -o ./_build/linux/$(APPROOT) \
-		./cmd/karpor
+build-linux: save-version gen-version $(BUILD_UI) ## Build for Linux
+	@$(MAKE) _build-linux || ($(MAKE) restore-version && exit 1)
+	@$(MAKE) restore-version
 
 # Target: build-windows
 # Description: Builds for Windows platform.
@@ -121,12 +168,9 @@ build-linux: gen-version $(BUILD_UI) ## Build for Linux
 #   make build-windows GOARCH=arm64
 #   make build-windows GOARCH=arm64 SKIP_UI_BUILD=true
 .PHONY: build-windows
-build-windows: gen-version $(BUILD_UI) ## Build for Windows
-	@rm -rf ./_build/windows
-	@echo "🚀 Building karpor-server for windows platform ..."
-	GOOS=windows GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
-		$(GO) build -o ./_build/windows/$(APPROOT).exe \
-		./cmd/karpor
+build-windows: save-version gen-version $(BUILD_UI) ## Build for Windows
+	@$(MAKE) _build-windows || ($(MAKE) restore-version && exit 1)
+	@$(MAKE) restore-version
 
 # Target: build-ui
 # Description: Builds the UI for the dashboard.
@@ -135,6 +179,39 @@ build-windows: gen-version $(BUILD_UI) ## Build for Windows
 build-ui: gen-version ## Build UI for the dashboard
 	@echo "🧀 Building UI for the dashboard ..."
 	cd ui && npm install && npm run build && touch build/.gitkeep
+
+# Target: build-all
+# Description: Builds for all supported platforms (Darwin, Linux, Windows).
+# Note: Uses recursive make calls to ensure each platform build has its own
+# version handling context, preventing interference between builds.
+# Usage: make build-all
+.PHONY: build-all
+build-all: ## Build for all platforms
+	@echo "🚀 Building for all platforms..."
+	@$(MAKE) build-darwin
+	@$(MAKE) build-linux
+	@$(MAKE) build-windows
+
+# Target: build
+# Description: Automatically builds for the current platform.
+# Detects the current OS and calls the appropriate platform-specific build target.
+# Usage: make build
+.PHONY: build
+build: ## Build for current platform
+	@echo "🔍 Detecting current platform..."
+	@case "$$(uname -s)" in \
+		Darwin*) \
+			echo "🚀 Detected macOS platform, building for darwin..." && \
+			$(MAKE) build-darwin ;; \
+		Linux*) \
+			echo "🚀 Detected Linux platform, building for linux..." && \
+			$(MAKE) build-linux ;; \
+		MINGW*|MSYS*|CYGWIN*) \
+			echo "🚀 Detected Windows platform, building for windows..." && \
+			$(MAKE) build-windows ;; \
+		*) \
+			echo "❌ Unsupported platform: $$(uname -s)" && exit 1 ;; \
+	esac
 
 .PHONY: check-license
 check-license:  ## Checks if repo files contain valid license header
@@ -192,3 +269,26 @@ add-contributor: ## Add a new contributor
 update-contributors: ## Update the list of contributors
 	@which all-contributors > /dev/null || (echo "Installing all-contributors-cli ..."; npm i -g all-contributors-cli && echo -e "Installation complete!\n")
 	-all-contributors generate && echo "🎉 Done!" || (echo "💥 Fail!"; exit 1)
+
+# Target: check
+# Description: Run all checks to ensure code quality.
+# The checks are run in the following order:
+# 1. 🔨 lint: Check code style and potential issues using golangci-lint
+# 2. 🧪 cover: Run tests and generate coverage report
+# 3. 📦 build: Build the binary for the current platform
+# If any check fails, the subsequent checks will not run.
+# Usage:
+#   make check
+.PHONY: check
+check: ## Check the lint, test, and build
+	@echo "🔍 Running all checks..."
+	@echo "🔨 1/3 Running lint check..."
+	@$(MAKE) lint || (echo "❌ Lint check failed!" && exit 1)
+	@echo "✅ Lint check passed!"
+	@echo "🧪 2/3 Running test coverage..."
+	@$(MAKE) cover || (echo "❌ Test coverage check failed!" && exit 1)
+	@echo "✅ Test coverage check passed!"
+	@echo "📦 3/3 Running build check..."
+	@$(MAKE) build || (echo "❌ Build check failed!" && exit 1)
+	@echo "✅ Build check passed!"
+	@echo "🎉 All checks passed successfully!"
