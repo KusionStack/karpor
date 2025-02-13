@@ -93,6 +93,10 @@ const RegisterCluster = () => {
   const uploadProps: UploadProps = {
     disabled: isReadOnlyMode,
     name: 'file',
+    data: {
+      clusterMode: form.getFieldValue('clusterMode'),
+      clusterLevel: form.getFieldValue('clusterLevel'),
+    },
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
       Authorization: isUnsafeMode
