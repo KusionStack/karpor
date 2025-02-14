@@ -553,6 +553,28 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               </div>
             </div>
           )}
+          {summary?.spec?.mode && (
+            <div className={styles.item}>
+              <div className={styles.label}>Mode </div>
+              <div className={styles.value}>
+                <MetricTooltip
+                  value={summary?.spec?.mode || '--'}
+                  tooltipKey="Mode"
+                />
+              </div>
+            </div>
+          )}
+          {summary?.spec?.level && (
+            <div className={styles.item}>
+              <div className={styles.label}>Level </div>
+              <div className={styles.value}>
+                <MetricTooltip
+                  value={summary?.spec?.level || '--'}
+                  tooltipKey="Level"
+                />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
