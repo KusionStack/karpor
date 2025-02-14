@@ -139,7 +139,9 @@ const ClusterDetail = () => {
       setYamlData(clusterDetailResponse?.data)
     }
     if (highAvailabilityClusterDetailResponse?.success) {
-      setHighAvailabilityYamlData(highAvailabilityClusterDetailResponse?.data)
+      setHighAvailabilityYamlData(
+        highAvailabilityClusterDetailResponse?.data?.agentYml,
+      )
     }
   }, [clusterDetailResponse])
 
@@ -233,9 +235,16 @@ const ClusterDetail = () => {
 
   useEffect(() => {
     if (isHighAvailability) {
+      const initialTabList = [...insightTabsList]
+      if (!initialTabList.find(tab => tab.value === 'AgentYaml')) {
+        initialTabList.push({ value: 'AgentYaml', label: 'Agent Yaml' })
+      }
+      setTabList(initialTabList)
+    }
+
+    getClusterDetail()
+    if (isHighAvailability) {
       getHighAvailabilityClusterDetail()
-    } else {
-      getClusterDetail()
     }
 
     getAudit(false)
@@ -245,13 +254,7 @@ const ClusterDetail = () => {
     if (type === 'kind' && kind) {
       setTableName(kind as any)
     }
-    if (isHighAvailability) {
-      const initialTabList = [...insightTabsList]
-      if (!initialTabList.find(tab => tab.value === 'AgentYaml')) {
-        initialTabList.push({ value: 'AgentYaml', label: 'Agent Yaml' })
-      }
-      setTabList(initialTabList)
-    }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kind, type])
 

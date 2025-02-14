@@ -181,7 +181,7 @@ const RegisterCluster = () => {
               <Form.Item
                 name="clusterMode"
                 label={t('ClusterMode')}
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
               >
                 <Select>
                   <Option key="pull" value="pull">
@@ -195,7 +195,7 @@ const RegisterCluster = () => {
               <Form.Item
                 name="clusterLevel"
                 label={t('ClusterLevel')}
-                rules={[{ required: true }]}
+                rules={[{ required: false }]}
               >
                 <Select>
                   <Option key="1" value={1}>
