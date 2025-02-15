@@ -17,6 +17,7 @@ package ai
 import (
 	"context"
 	"errors"
+	"io"
 
 	"github.com/sashabaranov/go-openai"
 )
@@ -98,7 +99,7 @@ func (c *AzureAIClient) GenerateStream(ctx context.Context, prompt string) (<-ch
 		for {
 			response, err := stream.Recv()
 			if err != nil {
-				if err.Error() == "EOF" {
+				if errors.Is(err, io.EOF) {
 					return
 				}
 				// Send error as a special message
