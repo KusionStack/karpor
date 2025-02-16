@@ -19,47 +19,54 @@ import (
 	"errors"
 	"io"
 
-	"github.com/sashabaranov/go-openai"
+	deepseek "github.com/sashabaranov/go-openai"
 )
 
-type AzureAIClient struct {
-	client      *openai.Client
+const (
+	defaultDeepseekBaseURL = "https://api.deepseek.com/v1"
+)
+
+type DeepseekClient struct {
+	client      *deepseek.Client
 	model       string
 	temperature float32
+	topP        float32
 }
 
-func (c *AzureAIClient) Configure(cfg AIConfig) error {
-	if cfg.BaseURL == "" {
-		return errors.New("base url was not provided")
+func (c *DeepseekClient) Configure(cfg AIConfig) error {
+	defaultConfig := deepseek.DefaultConfig(cfg.AuthToken)
+	defaultConfig.BaseURL = defaultDeepseekBaseURL
+	if cfg.BaseURL != "" {
+		defaultConfig.BaseURL = cfg.BaseURL
 	}
-
-	defaultConfig := openai.DefaultAzureConfig(cfg.AuthToken, cfg.BaseURL)
 
 	if cfg.ProxyEnabled {
 		defaultConfig.HTTPClient.Transport = GetProxyHTTPClient(cfg)
 	}
 
-	client := openai.NewClientWithConfig(defaultConfig)
+	client := deepseek.NewClientWithConfig(defaultConfig)
 	if client == nil {
-		return errors.New("error creating Azure OpenAI client")
+		return errors.New("error creating Deepseek client")
 	}
 
 	c.client = client
 	c.model = cfg.Model
 	c.temperature = cfg.Temperature
+	c.topP = cfg.TopP
 	return nil
 }
 
-func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
-	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+func (c *DeepseekClient) Generate(ctx context.Context, prompt string) (string, error) {
+	resp, err := c.client.CreateChatCompletion(ctx, deepseek.ChatCompletionRequest{
 		Model: c.model,
-		Messages: []openai.ChatCompletionMessage{
+		Messages: []deepseek.ChatCompletionMessage{
 			{
-				Role:    openai.ChatMessageRoleUser,
+				Role:    deepseek.ChatMessageRoleUser,
 				Content: prompt,
 			},
 		},
 		Temperature: c.temperature,
+		TopP:        c.topP,
 	})
 	if err != nil {
 		return "", err
@@ -71,17 +78,17 @@ func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, er
 	return resp.Choices[0].Message.Content, nil
 }
 
-func (c *AzureAIClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
-	// Create chat completion stream with streaming enabled
-	stream, err := c.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
+func (c *DeepseekClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
+	stream, err := c.client.CreateChatCompletionStream(ctx, deepseek.ChatCompletionRequest{
 		Model: c.model,
-		Messages: []openai.ChatCompletionMessage{
+		Messages: []deepseek.ChatCompletionMessage{
 			{
-				Role:    openai.ChatMessageRoleUser,
+				Role:    deepseek.ChatMessageRoleUser,
 				Content: prompt,
 			},
 		},
 		Temperature: c.temperature,
+		TopP:        c.topP,
 		Stream:      true,
 	})
 	if err != nil {
