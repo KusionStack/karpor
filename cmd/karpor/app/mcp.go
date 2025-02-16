@@ -16,12 +16,13 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	_ "github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	_ "github.com/elastic/go-elasticsearch/v8" // esclient
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
+	"k8s.io/klog/v2"
+	ctrl "sigs.k8s.io/controller-runtime"
 )
 
 type mcpOptions struct {
@@ -55,14 +56,22 @@ func mcpRun(ctx context.Context, options *mcpOptions) error {
 	//TODO integrate MCP-GOLANG SSE Server functionality here
 	// https://mcpgolang.com/introduction
 	// rough outline:
+
 	// - Logger setup
+
+	ctrl.SetLogger(klog.NewKlogr())
+	log := ctrl.Log.WithName("mcp")
+
+	log.Info("Starting MCP SSE server", "port", options.SSEPort)
+
 	// - registering the exposure points of the elastic search storage
 	// - elastic search client setup :
-	// 		- map from KusionStack/karpor/pkg/infra/search/storage/elasticsearch
+	// 		-
+	// 		 map from KusionStack/karpor/pkg/infra/search/storage/elasticsearch
 	// - running the server
 	//
 
-	fmt.Println("TODO: yet to implement mcp functionality")
-	fmt.Println("see /cmd/karpor/app/mcp.go for further directives")
+	log.Info("TODO: yet to implement mcp functionality")
+	log.Info("see /cmd/karpor/app/mcp.go for further directives")
 	return nil
 }
