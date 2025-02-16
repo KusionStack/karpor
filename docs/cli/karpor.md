@@ -15,7 +15,7 @@ karpor [flags]
 ```
       --admission-control-config-file string                    File with admission control configuration.
       --advertise-address ip                                    The IP address on which to advertise the apiserver to members of the cluster. This address must be reachable by the rest of the cluster. If blank, the --bind-address will be used. If --bind-address is unspecified, the host's default interface will be used.
-      --ai-auth-token string                                    The ai auth token
+      --ai-auth-token string                                    The ai auth token (same as api key)
       --ai-backend string                                       The ai backend (default "openai")
       --ai-base-url string                                      The ai base url
       --ai-model string                                         The ai model (default "gpt-3.5-turbo")
