@@ -53,22 +53,21 @@ func NewMCPCommand(ctx context.Context) *cobra.Command {
 }
 
 func mcpRun(ctx context.Context, options *mcpOptions) error {
-
 	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("mcp")
 
 	log.Info("Starting MCP SSE server",
 		"port", options.SSEPort,
-		"esAddress", options.ElasticSearchAddresses)
+		"esAddresses", options.ElasticSearchAddresses)
 
-	es,err := elasticsearch.NewStorage(esclient.Config{
+	es, err := elasticsearch.NewStorage(esclient.Config{
 		Addresses: options.ElasticSearchAddresses,
 	})
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
 	}
 
-	//TODO : integrate mcp-golang SSE server
+	// TODO : integrate mcp-golang SSE server
 
 	log.Info("TODO: yet to implement mcp functionality")
 	log.Info("see /cmd/karpor/app/mcp.go for further directives")
