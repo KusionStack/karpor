@@ -19,13 +19,13 @@ import (
 	"fmt"
 
 	_ "github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	_  "github.com/elastic/go-elasticsearch/v8" // esclient
+	_ "github.com/elastic/go-elasticsearch/v8" // esclient
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 )
 
 type mcpOptions struct {
-	SSEPort string
+	SSEPort                string
 	ElasticSearchAddresses []string
 }
 
@@ -34,7 +34,7 @@ func NewMCPOptions() *mcpOptions {
 }
 
 func (o *mcpOptions) AddFlags(fs *pflag.FlagSet) {
-	fs.StringVar(&o.SSEPort,"MCP SSE server exposure port", ":7999", "The address expossing the mcp server")
+	fs.StringVar(&o.SSEPort, "MCP SSE server exposure port", ":7999", "The address expossing the mcp server")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address")
 }
 
@@ -52,7 +52,6 @@ func NewMCPCommand(ctx context.Context) *cobra.Command {
 }
 
 func mcpRun(ctx context.Context, options *mcpOptions) error {
-
 	//TODO integrate MCP-GOLANG SSE Server functionality here
 	// https://mcpgolang.com/introduction
 	// rough outline:
