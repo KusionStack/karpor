@@ -17,8 +17,8 @@ package app
 import (
 	"context"
 
-	_ "github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	_ "github.com/elastic/go-elasticsearch/v8" // esclient
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/klog/v2"
@@ -53,23 +53,22 @@ func NewMCPCommand(ctx context.Context) *cobra.Command {
 }
 
 func mcpRun(ctx context.Context, options *mcpOptions) error {
-	//TODO integrate MCP-GOLANG SSE Server functionality here
-	// https://mcpgolang.com/introduction
-	// rough outline:
-
-	// - Logger setup
 
 	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("mcp")
 
-	log.Info("Starting MCP SSE server", "port", options.SSEPort)
+	log.Info("Starting MCP SSE server",
+		"port", options.SSEPort,
+		"esAddress", options.ElasticSearchAddresses)
 
-	// - registering the exposure points of the elastic search storage
-	// - elastic search client setup :
-	// 		-
-	// 		 map from KusionStack/karpor/pkg/infra/search/storage/elasticsearch
-	// - running the server
-	//
+	es,err := elasticsearch.NewStorage(esclient.Config{
+		Addresses: options.ElasticSearchAddresses,
+	})
+	if err != nil {
+		log.Error(err, "unable to init elasticsearch client")
+	}
+
+	//TODO : integrate mcp-golang SSE server
 
 	log.Info("TODO: yet to implement mcp functionality")
 	log.Info("see /cmd/karpor/app/mcp.go for further directives")
