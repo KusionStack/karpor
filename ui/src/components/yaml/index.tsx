@@ -9,6 +9,7 @@ import {
   PoweroffOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -371,6 +372,15 @@ const Yaml = (props: IProps) => {
                       />
                     </Tooltip>
                   )}
+                    <Tooltip title={t('YAML.Expand')} placement="bottom">
+                    <Button
+                      type="text"
+                      className={styles.expandButton}  // Uses your existing expandButton styles
+                      icon={<ExpandOutlined />}
+                      onClick={() => console.log('Expand button clicked')}
+                    />
+                    </Tooltip>
+                  
                   <Button
                     type="text"
                     icon={<CloseOutlined />}
