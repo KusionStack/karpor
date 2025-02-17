@@ -59,7 +59,6 @@ const Yaml = (props: IProps) => {
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
   const [isExpanded, setIsExpanded] = useState(false)
 
-
   useEffect(() => {
     const yamlStatusJson = yaml2json(data)
     if (yamlRef.current && yamlStatusJson?.data) {
@@ -374,16 +373,14 @@ const Yaml = (props: IProps) => {
                       />
                     </Tooltip>
                   )}
-                    <Tooltip title={t('YAML.Expand')} placement="bottom">
+                  <Tooltip title={t('YAML.Expand')} placement="bottom">
                     <Button
                       type="text"
-                      className={styles.expandButton}  // Uses your existing expandButton styles
+                      className={styles.expandButton} // Uses your existing expandButton styles
                       icon={<ExpandOutlined />}
                       onClick={() => setIsExpanded(!isExpanded)} // Toggle expand/collapse
-
                     />
-                    </Tooltip>
-                  
+                  </Tooltip>
                   <Button
                     type="text"
                     icon={<CloseOutlined />}
@@ -397,7 +394,10 @@ const Yaml = (props: IProps) => {
                 <div
                   className={styles.yaml_content_diagnosisContent}
                   ref={contentRef}
-                  style={{ height: isExpanded ? 'auto' : '150px', overflow: 'hidden' }}
+                  style={{
+                    height: isExpanded ? 'auto' : '150px',
+                    overflow: 'hidden',
+                  }}
                 >
                   {interpretStatus === 'loading' ||
                   (interpretStatus === 'streaming' && !interpret) ? (
