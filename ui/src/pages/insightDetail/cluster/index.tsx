@@ -5,7 +5,7 @@ import { Breadcrumb, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
 import KarporTabs from '@/components/tabs'
 import Yaml from '@/components/yaml'
-import { capitalized, generateTopologyData } from '@/utils/tools'
+import { capitalized, generateTopologyData, yaml2json } from '@/utils/tools'
 import { insightTabsList } from '@/utils/constants'
 import Kubernetes from '@/assets/kubernetes.png'
 import SourceTable from '../components/sourceTable'
@@ -19,6 +19,7 @@ import SummaryCard from '../components/summaryCard'
 import { useAxios, isHighAvailability } from '@/utils/request'
 
 import styles from './styles.module.less'
+import AgentYaml from '@/components/agentYaml'
 
 const ClusterDetail = () => {
   const location = useLocation()
@@ -32,6 +33,7 @@ const ClusterDetail = () => {
   const [modalVisible, setModalVisible] = useState<boolean>(false)
   const [tableQueryStr, setTableQueryStr] = useState('')
   const [yamlData, setYamlData] = useState('')
+  const [yamlDataJSON, setYamlDataJSON] = useState('')
   const [highAvailabilityYamlData, setHighAvailabilityYamlData] = useState('')
   const [auditList, setAuditList] = useState<any>([])
   const [auditStat, setAuditStat] = useState<any>()
@@ -137,6 +139,7 @@ const ClusterDetail = () => {
   useEffect(() => {
     if (clusterDetailResponse?.success) {
       setYamlData(clusterDetailResponse?.data)
+      setYamlDataJSON(yaml2json(clusterDetailResponse?.data)?.data as any)
     }
     if (highAvailabilityClusterDetailResponse?.success) {
       setHighAvailabilityYamlData(
@@ -360,7 +363,7 @@ const ClusterDetail = () => {
       return <Yaml data={yamlData || ''} onRefresh={getClusterDetail} />
     }
     if (currentTab === 'AgentYaml') {
-      return <Yaml data={highAvailabilityYamlData || ''} />
+      return <AgentYaml data={highAvailabilityYamlData || ''} />
     }
     if (currentTab === 'K8s') {
       return (
@@ -382,7 +385,11 @@ const ClusterDetail = () => {
         items={breadcrumbItems}
       />
       <div className={styles.module}>
-        <SummaryCard auditStat={auditStat} summary={summary} />
+        <SummaryCard
+          auditStat={auditStat}
+          summary={summary}
+          yamlDataJSON={yamlDataJSON}
+        />
         <div className={styles.exception_event}>
           <ExceptionList
             auditLoading={auditLoading}
