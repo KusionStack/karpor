@@ -256,9 +256,14 @@ const MetricTooltip = ({ value, tooltipKey }: MetricTooltipProps) => {
 type SummaryCardProps = {
   auditStat: { score: number }
   summary: any
+  yamlDataJSON?: any
 }
 
-const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
+const SummaryCard = ({
+  auditStat,
+  summary,
+  yamlDataJSON,
+}: SummaryCardProps) => {
   const [score, setScore] = useState(0)
   const { t } = useTranslation()
   const location = useLocation()
@@ -311,6 +316,8 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
     if (latency <= 500) return 'warning'
     return 'error'
   }
+
+  console.log(yamlDataJSON, '===yamlDataJSON===')
 
   return (
     <div className={styles.summary_card}>
@@ -553,23 +560,23 @@ const SummaryCard = ({ auditStat, summary }: SummaryCardProps) => {
               </div>
             </div>
           )}
-          {summary?.spec?.mode && (
+          {yamlDataJSON?.spec?.mode && (
             <div className={styles.item}>
               <div className={styles.label}>Mode </div>
               <div className={styles.value}>
                 <MetricTooltip
-                  value={summary?.spec?.mode || '--'}
+                  value={yamlDataJSON?.spec?.mode || '--'}
                   tooltipKey="Mode"
                 />
               </div>
             </div>
           )}
-          {summary?.spec?.level && (
+          {yamlDataJSON?.spec?.level && (
             <div className={styles.item}>
               <div className={styles.label}>Level </div>
               <div className={styles.value}>
                 <MetricTooltip
-                  value={summary?.spec?.level || '--'}
+                  value={yamlDataJSON?.spec?.level || '--'}
                   tooltipKey="Level"
                 />
               </div>
