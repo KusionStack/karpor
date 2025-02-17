@@ -52,6 +52,7 @@ func NewMCPCommand(ctx context.Context) *cobra.Command {
 	return cmd
 }
 
+//nolint:unparam
 func mcpRun(ctx context.Context, options *mcpOptions) error {
 	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("mcp")
@@ -60,12 +61,14 @@ func mcpRun(ctx context.Context, options *mcpOptions) error {
 		"port", options.SSEPort,
 		"esAddresses", options.ElasticSearchAddresses)
 
+	//nolint:contextcheck
 	es, err := elasticsearch.NewStorage(esclient.Config{
 		Addresses: options.ElasticSearchAddresses,
 	})
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
 	}
+	log.Info("Acquired elasticsearch storage backend", "esStorage", es)
 
 	// TODO : integrate mcp-golang SSE server
 
