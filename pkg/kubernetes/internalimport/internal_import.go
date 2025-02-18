@@ -18,7 +18,6 @@ package internalimport
 // k8s and specify the specific version in go.mod.
 import (
 	_ "k8s.io/cloud-provider"
-	_ "k8s.io/component-helpers"
 	_ "k8s.io/controller-manager"
 	_ "k8s.io/csi-translation-lib"
 	_ "k8s.io/mount-utils"
