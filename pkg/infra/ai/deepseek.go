@@ -24,6 +24,7 @@ import (
 
 const (
 	defaultDeepseekBaseURL = "https://api.deepseek.com/v1"
+	defaultDeepseekModel   = "deepseek-chat"
 )
 
 type DeepseekClient struct {
@@ -42,6 +43,9 @@ func (c *DeepseekClient) Configure(cfg AIConfig) error {
 
 	if cfg.ProxyEnabled {
 		defaultConfig.HTTPClient.Transport = GetProxyHTTPClient(cfg)
+	}
+	if cfg.Model == "" {
+		cfg.Model = defaultDeepseekModel
 	}
 
 	client := deepseek.NewClientWithConfig(defaultConfig)
