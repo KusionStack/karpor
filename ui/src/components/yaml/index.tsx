@@ -394,10 +394,7 @@ const Yaml = (props: IProps) => {
                 <div
                   className={styles.yaml_content_diagnosisContent}
                   ref={contentRef}
-                  style={{
-                    height: isExpanded ? 'auto' : '150px',
-                    overflow: 'hidden',
-                  }}
+                  style={{ maxHeight: isExpanded ? 'auto' : '150px', overflow: 'hidden',alignSelf: 'flex-start' }}
                 >
                   {interpretStatus === 'loading' ||
                   (interpretStatus === 'streaming' && !interpret) ? (

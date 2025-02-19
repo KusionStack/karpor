@@ -154,6 +154,7 @@
     "InterpretResult": "Interpretation Result",
     "InterpretInProgress": "Interpreting...",
     "StopInterpret": "Stop Interpreting",
+    "Expand":"Expand",
     "InterpretConnectionError": "Interpretation connection error",
     "FailedToStartInterpret": "Failed to start interpretation",
     "FailedToInterpret": "Failed to interpret",

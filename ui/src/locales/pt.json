@@ -154,6 +154,7 @@
     "StopInterpret": "Parar Interpretação",
     "InterpretConnectionError": "Erro de conexão na interpretação",
     "FailedToStartInterpret": "Falha ao iniciar interpretação",
+    "Expand":"Expandir",
     "FailedToInterpret": "Falha na interpretação",
     "TabName": "YAML"
   },
