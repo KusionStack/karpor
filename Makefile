@@ -23,10 +23,10 @@ CGO_ENABLED ?= 0
 # Check if the SKIP_UI_BUILD flag is set to control the UI building process.
 # If the flag is not set, the BUILD_UI variable is assigned the value 'build-ui'.
 # If the flag is set, the BUILD_UI variable remains empty.
-ifeq ($(SKIP_UI_BUILD),true)
-    BUILD_UI =
-else
+ifndef SKIP_UI_BUILD
     BUILD_UI = build-ui
+else
+    BUILD_UI =
 endif
 
 # If you encounter an error like "panic: permission denied" on MacOS,
@@ -116,7 +116,7 @@ _build-linux:
 	GOOS=linux GOARCH=$(GOARCH) CGO_ENABLED=$(CGO_ENABLED) \
 		$(GO) build -o ./_build/linux/$(APPROOT) \
 		./cmd/karpor || exit 1
-	
+
 .PHONY: _build-windows
 _build-windows:
 	@rm -rf ./_build/windows
