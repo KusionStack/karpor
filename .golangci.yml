@@ -99,9 +99,6 @@ linters-settings:
       - unreachable
       - unsafeptr
       - unusedresult
-    disable:
-      - buildssa
-      - fieldalignment
     settings:
       printf:
         funcs:

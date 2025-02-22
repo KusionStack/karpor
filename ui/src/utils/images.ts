@@ -37,7 +37,6 @@ export const ICON_MAP = {
   ClusterRoleBinding: crb,
   CronJob: cronjob,
   Deployment: deploy,
-  CafeDeployment: crd,
   DaemonSet: ds,
   Endpoint: ep,
   Group: group,
