@@ -47,10 +47,6 @@ relationship:
   #   version: v1
   #   kind: ReplicaSet
   #   type: OwnerReference
-  # - group: apps.cafe.cloud.alipay.com
-  #   version: v1alpha1
-  #   kind: InPlaceSet
-  #   type: OwnerReference
   - group: ""
     version: v1
     kind: Service
@@ -84,7 +80,7 @@ relationship:
   #   version: v1
   #   kind: Node
   #   type: OwnerReference
-  
+
 - group: ""
   version: v1
   kind: Node
