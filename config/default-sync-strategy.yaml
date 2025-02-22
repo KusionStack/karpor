@@ -14,12 +14,6 @@ spec:
   clusters:
     - "*"
   syncResources:
-    - apiVersion: apps.cafe.cloud.alipay.com/v1alpha1
-      resource: inplacesets
-      transformRefName: only-metadata
-    - apiVersion: apps.cafe.cloud.alipay.com/v1alpha1
-      resource: cafedeployments
-      transformRefName: only-metadata
     - apiVersion: policy/v1beta1
       resource: poddisruptionbudgets
       transformRefName: only-metadata
