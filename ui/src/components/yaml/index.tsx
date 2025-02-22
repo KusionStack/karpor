@@ -9,6 +9,7 @@ import {
   PoweroffOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -56,6 +57,7 @@ const Yaml = (props: IProps) => {
   const abortControllerRef = useRef<AbortController | null>(null)
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
+  const [isExpanded, setIsExpanded] = useState(false)
 
   useEffect(() => {
     const yamlStatusJson = yaml2json(data)
@@ -371,6 +373,14 @@ const Yaml = (props: IProps) => {
                       />
                     </Tooltip>
                   )}
+                  <Tooltip title={t('YAML.Expand')} placement="bottom">
+                    <Button
+                      type="text"
+                      className={styles.expandButton} // Uses your existing expandButton styles
+                      icon={<ExpandOutlined />}
+                      onClick={() => setIsExpanded(!isExpanded)} // Toggle expand/collapse
+                    />
+                  </Tooltip>
                   <Button
                     type="text"
                     icon={<CloseOutlined />}
@@ -384,6 +394,7 @@ const Yaml = (props: IProps) => {
                 <div
                   className={styles.yaml_content_diagnosisContent}
                   ref={contentRef}
+                  style={{ maxHeight: isExpanded ? 'auto' : '150px', overflow: 'hidden',alignSelf: 'flex-start' }}
                 >
                   {interpretStatus === 'loading' ||
                   (interpretStatus === 'streaming' && !interpret) ? (

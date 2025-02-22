@@ -155,6 +155,7 @@
     "InterpretInProgress": "正在解读中...",
     "StopInterpret": "停止解读",
     "InterpretConnectionError": "解读连接出错",
+    "Expand": "展开",
     "FailedToStartInterpret": "启动解读失败",
     "FailedToInterpret": "解读失败",
     "TabName": "YAML"

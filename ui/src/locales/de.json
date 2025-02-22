@@ -153,6 +153,7 @@
     "InterpretConnectionError": "Interpretationsverbindungsfehler",
     "FailedToStartInterpret": "Interpretation konnte nicht gestartet werden",
     "FailedToInterpret": "Interpretation fehlgeschlagen",
+    "Expand": "Erweitern",
     "TabName": "YAML"
   },
   "Yesterday": "Gestern",
