@@ -17,7 +17,8 @@ package mcp
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	mcpg "github.com/metoro-io/mcp-golang"
+	"github.com/mark3labs/mcp-go/mcp"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
+
 
