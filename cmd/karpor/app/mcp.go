@@ -67,6 +67,7 @@ func mcpRun(ctx context.Context, options *mcpOptions) error {
 	})
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
+		return err
 	}
 	log.Info("Acquired elasticsearch storage backend", "esStorage", es)
 
