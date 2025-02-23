@@ -15,6 +15,7 @@
 package mcp
 
 import (
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 )
@@ -23,3 +24,14 @@ import (
 type MCPServer struct {
 	Storage storage.Storage
 }
+
+//MCPToolName is a string tag for an mcp server tool
+type MCPToolName string
+
+
+//MCPResourceName is a string tag for an mcp server resource
+type MCPResourceName string
+
+
+//MCPPromptName is a string tag for an mcp server prompt
+type MCPPromptName string
