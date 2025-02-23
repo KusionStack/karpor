@@ -17,7 +17,9 @@ package mcp
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	mcpg "github.com/metoro-io/mcp-golang"
-	ctrl "sigs.k8s.io/controller-runtime"
 )
 
+// MCPServer is the main object that holds the necessary fields and components for the mcp server component.
+type MCPServer struct {
+	Storage storage.Storage
+}
