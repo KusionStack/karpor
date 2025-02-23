@@ -18,7 +18,24 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
 	ctrl "sigs.k8s.io/controller-runtime"
 )
 
+// NewMCPStorageServer yields a storage initialized MCPServer struct
+func NewMCPStorageServer(storageEndpoint storage.Storage, sseBaseURL string, sseAddr string) MCPStorageServer {
+	mcpServer := server.NewMCPServer("MCP Storage Server", "0.0.1")
+	sseServer := server.NewSSEServer(mcpServer, sseBaseURL)
+	return MCPStorageServer{
+		Storage:              storageEndpoint,
+		MCPServer:            mcpServer,
+		sseServerBaseURL:     sseBaseURL,
+		sseServerBaseURLAddr: sseAddr,
+		sseServer:            sseServer,
+	}
+}
 
+// Serve starts an SSE server on the baseaddr provided
+func (m *MCPStorageServer) Serve() error {
+	return m.sseServer.Start(m.sseServerBaseURLAddr)
+}
