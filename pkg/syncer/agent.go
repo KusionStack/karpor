@@ -21,9 +21,13 @@ import (
 	"os/user"
 	"path"
 	"path/filepath"
+	"sync"
 
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/runtime/schema"
+	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/rest"
+	"k8s.io/client-go/restmapper"
 	"k8s.io/client-go/tools/clientcmd"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -37,20 +41,21 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
 type AgentReconciler struct {
 	SyncReconciler
-
-	clusterName string
+	gvrToGVKCache   sync.Map
+	discoveryClient discovery.DiscoveryInterface
+	clusterName     string
 }
 
 // NewAgentReconciler creates a new instance of the AgentReconciler structure with the given storage.
-func NewAgentReconciler(storage storage.ResourceStorage, highAvailability bool, clusterName string) *AgentReconciler {
+func NewAgentReconciler(storage storage.ResourceStorage, clusterName string) *AgentReconciler {
 	return &AgentReconciler{
 		SyncReconciler: SyncReconciler{
-			storage:          storage,
-			highAvailability: highAvailability,
+			storage: storage,
 		},
 
 		clusterName: clusterName,
@@ -88,6 +93,7 @@ func (r *AgentReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	}
 	r.client = mgr.GetClient()
 	r.controller = controller
+	r.discoveryClient = discovery.NewDiscoveryClientForConfigOrDie(mgr.GetConfig())
 	// TODO:
 	r.mgr = NewMultiClusterSyncManager(context.Background(), r.controller, r.storage)
 	return nil
@@ -111,7 +117,65 @@ func (r *AgentReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 		return reconcile.Result{}, r.stopCluster(ctx, cluster.Name)
 	}
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInAgent)
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInAgent, r.getResources)
+}
+
+// getResources retrieves the list of resource sync rules for the given cluster.
+func (r *AgentReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, error) {
+	registries, err := r.getRegistries(ctx, cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	var allResources []*searchv1beta1.ResourceSyncRule
+	for _, registry := range registries {
+		if !registry.DeletionTimestamp.IsZero() {
+			continue
+		}
+
+		resources, err := r.getNormalizedResources(ctx, &registry)
+		if err != nil {
+			return nil, err
+		}
+
+		for gvr, rule := range resources {
+			gvk, err := r.gvrToGVK(gvr)
+			if err != nil {
+				return nil, err
+			}
+			if _, exist := utils.GetSyncGVK(gvk); exist {
+				// If gvk map consist special gvk, it means that gvk is already reconciled by dynamic reconciler
+				utils.SetSyncGVK(gvk, *rule)
+			} else {
+				// only set rule without in gvk map
+				allResources = append(allResources, rule)
+			}
+		}
+	}
+	return allResources, nil
+}
+
+func (r *AgentReconciler) gvrToGVK(gvr schema.GroupVersionResource) (schema.GroupVersionKind, error) {
+	if val, ok := r.gvrToGVKCache.Load(gvr); ok {
+		return val.(schema.GroupVersionKind), nil
+	}
+
+	zero := schema.GroupVersionKind{}
+
+	groupResources, err := restmapper.GetAPIGroupResources(r.discoveryClient)
+	if err != nil {
+		return zero, err
+	}
+
+	mapper := restmapper.NewDiscoveryRESTMapper(groupResources)
+	gvk, err := mapper.KindFor(gvr)
+	if err != nil {
+		return zero, err
+	}
+
+	ctrl.LoggerFrom(context.Background()).Info("GVR to GVV", "gvr", gvr, "gvk", gvk)
+	r.gvrToGVKCache.Store(gvk, gvk)
+	return gvk, nil
 }
 
 func buildClusterConfigInAgent(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {

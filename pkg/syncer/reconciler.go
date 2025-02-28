@@ -208,7 +208,7 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 		return reconcile.Result{}, nil
 	}
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer)
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer, r.getResources)
 }
 
 // stopCluster stops the reconciliation process for the given cluster.
@@ -247,10 +247,12 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 }
 
 // handleClusterAddOrUpdate is responsible for handling the addition or update of a cluster resource.
-func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster, buildClusterConfig func(cluster *clusterv1beta1.Cluster) (*rest.Config, error)) error {
+func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster,
+	buildClusterConfig func(cluster *clusterv1beta1.Cluster) (*rest.Config, error),
+	getResources func(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, error)) error {
 	logger := ctrl.LoggerFrom(ctx)
 
-	resources, err := r.getResources(ctx, cluster)
+	resources, err := getResources(ctx, cluster)
 	if err != nil {
 		return errors.Wrapf(err, "error detecting sync resources of the cluster %s", cluster.Name)
 	}
