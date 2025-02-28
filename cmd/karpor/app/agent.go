@@ -102,7 +102,7 @@ func runAgent(ctx context.Context, options *agentOptions) error {
 	}
 
 	//nolint:contextcheck
-	if err = syncer.NewAgentReconciler(es, options.HighAvailability, options.ClusterName).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewAgentReconciler(es, options.ClusterName).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}
