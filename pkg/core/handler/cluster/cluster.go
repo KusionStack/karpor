@@ -244,15 +244,15 @@ func Delete(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) http.
 // @Tags         cluster
 // @Accept       multipart/form-data
 // @Produce      plain
-// @Param        file         formData  file        true  "Upload file with field name 'file'"
-// @Param        name         formData  string      true  "cluster name"
-// @Param        displayName  formData  string      true  "cluster display name"
-// @Param        description  formData  string      true  "cluster description"
-// @Param        clusterMode  formData  string      true  "cluster mode"
-// @Param        clusterLevel formData  int         true  "cluster scale level"
-// @Success      200          {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
-// @Failure      400          {string}  string      "The uploaded file is too large or the request is invalid."
-// @Failure      500          {string}  string      "Internal server error."
+// @Param        file          formData  file        true  "Upload file with field name 'file'"
+// @Param        name          formData  string      true  "cluster name"
+// @Param        displayName   formData  string      true  "cluster display name"
+// @Param        description   formData  string      true  "cluster description"
+// @Param        clusterMode   formData  string      true  "cluster mode"
+// @Param        clusterLevel  formData  int         true  "cluster scale level"
+// @Success      200           {object}  UploadData  "Returns the content of the uploaded KubeConfig file."
+// @Failure      400           {string}  string      "The uploaded file is too large or the request is invalid."
+// @Failure      500           {string}  string      "Internal server error."
 // @Router       /rest-api/v1/cluster/config/file [post]
 func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -354,12 +354,12 @@ func UploadKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 // @Accept       json
 // @Produce      json
 // @Param        request  body      ValidatePayload  true  "KubeConfig payload to validate"
-// @Success      200      {string}  string           "Verification passed server version"
-// @Failure      400      {object}  string           "Bad Request"
-// @Failure      401      {object}  string           "Unauthorized"
-// @Failure      429      {object}  string           "Too Many Requests"
-// @Failure      404      {object}  string           "Not Found"
-// @Failure      500      {object}  string           "Internal Server Error"
+// @Success      200          {string}  string  "Verification passed server version"
+// @Failure      400          {object}  string  "Bad Request"
+// @Failure      401          {object}  string  "Unauthorized"
+// @Failure      429          {object}  string  "Too Many Requests"
+// @Failure      404          {object}  string  "Not Found"
+// @Failure      500          {object}  string  "Internal Server Error"
 // @Router       /rest-api/v1/cluster/config/validate [post]
 func ValidateKubeConfig(clusterMgr *cluster.ClusterManager) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

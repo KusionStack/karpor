@@ -15,10 +15,14 @@ karpor [flags]
 ```
       --admission-control-config-file string                    File with admission control configuration.
       --advertise-address ip                                    The IP address on which to advertise the apiserver to members of the cluster. This address must be reachable by the rest of the cluster. If blank, the --bind-address will be used. If --bind-address is unspecified, the host's default interface will be used.
-      --ai-auth-token string                                    The ai auth token (same as api key)
+      --ai-auth-token string                                    The ai auth token
       --ai-backend string                                       The ai backend (default "openai")
       --ai-base-url string                                      The ai base url
+      --ai-http-proxy string                                    The ai http proxy
+      --ai-https-proxy string                                   The ai https proxy
       --ai-model string                                         The ai model (default "gpt-3.5-turbo")
+      --ai-no-proxy string                                      The ai no-proxy
+      --ai-proxy-enabled                                        The ai proxy enable
       --ai-temperature float32                                  The ai temperature (default 1)
       --ai-top-p float32                                        The ai top-p (default 1)
       --anonymous-auth                                          Enables anonymous requests to the secure port of the API server. Requests that are not rejected by another authentication method are treated as anonymous requests. Anonymous requests have a username of system:anonymous, and a group name of system:unauthenticated. (default true)
@@ -32,7 +36,7 @@ karpor [flags]
       --audit-log-compress                                      If set, the rotated log files will be compressed using gzip.
       --audit-log-format string                                 Format of saved audits. "legacy" indicates 1-line text format for each event. "json" indicates structured json format. Known formats are legacy,json. (default "json")
       --audit-log-maxage int                                    The maximum number of days to retain old audit log files based on the timestamp encoded in their filename.
-      --audit-log-maxbackup int                                 The maximum number of old audit log files to retain. Setting a value of 0 will mean there's no restriction on the number of files.
+      --audit-log-maxbackup int                                 The maximum number of old audit log files to retain.
       --audit-log-maxsize int                                   The maximum size in megabytes of the audit log file before it gets rotated.
       --audit-log-mode string                                   Strategy for sending audit events. Blocking indicates sending events should block server responses. Batch causes the backend to buffer and write events asynchronously. Known modes are batch,blocking,blocking-strict. (default "blocking")
       --audit-log-path string                                   If set, all requests coming to the apiserver will be logged to this file.  '-' means standard out.
@@ -65,18 +69,18 @@ karpor [flags]
       --client-ca-file string                                   If set, any request presenting a client certificate signed by one of the authorities in the client-ca-file is authenticated with an identity corresponding to the CommonName of the client certificate.
       --contention-profiling                                    Enable lock contention profiling, if profiling is enabled
       --cors-allowed-origins strings                            List of allowed origins for CORS, comma separated.  An allowed origin can be a regular expression to support subdomain matching. If this list is empty CORS will not be enabled. (default [.*])
+      --default-watch-cache-size int                            Default watch cache size. If zero, watch cache will be disabled for resources that do not have a default watch size set. (default 100)
       --delete-collection-workers int                           Number of workers spawned for DeleteCollection call. These are used to speed up namespace cleanup. (default 1)
-      --disable-admission-plugins strings                       admission plugins that should be disabled although they are in the default enabled plugins list (NamespaceLifecycle, MutatingAdmissionWebhook, ValidatingAdmissionPolicy, ValidatingAdmissionWebhook). Comma-delimited list of admission plugins: MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionPolicy, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter. (default [MutatingAdmissionWebhook,NamespaceLifecycle,ValidatingAdmissionWebhook,ValidatingAdmissionPolicy])
+      --disable-admission-plugins strings                       admission plugins that should be disabled although they are in the default enabled plugins list (NamespaceLifecycle, MutatingAdmissionWebhook, ValidatingAdmissionWebhook). Comma-delimited list of admission plugins: MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter. (default [MutatingAdmissionWebhook,NamespaceLifecycle,ValidatingAdmissionWebhook])
       --egress-selector-config-file string                      File with apiserver egress selector configuration.
       --elastic-search-addresses strings                        The elastic search address
       --elastic-search-password string                          The elastic search password
       --elastic-search-username string                          The elastic search username
-      --enable-admission-plugins strings                        admission plugins that should be enabled in addition to default enabled ones (NamespaceLifecycle, MutatingAdmissionWebhook, ValidatingAdmissionPolicy, ValidatingAdmissionWebhook). Comma-delimited list of admission plugins: MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionPolicy, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter.
+      --enable-admission-plugins strings                        admission plugins that should be enabled in addition to default enabled ones (NamespaceLifecycle, MutatingAdmissionWebhook, ValidatingAdmissionWebhook). Comma-delimited list of admission plugins: MutatingAdmissionWebhook, NamespaceLifecycle, ValidatingAdmissionWebhook. The order of plugins in this flag does not matter.
       --enable-garbage-collector                                Enables the generic garbage collector. MUST be synced with the corresponding flag of the kube-controller-manager. (default true)
       --enable-priority-and-fairness                            If true and the APIPriorityAndFairness feature gate is enabled, replace the max-in-flight handler with an enhanced one that queues and dispatches with priority and fairness (default true)
       --enable-rbac                                             trun on to enable RBAC authorization
       --encryption-provider-config string                       The file containing configuration for encryption providers to be used for storing secrets in etcd
-      --encryption-provider-config-automatic-reload             Determines if the file set by --encryption-provider-config should be automatically reloaded if the disk contents change. Setting this to true disables the ability to uniquely identify distinct KMS plugins via the API server healthz endpoints.
       --etcd-cafile string                                      SSL Certificate Authority file used to secure etcd communication.
       --etcd-certfile string                                    SSL certification file used to secure etcd communication.
       --etcd-compaction-interval duration                       The interval of compaction requests. If 0, the compaction request from apiserver is disabled. (default 5m0s)
@@ -85,7 +89,6 @@ karpor [flags]
       --etcd-healthcheck-timeout duration                       The timeout to use when checking etcd health. (default 2s)
       --etcd-keyfile string                                     SSL key file used to secure etcd communication.
       --etcd-prefix string                                      The prefix to prepend to all resource paths in etcd. (default "/registry/karpor")
-      --etcd-readycheck-timeout duration                        The timeout to use when checking etcd readiness (default 2s)
       --etcd-servers strings                                    List of etcd servers to connect with (scheme://ip:port), comma separated.
       --etcd-servers-overrides strings                          Per-resource etcd servers overrides, comma separated. The individual override format: group/resource#servers, where servers are URLs, semicolon separated. Note that this applies only to resources compiled into this server binary. 
       --external-hostname string                                The hostname to use when generating externalized URLs for this master (e.g. Swagger API Docs or OpenID Discovery).
@@ -93,113 +96,109 @@ karpor [flags]
                                                                 APIListChunking=true|false (BETA - default=true)
                                                                 APIPriorityAndFairness=true|false (BETA - default=true)
                                                                 APIResponseCompression=true|false (BETA - default=true)
-                                                                APISelfSubjectReview=true|false (ALPHA - default=false)
-                                                                APIServerIdentity=true|false (BETA - default=true)
+                                                                APIServerIdentity=true|false (ALPHA - default=false)
                                                                 APIServerTracing=true|false (ALPHA - default=false)
-                                                                AggregatedDiscoveryEndpoint=true|false (ALPHA - default=false)
                                                                 AllAlpha=true|false (ALPHA - default=false)
                                                                 AllBeta=true|false (BETA - default=false)
-                                                                AnyVolumeDataSource=true|false (BETA - default=true)
+                                                                AnyVolumeDataSource=true|false (ALPHA - default=false)
                                                                 AppArmor=true|false (BETA - default=true)
-                                                                CPUManagerPolicyAlphaOptions=true|false (ALPHA - default=false)
-                                                                CPUManagerPolicyBetaOptions=true|false (BETA - default=true)
-                                                                CPUManagerPolicyOptions=true|false (BETA - default=true)
-                                                                CSIMigrationPortworx=true|false (BETA - default=false)
-                                                                CSIMigrationRBD=true|false (ALPHA - default=false)
-                                                                CSINodeExpandSecret=true|false (ALPHA - default=false)
+                                                                CPUManager=true|false (BETA - default=true)
+                                                                CPUManagerPolicyOptions=true|false (ALPHA - default=false)
+                                                                CSIInlineVolume=true|false (BETA - default=true)
+                                                                CSIMigration=true|false (BETA - default=true)
+                                                                CSIMigrationAWS=true|false (BETA - default=false)
+                                                                CSIMigrationAzureDisk=true|false (BETA - default=false)
+                                                                CSIMigrationAzureFile=true|false (BETA - default=false)
+                                                                CSIMigrationGCE=true|false (BETA - default=false)
+                                                                CSIMigrationOpenStack=true|false (BETA - default=true)
+                                                                CSIMigrationvSphere=true|false (BETA - default=false)
+                                                                CSIStorageCapacity=true|false (BETA - default=true)
+                                                                CSIVolumeFSGroupPolicy=true|false (BETA - default=true)
                                                                 CSIVolumeHealth=true|false (ALPHA - default=false)
-                                                                ComponentSLIs=true|false (ALPHA - default=false)
-                                                                ContainerCheckpoint=true|false (ALPHA - default=false)
-                                                                CronJobTimeZone=true|false (BETA - default=true)
-                                                                CrossNamespaceVolumeDataSource=true|false (ALPHA - default=false)
+                                                                CSRDuration=true|false (BETA - default=true)
+                                                                ConfigurableFSGroupPolicy=true|false (BETA - default=true)
+                                                                ControllerManagerLeaderMigration=true|false (BETA - default=true)
                                                                 CustomCPUCFSQuotaPeriod=true|false (ALPHA - default=false)
-                                                                CustomResourceValidationExpressions=true|false (BETA - default=true)
+                                                                DaemonSetUpdateSurge=true|false (BETA - default=true)
+                                                                DefaultPodTopologySpread=true|false (BETA - default=true)
+                                                                DelegateFSGroupToCSIDriver=true|false (ALPHA - default=false)
+                                                                DevicePlugins=true|false (BETA - default=true)
+                                                                DisableAcceleratorUsageMetrics=true|false (BETA - default=true)
                                                                 DisableCloudProviders=true|false (ALPHA - default=false)
-                                                                DisableKubeletCloudCredentialProviders=true|false (ALPHA - default=false)
-                                                                DownwardAPIHugePages=true|false (BETA - default=true)
-                                                                DynamicResourceAllocation=true|false (ALPHA - default=false)
-                                                                EventedPLEG=true|false (ALPHA - default=false)
-                                                                ExpandedDNSConfig=true|false (BETA - default=true)
+                                                                DownwardAPIHugePages=true|false (BETA - default=false)
+                                                                EfficientWatchResumption=true|false (BETA - default=true)
+                                                                EndpointSliceTerminatingCondition=true|false (BETA - default=true)
+                                                                EphemeralContainers=true|false (ALPHA - default=false)
+                                                                ExpandCSIVolumes=true|false (BETA - default=true)
+                                                                ExpandInUsePersistentVolumes=true|false (BETA - default=true)
+                                                                ExpandPersistentVolumes=true|false (BETA - default=true)
+                                                                ExpandedDNSConfig=true|false (ALPHA - default=false)
                                                                 ExperimentalHostUserNamespaceDefaulting=true|false (BETA - default=false)
-                                                                GRPCContainerProbe=true|false (BETA - default=true)
+                                                                GenericEphemeralVolume=true|false (BETA - default=true)
                                                                 GracefulNodeShutdown=true|false (BETA - default=true)
-                                                                GracefulNodeShutdownBasedOnPodPriority=true|false (BETA - default=true)
                                                                 HPAContainerMetrics=true|false (ALPHA - default=false)
                                                                 HPAScaleToZero=true|false (ALPHA - default=false)
-                                                                HonorPVReclaimPolicy=true|false (ALPHA - default=false)
-                                                                IPTablesOwnershipCleanup=true|false (ALPHA - default=false)
+                                                                IPv6DualStack=true|false (BETA - default=true)
                                                                 InTreePluginAWSUnregister=true|false (ALPHA - default=false)
                                                                 InTreePluginAzureDiskUnregister=true|false (ALPHA - default=false)
                                                                 InTreePluginAzureFileUnregister=true|false (ALPHA - default=false)
                                                                 InTreePluginGCEUnregister=true|false (ALPHA - default=false)
                                                                 InTreePluginOpenStackUnregister=true|false (ALPHA - default=false)
-                                                                InTreePluginPortworxUnregister=true|false (ALPHA - default=false)
-                                                                InTreePluginRBDUnregister=true|false (ALPHA - default=false)
                                                                 InTreePluginvSphereUnregister=true|false (ALPHA - default=false)
-                                                                JobMutableNodeSchedulingDirectives=true|false (BETA - default=true)
-                                                                JobPodFailurePolicy=true|false (BETA - default=true)
-                                                                JobReadyPods=true|false (BETA - default=true)
-                                                                KMSv2=true|false (ALPHA - default=false)
+                                                                IndexedJob=true|false (BETA - default=true)
+                                                                IngressClassNamespacedParams=true|false (BETA - default=true)
+                                                                JobTrackingWithFinalizers=true|false (ALPHA - default=false)
+                                                                KubeletCredentialProviders=true|false (ALPHA - default=false)
                                                                 KubeletInUserNamespace=true|false (ALPHA - default=false)
                                                                 KubeletPodResources=true|false (BETA - default=true)
-                                                                KubeletPodResourcesGetAllocatable=true|false (BETA - default=true)
-                                                                KubeletTracing=true|false (ALPHA - default=false)
-                                                                LegacyServiceAccountTokenTracking=true|false (ALPHA - default=false)
+                                                                KubeletPodResourcesGetAllocatable=true|false (ALPHA - default=false)
+                                                                LocalStorageCapacityIsolation=true|false (BETA - default=true)
                                                                 LocalStorageCapacityIsolationFSQuotaMonitoring=true|false (ALPHA - default=false)
                                                                 LogarithmicScaleDown=true|false (BETA - default=true)
-                                                                MatchLabelKeysInPodTopologySpread=true|false (ALPHA - default=false)
-                                                                MaxUnavailableStatefulSet=true|false (ALPHA - default=false)
                                                                 MemoryManager=true|false (BETA - default=true)
                                                                 MemoryQoS=true|false (ALPHA - default=false)
-                                                                MinDomainsInPodTopologySpread=true|false (BETA - default=false)
-                                                                MinimizeIPTablesRestore=true|false (ALPHA - default=false)
-                                                                MultiCIDRRangeAllocator=true|false (ALPHA - default=false)
-                                                                NetworkPolicyStatus=true|false (ALPHA - default=false)
-                                                                NodeInclusionPolicyInPodTopologySpread=true|false (BETA - default=true)
-                                                                NodeOutOfServiceVolumeDetach=true|false (BETA - default=true)
+                                                                MixedProtocolLBService=true|false (ALPHA - default=false)
+                                                                NetworkPolicyEndPort=true|false (BETA - default=true)
                                                                 NodeSwap=true|false (ALPHA - default=false)
-                                                                OpenAPIEnums=true|false (BETA - default=true)
-                                                                OpenAPIV3=true|false (BETA - default=true)
-                                                                PDBUnhealthyPodEvictionPolicy=true|false (ALPHA - default=false)
-                                                                PodAndContainerStatsFromCRI=true|false (ALPHA - default=false)
+                                                                NonPreemptingPriority=true|false (BETA - default=true)
+                                                                PodAffinityNamespaceSelector=true|false (BETA - default=true)
                                                                 PodDeletionCost=true|false (BETA - default=true)
-                                                                PodDisruptionConditions=true|false (BETA - default=true)
-                                                                PodHasNetworkCondition=true|false (ALPHA - default=false)
-                                                                PodSchedulingReadiness=true|false (ALPHA - default=false)
-                                                                ProbeTerminationGracePeriod=true|false (BETA - default=true)
+                                                                PodOverhead=true|false (BETA - default=true)
+                                                                PodSecurity=true|false (ALPHA - default=false)
+                                                                PreferNominatedNode=true|false (BETA - default=true)
+                                                                ProbeTerminationGracePeriod=true|false (BETA - default=false)
                                                                 ProcMountType=true|false (ALPHA - default=false)
-                                                                ProxyTerminatingEndpoints=true|false (BETA - default=true)
+                                                                ProxyTerminatingEndpoints=true|false (ALPHA - default=false)
                                                                 QOSReserved=true|false (ALPHA - default=false)
                                                                 ReadWriteOncePod=true|false (ALPHA - default=false)
-                                                                RecoverVolumeExpansionFailure=true|false (ALPHA - default=false)
                                                                 RemainingItemCount=true|false (BETA - default=true)
-                                                                RetroactiveDefaultStorageClass=true|false (BETA - default=true)
+                                                                RemoveSelfLink=true|false (BETA - default=true)
                                                                 RotateKubeletServerCertificate=true|false (BETA - default=true)
-                                                                SELinuxMountReadWriteOncePod=true|false (ALPHA - default=false)
-                                                                SeccompDefault=true|false (BETA - default=true)
-                                                                ServerSideFieldValidation=true|false (BETA - default=true)
+                                                                SeccompDefault=true|false (ALPHA - default=false)
+                                                                ServiceInternalTrafficPolicy=true|false (BETA - default=true)
+                                                                ServiceLBNodePortControl=true|false (BETA - default=true)
+                                                                ServiceLoadBalancerClass=true|false (BETA - default=true)
                                                                 SizeMemoryBackedVolumes=true|false (BETA - default=true)
-                                                                StatefulSetAutoDeletePVC=true|false (ALPHA - default=false)
-                                                                StatefulSetStartOrdinal=true|false (ALPHA - default=false)
+                                                                StatefulSetMinReadySeconds=true|false (ALPHA - default=false)
                                                                 StorageVersionAPI=true|false (ALPHA - default=false)
                                                                 StorageVersionHash=true|false (BETA - default=true)
-                                                                TopologyAwareHints=true|false (BETA - default=true)
+                                                                SuspendJob=true|false (BETA - default=true)
+                                                                TTLAfterFinished=true|false (BETA - default=true)
+                                                                TopologyAwareHints=true|false (ALPHA - default=false)
                                                                 TopologyManager=true|false (BETA - default=true)
-                                                                TopologyManagerPolicyAlphaOptions=true|false (ALPHA - default=false)
-                                                                TopologyManagerPolicyBetaOptions=true|false (BETA - default=false)
-                                                                TopologyManagerPolicyOptions=true|false (ALPHA - default=false)
-                                                                UserNamespacesStatelessPodsSupport=true|false (ALPHA - default=false)
-                                                                ValidatingAdmissionPolicy=true|false (ALPHA - default=false)
                                                                 VolumeCapacityPriority=true|false (ALPHA - default=false)
                                                                 WinDSR=true|false (ALPHA - default=false)
                                                                 WinOverlay=true|false (BETA - default=true)
-                                                                WindowsHostNetwork=true|false (ALPHA - default=true) (default APIPriorityAndFairness=true)
+                                                                WindowsHostProcessContainers=true|false (ALPHA - default=false) (default APIPriorityAndFairness=true)
       --github-badge                                            whether to display the github badge
       --goaway-chance float                                     To prevent HTTP/2 clients from getting stuck on a single apiserver, randomly close a connection (GOAWAY). The client's other in-flight requests won't be affected, and the client will reconnect, likely landing on a different apiserver after going through the load balancer again. This argument sets the fraction of requests that will be sent a GOAWAY. Clusters with single apiservers, or which don't use a load balancer, should NOT enable this. Min is 0 (off), Max is .02 (1/50 requests); .001 (1/1000) is a recommended starting point.
   -h, --help                                                    help for karpor
+      --high-availability                                       whether to use high-availability feature.
       --http2-max-streams-per-connection int                    The limit that the server gives to clients for the maximum number of streams in an HTTP/2 connection. Zero means to use golang's default. (default 1000)
       --lease-reuse-duration-seconds int                        The time in seconds that each lease is reused. A lower value could avoid large number of objects reusing the same lease. Notice that a too small value may cause performance problems at storage layer. (default 60)
       --livez-grace-period duration                             This option represents the maximum amount of time it should take for apiserver to complete its startup sequence and become live. From apiserver's start time to when this amount of time has elapsed, /livez will assume that unfinished post-start hooks will complete successfully and therefore return true.
+      --log-flush-frequency duration                            Maximum number of seconds between log flushes (default 5s)
+      --master-service-namespace string                         DEPRECATED: the namespace from which the Kubernetes master services should be injected into pods. (default "default")
       --max-mutating-requests-inflight int                      This and --max-requests-inflight are summed to determine the server's total concurrency limit (which must be positive) if --enable-priority-and-fairness is true. Otherwise, this flag limits the maximum number of mutating requests in flight, or a zero value disables the limit completely. (default 200)
       --max-requests-inflight int                               This and --max-mutating-requests-inflight are summed to determine the server's total concurrency limit (which must be positive) if --enable-priority-and-fairness is true. Otherwise, this flag limits the maximum number of non-mutating requests in flight, or a zero value disables the limit completely. (default 400)
       --min-request-timeout int                                 An optional field indicating the minimum number of seconds a handler must keep a request open before timing it out. Currently only honored by the watch request handler, which picks a randomized value above this number as the connection timeout, to spread out load. (default 1800)
@@ -217,31 +216,30 @@ karpor [flags]
       --secure-port int                                         The port on which to serve HTTPS with authentication and authorization. If 0, don't serve HTTPS at all. (default 443)
       --service-account-extend-token-expiration                 Turns on projected service account expiration extension during token generation, which helps safe transition from legacy token to bound service account token feature. If this flag is enabled, admission injected tokens would be extended up to 1 year to prevent unexpected failure during transition, ignoring value of service-account-max-token-expiration. (default true)
       --service-account-issuer stringArray                      Identifier of the service account token issuer. The issuer will assert this identifier in "iss" claim of issued tokens. This value is a string or URI. If this option is not a valid URI per the OpenID Discovery 1.0 spec, the ServiceAccountIssuerDiscovery feature will remain disabled, even if the feature gate is set to true. It is highly recommended that this value comply with the OpenID spec: https://openid.net/specs/openid-connect-discovery-1_0.html. In practice, this means that service-account-issuer must be an https URL. It is also highly recommended that this URL be capable of serving OpenID discovery documents at {service-account-issuer}/.well-known/openid-configuration. When this flag is specified multiple times, the first is used to generate tokens and all are used to determine which issuers are accepted.
-      --service-account-jwks-uri string                         Overrides the URI for the JSON Web Key Set in the discovery doc served at /.well-known/openid-configuration. This flag is useful if the discovery docand key set are served to relying parties from a URL other than the API server's external (as auto-detected or overridden with external-hostname). 
-      --service-account-key-file stringArray                    File containing PEM-encoded x509 RSA or ECDSA private or public keys, used to verify ServiceAccount tokens. The specified file can contain multiple keys, and the flag can be specified multiple times with different files. If unspecified, --tls-private-key-file is used. Must be specified when --service-account-signing-key-file is provided
+      --service-account-jwks-uri string                         Overrides the URI for the JSON Web Key Set in the discovery doc served at /.well-known/openid-configuration. This flag is useful if the discovery docand key set are served to relying parties from a URL other than the API server's external (as auto-detected or overridden with external-hostname). Only valid if the ServiceAccountIssuerDiscovery feature gate is enabled.
+      --service-account-key-file stringArray                    File containing PEM-encoded x509 RSA or ECDSA private or public keys, used to verify ServiceAccount tokens. The specified file can contain multiple keys, and the flag can be specified multiple times with different files. If unspecified, --tls-private-key-file is used. Must be specified when --service-account-signing-key is provided
       --service-account-lookup                                  If true, validate ServiceAccount tokens exist in etcd as part of authentication. (default true)
       --service-account-max-token-expiration duration           The maximum validity duration of a token created by the service account token issuer. If an otherwise valid TokenRequest with a validity duration larger than this value is requested, a token will be issued with a validity duration of this value.
       --service-account-signing-key-file string                 Path to the file that contains the current private key of the service account token issuer. The issuer will sign issued ID tokens with this private key.
       --shutdown-delay-duration duration                        Time to delay the termination. During that time the server keeps serving requests normally. The endpoints /healthz and /livez will return success, but /readyz immediately returns failure. Graceful termination starts after this delay has elapsed. This can be used to allow load balancer to stop sending traffic to this server.
-      --shutdown-send-retry-after                               If true the HTTP Server will continue listening until all non long running request(s) in flight have been drained, during this window all incoming requests will be rejected with a status code 429 and a 'Retry-After' response header, in addition 'Connection: close' response header is set in order to tear down the TCP connection when idle.
       --storage-backend string                                  The storage backend for persistence. Options: 'etcd3' (default).
-      --storage-media-type string                               The media type to use to store objects in storage. Some resources or storage backends may only support a specific media type and will ignore this setting. Supported media types: [application/json, application/yaml, application/vnd.kubernetes.protobuf] (default "application/json")
+      --storage-media-type string                               The media type to use to store objects in storage. Some resources or storage backends may only support a specific media type and will ignore this setting. (default "application/json")
       --strict-transport-security-directives strings            List of directives for HSTS, comma separated. If this list is empty, then HSTS directives will not be added. Example: 'max-age=31536000,includeSubDomains,preload'
       --tls-cert-file string                                    File containing the default x509 Certificate for HTTPS. (CA cert, if any, concatenated after server cert). If HTTPS serving is enabled, and --tls-cert-file and --tls-private-key-file are not provided, a self-signed certificate and key are generated for the public address and saved to the directory specified by --cert-dir. (default "apiserver.local.config/certificates/apiserver.crt")
       --tls-cipher-suites strings                               Comma-separated list of cipher suites for the server. If omitted, the default Go cipher suites will be used. 
-                                                                Preferred values: TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256. 
-                                                                Insecure values: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_RSA_WITH_3DES_EDE_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA256, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_256_GCM_SHA384, TLS_RSA_WITH_RC4_128_SHA.
+                                                                Preferred values: TLS_AES_128_GCM_SHA256, TLS_AES_256_GCM_SHA384, TLS_CHACHA20_POLY1305_SHA256, TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305, TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256, TLS_ECDHE_RSA_WITH_3DES_EDE_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256, TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA, TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305, TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256, TLS_RSA_WITH_3DES_EDE_CBC_SHA, TLS_RSA_WITH_AES_128_CBC_SHA, TLS_RSA_WITH_AES_128_GCM_SHA256, TLS_RSA_WITH_AES_256_CBC_SHA, TLS_RSA_WITH_AES_256_GCM_SHA384. 
+                                                                Insecure values: TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_ECDSA_WITH_RC4_128_SHA, TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256, TLS_ECDHE_RSA_WITH_RC4_128_SHA, TLS_RSA_WITH_AES_128_CBC_SHA256, TLS_RSA_WITH_RC4_128_SHA.
       --tls-min-version string                                  Minimum TLS version supported. Possible values: VersionTLS10, VersionTLS11, VersionTLS12, VersionTLS13
       --tls-private-key-file string                             File containing the default x509 private key matching --tls-cert-file. (default "apiserver.local.config/certificates/apiserver.key")
       --tls-sni-cert-key namedCertKey                           A pair of x509 certificate and private key file paths, optionally suffixed with a list of domain patterns which are fully qualified domain names, possibly with prefixed wildcard segments. The domain patterns also allow IP addresses, but IPs should only be used if the apiserver has visibility to the IP address requested by a client. If no domain patterns are provided, the names of the certificate are extracted. Non-wildcard matches trump over wildcard matches, explicit domain patterns trump over extracted names. For multiple key/certificate pairs, use the --tls-sni-cert-key multiple times. Examples: "example.crt,example.key" or "foo.crt,foo.key:*.foo.com,foo.com". (default [])
       --tracing-config-file string                              File with apiserver tracing configuration.
   -V, --version                                                 Print version and exit
       --watch-cache                                             Enable watch caching in the apiserver (default true)
-      --watch-cache-sizes strings                               Watch cache size settings for some resources (pods, nodes, etc.), comma separated. The individual setting format: resource[.group]#size, where resource is lowercase plural (no version), group is omitted for resources of apiVersion v1 (the legacy core API) and included for others, and size is a number. This option is only meaningful for resources built into the apiserver, not ones defined by CRDs or aggregated from external servers, and is only consulted if the watch-cache is enabled. The only meaningful size setting to supply here is zero, which means to disable watch caching for the associated resource; all non-zero values are equivalent and mean to not disable watch caching for that resource
+      --watch-cache-sizes strings                               Watch cache size settings for some resources (pods, nodes, etc.), comma separated. The individual setting format: resource[.group]#size, where resource is lowercase plural (no version), group is omitted for resources of apiVersion v1 (the legacy core API) and included for others, and size is a number. It takes effect when watch-cache is enabled. Some resources (replicationcontrollers, endpoints, nodes, pods, services, apiservices.apiregistration.k8s.io) have system defaults set by heuristics, others default to default-watch-cache-size
 ```
 
 ### SEE ALSO
 
 * [karpor syncer](karpor_syncer.md)	 - start a resource syncer to sync resource from clusters
 
-###### Auto generated by spf13/cobra on 27-Nov-2024
+###### Auto generated by spf13/cobra on 11-Mar-2025

@@ -179,7 +179,7 @@ build-windows: save-version gen-version $(BUILD_UI) ## Build for Windows
 .PHONY: build-ui
 build-ui: gen-version ## Build UI for the dashboard
 	@echo "🧀 Building UI for the dashboard ..."
-	cd ui && npm install && npm run build:inner && touch build/.gitkeep
+	cd ui && npm install && npm run build && touch build/.gitkeep
 
 # Target: build-all
 # Description: Builds for all supported platforms (Darwin, Linux, Windows).

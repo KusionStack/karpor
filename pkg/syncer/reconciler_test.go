@@ -651,127 +651,12 @@ func TestSyncReconciler_getResources(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-            got, _, err := r.getResources(context.TODO(), tt.cluster)
+            allResources, _, _, err := r.getResources(context.TODO(), tt.cluster)
             if tt.wantErr {
                 require.Error(t, err)
             } else {
                 require.NoError(t, err)
-                require.Equal(t, tt.want, got)
-            }
-        })
-    }
-}
-
-func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
-    tests := []struct {
-        name    string
-        cluster *clusterv1beta1.Cluster
-        srs     []runtime.Object
-        config  *rest.Config
-        exist   bool
-        wantErr bool
-    }{
-        {
-            name: "test exist",
-            cluster: &clusterv1beta1.Cluster{
-                ObjectMeta: metav1.ObjectMeta{
-                    Name: "cluster1",
-                },
-                Spec: clusterv1beta1.ClusterSpec{
-                    Access: clusterv1beta1.ClusterAccess{
-                        Endpoint: "https://localhost:6443",
-                        CABundle: []byte("ca"),
-                        Credential: &clusterv1beta1.ClusterAccessCredential{
-                            Type: clusterv1beta1.CredentialTypeX509Certificate,
-                            X509: &clusterv1beta1.X509{
-                                Certificate: []byte("cert"),
-                                PrivateKey:  []byte("key"),
-                            },
-                        },
-                    },
-                },
-            },
-            srs: []runtime.Object{
-                &searchv1beta1.SyncRegistry{
-                    ObjectMeta: metav1.ObjectMeta{
-                        ResourceVersion: "1",
-                    },
-                    Spec: searchv1beta1.SyncRegistrySpec{
-                        Clusters:      []string{"cluster1"},
-                        SyncResources: []searchv1beta1.ResourceSyncRule{{APIVersion: "v1", Resource: "pods"}},
-                    },
-                },
-            },
-            config: &rest.Config{
-                Host: "https://localhost:6443",
-                TLSClientConfig: rest.TLSClientConfig{
-                    CAData:   []byte("ca"),
-                    CertData: []byte("cert"),
-                    KeyData:  []byte("key"),
-                },
-            },
-            exist: true,
-        },
-        {
-            name: "test not exist",
-            cluster: &clusterv1beta1.Cluster{
-                ObjectMeta: metav1.ObjectMeta{
-                    Name: "cluster1",
-                },
-                Spec: clusterv1beta1.ClusterSpec{
-                    Access: clusterv1beta1.ClusterAccess{
-                        Endpoint: "https://localhost:6443",
-                        CABundle: []byte("ca"),
-                        Credential: &clusterv1beta1.ClusterAccessCredential{
-                            Type: clusterv1beta1.CredentialTypeX509Certificate,
-                            X509: &clusterv1beta1.X509{
-                                Certificate: []byte("cert"),
-                                PrivateKey:  []byte("key"),
-                            },
-                        },
-                    },
-                },
-            },
-            srs: []runtime.Object{
-                &searchv1beta1.SyncRegistry{
-                    ObjectMeta: metav1.ObjectMeta{
-                        ResourceVersion: "1",
-                    },
-                    Spec: searchv1beta1.SyncRegistrySpec{
-                        Clusters:      []string{"cluster1"},
-                        SyncResources: []searchv1beta1.ResourceSyncRule{{APIVersion: "v1", Resource: "pods"}},
-                    },
-                },
-            },
-            config: &rest.Config{
-                Host: "https://localhost:6443",
-                TLSClientConfig: rest.TLSClientConfig{
-                    CAData:   []byte("ca"),
-                    CertData: []byte("cert"),
-                    KeyData:  []byte("key"),
-                },
-            },
-            exist: false,
-        },
-    }
-    for _, tt := range tests {
-        t.Run(tt.name, func(t *testing.T) {
-            m1 := &mock.Mock{}
-            m1.On("UpdateSyncResources", mock.Anything, mock.Anything).Return(nil)
-            m1.On("ClusterConfig").Return(tt.config)
-            m2 := &mock.Mock{}
-            m2.On("GetForCluster", mock.Anything).Return(&fakeSingleClusterSyncManager{m1}, tt.exist)
-            m2.On("Create", mock.Anything, mock.Anything, mock.Anything).Return(&fakeSingleClusterSyncManager{m1}, nil)
-            m2.On("Start", mock.Anything, mock.Anything).Return(nil)
-            r := &SyncReconciler{
-                mgr:    &fakeMultiClusterSyncManager{m2},
-                client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build(),
-            }
-            err := r.handleClusterAddOrUpdate(context.TODO(), tt.cluster, buildClusterConfigInSyncer)
-            if tt.wantErr {
-                require.Error(t, err)
-            } else {
-                require.NoError(t, err)
+                require.Equal(t, tt.want, allResources)
             }
         })
     }
@@ -911,6 +796,121 @@ func TestSyncReconciler_processWildcardResources(t *testing.T) {
             } else {
                 require.NoError(t, err)
                 require.Equal(t, tt.want, got)
+            }
+        })
+    }
+}
+
+func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
+    tests := []struct {
+        name    string
+        cluster *clusterv1beta1.Cluster
+        srs     []runtime.Object
+        config  *rest.Config
+        exist   bool
+        wantErr bool
+    }{
+        {
+            name: "test exist",
+            cluster: &clusterv1beta1.Cluster{
+                ObjectMeta: metav1.ObjectMeta{
+                    Name: "cluster1",
+                },
+                Spec: clusterv1beta1.ClusterSpec{
+                    Access: clusterv1beta1.ClusterAccess{
+                        Endpoint: "https://localhost:6443",
+                        CABundle: []byte("ca"),
+                        Credential: &clusterv1beta1.ClusterAccessCredential{
+                            Type: clusterv1beta1.CredentialTypeX509Certificate,
+                            X509: &clusterv1beta1.X509{
+                                Certificate: []byte("cert"),
+                                PrivateKey:  []byte("key"),
+                            },
+                        },
+                    },
+                },
+            },
+            srs: []runtime.Object{
+                &searchv1beta1.SyncRegistry{
+                    ObjectMeta: metav1.ObjectMeta{
+                        ResourceVersion: "1",
+                    },
+                    Spec: searchv1beta1.SyncRegistrySpec{
+                        Clusters:      []string{"cluster1"},
+                        SyncResources: []searchv1beta1.ResourceSyncRule{{APIVersion: "v1", Resource: "pods"}},
+                    },
+                },
+            },
+            config: &rest.Config{
+                Host: "https://localhost:6443",
+                TLSClientConfig: rest.TLSClientConfig{
+                    CAData:   []byte("ca"),
+                    CertData: []byte("cert"),
+                    KeyData:  []byte("key"),
+                },
+            },
+            exist: true,
+        },
+        {
+            name: "test not exist",
+            cluster: &clusterv1beta1.Cluster{
+                ObjectMeta: metav1.ObjectMeta{
+                    Name: "cluster1",
+                },
+                Spec: clusterv1beta1.ClusterSpec{
+                    Access: clusterv1beta1.ClusterAccess{
+                        Endpoint: "https://localhost:6443",
+                        CABundle: []byte("ca"),
+                        Credential: &clusterv1beta1.ClusterAccessCredential{
+                            Type: clusterv1beta1.CredentialTypeX509Certificate,
+                            X509: &clusterv1beta1.X509{
+                                Certificate: []byte("cert"),
+                                PrivateKey:  []byte("key"),
+                            },
+                        },
+                    },
+                },
+            },
+            srs: []runtime.Object{
+                &searchv1beta1.SyncRegistry{
+                    ObjectMeta: metav1.ObjectMeta{
+                        ResourceVersion: "1",
+                    },
+                    Spec: searchv1beta1.SyncRegistrySpec{
+                        Clusters:      []string{"cluster1"},
+                        SyncResources: []searchv1beta1.ResourceSyncRule{{APIVersion: "v1", Resource: "pods"}},
+                    },
+                },
+            },
+            config: &rest.Config{
+                Host: "https://localhost:6443",
+                TLSClientConfig: rest.TLSClientConfig{
+                    CAData:   []byte("ca"),
+                    CertData: []byte("cert"),
+                    KeyData:  []byte("key"),
+                },
+            },
+            exist: false,
+        },
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            m1 := &mock.Mock{}
+            m1.On("UpdateSyncResources", mock.Anything, mock.Anything).Return(nil)
+            m1.On("ClusterConfig").Return(tt.config)
+            m2 := &mock.Mock{}
+            m2.On("GetForCluster", mock.Anything).Return(&fakeSingleClusterSyncManager{m1}, tt.exist)
+            m2.On("Create", mock.Anything, mock.Anything, mock.Anything).Return(&fakeSingleClusterSyncManager{m1}, nil)
+            m2.On("Start", mock.Anything, mock.Anything).Return(nil)
+            r := &SyncReconciler{
+                mgr:    &fakeMultiClusterSyncManager{m2},
+                client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build(),
+            }
+            err := r.handleClusterAddOrUpdate(context.TODO(), tt.cluster, buildClusterConfigInSyncer, r.getResources)
+            if tt.wantErr {
+                require.Error(t, err)
+            } else {
+                require.NoError(t, err)
             }
         })
     }
