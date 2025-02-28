@@ -179,12 +179,10 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 
 	if !cluster.DeletionTimestamp.IsZero() {
 		logger.Info("cluster is being deleted", "cluster", cluster.Name)
-		err := r.stopCluster(ctx, cluster.Name)
+
+		err := r.reconcileDelete(ctx, &cluster)
 		if err != nil {
 			return reconcile.Result{}, err
-		}
-		if r.isReconcilerEnabled(&cluster) {
-			cluster.SetFinalizers(nil)
 		}
 		return reconcile.Result{}, nil
 	}
@@ -208,7 +206,36 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 		return reconcile.Result{}, nil
 	}
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer)
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer, r.getResources)
+}
+
+// reconcileDelete delete relevant resources for cluster.
+func (r *SyncReconciler) reconcileDelete(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+	err := r.stopCluster(ctx, cluster.Name)
+	if err != nil {
+		return err
+	}
+
+	if r.highAvailability && cluster.Spec.Mode == clusterv1beta1.PushClusterMode {
+		clusterConfig, err := buildClusterConfigInSyncer(cluster)
+		if err != nil {
+			return errors.Wrapf(err, "failed to build config for cluster %s", cluster.Name)
+		}
+		dynamicClient, err := dynamic.NewForConfig(clusterConfig)
+		if err != nil {
+			return errors.Wrapf(err, "failed to build dynamic client for cluster %s", cluster.Name)
+		}
+
+		err = dynamicClient.Resource(clusterv1beta1.SchemeGroupVersion.WithResource("clusters")).Namespace("").Delete(ctx, cluster.Name, metav1.DeleteOptions{})
+		if err != nil {
+			return errors.Wrapf(err, "failed to delete cluster cr %s in user cluster", cluster.Name)
+		}
+	}
+
+	if r.isReconcilerEnabled(cluster) {
+		cluster.SetFinalizers(nil)
+	}
+	return nil
 }
 
 // stopCluster stops the reconciliation process for the given cluster.
@@ -247,15 +274,15 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 }
 
 // handleClusterAddOrUpdate is responsible for handling the addition or update of a cluster resource.
-func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster, buildClusterConfig func(cluster *clusterv1beta1.Cluster) (*rest.Config, error)) error {
+func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster, buildClusterConfig func(cluster *clusterv1beta1.Cluster) (*rest.Config, error), getResourcesFunc func(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, []*searchv1beta1.ResourceSyncRule, error)) error {
 	logger := ctrl.LoggerFrom(ctx)
 
-	resources, err := r.getResources(ctx, cluster)
+	allResources, validResources, err := getResourcesFunc(ctx, cluster)
 	if err != nil {
 		return errors.Wrapf(err, "error detecting sync resources of the cluster %s", cluster.Name)
 	}
 
-	if len(resources) == 0 {
+	if len(allResources) == 0 {
 		logger.Info("cluster has no resources to sync", "cluster", cluster.Name)
 		return r.stopCluster(ctx, cluster.Name)
 	}
@@ -284,7 +311,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 		}
 	}
 
-	if err := singleMgr.UpdateSyncResources(ctx, resources); err != nil {
+	if err := singleMgr.UpdateSyncResources(ctx, validResources); err != nil {
 		return errors.Wrapf(err, "failed to update sync resources for cluster %s", cluster.Name)
 	}
 	return nil
@@ -339,10 +366,10 @@ func (r *SyncReconciler) handleClusterAddOrUpdateForPull(ctx context.Context, cl
 }
 
 // getResources retrieves the list of resource sync rules for the given cluster.
-func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, error) {
+func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, []*searchv1beta1.ResourceSyncRule, error) {
 	registries, err := r.getRegistries(ctx, cluster)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var allResources []*searchv1beta1.ResourceSyncRule
@@ -353,14 +380,14 @@ func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1bet
 
 		resources, err := r.getNormalizedResources(ctx, &registry)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		for _, r := range resources {
 			allResources = append(allResources, r)
 		}
 	}
-	return allResources, nil
+	return allResources, nil, nil
 }
 
 // getNormalizedResources retrieves the normalized resource sync rules from the given sync registry.
@@ -563,8 +590,6 @@ func (r *SyncReconciler) getUnstructuredRegistries(ctx context.Context, cluster 
 	// collect cr list
 	for idx := range registries {
 		registry := registries[idx]
-		// set special cluster name when dispatching
-		registry.Spec.Clusters = []string{cluster.Name}
 
 		unstructuredObj, err := utils.ConvertToUnstructured(&registry)
 		if err != nil {

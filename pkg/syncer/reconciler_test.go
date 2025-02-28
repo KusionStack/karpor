@@ -595,12 +595,12 @@ func TestSyncReconciler_getResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-			got, err := r.getResources(context.TODO(), tt.cluster)
+			allResources, _, err := r.getResources(context.TODO(), tt.cluster)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
-				require.Equal(t, tt.want, got)
+				require.Equal(t, tt.want, allResources)
 			}
 		})
 	}
@@ -711,7 +711,7 @@ func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
 				mgr:    &fakeMultiClusterSyncManager{m2},
 				client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build(),
 			}
-			err := r.handleClusterAddOrUpdate(context.TODO(), tt.cluster, buildClusterConfigInSyncer)
+			err := r.handleClusterAddOrUpdate(context.TODO(), tt.cluster, buildClusterConfigInSyncer, r.getResources)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
