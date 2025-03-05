@@ -14,7 +14,7 @@ import {
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
-import { HOST, isHighAvailability, useAxios } from '@/utils/request'
+import { HOST, useAxios } from '@/utils/request'
 import Yaml from '@/components/yaml'
 import { fireConfetti } from '@/utils/confetti'
 
@@ -28,7 +28,7 @@ const RegisterCluster = () => {
   const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const { isReadOnlyMode, isUnsafeMode } = useSelector(
+  const { isReadOnlyMode, isUnsafeMode, isHighAvailability } = useSelector(
     (state: any) => state.globalSlice,
   )
   const [yamlContent, setYamlContent] = useState('')

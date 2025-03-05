@@ -18,6 +18,7 @@ import {
   setGithubBadge,
   setIsUnsafeMode,
   setAIOptions,
+  setIsHighAvailability,
 } from '@/store/modules/globalSlice'
 import { useTranslation } from 'react-i18next'
 import showPng from '@/assets/show.png'
@@ -72,6 +73,7 @@ const LayoutPage = () => {
       dispatch(setVersionNumber(response?.Version))
       dispatch(setGithubBadge(response?.CoreOptions?.GithubBadge))
       dispatch(setAIOptions(response?.AIOptions))
+      dispatch(setIsHighAvailability(response?.CoreOptions?.HighAvailability))
     }
   }, [response, dispatch])
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Modal, Form, Input, Button, Space, Select } from 'antd'
-import { isHighAvailability } from '@/utils/request'
+import { useSelector } from 'react-redux'
 
 const { TextArea } = Input
 
@@ -22,6 +22,8 @@ export const EditForm = ({
 }: EditFormProps) => {
   const [form] = Form.useForm()
   const { t } = useTranslation()
+
+  const { isHighAvailability } = useSelector((state: any) => state.globalSlice)
 
   useEffect(() => {
     if (lastDetail) {
