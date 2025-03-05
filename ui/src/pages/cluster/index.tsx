@@ -17,7 +17,7 @@ import ClusterCard from './components/clusterCard'
 import healthPng from '@/assets/health_green.png'
 import exceptionalPng from '@/assets/exceptional.png'
 import clusterPng from '@/assets/cluster_outlind.png'
-import { isHighAvailability, useAxios } from '@/utils/request'
+import { useAxios } from '@/utils/request'
 
 import styles from './styles.module.less'
 
@@ -35,8 +35,6 @@ const Cluster = () => {
   const [searchValue, setSearchValue] = useState('')
   const [lastDetail, setLastDetail] = useState<any>()
   const [scale, setScale] = useState<any>(1)
-
-  console.log(isHighAvailability, '===isHighAvailability===')
 
   const {
     response: summaryResponse,

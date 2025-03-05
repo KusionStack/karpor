@@ -16,12 +16,14 @@ import TopologyMap from '../components/topologyMap'
 import K8sEvent from '../components/k8sEvent'
 import K8sEventDrawer from '../components/k8sEventDrawer'
 import SummaryCard from '../components/summaryCard'
-import { useAxios, isHighAvailability } from '@/utils/request'
+import { useAxios } from '@/utils/request'
 
 import styles from './styles.module.less'
 import AgentYaml from '@/components/agentYaml'
+import { useSelector } from 'react-redux'
 
 const ClusterDetail = () => {
+  const { isHighAvailability } = useSelector((state: any) => state.globalSlice)
   const location = useLocation()
   const { t, i18n } = useTranslation()
   const urlParams = queryString.parse(location?.search)
