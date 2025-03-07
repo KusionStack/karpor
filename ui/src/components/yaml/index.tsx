@@ -9,6 +9,7 @@ import {
   PoweroffOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -37,6 +38,7 @@ type InterpretStatus =
 type IProps = {
   data: any
   height?: string | number
+  onRefresh?: () => void
 }
 
 const Yaml = (props: IProps) => {
@@ -47,7 +49,7 @@ const Yaml = (props: IProps) => {
   const interpretEndRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<MutationObserver | null>(null)
-  const { data } = props
+  const { data, onRefresh } = props
   const [moduleHeight, setModuleHeight] = useState<number>(500)
   const [interpretStatus, setInterpretStatus] =
     useState<InterpretStatus>('idle')
@@ -294,6 +296,17 @@ const Yaml = (props: IProps) => {
                             type="text"
                             icon={<FullscreenOutlined />}
                             onClick={handle.enter}
+                          />
+                        </Tooltip>
+                      )}
+                      {!handle.active && onRefresh && (
+                        <Tooltip title={t('YAML.Refresh')}>
+                          <Button
+                            type="primary"
+                            size="small"
+                            onClick={onRefresh}
+                            disabled={!data}
+                            icon={<ReloadOutlined />}
                           />
                         </Tooltip>
                       )}
