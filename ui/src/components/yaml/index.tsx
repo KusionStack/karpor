@@ -60,6 +60,10 @@ const Yaml = (props: IProps) => {
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
 
   useEffect(() => {
+    onRefresh?.()
+  }, [])
+
+  useEffect(() => {
     const yamlStatusJson = yaml2json(data)
     if (yamlRef.current && yamlStatusJson?.data) {
       ;(yamlRef.current as unknown as HTMLElement).innerHTML = hljs.highlight(
@@ -302,10 +306,8 @@ const Yaml = (props: IProps) => {
                       {!handle.active && onRefresh && (
                         <Tooltip title={t('YAML.Refresh')}>
                           <Button
-                            type="primary"
-                            size="small"
+                            type="text"
                             onClick={onRefresh}
-                            disabled={!data}
                             icon={<ReloadOutlined />}
                           />
                         </Tooltip>

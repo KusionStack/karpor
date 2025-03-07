@@ -69,9 +69,6 @@ const ClusterDetail = () => {
 
   function handleTabChange(value: string) {
     setCurrentTab(value)
-    if (value === 'YAML') {
-      getClusterDetail()
-    }
   }
 
   const {
