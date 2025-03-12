@@ -76,7 +76,6 @@ func (r *DynamicReconciler) SetupWithManager(mgr manager.Manager) error {
 	c, err := controller.New(r.gvk.String(), mgr, controller.Options{
 		Reconciler:              r,
 		MaxConcurrentReconciles: 10,
-		RateLimiter:             utils.NewRateLimiter(12),
 	})
 	if err != nil {
 		return err
@@ -157,7 +156,7 @@ func (r *DynamicReconciler) Reconcile(ctx context.Context, req reconcile.Request
 			obj := genUnObj(r.syncRule, req.String())
 			err = r.storage.DeleteResource(ctx, r.clusterName, obj)
 			if errors.Is(err, elasticsearch.ErrNotFound) {
-				logger.Error(err, "failed to delete resource")
+				logger.Error(err, "failed to delete resource", "kind", r.gvk.String(), "name", obj.GetName(), "namespace", obj.GetNamespace())
 				return reconcile.Result{}, nil
 			}
 			return reconcile.Result{}, err

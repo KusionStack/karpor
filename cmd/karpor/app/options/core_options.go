@@ -26,6 +26,7 @@ type CoreOptions struct {
 	GithubBadge      bool
 	Version          bool
 	HighAvailability bool
+	EnableAI         bool
 }
 
 func NewCoreOptions() *CoreOptions {
@@ -53,4 +54,5 @@ func (o *CoreOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&o.GithubBadge, "github-badge", false, "whether to display the github badge")
 	fs.BoolVarP(&o.Version, "version", "V", o.Version, "Print version and exit")
 	fs.BoolVar(&o.HighAvailability, "high-availability", false, "whether to use high-availability feature.")
+	fs.BoolVar(&o.EnableAI, "enable-ai", false, "whether to enable llm.")
 }
