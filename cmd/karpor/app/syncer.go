@@ -16,11 +16,10 @@ package app
 
 import (
 	"context"
-
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/syncer"
-	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/klog/v2"
@@ -29,9 +28,12 @@ import (
 )
 
 type syncerOptions struct {
-	MetricsAddr            string
-	ProbeAddr              string
-	ElasticSearchAddresses []string
+	SearchStorageType string
+	MetricsAddr       string
+	ProbeAddr         string
+	SearchAddresses   []string
+	SearchUsername    string
+	SearchPassword    string
 }
 
 func NewSyncerOptions() *syncerOptions {
@@ -41,7 +43,10 @@ func NewSyncerOptions() *syncerOptions {
 func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
+	fs.StringSliceVar(&o.SearchAddresses, "search-addresses", nil, "The search engine address.")
+	fs.StringVar(&o.SearchStorageType, "search-storage-type", "", "The search storage type")
+	fs.StringVar(&o.SearchUsername, "search-username", "", "The search username")
+	fs.StringVar(&o.SearchPassword, "search-password", "", "The search password")
 }
 
 func NewSyncerCommand(ctx context.Context) *cobra.Command {
@@ -71,18 +76,21 @@ func run(ctx context.Context, options *syncerOptions) error {
 		return err
 	}
 
-	// TODO: add startup parameters to change the type of storage
-	//nolint:contextcheck
-	es, err := elasticsearch.NewStorage(esclient.Config{
-		Addresses: options.ElasticSearchAddresses,
+	searchStorage, err := search.NewResourceStorage(registry.ExtraConfig{
+		SearchStorageType: options.SearchStorageType,
+		SearchAddresses:   options.SearchAddresses,
+		SearchUsername:    options.SearchUsername,
+		SearchPassword:    options.SearchPassword,
 	})
+	//nolint:contextcheck
+
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
 		return err
 	}
 
 	//nolint:contextcheck
-	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewSyncReconciler(searchStorage).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}
