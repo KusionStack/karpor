@@ -33,7 +33,9 @@ func main() {
 
 	cmd := app.NewServerCommand(ctx)
 	syncCmd := app.NewSyncerCommand(ctx)
+	mcpCmd := app.NewMCPCommand(ctx)
 	cmd.AddCommand(syncCmd)
+	cmd.AddCommand(mcpCmd)
 
 	code := cli.Run(cmd)
 	os.Exit(code)
