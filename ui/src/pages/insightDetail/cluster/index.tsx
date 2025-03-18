@@ -318,7 +318,7 @@ const ClusterDetail = () => {
       }
     }
     if (currentTab === 'YAML') {
-      return <Yaml data={yamlData || ''} />
+      return <Yaml data={yamlData || ''} onRefresh={getClusterDetail} />
     }
     if (currentTab === 'K8s') {
       return (
