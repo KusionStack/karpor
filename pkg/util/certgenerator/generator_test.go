@@ -23,10 +23,7 @@ import (
 
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/kubernetes/fake"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/util/keyutil"
 )
@@ -244,18 +241,8 @@ func TestGenerator_applyCertToSecret(t *testing.T) {
 				mockey.Mock(EncodeCertPEM).Return([]byte("test-cert")).Build()
 				// Mock keyutil.MarshalPrivateKeyToPEM
 				mockey.Mock(keyutil.MarshalPrivateKeyToPEM).Return([]byte("test-key"), nil).Build()
-				// Create fake clientset with pre-created secret
-				secret := &corev1.Secret{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-cert",
-						Namespace: "test-ns",
-					},
-				}
-				fakeClientset := fake.NewSimpleClientset(secret)
-				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(fakeClientset.CoreV1()).Build()
 				// Mock Secret Apply method
-				secretsClient := fakeClientset.CoreV1().Secrets(generator.namespace)
-				mockey.Mock(secretsClient.Apply).Return(&corev1.Secret{}, nil).Build()
+				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(&FakeCoreV1{}).Build()
 			},
 			expectError: false,
 		},
@@ -296,18 +283,8 @@ func TestGenerator_applyKubeConfigToConfigMap(t *testing.T) {
 		{
 			name: "Success",
 			mockSetup: func() {
-				// Create fake clientset with pre-created configmap
-				configMap := &corev1.ConfigMap{
-					ObjectMeta: metav1.ObjectMeta{
-						Name:      "test-kubeconfig",
-						Namespace: "test-ns",
-					},
-				}
-				fakeClientset := fake.NewSimpleClientset(configMap)
-				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(fakeClientset.CoreV1()).Build()
 				// Mock ConfigMap Apply method
-				configMapsClient := fakeClientset.CoreV1().ConfigMaps(generator.namespace)
-				mockey.Mock(configMapsClient.Apply).Return(&corev1.ConfigMap{}, nil).Build()
+				mockey.Mock((*kubernetes.Clientset).CoreV1).Return(&FakeCoreV1{}).Build()
 			},
 			expectError: false,
 		},
@@ -339,28 +316,6 @@ func TestGenerateConfig(t *testing.T) {
 		expectError bool
 	}{
 		{
-			name:      "Success",
-			namespace: "test-ns",
-			mockSetup: func() {
-				// Mock generateCA
-				mockey.Mock(generateCA).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
-				// Mock generateCert
-				mockey.Mock(generateCert).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
-				// Mock generateAdminKubeconfig
-				mockey.Mock(generateAdminKubeconfig).Return("test-kubeconfig", nil).Build()
-			},
-			expectError: false,
-		},
-		{
-			name:      "Error - generateCA Failed",
-			namespace: "test-ns",
-			mockSetup: func() {
-				// Mock generateCA with error
-				mockey.Mock(generateCA).Return(nil, nil, errors.New("generateCA failed")).Build()
-			},
-			expectError: true,
-		},
-		{
 			name:      "Error - generateCert Failed",
 			namespace: "test-ns",
 			mockSetup: func() {
@@ -384,15 +339,35 @@ func TestGenerateConfig(t *testing.T) {
 			},
 			expectError: true,
 		},
+		{
+			name:      "Success",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA
+				mockey.Mock(generateCA).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateCert
+				mockey.Mock(generateCert).Return(&x509.Certificate{}, &rsa.PrivateKey{}, nil).Build()
+				// Mock generateAdminKubeconfig
+				mockey.Mock(generateAdminKubeconfig).Return("test-kubeconfig", nil).Build()
+			},
+			expectError: false,
+		},
+		{
+			name:      "Error - generateCA Failed",
+			namespace: "test-ns",
+			mockSetup: func() {
+				// Mock generateCA with error
+				mockey.Mock(generateCA).Return(nil, nil, errors.New("generateCA failed")).Build()
+			},
+			expectError: true,
+		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockey.UnPatchAll()
-			defer mockey.UnPatchAll()
-
 			// Setup mocks
 			tc.mockSetup()
+			defer mockey.UnPatchAll()
 
 			caCert, caKey, kubeConfig, err := generateConfig(tc.namespace)
 			if tc.expectError {
@@ -436,11 +411,9 @@ func TestGenerateCA(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			mockey.UnPatchAll()
-			defer mockey.UnPatchAll()
-
 			// Setup mocks
 			tc.mockSetup()
+			defer mockey.UnPatchAll()
 
 			cert, key, err := generateCA()
 			if tc.expectError {

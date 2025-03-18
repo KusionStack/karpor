@@ -20,14 +20,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/util/workqueue"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 )
 
 func Test_genUnObj(t *testing.T) {
@@ -288,16 +289,4 @@ func (q *fakeQueue) Add(item interface{}) {
 		q.queue = []interface{}{}
 	}
 	q.queue = append(q.queue, item)
-}
-
-func TestResourceSyncer_parseTransformer(t *testing.T) {
-	s := &ResourceSyncer{
-		source: &informerSource{
-			ResourceSyncRule: v1beta1.ResourceSyncRule{Transform: &v1beta1.TransformRuleSpec{Type: "patch"}},
-			cluster:          "clusterName",
-		},
-	}
-
-	_, err := s.parseTransformer()
-	require.NoError(t, err)
 }

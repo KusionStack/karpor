@@ -26,12 +26,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/KusionStack/karpor/cmd/karpor/app/options"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karpor/pkg/server"
-	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
-	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -45,6 +39,13 @@ import (
 	authzmodes "k8s.io/kubernetes/pkg/kubeapiserver/authorizer/modes"
 	"k8s.io/kubernetes/pkg/serviceaccount"
 	netutils "k8s.io/utils/net"
+
+	"github.com/KusionStack/karpor/cmd/karpor/app/options"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/server"
+	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
+	"github.com/KusionStack/karpor/pkg/version"
 )
 
 const (
@@ -86,7 +87,7 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 	); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
-	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook", "ValidatingAdmissionPolicy"}
+	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook"}
 	o.RecommendedOptions.Authorization.Modes = []string{"RBAC"}
 	o.RecommendedOptions.ServerRun.CorsAllowedOriginList = []string{".*"}
 	return o, nil
@@ -97,8 +98,8 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 func NewServerCommand(ctx context.Context) *cobra.Command {
 	o, err := NewOptions(os.Stdout, os.Stderr)
 	if err != nil {
-		klog.Background().Error(err, "Unable to initialize command options")
-		klog.FlushAndExit(klog.ExitFlushTimeout, 1)
+		klog.Error(err, "Unable to initialize command options")
+		klog.Flush()
 	}
 
 	expvar.Publish("CoreOptions", expvar.Func(func() interface{} {

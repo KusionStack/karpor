@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Modal, Form, Input, Button, Space } from 'antd'
+import { Modal, Form, Input, Button, Space, Select } from 'antd'
+import { useSelector } from 'react-redux'
 
 const { TextArea } = Input
+
+const { Option } = Select
 
 type EditFormProps = {
   submit: (val: any, callback: () => void) => void
@@ -19,6 +22,8 @@ export const EditForm = ({
 }: EditFormProps) => {
   const [form] = Form.useForm()
   const { t } = useTranslation()
+
+  const { isHighAvailability } = useSelector((state: any) => state.globalSlice)
 
   useEffect(() => {
     if (lastDetail) {
@@ -57,6 +62,41 @@ export const EditForm = ({
         >
           <Input />
         </Form.Item>
+        {isHighAvailability && (
+          <>
+            <Form.Item
+              name="clusterMode"
+              label={t('ClusterMode')}
+              rules={[{ required: true }]}
+            >
+              <Select>
+                <Option key="pull" value="pull">
+                  pull
+                </Option>
+                <Option key="push" value="push">
+                  push
+                </Option>
+              </Select>
+            </Form.Item>
+            <Form.Item
+              name="clusterLevel"
+              label={t('ClusterLevel')}
+              rules={[{ required: true }]}
+            >
+              <Select>
+                <Option key="1" value={1}>
+                  1
+                </Option>
+                <Option key="2" value={2}>
+                  2
+                </Option>
+                <Option key="3" value={3}>
+                  3
+                </Option>
+              </Select>
+            </Form.Item>
+          </>
+        )}
         <Form.Item
           name="description"
           label={t('Description')}

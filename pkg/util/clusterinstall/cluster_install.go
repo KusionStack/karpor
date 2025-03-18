@@ -17,12 +17,13 @@ package clusterinstall
 import (
 	"fmt"
 
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/rest"
+
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 )
 
-func ConvertKubeconfigToCluster(name, displayName, description string, cfg *rest.Config) (*clusterv1beta1.Cluster, error) {
+func ConvertKubeconfigToCluster(name, displayName, description, clusterMode string, clusterLevel int, cfg *rest.Config) (*clusterv1beta1.Cluster, error) {
 	cluster := clusterv1beta1.Cluster{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: clusterv1beta1.SchemeGroupVersion.String(),
@@ -35,6 +36,12 @@ func ConvertKubeconfigToCluster(name, displayName, description string, cfg *rest
 		cluster.Spec.DisplayName = displayName
 	} else {
 		cluster.Spec.DisplayName = name
+	}
+	if clusterMode != "" {
+		cluster.Spec.Mode = clusterMode
+	}
+	if clusterLevel > 0 && clusterLevel <= 3 {
+		cluster.Spec.Level = clusterLevel
 	}
 	access := clusterv1beta1.ClusterAccess{}
 	if !cfg.Insecure {

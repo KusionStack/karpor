@@ -20,22 +20,24 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/dynamic/fake"
 	k8syaml "sigs.k8s.io/yaml"
+
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 )
 
 // TestGetCluster tests the GetCluster method of the ClusterManager for various
 // scenarios.
 func TestGetCluster(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -59,7 +61,9 @@ func TestGetCluster(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cluster, err := manager.GetCluster(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 			)
 			if tc.expectError {
@@ -124,7 +128,7 @@ func TestValidateKubeConfigFor(t *testing.T) {
 // various scenarios.
 func TestCreateCluster(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -132,6 +136,8 @@ func TestCreateCluster(t *testing.T) {
 		clusterName          string
 		displayName          string
 		description          string
+		clusterMode          string
+		clusterLevel         int
 		kubeConfig           string
 		expectError          bool
 		expectedErrorMessage string
@@ -168,11 +174,15 @@ func TestCreateCluster(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			cluster, err := manager.CreateCluster(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 				tc.displayName,
 				tc.description,
+				tc.clusterMode,
 				tc.kubeConfig,
+				tc.clusterLevel,
 			)
 
 			if tc.expectError {
@@ -196,7 +206,7 @@ func TestCreateCluster(t *testing.T) {
 // various scenarios.
 func TestUpdateMetadata(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -204,6 +214,8 @@ func TestUpdateMetadata(t *testing.T) {
 		clusterName   string
 		displayName   string
 		description   string
+		clusterMode   string
+		clusterLevel  int
 		expectError   bool
 		expectedError string
 	}{
@@ -235,7 +247,9 @@ func TestUpdateMetadata(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			updatedCluster, err := manager.UpdateMetadata(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 				tc.displayName,
 				tc.description,
@@ -266,7 +280,7 @@ func TestUpdateMetadata(t *testing.T) {
 // for various scenarios.
 func TestUpdateCredential(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -302,7 +316,9 @@ func TestUpdateCredential(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			updatedCluster, err := manager.UpdateCredential(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 				tc.kubeConfig,
 			)
@@ -326,7 +342,7 @@ func TestUpdateCredential(t *testing.T) {
 // various scenarios.
 func TestDeleteCluster(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -350,7 +366,9 @@ func TestDeleteCluster(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			err := manager.DeleteCluster(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 			)
 			if tc.expectError {
@@ -366,7 +384,7 @@ func TestDeleteCluster(t *testing.T) {
 // clusters.
 func TestListCluster(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -393,7 +411,9 @@ func TestListCluster(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			result, err := manager.ListCluster(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.orderBy,
 				tc.descending,
 			)
@@ -411,7 +431,7 @@ func TestListCluster(t *testing.T) {
 // cluster names.
 func TestListClusterName(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -438,7 +458,9 @@ func TestListClusterName(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			names, err := manager.ListClusterName(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.orderBy,
 				tc.descending,
 			)
@@ -455,7 +477,7 @@ func TestListClusterName(t *testing.T) {
 // TestGetYAMLForCluster tests the GetYAMLForCluster method.
 func TestGetYAMLForCluster(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -484,6 +506,8 @@ spec:
         privateKey: M2I5NioqKioqKioqKioqKioqKioqKioqKioqKjY1MzY=
   description: mock-description
   displayName: Existing Cluster
+  level: 2
+  mode: pull
 `,
 		},
 		{
@@ -497,7 +521,9 @@ spec:
 		t.Run(tc.name, func(t *testing.T) {
 			yamlData, err := manager.GetYAMLForCluster(
 				context.TODO(),
-				&multicluster.MultiClusterClient{},
+				&multicluster.MultiClusterClient{
+					DynamicClient: &fake.FakeDynamicClient{},
+				},
 				tc.clusterName,
 			)
 
@@ -731,6 +757,8 @@ func newMockCluster(name string) *unstructured.Unstructured {
 				"caBundle": "sensitive-ca-bundle",
 			},
 		},
+		"mode":  "pull",
+		"level": 2,
 	}
 
 	// Set annotations on the object
@@ -821,7 +849,7 @@ func (m *mockNamespaceableResource) Delete(
 
 func TestClusterManager_GetNamespace(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
@@ -842,7 +870,7 @@ func TestClusterManager_GetNamespace(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			summary, err := manager.GetNamespace(context.TODO(), &multicluster.MultiClusterClient{
-				DynamicClient: &dynamic.DynamicClient{},
+				DynamicClient: &fake.FakeDynamicClient{},
 			}, tc.namespace)
 
 			if tc.expectError {
@@ -857,7 +885,7 @@ func TestClusterManager_GetNamespace(t *testing.T) {
 
 func TestClusterManager_GetNamespaceYAML(t *testing.T) {
 	manager := NewClusterManager()
-	mockey.Mock((*dynamic.DynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
+	mockey.Mock((*fake.FakeDynamicClient).Resource).Return(&mockNamespaceableResource{}).Build()
 	defer mockey.UnPatchAll()
 
 	expectResult, _ := k8syaml.Marshal(newMockCluster("existing-cluster"))
@@ -879,7 +907,7 @@ func TestClusterManager_GetNamespaceYAML(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			summary, err := manager.GetNamespaceYAML(context.TODO(), &multicluster.MultiClusterClient{
-				DynamicClient: &dynamic.DynamicClient{},
+				DynamicClient: &fake.FakeDynamicClient{},
 			}, tc.namespace)
 
 			if tc.expectError {

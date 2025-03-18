@@ -19,12 +19,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	"github.com/KusionStack/karpor/pkg/syncer/internal"
-	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
-	"github.com/KusionStack/karpor/pkg/syncer/utils"
-	"github.com/KusionStack/karpor/pkg/util/jsonpath"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -40,6 +34,12 @@ import (
 	ctrlhandler "sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
+	"github.com/KusionStack/karpor/pkg/syncer/internal"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
 const (
@@ -163,7 +163,7 @@ func (s *informerSource) Stop(ctx context.Context) error {
 }
 
 // createInformer sets up and returns the informer and controller for the informerSource, using the provided context, event handler, workqueue, and predicates.
-func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
+func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error parsing GroupVersionResource")
@@ -174,7 +174,7 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 		return nil, nil, fmt.Errorf("error parsing selectors: %v", selectors)
 	}
 
-	trim, err := s.parseTrimer()
+	trim, err := parseTrimer(ctx, s.ResourceSyncRule.Trim)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error parsing trim rule")
 	}
@@ -194,7 +194,7 @@ func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.E
 	}
 
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
-	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
+	cache, informer := syncercache.NewInformerWithTransformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
 	return cache, informer, nil
 }
 
@@ -236,58 +236,4 @@ func parseSelectors(rsr v1beta1.ResourceSyncRule) ([]utils.Selector, error) {
 		selectors = append(selectors, selector)
 	}
 	return selectors, nil
-}
-
-func (s *informerSource) parseTrimer() (clientgocache.TransformFunc, error) {
-	t := s.ResourceSyncRule.Trim
-	if t == nil || len(t.Retain.JSONPaths) == 0 {
-		return nil, nil
-	}
-
-	extracters := make([]jsonextracter.Extracter, 0, len(t.Retain.JSONPaths))
-	for _, p := range t.Retain.JSONPaths {
-		p, err := jsonpath.RelaxedJSONPathExpression(p)
-		if err != nil {
-			return nil, err
-		}
-
-		ex, err := jsonextracter.BuildExtracter(p, true)
-		if err != nil {
-			return nil, err
-		}
-		extracters = append(extracters, ex)
-	}
-
-	trimFunc := func(obj interface{}) (ret interface{}, err error) {
-		defer func() {
-			if err != nil {
-				s.logger.Error(err, "error in triming object")
-				ret, err = obj, nil
-			}
-		}()
-
-		if d, ok := obj.(clientgocache.DeletedFinalStateUnknown); ok {
-			// Since we import ES data into informer cache at startup, the
-			// resource that was deleted during the restart will generate
-			// DeletedFinalStateUnknown.
-			// We unwarp the object here, so there is no need for following
-			// steps including event handler to care about DeletedFinalStateUnknown.
-			obj = d.Obj
-		}
-
-		u, ok := obj.(*unstructured.Unstructured)
-		if !ok {
-			return nil, fmt.Errorf("trim: object's type should be *unstructured.Unstructured, but received %T", obj)
-		}
-
-		merged, err := jsonextracter.Merge(extracters, u.Object)
-		if err != nil {
-			return nil, err
-		}
-
-		unObj := &unstructured.Unstructured{Object: merged}
-		return unObj, nil
-	}
-
-	return trimFunc, nil
 }

@@ -17,28 +17,9 @@ package internalimport
 // To use k8s.io/kubernetes as a library, it is required to import the relevant packages related to
 // k8s and specify the specific version in go.mod.
 import (
-	_ "k8s.io/api"
-	_ "k8s.io/apimachinery"
-	_ "k8s.io/apiserver"
-	_ "k8s.io/cli-runtime"
-	_ "k8s.io/client-go"
 	_ "k8s.io/cloud-provider"
-	_ "k8s.io/cluster-bootstrap"
-	_ "k8s.io/code-generator"
-	_ "k8s.io/component-base"
-	_ "k8s.io/component-helpers"
 	_ "k8s.io/controller-manager"
-	_ "k8s.io/cri-api"
 	_ "k8s.io/csi-translation-lib"
-	_ "k8s.io/dynamic-resource-allocation"
-	_ "k8s.io/kms"
-	_ "k8s.io/kube-controller-manager"
-	_ "k8s.io/kube-proxy"
-	_ "k8s.io/kube-scheduler"
-	_ "k8s.io/kubectl"
-	_ "k8s.io/kubelet"
-	_ "k8s.io/legacy-cloud-providers"
-	_ "k8s.io/metrics"
 	_ "k8s.io/mount-utils"
 	_ "k8s.io/pod-security-admission"
 )

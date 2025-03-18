@@ -20,6 +20,7 @@ import (
 	"crypto/elliptic"
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/tls"
 	"crypto/x509"
 	"crypto/x509/pkix"
 	"encoding/pem"
@@ -172,4 +173,22 @@ func EncodeCertPEM(cert *x509.Certificate) []byte {
 		Bytes: cert.Raw,
 	}
 	return pem.EncodeToMemory(&block)
+}
+
+// LoadCertificate loads a certificate and its corresponding private key from files.
+func LoadCertificate(certFile, keyFile string) (*x509.Certificate, crypto.Signer, error) {
+	// Load the certificate and key pair using tls.LoadX509KeyPair.
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to load key pair: %w", err)
+	}
+
+	// Parse the certificate.
+	certData, err := x509.ParseCertificate(cert.Certificate[0])
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse certificate: %w", err)
+	}
+
+	// Return the parsed certificate and the private key as a crypto.Signer.
+	return certData, cert.PrivateKey.(crypto.Signer), nil
 }

@@ -15,15 +15,18 @@
 package options
 
 import (
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/spf13/pflag"
+
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 )
 
 type CoreOptions struct {
-	EnableRBAC   bool
-	ReadOnlyMode bool
-	GithubBadge  bool
-	Version      bool
+	EnableRBAC       bool
+	ReadOnlyMode     bool
+	GithubBadge      bool
+	Version          bool
+	HighAvailability bool
+	EnableAI         bool
 }
 
 func NewCoreOptions() *CoreOptions {
@@ -50,4 +53,6 @@ func (o *CoreOptions) AddFlags(fs *pflag.FlagSet) {
 	fs.BoolVar(&o.ReadOnlyMode, "read-only-mode", false, "turn on the read only mode")
 	fs.BoolVar(&o.GithubBadge, "github-badge", false, "whether to display the github badge")
 	fs.BoolVarP(&o.Version, "version", "V", o.Version, "Print version and exit")
+	fs.BoolVar(&o.HighAvailability, "high-availability", false, "whether to use high-availability feature.")
+	fs.BoolVar(&o.EnableAI, "enable-ai", false, "whether to enable llm.")
 }

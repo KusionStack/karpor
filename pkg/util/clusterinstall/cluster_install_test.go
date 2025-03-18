@@ -19,19 +19,22 @@ import (
 
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/stretchr/testify/require"
 	"k8s.io/client-go/rest"
+
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 )
 
 func TestConvertKubeconfigToCluster(t *testing.T) {
 	tests := []struct {
-		name        string
-		displayName string
-		description string
-		cfg         *rest.Config
-		wantCluster *clusterv1beta1.Cluster
-		wantErr     bool
+		name         string
+		displayName  string
+		description  string
+		clusterMode  string
+		clusterLevel int
+		cfg          *rest.Config
+		wantCluster  *clusterv1beta1.Cluster
+		wantErr      bool
 	}{
 		// Test case with secure setup (non-insecure, with certificate data)
 		{
@@ -122,7 +125,7 @@ func TestConvertKubeconfigToCluster(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call the function under test
-			cluster, err := ConvertKubeconfigToCluster(tc.name, tc.displayName, tc.description, tc.cfg)
+			cluster, err := ConvertKubeconfigToCluster(tc.name, tc.displayName, tc.description, tc.clusterMode, tc.clusterLevel, tc.cfg)
 			// Assert that an error occurred when expected
 			if tc.wantErr {
 				require.Error(t, err)

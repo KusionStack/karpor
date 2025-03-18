@@ -21,11 +21,12 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"
 	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 )
 
 const (
@@ -124,7 +125,7 @@ func (s *Storage) GetResource(ctx context.Context, cluster string, obj runtime.O
 	}
 
 	if len(resp.Hits.Hits) == 0 {
-		return fmt.Errorf("no resource found for cluster: %s, namespace: %s, name: %s", cluster, unObj.GetNamespace(), unObj.GetName())
+		return ErrNotFound
 	}
 
 	res, err := storage.Map2Resource(resp.Hits.Hits[0].Source)

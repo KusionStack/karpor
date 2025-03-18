@@ -16,22 +16,41 @@ package app
 
 import (
 	"context"
+	"crypto"
+	"crypto/x509"
+
+	"k8s.io/klog/v2/klogr"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/syncer"
+	"github.com/KusionStack/karpor/pkg/util/certgenerator"
+
 	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 )
 
+const (
+	defaultCertFile = "/etc/karpor/ca/ca.crt"
+	defaultKeyFile  = "/etc/karpor/ca/ca.key"
+)
+
 type syncerOptions struct {
+	HighAvailability bool
+	OnlyPushMode     bool
+
 	MetricsAddr            string
 	ProbeAddr              string
 	ElasticSearchAddresses []string
+
+	ExternalEndpoint string
+	AgentImageTag    string
+
+	CaCertFile string
+	CaKeyFile  string
 }
 
 func NewSyncerOptions() *syncerOptions {
@@ -39,9 +58,17 @@ func NewSyncerOptions() *syncerOptions {
 }
 
 func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
+	fs.BoolVar(&o.HighAvailability, "high-availability", false, "Whether to use high-availability feature.")
+	fs.BoolVar(&o.OnlyPushMode, "only-push-mode", false, "Only push mode in high availability feature.")
+
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
+	fs.StringVar(&o.ExternalEndpoint, "external-addresses", "", "The external address that expose to user cluster in pull mode.")
+	fs.StringVar(&o.AgentImageTag, "agent-image-tag", "v0.0.0", "The agent image tag.")
+
+	fs.StringVar(&o.CaCertFile, "ca-cert-file", defaultCertFile, "Root CA certificate file for karpor server.")
+	fs.StringVar(&o.CaKeyFile, "ca-key-file", defaultKeyFile, "Root KEY file for karpor server..")
 }
 
 func NewSyncerCommand(ctx context.Context) *cobra.Command {
@@ -50,15 +77,15 @@ func NewSyncerCommand(ctx context.Context) *cobra.Command {
 		Use:   "syncer",
 		Short: "start a resource syncer to sync resource from clusters",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return run(ctx, options)
+			return runSyncer(ctx, options)
 		},
 	}
 	options.AddFlags(cmd.Flags())
 	return cmd
 }
 
-func run(ctx context.Context, options *syncerOptions) error {
-	ctrl.SetLogger(klog.NewKlogr())
+func runSyncer(ctx context.Context, options *syncerOptions) error {
+	ctrl.SetLogger(klogr.New())
 	log := ctrl.Log.WithName("setup")
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
@@ -81,8 +108,18 @@ func run(ctx context.Context, options *syncerOptions) error {
 		return err
 	}
 
+	var caCert *x509.Certificate
+	var caKey crypto.Signer
+	if options.HighAvailability && !options.OnlyPushMode {
+		caCert, caKey, err = certgenerator.LoadCertificate(options.CaCertFile, options.CaKeyFile)
+		if err != nil {
+			log.Error(err, "unable to load certificate")
+			return err
+		}
+	}
+
 	//nolint:contextcheck
-	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewSyncReconciler(es, options.HighAvailability, options.ElasticSearchAddresses, options.ExternalEndpoint, options.AgentImageTag, caCert, caKey).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}
