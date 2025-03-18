@@ -99,7 +99,7 @@ func (c *FakeTrimRules) Update(ctx context.Context, trimRule *v1beta1.TrimRule, 
 // Delete takes name of the trimRule and deletes it. Returns an error if one occurs.
 func (c *FakeTrimRules) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteAction(trimrulesResource, name), &v1beta1.TrimRule{})
+		Invokes(testing.NewRootDeleteActionWithOptions(trimrulesResource, name, opts), &v1beta1.TrimRule{})
 	return err
 }
 

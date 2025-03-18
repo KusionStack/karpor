@@ -16,25 +16,23 @@ package syncer
 
 import (
 	"bytes"
-	"context"
 	"fmt"
 	"text/template"
 
 	sprig "github.com/Masterminds/sprig/v3"
-	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	clientgocache "k8s.io/client-go/tools/cache"
+	"k8s.io/klog/v2"
 
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/jsonextracter"
 	"github.com/KusionStack/karpor/pkg/syncer/transform"
 	"github.com/KusionStack/karpor/pkg/util/jsonpath"
 )
 
 // parseTrimer creates and returns a trim function for the informerSource based on the provider trims.
-func parseTrimer(ctx context.Context, t *v1beta1.TrimRuleSpec) (syncercache.TransformFunc, error) {
+func parseTrimer(t *v1beta1.TrimRuleSpec) (clientgocache.TransformFunc, error) {
 	if t == nil || len(t.Retain.JSONPaths) == 0 {
 		//nolint:nilnil,nolintlint
 		return nil, nil
@@ -57,7 +55,7 @@ func parseTrimer(ctx context.Context, t *v1beta1.TrimRuleSpec) (syncercache.Tran
 	trimFunc := func(obj interface{}) (ret interface{}, err error) {
 		defer func() {
 			if err != nil {
-				logr.FromContext(ctx).Error(err, "error in triming object")
+				klog.Background().Error(err, "error in triming object")
 				ret, err = obj, nil
 			}
 		}()
@@ -89,7 +87,7 @@ func parseTrimer(ctx context.Context, t *v1beta1.TrimRuleSpec) (syncercache.Tran
 }
 
 // parseTransformer creates and returns a transformation function for the informerSource based on the provider transformers.
-func parseTransformer(ctx context.Context, t *v1beta1.TransformRuleSpec, clusterName string) (syncercache.TransformFunc, error) {
+func parseTransformer(t *v1beta1.TransformRuleSpec, clusterName string) (clientgocache.TransformFunc, error) {
 	if t == nil {
 		//nolint:nilnil,nolintlint
 		return nil, nil
@@ -108,7 +106,7 @@ func parseTransformer(ctx context.Context, t *v1beta1.TransformRuleSpec, cluster
 	return func(obj interface{}) (ret interface{}, err error) {
 		defer func() {
 			if err != nil {
-				logr.FromContext(ctx).Error(err, "error in transforming object")
+				klog.Background().Error(err, "error in transforming object")
 			}
 		}()
 

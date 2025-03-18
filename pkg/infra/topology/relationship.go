@@ -24,12 +24,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/KusionStack/karpor/config"
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	yaml "gopkg.in/yaml.v3"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -39,6 +33,13 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/config"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 )
 
 // GetHash method returns the hash of the resource graph node.
@@ -105,7 +106,7 @@ func FindNodeOnGraph(g graph.Graph[string, RelationshipGraphNode], group, versio
 }
 
 // BuildBuiltinRelationshipGraph returns the relationship graph built from the YAML describing resource relationships
-func BuildBuiltinRelationshipGraph(ctx context.Context, client dynamic.Interface) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+func BuildBuiltinRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	// TODO: Obtaining topological relationship from CR in the future.
@@ -192,7 +193,7 @@ func BuildBuiltinRelationshipGraph(ctx context.Context, client dynamic.Interface
 }
 
 // BuildRelationshipGraph builds the complete relationship graph including the built-in one and customer-specified one
-func BuildRelationshipGraph(ctx context.Context, client dynamic.Interface) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
+func BuildRelationshipGraph(ctx context.Context, client *dynamic.DynamicClient) (graph.Graph[string, RelationshipGraphNode], *RelationshipGraph, error) {
 	res, rg, _ := BuildBuiltinRelationshipGraph(ctx, client)
 	// TODO: Also include customized relationship graph
 	return res, rg, nil
@@ -236,7 +237,7 @@ func RelationshipEquals(r, relation *Relationship) bool {
 }
 
 // CountRelationshipGraph returns the same RelationshipGraph with the count for each resource
-func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient dynamic.Interface, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
+func (rg *RelationshipGraph) CountRelationshipGraph(ctx context.Context, dynamicClient *dynamic.DynamicClient, discoveryClient *discovery.DiscoveryClient, countNamespace string) (*RelationshipGraph, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	for _, node := range rg.RelationshipNodes {

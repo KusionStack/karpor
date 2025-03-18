@@ -35,7 +35,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
@@ -63,7 +62,7 @@ type ResourceSyncer struct {
 
 	logger logr.Logger
 
-	transformFunc syncercache.TransformFunc
+	transformFunc clientgocache.TransformFunc
 	startTime     time.Time
 }
 
@@ -137,7 +136,7 @@ func (s *ResourceSyncer) Run(ctx context.Context) error {
 	// Wait for the caches to be synced before starting workers
 	s.logger.Info("Waiting for informer caches to sync")
 
-	if transformFunc, err := parseTransformer(ctx, s.source.SyncRule().Transform, s.source.Cluster()); err != nil {
+	if transformFunc, err := parseTransformer(s.source.SyncRule().Transform, s.source.Cluster()); err != nil {
 		s.logger.Error(err, "error in parsing transform rule")
 	} else {
 		s.transformFunc = transformFunc

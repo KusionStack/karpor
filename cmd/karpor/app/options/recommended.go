@@ -119,6 +119,9 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	if err := o.ServerRun.ApplyTo(genericConfig); err != nil {
 		return err
 	}
+	if err := o.Etcd.Complete(genericConfig.StorageObjectCountTracker, genericConfig.DrainedNotify(), genericConfig.AddPostStartHook); err != nil {
+		return err
+	}
 	if err := o.Etcd.ApplyTo(genericConfig); err != nil {
 		return err
 	}
@@ -150,7 +153,7 @@ func (o *RecommendedOptions) ApplyTo(config *server.RecommendedConfig) error {
 	config.ClientConfig = kubeClientConfig
 	config.SharedInformerFactory = informer
 
-	if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, client, informer); err != nil {
+	if err := o.Authentication.ApplyTo(&genericConfig.Authentication, genericConfig.SecureServing, config.EgressSelector, config.OpenAPIConfig, config.OpenAPIV3Config, client, informer); err != nil {
 		return err
 	}
 

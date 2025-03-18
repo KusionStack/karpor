@@ -15,7 +15,6 @@
 package syncer
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -24,6 +23,6 @@ import (
 )
 
 func TestResourceSyncer_parseTransformer(t *testing.T) {
-	_, err := parseTransformer(context.Background(), &v1beta1.TransformRuleSpec{Type: "patch"}, "clusterName")
+	_, err := parseTransformer(&v1beta1.TransformRuleSpec{Type: "patch"}, "clusterName")
 	require.NoError(t, err)
 }

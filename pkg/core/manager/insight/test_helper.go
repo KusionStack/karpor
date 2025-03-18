@@ -25,7 +25,6 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
-	"k8s.io/client-go/dynamic/fake"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
 
@@ -40,7 +39,7 @@ func mockMultiClusterClient() *multicluster.MultiClusterClient {
 		ClientSet: &kubernetes.Clientset{
 			DiscoveryClient: &discovery.DiscoveryClient{},
 		},
-		DynamicClient: &fake.FakeDynamicClient{},
+		DynamicClient: &dynamic.DynamicClient{},
 		MetricsClient: nil,
 	}
 }

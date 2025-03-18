@@ -184,7 +184,7 @@ func (s *KarporServer) InstallAPIs(
 	apiGroupsInfo := []*genericapiserver.APIGroupInfo{}
 	for _, restStorageProvider := range restStorageProviders {
 		groupName := restStorageProvider.GroupName()
-		apiGroupInfo, _, err := restStorageProvider.NewRESTStorage(
+		apiGroupInfo, err := restStorageProvider.NewRESTStorage(
 			apiResourceConfigSource,
 			restOptionsGetter,
 		)

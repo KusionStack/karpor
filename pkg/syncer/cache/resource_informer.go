@@ -23,20 +23,9 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
-	clientgocache "k8s.io/client-go/tools/cache"
+	"k8s.io/client-go/tools/cache"
 	"k8s.io/klog/v2"
 )
-
-// TransformFunc allows for transforming an object before it will be processed
-// and put into the controller cache and before the corresponding handlers will
-// be called on it.
-// TransformFunc (similarly to ResourceEventHandler functions) should be able
-// to correctly handle the tombstone of type cache.DeletedFinalStateUnknown
-//
-// The most common usage pattern is to clean-up some parts of the object to
-// reduce component memory usage if a given component doesn't care about them.
-// given controller doesn't care for them
-type TransformFunc func(interface{}) (interface{}, error)
 
 // ResourceHandler defines the interface for handling resource events.
 type ResourceHandler interface {
@@ -74,23 +63,23 @@ type ResourceSelector interface {
 }
 
 // NewResourceInformer creates a new informer that watches for resource events and handles them using the provided ResourceHandler.
-func NewResourceInformer(lw clientgocache.ListerWatcher,
+func NewResourceInformer(lw cache.ListerWatcher,
 	selector ResourceSelector,
-	transform TransformFunc,
+	transform cache.TransformFunc,
 	resyncPeriod time.Duration,
 	handler ResourceHandler,
-	knownObjects clientgocache.KeyListerGetter,
-) clientgocache.Controller {
+	knownObjects cache.KeyListerGetter,
+) cache.Controller {
 	informerCache := NewResourceCache()
-	fifo := clientgocache.NewDeltaFIFOWithOptions(clientgocache.DeltaFIFOOptions{
+	fifo := cache.NewDeltaFIFOWithOptions(cache.DeltaFIFOOptions{
 		KnownObjects:          knownObjects,
 		EmitDeltaTypeReplaced: true,
 	})
 
-	doProcess := func(obj interface{}, dType clientgocache.DeltaType) error {
+	doProcess := func(obj interface{}, dType cache.DeltaType) error {
 		// transform
 		if transform != nil {
-			if _, ok := obj.(clientgocache.DeletedFinalStateUnknown); !ok {
+			if _, ok := obj.(cache.DeletedFinalStateUnknown); !ok {
 				transformed, err := transform(obj)
 				if err != nil {
 					return fmt.Errorf("error transforming object: %v, delta type: %s", err, dType)
@@ -100,7 +89,7 @@ func NewResourceInformer(lw clientgocache.ListerWatcher,
 		}
 
 		switch dType {
-		case clientgocache.Sync, clientgocache.Replaced, clientgocache.Added, clientgocache.Updated:
+		case cache.Sync, cache.Replaced, cache.Added, cache.Updated:
 			if _, exists, err := informerCache.Get(obj); err == nil && exists {
 				if newer, err := informerCache.IsNewer(obj); err != nil {
 					return err
@@ -118,7 +107,7 @@ func NewResourceInformer(lw clientgocache.ListerWatcher,
 				}
 				return handler.OnAdd(obj)
 			}
-		case clientgocache.Deleted:
+		case cache.Deleted:
 			if err := informerCache.Delete(obj); err != nil {
 				return err
 			}
@@ -127,12 +116,12 @@ func NewResourceInformer(lw clientgocache.ListerWatcher,
 		return nil
 	}
 
-	cfg := &clientgocache.Config{
+	cfg := &cache.Config{
 		Queue:            fifo,
 		ObjectType:       &unstructured.Unstructured{},
 		FullResyncPeriod: resyncPeriod,
 		RetryOnError:     true,
-		ListerWatcher: &clientgocache.ListWatch{
+		ListerWatcher: &cache.ListWatch{
 			ListFunc: func(options metav1.ListOptions) (runtime.Object, error) {
 				if selector != nil {
 					selector.ApplyToList(&options)
@@ -154,7 +143,7 @@ func NewResourceInformer(lw clientgocache.ListerWatcher,
 				}
 			}()
 
-			deltas, ok := d.(clientgocache.Deltas)
+			deltas, ok := d.(cache.Deltas)
 			if !ok {
 				return errors.New("object given as Process argument is not Deltas")
 			}
@@ -172,114 +161,5 @@ func NewResourceInformer(lw clientgocache.ListerWatcher,
 		},
 	}
 
-	return clientgocache.New(cfg)
-}
-
-// NewInformerWithTransformer returns a Store and a controller for populating
-// the store while also providing event notifications. You should only used
-// the returned Store for Get/List operations; Add/Modify/Deletes will cause
-// the event notifications to be faulty.
-// The given transform function will be called on all objects before they will
-// put into the Store and corresponding Add/Modify/Delete handlers will
-// be invoked for them.
-func NewInformerWithTransformer(
-	lw clientgocache.ListerWatcher,
-	objType runtime.Object,
-	resyncPeriod time.Duration,
-	h clientgocache.ResourceEventHandler,
-	transformer TransformFunc,
-) (clientgocache.Store, clientgocache.Controller) {
-	// This will hold the client state, as we know it.
-	clientState := clientgocache.NewStore(clientgocache.DeletionHandlingMetaNamespaceKeyFunc)
-
-	return clientState, newInformer(lw, objType, resyncPeriod, h, clientState, transformer)
-}
-
-// newInformer returns a controller for populating the store while also
-// providing event notifications.
-//
-// Parameters
-//   - lw is list and watch functions for the source of the resource you want to
-//     be informed of.
-//   - objType is an object of the type that you expect to receive.
-//   - resyncPeriod: if non-zero, will re-list this often (you will get OnUpdate
-//     calls, even if nothing changed). Otherwise, re-list will be delayed as
-//     long as possible (until the upstream source closes the watch or times out,
-//     or you stop the controller).
-//   - h is the object you want notifications sent to.
-//   - clientState is the store you want to populate
-func newInformer(
-	lw clientgocache.ListerWatcher,
-	objType runtime.Object,
-	resyncPeriod time.Duration,
-	h clientgocache.ResourceEventHandler,
-	clientState clientgocache.Store,
-	transformer TransformFunc,
-) clientgocache.Controller {
-	// This will hold incoming changes. Note how we pass clientState in as a
-	// KeyLister, that way resync operations will result in the correct set
-	// of update/delete deltas.
-	fifo := clientgocache.NewDeltaFIFOWithOptions(clientgocache.DeltaFIFOOptions{
-		KnownObjects:          clientState,
-		EmitDeltaTypeReplaced: true,
-	})
-
-	cfg := &clientgocache.Config{
-		Queue:            fifo,
-		ListerWatcher:    lw,
-		ObjectType:       objType,
-		FullResyncPeriod: resyncPeriod,
-		RetryOnError:     false,
-
-		Process: func(obj interface{}) error {
-			if deltas, ok := obj.(clientgocache.Deltas); ok {
-				return processDeltas(h, clientState, transformer, deltas)
-			}
-			return errors.New("object given as Process argument is not Deltas")
-		},
-	}
-	return clientgocache.New(cfg)
-}
-
-// Multiplexes updates in the form of a list of Deltas into a Store, and informs
-// a given handler of events OnUpdate, OnAdd, OnDelete
-func processDeltas(
-	// Object which receives event notifications from the given deltas
-	handler clientgocache.ResourceEventHandler,
-	clientState clientgocache.Store,
-	transformer TransformFunc,
-	deltas clientgocache.Deltas,
-) error {
-	// from oldest to newest
-	for _, d := range deltas {
-		obj := d.Object
-		if transformer != nil {
-			var err error
-			obj, err = transformer(obj)
-			if err != nil {
-				return err
-			}
-		}
-
-		switch d.Type {
-		case clientgocache.Sync, clientgocache.Replaced, clientgocache.Added, clientgocache.Updated:
-			if old, exists, err := clientState.Get(obj); err == nil && exists {
-				if err := clientState.Update(obj); err != nil {
-					return err
-				}
-				handler.OnUpdate(old, obj)
-			} else {
-				if err := clientState.Add(obj); err != nil {
-					return err
-				}
-				handler.OnAdd(obj)
-			}
-		case clientgocache.Deleted:
-			if err := clientState.Delete(obj); err != nil {
-				return err
-			}
-			handler.OnDelete(obj)
-		}
-	}
-	return nil
+	return cache.New(cfg)
 }

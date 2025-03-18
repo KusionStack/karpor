@@ -19,7 +19,7 @@ import (
 	"crypto"
 	"crypto/x509"
 
-	"k8s.io/klog/v2/klogr"
+	"k8s.io/klog/v2"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
@@ -85,7 +85,7 @@ func NewSyncerCommand(ctx context.Context) *cobra.Command {
 }
 
 func runSyncer(ctx context.Context, options *syncerOptions) error {
-	ctrl.SetLogger(klogr.New())
+	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("setup")
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
