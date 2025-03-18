@@ -26,6 +26,7 @@ import {
   FilterOutlined,
   FullscreenOutlined,
   FullscreenExitOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import yaml from 'js-yaml'
@@ -100,6 +101,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const eventSourceRef = useRef<EventSource | null>(null)
   const abortControllerRef = useRef<AbortController | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     if (yamlData) {
@@ -635,6 +637,103 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
 
+  function renderAiAnalysis(isDailog) {
+    return (
+      diagnosisStatus !== 'idle' && (
+        <div className={styles.diagnosisPanel}>
+          <div className={styles.diagnosisHeader}>
+            <Space>
+              <div className={styles.diagnosisHeader_aiIcon}>
+                <img src={aiSummarySvg} alt="ai summary" />
+              </div>
+              {t('LogAggregator.DiagnosisResult')}
+            </Space>
+            <Space>
+              {diagnosisStatus === 'streaming' && (
+                <Tooltip
+                  title={t('LogAggregator.StopDiagnosis')}
+                  placement="bottom"
+                >
+                  <Button
+                    type="text"
+                    className={styles.stopButton}
+                    icon={<PoweroffOutlined />}
+                    onClick={() => {
+                      if (abortControllerRef.current) {
+                        abortControllerRef.current.abort()
+                        setDiagnosisStatus('complete' as DiagnosisStatus)
+                      }
+                    }}
+                  />
+                </Tooltip>
+              )}
+              {isDailog ? null : (
+                <Button
+                  type="text"
+                  icon={<ExpandOutlined />}
+                  onClick={() => {
+                    setOpen(!open)
+                  }}
+                />
+              )}
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => {
+                  if (isDailog) {
+                    setOpen(false)
+                  } else {
+                    setDiagnosisStatus('idle' as DiagnosisStatus)
+                  }
+                }}
+              />
+            </Space>
+          </div>
+          <div className={styles.diagnosisBody}>
+            <div className={styles.diagnosisContent} ref={contentRef}>
+              {diagnosisStatus === ('loading' as DiagnosisStatus) ||
+              (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+                !diagnosis) ? (
+                <div className={styles.diagnosisLoading}>
+                  <Spin />
+                  <span>{t('LogAggregator.PreparingDiagnosis')}</span>
+                </div>
+              ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
+                <div style={{ marginBottom: 30 }}>
+                  <Markdown>{diagnosis}</Markdown>
+                  <div
+                    ref={diagnosisEndRef}
+                    style={{ float: 'left', clear: 'both' }}
+                  />
+                </div>
+              ) : diagnosisStatus === ('error' as DiagnosisStatus) ? (
+                <div className={styles.diagnosisError}>
+                  <Alert
+                    type="error"
+                    message={t('LogAggregator.DiagnosisError')}
+                    description={diagnosis || t('LogAggregator.TryAgainLater')}
+                  />
+                </div>
+              ) : (
+                <Markdown>{diagnosis}</Markdown>
+              )}
+            </div>
+            {diagnosisStatus === ('streaming' as DiagnosisStatus) &&
+              diagnosis && (
+                <div
+                  className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
+                >
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                </div>
+              )}
+          </div>
+        </div>
+      )
+    )
+  }
+
   return (
     <div className={styles.podLogs}>
       {error && (
@@ -799,91 +898,27 @@ const PodLogs: React.FC<PodLogsProps> = ({
               />
             )}
           </FullScreen>
-          {diagnosisStatus !== 'idle' && (
-            <div className={styles.diagnosisPanel}>
-              <div className={styles.diagnosisHeader}>
-                <Space>
-                  <div className={styles.diagnosisHeader_aiIcon}>
-                    <img src={aiSummarySvg} alt="ai summary" />
-                  </div>
-                  {t('LogAggregator.DiagnosisResult')}
-                </Space>
-                <Space>
-                  {diagnosisStatus === 'streaming' && (
-                    <Tooltip
-                      title={t('LogAggregator.StopDiagnosis')}
-                      placement="bottom"
-                    >
-                      <Button
-                        type="text"
-                        className={styles.stopButton}
-                        icon={<PoweroffOutlined />}
-                        onClick={() => {
-                          if (abortControllerRef.current) {
-                            abortControllerRef.current.abort()
-                            setDiagnosisStatus('complete' as DiagnosisStatus)
-                          }
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() =>
-                      setDiagnosisStatus('idle' as DiagnosisStatus)
-                    }
-                  />
-                </Space>
-              </div>
-              <div className={styles.diagnosisBody}>
-                <div className={styles.diagnosisContent} ref={contentRef}>
-                  {diagnosisStatus === ('loading' as DiagnosisStatus) ||
-                  (diagnosisStatus === ('streaming' as DiagnosisStatus) &&
-                    !diagnosis) ? (
-                    <div className={styles.diagnosisLoading}>
-                      <Spin />
-                      <span>{t('LogAggregator.PreparingDiagnosis')}</span>
-                    </div>
-                  ) : diagnosisStatus === ('streaming' as DiagnosisStatus) ? (
-                    <div style={{ marginBottom: 30 }}>
-                      <Markdown>{diagnosis}</Markdown>
-                      <div
-                        ref={diagnosisEndRef}
-                        style={{ float: 'left', clear: 'both' }}
-                      />
-                    </div>
-                  ) : diagnosisStatus === ('error' as DiagnosisStatus) ? (
-                    <div className={styles.diagnosisError}>
-                      <Alert
-                        type="error"
-                        message={t('LogAggregator.DiagnosisError')}
-                        description={
-                          diagnosis || t('LogAggregator.TryAgainLater')
-                        }
-                      />
-                    </div>
-                  ) : (
-                    <Markdown>{diagnosis}</Markdown>
-                  )}
-                </div>
-                {diagnosisStatus === ('streaming' as DiagnosisStatus) &&
-                  diagnosis && (
-                    <div
-                      className={`${styles.streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - 600 >= 0 ? styles.streamingIndicatorFixed : ''}`}
-                    >
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                      <span className={styles.dot}></span>
-                    </div>
-                  )}
-              </div>
-            </div>
-          )}
+          {renderAiAnalysis(false)}
         </div>
       </div>
 
       {renderSettingsModal()}
+      <Modal
+        styles={{
+          content: {
+            padding: 0,
+            borderRadius: 16,
+          },
+        }}
+        centered
+        closable={false}
+        width={'80%'}
+        height={700}
+        open={open}
+        footer={null}
+      >
+        <div style={{ overflow: 'auto' }}>{renderAiAnalysis(true)}</div>
+      </Modal>
     </div>
   )
 }
