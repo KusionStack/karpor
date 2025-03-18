@@ -18,7 +18,7 @@ import (
 	"context"
 
 	"github.com/go-logr/logr"
-	"k8s.io/klog/v2/klogr"
+	"k8s.io/klog/v2"
 
 	"github.com/KusionStack/karpor/pkg/core/middleware"
 )
@@ -33,5 +33,5 @@ func GetLogger(ctx context.Context) logr.Logger {
 		return logger
 	}
 
-	return klogr.New()
+	return klog.NewKlogr()
 }

@@ -25,6 +25,7 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
+	clientgocache "k8s.io/client-go/tools/cache"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -36,7 +37,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/transform"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
@@ -49,8 +49,8 @@ type DynamicReconciler struct {
 	storage     storage.ResourceStorage
 
 	syncRule      v1beta1.ResourceSyncRule
-	transformFunc syncercache.TransformFunc
-	trimFunc      syncercache.TransformFunc
+	transformFunc clientgocache.TransformFunc
+	trimFunc      clientgocache.TransformFunc
 	client        client.Client
 
 	scheme *runtime.Scheme
@@ -115,7 +115,7 @@ func (r *DynamicReconciler) Reconcile(ctx context.Context, req reconcile.Request
 			r.syncRule = rule
 
 			if rule.Transform != nil {
-				transformFunc, err := parseTransformer(ctx, rule.Transform, r.clusterName)
+				transformFunc, err := parseTransformer(rule.Transform, r.clusterName)
 				if err != nil {
 					return reconcile.Result{}, err
 				}
@@ -123,7 +123,7 @@ func (r *DynamicReconciler) Reconcile(ctx context.Context, req reconcile.Request
 			}
 
 			if rule.Trim != nil {
-				trimFunc, err := parseTrimer(ctx, rule.Trim)
+				trimFunc, err := parseTrimer(rule.Trim)
 				if err != nil {
 					return reconcile.Result{}, err
 				}

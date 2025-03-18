@@ -87,7 +87,7 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 	); err != nil {
 		return nil, fmt.Errorf("error creating self-signed certificates: %v", err)
 	}
-	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook"}
+	o.RecommendedOptions.Admission.DisablePlugins = []string{"MutatingAdmissionWebhook", "NamespaceLifecycle", "ValidatingAdmissionWebhook", "ValidatingAdmissionPolicy"}
 	o.RecommendedOptions.Authorization.Modes = []string{"RBAC"}
 	o.RecommendedOptions.ServerRun.CorsAllowedOriginList = []string{".*"}
 	return o, nil
@@ -98,8 +98,8 @@ func NewOptions(out, errOut io.Writer) (*Options, error) {
 func NewServerCommand(ctx context.Context) *cobra.Command {
 	o, err := NewOptions(os.Stdout, os.Stderr)
 	if err != nil {
-		klog.Error(err, "Unable to initialize command options")
-		klog.Flush()
+		klog.Background().Error(err, "Unable to initialize command options")
+		klog.FlushAndExit(klog.ExitFlushTimeout, 1)
 	}
 
 	expvar.Publish("CoreOptions", expvar.Func(func() interface{} {

@@ -31,7 +31,7 @@ import (
 )
 
 // GetParentResourcesList returns an *unstructured.UnstructuredList representing all resources that matches the parent GVK in the current namespace
-func GetParentResourcesList(ctx context.Context, client dynamic.Interface, parentRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
+func GetParentResourcesList(ctx context.Context, client *dynamic.DynamicClient, parentRelation *Relationship, namespace string) (*unstructured.UnstructuredList, error) {
 	log := ctxutil.GetLogger(ctx)
 
 	parentAPIVersion := parentRelation.Group + "/" + parentRelation.Version
@@ -61,7 +61,7 @@ func GetParentResourcesList(ctx context.Context, client dynamic.Interface, paren
 // GetParents returns a graph that includes all of the parent resources for the current obj that are described by the parentRelation
 func GetParents(
 	ctx context.Context,
-	client dynamic.Interface,
+	client *dynamic.DynamicClient,
 	obj unstructured.Unstructured,
 	parentRelation *Relationship,
 	namespace, objName string,
@@ -111,7 +111,7 @@ func GetParents(
 // GetParentsByOwnerReference returns a graph that includes all of the parent resources for the current obj described by its OwnerReferences field
 func GetParentsByOwnerReference(
 	ctx context.Context,
-	client dynamic.Interface,
+	client *dynamic.DynamicClient,
 	obj unstructured.Unstructured,
 	objResourceNode ResourceGraphNode,
 	relationshipGraph graph.Graph[string, RelationshipGraphNode],

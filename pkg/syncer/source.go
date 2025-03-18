@@ -37,7 +37,6 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
-	syncercache "github.com/KusionStack/karpor/pkg/syncer/cache"
 	"github.com/KusionStack/karpor/pkg/syncer/internal"
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
@@ -163,7 +162,7 @@ func (s *informerSource) Stop(ctx context.Context) error {
 }
 
 // createInformer sets up and returns the informer and controller for the informerSource, using the provided context, event handler, workqueue, and predicates.
-func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
+func (s *informerSource) createInformer(_ context.Context, handler ctrlhandler.EventHandler, queue workqueue.RateLimitingInterface, predicates ...predicate.Predicate) (clientgocache.Store, clientgocache.Controller, error) {
 	gvr, err := parseGVR(&s.ResourceSyncRule)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error parsing GroupVersionResource")
@@ -174,7 +173,7 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 		return nil, nil, fmt.Errorf("error parsing selectors: %v", selectors)
 	}
 
-	trim, err := parseTrimer(ctx, s.ResourceSyncRule.Trim)
+	trim, err := parseTrimer(s.ResourceSyncRule.Trim)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "error parsing trim rule")
 	}
@@ -194,7 +193,7 @@ func (s *informerSource) createInformer(ctx context.Context, handler ctrlhandler
 	}
 
 	h := &internal.EventHandler{EventHandler: handler, Queue: queue, Predicates: predicates}
-	cache, informer := syncercache.NewInformerWithTransformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
+	cache, informer := clientgocache.NewTransformingInformer(lw, &unstructured.Unstructured{}, resyncPeriod, h, trim)
 	return cache, informer, nil
 }
 

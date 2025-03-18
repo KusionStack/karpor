@@ -15,14 +15,13 @@
 package cluster
 
 import (
+	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"k8s.io/apiserver/pkg/registry/generic"
 	"k8s.io/apiserver/pkg/registry/rest"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	serverstorage "k8s.io/apiserver/pkg/server/storage"
-
-	"github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 )
 
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
@@ -36,7 +35,7 @@ func (p RESTStorageProvider) GroupName() string {
 func (p RESTStorageProvider) NewRESTStorage(
 	apiResourceConfigSource serverstorage.APIResourceConfigSource,
 	restOptionsGetter generic.RESTOptionsGetter,
-) (genericapiserver.APIGroupInfo, bool, error) {
+) (genericapiserver.APIGroupInfo, error) {
 	apiGroupInfo := genericapiserver.NewDefaultAPIGroupInfo(
 		cluster.GroupName,
 		scheme.Scheme,
@@ -47,7 +46,7 @@ func (p RESTStorageProvider) NewRESTStorage(
 	v1beta1 := map[string]rest.Storage{}
 	clusterStorage, err := NewREST(restOptionsGetter)
 	if err != nil {
-		return genericapiserver.APIGroupInfo{}, false, err
+		return genericapiserver.APIGroupInfo{}, err
 	}
 
 	v1beta1["clusters"] = clusterStorage.Cluster
@@ -55,5 +54,5 @@ func (p RESTStorageProvider) NewRESTStorage(
 	v1beta1["clusters/proxy"] = clusterStorage.Proxy
 
 	apiGroupInfo.VersionedResourcesStorageMap["v1beta1"] = v1beta1
-	return apiGroupInfo, true, nil
+	return apiGroupInfo, nil
 }

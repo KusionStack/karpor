@@ -26,7 +26,10 @@ import (
 // RESTStorageProvider is a factory type for REST storage.
 type RESTStorageProvider interface {
 	GroupName() string
-	NewRESTStorage(apiResourceConfigSource serverstorage.APIResourceConfigSource, restOptionsGetter generic.RESTOptionsGetter) (genericapiserver.APIGroupInfo, bool, error)
+	NewRESTStorage(
+		apiResourceConfigSource serverstorage.APIResourceConfigSource,
+		restOptionsGetter generic.RESTOptionsGetter,
+	) (genericapiserver.APIGroupInfo, error)
 }
 
 // ExtraConfig holds custom apiserver config

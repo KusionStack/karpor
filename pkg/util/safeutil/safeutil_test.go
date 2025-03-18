@@ -20,7 +20,7 @@ import (
 
 	"github.com/elliotxx/safe"
 	"github.com/go-logr/logr"
-	"k8s.io/klog/v2/klogr"
+	"k8s.io/klog/v2"
 )
 
 func TestGo(t *testing.T) {
@@ -56,7 +56,7 @@ func TestGoL(t *testing.T) {
 	}
 
 	getTestingLogger := func() logr.Logger {
-		logger := klogr.New()
+		logger := klog.NewKlogr()
 
 		return logger
 	}

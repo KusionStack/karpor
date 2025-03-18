@@ -99,7 +99,7 @@ func (c *FakeSyncResourceses) Update(ctx context.Context, syncResources *v1beta1
 // Delete takes name of the syncResources and deletes it. Returns an error if one occurs.
 func (c *FakeSyncResourceses) Delete(ctx context.Context, name string, opts v1.DeleteOptions) error {
 	_, err := c.Fake.
-		Invokes(testing.NewRootDeleteAction(syncresourcesesResource, name), &v1beta1.SyncResources{})
+		Invokes(testing.NewRootDeleteActionWithOptions(syncresourcesesResource, name, opts), &v1beta1.SyncResources{})
 	return err
 }
 

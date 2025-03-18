@@ -21,7 +21,7 @@ import (
 
 	"github.com/elliotxx/safe"
 	"github.com/go-logr/logr"
-	"k8s.io/klog/v2/klogr"
+	"k8s.io/klog/v2"
 
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 )
@@ -66,7 +66,7 @@ func LoggerRecoverHandler(logger logr.Logger) safe.RecoverHandler {
 //
 //	safeutil.Go(func(){...})
 func Go(do safe.DoFunc) {
-	safe.GoR(do, LoggerRecoverHandler(klogr.New()))
+	safe.GoR(do, LoggerRecoverHandler(klog.NewKlogr()))
 }
 
 // GoL starts a recoverable goroutine with a given logger.

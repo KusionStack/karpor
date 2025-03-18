@@ -25,15 +25,14 @@ import (
 	"k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-	"k8s.io/klog/v2"
+	"k8s.io/component-base/cli"
 )
 
 func main() {
 	ctx := server.SetupSignalContext()
 	command := NewCertGeneratorCommand(ctx)
-	if err := command.Execute(); err != nil {
-		klog.Fatal(err)
-	}
+	code := cli.Run(command)
+	os.Exit(code)
 }
 
 func NewCertGeneratorCommand(ctx context.Context) *cobra.Command {

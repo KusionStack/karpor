@@ -22,8 +22,6 @@ import (
 	"testing"
 	"time"
 
-	"k8s.io/klog/v2/klogr"
-
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 
 	"github.com/bytedance/mockey"
@@ -33,6 +31,7 @@ import (
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
+	"k8s.io/klog/v2"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
@@ -160,7 +159,7 @@ func Test_singleClusterSyncManager_Start(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			s := &singleClusterSyncManager{logger: klogr.New()}
+			s := &singleClusterSyncManager{logger: klog.NewKlogr()}
 			err := s.Start(context.TODO())
 			time.Sleep(1 * time.Second)
 			if tt.wantErr {
@@ -187,7 +186,7 @@ func Test_singleClusterSyncManager_Stop(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			ctx, cancel := context.WithCancel(context.Background())
 			s := &singleClusterSyncManager{
-				logger: klogr.New(),
+				logger: klog.NewKlogr(),
 				ch:     make(chan struct{}),
 				ctx:    ctx,
 				cancel: cancel,
@@ -229,7 +228,7 @@ func Test_singleClusterSyncManager_process(t *testing.T) {
 			defer m.UnPatch()
 			ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 			s := &singleClusterSyncManager{
-				logger: klogr.New(),
+				logger: klog.NewKlogr(),
 				ch:     make(chan struct{}),
 				ctx:    ctx,
 				cancel: cancel,
@@ -294,7 +293,7 @@ func Test_singleClusterSyncManager_handleSyncResourcesUpdate(t *testing.T) {
 				syncResources: syncResources,
 				syncers:       syncers,
 				stopped:       false,
-				logger:        klogr.New(),
+				logger:        klog.NewKlogr(),
 			}
 
 			m := mockey.Mock((*wait.Group).StartWithContext).Return().Build()
