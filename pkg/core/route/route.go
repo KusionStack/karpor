@@ -20,6 +20,12 @@ import (
 	"expvar"
 	"net/http"
 
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
+	httpswagger "github.com/swaggo/http-swagger/v2"
+	genericapiserver "k8s.io/apiserver/pkg/server"
+	"k8s.io/klog/v2"
+
 	docs "github.com/KusionStack/karpor/api/openapispec"
 	aggregatorhandler "github.com/KusionStack/karpor/pkg/core/handler/aggregator"
 	authnhandler "github.com/KusionStack/karpor/pkg/core/handler/authn"
@@ -44,11 +50,6 @@ import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
-	httpswagger "github.com/swaggo/http-swagger/v2"
-	genericapiserver "k8s.io/apiserver/pkg/server"
-	"k8s.io/klog/v2"
 )
 
 // NewCoreRoute creates and configures an instance of chi.Mux with the given
@@ -156,6 +157,7 @@ func setupRestAPIV1(
 			r.Post("/", clusterhandler.Create(clusterMgr, genericConfig))
 			r.Put("/", clusterhandler.Update(clusterMgr, genericConfig))
 			r.Delete("/", clusterhandler.Delete(clusterMgr, genericConfig))
+			r.Get("/agentYml", clusterhandler.GetAgentYml(clusterMgr, genericConfig))
 		})
 		r.Post("/config/file", clusterhandler.UploadKubeConfig(clusterMgr))
 		r.Post("/config/validate", clusterhandler.ValidateKubeConfig(clusterMgr))

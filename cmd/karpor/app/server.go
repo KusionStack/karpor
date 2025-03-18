@@ -26,12 +26,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/KusionStack/karpor/cmd/karpor/app/options"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karpor/pkg/server"
-	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
-	"github.com/KusionStack/karpor/pkg/version"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -45,6 +39,13 @@ import (
 	authzmodes "k8s.io/kubernetes/pkg/kubeapiserver/authorizer/modes"
 	"k8s.io/kubernetes/pkg/serviceaccount"
 	netutils "k8s.io/utils/net"
+
+	"github.com/KusionStack/karpor/cmd/karpor/app/options"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/server"
+	proxyutil "github.com/KusionStack/karpor/pkg/util/proxy"
+	"github.com/KusionStack/karpor/pkg/version"
 )
 
 const (

@@ -18,11 +18,12 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
 )
 
 func TestInsightManager_GetResourceEvents(t *testing.T) {

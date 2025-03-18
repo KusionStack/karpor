@@ -18,10 +18,11 @@ import (
 	"context"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/require"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/pkg/core/middleware"
 )
 
 func TestGetLogger(t *testing.T) {

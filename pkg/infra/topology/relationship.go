@@ -24,12 +24,6 @@ import (
 
 	"github.com/pkg/errors"
 
-	"github.com/KusionStack/karpor/config"
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
-	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 	"github.com/dominikbraun/graph"
 	yaml "gopkg.in/yaml.v3"
 	k8serrors "k8s.io/apimachinery/pkg/api/errors"
@@ -39,6 +33,13 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/dynamic"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/config"
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
+	topologyutil "github.com/KusionStack/karpor/pkg/util/topology"
 )
 
 // GetHash method returns the hash of the resource graph node.

@@ -18,10 +18,6 @@ import (
 	"fmt"
 	"time"
 
-	karporopenapi "github.com/KusionStack/karpor/pkg/kubernetes/generated/openapi"
-	k8sopenapi "github.com/KusionStack/karpor/pkg/kubernetes/openapi"
-	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/spf13/pflag"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/sets"
@@ -41,6 +37,11 @@ import (
 	"k8s.io/kube-openapi/pkg/common"
 	kubeoptions "k8s.io/kubernetes/pkg/kubeapiserver/options"
 	"k8s.io/kubernetes/pkg/serviceaccount"
+
+	karporopenapi "github.com/KusionStack/karpor/pkg/kubernetes/generated/openapi"
+	k8sopenapi "github.com/KusionStack/karpor/pkg/kubernetes/openapi"
+	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 )
 
 // RecommendedOptions contains the recommended options for running an API server.

@@ -19,8 +19,6 @@ import (
 	"net"
 	"net/url"
 
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -30,6 +28,9 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	metrics "k8s.io/metrics/pkg/client/clientset/versioned"
 	metricsv1beta1 "k8s.io/metrics/pkg/client/clientset/versioned/typed/metrics/v1beta1"
+
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 )
 
 // MultiClusterClient represents the client used to interact with multiple Kubernetes clusters.

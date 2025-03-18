@@ -19,12 +19,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/topology"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/topology"
 )
 
 func TestInsightManager_GetTopologyForCluster(t *testing.T) {
