@@ -176,6 +176,9 @@ Thanks to these wonderful people! Come and [join us](https://kusionstack.io/karp
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Cookiery"><img src="https://avatars.githubusercontent.com/u/33125275?v=4?s=80" width="80px;" alt="Cookie"/><br /><sub><b>Cookie</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://jinjia.jsisu.com/"><img src="https://avatars.githubusercontent.com/u/28686975?v=4?s=80" width="80px;" alt="jinjia"/><br /><sub><b>jinjia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=jinjiaKarl" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=jinjiaKarl" title="Documentation">📖</a></td>
     </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LeoSofl"><img src="https://avatars.githubusercontent.com/u/37336398?v=4?s=80" width="80px;" alt="sofl"/><br /><sub><b>sofl</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=LeoSofl" title="Code">💻</a></td>
+    </tr>
   </tbody>
 </table>
 

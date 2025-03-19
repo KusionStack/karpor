@@ -10,6 +10,7 @@ import {
   FullscreenExitOutlined,
   FullscreenOutlined,
   ExpandOutlined,
+  ReloadOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
 import yaml from 'js-yaml'
@@ -38,6 +39,7 @@ type InterpretStatus =
 type IProps = {
   data: any
   height?: string | number
+  onRefresh?: () => void
 }
 
 const Yaml = (props: IProps) => {
@@ -48,7 +50,7 @@ const Yaml = (props: IProps) => {
   const interpretEndRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const observerRef = useRef<MutationObserver | null>(null)
-  const { data } = props
+  const { data, onRefresh } = props
   const [moduleHeight, setModuleHeight] = useState<number>(500)
   const [interpretStatus, setInterpretStatus] =
     useState<InterpretStatus>('idle')
@@ -58,6 +60,10 @@ const Yaml = (props: IProps) => {
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
   const [open, setOpen] = useState(false)
+
+  useEffect(() => {
+    onRefresh?.()
+  }, [])
 
   useEffect(() => {
     const yamlStatusJson = yaml2json(data)
@@ -403,6 +409,15 @@ const Yaml = (props: IProps) => {
                             type="text"
                             icon={<FullscreenOutlined />}
                             onClick={handle.enter}
+                          />
+                        </Tooltip>
+                      )}
+                      {!handle.active && onRefresh && (
+                        <Tooltip title={t('YAML.Refresh')}>
+                          <Button
+                            type="text"
+                            onClick={onRefresh}
+                            icon={<ReloadOutlined />}
                           />
                         </Tooltip>
                       )}

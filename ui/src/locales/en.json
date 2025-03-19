@@ -157,7 +157,8 @@
     "InterpretConnectionError": "Interpretation connection error",
     "FailedToStartInterpret": "Failed to start interpretation",
     "FailedToInterpret": "Failed to interpret",
-    "TabName": "YAML"
+    "TabName": "YAML",
+    "Refresh": "Refresh"
   },
   "Yesterday": "Yesterday",
   "Collapse": "Collapse",
