@@ -638,9 +638,12 @@ const PodLogs: React.FC<PodLogsProps> = ({
   const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
 
   function renderAiAnalysis(isDailog) {
+    const panelStyle = isDailog
+      ? { width: '100%', height: 700, overflow: 'auto' }
+      : {}
     return (
       diagnosisStatus !== 'idle' && (
-        <div className={styles.diagnosisPanel}>
+        <div className={styles.diagnosisPanel} style={panelStyle}>
           <div className={styles.diagnosisHeader}>
             <Space>
               <div className={styles.diagnosisHeader_aiIcon}>
@@ -907,7 +910,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
         styles={{
           content: {
             padding: 0,
-            borderRadius: 16,
+            borderRadius: 40,
           },
         }}
         centered

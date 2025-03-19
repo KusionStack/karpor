@@ -466,6 +466,7 @@
 }
 
 .diagnosisPanel {
+  box-sizing: border-box;
   width: 400px;
   min-height: 200px;
   max-height: min(100%, 600px);
@@ -568,9 +569,9 @@
       justify-content: center;
 
       &:hover {
-        color: #fff;
-        background: rgba(147, 112, 219, 0.2);
-        transform: scale(1.05);
+        color: #fff !important;
+        background: rgba(147, 112, 219, 0.2) !important;
+        transform: scale(1.05) !important;
       }
 
       &:active {
@@ -581,7 +582,6 @@
 
   .diagnosisBody {
     position: relative;
-    width: 400px;
     overflow-y: auto;
     height: 100%;
     box-sizing: border-box;
