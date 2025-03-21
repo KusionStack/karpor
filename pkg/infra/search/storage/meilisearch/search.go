@@ -15,18 +15,14 @@
 package meilisearch
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"reflect"
 	"strings"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/util/sql2es"
 	"github.com/pkg/errors"
 )
 
@@ -59,48 +55,34 @@ func (s *Storage) Search(ctx context.Context, queryStr, patternType string, pagi
 	return sr, nil
 }
 
-// SearchByQuery performs a search operation using a query map and pagination settings.
-func (s *Storage) SearchByQuery(ctx context.Context, query map[string]interface{}, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-	return s.search(ctx, buf, pagination)
-}
-
 // searchByDSL performs a search operation using a DSL (Domain Specific Language) string and pagination settings.
 func (s *Storage) searchByDSL(ctx context.Context, dslStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	queries, err := Parse(dslStr)
+	request := &meilisearch.SearchRequest{}
+	if pagination != nil {
+		request.Limit = int64(pagination.PageSize)
+		request.Offset = int64((pagination.Page - 1) * pagination.PageSize)
+	}
+
+	filter, err := Parse(dslStr)
 	if err != nil {
 		return nil, err
 	}
-	esQuery, err := ParseQueries(queries)
-	if err != nil {
-		return nil, err
-	}
-	res, err := s.SearchByQuery(ctx, esQuery, pagination)
-	if err != nil {
-		return nil, err
-	}
-	return res, nil
+	request.Filter = filter
+	return s.search(ctx, request)
 }
 
 // searchBySQL performs a search operation using an SQL string and pagination settings.
 func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	dsl, _, err := sql2es.ConvertWithDefaultFilter(sqlStr, &sql2es.DeletedFilter)
+	searchRequest, _, err := Convert(sqlStr)
 	if err != nil {
 		return nil, err
 	}
-	return s.search(ctx, strings.NewReader(dsl), pagination)
+	return s.search(ctx, searchRequest)
 }
 
 // search performs a search operation using an io.Reader as the query body and pagination settings.
-func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	var opts []elasticsearch.Option
-	if pagination != nil {
-		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
-	}
-	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, body, opts...)
+func (s *Storage) search(ctx context.Context, request *meilisearch.SearchRequest) (*storage.SearchResult, error) {
+	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, request)
 	if err != nil {
 		return nil, err
 	}
@@ -110,11 +92,23 @@ func (s *Storage) search(ctx context.Context, body io.Reader, pagination *storag
 
 // SearchByTerms performs a search operation with a map of keys and values and pagination information.
 func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]any, pagination *storage.Pagination) (*storage.SearchResult, error) {
-	var opts []elasticsearch.Option
+	req := &meilisearch.SearchRequest{}
 	if pagination != nil {
-		opts = append(opts, elasticsearch.Pagination(pagination.Page, pagination.PageSize))
+		req.Limit = int64(pagination.PageSize)
+		req.Offset = int64((pagination.Page - 1) * pagination.PageSize)
+	} else {
+		req.Limit = 1000
+		req.Offset = 0
 	}
-	resp, err := s.client.SearchDocumentByTerms(ctx, s.resourceIndexName, keysAndValues, opts...)
+	if len(keysAndValues) != 0 {
+		filter, err := ConvertToFilter(keysAndValues)
+		if err != nil {
+			return nil, err
+		}
+		req.Filter = filter
+	}
+
+	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, req)
 	if err != nil {
 		return nil, err
 	}
@@ -122,16 +116,16 @@ func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]an
 }
 
 // convertSearchResult converts an elasticsearch.SearchResponse to a storage.SearchResult.
-func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResult, error) {
+func convertSearchResult(in *meilisearch.SearchResponse) (*storage.SearchResult, error) {
 	out := &storage.SearchResult{
-		Total:     in.Hits.Total.Value,
-		Resources: make([]*storage.Resource, len(in.Hits.Hits)),
+		Total:     int(in.TotalHits),
+		Resources: make([]*storage.Resource, in.TotalHits),
 	}
 
-	for i, hit := range in.Hits.Hits {
+	for i, hit := range in.Hits {
 		var err error
-
-		if out.Resources[i], err = storage.Map2Resource(hit.Source); err != nil {
+		obj := hit.(map[string]interface{})
+		if out.Resources[i], err = storage.Map2Resource(obj); err != nil {
 			return nil, err
 		}
 	}
@@ -139,7 +133,7 @@ func convertSearchResult(in *elasticsearch.SearchResponse) (*storage.SearchResul
 }
 
 // convertAggregationResult converts an elasticsearch.AggResults to a storage.AggregateResults.
-func convertAggregationResult(in *elasticsearch.AggResults) *storage.AggregateResults {
+func convertAggregationResult(in *meilisearch.AggResults) *storage.AggregateResults {
 	buckets := make([]storage.Bucket, len(in.Buckets))
 	for i := range in.Buckets {
 		buckets[i] = storage.Bucket{

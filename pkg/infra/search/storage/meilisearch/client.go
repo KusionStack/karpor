@@ -15,17 +15,12 @@
 package meilisearch
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
-	"strings"
-
 	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
-	"github.com/elliotxx/esquery"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
@@ -56,11 +51,11 @@ func NewStorage(address []string, key string) (*Storage, error) {
 		return nil, err
 	}
 
-	if err = cl.CreateIndex(context.Background(), defaultResourceIndexName, strings.NewReader(defaultResourceMapping)); err != nil {
+	if err = cl.CreateIndex(context.Background(), defaultResourceIndexName, defaultResourceIndexSetting); err != nil {
 		return nil, err
 	}
 
-	if err = cl.CreateIndex(context.Background(), defaultResourceGroupRuleIndexName, strings.NewReader(defaultResourceGroupRuleMapping)); err != nil {
+	if err = cl.CreateIndex(context.Background(), defaultResourceGroupRuleIndexName, defaultResourceGroupRuleIndexSetting); err != nil {
 		return nil, err
 	}
 
@@ -83,40 +78,24 @@ func NewStorage(address []string, key string) (*Storage, error) {
 
 // createResourceGroupRuleIfNotExists checks if a resource group rule exists and creates it if it does not.
 func createResourceGroupRuleIfNotExists(cl *meilisearch.Client, ruleName string) error {
-	// Refresh the index before searching to ensure real-time data.
-	if err := cl.Refresh(context.Background(), defaultResourceGroupRuleIndexName); err != nil {
-		return err
-	}
-
-	query := make(map[string]interface{})
-	query["query"] = esquery.Bool().Must(
-		esquery.Term(resourceKeyName, ruleName),
-	).Map()
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return err
-	}
-	resp, err := cl.SearchDocument(context.TODO(), defaultResourceGroupRuleIndexName, buf)
+	resp, err := cl.SearchDocument(context.TODO(), defaultResourceGroupRuleIndexName, &meilisearch.SearchRequest{Filter: generateFilter(resourceKeyName, ruleName)})
 	if err != nil {
 		return err
 	}
 
-	if resp.Hits.Total.Value == 0 {
+	if resp.TotalHits == 0 {
 		// If specified resource group rule not found, create it
 		id := entity.UUID()
 		nowTime := metav1.Now()
-		body, err := json.Marshal(map[string]interface{}{
+		obj := map[string]interface{}{
 			resourceGroupRuleKeyID:          id,
 			resourceGroupRuleKeyName:        ruleName,
 			resourceGroupRuleKeyDescription: fmt.Sprintf("Default resource group rule for %s", ruleName),
 			resourceGroupRuleKeyFields:      []string{ruleName},
 			resourceGroupRuleKeyCreatedAt:   &nowTime,
 			resourceGroupRuleKeyUpdatedAt:   &nowTime,
-		})
-		if err != nil {
-			return err
 		}
-		err = cl.SaveDocument(context.TODO(), defaultResourceGroupRuleIndexName, id, bytes.NewReader(body))
+		err = cl.SaveDocument(context.TODO(), defaultResourceGroupRuleIndexName, obj)
 		if err != nil {
 			return err
 		}

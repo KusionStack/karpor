@@ -16,19 +16,8 @@
 package meilisearch
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"io"
-	"net/http"
-	"strings"
-
-	"github.com/elastic/go-elasticsearch/v8/esapi"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/core/search"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/some"
-	"github.com/elastic/go-elasticsearch/v8/typedapi/types"
-	"github.com/elliotxx/esquery"
 	"github.com/meilisearch/meilisearch-go"
 )
 
@@ -72,44 +61,16 @@ func (cl *Client) GetDocument(
 	return getResp, nil
 }
 
-// UpdateDocument updates a document with the specified ID
-func (cl *Client) UpdateDocument(
-	ctx context.Context,
-	indexName string,
-	documentID string,
-	body io.Reader,
-) error {
-	resp, err := cl.client.Update(indexName, documentID, body, cl.client.Update.WithContext(ctx))
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
-}
-
 // DeleteDocument deletes a document with the specified ID
 func (cl *Client) DeleteDocument(ctx context.Context, indexName, documentID string) error {
 	if _, err := cl.GetDocument(ctx, indexName, documentID); err != nil {
 		return err
 	}
-	resp, err := cl.client.Delete(indexName, documentID, cl.client.Delete.WithContext(ctx))
+	resp, err := cl.client.Index(indexName).DeleteDocumentWithContext(ctx, documentID)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
+	return cl.WaitForTask(ctx, resp)
 }
 
 // DeleteDocumentByQuery deletes documents from the specified index based on the
@@ -117,67 +78,47 @@ func (cl *Client) DeleteDocument(ctx context.Context, indexName, documentID stri
 func (cl *Client) DeleteDocumentByQuery(
 	ctx context.Context,
 	indexName string,
-	body io.Reader,
+	filter interface{},
 ) error {
-	resp, err := cl.client.DeleteByQuery(
-		[]string{indexName},
-		body,
-		cl.client.DeleteByQuery.WithContext(ctx),
-	)
+	task, err := cl.client.Index(indexName).DeleteDocumentsByFilter(filter)
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	return nil
+	return cl.WaitForTask(ctx, task)
 }
 
 // SearchDocument performs a search query in the specified index
-func (cl *Client) SearchDocument(
-	ctx context.Context,
-	indexName string,
-	body io.Reader,
-	options ...Option,
-) (*SearchResponse, error) {
-	cfg := &config{
-		pagination: &paginationConfig{Page: 1, PageSize: maxHitsSize},
+func (cl *Client) SearchDocument(ctx context.Context, indexName string, searchRequest *SearchRequest) (*SearchResponse, error) {
+	req := &meilisearch.SearchRequest{
+		Query:                 searchRequest.Query,
+		Facets:                searchRequest.Facets,
+		Limit:                 searchRequest.Limit,
+		Offset:                searchRequest.Offset,
+		Sort:                  searchRequest.Sort,
+		Filter:                searchRequest.Filter,
+		AttributesToRetrieve:  searchRequest.AttributesToRetrieve,
+		AttributesToHighlight: searchRequest.AttributesToHighlight,
+		AttributesToCrop:      searchRequest.AttributesToCrop,
 	}
-	for _, option := range options {
-		if err := option(cfg); err != nil {
-			return nil, err
-		}
-	}
-
-	opts := []func(*esapi.SearchRequest){
-		cl.client.Search.WithContext(ctx),
-		cl.client.Search.WithIndex(indexName),
-		cl.client.Search.WithBody(body),
-		cl.client.Search.WithSize(cfg.pagination.PageSize),
-		cl.client.Search.WithFrom((cfg.pagination.Page - 1) * cfg.pagination.PageSize),
-	}
-
-	resp, err := cl.client.Search(opts...)
+	resp, err := cl.client.Index(indexName).SearchWithContext(ctx, "", req)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return nil, &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-
-	sr := &SearchResponse{}
-	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
-		return nil, err
-	}
-	return sr, nil
+	return &SearchResponse{
+		Hits:               resp.Hits,
+		TotalHits:          resp.TotalHits,
+		Offset:             resp.Offset,
+		Limit:              resp.Limit,
+		ProcessingTimeMs:   resp.ProcessingTimeMs,
+		Query:              resp.Query,
+		FacetDistribution:  resp.FacetDistribution,
+		IndexUID:           resp.IndexUID,
+		FacetStats:         resp.FacetStats,
+		TotalPages:         resp.TotalPages,
+		HitsPerPage:        resp.HitsPerPage,
+		Page:               resp.Page,
+		EstimatedTotalHits: resp.EstimatedTotalHits,
+	}, nil
 }
 
 // Count performs a count query in the specified index.
@@ -185,94 +126,46 @@ func (cl *Client) Count(
 	ctx context.Context,
 	indexName string,
 ) (*CountResponse, error) {
-	opts := []func(*esapi.CountRequest){
-		cl.client.Count.WithContext(ctx),
-		cl.client.Count.WithIndex(indexName),
-	}
 
-	resp, err := cl.client.Count(opts...)
+	resp, err := cl.client.Index(indexName).GetStatsWithContext(ctx)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return nil, &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
+	return &CountResponse{
+		Count: resp.NumberOfDocuments,
+	}, nil
 
-	sr := &CountResponse{}
-	if err := json.NewDecoder(resp.Body).Decode(sr); err != nil {
-		return nil, err
-	}
-	return sr, nil
 }
 
-// CreateIndex creates a new index with the specified settings and mappings
-func (cl *Client) CreateIndex(ctx context.Context, index string, body io.Reader) error {
-	resp, err := cl.client.Indices.Create(
-		index,
-		cl.client.Indices.Create.WithBody(body),
-		cl.client.Indices.Create.WithContext(ctx),
-	)
+// CreateIndex creates a new index with the specified settings and mappings,PrimaryKey is id by default
+func (cl *Client) CreateIndex(ctx context.Context, index string, settings *meilisearch.Settings) error {
+	resp, err := cl.client.CreateIndexWithContext(ctx, &meilisearch.IndexConfig{
+		Uid: index,
+	})
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		if strings.Contains(resp.String(), "resource_already_exists_exception") {
-			return nil
+	err = cl.WaitForTask(ctx, resp)
+	if err != nil {
+		return err
+	}
+	if settings != nil {
+		task, err := cl.client.Index(index).UpdateSettingsWithContext(ctx, settings)
+		if err != nil {
+			return err
 		}
-		return &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
+		return cl.WaitForTask(ctx, task)
 	}
 	return nil
 }
 
 // IsIndexExists Check if an index exists in Elasticsearch
 func (cl *Client) IsIndexExists(ctx context.Context, index string) (bool, error) {
-	resp, err := cl.client.Indices.Exists(
-		[]string{index},
-		cl.client.Indices.Exists.WithContext(ctx),
-	)
+	_, err := cl.client.GetIndexWithContext(ctx, index)
 	if err != nil {
 		return false, err
 	}
-	defer resp.Body.Close()
-	if resp.IsError() {
-		return false, &MSError{
-			StatusCode: resp.StatusCode,
-			Message:    resp.String(),
-		}
-	}
-	// Decide if the index exists based on the response status code
-	if resp.StatusCode == http.StatusOK {
-		return true, nil // Index exists
-	} else if resp.StatusCode == http.StatusNotFound {
-		return false, nil // Index does not exist
-	} else {
-		// If it's any other status code, return an error
-		return false, fmt.Errorf("unexpected response status code: %d", resp.StatusCode)
-	}
-}
-
-// SearchDocumentByTerms constructs a boolean search query with a must term match for each key-value pair in keyAndVal,
-func (cl *Client) SearchDocumentByTerms(ctx context.Context, index string, keysAndValues map[string]any, options ...Option) (*SearchResponse, error) {
-	boolQuery := esquery.Bool()
-	for k, v := range keysAndValues {
-		boolQuery.Must(esquery.Term(k, v))
-	}
-	query := map[string]interface{}{
-		"query": boolQuery.Map(),
-	}
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-	return cl.SearchDocument(ctx, index, buf, options...)
+	return true, nil
 }
 
 // AggregateDocumentByTerms performs an aggregation query based on the provided fields.
@@ -280,136 +173,60 @@ func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fi
 	if len(fields) == 0 {
 		return nil, fmt.Errorf("no fields provided for aggregation")
 	}
-	if len(fields) == 1 {
-		// Perform single-term aggregation if only one field is provided.
-		return cl.termsAgg(ctx, index, fields[0])
+	if len(fields) > 1 {
+		return nil, fmt.Errorf("only one field is supported for aggregation")
 	}
-	// Perform multi-term aggregation if multiple fields are provided.
-	return cl.multiTermsAgg(ctx, index, fields)
-}
-
-// Refresh refresh specified index in Elasticsearch.
-func (cl *Client) Refresh(
-	ctx context.Context,
-	indexName string,
-) error {
-	opts := []func(*esapi.IndicesRefreshRequest){
-		cl.client.Indices.Refresh.WithContext(ctx),
-		cl.client.Indices.Refresh.WithIndex(indexName),
-	}
-
-	_, err := cl.client.Indices.Refresh(opts...)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-// multiTermsAggSearch executes a multi-term aggregation query on specified fields.
-func (cl *Client) multiTermsAgg(ctx context.Context, index string, fields []string) (*AggResults, error) {
-	// Construct the terms for multi-term aggregation based on the fields.
-	terms := make([]types.MultiTermLookup, len(fields))
-	for i := range fields {
-		terms[i] = types.MultiTermLookup{Field: fields[i]}
-	}
-
-	// Execute the search request with the constructed multi-term aggregation.
-	name := strings.Join(fields, "-")
-	resp, err := cl.typedClient.
-		Search().
-		Index(index).
-		Request(&search.Request{
-			// Set the number of search hits to return to 0 as we only need aggregation data.
-			Size: some.Int(0),
-			Aggregations: map[string]types.Aggregations{
-				name: {
-					MultiTerms: &types.MultiTermsAggregation{
-						Terms: terms,
-						// maxAggSize should be predefined to limit the size of the aggregation.
-						Size: some.Int(maxAggSize),
-					},
-				},
-			},
-		}).
-		Do(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	// Extract the buckets from the response and construct the AggResults.
-	buckets := resp.Aggregations[name].(*types.MultiTermsAggregate).Buckets.([]types.MultiTermsBucket)
-	bs := make([]Bucket, len(buckets))
-	for i, b := range buckets {
-		keys := make([]string, len(b.Key))
-		for j, k := range b.Key {
-			keys[j] = fmt.Sprintf("%v", k)
-		}
-		bs[i] = Bucket{
-			Keys:  keys,
-			Count: int(b.DocCount),
-		}
-	}
-	return &AggResults{
-		Buckets: bs,
-		Total:   len(bs),
-	}, nil
-}
-
-// termsAgg executes a single-term aggregation query on the specified field.
-func (cl *Client) termsAgg(ctx context.Context, index, field string) (*AggResults, error) {
 	// Execute the search request with the single-term aggregation.
-	resp, err := cl.typedClient.
-		Search().
-		Index(index).
-		Request(&search.Request{
-			// Set the number of search hits to return to 0 as we only need aggregation data.
-			Size: some.Int(0),
-			Aggregations: map[string]types.Aggregations{
-				field: {
-					Terms: &types.TermsAggregation{
-						Field: some.String(field),
-						// maxAggSize should be predefined to limit the size of the aggregation.
-						Size: some.Int(maxAggSize),
-					},
-				},
-			},
-		}).
-		Do(ctx)
+	resp, err := cl.client.Index(index).SearchWithContext(ctx, "", &meilisearch.SearchRequest{
+		Facets: fields,
+		Limit:  0, // no hits needed
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	// Extract the buckets from the response and construct the AggResults.
-	buckets := resp.Aggregations[field].(*types.StringTermsAggregate).Buckets.([]types.StringTermsBucket)
-	bs := make([]Bucket, len(buckets))
-	for i, b := range buckets {
-		bs[i] = Bucket{
-			Keys:  []string{fmt.Sprintf("%v", b.Key)},
-			Count: int(b.DocCount),
-		}
+	aggRes := resp.FacetDistribution.(map[string]map[string]interface{})
+	filedAgg := aggRes[fields[0]]
+	results := &AggResults{
+		Total: 1,
 	}
-	return &AggResults{
-		Buckets: bs,
-		Total:   len(bs),
-	}, nil
+
+	for fieldValue, count := range filedAgg {
+		var bucket Bucket
+		bucket.Keys = []string{fieldValue}
+		bucket.Count = int(count.(float64))
+		results.Total++
+		results.Buckets = append(results.Buckets, bucket)
+	}
+	return results, nil
 }
 
-// CheckElasticSearchLiveness would ping ElasticSearch client
-func (cl *Client) CheckElasticSearchLiveness(ctx context.Context) error {
-	_, err := cl.client.Info(cl.client.Info.WithContext(ctx))
+func (cl *Client) UpdateIndexFacets(ctx context.Context, index string, fields []string) error {
+	facets, err := cl.client.Index(index).GetFacetingWithContext(ctx)
 	if err != nil {
 		return err
 	}
-	resp, err := cl.client.Cluster.Health(cl.client.Cluster.Health.WithContext(ctx))
+	if facets == nil {
+		facets = &meilisearch.Faceting{
+			MaxValuesPerFacet: maxAggSize,
+		}
+	}
+	if facets.SortFacetValuesBy == nil {
+		facets.SortFacetValuesBy = make(map[string]meilisearch.SortFacetType)
+	}
+	for _, field := range fields {
+		facets.SortFacetValuesBy[field] = meilisearch.SortFacetTypeAlpha
+	}
+	taskInfo, err := cl.client.Index(index).UpdateFacetingWithContext(ctx, facets)
 	if err != nil {
-		return fmt.Errorf("failed to get cluster health: %v", err)
+		return err
 	}
-	defer resp.Body.Close()
-	if status := resp.Status(); status != "green" && status != "yellow" {
-		return fmt.Errorf("cluster health status is not OK: %s", status)
-	}
+	return cl.WaitForTask(ctx, taskInfo)
+}
 
-	return nil
+// SearchLiveness would ping ElasticSearch client
+func (cl *Client) SearchLiveness(_ context.Context) error {
+	_, err := cl.client.Health()
+	return err
 }
 
 func (cl *Client) WaitForTask(ctx context.Context, taskInfo *meilisearch.TaskInfo) error {

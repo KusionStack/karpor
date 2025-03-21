@@ -27,11 +27,13 @@ const (
 )
 
 type paginationConfig struct {
-	Page     int
-	PageSize int
+	Page     int64
+	PageSize int64
 }
 
 type config struct {
+	filter     interface{}
+	query      string
 	pagination *paginationConfig
 }
 
@@ -44,9 +46,31 @@ func Pagination(page, pageSize int) Option {
 			return fmt.Errorf("config can't be nil")
 		}
 		c.pagination = &paginationConfig{
-			Page:     page,
-			PageSize: pageSize,
+			Page:     int64(page),
+			PageSize: int64(pageSize),
 		}
+		return nil
+	}
+}
+
+// Filter is a functional option to set the filter configuration.
+func Filter(filter interface{}) Option {
+	return func(c *config) error {
+		if c == nil {
+			return fmt.Errorf("config can't be nil")
+		}
+		c.filter = filter
+		return nil
+	}
+}
+
+// Query is a functional option to set the query string.
+func Query(query string) Option {
+	return func(c *config) error {
+		if c == nil {
+			return fmt.Errorf("config can't be nil")
+		}
+		c.query = query
 		return nil
 	}
 }
@@ -72,14 +96,6 @@ type CountResponse struct {
 	Count int64 `json:"count"`
 }
 
-// SearchResponse represents the response structure for a search operation.
-type SearchResponse struct {
-	ScrollID string `json:"_scroll_id"`
-	Took     int    `json:"took"`
-	TimeOut  bool   `json:"time_out"`
-	Hits     *Hits  `json:"hits"`
-}
-
 // Hits contains the hit documents and metadata from a search operation.
 type Hits struct {
 	Total    *Total  `json:"total"`
@@ -89,8 +105,7 @@ type Hits struct {
 
 // Total provides information about the total number of documents matching the search query.
 type Total struct {
-	Value    int    `json:"value,omitempty"`
-	Relation string `json:"relation,omitempty"`
+	Value int `json:"value,omitempty"`
 }
 
 // Hit represents a single hit document from a search operation, containing index, ID, score, and source data.
@@ -111,4 +126,34 @@ type AggResults struct {
 type Bucket struct {
 	Keys  []string
 	Count int
+}
+
+type SearchRequest struct {
+	Query                 string      `json:"query"`
+	Facets                []string    `json:"facets"`
+	Page                  int         `json:"page"`
+	Limit                 int64       `json:"limit"`
+	Offset                int64       `json:"offset"`
+	Sort                  []string    `json:"sort"`
+	Filter                interface{} `json:"filters"`
+	FacetFilters          []string    `json:"facetFilters"`
+	AttributesToRetrieve  []string    `json:"attributesToRetrieve"`
+	AttributesToHighlight []string    `json:"attributesToHighlight"`
+	AttributesToCrop      []string    `json:"attributesToCrop"`
+}
+
+type SearchResponse struct {
+	Hits               []interface{} `json:"hits"`
+	EstimatedTotalHits int64         `json:"estimatedTotalHits,omitempty"`
+	Offset             int64         `json:"offset,omitempty"`
+	Limit              int64         `json:"limit,omitempty"`
+	ProcessingTimeMs   int64         `json:"processingTimeMs"`
+	Query              string        `json:"query"`
+	FacetDistribution  interface{}   `json:"facetDistribution,omitempty"`
+	TotalHits          int64         `json:"totalHits,omitempty"`
+	HitsPerPage        int64         `json:"hitsPerPage,omitempty"`
+	Page               int64         `json:"page,omitempty"`
+	TotalPages         int64         `json:"totalPages,omitempty"`
+	FacetStats         interface{}   `json:"facetStats,omitempty"`
+	IndexUID           string        `json:"indexUid,omitempty"`
 }

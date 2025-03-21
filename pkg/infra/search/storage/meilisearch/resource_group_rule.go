@@ -15,15 +15,13 @@
 package meilisearch
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"strings"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/elliotxx/esquery"
 )
 
 const (
@@ -36,18 +34,8 @@ const (
 	resourceGroupRuleKeyDeletedAt   = "deletedAt"
 )
 
-var (
-	ErrResourceGroupRuleNotFound = fmt.Errorf("resource group rule not found")
-	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
-)
-
 // DeleteResourceGroupRule deletes a resource group rule based on the given name.
 func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) error {
-	// Refresh the index before searching to ensure real-time data.
-	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
-	if err != nil {
-		return err
-	}
 
 	if rgr, err := s.GetResourceGroupRule(ctx, name); err != nil {
 		return err
@@ -58,27 +46,19 @@ func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) erro
 
 // GetResourceGroupRule retrieves a resource group rule based on the given name.
 func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
-	// Refresh the index before searching to ensure real-time data.
-	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
+
+	filter := generateFilter(resourceKeyName, name)
+
+	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, &meilisearch.SearchRequest{Filter: filter})
 	if err != nil {
 		return nil, err
 	}
 
-	query := generateResourceGroupRuleQuery(name)
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
-	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, buf)
-	if err != nil {
-		return nil, err
+	if resp.TotalHits == 0 {
+		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 
-	if resp.Hits.Total.Value == 0 {
-		return nil, ErrResourceGroupRuleNotFound
-	}
-
-	res, err := storage.Map2ResourceGroupRule(resp.Hits.Hits[0].Source)
+	res, err := storage.Map2ResourceGroupRule(resp.Hits[0].(map[string]interface{}))
 	if err != nil {
 		return nil, err
 	}
@@ -89,39 +69,25 @@ func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entit
 // ListResourceGroupRules lists all resource group rules by searching the entire
 // index.
 func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
-	// Refresh the index before searching to ensure real-time data.
-	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
-	if err != nil {
-		return nil, err
-	}
-
-	// Create a query to search for all resource group rules.
-	query := generateResourceGroupRuleQueryForAll()
-
-	// Buffer to hold the query JSON.
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return nil, err
-	}
 
 	// Execute the search document call to the storage.
-	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, buf)
+	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, &meilisearch.SearchRequest{})
 	if err != nil {
 		return nil, err
 	}
 
 	// Check if the search found any resource group rules.
-	if resp.Hits.Total.Value == 0 {
-		return nil, ErrResourceGroupRuleNotFound
+	if resp.TotalHits == 0 {
+		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 
 	// Initialize a slice to hold the resource group rules.
-	rgrList := make([]*entity.ResourceGroupRule, 0, len(resp.Hits.Hits))
+	rgrList := make([]*entity.ResourceGroupRule, 0, len(resp.Hits))
 
 	// Iterate over the search hits and map each hit to a ResourceGroupRule entity.
-	for _, hit := range resp.Hits.Hits {
+	for _, hit := range resp.Hits {
 		// Map the source of the hit to a ResourceGroupRule entity.
-		rgr, err := storage.Map2ResourceGroupRule(hit.Source)
+		rgr, err := storage.Map2ResourceGroupRule(hit.(map[string]interface{}))
 		if err != nil {
 			return nil, err
 		}
@@ -134,11 +100,6 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 // ListResourceGroupsBy lists all resource groups by specified resource group
 // rule name.
 func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
-	// Refresh the index before searching to ensure real-time data.
-	err := s.client.Refresh(ctx, s.resourceGroupRuleIndexName)
-	if err != nil {
-		return nil, err
-	}
 
 	rgr, err := s.GetResourceGroupRule(ctx, ruleName)
 	if err != nil {
@@ -152,7 +113,7 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*s
 
 	// Check if the search found any resource groups.
 	if resp.Total == 0 {
-		return nil, ErrResourceGroupNotFound
+		return nil, storage.ErrResourceGroupNotFound
 	}
 
 	// Initialize a slice to hold the resource group rules.
@@ -207,11 +168,11 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*s
 
 // SaveResourceGroupRule saves a resource group rule to the storage.
 func (s *Storage) SaveResourceGroupRule(ctx context.Context, data *entity.ResourceGroupRule) error {
-	id, body, err := s.generateResourceGroupRuleDocument(data)
-	if err != nil {
+	obj := s.generateResourceGroupRuleDocument(data)
+	if err := s.client.UpdateIndexFacets(ctx, s.resourceIndexName, data.Fields); err != nil {
 		return err
 	}
-	return s.client.SaveDocument(ctx, s.resourceGroupRuleIndexName, id, bytes.NewReader(body))
+	return s.client.SaveDocument(ctx, s.resourceGroupRuleIndexName, obj)
 }
 
 // CountResourceGroupRules return a count of resource group rules in the
@@ -226,41 +187,25 @@ func (s *Storage) CountResourceGroupRules(ctx context.Context) (int, error) {
 
 // generateResourceGroupRuleDocument creates a resource group rule document for
 // Elasticsearch with the specified name, description etc.
-func (s *Storage) generateResourceGroupRuleDocument(data *entity.ResourceGroupRule) (id string, body []byte, err error) {
+func (s *Storage) generateResourceGroupRuleDocument(data *entity.ResourceGroupRule) map[string]any {
+	var id string
 	if len(data.ID) == 0 {
 		id = entity.UUID()
 	} else {
 		id = data.ID
 	}
-	body, err = json.Marshal(map[string]interface{}{
+	return map[string]any{
 		resourceGroupRuleKeyID:          id,
 		resourceGroupRuleKeyName:        data.Name,
 		resourceGroupRuleKeyDescription: data.Description,
 		resourceGroupRuleKeyFields:      data.Fields,
 		resourceGroupRuleKeyCreatedAt:   data.CreatedAt,
 		resourceGroupRuleKeyUpdatedAt:   data.UpdatedAt,
-	})
-	if err != nil {
-		return
 	}
-	return
 }
 
-// generateResourceGroupRuleQuery creates a query to search for an object in
+// generateResourceGroupRuleFilter creates a query to search for an object in
 // Elasticsearch based on resource group rule's name.
-func generateResourceGroupRuleQuery(name string) map[string]interface{} {
-	query := make(map[string]interface{})
-	query["query"] = esquery.Bool().Must(
-		esquery.Term(resourceKeyName, name),
-	).Map()
-	return query
-}
-
-// generateResourceGroupRuleQueryForAll creates a query to search for all
-// resource group rules.
-func generateResourceGroupRuleQueryForAll() map[string]interface{} {
-	query := make(map[string]interface{})
-	// This query will match all documents in the index.
-	query["query"] = esquery.MatchAll().Map()
-	return query
+func generateFilter(k, v string) string {
+	return fmt.Sprintf("%s=%s", k, v)
 }

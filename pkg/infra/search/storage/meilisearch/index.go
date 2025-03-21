@@ -14,130 +14,88 @@
 
 package meilisearch
 
+import "github.com/meilisearch/meilisearch-go"
+
 const (
-	defaultResourceIndexName = "resources"
-	defaultResourceMapping   = `{
-  "settings":{
-    "index":{
-      "max_result_window": "1000000",
-      "number_of_shards":1,
-      "auto_expand_replicas":"0-1",
-      "number_of_replicas":0
-    },
-    "analysis":{
-      "normalizer":{
-        "lowercase":{
-          "type":"custom",
-          "filter":[
-            "lowercase"
-          ]
-        }
-      }
-    }
-  },
-  "mappings":{
-    "_source":{
-      "excludes":[
-        "custom"
-      ]
-    },
-    "properties":{
-      "cluster":{
-        "type":"keyword"
-      },
-      "apiVersion":{
-        "type":"keyword"
-      },
-      "kind":{
-        "type":"keyword",
-        "normalizer":"lowercase"
-      },
-      "namespace":{
-        "type":"keyword"
-      },
-      "name":{
-        "type":"keyword"
-      },
-      "labels":{
-        "type":"flattened"
-      },
-      "annotations":{
-        "type":"flattened"
-      },
-      "creationTimestamp":{
-        "type":"date",
-        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      },
-      "deletionTimestamp":{
-        "type":"date",
-        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      },
-      "ownerReferences":{
-        "type":"flattened"
-      },
-      "resourceVersion":{
-        "type":"keyword",
-        "ignore_above":256
-      },
-      "content":{
-        "type":"text"
-      }
-    }
-  }
-}`
+	defaultResourceIndexName          = "resources"
 	defaultResourceGroupRuleIndexName = "resource_group_rules"
-	defaultResourceGroupRuleMapping   = `{
-  "settings":{
-    "index":{
-      "max_result_window": "1000000",
-      "number_of_shards":1,
-      "auto_expand_replicas":"0-1",
-      "number_of_replicas":0
-    },
-    "analysis":{
-      "normalizer":{
-        "lowercase":{
-          "type":"custom",
-          "filter":[
-            "lowercase"
-          ]
-        }
-      }
-    }
-  },
-  "mappings":{
-    "_source":{
-      "excludes":[
-        "custom"
-      ]
-    },
-    "properties":{
-      "id": {
-        "type": "keyword",
-        "ignore_above": 256
-      },
-      "name": {
-        "type": "keyword"
-      },
-      "description": {
-        "type": "keyword"
-      },
-      "fields": {
-        "type": "keyword"
-      },
-      "createdAt": {
-        "type": "date",
-        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      },
-      "updatedAt": {
-        "type": "date",
-        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      },
-      "deletedAt": {
-        "type": "date",
-        "format":"yyyy-MM-dd'T'HH:mm:ss'Z'"
-      }
-    }
-  }
-}`
 )
+
+var defaultResourceIndexSetting = &meilisearch.Settings{
+	// 对应 ES 的 max_result_window
+	Pagination: &meilisearch.Pagination{
+		MaxTotalHits: 1_000_000, // 控制最大返回结果数
+	},
+
+	// 对应 ES analysis.normalizer
+	SortableAttributes: []string{
+		"creationTimestamp",
+		"deletionTimestamp",
+	},
+
+	// 对应 ES mappings.properties 字段配置
+	FilterableAttributes: []string{
+		"cluster",
+		"apiVersion",
+		"kind", // 启用过滤和精确匹配
+		"namespace",
+		"name",
+		"labels", // 扁平化字段过滤
+		"annotations",
+		"ownerReferences",
+		"resourceVersion",
+	},
+
+	SearchableAttributes: []string{
+		"content", // 全文搜索字段
+	},
+
+	// 对应 _source.excludes 排除字段
+	DisplayedAttributes: []string{
+		"cluster",
+		"apiVersion",
+		"kind",
+		"namespace",
+		"name",
+		"creationTimestamp",
+		"deletionTimestamp",
+		"labels",
+		"annotations",
+		"ownerReferences",
+		"resourceVersion",
+		"content",
+		// 排除 "custom" 字段
+	},
+}
+var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
+	// 对应 Elasticsearch 的 max_result_window
+	Pagination: &meilisearch.Pagination{
+		MaxTotalHits: 1000000, // 控制最大返回结果数
+	}, // 控制最大返回结果数
+
+	// 对应 mappings.properties 字段属性
+	FilterableAttributes: []string{
+		"id",
+		"name",
+		"description",
+		"fields",
+	},
+	SortableAttributes: []string{
+		"createdAt",
+		"updatedAt",
+		"deletedAt",
+	},
+
+	// 对应 mappings._source.excludes
+	// Meilisearch 无完全等效功能，但可通过以下方式近似实现
+	DisplayedAttributes: []string{
+		"id",
+		"name",
+		"description",
+		"fields",
+		"createdAt",
+		"updatedAt",
+		"deletedAt",
+	}, // 显式指定返回字段
+
+}

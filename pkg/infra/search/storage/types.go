@@ -36,6 +36,11 @@ const (
 	SQLPatternType = "sql"
 )
 
+var (
+	ErrResourceGroupRuleNotFound = fmt.Errorf("resource group rule not found")
+	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
+)
+
 // Storage interface defines the basic operations for storage.
 type Storage interface {
 	ResourceStorage

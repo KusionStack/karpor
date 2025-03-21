@@ -19,6 +19,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"time"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -29,6 +30,7 @@ import (
 )
 
 const (
+	resourceKeyID                = "id"
 	resourceKeyCluster           = "cluster"
 	resourceKeyAPIVersion        = "apiVersion"
 	resourceKeyKind              = "kind"
@@ -49,19 +51,16 @@ var ErrNotFound = fmt.Errorf("object not found")
 
 // SaveResource stores an object in the Elasticsearch storage for the specified cluster.
 func (s *Storage) SaveResource(ctx context.Context, cluster string, obj runtime.Object) error {
-	id, body, err := s.generateResourceDocument(cluster, obj)
+	out, err := s.generateResourceDocument(cluster, obj)
 	if err != nil {
 		return err
 	}
-	return s.client.SaveDocument(ctx, s.resourceIndexName, id, bytes.NewReader(body))
+	return s.client.SaveDocument(ctx, s.resourceIndexName, out)
 }
 
-// Refresh will update ES index. If you want the previous document changes to be
-// searchable immediately, you need to call refresh manually.
-//
-// Refer to https://www.elastic.co/guide/en/elasticsearch/guide/current/near-real-time.html to see detail.
-func (s *Storage) Refresh(ctx context.Context) error {
-	return s.client.Refresh(ctx, s.resourceIndexName)
+// Refresh meilisearch storage does not need to refresh, it is automatically refreshed.
+func (s *Storage) Refresh(_ context.Context) error {
+	return nil
 }
 
 // SoftDeleteResource only sets the deleted field to true, not really deletes the data in storage.
@@ -76,18 +75,12 @@ func (s *Storage) SoftDeleteResource(ctx context.Context, cluster string, obj ru
 		return err
 	}
 
-	body, err := json.Marshal(map[string]map[string]interface{}{
-		"doc": {
-			resourceKeySyncAt:  time.Now(),
-			resourceKeyDeleted: true,
-		},
-	})
+	newObject, err := s.generateResourceDocument(cluster, obj)
 	if err != nil {
 		return err
 	}
-
-	id := string(unObj.GetUID())
-	return s.client.UpdateDocument(ctx, s.resourceIndexName, id, bytes.NewReader(body))
+	newObject[resourceKeyDeleted] = true
+	return s.client.SaveDocument(ctx, s.resourceIndexName, newObject)
 }
 
 // DeleteResource removes an object from the Elasticsearch storage for the specified cluster.
@@ -113,21 +106,17 @@ func (s *Storage) GetResource(ctx context.Context, cluster string, obj runtime.O
 		return fmt.Errorf("only support *unstructured.Unstructured type")
 	}
 
-	query := generateResourceQuery(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
-	buf := &bytes.Buffer{}
-	if err := json.NewEncoder(buf).Encode(query); err != nil {
-		return err
-	}
-	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, buf)
+	filter := generateResourceFilter(cluster, unObj.GetNamespace(), unObj.GetName(), unObj)
+	resp, err := s.client.SearchDocument(ctx, s.resourceIndexName, &meilisearch.SearchRequest{Filter: filter})
 	if err != nil {
 		return err
 	}
 
-	if len(resp.Hits.Hits) == 0 {
+	if resp.TotalHits == 0 {
 		return fmt.Errorf("no resource found for cluster: %s, namespace: %s, name: %s", cluster, unObj.GetNamespace(), unObj.GetName())
 	}
 
-	res, err := storage.Map2Resource(resp.Hits.Hits[0].Source)
+	res, err := storage.Map2Resource(resp.Hits[0].(map[string]interface{}))
 	if err != nil {
 		return err
 	}
@@ -160,7 +149,7 @@ func (s *Storage) DeleteAllResources(ctx context.Context, cluster string) error 
 
 // generateResourceDocument creates an resource document for Elasticsearch with
 // the specified cluster and object.
-func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (id string, body []byte, err error) {
+func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (out map[string]any, err error) {
 	metaObj, err := meta.Accessor(obj)
 	if err != nil {
 		return
@@ -171,7 +160,8 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 		return
 	}
 
-	body, err = json.Marshal(map[string]interface{}{
+	out = map[string]any{
+		resourceKeyID:                string(metaObj.GetUID()),
 		resourceKeyCluster:           cluster,
 		resourceKeyAPIVersion:        obj.GetObjectKind().GroupVersionKind().GroupVersion().String(),
 		resourceKeyKind:              obj.GetObjectKind().GroupVersionKind().Kind,
@@ -186,29 +176,23 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 		resourceKeyContent:           buf.String(),
 		resourceKeySyncAt:            time.Now(),
 		resourceKeyDeleted:           false,
-	})
-	if err != nil {
-		return
 	}
-	id = string(metaObj.GetUID())
 	return
 }
 
-// generateResourceQuery creates a query to search for an object in
-// Elasticsearch based on resource's cluster, namespace, and name.
-func generateResourceQuery(cluster, namespace, name string, obj runtime.Object) map[string]interface{} {
-	query := make(map[string]interface{})
-	query["query"] = esquery.Bool().Must(
-		esquery.Term(resourceKeyAPIVersion, obj.GetObjectKind().GroupVersionKind().GroupVersion().String()),
-		esquery.Term(resourceKeyKind, obj.GetObjectKind().GroupVersionKind().Kind),
-		esquery.Term(resourceKeyName, name),
-		esquery.Term(resourceKeyNamespace, namespace),
-		esquery.Term(resourceKeyCluster, cluster),
-	).Map()
-	return query
+// generateResourceFilter creates a filter to search for an object in
+// meilisearch based on resource's cluster, namespace, and name.
+func generateResourceFilter(cluster, namespace, name string, obj runtime.Object) interface{} {
+	return []string{
+		generateFilter(resourceKeyAPIVersion, obj.GetObjectKind().GroupVersionKind().GroupVersion().String()),
+		generateFilter(resourceKeyKind, obj.GetObjectKind().GroupVersionKind().Kind),
+		generateFilter(resourceKeyName, name),
+		generateFilter(resourceKeyNamespace, namespace),
+		generateFilter(resourceKeyCluster, cluster),
+	}
 }
 
 // CheckStorageHealth checks the health of the Elasticsearch storage by pinging the client.
 func (s *Storage) CheckStorageHealth(ctx context.Context) error {
-	return s.client.CheckElasticSearchLiveness(ctx)
+	return s.client.SearchLiveness(ctx)
 }

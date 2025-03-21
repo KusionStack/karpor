@@ -47,11 +47,11 @@ type ResourceStorageGetter struct {
 // GetResourceStorage retrieves and returns a resource storage instance based on
 // the provided configuration.
 func (s *ResourceStorageGetter) GetResourceStorage() (storage.ResourceStorage, error) {
-	esClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
+	msClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
 	if err != nil {
 		return nil, err
 	}
-	return esClient, nil
+	return msClient, nil
 }
 
 // ResourceGroupRuleStorageGetter represents a structure for getting resource
@@ -63,11 +63,11 @@ type ResourceGroupRuleStorageGetter struct {
 // GetResourceGroupRuleStorage retrieves and returns a resource group rule
 // storage instance based on the provided configuration.
 func (s *ResourceGroupRuleStorageGetter) GetResourceGroupRuleStorage() (storage.ResourceGroupRuleStorage, error) {
-	esClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
+	msClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
 	if err != nil {
 		return nil, err
 	}
-	return esClient, nil
+	return msClient, nil
 }
 
 // GeneralStorageGetter retrieves and returns a general storage instance based on
@@ -79,11 +79,11 @@ type GeneralStorageGetter struct {
 // GetGeneralStorage retrieves and returns a storage instance based on the provided
 // configuration.
 func (s *GeneralStorageGetter) GetGeneralStorage() (storage.Storage, error) {
-	esClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
+	msClient, err := NewStorage(s.cfg.Addresses, s.cfg.Password)
 	if err != nil {
 		return nil, err
 	}
-	return esClient, nil
+	return msClient, nil
 }
 
 // Config defines the configuration structure for Elasticsearch storage.
