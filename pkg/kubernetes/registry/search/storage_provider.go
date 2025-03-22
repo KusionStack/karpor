@@ -122,11 +122,7 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGetter, error) {
 	switch p.SearchStorageType {
 	case elasticSearchType:
-		return elasticsearch.NewResourceStorageGetter(
-			p.SearchAddresses,
-			p.SearchName,
-			p.SearchPassword,
-		), nil
+		return elasticsearch.NewResourceStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	case meiliSearchType:
 		return meilisearch.NewResourceStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	default:

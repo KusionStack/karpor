@@ -118,8 +118,8 @@ func (s *Storage) SearchByTerms(ctx context.Context, keysAndValues map[string]an
 // convertSearchResult converts an elasticsearch.SearchResponse to a storage.SearchResult.
 func convertSearchResult(in *meilisearch.SearchResponse) (*storage.SearchResult, error) {
 	out := &storage.SearchResult{
-		Total:     int(in.TotalHits),
-		Resources: make([]*storage.Resource, in.TotalHits),
+		Total:     int(in.EstimatedTotalHits),
+		Resources: make([]*storage.Resource, len(in.Hits)),
 	}
 
 	for i, hit := range in.Hits {

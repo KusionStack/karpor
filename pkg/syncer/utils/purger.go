@@ -17,10 +17,9 @@ package utils
 import (
 	"context"
 	"fmt"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/elliotxx/esquery"
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
@@ -34,46 +33,36 @@ type Purger interface {
 	Purge(ctx context.Context, syncBefore time.Time) error
 }
 
-var _ Purger = (*ESPurger)(nil)
+var _ Purger = (*defaultPurger)(nil)
 
-// NewESPurger creates an ESPurger which implements the Purger interface.
-func NewESPurger(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource,
-	store cache.Store, onPurge func(obj client.Object),
-) *ESPurger {
-	return &ESPurger{
-		cluster:  cluster,
-		esClient: esClient,
-		gvr:      gvr,
-		onPurge:  onPurge,
-		store:    store,
-		logger:   ctrl.Log.WithName(fmt.Sprintf("%s-es-purger", gvr.Resource)),
+// NewPurger creates an defaultPurger which implements the Purger interface.
+func NewPurger(rs storage.ResourceStorage, cluster string, gvr schema.GroupVersionResource, store cache.Store, onPurge func(obj client.Object)) Purger {
+	return &defaultPurger{
+		cluster:         cluster,
+		resourceStorage: rs,
+		gvr:             gvr,
+		onPurge:         onPurge,
+		store:           store,
+		logger:          ctrl.Log.WithName(fmt.Sprintf("%s-es-purger", gvr.Resource)),
 	}
 }
 
-type ESPurger struct {
-	cluster  string
-	esClient *elasticsearch.Storage
-	gvr      schema.GroupVersionResource
-	onPurge  func(obj client.Object)
-	store    cache.Store
-	logger   logr.Logger
+type defaultPurger struct {
+	cluster         string
+	resourceStorage storage.ResourceStorage
+	gvr             schema.GroupVersionResource
+	onPurge         func(obj client.Object)
+	store           cache.Store
+	logger          logr.Logger
 }
 
 // Purge calls onPurge for objects that do not exist in the cache but have not been deleted in ES.
-func (e *ESPurger) Purge(ctx context.Context, syncBefore time.Time) error {
+func (e *defaultPurger) Purge(ctx context.Context, syncBefore time.Time) error {
 	resource := e.gvr.Resource
 	kind := resource[0 : len(resource)-1]
+	queryStr := fmt.Sprintf("select * from %s where cluster='%s' and apiVersion='%s' and kind='%s' and deleted=false and syncAt <= '%s'", resource, e.cluster, e.gvr.GroupVersion().String(), kind, syncBefore.Format(time.RFC3339))
 
-	query := make(map[string]interface{})
-	query["query"] = esquery.Bool().Must(
-		esquery.Term("cluster", e.cluster),
-		esquery.Term("apiVersion", e.gvr.GroupVersion().String()),
-		esquery.Term("kind", kind),
-		esquery.Term("deleted", false),
-		esquery.Range("syncAt").Lte(syncBefore),
-	).Map()
-
-	sr, err := e.esClient.SearchByQuery(ctx, query, nil)
+	sr, err := e.resourceStorage.Search(ctx, queryStr, storage.SQLPatternType, nil)
 	if err != nil {
 		return err
 	}

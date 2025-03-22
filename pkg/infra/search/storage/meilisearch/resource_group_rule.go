@@ -54,7 +54,7 @@ func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entit
 		return nil, err
 	}
 
-	if resp.TotalHits == 0 {
+	if len(resp.Hits) == 0 {
 		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 
@@ -77,7 +77,7 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 	}
 
 	// Check if the search found any resource group rules.
-	if resp.TotalHits == 0 {
+	if len(resp.Hits) == 0 {
 		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 

@@ -83,7 +83,7 @@ func createResourceGroupRuleIfNotExists(cl *meilisearch.Client, ruleName string)
 		return err
 	}
 
-	if resp.TotalHits == 0 {
+	if resp.EstimatedTotalHits == 0 {
 		// If specified resource group rule not found, create it
 		id := entity.UUID()
 		nowTime := metav1.Now()

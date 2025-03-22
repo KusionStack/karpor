@@ -112,7 +112,7 @@ func (s *Storage) GetResource(ctx context.Context, cluster string, obj runtime.O
 		return err
 	}
 
-	if resp.TotalHits == 0 {
+	if len(resp.Hits) == 0 {
 		return fmt.Errorf("no resource found for cluster: %s, namespace: %s, name: %s", cluster, unObj.GetNamespace(), unObj.GetName())
 	}
 
@@ -174,7 +174,7 @@ func (s *Storage) generateResourceDocument(cluster string, obj runtime.Object) (
 		resourceKeyOwnerReferences:   metaObj.GetOwnerReferences(),
 		resourceKeyResourceVersion:   metaObj.GetResourceVersion(),
 		resourceKeyContent:           buf.String(),
-		resourceKeySyncAt:            time.Now(),
+		resourceKeySyncAt:            time.Now().Unix(),
 		resourceKeyDeleted:           false,
 	}
 	return

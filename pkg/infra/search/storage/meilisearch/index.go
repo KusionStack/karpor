@@ -32,9 +32,19 @@ var defaultResourceIndexSetting = &meilisearch.Settings{
 		"creationTimestamp",
 		"deletionTimestamp",
 	},
+	Faceting: &meilisearch.Faceting{
+		MaxValuesPerFacet: 1000,
+		SortFacetValuesBy: map[string]meilisearch.SortFacetType{
+			"cluster":    meilisearch.SortFacetTypeAlpha,
+			"apiVersion": meilisearch.SortFacetTypeAlpha,
+			"kind":       meilisearch.SortFacetTypeAlpha,
+			"namespace":  meilisearch.SortFacetTypeAlpha,
+		},
+	},
 
 	// 对应 ES mappings.properties 字段配置
 	FilterableAttributes: []string{
+		"id",
 		"cluster",
 		"apiVersion",
 		"kind", // 启用过滤和精确匹配
@@ -43,7 +53,10 @@ var defaultResourceIndexSetting = &meilisearch.Settings{
 		"labels", // 扁平化字段过滤
 		"annotations",
 		"ownerReferences",
+		"content",
 		"resourceVersion",
+		"syncAt",
+		"deleted",
 	},
 
 	SearchableAttributes: []string{
@@ -79,6 +92,7 @@ var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
 		"name",
 		"description",
 		"fields",
+		"deleted",
 	},
 	SortableAttributes: []string{
 		"createdAt",

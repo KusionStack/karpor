@@ -14,6 +14,7 @@ import (
 	"github.com/xwb1989/sqlparser"
 	"k8s.io/apimachinery/pkg/util/sets"
 	"strings"
+	"time"
 )
 
 var DefaultFilter = []string{"deleted = false"}
@@ -23,6 +24,7 @@ var DefaultFilter = []string{"deleted = false"}
 // But there is some limitations:
 // 1. MeiliSearch do not support group by.
 // 2. MeiliSearch do not support Left Like, all Left Like will be replaced by CONTAINS.
+// 3. MeiliSearch do not support string compare, so SyncAt should translate to unix timestamp .
 func Convert(sql string) (*meilisearch.SearchRequest, string, error) {
 	return ConvertWithDefaultFilter(sql, DefaultFilter)
 }
@@ -136,7 +138,7 @@ func buildComparisonFilter(expr *sqlparser.ComparisonExpr) (string, error) {
 	}
 
 	field := strings.Trim(sqlparser.String(left), "`")
-	op, value := extractOperatorAndValue(expr.Operator, expr.Right)
+	op, value := extractOperatorAndValue(field, expr.Operator, expr.Right)
 	return fmt.Sprintf("%s %s %s", field, op, value), nil
 }
 
@@ -195,7 +197,7 @@ func trimLikeValue(val string) string {
 	return string(newBytes)
 }
 
-func extractOperatorAndValue(op string, expr sqlparser.Expr) (string, string) {
+func extractOperatorAndValue(field, op string, expr sqlparser.Expr) (string, string) {
 	op = strings.ToLower(op)
 	val := extractValue(expr)
 	switch op {
@@ -203,6 +205,14 @@ func extractOperatorAndValue(op string, expr sqlparser.Expr) (string, string) {
 	//	return strings.ToUpper(op), val
 	case sqlparser.LikeStr, sqlparser.NotLikeStr:
 		return extractLikeOperatorByValue(op, val), trimLikeValue(val)
+	case sqlparser.GreaterEqualStr, sqlparser.GreaterThanStr, sqlparser.LessThanStr, sqlparser.LessEqualStr:
+		// MeiliSearch does not support string comparison, so we need to convert it to unix timestamp
+		if field == resourceGroupRuleKeyCreatedAt || field == resourceGroupRuleKeyUpdatedAt || field == resourceGroupRuleKeyDeletedAt || field == resourceKeySyncAt {
+			val = strings.Trim(val, "'")
+			parse, _ := time.Parse(time.RFC3339, val)
+			val = fmt.Sprintf("%d", parse.Unix())
+		}
+		return strings.ToUpper(op), val
 	default:
 		return strings.ToUpper(op), val
 	}

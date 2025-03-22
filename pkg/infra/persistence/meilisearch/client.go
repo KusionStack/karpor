@@ -139,15 +139,21 @@ func (cl *Client) Count(
 
 // CreateIndex creates a new index with the specified settings and mappings,PrimaryKey is id by default
 func (cl *Client) CreateIndex(ctx context.Context, index string, settings *meilisearch.Settings) error {
-	resp, err := cl.client.CreateIndexWithContext(ctx, &meilisearch.IndexConfig{
-		Uid: index,
-	})
+	exist, err := cl.IsIndexExists(ctx, index)
 	if err != nil {
 		return err
 	}
-	err = cl.WaitForTask(ctx, resp)
-	if err != nil {
-		return err
+	if !exist {
+		resp, err := cl.client.CreateIndexWithContext(ctx, &meilisearch.IndexConfig{
+			Uid: index,
+		})
+		if err != nil {
+			return err
+		}
+		err = cl.WaitForTask(ctx, resp)
+		if err != nil {
+			return err
+		}
 	}
 	if settings != nil {
 		task, err := cl.client.Index(index).UpdateSettingsWithContext(ctx, settings)
@@ -179,13 +185,13 @@ func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fi
 	// Execute the search request with the single-term aggregation.
 	resp, err := cl.client.Index(index).SearchWithContext(ctx, "", &meilisearch.SearchRequest{
 		Facets: fields,
-		Limit:  0, // no hits needed
+		Limit:  1, // no hits needed
 	})
 	if err != nil {
 		return nil, err
 	}
-	aggRes := resp.FacetDistribution.(map[string]map[string]interface{})
-	filedAgg := aggRes[fields[0]]
+	aggRes := resp.FacetDistribution.(map[string]interface{})
+	filedAgg := aggRes[fields[0]].(map[string]interface{})
 	results := &AggResults{
 		Total: 1,
 	}
@@ -238,7 +244,7 @@ func (cl *Client) WaitForTask(ctx context.Context, taskInfo *meilisearch.TaskInf
 		return err
 	}
 	if task.Status != meilisearch.TaskStatusSucceeded {
-		return fmt.Errorf("task status is not Succeeded: %s", task.Status)
+		return fmt.Errorf("task status is not Succeeded: %s %s,%v", task.Status, task.Error, task.Details)
 	}
 	return nil
 }
