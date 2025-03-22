@@ -132,12 +132,7 @@ func buildFilterRecursive(expr sqlparser.Expr) (interface{}, error) {
 }
 
 func buildComparisonFilter(expr *sqlparser.ComparisonExpr) (string, error) {
-	left, ok := expr.Left.(*sqlparser.ColName)
-	if !ok {
-		return "", fmt.Errorf("left side of comparison must be column name")
-	}
-
-	field := strings.Trim(sqlparser.String(left), "`")
+	field := strings.Trim(sqlparser.String(expr.Left), "`")
 	op, value := extractOperatorAndValue(field, expr.Operator, expr.Right)
 	return fmt.Sprintf("%s %s %s", field, op, value), nil
 }

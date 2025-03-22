@@ -207,5 +207,5 @@ func (s *Storage) generateResourceGroupRuleDocument(data *entity.ResourceGroupRu
 // generateResourceGroupRuleFilter creates a query to search for an object in
 // Elasticsearch based on resource group rule's name.
 func generateFilter(k, v string) string {
-	return fmt.Sprintf("%s=%s", k, v)
+	return fmt.Sprintf("%s='%s'", k, v)
 }

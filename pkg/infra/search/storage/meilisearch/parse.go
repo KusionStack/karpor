@@ -180,7 +180,7 @@ func buildEqualClause(key string, value any) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("key %s: %v", key, err)
 	}
-	return fmt.Sprintf("%s = %s", key, valueStr), nil
+	return fmt.Sprintf("%s = '%s'", key, valueStr), nil
 }
 
 // 构建 IN 条件
