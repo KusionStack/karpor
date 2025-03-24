@@ -17,8 +17,9 @@ package utils
 import (
 	"context"
 	"fmt"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"time"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"

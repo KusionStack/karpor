@@ -120,8 +120,8 @@ func ParseQueries(queries []storage.Query) ([]interface{}, error) {
 	return filter, nil
 }
 
-// ConvertToFilter 将 map 转换为 Meilisearch 等值过滤器
-// 输入示例:
+// ConvertToFilter convert the map to a meilisearch equivalent filter
+// Input:
 //
 //	{
 //	  "category": "electronics",
@@ -129,12 +129,12 @@ func ParseQueries(queries []storage.Query) ([]interface{}, error) {
 //	  "author": {"name": "Alice"}
 //	}
 //
-// 输出: ["category = 'electronics'", "tags IN ['a','b']", "author.name = 'Alice'"]
+// Output: ["category = 'electronics'", "tags IN ['a','b']", "author.name = 'Alice'"]
 func ConvertToFilter(query map[string]any) ([]any, error) {
 	return processMap(query, "")
 }
 
-// 递归处理嵌套 map
+// recursively handles nesting map
 func processMap(data map[string]any, parentKey string) ([]any, error) {
 	var filters []any
 
@@ -146,7 +146,6 @@ func processMap(data map[string]any, parentKey string) ([]any, error) {
 
 		switch v := value.(type) {
 		case map[string]any:
-			// 处理嵌套对象
 			nestedFilters, err := processMap(v, fullKey)
 			if err != nil {
 				return nil, err
@@ -154,7 +153,6 @@ func processMap(data map[string]any, parentKey string) ([]any, error) {
 			filters = append(filters, nestedFilters)
 
 		case []any:
-			// 处理数组 (IN 查询)
 			inClause, err := buildInClause(fullKey, v)
 			if err != nil {
 				return nil, err
@@ -162,7 +160,6 @@ func processMap(data map[string]any, parentKey string) ([]any, error) {
 			filters = append(filters, inClause)
 
 		default:
-			// 处理基本类型
 			eqClause, err := buildEqualClause(fullKey, v)
 			if err != nil {
 				return nil, err
@@ -174,7 +171,7 @@ func processMap(data map[string]any, parentKey string) ([]any, error) {
 	return filters, nil
 }
 
-// 构建等值条件
+// build an equivalence condition
 func buildEqualClause(key string, value any) (string, error) {
 	valueStr, err := convertValue(value)
 	if err != nil {
@@ -183,9 +180,9 @@ func buildEqualClause(key string, value any) (string, error) {
 	return fmt.Sprintf("%s = %s", key, valueStr), nil
 }
 
-// 构建 IN 条件
+// build an in condition
 func buildInClause(key string, values []any) (string, error) {
-	var elements []string
+	elements := make([]string, 0, len(values))
 	for _, v := range values {
 		element, err := convertValue(v)
 		if err != nil {
@@ -196,7 +193,7 @@ func buildInClause(key string, values []any) (string, error) {
 	return fmt.Sprintf("%s IN [%s]", key, strings.Join(elements, ",")), nil
 }
 
-// 值类型转换
+// value type conversion
 func convertValue(value any) (string, error) {
 	switch v := value.(type) {
 	case string:

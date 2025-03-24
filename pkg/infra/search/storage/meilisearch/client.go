@@ -17,6 +17,7 @@ package meilisearch
 import (
 	"context"
 	"fmt"
+
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"

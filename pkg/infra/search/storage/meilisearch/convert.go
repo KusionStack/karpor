@@ -1,20 +1,27 @@
-/**
- * @Author:      Adam wu
- * @Description:
- * @File:        convert.go
- * @Version:     1.0.0
- * @Date:        2025/3/21
- */
+// Copyright The Karpor Authors.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 
 package meilisearch
 
 import (
 	"fmt"
+	"strings"
+	"time"
+
 	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"github.com/xwb1989/sqlparser"
 	"k8s.io/apimachinery/pkg/util/sets"
-	"strings"
-	"time"
 )
 
 var DefaultFilter = []string{"deleted = false"}
@@ -46,26 +53,26 @@ func ConvertWithDefaultFilter(sql string, defaultFilter []string) (*meilisearch.
 		return nil, "", fmt.Errorf("only single table queries are supported")
 	}
 
-	// 应用默认过滤器
+	// apply the default filter
 	sel = applyDefaultFilter(sel, defaultFilter)
 
-	// 获取表名
+	// obtain the table name
 	tableName := strings.ReplaceAll(sqlparser.String(sel.From), "`", "")
 
-	// 构建搜索请求
+	// build a search request
 	req := &meilisearch.SearchRequest{
-		Limit:  1000, //by default
+		Limit:  1000, // by default
 		Offset: 0,
 	}
 
-	// 处理WHERE条件
+	// handle the where condition
 	filter, err := buildFilter(sel.Where)
 	if err != nil {
 		return nil, "", err
 	}
 	req.Filter = filter
 
-	// 处理LIMIT/OFFSET
+	// deal with LIMIT/OFFSET
 	if sel.Limit != nil {
 		if offset, ok := sel.Limit.Offset.(*sqlparser.SQLVal); ok {
 			req.Offset = parseInt(string(offset.Val))
@@ -75,7 +82,7 @@ func ConvertWithDefaultFilter(sql string, defaultFilter []string) (*meilisearch.
 		}
 	}
 
-	// 处理ORDER BY
+	// deal with ORDER BY
 	if len(sel.OrderBy) > 0 {
 		sort := make([]string, 0, len(sel.OrderBy))
 		for _, order := range sel.OrderBy {
@@ -118,7 +125,7 @@ func buildFilterRecursive(expr sqlparser.Expr) (interface{}, error) {
 		return fmt.Sprintf("(%s) OR (%s)", left, right), nil
 
 	case *sqlparser.ComparisonExpr:
-		return buildComparisonFilter(e)
+		return buildComparisonFilter(e), nil
 
 	case *sqlparser.ParenExpr:
 		return buildFilterRecursive(e.Expr)
@@ -131,10 +138,10 @@ func buildFilterRecursive(expr sqlparser.Expr) (interface{}, error) {
 	}
 }
 
-func buildComparisonFilter(expr *sqlparser.ComparisonExpr) (string, error) {
+func buildComparisonFilter(expr *sqlparser.ComparisonExpr) string {
 	field := strings.Trim(sqlparser.String(expr.Left), "`")
 	op, value := extractOperatorAndValue(field, expr.Operator, expr.Right)
-	return fmt.Sprintf("%s %s %s", field, op, value), nil
+	return fmt.Sprintf("%s %s %s", field, op, value)
 }
 
 func buildRangeFilter(expr *sqlparser.RangeCond) (string, error) {
@@ -180,7 +187,6 @@ func extractLikeOperatorByValue(op, val string) string {
 
 // trimLikeValue trim string like '%abc%' to 'abc'
 func trimLikeValue(val string) string {
-
 	bs := []byte(val)
 	newBytes := make([]byte, 0, len(bs))
 	for i := 0; i < len(bs); i++ {
@@ -196,7 +202,7 @@ func extractOperatorAndValue(field, op string, expr sqlparser.Expr) (string, str
 	op = strings.ToLower(op)
 	val := extractValue(expr)
 	switch op {
-	//case sqlparser.EqualStr, sqlparser.GreaterEqualStr, sqlparser.GreaterThanStr, sqlparser.LessThanStr, sqlparser.LessEqualStr, sqlparser.NotEqualStr, sqlparser.InStr, sqlparser.NotInStr:
+	// case sqlparser.EqualStr, sqlparser.GreaterEqualStr, sqlparser.GreaterThanStr, sqlparser.LessThanStr, sqlparser.LessEqualStr, sqlparser.NotEqualStr, sqlparser.InStr, sqlparser.NotInStr:
 	//	return strings.ToUpper(op), val
 	case sqlparser.LikeStr, sqlparser.NotLikeStr:
 		return extractLikeOperatorByValue(op, val), trimLikeValue(val)
@@ -263,13 +269,12 @@ func getFilterFields(where *sqlparser.Where) sets.Set[string] {
 	}
 
 	_ = sqlparser.Walk(func(node sqlparser.SQLNode) (bool, error) {
-		switch n := node.(type) {
-		case *sqlparser.ColName:
+		if n, ok := node.(*sqlparser.ColName); ok {
 			fields.Insert(n.Name.String())
 		}
+
 		return true, nil
 	}, where)
-
 	return fields
 }
 

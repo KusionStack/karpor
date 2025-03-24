@@ -17,9 +17,10 @@ package meilisearch
 import (
 	"context"
 	"fmt"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"reflect"
 	"strings"
+
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -76,6 +77,10 @@ func (s *Storage) searchBySQL(ctx context.Context, sqlStr string, pagination *st
 	searchRequest, _, err := Convert(sqlStr)
 	if err != nil {
 		return nil, err
+	}
+	if pagination != nil {
+		searchRequest.Limit = int64(pagination.PageSize)
+		searchRequest.Offset = int64((pagination.Page - 1) * pagination.PageSize)
 	}
 	return s.search(ctx, searchRequest)
 }

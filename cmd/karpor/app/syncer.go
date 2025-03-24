@@ -16,6 +16,7 @@ package app
 
 import (
 	"context"
+
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
@@ -82,8 +83,6 @@ func run(ctx context.Context, options *syncerOptions) error {
 		SearchUsername:    options.SearchUsername,
 		SearchPassword:    options.SearchPassword,
 	})
-	//nolint:contextcheck
-
 	if err != nil {
 		log.Error(err, "unable to init elasticsearch client")
 		return err

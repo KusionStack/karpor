@@ -18,6 +18,7 @@ package search
 
 import (
 	"fmt"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/meilisearch"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"

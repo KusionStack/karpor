@@ -22,12 +22,10 @@ const (
 )
 
 var defaultResourceIndexSetting = &meilisearch.Settings{
-	// 对应 ES 的 max_result_window
 	Pagination: &meilisearch.Pagination{
-		MaxTotalHits: 1_000_000, // 控制最大返回结果数
+		MaxTotalHits: 1_000_000,
 	},
 
-	// 对应 ES analysis.normalizer
 	SortableAttributes: []string{
 		"creationTimestamp",
 		"deletionTimestamp",
@@ -42,15 +40,14 @@ var defaultResourceIndexSetting = &meilisearch.Settings{
 		},
 	},
 
-	// 对应 ES mappings.properties 字段配置
 	FilterableAttributes: []string{
 		"id",
 		"cluster",
 		"apiVersion",
-		"kind", // 启用过滤和精确匹配
+		"kind",
 		"namespace",
 		"name",
-		"labels", // 扁平化字段过滤
+		"labels",
 		"annotations",
 		"ownerReferences",
 		"content",
@@ -60,10 +57,9 @@ var defaultResourceIndexSetting = &meilisearch.Settings{
 	},
 
 	SearchableAttributes: []string{
-		"content", // 全文搜索字段
+		"content",
 	},
 
-	// 对应 _source.excludes 排除字段
 	DisplayedAttributes: []string{
 		"cluster",
 		"apiVersion",
@@ -77,16 +73,14 @@ var defaultResourceIndexSetting = &meilisearch.Settings{
 		"ownerReferences",
 		"resourceVersion",
 		"content",
-		// 排除 "custom" 字段
 	},
 }
-var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
-	// 对应 Elasticsearch 的 max_result_window
-	Pagination: &meilisearch.Pagination{
-		MaxTotalHits: 1000000, // 控制最大返回结果数
-	}, // 控制最大返回结果数
 
-	// 对应 mappings.properties 字段属性
+var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
+	Pagination: &meilisearch.Pagination{
+		MaxTotalHits: 1000000,
+	},
+
 	FilterableAttributes: []string{
 		"id",
 		"name",
@@ -100,8 +94,6 @@ var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
 		"deletedAt",
 	},
 
-	// 对应 mappings._source.excludes
-	// Meilisearch 无完全等效功能，但可通过以下方式近似实现
 	DisplayedAttributes: []string{
 		"id",
 		"name",
@@ -110,6 +102,5 @@ var defaultResourceGroupRuleIndexSetting = &meilisearch.Settings{
 		"createdAt",
 		"updatedAt",
 		"deletedAt",
-	}, // 显式指定返回字段
-
+	},
 }

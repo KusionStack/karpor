@@ -19,8 +19,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"time"
+
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/elliotxx/esquery"

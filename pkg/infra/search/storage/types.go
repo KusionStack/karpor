@@ -217,9 +217,9 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 
 	// These two fields are newly added, so they don't exist in the old data.
 	if v, ok := in["syncAt"]; ok {
-		switch v.(type) {
+		switch val := v.(type) {
 		case string:
-			out.SyncAt = v.(string)
+			out.SyncAt = val
 		case float64, int:
 			out.SyncAt = time.Unix(int64(v.(float64)), 0).Format(time.RFC3339)
 		}

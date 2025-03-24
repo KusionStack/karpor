@@ -22,8 +22,6 @@ import (
 const (
 	// maxAggSize defines the maximum number of aggregation buckets that can be returned in an aggregation query.
 	maxAggSize = 10000
-	// maxHitsSize defines the maximum number of search hits to be returned in a search query response.
-	maxHitsSize = 1000
 )
 
 type paginationConfig struct {

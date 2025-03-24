@@ -17,8 +17,9 @@ package meilisearch
 import (
 	"context"
 	"fmt"
-	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 	"strings"
+
+	"github.com/KusionStack/karpor/pkg/infra/persistence/meilisearch"
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -36,7 +37,6 @@ const (
 
 // DeleteResourceGroupRule deletes a resource group rule based on the given name.
 func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) error {
-
 	if rgr, err := s.GetResourceGroupRule(ctx, name); err != nil {
 		return err
 	} else {
@@ -46,9 +46,7 @@ func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) erro
 
 // GetResourceGroupRule retrieves a resource group rule based on the given name.
 func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entity.ResourceGroupRule, error) {
-
 	filter := generateFilter(resourceKeyName, name)
-
 	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, &meilisearch.SearchRequest{Filter: filter})
 	if err != nil {
 		return nil, err
@@ -69,13 +67,11 @@ func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entit
 // ListResourceGroupRules lists all resource group rules by searching the entire
 // index.
 func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
-
 	// Execute the search document call to the storage.
 	resp, err := s.client.SearchDocument(ctx, s.resourceGroupRuleIndexName, &meilisearch.SearchRequest{})
 	if err != nil {
 		return nil, err
 	}
-
 	// Check if the search found any resource group rules.
 	if len(resp.Hits) == 0 {
 		return nil, storage.ErrResourceGroupRuleNotFound
@@ -100,7 +96,6 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 // ListResourceGroupsBy lists all resource groups by specified resource group
 // rule name.
 func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
-
 	rgr, err := s.GetResourceGroupRule(ctx, ruleName)
 	if err != nil {
 		return nil, err

@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-//nolint:tagliatelle
 package meilisearch
 
 import (
 	"context"
 	"fmt"
+
 	"github.com/meilisearch/meilisearch-go"
 )
 
@@ -28,7 +28,6 @@ type Client struct {
 
 // NewClient creates a new Elasticsearch client instance
 func NewClient(address string, key string) (*Client, error) {
-
 	cl := meilisearch.New(address, meilisearch.WithAPIKey(key))
 	return &Client{client: cl}, nil
 }
@@ -126,7 +125,6 @@ func (cl *Client) Count(
 	ctx context.Context,
 	indexName string,
 ) (*CountResponse, error) {
-
 	resp, err := cl.client.Index(indexName).GetStatsWithContext(ctx)
 	if err != nil {
 		return nil, err
@@ -134,7 +132,6 @@ func (cl *Client) Count(
 	return &CountResponse{
 		Count: resp.NumberOfDocuments,
 	}, nil
-
 }
 
 // CreateIndex creates a new index with the specified settings and mappings,PrimaryKey is id by default
