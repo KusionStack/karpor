@@ -180,7 +180,7 @@ func buildEqualClause(key string, value any) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("key %s: %v", key, err)
 	}
-	return fmt.Sprintf("%s = '%s'", key, valueStr), nil
+	return fmt.Sprintf("%s = %s", key, valueStr), nil
 }
 
 // 构建 IN 条件
@@ -200,7 +200,7 @@ func buildInClause(key string, values []any) (string, error) {
 func convertValue(value any) (string, error) {
 	switch v := value.(type) {
 	case string:
-		return "'" + strings.ReplaceAll(v, "'", "\\'") + "'", nil
+		return "'" + v + "'", nil
 	case int, int32, int64, float32, float64:
 		return fmt.Sprintf("%v", v), nil
 	case bool:
