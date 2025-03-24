@@ -180,7 +180,7 @@ func (cl *Client) AggregateDocumentByTerms(ctx context.Context, index string, fi
 		return nil, fmt.Errorf("no fields provided for aggregation")
 	}
 	if len(fields) > 1 {
-		return nil, fmt.Errorf("only one field is supported for aggregation")
+		return nil, fmt.Errorf("only one field is supported for aggregation for meilisearch")
 	}
 	// Execute the search request with the single-term aggregation.
 	resp, err := cl.client.Index(index).SearchWithContext(ctx, "", &meilisearch.SearchRequest{
