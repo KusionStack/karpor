@@ -524,7 +524,7 @@ func TestSyncReconciler_getNormalizedResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-			got, err := r.getNormalizedResources(context.TODO(), tt.registry)
+			got, _, err := r.getNormalizedResources(context.TODO(), tt.registry)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
@@ -567,7 +567,7 @@ func TestSyncReconciler_getResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-			got, err := r.getResources(context.TODO(), tt.cluster)
+			got, _, err := r.getResources(context.TODO(), tt.cluster)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
