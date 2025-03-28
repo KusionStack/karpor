@@ -7,6 +7,7 @@ type InitialState = {
   githubBadge: boolean
   isUnsafeMode: any
   aiOptions: any
+  isHighAvailability: boolean
 }
 
 const initialState: InitialState = {
@@ -16,6 +17,7 @@ const initialState: InitialState = {
   githubBadge: false,
   isUnsafeMode: undefined,
   aiOptions: null,
+  isHighAvailability: false,
 }
 
 export const globalSlice = createSlice({
@@ -40,6 +42,9 @@ export const globalSlice = createSlice({
     setAIOptions: (state, action) => {
       state.aiOptions = action.payload
     },
+    setIsHighAvailability: (state, action) => {
+      state.isHighAvailability = action.payload
+    },
   },
 })
 
@@ -50,6 +55,7 @@ export const {
   setGithubBadge,
   setIsUnsafeMode,
   setAIOptions,
+  setIsHighAvailability,
 } = globalSlice.actions
 
 export default globalSlice.reducer

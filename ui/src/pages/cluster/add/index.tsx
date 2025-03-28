@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeftOutlined, UploadOutlined } from '@ant-design/icons'
-import { Form, Input, Space, Button, Upload, message, notification } from 'antd'
+import {
+  Form,
+  Input,
+  Space,
+  Button,
+  Upload,
+  message,
+  notification,
+  Select,
+} from 'antd'
 import type { UploadProps } from 'antd'
 import { useTranslation } from 'react-i18next'
 import { useSelector } from 'react-redux'
@@ -13,11 +22,13 @@ import styles from './styles.module.less'
 
 const { TextArea } = Input
 
+const { Option } = Select
+
 const RegisterCluster = () => {
   const { t } = useTranslation()
   const [form] = Form.useForm()
   const navigate = useNavigate()
-  const { isReadOnlyMode, isUnsafeMode } = useSelector(
+  const { isReadOnlyMode, isUnsafeMode, isHighAvailability } = useSelector(
     (state: any) => state.globalSlice,
   )
   const [yamlContent, setYamlContent] = useState('')
@@ -82,6 +93,10 @@ const RegisterCluster = () => {
   const uploadProps: UploadProps = {
     disabled: isReadOnlyMode,
     name: 'file',
+    data: {
+      clusterMode: form.getFieldValue('clusterMode'),
+      clusterLevel: form.getFieldValue('clusterLevel'),
+    },
     action: `${HOST}/rest-api/v1/cluster/config/file`,
     headers: {
       Authorization: isUnsafeMode
@@ -161,6 +176,41 @@ const RegisterCluster = () => {
           >
             <TextArea autoSize={{ minRows: 3 }} />
           </Form.Item>
+          {isHighAvailability && (
+            <>
+              <Form.Item
+                name="clusterMode"
+                label={t('ClusterMode')}
+                rules={[{ required: false }]}
+              >
+                <Select>
+                  <Option key="pull" value="pull">
+                    pull
+                  </Option>
+                  <Option key="push" value="push">
+                    push
+                  </Option>
+                </Select>
+              </Form.Item>
+              <Form.Item
+                name="clusterLevel"
+                label={t('ClusterLevel')}
+                rules={[{ required: false }]}
+              >
+                <Select>
+                  <Option key="1" value={1}>
+                    1
+                  </Option>
+                  <Option key="2" value={2}>
+                    2
+                  </Option>
+                  <Option key="3" value={3}>
+                    3
+                  </Option>
+                </Select>
+              </Form.Item>
+            </>
+          )}
           <Form.Item
             label="kubeConfig"
             name="kubeConfig"

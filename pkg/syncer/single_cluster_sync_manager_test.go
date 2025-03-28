@@ -24,7 +24,6 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/mock"
@@ -38,6 +37,8 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 )
 
 var _ SingleClusterSyncManager = &fakeSingleClusterSyncManager{}

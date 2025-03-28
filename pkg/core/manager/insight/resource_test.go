@@ -19,12 +19,13 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/client-go/dynamic"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
 )
 
 // TestGetResource tests the TestGetResource method of the InsightManager for

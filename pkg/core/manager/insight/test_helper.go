@@ -17,9 +17,6 @@ package insight
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/entity"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	coreV1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/resource"
@@ -30,6 +27,10 @@ import (
 	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/kubernetes"
 	v1 "k8s.io/client-go/kubernetes/typed/core/v1"
+
+	"github.com/KusionStack/karpor/pkg/core/entity"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 )
 
 // mockMultiClusterClient returns a mock MultiClusterClient for testing purposes.

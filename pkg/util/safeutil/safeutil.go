@@ -19,10 +19,11 @@ import (
 	"fmt"
 	"runtime/debug"
 
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/elliotxx/safe"
 	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 )
 
 // LoggerRecoverHandler returns a recover handler by the given logger.

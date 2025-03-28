@@ -17,9 +17,10 @@ package ctxutil
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/core/middleware"
 	"github.com/go-logr/logr"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/pkg/core/middleware"
 )
 
 // GetLogger returns the logger from the given context.

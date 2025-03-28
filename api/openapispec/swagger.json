@@ -529,6 +529,20 @@
                         "name": "description",
                         "in": "formData",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "cluster mode",
+                        "name": "clusterMode",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "cluster scale level",
+                        "name": "clusterLevel",
+                        "in": "formData",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -885,6 +899,69 @@
                     },
                     "405": {
                         "description": "Method Not Allowed",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "429": {
+                        "description": "Too Many Requests",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/rest-api/v1/cluster/{clusterName}/agentYml": {
+            "get": {
+                "description": "Obtain the agent yaml in secret for cluster.",
+                "consumes": [
+                    "text/plain",
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "cluster"
+                ],
+                "summary": "Get agent yaml",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "The name of the cluster",
+                        "name": "clusterName",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Verification passed server version",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "type": "string"
                         }
@@ -2249,6 +2326,14 @@
         "cluster.ClusterPayload": {
             "type": "object",
             "properties": {
+                "clusterLevel": {
+                    "description": "clusterLevel is the scale level of cluster to be created",
+                    "type": "integer"
+                },
+                "clusterMode": {
+                    "description": "ClusterMode is the mode of cluster to be created",
+                    "type": "string"
+                },
                 "description": {
                     "description": "ClusterDescription is the description of cluster to be created",
                     "type": "string"
