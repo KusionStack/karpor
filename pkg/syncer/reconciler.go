@@ -214,12 +214,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 	if hasWildcards {
 		klog.Infof("Processing %d pending wildcard resources for cluster %s", len(pendingWildcards), cluster.Name)
 
-		singleClusterMgr, ok := singleMgr.(*singleClusterSyncManager)
-		if !ok {
-			return fmt.Errorf("unexpected type for cluster %s sync manager", cluster.Name)
-		}
-
-		wildcardResources, err := r.processWildcardResources(ctx, pendingWildcards, singleClusterMgr, cluster.Name)
+		wildcardResources, err := r.processWildcardResources(ctx, pendingWildcards, singleMgr, cluster.Name)
 		if err != nil {
 			return errors.Wrapf(err, "failed to process wildcard resources for cluster %s", cluster.Name)
 		}
@@ -475,7 +470,7 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 func (r *SyncReconciler) processWildcardResources(
 	_ context.Context,
 	wildcards []*searchv1beta1.ResourceSyncRule,
-	singleClusterMgr *singleClusterSyncManager,
+	singleClusterMgr SingleClusterSyncManager,
 	clusterName string,
 ) ([]*searchv1beta1.ResourceSyncRule, error) {
 	var result []*searchv1beta1.ResourceSyncRule
@@ -491,7 +486,7 @@ func (r *SyncReconciler) processWildcardResources(
 		}
 
 		klog.Infof("Discovering resources for GroupVersion %s in cluster %s", apiVersion, clusterName)
-		resources, err := singleClusterMgr.discoveryClient.ServerResourcesForGroupVersion(apiVersion)
+		resources, err := singleClusterMgr.GetAPIResources(apiVersion)
 		if err != nil {
 			klog.Errorf("Failed to discover resources for GroupVersion %s in cluster %s: %v", apiVersion, clusterName, err)
 			return nil, errors.Wrapf(err, "failed to discover resources for groupVersion %q", apiVersion)
