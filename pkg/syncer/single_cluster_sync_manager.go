@@ -52,6 +52,7 @@ type SingleClusterSyncManager interface {
 	UpdateSyncResources(context.Context, []*searchv1beta1.ResourceSyncRule) error
 	HasSyncResource(schema.GroupVersionResource) bool
 	ClusterConfig() *rest.Config
+	GetAPIResources(apiVersion string) (*metav1.APIResourceList, error)
 }
 
 // singleClusterSyncManager is the concrete implementation of the SingleClusterSyncManager interface.
@@ -273,6 +274,14 @@ func (s *singleClusterSyncManager) GVKToGVR(gvk schema.GroupVersionKind) (schema
 	return resource.Resource, nil
 }
 
+func (s *singleClusterSyncManager) GetAPIResources(apiVersion string) (*metav1.APIResourceList, error) {
+	resources, err := s.discoveryClient.ServerResourcesForGroupVersion(apiVersion)
+	if err != nil {
+		return nil, err
+	}
+	return resources, nil
+}
+
 func (s *singleClusterSyncManager) getObject(apiVersion, kind, namespace, name string) (interface{}, error) {
 	gv, err := schema.ParseGroupVersion(apiVersion)
 	if err != nil {
@@ -321,7 +330,6 @@ func (s *singleClusterSyncManager) registerTmplFuncs() {
 func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
-
 	s.syncers.Store(gvr, syncer)
 	s.controller.Watch(syncer.Source(), handler.Funcs{
 		CreateFunc: func(ce event.CreateEvent, rli workqueue.RateLimitingInterface) {

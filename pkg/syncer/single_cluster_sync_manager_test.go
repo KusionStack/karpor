@@ -29,6 +29,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/util/wait"
 	"k8s.io/client-go/rest"
@@ -81,6 +82,15 @@ func (f *fakeSingleClusterSyncManager) ClusterConfig() *rest.Config {
 		return nil
 	} else {
 		return arg.(*rest.Config)
+	}
+}
+
+func (f *fakeSingleClusterSyncManager) GetAPIResources(apiVersion string) (*metav1.APIResourceList, error) {
+	args := f.mock.Called(apiVersion)
+	if arg := args.Get(0); arg == nil || args.Error(1) != nil {
+		return nil, args.Error(1)
+	} else {
+		return arg.(*metav1.APIResourceList), nil
 	}
 }
 
