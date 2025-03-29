@@ -9,6 +9,7 @@ import zhCN from 'antd/locale/zh_CN'
 import enUS from 'antd/locale/en_US'
 import deDE from 'antd/locale/de_DE'
 import ptBR from 'antd/locale/pt_BR'
+import koKR from 'antd/locale/ko_KR'
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
@@ -34,6 +35,7 @@ function App() {
     zh: zhCN,
     de: deDE,
     pt: ptBR,
+    ko: koKR,
   }
 
   return (
