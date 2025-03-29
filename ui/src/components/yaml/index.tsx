@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react'
 import type { LegacyRef } from 'react'
-import { Alert, Button, message, Space, Spin, Tooltip } from 'antd'
+import { Alert, Button, message, Modal, Space, Spin, Tooltip } from 'antd'
 import { Resizable } from 're-resizable'
 import { useTranslation } from 'react-i18next'
 import {
@@ -9,6 +9,7 @@ import {
   PoweroffOutlined,
   FullscreenExitOutlined,
   FullscreenOutlined,
+  ExpandOutlined,
   ReloadOutlined,
 } from '@ant-design/icons'
 import hljs from 'highlight.js'
@@ -58,6 +59,7 @@ const Yaml = (props: IProps) => {
   const abortControllerRef = useRef<AbortController | null>(null)
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     onRefresh?.()
@@ -264,6 +266,113 @@ const Yaml = (props: IProps) => {
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = interpretEndRef.current?.getBoundingClientRect()?.top
 
+  function renderAiAnalysis(isDailog) {
+    return (
+      interpretStatus !== 'idle' && (
+        <div
+          className={styles.yaml_content_diagnosisPanel}
+          style={{
+            height: isDailog ? 700 : moduleHeight,
+            ...(isDailog ? { width: '100%' } : {}),
+          }}
+        >
+          <div className={styles.yaml_content_diagnosisHeader}>
+            <Space>
+              <div className={styles.yaml_content_diagnosisHeader_aiIcon}>
+                <img src={aiSummarySvg} alt="ai summary" />
+              </div>
+              {t('YAML.InterpretResult')}
+            </Space>
+            <Space>
+              {interpretStatus === 'streaming' && (
+                <Tooltip title={t('YAML.StopInterpret')} placement="bottom">
+                  <Button
+                    type="text"
+                    className={styles.stopButton}
+                    icon={<PoweroffOutlined />}
+                    onClick={() => {
+                      if (abortControllerRef.current) {
+                        abortControllerRef.current.abort()
+                        setInterpretStatus('complete' as InterpretStatus)
+                      }
+                    }}
+                  />
+                </Tooltip>
+              )}
+              {isDailog ? null : (
+                <>
+                  <Button
+                    type="text"
+                    icon={<ExpandOutlined />}
+                    onClick={() => {
+                      setOpen(!open)
+                    }}
+                  />
+                </>
+              )}
+              <Button
+                type="text"
+                icon={<CloseOutlined />}
+                onClick={() => {
+                  if (isDailog) {
+                    setOpen(false)
+                  } else {
+                    setInterpretStatus('idle' as InterpretStatus)
+                  }
+                }}
+              />
+            </Space>
+          </div>
+          <div
+            className={styles.yaml_content_diagnosisBody}
+            style={isDailog ? { width: '100%' } : {}}
+          >
+            <div
+              className={styles.yaml_content_diagnosisContent}
+              ref={contentRef}
+            >
+              {interpretStatus === 'loading' ||
+              (interpretStatus === 'streaming' && !interpret) ? (
+                <div className={styles.yaml_content_diagnosisLoading}>
+                  <Spin />
+                  <p>{t('EventAggregator.DiagnosisInProgress')}</p>
+                </div>
+              ) : interpretStatus === 'streaming' ? (
+                <>
+                  <Markdown>{interpret}</Markdown>
+                  <div
+                    ref={interpretEndRef}
+                    style={{
+                      float: 'left',
+                      clear: 'both',
+                    }}
+                  />
+                </>
+              ) : interpretStatus === 'error' ? (
+                <Alert
+                  type="error"
+                  message={t('EventAggregator.DiagnosisFailed')}
+                  description={t('EventAggregator.TryAgainLater')}
+                />
+              ) : (
+                <Markdown>{interpret}</Markdown>
+              )}
+            </div>
+            {interpretStatus === 'streaming' && interpret && (
+              <div
+                className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
+              >
+                <span className={styles.dot}></span>
+                <span className={styles.dot}></span>
+                <span className={styles.dot}></span>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    )
+  }
+
   return (
     <div style={{ paddingBottom: 20 }}>
       <Resizable
@@ -358,89 +467,27 @@ const Yaml = (props: IProps) => {
               />
             </div>
           </FullScreen>
-          {interpretStatus !== 'idle' && (
-            <div
-              className={styles.yaml_content_diagnosisPanel}
-              style={{ height: moduleHeight }}
-            >
-              <div className={styles.yaml_content_diagnosisHeader}>
-                <Space>
-                  <div className={styles.yaml_content_diagnosisHeader_aiIcon}>
-                    <img src={aiSummarySvg} alt="ai summary" />
-                  </div>
-                  {t('YAML.InterpretResult')}
-                </Space>
-                <Space>
-                  {interpretStatus === 'streaming' && (
-                    <Tooltip title={t('YAML.StopInterpret')} placement="bottom">
-                      <Button
-                        type="text"
-                        className={styles.stopButton}
-                        icon={<PoweroffOutlined />}
-                        onClick={() => {
-                          if (abortControllerRef.current) {
-                            abortControllerRef.current.abort()
-                            setInterpretStatus('complete' as InterpretStatus)
-                          }
-                        }}
-                      />
-                    </Tooltip>
-                  )}
-                  <Button
-                    type="text"
-                    icon={<CloseOutlined />}
-                    onClick={() =>
-                      setInterpretStatus('idle' as InterpretStatus)
-                    }
-                  />
-                </Space>
-              </div>
-              <div className={styles.yaml_content_diagnosisBody}>
-                <div
-                  className={styles.yaml_content_diagnosisContent}
-                  ref={contentRef}
-                >
-                  {interpretStatus === 'loading' ||
-                  (interpretStatus === 'streaming' && !interpret) ? (
-                    <div className={styles.yaml_content_diagnosisLoading}>
-                      <Spin />
-                      <p>{t('EventAggregator.DiagnosisInProgress')}</p>
-                    </div>
-                  ) : interpretStatus === 'streaming' ? (
-                    <>
-                      <Markdown>{interpret}</Markdown>
-                      <div
-                        ref={interpretEndRef}
-                        style={{
-                          float: 'left',
-                          clear: 'both',
-                        }}
-                      />
-                    </>
-                  ) : interpretStatus === 'error' ? (
-                    <Alert
-                      type="error"
-                      message={t('EventAggregator.DiagnosisFailed')}
-                      description={t('EventAggregator.TryAgainLater')}
-                    />
-                  ) : (
-                    <Markdown>{interpret}</Markdown>
-                  )}
-                </div>
-                {interpretStatus === 'streaming' && interpret && (
-                  <div
-                    className={`${styles.yaml_content_streamingIndicator} ${dotToTopHeight - contentToTopHeight + 53 - moduleHeight >= 0 ? styles.yaml_content_streamingIndicatorFixed : ''}`}
-                  >
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                    <span className={styles.dot}></span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
+          {renderAiAnalysis(false)}
         </div>
       </Resizable>
+      <Modal
+        styles={{
+          content: {
+            padding: 0,
+            borderRadius: 16,
+            background:
+              'linear-gradient(135deg, rgba(147, 112, 219, 0.15) 0%, rgba(43, 29, 60, 0.95) 100%)',
+          },
+        }}
+        centered
+        closable={false}
+        width={'80%'}
+        height={700}
+        open={open}
+        footer={null}
+      >
+        <div style={{ overflow: 'auto' }}>{renderAiAnalysis(true)}</div>
+      </Modal>
     </div>
   )
 }

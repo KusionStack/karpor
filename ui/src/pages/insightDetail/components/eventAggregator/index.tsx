@@ -11,11 +11,13 @@ import {
   Space,
   message,
   Tooltip,
+  Modal,
 } from 'antd'
 import {
   SearchOutlined,
   CloseOutlined,
   PoweroffOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons'
 import { useTranslation } from 'react-i18next'
 import { formatTime } from '@/utils/tools'
@@ -69,6 +71,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const abortControllerRef = useRef<AbortController | null>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const tableContainerRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
 
   const { aiOptions } = useSelector((state: any) => state.globalSlice)
   const isAIEnabled = aiOptions?.AIModel && aiOptions?.AIAuthToken
@@ -358,7 +361,7 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = diagnosisEndRef.current?.getBoundingClientRect()?.top
 
-  const renderDiagnosisWindow = () => {
+  const renderDiagnosisWindow = isDailog => {
     if (diagnosisStatus === 'idle') {
       return null
     }
@@ -366,7 +369,11 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
     return (
       <div
         className={styles.events_content_diagnosisPanel}
-        style={events_content_diagnosisPanel_style}
+        style={
+          isDailog
+            ? { width: '100%', height: 700 }
+            : events_content_diagnosisPanel_style
+        }
       >
         <div className={styles.events_content_diagnosisHeader}>
           <Space>
@@ -395,16 +402,29 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
                 />
               </Tooltip>
             )}
+            {isDailog ? null : (
+              <Button
+                type="text"
+                icon={<ExpandOutlined />}
+                onClick={() => {
+                  setOpen(!open)
+                }}
+              />
+            )}
             <Button
               type="text"
               icon={<CloseOutlined />}
               onClick={() => {
-                if (abortControllerRef.current) {
-                  abortControllerRef.current.abort()
+                if (isDailog) {
+                  setOpen(false)
+                } else {
+                  if (abortControllerRef.current) {
+                    abortControllerRef.current.abort()
+                  }
+                  setDiagnosisStatus('idle')
+                  setDiagnosis('')
+                  setStreaming(false)
                 }
-                setDiagnosisStatus('idle')
-                setDiagnosis('')
-                setStreaming(false)
               }}
             />
           </Space>
@@ -531,7 +551,25 @@ const EventAggregator: React.FC<EventAggregatorProps> = ({
             />
           )}
         </div>
-        {renderDiagnosisWindow()}
+        {renderDiagnosisWindow(false)}
+        <Modal
+          styles={{
+            content: {
+              padding: 0,
+              borderRadius: 16,
+              background:
+                'radial-gradient(ellipse 489px 674px at 6px 0px, #ffffff 0%, #f3efff 100%), radial-gradient(ellipse 587px 672px at 433px 513px, #ece6ff95 0%, #f0e9ff30 100%), radial-gradient(ellipse 346px 396px at 15px 506px, #e9e3ff90 0%, #f0e9ff30 100%), radial-gradient(ellipse 583px 668px at 436px 8px, #ffffff 0%, #f5f0ff30 100%)',
+            },
+          }}
+          centered
+          closable={false}
+          width={'80%'}
+          height={700}
+          open={open}
+          footer={null}
+        >
+          <div style={{ overflow: 'auto' }}>{renderDiagnosisWindow(true)}</div>
+        </Modal>
       </div>
     </div>
   )
