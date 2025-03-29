@@ -191,9 +191,9 @@ func (s *ResourceSyncer) purgeStorage(ctx context.Context) {
 	}
 
 	// TODO: Use interface instead of struct
-	esPurger := utils.NewESPurger(s.storage.(*elasticsearch.Storage), s.source.Cluster(), gvr, s.source, s.OnDelete)
-	if err := esPurger.Purge(ctx, s.startTime); err != nil {
-		s.logger.Error(err, "error in purging ES")
+	purger := utils.NewPurger(s.storage, s.source.Cluster(), gvr, s.source, s.OnDelete)
+	if err := purger.Purge(ctx, s.startTime); err != nil {
+		s.logger.Error(err, "error in purging ")
 		return
 	}
 }
