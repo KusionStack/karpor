@@ -61,10 +61,10 @@ func (s *KarporServer) InstallKubernetesServer(c *CompletedConfig) *KarporServer
 	restStorageProviders := []registry.RESTStorageProvider{
 		clusterstorage.RESTStorageProvider{},
 		searchstorage.RESTStorageProvider{
-			SearchStorageType:      c.ExtraConfig.SearchStorageType,
-			ElasticSearchAddresses: c.ExtraConfig.ElasticSearchAddresses,
-			ElasticSearchName:      c.ExtraConfig.ElasticSearchUsername,
-			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
+			SearchStorageType: c.ExtraConfig.SearchStorageType,
+			SearchAddresses:   c.ExtraConfig.SearchAddresses,
+			SearchName:        c.ExtraConfig.SearchUsername,
+			SearchPassword:    c.ExtraConfig.SearchPassword,
 		},
 		rbacrest.RESTStorageProvider{Authorizer: c.GenericConfig.Authorization.Authorizer},
 	}
