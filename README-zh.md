@@ -177,6 +177,7 @@ Karpor 仍处于初期阶段，仍有许多功能需要构建，因此我们欢�
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/LeoSofl"><img src="https://avatars.githubusercontent.com/u/37336398?v=4?s=80" width="80px;" alt="sofl"/><br /><sub><b>sofl</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=LeoSofl" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nueavv"><img src="https://avatars.githubusercontent.com/u/90682513?v=4?s=80" width="80px;" alt="1102"/><br /><sub><b>1102</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=nueavv" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
