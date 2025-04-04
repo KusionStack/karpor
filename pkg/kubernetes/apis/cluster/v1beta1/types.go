@@ -28,6 +28,20 @@ const (
 	CredentialTypeOIDC                CredentialType = "OIDC"
 )
 
+const (
+	ValidatedCondition      = "Validated"
+	ClusterHealthyCondition = "ClusterHealthy"
+)
+
+const (
+	InvalidConfigReason = "InvalidConfig"
+	ValidatedReason     = "Validated"
+
+	ClusterHealthyReason      = "Healthy"
+	ClusterUnhealthyReason    = "Unhealthy"
+	ClusterNotReachableReason = "NotReachable"
+)
+
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
