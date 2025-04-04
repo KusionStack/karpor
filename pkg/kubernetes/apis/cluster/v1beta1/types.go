@@ -64,6 +64,12 @@ type ClusterSpec struct {
 type ClusterStatus struct {
 	// +optional
 	Healthy bool `json:"healthy,omitempty"`
+	// +optional
+	APIServer string `json:"apiserver,omitempty"`
+	// +optional
+	Version string `json:"version,omitempty"`
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 type ClusterAccess struct {
