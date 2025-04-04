@@ -28,6 +28,20 @@ const (
 	CredentialTypeOIDC                CredentialType = "OIDC"
 )
 
+const (
+	ValidatedCondition      = "Validated"
+	ClusterHealthyCondition = "ClusterHealthy"
+)
+
+const (
+	InvalidConfigReason = "InvalidConfig"
+	ValidatedReason     = "Validated"
+
+	ClusterHealthyReason      = "Healthy"
+	ClusterUnhealthyReason    = "Unhealthy"
+	ClusterNotReachableReason = "NotReachable"
+)
+
 // +genclient
 // +genclient:nonNamespaced
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
@@ -64,6 +78,12 @@ type ClusterSpec struct {
 type ClusterStatus struct {
 	// +optional
 	Healthy bool `json:"healthy,omitempty"`
+	// +optional
+	APIServer string `json:"apiserver,omitempty"`
+	// +optional
+	Version string `json:"version,omitempty"`
+	// +optional
+	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
 
 type ClusterAccess struct {
