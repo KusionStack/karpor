@@ -147,9 +147,9 @@ func TestAgentReconciler_getResources(t *testing.T) {
 			r.gvrToGVKCache.Store(v1.SchemeGroupVersion.WithResource("pods"), schema.GroupVersionKind{Group: "", Version: "v1", Kind: "Pod"})
 
 			mockey.Mock((*SyncReconciler).getRegistries).Return(tt.registries, nil).Build()
-			mockey.Mock((*SyncReconciler).getNormalizedResources).Return(tt.resources, nil).Build()
+			mockey.Mock((*SyncReconciler).getNormalizedResources).Return(tt.resources, nil, nil).Build()
 			defer mockey.UnPatchAll()
-			allResources, validResources, err := r.getResources(context.TODO(), tt.cluster)
+			allResources, validResources, _, err := r.getResources(context.TODO(), tt.cluster, nil)
 			require.Equal(t, allResources, tt.allResources)
 			require.Equal(t, validResources, tt.validResources)
 			if tt.wantErr {

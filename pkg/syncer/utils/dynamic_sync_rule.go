@@ -23,16 +23,16 @@ import (
 )
 
 var (
-	syncGVR sync.Map
+	syncGVK sync.Map
 	ZeroVal = searchv1beta1.ResourceSyncRule{}
 )
 
 func SetSyncGVK(gvk schema.GroupVersionKind, rule searchv1beta1.ResourceSyncRule) {
-	syncGVR.Store(gvk.String(), rule)
+	syncGVK.Store(gvk.String(), rule)
 }
 
 func GetSyncGVK(gvk schema.GroupVersionKind) (searchv1beta1.ResourceSyncRule, bool) {
-	rule, exist := syncGVR.Load(gvk.String())
+	rule, exist := syncGVK.Load(gvk.String())
 	if !exist {
 		return ZeroVal, false
 	}

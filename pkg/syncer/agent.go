@@ -44,6 +44,8 @@ import (
 	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
+type filterForSdkFunc func(context.Context, schema.GroupVersionResource, *searchv1beta1.ResourceSyncRule) bool
+
 type AgentReconciler struct {
 	SyncReconciler
 	gvrToGVKCache   sync.Map
@@ -131,42 +133,20 @@ func (r *AgentReconciler) Reconcile(ctx context.Context, req reconcile.Request) 
 		return reconcile.Result{}, nil
 	}
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInAgent, r.getResources)
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInAgent, r.filterForSdk)
 }
 
-// getResources retrieves the list of resource sync rules for the given cluster.
-func (r *AgentReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) (allResources []*searchv1beta1.ResourceSyncRule, validResources []*searchv1beta1.ResourceSyncRule, retErr error) {
-	registries, err := r.getRegistries(ctx, cluster)
+func (r *AgentReconciler) filterForSdk(ctx context.Context, gvr schema.GroupVersionResource, rule *searchv1beta1.ResourceSyncRule) bool {
+	gvk, err := r.gvrToGVK(ctx, gvr)
 	if err != nil {
-		return nil, nil, err
+		return false
 	}
-
-	for _, registry := range registries {
-		if !registry.DeletionTimestamp.IsZero() {
-			continue
-		}
-
-		resources, err := r.getNormalizedResources(ctx, &registry)
-		if err != nil {
-			return nil, nil, err
-		}
-
-		for gvr, rule := range resources {
-			allResources = append(allResources, rule)
-			gvk, err := r.gvrToGVK(ctx, gvr)
-			if err != nil {
-				return nil, nil, err
-			}
-			if _, exist := utils.GetSyncGVK(gvk); exist {
-				// If gvk map consist special gvk, it means that gvk is already reconciled by dynamic reconciler
-				utils.SetSyncGVK(gvk, *rule)
-			} else {
-				// only set rule without in gvk map
-				validResources = append(validResources, rule)
-			}
-		}
+	if _, exist := utils.GetSyncGVK(gvk); exist {
+		// If gvk map consist special gvk, it means that gvk is already reconciled by dynamic reconciler
+		utils.SetSyncGVK(gvk, *rule)
+		return false
 	}
-	return allResources, validResources, nil
+	return true
 }
 
 func (r *AgentReconciler) gvrToGVK(ctx context.Context, gvr schema.GroupVersionResource) (schema.GroupVersionKind, error) {
