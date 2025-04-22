@@ -20,7 +20,6 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 )
 
 type ResourceGroupManager struct {
@@ -61,7 +60,7 @@ func (m *ResourceGroupManager) CreateResourceGroupRule(ctx context.Context, rgr 
 	if err == nil {
 		return ErrResourceGroupRuleAlreadyExists
 	}
-	if !errors.Is(err, elasticsearch.ErrResourceGroupRuleNotFound) {
+	if !errors.Is(err, storage.ErrResourceGroupRuleNotFound) {
 		return err
 	}
 	// Save the new rule to the storage.

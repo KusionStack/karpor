@@ -36,6 +36,11 @@ const (
 	SQLPatternType = "sql"
 )
 
+var (
+	ErrResourceGroupRuleNotFound = fmt.Errorf("resource group rule not found")
+	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
+)
+
 // Storage interface defines the basic operations for storage.
 type Storage interface {
 	ResourceStorage
@@ -53,6 +58,7 @@ type ResourceStorage interface {
 	CountResources(ctx context.Context) (int, error)
 	SoftDeleteResource(ctx context.Context, cluster string, obj runtime.Object) error
 	Refresh(ctx context.Context) error
+	Search(ctx context.Context, queryStr, patternType string, pagination *Pagination) (*SearchResult, error)
 }
 
 // ResourceGroupRuleStorage interface defines the basic operations for resource
@@ -211,7 +217,12 @@ func Map2Resource(in map[string]interface{}) (*Resource, error) {
 
 	// These two fields are newly added, so they don't exist in the old data.
 	if v, ok := in["syncAt"]; ok {
-		out.SyncAt = v.(string)
+		switch val := v.(type) {
+		case string:
+			out.SyncAt = val
+		case float64, int:
+			out.SyncAt = time.Unix(int64(v.(float64)), 0).Format(time.RFC3339)
+		}
 	}
 	if v, ok := in["deleted"]; ok {
 		out.Deleted = v.(bool)
