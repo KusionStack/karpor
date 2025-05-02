@@ -20,11 +20,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/KusionStack/karpor/pkg/core/handler"
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
-	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	errors2 "github.com/pkg/errors"
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
@@ -35,7 +30,14 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
+	corev1 "k8s.io/kubernetes/pkg/apis/core/v1"
 	k8syaml "sigs.k8s.io/yaml"
+
+	"github.com/KusionStack/karpor/pkg/core/handler"
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	"github.com/KusionStack/karpor/pkg/util/clusterinstall"
+	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 )
 
 type ClusterManager struct{}
@@ -68,7 +70,7 @@ func (c *ClusterManager) GetCluster(
 func (c *ClusterManager) CreateCluster(
 	ctx context.Context,
 	client *multicluster.MultiClusterClient,
-	name, displayName, description, kubeconfig string,
+	name, displayName, description, clusterMode, kubeconfig string, clusterLevel int,
 ) (*unstructured.Unstructured, error) {
 	clusterGVR := clusterv1beta1.SchemeGroupVersion.WithResource("clusters")
 	// Make sure the cluster does not exist first
@@ -91,6 +93,8 @@ func (c *ClusterManager) CreateCluster(
 		name,
 		displayName,
 		description,
+		clusterMode,
+		clusterLevel,
 		restConfig,
 	)
 	if err != nil {
@@ -142,6 +146,8 @@ func (c *ClusterManager) UpdateCredential(
 	}
 	displayName := currentObj.Object["spec"].(map[string]interface{})["displayName"].(string)
 	description := currentObj.Object["spec"].(map[string]interface{})["description"].(string)
+	clusterMode := currentObj.Object["spec"].(map[string]interface{})["mode"].(string)
+	clusterLevel := currentObj.Object["spec"].(map[string]interface{})["level"].(int)
 
 	// Create new restConfig from updated kubeconfig
 	restConfig, err := clientcmd.RESTConfigFromKubeConfig([]byte(kubeconfig))
@@ -153,7 +159,9 @@ func (c *ClusterManager) UpdateCredential(
 	clusterObj, err := clusterinstall.ConvertKubeconfigToCluster(
 		name,
 		displayName,
+		clusterMode,
 		description,
+		clusterLevel,
 		restConfig,
 	)
 	if err != nil {
@@ -465,4 +473,23 @@ func (c *ClusterManager) ValidateKubeConfigFor(
 		log.Info("KubeConfig is valid and the cluster is reachable.", "serverVersion", info.String())
 		return info.String(), nil
 	}
+}
+
+// GetAgentYamlForCluster returns the agent yaml byte for a given cluster
+func (c *ClusterManager) GetAgentYamlForCluster(
+	ctx context.Context,
+	client *multicluster.MultiClusterClient,
+	name string,
+) ([]byte, error) {
+	secret, err := client.ClientSet.CoreV1().Secrets("karpor").Get(ctx, fmt.Sprintf("%s-agent", name), metav1.GetOptions{})
+	if err != nil && !errors.IsNotFound(err) {
+		return nil, err
+	}
+	if errors.IsNotFound(err) {
+		return nil, nil
+	}
+	if secret == nil || secret.Data == nil {
+		return nil, errors.NewNotFound(corev1.Resource("secrets"), name)
+	}
+	return secret.Data["config"], nil
 }

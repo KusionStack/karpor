@@ -18,58 +18,68 @@ import (
 	"context"
 
 	esclient "github.com/elastic/go-elasticsearch/v8"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
-	"k8s.io/klog/v2"
+	"k8s.io/client-go/dynamic"
+	"k8s.io/klog/v2/klogr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
 	"github.com/KusionStack/karpor/pkg/syncer"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 )
 
-type syncerOptions struct {
-	HighAvailability bool
-
-	MetricsAddr            string
-	ProbeAddr              string
-	ElasticSearchAddresses []string
-
-	ExternalEndpoint string
-	AgentImageTag    string
+type agentOptions struct {
+	syncerOptions
+	ClusterName string
+	ClusterMode string
 }
 
-func NewSyncerOptions() *syncerOptions {
-	return &syncerOptions{}
+func NewAgentOptions() *agentOptions {
+	return &agentOptions{
+		syncerOptions: *NewSyncerOptions(),
+	}
 }
 
-func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
-	fs.BoolVar(&o.HighAvailability, "high-availability", false, "Whether to use high-availability feature.")
-
-	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
-	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
-	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
-	fs.StringVar(&o.ExternalEndpoint, "external-addresses", "", "The external address that expose to user cluster in pull mode.")
-	fs.StringVar(&o.AgentImageTag, "agent-image-tag", "v0.0.0", "The agent image tag.")
+func (o *agentOptions) AddFlags(fs *pflag.FlagSet) {
+	o.syncerOptions.AddFlags(fs)
+	fs.StringVar(&o.ClusterName, "cluster-name", "", "The cluster name in hub cluster.")
+	fs.StringVar(&o.ClusterMode, "cluster-mode", "pull", "The cluster mode.")
 }
 
-func NewSyncerCommand(ctx context.Context) *cobra.Command {
-	options := NewSyncerOptions()
+func NewAgentCommand(ctx context.Context) *cobra.Command {
+	options := NewAgentOptions()
 	cmd := &cobra.Command{
-		Use:   "syncer",
-		Short: "start a resource syncer to sync resource from clusters",
+		Use:   "agent",
+		Short: "start a resource syncer agent which deployed in user cluster",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return run(ctx, options)
+			// use the same logical as the Non-HA syncer in controller cluster
+			return runAgent(ctx, options)
 		},
 	}
 	options.AddFlags(cmd.Flags())
 	return cmd
 }
 
-func run(ctx context.Context, options *syncerOptions) error {
-	ctrl.SetLogger(klog.NewKlogr())
+func runAgent(ctx context.Context, options *agentOptions) error {
+	ctrl.SetLogger(klogr.New())
 	log := ctrl.Log.WithName("setup")
+
+	if options.ClusterMode == clusterv1beta1.PushClusterMode {
+		// apply crds
+		dynamicClient, err := dynamic.NewForConfig(ctrl.GetConfigOrDie())
+		if err != nil {
+			return errors.Wrapf(err, "failed to build dynamic client for ageng")
+		}
+		err = utils.ApplyCrds(ctx, dynamicClient)
+		if err != nil {
+			return err
+		}
+	}
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme:                 scheme.Scheme,
@@ -92,7 +102,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 	}
 
 	//nolint:contextcheck
-	if err = syncer.NewSyncReconciler(es, options.HighAvailability, options.ElasticSearchAddresses, options.ExternalEndpoint, options.AgentImageTag).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewAgentReconciler(es, options.ClusterName).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}

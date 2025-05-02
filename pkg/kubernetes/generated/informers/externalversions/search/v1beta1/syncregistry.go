@@ -76,17 +76,14 @@ func NewFilteredSyncRegistryInformer(client versioned.Interface, resyncPeriod ti
 	)
 }
 
-// defaultInformer provides the default implementation for the shared informer used by the SyncRegistryInformer.
 func (f *syncRegistryInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 	return NewFilteredSyncRegistryInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-// Informer returns the shared informer for the SyncRegistryInformer.
 func (f *syncRegistryInformer) Informer() cache.SharedIndexInformer {
 	return f.factory.InformerFor(&searchv1beta1.SyncRegistry{}, f.defaultInformer)
 }
 
-// Lister returns the lister for the SyncRegistryInformer.
 func (f *syncRegistryInformer) Lister() v1beta1.SyncRegistryLister {
 	return v1beta1.NewSyncRegistryLister(f.Informer().GetIndexer())
 }

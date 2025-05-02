@@ -361,8 +361,22 @@ func schema_kubernetes_apis_cluster_v1beta1_ClusterSpec(ref common.ReferenceCall
 							Format: "",
 						},
 					},
+					"mode": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"level": {
+						SchemaProps: spec.SchemaProps{
+							Description: "cluster scale level, optional value 1, 2, 3, default 1",
+							Default:     0,
+							Type:        []string{"integer"},
+							Format:      "int32",
+						},
+					},
 				},
-				Required: []string{"provider", "access", "displayName"},
+				Required: []string{"provider", "access", "displayName", "level"},
 			},
 		},
 		Dependencies: []string{
