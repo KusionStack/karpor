@@ -20,8 +20,6 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/KusionStack/karpor/pkg/infra/multicluster"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -29,6 +27,9 @@ import (
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
 	k8syaml "sigs.k8s.io/yaml"
+
+	"github.com/KusionStack/karpor/pkg/infra/multicluster"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 )
 
 // TestGetCluster tests the GetCluster method of the ClusterManager for various
@@ -132,6 +133,8 @@ func TestCreateCluster(t *testing.T) {
 		clusterName          string
 		displayName          string
 		description          string
+		clusterMode          string
+		clusterLevel         int
 		kubeConfig           string
 		expectError          bool
 		expectedErrorMessage string
@@ -172,7 +175,9 @@ func TestCreateCluster(t *testing.T) {
 				tc.clusterName,
 				tc.displayName,
 				tc.description,
+				tc.clusterMode,
 				tc.kubeConfig,
+				tc.clusterLevel,
 			)
 
 			if tc.expectError {
@@ -204,6 +209,8 @@ func TestUpdateMetadata(t *testing.T) {
 		clusterName   string
 		displayName   string
 		description   string
+		clusterMode   string
+		clusterLevel  int
 		expectError   bool
 		expectedError string
 	}{
@@ -484,6 +491,8 @@ spec:
         privateKey: M2I5NioqKioqKioqKioqKioqKioqKioqKioqKjY1MzY=
   description: mock-description
   displayName: Existing Cluster
+  level: 2
+  mode: pull
 `,
 		},
 		{
@@ -731,6 +740,8 @@ func newMockCluster(name string) *unstructured.Unstructured {
 				"caBundle": "sensitive-ca-bundle",
 			},
 		},
+		"mode":  "pull",
+		"level": 2,
 	}
 
 	// Set annotations on the object
