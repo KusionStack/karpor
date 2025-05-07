@@ -16,10 +16,10 @@ package mcp
 
 import (
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/mark3labs/mcp-go/mcp"
+	_ "github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	_ "github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
-	ctrl "sigs.k8s.io/controller-runtime"
+	_ "sigs.k8s.io/controller-runtime"
 )
 
 // NewMCPStorageServer yields a storage initialized MCPServer struct
