@@ -1,6 +1,8 @@
 module github.com/KusionStack/karpor
 
-go 1.22
+go 1.23
+
+toolchain go1.23.5
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -15,15 +17,16 @@ require (
 	github.com/go-chi/render v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.6.0
 	github.com/hupe1980/go-huggingface v0.0.15
+	github.com/mark3labs/mcp-go v0.8.5
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
 	github.com/sashabaranov/go-openai v1.27.0
 	github.com/spf13/cobra v1.6.1
 	github.com/spf13/pflag v1.0.5
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	github.com/swaggo/http-swagger/v2 v2.0.2
 	github.com/swaggo/swag v1.16.2
 	github.com/xwb1989/sqlparser v0.0.0-20171128062118-da747e0c62c4
@@ -134,7 +137,7 @@ require (
 	github.com/smartystreets/goconvey v1.8.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect
 	github.com/stoewer/go-strcase v1.2.0 // indirect
-	github.com/stretchr/objx v0.5.0 // indirect
+	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/swaggo/files/v2 v2.0.0 // indirect
 	go.etcd.io/etcd/api/v3 v3.5.5 // indirect
 	go.etcd.io/etcd/client/pkg/v3 v3.5.5 // indirect
