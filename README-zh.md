@@ -15,7 +15,7 @@
   <a href="https://kusionstack.io/zh/karpor" target="_blank"><b>📚 文档</b></a> •
   <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 讨论</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
-  <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a>
+  [中文]
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
   <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
   <a href="https://github.com/KusionStack/karpor/blob/main/README-es.md" target="_blank">[Español]</a>
