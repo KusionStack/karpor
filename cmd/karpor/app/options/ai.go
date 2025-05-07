@@ -53,7 +53,11 @@ func (o *AIOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.AIBackend = o.AIBackend
 	config.AIAuthToken = o.AIAuthToken
 	config.AIBaseURL = o.AIBaseURL
-	config.AIModel = o.AIModel
+	if o.AIBackend != defaultBackend && o.AIModel == defaultModel {
+		config.AIModel = ""
+	} else {
+		config.AIModel = o.AIModel
+	}
 	config.AITemperature = o.AITemperature
 	config.AITopP = o.AITopP
 	config.AIProxyEnabled = o.AIProxyEnabled

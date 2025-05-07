@@ -29,7 +29,6 @@
 [![CNCF](https://shields.io/badge/CNCF-Sandbox%20project-blue?logo=linux-foundation&style=flat)](https://landscape.cncf.io/?item=provisioning--automation-configuration--kusionstack)
 [![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_shield)
 [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-Ready--to--Code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/KusionStack/karpor)
-[![Twitter Follow](https://img.shields.io/twitter/follow/KusionStack?style=social)](https://twitter.com/KusionStack)
 [![Medium](https://img.shields.io/badge/@kusionstack-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/@kusionstack)](https://medium.com/@kusionstack)
 [![Slack](https://img.shields.io/badge/slack-kusion-blueviolet?logo=slack)](https://cloud-native.slack.com/archives/C07U0395UG0)
 
@@ -170,11 +169,15 @@ Karporはまだ初期段階にあり、多くの機能が必要ですので、�
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/iamryanchia"><img src="https://avatars.githubusercontent.com/u/41557860?v=4?s=80" width="80px;" alt="iamryanchia"/><br /><sub><b>iamryanchia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=iamryanchia" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/cheny-alf"><img src="https://avatars.githubusercontent.com/u/71162267?v=4?s=80" width="80px;" alt="cheny-alf"/><br /><sub><b>cheny-alf</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=cheny-alf" title="Tests">⚠️</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajp152k"><img src="https://avatars.githubusercontent.com/u/42045620?v=4?s=80" width="80px;" alt="Raj"/><br /><sub><b>Raj</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajp152k" title="Documentation">📖</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/rajp152k"><img src="https://avatars.githubusercontent.com/u/42045620?v=4?s=80" width="80px;" alt="Raj"/><br /><sub><b>Raj</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=rajp152k" title="Documentation">📖</a> <a href="https://github.com/KusionStack/karpor/commits?author=rajp152k" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://wavee.world/invitation/b96d00e6-b802-4a1b-8a66-2e3854a01ffd"><img src="https://avatars.githubusercontent.com/u/22633385?v=4?s=80" width="80px;" alt="Ikko Eltociear Ashimine"/><br /><sub><b>Ikko Eltociear Ashimine</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=eltociear" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/wujunwei"><img src="https://avatars.githubusercontent.com/u/14191653?v=4?s=80" width="80px;" alt="Adam"/><br /><sub><b>Adam</b></sub></a><br /><a href="#tool-wujunwei" title="Tools">🔧</a> <a href="https://github.com/KusionStack/karpor/commits?author=wujunwei" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/Cookiery"><img src="https://avatars.githubusercontent.com/u/33125275?v=4?s=80" width="80px;" alt="Cookie"/><br /><sub><b>Cookie</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=Cookiery" title="Documentation">📖</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://jinjia.jsisu.com/"><img src="https://avatars.githubusercontent.com/u/28686975?v=4?s=80" width="80px;" alt="jinjia"/><br /><sub><b>jinjia</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=jinjiaKarl" title="Code">💻</a> <a href="https://github.com/KusionStack/karpor/commits?author=jinjiaKarl" title="Documentation">📖</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LeoSofl"><img src="https://avatars.githubusercontent.com/u/37336398?v=4?s=80" width="80px;" alt="sofl"/><br /><sub><b>sofl</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=LeoSofl" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/nueavv"><img src="https://avatars.githubusercontent.com/u/90682513?v=4?s=80" width="80px;" alt="1102"/><br /><sub><b>1102</b></sub></a><br /><a href="https://github.com/KusionStack/karpor/commits?author=nueavv" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>

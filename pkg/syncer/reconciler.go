@@ -18,6 +18,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
@@ -43,7 +44,8 @@ import (
 )
 
 const (
-	anyCluster = "*"
+	anyCluster  = "*"
+	anyResource = "*"
 )
 
 // SyncReconciler is the main structure that holds the state and dependencies for the multi-cluster syncer reconciler.
@@ -171,12 +173,15 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
 	logger := ctrl.LoggerFrom(ctx)
 
-	resources, err := r.getResources(ctx, cluster)
+	resources, pendingWildcards, err := r.getResources(ctx, cluster)
 	if err != nil {
 		return errors.Wrapf(err, "error detecting sync resources of the cluster %s", cluster.Name)
 	}
 
-	if len(resources) == 0 {
+	hasResources := len(resources) > 0
+	hasWildcards := len(pendingWildcards) > 0
+
+	if !hasResources && !hasWildcards {
 		logger.Info("cluster has no resources to sync", "cluster", cluster.Name)
 		return r.stopCluster(ctx, cluster.Name)
 	}
@@ -205,6 +210,25 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 		}
 	}
 
+	// Process any pending wildcard resources now that the singleClusterSyncManager is available
+	if hasWildcards {
+		klog.Infof("Processing %d pending wildcard resources for cluster %s", len(pendingWildcards), cluster.Name)
+
+		wildcardResources, err := r.processWildcardResources(ctx, pendingWildcards, singleMgr, cluster.Name)
+		if err != nil {
+			return errors.Wrapf(err, "failed to process wildcard resources for cluster %s", cluster.Name)
+		}
+
+		// Add the discovered resources to our resources list
+		resources = append(resources, wildcardResources...)
+		klog.Infof("Added %d resources from wildcards to the sync list for cluster %s", len(wildcardResources), cluster.Name)
+	}
+
+	if len(resources) == 0 {
+		logger.Info("after processing wildcards, cluster still has no resources to sync", "cluster", cluster.Name)
+		return r.stopCluster(ctx, cluster.Name)
+	}
+
 	if err := singleMgr.UpdateSyncResources(ctx, resources); err != nil {
 		return errors.Wrapf(err, "failed to update sync resources for cluster %s", cluster.Name)
 	}
@@ -212,32 +236,38 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 }
 
 // getResources retrieves the list of resource sync rules for the given cluster.
-func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, error) {
+func (r *SyncReconciler) getResources(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]*searchv1beta1.ResourceSyncRule, []*searchv1beta1.ResourceSyncRule, error) {
 	registries, err := r.getRegistries(ctx, cluster)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	var allResources []*searchv1beta1.ResourceSyncRule
+	var pendingWildcards []*searchv1beta1.ResourceSyncRule
+
 	for _, registry := range registries {
 		if !registry.DeletionTimestamp.IsZero() {
 			continue
 		}
 
-		resources, err := r.getNormalizedResources(ctx, &registry)
+		resources, wildcards, err := r.getNormalizedResources(ctx, &registry)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		for _, r := range resources {
 			allResources = append(allResources, r)
 		}
+
+		for _, w := range wildcards {
+			pendingWildcards = append(pendingWildcards, w)
+		}
 	}
-	return allResources, nil
+	return allResources, pendingWildcards, nil
 }
 
 // getNormalizedResources retrieves the normalized resource sync rules from the given sync registry.
-func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *searchv1beta1.SyncRegistry) (map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule, error) {
+func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *searchv1beta1.SyncRegistry) (map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule, map[string]*searchv1beta1.ResourceSyncRule, error) {
 	var resources []searchv1beta1.ResourceSyncRule
 
 	refName := registry.Spec.SyncResourcesRefName
@@ -245,7 +275,7 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 		var sr searchv1beta1.SyncResources
 		err := r.client.Get(ctx, types.NamespacedName{Name: refName}, &sr)
 		if err != nil {
-			return nil, errors.Wrapf(err, "failed to get SyncResources %s", refName)
+			return nil, nil, errors.Wrapf(err, "failed to get SyncResources %s", refName)
 		}
 		resources = append(resources, sr.Spec.SyncResources...)
 	}
@@ -253,20 +283,37 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 	resources = append(resources, registry.Spec.SyncResources...)
 
 	ret := make(map[schema.GroupVersionResource]*searchv1beta1.ResourceSyncRule)
+
+	// TODO: deduplicate wildcard resources
+	pendingWildcards := make(map[string]*searchv1beta1.ResourceSyncRule)
+
 	for _, res := range resources {
 		nr, err := r.getNormalizedResource(ctx, &res)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
+		}
+
+		// For wildcard resources, we'll process them later when we have a singleClusterSyncManager
+		if nr.Resource == anyResource {
+			klog.Infof("Found wildcard resource '*' for apiVersion %s, will process after manager is initialized",
+				nr.APIVersion)
+			pendingWildcards[nr.APIVersion] = nr
+			continue
 		}
 
 		gvr, err := parseGVR(nr)
 		if err != nil {
-			return nil, err
+			return nil, nil, err
 		}
 
 		ret[gvr] = nr
 	}
-	return ret, nil
+
+	if len(pendingWildcards) > 0 {
+		klog.Infof("Found %d wildcard resources", len(pendingWildcards))
+	}
+
+	return ret, pendingWildcards, nil
 }
 
 // getRegistries retrieves the list of sync registries for the given cluster.
@@ -417,4 +464,61 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 		}
 	}
 	return &config, nil
+}
+
+// processWildcardResources processes wildcard resources using the singleClusterSyncManager's discoveryClient
+func (r *SyncReconciler) processWildcardResources(
+	_ context.Context,
+	wildcards []*searchv1beta1.ResourceSyncRule,
+	singleClusterMgr SingleClusterSyncManager,
+	clusterName string,
+) ([]*searchv1beta1.ResourceSyncRule, error) {
+	var result []*searchv1beta1.ResourceSyncRule
+
+	for _, nr := range wildcards {
+		apiVersion := nr.APIVersion
+
+		klog.Infof("Processing wildcard resource '*' for apiVersion %s in cluster %s", apiVersion, clusterName)
+
+		gv, err := schema.ParseGroupVersion(apiVersion)
+		if err != nil {
+			return nil, errors.Wrapf(err, "invalid group version %q", apiVersion)
+		}
+
+		klog.Infof("Discovering resources for GroupVersion %s in cluster %s", apiVersion, clusterName)
+		resources, err := singleClusterMgr.GetAPIResources(apiVersion)
+		if err != nil {
+			klog.Errorf("Failed to discover resources for GroupVersion %s in cluster %s: %v", apiVersion, clusterName, err)
+			return nil, errors.Wrapf(err, "failed to discover resources for groupVersion %q", apiVersion)
+		}
+
+		klog.Infof("Found %d resources for GroupVersion %s in cluster %s", len(resources.APIResources), apiVersion, clusterName)
+
+		for _, apiResource := range resources.APIResources {
+			// Skip subresources (those with a slash in the name like pods/status)
+			if strings.Contains(apiResource.Name, "/") {
+				klog.Infof("Skipping subresource %s in GroupVersion %s",
+					apiResource.Name, apiVersion)
+				continue
+			}
+
+			if !apiResource.Namespaced && nr.Namespace != "" {
+				klog.Infof("Skipping cluster-scoped resource %s in GroupVersion %s (namespace %s specified)",
+					apiResource.Name, apiVersion, nr.Namespace)
+				// Skip cluster-scoped resources if namespace is specified
+				continue
+			}
+
+			// Create a copy of the resource sync rule for this specific resource
+			resourceRule := nr.DeepCopy()
+			resourceRule.Resource = apiResource.Name
+
+			result = append(result, resourceRule)
+
+			klog.Infof("Created sync rule for resource %s in GroupVersion %s (GVR: %s) for cluster %s",
+				apiResource.Name, apiVersion, gv.WithResource(apiResource.Name).String(), clusterName)
+		}
+	}
+
+	return result, nil
 }

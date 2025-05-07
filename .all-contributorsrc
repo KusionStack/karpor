@@ -235,7 +235,8 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/42045620?v=4",
       "profile": "https://github.com/rajp152k",
       "contributions": [
-        "doc"
+        "doc",
+        "code"
       ]
     },
     {
@@ -275,6 +276,24 @@
       "contributions": [
         "code",
         "doc"
+      ]
+    },
+    {
+      "login": "LeoSofl",
+      "name": "sofl",
+      "avatar_url": "https://avatars.githubusercontent.com/u/37336398?v=4",
+      "profile": "https://github.com/LeoSofl",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "nueavv",
+      "name": "1102",
+      "avatar_url": "https://avatars.githubusercontent.com/u/90682513?v=4",
+      "profile": "https://github.com/nueavv",
+      "contributions": [
+        "code"
       ]
     }
   ],

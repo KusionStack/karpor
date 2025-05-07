@@ -17,6 +17,7 @@ package syncer
 
 import (
 	"context"
+	"fmt"
 	"testing"
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
@@ -524,7 +525,7 @@ func TestSyncReconciler_getNormalizedResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-			got, err := r.getNormalizedResources(context.TODO(), tt.registry)
+			got, _, err := r.getNormalizedResources(context.TODO(), tt.registry)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
@@ -567,7 +568,7 @@ func TestSyncReconciler_getResources(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			r := &SyncReconciler{client: fake.NewClientBuilder().WithRuntimeObjects(tt.srs...).WithScheme(scheme.Scheme).Build()}
-			got, err := r.getResources(context.TODO(), tt.cluster)
+			got, _, err := r.getResources(context.TODO(), tt.cluster)
 			if tt.wantErr {
 				require.Error(t, err)
 			} else {
@@ -669,9 +670,58 @@ func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
 			},
 			exist: false,
 		},
+		{
+			name: "test wildcard",
+			cluster: &clusterv1beta1.Cluster{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "cluster1",
+				},
+				Spec: clusterv1beta1.ClusterSpec{
+					Access: clusterv1beta1.ClusterAccess{
+						Endpoint: "https://localhost:6443",
+						CABundle: []byte("ca"),
+						Credential: &clusterv1beta1.ClusterAccessCredential{
+							Type: clusterv1beta1.CredentialTypeX509Certificate,
+							X509: &clusterv1beta1.X509{
+								Certificate: []byte("cert"),
+								PrivateKey:  []byte("key"),
+							},
+						},
+					},
+				},
+			},
+			srs: []runtime.Object{
+				&searchv1beta1.SyncRegistry{
+					ObjectMeta: metav1.ObjectMeta{
+						ResourceVersion: "1",
+					},
+					Spec: searchv1beta1.SyncRegistrySpec{
+						Clusters:      []string{"cluster1"},
+						SyncResources: []searchv1beta1.ResourceSyncRule{{APIVersion: "samplecontroller.k8s.io/v1alpha1", Resource: "*"}},
+					},
+				},
+			},
+			config: &rest.Config{
+				Host: "https://localhost:6443",
+				TLSClientConfig: rest.TLSClientConfig{
+					CAData:   []byte("ca"),
+					CertData: []byte("cert"),
+					KeyData:  []byte("key"),
+				},
+			},
+			exist: true,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			if tt.name == "test wildcard" {
+				m := mockey.Mock((*SyncReconciler).processWildcardResources).To(
+					func(_ context.Context, _ []*searchv1beta1.ResourceSyncRule, _ SingleClusterSyncManager, _ string) ([]*searchv1beta1.ResourceSyncRule, error) {
+						return []*searchv1beta1.ResourceSyncRule{{APIVersion: "samplecontroller.k8s.io/v1alpha1", Resource: "foos"}}, nil
+					}).Build()
+				defer m.UnPatch()
+			}
+
 			m1 := &mock.Mock{}
 			m1.On("UpdateSyncResources", mock.Anything, mock.Anything).Return(nil)
 			m1.On("ClusterConfig").Return(tt.config)
@@ -688,6 +738,145 @@ func TestSyncReconciler_handleClusterAddOrUpdate(t *testing.T) {
 				require.Error(t, err)
 			} else {
 				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestSyncReconciler_processWildcardResources(t *testing.T) {
+	tests := []struct {
+		name         string
+		wildcards    []*searchv1beta1.ResourceSyncRule
+		apiResources []metav1.APIResource
+		clusterName  string
+		want         []*searchv1beta1.ResourceSyncRule
+		wantErr      bool
+	}{
+		{
+			name: "successfully process wildcard resources",
+			wildcards: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "*",
+				},
+			},
+			apiResources: []metav1.APIResource{
+				{
+					Name:       "foos",
+					Namespaced: true,
+				},
+				{
+					Name:       "bars",
+					Namespaced: false,
+				},
+			},
+			clusterName: "cluster1",
+			want: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "foos",
+				},
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "bars",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "skip subresources",
+			wildcards: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "*",
+				},
+			},
+			apiResources: []metav1.APIResource{
+				{
+					Name:       "foos/status",
+					Namespaced: true,
+				},
+				{
+					Name:       "foos",
+					Namespaced: true,
+				},
+			},
+			clusterName: "cluster1",
+			want: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "foos",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "skip cluster-scoped resources when namespace specified",
+			wildcards: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "*",
+					Namespace:  "default",
+				},
+			},
+			apiResources: []metav1.APIResource{
+				{
+					Name:       "bars",
+					Namespaced: false,
+				},
+				{
+					Name:       "foos",
+					Namespaced: true,
+				},
+			},
+			clusterName: "cluster1",
+			want: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "samplecontroller.k8s.io/v1alpha1",
+					Resource:   "foos",
+					Namespace:  "default",
+				},
+			},
+			wantErr: false,
+		},
+		{
+			name: "invalid group version",
+			wildcards: []*searchv1beta1.ResourceSyncRule{
+				{
+					APIVersion: "invalid",
+					Resource:   "*",
+				},
+			},
+			apiResources: []metav1.APIResource{},
+			clusterName:  "cluster1",
+			want:         nil,
+			wantErr:      true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			mockManager := &mock.Mock{}
+			if tt.wantErr {
+				mockManager.On("GetAPIResources", mock.Anything).Return(nil, fmt.Errorf("failed to get API resources"))
+			} else {
+				mockManager.On("GetAPIResources", mock.Anything).Return(
+					&metav1.APIResourceList{
+						GroupVersion: tt.wildcards[0].APIVersion,
+						APIResources: tt.apiResources,
+					},
+					nil,
+				)
+			}
+
+			r := &SyncReconciler{}
+			got, err := r.processWildcardResources(context.TODO(), tt.wildcards, &fakeSingleClusterSyncManager{mockManager}, tt.clusterName)
+
+			if tt.wantErr {
+				require.Error(t, err)
+			} else {
+				require.NoError(t, err)
+				require.Equal(t, tt.want, got)
 			}
 		})
 	}

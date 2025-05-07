@@ -28,6 +28,7 @@ const (
 	AzureProvider       = "azureopenai"
 	HuggingFaceProvider = "huggingface"
 	OpenAIProvider      = "openai"
+	DeepseekProvider    = "deepseek"
 )
 
 const (
@@ -39,6 +40,7 @@ var clients = map[string]AIProvider{
 	AzureProvider:       &AzureAIClient{},
 	HuggingFaceProvider: &HuggingfaceClient{},
 	OpenAIProvider:      &OpenAIClient{},
+	DeepseekProvider:    &DeepseekClient{},
 }
 
 // AIProvider is an interface all AI clients.
