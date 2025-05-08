@@ -18,6 +18,8 @@
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
   [日本語]
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-es.md" target="_blank">[Español]</a>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-fr.md" target="_blank">[Français]</a>
 </p>
 
 [![GitHub Release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)

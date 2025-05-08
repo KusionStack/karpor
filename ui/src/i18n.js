@@ -1,29 +1,14 @@
 import i18n from 'i18next'
 import { initReactI18next } from 'react-i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
-import en from './locales/en.json'
-import zh from './locales/zh.json'
-import de from './locales/de.json'
-import pt from './locales/pt.json'
-import ko from './locales/ko.json'
-
-const resources = {
-  en: {
-    translation: en,
-  },
-  zh: {
-    translation: zh,
-  },
-  de: {
-    translation: de,
-  },
-  pt: {
-    translation: pt,
-  },
-  ko: {
-    translation: ko,
-  },
-}
+import enTranslation from './locales/en.json'
+import zhTranslation from './locales/zh.json'
+import deTranslation from './locales/de.json'
+import ptTranslation from './locales/pt.json'
+import koTranslation from './locales/ko.json'
+import jaTranslation from './locales/ja.json'
+import frTranslation from './locales/fr.json'
+import esTranslation from './locales/es.json'
 
 const currentLocale = localStorage.getItem('lang') || 'en'
 
@@ -31,7 +16,32 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources,
+    resources: {
+      en: {
+        translation: enTranslation,
+      },
+      zh: {
+        translation: zhTranslation,
+      },
+      de: {
+        translation: deTranslation,
+      },
+      pt: {
+        translation: ptTranslation,
+      },
+      ko: {
+        translation: koTranslation,
+      },
+      ja: {
+        translation: jaTranslation,
+      },
+      fr: {
+        translation: frTranslation,
+      },
+      es: {
+        translation: esTranslation,
+      },
+    },
     fallbackLng: currentLocale,
     lng: currentLocale,
     debug: true,

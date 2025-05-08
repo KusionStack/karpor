@@ -4,22 +4,21 @@
     <img width="60%" src="https://kusionstack.io/karpor/assets/logo/logo-full.svg">
 </p>
 
-<h2 style="font-size: 1.5em;">
-  Descoberta Intuitiva 🔍 ,<br>
-  Visão Ilimitada 📊.<span style="color: gray; font-weight: normal;"> Com IA.<sup style="color: gray; font-weight: normal; font-size: 0.5em"> em Breve</sup></span>✨
-</h2>
+<h1 style="font-size: 1.5em;">
+    Inteligencia para Kubernetes
+</h1>
 
 <p align="center">
-  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Demo Online</b></a> •
-  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🚀 Visão Geral </b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/installation" target="_blank"><b>⚙️ Instalação</b></a> •
-  <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Início Rápido</b></a> •
-  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentação</b></a><br>
+  <a href="https://karpor-demo.kusionstack.io" target="_blank"><b>🎮 Demo en Vivo</b></a> •
+  <a href="https://kusionstack.io/karpor/" target="_blank"><b>🌐 Sitio Web</b></a> •
+  <a href="https://kusionstack.io/karpor/getting-started/quick-start" target="_blank"><b>⚡️ Inicio Rápido</b></a> •
+  <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentación</b></a> •
+  <a href="https://github.com/KusionStack/karpor/discussions" target="_blank"><b>💬 Discusiones</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
-  [Português]
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
   <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
-  <a href="https://github.com/KusionStack/karpor/blob/main/README-es.md" target="_blank">[Español]</a>
+  [Español]
   <a href="https://github.com/KusionStack/karpor/blob/main/README-fr.md" target="_blank">[Français]</a>
 </p>
 
@@ -35,79 +34,83 @@
 [![Medium](https://img.shields.io/badge/@kusionstack-black?style=flat&logo=medium&logoColor=white&link=https://medium.com/@kusionstack)](https://medium.com/@kusionstack)
 [![Slack](https://img.shields.io/badge/slack-kusion-blueviolet?logo=slack)](https://cloud-native.slack.com/archives/C07U0395UG0)
 
-<a href="https://trendshift.io/repositories/11086" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11086" alt="KusionStack%2Fkarpor | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a> <a href="https://www.producthunt.com/posts/karpor" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=770525&theme=light&t=1736447376990" alt="Karpor - &#0032;Effortlessly&#0032;manage&#0032;Kubernetes&#0032;with&#0032;AI&#0045;powered&#0032;insights | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
+<a href="https://trendshift.io/repositories/11086" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11086" alt="KusionStack%2Fkarpor | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a> <a href="https://www.producthunt.com/posts/karpor" target="_blank"><img src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=770525&theme=light&t=1736447376990" alt="Karpor - &#0032;Effortlessly&#0032;manage&#0032;Kubernetes&#0032;with&#0045;powered&#0032;insights | Product Hunt" style="width: 250px; height: 54px;" width="250" height="54" /></a>
 
 </div>
 
-## O que é o Karpor?
+## ¿Qué es Karpor?
 
-O Karpor é um **Explorador de Kubernetes** Moderno focado em **Pesquisa**, **Insights** e **Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
+Karpor es Inteligencia para Kubernetes. Proporciona **Búsqueda** avanzada, **Insights** e **IA** para Kubernetes. Es esencialmente una **Herramienta de Visualización de Kubernetes**. Con Karpor, puedes obtener una visibilidad crucial de tus clústeres de Kubernetes en cualquier nube.
+
+¡Esperamos convertirnos en un proyecto de código abierto **pequeño y hermoso, neutral con respecto al proveedor, amigable para desarrolladores y dirigido por la comunidad**!
+
+**Estado Actual**: Estamos iterando [v0.7.0](https://github.com/KusionStack/karpor/issues/723), bienvenido a unirte a la [discusión](https://github.com/KusionStack/karpor/discussions/737).
 
 https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 
-## Por que escolher o Karpor?
+## ¿Por qué Karpor?
 
-<h3 align="center">🤝 Amigável ao Usuário</h3>
+<h3 align="center">🔍 Búsqueda</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>Leve e Fácil de Configurar</b><br />Apenas um `helm` e pronto.<br /><br/>
-      <b>Pronto para Usar</b><br />Políticas de segurança e conformidade integradas, estratégia de sincronização de recursos, regra de transformação de recursos e definições de relacionamento de topologia.<br /><br />
-      <b>Pesquisa e Localização Rápidas de Recursos</b><br />Pesquise e localize rapidamente recursos de interesse em um grande número de clusters de forma amigável ao usuário.
+    <td>
+      <b>Sincronización Automática</b><br />Sincroniza automáticamente tus recursos en todos los clústeres gestionados por la plataforma multi-nube.<br /><br/>
+      <b>Consultas potentes y flexibles</b><br />Recupera y localiza eficazmente los recursos en múltiples clústeres que estás buscando de forma rápida y sencilla.
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" alt="Amigável ao usuário" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/search/search-auto-complete-raw.jpg" /></kbd>
     </td>
   </tr>
 </table>
 
-<h3 align="center">✨ Inteligente</h3>
+<h3 align="center">💡 Insights</h3>
 
 <table>
   <tr>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" alt="Inteligente" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/insight/insight-home-raw.jpg" /></kbd>
     </td>
-    <td style="vertical-align: middle;">
-      <b>Proteção de Conformidade</b><br />Identifique automaticamente potenciais riscos e receba sugestões de IA para remediação.<br /><br/>
-      <b>Visualizações Lógicas e Topológicas</b><br />Visualizações lógicas e topológicas de recursos relevantes dentro do contexto operacional.
+    <td>
+      <b>Gobernanza de Cumplimiento</b><br />Comprende tu estado de cumplimiento en múltiples clústeres y estándares de cumplimiento.<br /><br/>
+      <b>Topología de Recursos</b><br />Vistas lógicas y topológicas de recursos relevantes dentro de su contexto operativo.<br /><br/>
+      <b>Optimización de Costos</b><br />Próximamente.
     </td>
   </tr>
 </table>
 
-<h3 align="center">⚡️ Baixo Impacto</h3>
+<h3 align="center">✨ IA</h3>
 
 <table>
   <tr>
-    <td style="vertical-align: middle;">
-      <b>Somente Leitura, Não Invasivo</b><br />Plano de dados apenas para leitura, Não Invasivo ao cluster do usuário.<br /><br />
-      <b>Compatível com API Nativa do Kubernetes</b><br />Integração perfeita com a cadeia de ferramentas existente do Kubernetes.<br /><br />
-      <b>Multi-Cluster e Multi-Nuvem/Nuvem Híbrida</b><br />Suporta nativamente Multi-Cluster e Multi-Nuvem/Nuvem Híbrida.
+    <td>
+      <b>Operaciones en Lenguaje Natural</b><br />Interactúa con Kubernetes usando lenguaje natural para operaciones más intuitivas.<br /><br />
+      <b>Respuestas IA Contextuales</b><br />Obtén asistencia inteligente y contextual que entiende tus necesidades.<br /><br />
+      <b>AIOps para Kubernetes</b><br />Automatiza y optimiza la gestión de Kubernetes con insights potenciados por IA.
     </td>
-    <td style="width: 60%; vertical-align: middle;">
-      <img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png" alt="Baixo Impacto" />
+    <td width="60%">
+      <kbd><img src="https://kusionstack.io/karpor/assets/ai/event-ai-diagnosis.png" /></kbd>
     </td>
   </tr>
 </table>
 
 </br>
 
-## 🌈 Nossa Visão
+## 🌈 Nuestra Visión
 
-A crescente complexidade do ecossistema do Kubernetes é uma tendência inegável que está se tornando cada vez mais difícil de gerenciar. Essa complexidade não só significa uma carga maior para operações e manutenção, mas também retarda a adoção de novas tecnologias pelos usuários, limitando sua capacidade de aproveitar ao máximo o potencial do Kubernetes.
+La creciente complejidad del ecosistema de Kubernetes es una tendencia innegable que se está volviendo cada vez más difícil de gestionar. Esta complejidad no solo implica una mayor carga en las operaciones y el mantenimiento, sino que también ralentiza la adopción de nuevas tecnologías por parte de los usuarios, limitando su capacidad para aprovechar plenamente el potencial de Kubernetes.
 
-Em geral, desejamos que o Karpor se concentre em busca, insights e inteligência artificial, para **transcender o labirinto cada vez mais complexo do Kubernetes**, alcançando a seguinte **proposta de valor**:
+En general, deseamos que Karpor se centre en la búsqueda, los insights y la IA, para **romper el laberinto cada vez más complejo de Kubernetes**, logrando la siguiente **propuesta de valor**:
 
 ![](https://kusionstack.io/karpor/assets/overview/vision.png)
 
-## ⚙️ Instalação
+## ⚙️ Instalación
 
-### Instale com Helm
+### Instalar con Helm
 
-O Karpor pode ser facilmente instalado pelo helm v3.5+ que é uma ferramenta de linha de comando simples e você pode obtê-la [aqui](https://helm.sh/docs/intro/install/).
+Karpor se puede instalar fácilmente con helm v3.5+, que es una herramienta de línea de comandos simple y puedes obtenerla [aquí](https://helm.sh/docs/intro/install/).
 
-Se você estiver interessado, também pode visualizar diretamente o [Repositório de Gráficos do Karpor](https://github.com/KusionStack/charts).
+Si estás interesado, también puedes ver directamente el [Repositorio de Charts de Karpor](https://github.com/KusionStack/charts).
 
 ```bash
 $ helm repo add kusionstack https://kusionstack.github.io/charts
@@ -115,23 +118,23 @@ $ helm repo update
 $ helm install karpor kusionstack/karpor
 ```
 
-Para mais informações sobre a instalação, por favor, consulte o [Guia de Instalação](https://kusionstack.io/karpor/getting-started/installation) no site oficial.
+Para más información sobre la instalación, consulta la [Guía de Instalación](https://kusionstack.io/karpor/getting-started/installation) en el sitio web oficial.
 
-## 📖 Documentação
+## 📖 Documentación
 
-Documentação detalhada está disponível no [Website do Karpor](https://kusionstack.io/karpor).
+La documentación detallada está disponible en el [Sitio Web de Karpor](https://kusionstack.io/karpor).
 
-## 🤝 Como Contribuir
+## 🤝 Cómo contribuir
 
-Karpor ainda está em estágio inicial e há muitas capacidades que precisam ser desenvolvidas, por isso, damos as boas-vindas a todos para participar da construção conosco.
+Karpor todavía está en la etapa inicial, y hay muchas capacidades que necesitan ser completadas, por lo que damos la bienvenida a todos a participar en la construcción con nosotros.
 
-- Se você não sabe como **começar a contribuir**, você pode ler o [Guia de Contribuição](https://kusionstack.io/karpor/developer-guide/contribution-guide), lá você encontrará todos os detalhes.
-- Se você não sabe por  **quis problemas começar**, preparamos a [Tarefas da Comunidade | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463), você pode escolher qual problema (issue) você prefere.
-- Caso tenha **alguma dúvida**, por favor [Envie um "Issue"](https://github.com/KusionStack/karpor/issues) ou [Poste nas discuções](https://github.com/KusionStack/karpor/discussions/new/choose), responderemos assim que possível.
+- Si no sabes cómo **comenzar a contribuir**, puedes leer la [Guía de Contribución](https://kusionstack.io/karpor/developer-guide/contribution-guide), conocerás todos los detalles.
+- Si no sabes **por qué problemas empezar**, hemos preparado una [Lista de tareas de la comunidad | Lista de tareas para principiantes 🎖︎](https://github.com/KusionStack/karpor/issues/463), puedes elegir el problema que te guste.
+- Si tienes **cualquier pregunta**, por favor [Envía un Issue](https://github.com/KusionStack/karpor/issues) o [Publica en las discusiones](https://github.com/KusionStack/karpor/discussions/new/choose), responderemos lo antes posible.
 
-## 🎖︎ Colaboradores
+## 🎖︎ Contribuidores
 
-Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack.io/karpor/developer-guide/contribution-guide) a nós!
+¡Gracias a estas maravillosas personas! ¡Ven y [únete a nosotros](https://kusionstack.io/karpor/developer-guide/contribution-guide)!
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
@@ -186,11 +189,18 @@ Agradecemos a essas pessoas maravilhosas! Venha e [junte-se](https://kusionstack
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-## ☎️ Contato
+## ☎️ Contacto
 
-Caso tenha alguma pergunta, sinta-se à vontade para entrar em contato conosco pelos seguintes meios:
+Si tienes alguna pregunta, no dudes en contactarnos de las siguientes maneras:
 
-- **Canais do Slack:**
-  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Discussões técnicas sobre Karpor e KusionStack
-  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - Discussões gerais, anúncios e atualizações da comunidade
-  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
+- **Canales de Slack:**
+  - [#kusion](https://cloud-native.slack.com/archives/C07U0395UG0) - Discusiones técnicas sobre Karpor y KusionStack
+  - [#kusion-general](https://cloud-native.slack.com/archives/C07T4LBDB7G) - Discusiones generales, anuncios y actualizaciones de la comunidad
+- [Grupo de DingTalk](https://page.dingtalk.com/wow/dingtalk/act/en-home): `42753001`  (Chino)
+- Grupo de WeChat (Chino): Añade al asistente de WeChat para llevarte al grupo de usuarios.
+
+  <img src="assets/img/wechat.png" width="200" height="200"/>
+
+
+## Licencia
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor?ref=badge_large) 
