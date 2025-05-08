@@ -74,6 +74,16 @@
   - **`config/default-karpor-guest-rbac.yaml`**: Defines a Kubernetes `ClusterRole` named `karpor-guest` with `get` access to various public and resource-related API endpoints.
   - **`config/default-relationship.yaml`**: Defines default relationships between Kubernetes resources (e.g., Deployment -> ReplicaSet -> Pod) using selectors, owner references, and JSONPath, used for graph traversal and visualization.
   - **`config/default-sync-strategy.yaml`**: Defines default `TransformRule` and `SyncRegistry` configurations for the Karpor syncer, specifying which resources to synchronize from clusters and how to transform their data before storing it (e.g., only keeping metadata).
+** pkg
+*** readme
+  The `pkg` directory contains library code intended for use by external applications. While Go's `internal` directory enforces privacy, `pkg` explicitly communicates that the code within is safe for others to import. It helps organize Go code when the root directory is busy with non-Go components, making it easier to use Go tools. The pattern is not universally accepted but is common in many large Go projects (like Kubernetes, Helm, Docker, etc.), originating from the old Go source code structure. It's most beneficial for larger projects where the extra nesting aids organization.
+*** mcp
+  The `pkg/mcp` directory contains the implementation for the Karpor MCP (Multi-Cluster Platform) server component. This component is designed to expose Karpor's data and capabilities, particularly from the search storage backend, via the `mcp-go` library's Server-Sent Events (SSE) interface.
+  - **`types.go`**: Defines the core types used within the MCP package, including `MCPStorageServer` (the main struct holding the storage backend and `mcp-go` server instances) and type aliases for naming Resources, Tools, and Prompts.
+  - **`server.go`**: Contains the logic for initializing and starting the `mcp-go` SSE server. It includes the `NewMCPStorageServer` function to create the server instance with a storage backend and SSE configuration, and the `Serve` method to start the SSE listener.
+  - **`resources.go`**: Intended to contain implementations of the `mcp-go/mcp.Resource` interface. These implementations will define how specific Karpor entities (like `ResourceGroup`) are exposed and queried via the MCP server, likely interacting with the configured storage backend. (Currently empty, pending implementation).
+  - **`tools.go`**: Intended to contain implementations of the `mcp-go/mcp.Tool` interface. These implementations will define actions or operations that the MCP server can perform, potentially interacting with Karpor's managers or storage. (Currently empty, pending implementation).
+  - **`prompts.go`**: Intended to contain implementations of the `mcp-go/mcp.Prompt` interface. These implementations will define natural language interaction capabilities, potentially integrating with Karpor's AI manager or querying data via the storage backend. (Currently empty, pending implementation).
 * Plan
 ** Phase 1: Core mcp-go Integration with Elasticsearch (Basic Resource)
 *** Goal: Get a minimal MCP SSE server running that exposes one type of resource fetched from Elasticsearch.
