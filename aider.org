@@ -45,13 +45,11 @@
     - `karpor syncer`: Starts the resource syncer component (`cmd/karpor/app/syncer.go`). Connects to Kubernetes clusters and synchronizes resource data into a search storage backend (Elasticsearch). Uses `controller-runtime`.
     - `karpor mcp`: Intended to start a server for natural language interaction (`cmd/karpor/app/mcp.go`). Currently under development, initializes an Elasticsearch client but the core SSE server and interaction logic are pending implementation.
   - **`cmd/cert-generator`**: A separate utility binary (`cmd/cert-generator/main.go`). Generates CA certificates and kubeconfig files required for Karpor components to interact securely with Kubernetes clusters. Stores credentials as Kubernetes Secrets and ConfigMaps.
-
 ** api
   The `api` directory is dedicated to defining and serving the OpenAPI (Swagger) specification for the Karpor Core API.
   - **API Specification Definition:** The `openapispec` subdirectory contains the formal OpenAPI specification files (`swagger.yaml` and `swagger.json`). These files describe the API endpoints, methods, parameters, responses, and data structures.
   - **Generated Code for Serving the Spec:** `api/openapispec/docs.go` is a generated Go file that embeds the OpenAPI specification within the Karpor binary, allowing the API server to serve the spec programmatically (e.g., for Swagger UI).
   - **Documentation:** `README.md` files provide context and documentation for the API definition files.
-
 ** .github
   The `.github` directory contains configuration files for GitHub features, primarily focusing on automated workflows and contribution guidelines.
   - **Workflows (`.github/workflows/`)**: Defines Continuous Integration (CI), release automation, and community management tasks using GitHub Actions.
@@ -63,6 +61,19 @@
     - `community-planning-updater.yml`: Uses the `osp-action` to manage community planning based on milestone and issue events.
   - **Issue and Pull Request Templates (`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`)**: Provides standardized templates for reporting bugs, suggesting enhancements, and creating pull requests.
   - **CODEOWNERS**: Specifies individuals or teams responsible for reviewing code in different parts of the repository.
+** .goreleaser
+  The `.goreleaser` directory contains configuration files for the Goreleaser tool, which automates the process of building and releasing Go projects.
+  - **`.goreleaser.yml`**: The main configuration file used for official releases. It defines build targets (OS/Arch), archives, checksums, changelog generation, GitHub releases, and Docker image builds (including multi-platform manifests).
+  - **`.goreleaser-dev.yml`**: A configuration file intended for development purposes. It typically disables the release step (`release: disable: true`) while still allowing builds and Docker image creation, useful for local testing of the build process without creating official releases.
+** config
+  The `config` directory contains configuration file templates and default configurations for Karpor components. These files are often embedded into the binary.
+  - **`config/README.md`**: Provides a brief description of the directory's purpose.
+  - **`config/embed.go`**: A Go file that uses `//go:embed` directives to embed the default configuration YAML files into the Karpor binary. It defines variables holding the byte content of these files.
+  - **`config/default-anonymous-rbac.yaml`**: Defines a Kubernetes `ClusterRole` and `ClusterRoleBinding` for the `system:anonymous` user, granting `get` access to public API endpoints.
+  - **`config/default-karpor-admin-rbac.yaml`**: Defines a Kubernetes `ClusterRole` named `karpor-admin` with broad access (`*` verb) to resource group and cluster APIs, and `get` access to public endpoints.
+  - **`config/default-karpor-guest-rbac.yaml`**: Defines a Kubernetes `ClusterRole` named `karpor-guest` with `get` access to various public and resource-related API endpoints.
+  - **`config/default-relationship.yaml`**: Defines default relationships between Kubernetes resources (e.g., Deployment -> ReplicaSet -> Pod) using selectors, owner references, and JSONPath, used for graph traversal and visualization.
+  - **`config/default-sync-strategy.yaml`**: Defines default `TransformRule` and `SyncRegistry` configurations for the Karpor syncer, specifying which resources to synchronize from clusters and how to transform their data before storing it (e.g., only keeping metadata).
 * Plan
 ** Phase 1: Core mcp-go Integration with Elasticsearch (Basic Resource)
 *** Goal: Get a minimal MCP SSE server running that exposes one type of resource fetched from Elasticsearch.
