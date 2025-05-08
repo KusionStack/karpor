@@ -112,11 +112,11 @@
 **** Update `pkg/mcp/server.go`:
 ***** Modify `NewMCPStorageServer` to accept and store the `storage.Storage` interface.
 ***** Add a method (e.g., `RegisterResources`) to register the implemented `mcp.Resource` instances with the internal `mcpServer`.
-**** Update `cmd/karpor/app/mcp.go`:
-***** After initializing the Elasticsearch storage, call the registration method on the `MCPStorageServer` instance before calling `Serve`.
 ***** Ensure proper context propagation and error handling during server startup.
 ***** Add basic logging using the configured `klogr` logger.
 ***** Address any linter warnings (`nolint` comments should be reviewed).
+**** Update `cmd/karpor/app/mcp.go`:
+***** After initializing the Elasticsearch storage, call the registration method on the `MCPStorageServer` instance before calling `Serve`.
 *** Testing:
 **** Write unit tests for the `mcp.Resource` implementation, mocking the storage backend.
 **** Write integration tests for the server startup and the basic resource listing endpoint.
@@ -182,20 +182,27 @@
 **** Prepare the changes for merging (squash commits, write clear commit messages).
 **** Coordinate with team for final review and merge.
 
-* Misc Notes
+* Core Design Notes
+** Purpose Overview
+  The **MCP Server** in Karpor is being developed to enable a **natural language chat interface** for interacting with Karpor's stored Kubernetes cluster data.
+
+  Its primary purpose is to act as an intermediary that:
+
+  1.  **Implements the Model Context Protocol (MCP):** It provides a standardized interface (using libraries like `mcp-go`) for communication with AI models (like Large Language Models - LLMs).
+  2.  **Integrates with Karpor Storage:** It connects to Karpor's backend storage (specifically Elasticsearch, as mentioned in the comments) to access the synchronized Kubernetes resource data.
+  3.  **Translates Natural Language:** It receives natural language queries from a user interface (the planned chat interface) and translates them into structured requests that can be executed against Karpor's storage or other Karpor components.
+  4.  **Provides Intelligent Responses:** It processes the results from Karpor's data sources and formats them according to the MCP standard, allowing AI models to consume this context and generate natural language responses, insights, or recommendations for the user.
+
+  In essence, the MCP server aims to make Karpor's rich multi-cluster Kubernetes data accessible and understandable through intuitive natural language interactions, leveraging AI capabilities via a standardized protocol.
+* Specific Design Notes
 ** Leverage existing natural language search mechanism
 ** karpor mcp is a separate command just like syncer
  - is init by executing karpor mcp : starts the mcp server
-* Misc TODO
- - [ ] get a basic `karpor mcp` server running
+ - cobra + viper
+** Overall Purpose of elastic search mcp
+* Human Scratch Cache
 * Aider Directives
 ** TDD : Test Driven Development
  - https://martinfowler.com/bliki/TestDrivenDevelopment.html
  - testify for unit tests
  - ginkgo and gomega for integration and end to end tests
-
-* TDD Scratch pad
- - need to catch up on tests
- - testify for unit tests and ginkgo, gomega for the integration and end to end tests
- - my scope can all be restricted to karpor mcp working right
- - I don't need to check the functionality of cobra or viper working well but need to restrict myself to the specifics of mcp-go and  how it fits
