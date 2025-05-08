@@ -1,0 +1,156 @@
+:PROPERTIES:
+:ID:       b5c02b4f-4476-4af1-88ad-2ca1cd2aec8e
+:END:
+#+title: Karpor-MCP
+#+filetags: :open-source:project:
+
+* Context
+** Github Repository
+  https://github.com/KusionStack/karpor
+** Documentation
+  https://www.kusionstack.io/karpor/
+** Issue
+ - https://github.com/KusionStack/karpor/issues/658
+** Discussion
+ - https://github.com/KusionStack/karpor/discussions/675
+** Pull Request
+ - https://github.com/KusionStack/karpor/pull/798
+** Code Contribution Guidelines
+ - https://www.kusionstack.io/karpor/developer-guide/conventions/code-conventions
+** Testing strategy
+ - https://www.kusionstack.io/karpor/developer-guide/conventions/test-conventions
+* Libraries
+** mcp-go
+ - https://github.com/mark3labs/mcp-go
+* env Setup
+** kind installation
+ - https://kind.sigs.k8s.io/
+** karpor quick start
+ - https://www.kusionstack.io/karpor/getting-started/quick-start
+** register local cluster
+ - https://www.kusionstack.io/karpor/getting-started/quick-start#register-cluster
+** karpor's architecture
+ - https://www.kusionstack.io/karpor/concepts/architecture
+* Code Specifics
+** hack
+  The `hack` directory contains scripts and tools for automating development tasks, code generation, and verification.
+  - **Code Generation:** Scripts (`update-codegen.sh`, `generate-groups.sh`, `generate-internal-groups.sh`) generate Go code for Kubernetes-style APIs (deepcopy, clientsets, listers, informers, defaulters, conversions, openapi). Uses tools from `tools.go` and boilerplate headers.
+  - **Code Verification:** `verify-codegen.sh` checks if generated code is up-to-date.
+  - **CLI Documentation Generation:** `gen-cli-docs/main.go` generates Markdown documentation for Karpor CLI commands.
+  - **Utility Functions:** `util.sh` provides helper functions like setting up a temporary GOPATH.
+** cmd
+* Plan
+** Phase 1: Core mcp-go Integration with Elasticsearch (Basic Resource)
+*** Goal: Get a minimal MCP SSE server running that exposes one type of resource fetched from Elasticsearch.
+*** Study:
+**** Deeply understand the `mcp-go` library:
+***** Focus on `mcp.Server`, `server.SSEServer`.
+***** Understand the `mcp.Resource`, `mcp.Tool`, `mcp.Prompt` interfaces and how they are registered and used by the server.
+***** Review `mcp-go` examples if available.
+**** Review Karpor's Elasticsearch storage implementation (`pkg/infra/search/storage/elasticsearch`):
+***** How are resources queried and retrieved?
+***** What is the structure of stored data?
+**** Analyze Karpor's core entity structures (`pkg/core/entity`):
+***** Choose one simple entity (e.g., `ResourceGroup`) to expose first.
+**** Re-read Issue #658 and Discussion #675 for specific requirements or use cases.
+**** Review the current state of PR #798.
+*** Design:
+**** Refine the `pkg/mcp` package structure.
+**** Design a struct that implements the `mcp.Resource` interface for the chosen Karpor entity (e.g., `ResourceGroup`). This struct will need access to the Elasticsearch storage client.
+**** Determine how to map Karpor's entity data to the structure expected by the `mcp.Resource` interface methods (e.g., `List`, `Get`).
+**** Outline the necessary modifications in `pkg/mcp/server.go` to initialize the `mcp-go` server and register the implemented `mcp.Resource`.
+**** Plan the final integration steps in `cmd/karpor/app/mcp.go` to create the storage client, create the `MCPStorageServer`, and start it.
+*** Programming:
+**** Implement the `mcp.Resource` interface methods (`List`, `Get`, etc.) in a new file/struct within `pkg/mcp` (e.g., `pkg/mcp/resourcegroup.go`).
+***** Inside these methods, use the Karpor Elasticsearch storage client to fetch data.
+***** Handle potential errors from the storage layer.
+**** Update `pkg/mcp/server.go`:
+***** Modify `NewMCPStorageServer` to accept and store the `storage.Storage` interface.
+***** Add a method (e.g., `RegisterResources`) to register the implemented `mcp.Resource` instances with the internal `mcpServer`.
+**** Update `cmd/karpor/app/mcp.go`:
+***** After initializing the Elasticsearch storage, call the registration method on the `MCPStorageServer` instance before calling `Serve`.
+***** Ensure proper context propagation and error handling during server startup.
+***** Add basic logging using the configured `klogr` logger.
+***** Address any linter warnings (`nolint` comments should be reviewed).
+*** Testing:
+**** Write unit tests for the `mcp.Resource` implementation, mocking the storage backend.
+**** Write integration tests for the server startup and the basic resource listing endpoint.
+**** Manual testing: Run the `karpor mcp` command and use a tool (like `curl` or a simple client) to connect to the SSE endpoint and verify that resource events are received.
+*** Other:
+**** Ensure `go.mod` and `go.sum` are clean and correct.
+**** Set up a local Elasticsearch instance for testing if not already available.
+
+** Phase 2: Expanding Resource Coverage & Basic Tools/Prompts (Elasticsearch)
+*** Goal: Expose more Karpor entities as MCP Resources and implement basic MCP Tools and Prompts interacting with Elasticsearch data.
+*** Study:
+**** Identify other critical Karpor entities to expose (e.g., `ResourceGroupRule`).
+**** Understand the `mcp.Tool` and `mcp.Prompt` interfaces in detail.
+**** How can Karpor's existing logic (e.g., AI manager) be integrated via the `mcp.Prompt` interface?
+*** Design:
+**** Design implementations for additional `mcp.Resource` types.
+**** Design one or two simple `mcp.Tool` implementations (e.g., an action related to a resource).
+**** Design one or two simple `mcp.Prompt` implementations (e.g., asking a question about a resource group count).
+**** Plan how these new implementations will be registered with the `mcp-go` server.
+*** Programming:
+**** Implement `mcp.Resource` for additional entities.
+**** Implement `mcp.Tool` for selected actions, interacting with storage or other Karpor managers as needed.
+**** Implement `mcp.Prompt` for selected AI interactions, integrating with Karpor's AI manager if applicable.
+**** Update `pkg/mcp/server.go` to register these new Resources, Tools, and Prompts.
+**** Write unit tests for all new implementations.
+*** Testing:
+**** Write integration tests for the new Resources, Tools, and Prompts.
+**** Manual testing of all exposed capabilities.
+
+** Phase 3: Etcd Integration (If Required)
+*** Goal: Integrate Etcd as a potential data source for MCP, if Karpor uses Etcd for data relevant to MCP.
+*** Study:
+**** Determine if Karpor currently uses Etcd for data that should be exposed via MCP.
+**** If so, understand Karpor's Etcd client and data structures.
+**** How can `mcp-go` interfaces (`Resource`, `Tool`, `Prompt`) be implemented using Etcd as a backend?
+*** Design:
+**** Design Etcd-specific implementations of `mcp.Resource`, `mcp.Tool`, `mcp.Prompt` if the data source requires it.
+**** Plan how the server setup will handle potentially multiple storage backends (Elasticsearch and Etcd).
+*** Programming:
+**** Implement Etcd-backed MCP interfaces.
+**** Update server registration logic to include Etcd-backed components.
+**** Write unit tests.
+*** Testing:
+**** Write integration tests for Etcd-backed features.
+**** Manual testing with Etcd backend.
+
+** Phase 4: Refinement, Comprehensive Testing, and Documentation
+*** Goal: Ensure the MCP server is robust, well-tested, and documented.
+*** Programming:
+**** Conduct thorough code reviews.
+**** Refactor code for clarity, maintainability, and performance.
+**** Improve error handling, logging, and metrics (if needed).
+**** Address any remaining linter issues.
+*** Testing:
+**** Run the full suite of unit, integration, and potentially end-to-end tests.
+**** Performance testing if necessary.
+**** Address any bugs found.
+*** Documentation:
+**** Document the MCP server's purpose, configuration options, and how to run it.
+**** Document the specific Resources, Tools, and Prompts exposed by the Karpor MCP server.
+**** Update relevant READMEs and Karpor documentation.
+*** Other:
+**** Prepare the changes for merging (squash commits, write clear commit messages).
+**** Coordinate with team for final review and merge.
+
+* Misc Notes
+** Leverage existing natural language search mechanism
+** karpor mcp is a separate command just like syncer
+ - is init by executing karpor mcp : starts the mcp server
+* Misc TODO
+ - [ ] get a basic `karpor mcp` server running
+* Aider Directives
+** TDD : Test Driven Development
+ - https://martinfowler.com/bliki/TestDrivenDevelopment.html
+ - testify for unit tests
+ - ginkgo and gomega for integration and end to end tests
+
+* TDD Scratch pad
+ - need to catch up on tests
+ - testify for unit tests and ginkgo, gomega for the integration and end to end tests
+ - my scope can all be restricted to karpor mcp working right
+ - I don't need to check the functionality of cobra or viper working well but need to restrict myself to the specifics of mcp-go and  how it fits
