@@ -110,28 +110,16 @@ export const defaultSqlExamples = [
 
 export const DEFALUT_PAGE_SIZE_10 = 10
 
-export const Languages = [
-  {
-    label: 'English',
-    value: 'en',
-  },
-  {
-    label: '中文',
-    value: 'zh',
-  },
-  {
-    label: 'Deutsch',
-    value: 'de',
-  },
-  {
-    label: 'Português',
-    value: 'pt',
-  },
-  {
-    label: '한국어',
-    value: 'ko',
-  },
-]
+export const SUPPORTED_LANGUAGES = [
+  { label: 'English', value: 'en' },
+  { label: '中文', value: 'zh' },
+  { label: 'Deutsch', value: 'de' },
+  { label: 'Português', value: 'pt' },
+  { label: '한국어', value: 'ko' },
+  { label: '日本語', value: 'ja' },
+  { label: 'Français', value: 'fr' },
+  { label: 'Español', value: 'es' },
+];
 
 export const LanguagesMap = {
   zh: '简体中文',
