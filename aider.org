@@ -31,7 +31,7 @@
  - https://www.kusionstack.io/karpor/getting-started/quick-start#register-cluster
 ** karpor's architecture
  - https://www.kusionstack.io/karpor/concepts/architecture
-* Code Specifics
+* Code Overview
 ** hack
   The `hack` directory contains scripts and tools for automating development tasks, code generation, and verification.
   - **Code Generation:** Scripts (`update-codegen.sh`, `generate-groups.sh`, `generate-internal-groups.sh`) generate Go code for Kubernetes-style APIs (deepcopy, clientsets, listers, informers, defaulters, conversions, openapi). Uses tools from `tools.go` and boilerplate headers.
@@ -39,6 +39,30 @@
   - **CLI Documentation Generation:** `gen-cli-docs/main.go` generates Markdown documentation for Karpor CLI commands.
   - **Utility Functions:** `util.sh` provides helper functions like setting up a temporary GOPATH.
 ** cmd
+  The `cmd` directory contains the entry points for the main Karpor executable applications. Each subdirectory under `cmd` represents a distinct binary.
+  - **`cmd/karpor`**: This is the main Karpor application binary (`cmd/karpor/main.go`). It acts as a command-line interface multiplexer using `cobra`, allowing users to run different components via subcommands:
+    - `karpor server`: Starts the core Karpor API server (`cmd/karpor/app/server.go`). Provides a Kubernetes-style API, handles authentication, authorization (RBAC), storage (Elasticsearch), and serves OpenAPI docs. Configured via options in `cmd/karpor/app/options/`.
+    - `karpor syncer`: Starts the resource syncer component (`cmd/karpor/app/syncer.go`). Connects to Kubernetes clusters and synchronizes resource data into a search storage backend (Elasticsearch). Uses `controller-runtime`.
+    - `karpor mcp`: Intended to start a server for natural language interaction (`cmd/karpor/app/mcp.go`). Currently under development, initializes an Elasticsearch client but the core SSE server and interaction logic are pending implementation.
+  - **`cmd/cert-generator`**: A separate utility binary (`cmd/cert-generator/main.go`). Generates CA certificates and kubeconfig files required for Karpor components to interact securely with Kubernetes clusters. Stores credentials as Kubernetes Secrets and ConfigMaps.
+
+** api
+  The `api` directory is dedicated to defining and serving the OpenAPI (Swagger) specification for the Karpor Core API.
+  - **API Specification Definition:** The `openapispec` subdirectory contains the formal OpenAPI specification files (`swagger.yaml` and `swagger.json`). These files describe the API endpoints, methods, parameters, responses, and data structures.
+  - **Generated Code for Serving the Spec:** `api/openapispec/docs.go` is a generated Go file that embeds the OpenAPI specification within the Karpor binary, allowing the API server to serve the spec programmatically (e.g., for Swagger UI).
+  - **Documentation:** `README.md` files provide context and documentation for the API definition files.
+
+** .github
+  The `.github` directory contains configuration files for GitHub features, primarily focusing on automated workflows and contribution guidelines.
+  - **Workflows (`.github/workflows/`)**: Defines Continuous Integration (CI), release automation, and community management tasks using GitHub Actions.
+    - `check.yaml`: Runs unit tests, Go linting, and license checks on pull requests and pushes to `main`.
+    - `constraint.yaml`: Enforces pull request title conventions and checks for broken links in Markdown files.
+    - `release.yaml`: Automates the release process upon tag creation, including building artifacts, pushing container images, and updating the Helm chart repository.
+    - `cla.yaml`: Manages the Contributor License Agreement (CLA) signing process for pull requests.
+    - `community-task-updater.yml`: Uses the `osp-action` to manage community tasks based on issue events.
+    - `community-planning-updater.yml`: Uses the `osp-action` to manage community planning based on milestone and issue events.
+  - **Issue and Pull Request Templates (`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`)**: Provides standardized templates for reporting bugs, suggesting enhancements, and creating pull requests.
+  - **CODEOWNERS**: Specifies individuals or teams responsible for reviewing code in different parts of the repository.
 * Plan
 ** Phase 1: Core mcp-go Integration with Elasticsearch (Basic Resource)
 *** Goal: Get a minimal MCP SSE server running that exposes one type of resource fetched from Elasticsearch.
