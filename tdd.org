@@ -1,1 +1,10 @@
-#+title: TDD Log
+#+title: TDD Scratch
+
+* TDD Directives and scope
+ - I'm working an SSE MCP Server that exposes Resources, Tools and Prompts over a karpor storage : my testing scope is limited to that and don't have to mock or write tests for anything else in this phase of TDD
+ - when we iterate over the phases of TDD:
+   - enlisting tests for a behaviour
+   - choosing one and passing the test
+   - refactoring
+   - iterating until needed, adding more tests as required
+ - keep in mind to not cross this scope for now. we'll simply take note if test coverage/design is missing for other components and take it up in separate dedicated phases
