@@ -22,8 +22,7 @@ import (
 	_ "sigs.k8s.io/controller-runtime"
 )
 
-// NewMCPStorageServer yields anew MCPStorageServer
-//
+// NewMCPStorageServer yields a new MCPStorageServer
 func NewMCPStorageServer(storageEndpoint storage.Storage, sseBaseURL string, sseAddr string) MCPStorageServer {
 	mcpServer := server.NewMCPServer("MCP Storage Server", "0.0.1")
 	sseServer := server.NewSSEServer(mcpServer, sseBaseURL)

@@ -30,11 +30,11 @@ type MCPStorageServer struct {
 	sseServer            *server.SSEServer //SSE Server config
 }
 
-// MCPToolName is a string tag for an mcp server tool
+// Type Alias to tag MCPServer Tools
 type MCPToolName string
 
-// MCPResourceName is a string tag for an mcp server resource
+// Type Alias to tag MCPServer Resources
 type MCPResourceName string
 
-// MCPPromptName is a string tag for an mcp server prompt
+// Type Alias to tag MCPServer Prompts
 type MCPPromptName string
