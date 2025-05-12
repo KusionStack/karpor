@@ -1,1 +1,41 @@
 #+title: Phase1
+
+* Phase 1: Core mcp-go Integration with Elasticsearch (Basic Resource)
+** Goal: Get a minimal MCP SSE server running that exposes one type of resource fetched from Elasticsearch.
+** Study:
+*** Deeply understand the `mcp-go` library:
+**** Focus on `mcp.Server`, `server.SSEServer`.
+**** Understand the `mcp.Resource`, `mcp.Tool`, `mcp.Prompt` interfaces and how they are registered and used by the server.
+**** Review `mcp-go` examples if available.
+*** Review Karpor's Elasticsearch storage implementation (`pkg/infra/search/storage/elasticsearch`):
+**** How are resources queried and retrieved?
+**** What is the structure of stored data?
+*** Analyze Karpor's core entity structures (`pkg/core/entity`):
+**** Choose one simple entity (e.g., `ResourceGroup`) to expose first.
+*** Re-read Issue #658 and Discussion #675 for specific requirements or use cases.
+*** Review the current state of PR #798.
+** Design:
+*** Refine the `pkg/mcp` package structure.
+*** Design a struct that implements the `mcp.Resource` interface for the chosen Karpor entity (e.g., `ResourceGroup`). This struct will need access to the Elasticsearch storage client.
+*** Determine how to map Karpor's entity data to the structure expected by the `mcp.Resource` interface methods (e.g., `List`, `Get`).
+*** Outline the necessary modifications in `pkg/mcp/server.go` to initialize the `mcp-go` server and register the implemented `mcp.Resource`.
+*** Plan the final integration steps in `cmd/karpor/app/mcp.go` to create the storage client, create the `MCPStorageServer`, and start it.
+** Programming:
+*** Implement the `mcp.Resource` interface methods (`List`, `Get`, etc.) in a new file/struct within `pkg/mcp` (e.g., `pkg/mcp/resourcegroup.go`).
+**** Inside these methods, use the Karpor Elasticsearch storage client to fetch data.
+**** Handle potential errors from the storage layer.
+*** Update `pkg/mcp/server.go`:
+**** Modify `NewMCPStorageServer` to accept and store the `storage.Storage` interface.
+**** Add a method (e.g., `RegisterResources`) to register the implemented `mcp.Resource` instances with the internal `mcpServer`.
+**** Ensure proper context propagation and error handling during server startup.
+**** Add basic logging using the configured `klogr` logger.
+**** Address any linter warnings (`nolint` comments should be reviewed).
+*** Update `cmd/karpor/app/mcp.go`:
+**** After initializing the Elasticsearch storage, call the registration method on the `MCPStorageServer` instance before calling `Serve`.
+** Testing:
+*** Write unit tests for the `mcp.Resource` implementation, mocking the storage backend.
+*** Write integration tests for the server startup and the basic resource listing endpoint.
+*** Manual testing: Run the `karpor mcp` command and use a tool (like `curl` or a simple client) to connect to the SSE endpoint and verify that resource events are received.
+** Other:
+*** Ensure `go.mod` and `go.sum` are clean and correct.
+*** Set up a local Elasticsearch instance for testing if not already available.
