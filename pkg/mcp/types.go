@@ -23,11 +23,11 @@ import (
 
 // MCPServer is the main object that holds the necessary fields and components for the mcp server component to expose the storage backend via resources, tools and prompts
 type MCPStorageServer struct {
-	Storage              storage.Storage  //the storage backend to be exposed by the MCPStorageServer
-	MCPServer            *server.MCPServer //manages configurations of tools, resources, prompts and their handlers
-	sseServerBaseURL     string           //baseURL on which the sse server is exposed
-	sseServerBaseURLAddr string           //port on which the sse server is exposed
-	sseServer            *server.SSEServer //manages configuration of the HTTP based SSE server on which the MCPServer is exposed
+	Storages             []storage.Storage
+	MCPServer            *server.MCPServer //config for the mcp server
+	sseServerBaseURL     string
+	sseServerBaseURLAddr string
+	sseServer            *server.SSEServer //SSE Server config
 }
 
 // MCPToolName is a string tag for an mcp server tool
