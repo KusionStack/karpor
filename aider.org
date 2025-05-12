@@ -22,6 +22,25 @@
 * Libraries
 ** mcp-go
  - https://github.com/mark3labs/mcp-go
+*** Overview
+  The `mcp-go` library is a Go implementation of the Model Context Protocol (MCP). It enables building servers that expose data and functionality to LLM applications in a secure, standardized way. It acts as a bridge between LLMs and external data sources or tools.
+
+  Key Concepts:
+  - **Server:** The core component (`server.MCPServer`) that handles connection management, protocol compliance, and routes messages.
+  - **Resources:** Used to expose data to LLMs (like read-only GET endpoints). Can be static or dynamic (using URI templates). You define a Resource with a URI, name, description, MIME type, and a handler function to fetch data.
+  - **Tools:** Allow LLMs to perform actions or computations (like POST endpoints with side effects). You define a Tool with a name, description, arguments (with types and constraints), and a handler function to execute the logic and return a result.
+  - **Prompts:** Reusable templates for structuring interactions with LLMs. They can include system instructions, required arguments, embedded Resources, and multiple messages to guide the LLM.
+
+  Key Features:
+  - **Fast & Simple:** High-level interface reduces boilerplate.
+  - **Complete:** Aims to provide a full implementation of the core MCP specification (under active development).
+  - **Session Management:** Supports maintaining per-client state, notifications, and per-session tool customization/filtering.
+  - **Request Hooks:** Allows hooking into the request lifecycle for observability.
+  - **Tool Handler Middleware:** Enables adding middleware to tool handlers (e.g., recovery).
+
+  Development Status:
+  - The library and the MCP specification are under active development. Core features are working, but some advanced capabilities are still in progress.
+
 * env Setup
 ** kind installation
  - https://kind.sigs.k8s.io/
