@@ -23,11 +23,11 @@ import (
 )
 
 // NewMCPStorageServer yields a new MCPStorageServer
-func NewMCPStorageServer(storageEndpoint storage.Storage, sseBaseURL string, sseAddr string) MCPStorageServer {
+func NewMCPStorageServer(storageEndpoints []storage.Storage, sseBaseURL string, sseAddr string) MCPStorageServer {
 	mcpServer := server.NewMCPServer("MCP Storage Server", "0.0.1")
 	sseServer := server.NewSSEServer(mcpServer, sseBaseURL)
 	return MCPStorageServer{
-		Storages:             []storageEndpoint,
+		Storages:             storageEndpoints,
 		MCPServer:            mcpServer,
 		sseServerBaseURL:     sseBaseURL,
 		sseServerBaseURLAddr: sseAddr,
