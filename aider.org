@@ -224,8 +224,8 @@
  - https://martinfowler.com/bliki/TestDrivenDevelopment.html
  - testify for unit tests
  - ginkgo and gomega for integration and end to end tests
-* Human Scratch Cache
-** iterative runs
+* Human Thoughts
+** Iterative runs
  - make -j 16 build-linux
  - karpor mcp , fails properly due to inestablished elastic search servers
  - need to decide order of spawning the karpor server, syncer, elasticsearch and etcd
@@ -233,3 +233,9 @@
  - need to establish how the runs work
  - unit tests from the get go for now
  - Not the ideal behaviour, the server should be spawned even if the storage backend isn't present
+
+** multiple storage backends
+ - moved from using a single elasticsearch client to multiple storage backends ([]storage.Storage)
+ - need a way to receive and manage those backends in the larger control flow
+ - all of this is orchestrated in cmd .. mcp.go run
+ - need to readup on the storage.Storage interface
