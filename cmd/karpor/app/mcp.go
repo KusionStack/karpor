@@ -58,19 +58,21 @@ func mcpRun(ctx context.Context, options *mcpOptions) error {
 	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("mcp")
 
+	//TODO update so that this receives generic storage backends (more than 1)
 	log.Info("Starting MCP SSE server",
 		"port", options.SSEPort,
 		"esAddresses", options.ElasticSearchAddresses)
 
+	//TODO update to use the generic storage interface for initialization
 	//nolint:contextcheck
-	es, err := elasticsearch.NewStorage(esclient.Config{
-		Addresses: options.ElasticSearchAddresses,
-	})
-	if err != nil {
-		log.Error(err, "unable to init elasticsearch client")
-		return err
-	}
-	log.Info("Acquired elasticsearch storage backend", "esStorage", es)
+	// es, err := elasticsearch.NewStorage(esclient.Config{
+	// 	Addresses: options.ElasticSearchAddresses,
+	// })
+	// if err != nil {
+	// 	log.Error(err, "unable to init elasticsearch client")
+	// 	return err
+	// }
+	// log.Info("Acquired elasticsearch storage backend", "esStorage", es)
 
 	// TODO : integrate mcp-golang SSE server
 
