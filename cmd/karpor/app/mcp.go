@@ -17,7 +17,7 @@ package app
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	_ "github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	_ "github.com/KusionStack/karpor/pkg/mcp"
 	_ "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
@@ -58,7 +58,7 @@ func NewMCPCommand(ctx context.Context) *cobra.Command {
 
 // TODO update mcpOptions to use the generic storage interface
 //nolint:unparam
-func mcpRun(ctx context.Context, options *mcpOptions) error {
+func mcpRun(_ context.Context, options *mcpOptions) error {
 	ctrl.SetLogger(klog.NewKlogr())
 	log := ctrl.Log.WithName("mcp")
 
@@ -79,9 +79,11 @@ func mcpRun(ctx context.Context, options *mcpOptions) error {
 	// log.Info("Acquired elasticsearch storage backend", "esStorage", es)
 
 
-	// TODO : integrate mcp-golang SSE server
+	//TODO pickup syncer operations patterns for running the mcp server from app/syncer.go
 
 	log.Info("TODO: yet to implement mcp functionality")
 	log.Info("see /cmd/karpor/app/mcp.go for further directives")
+
+
 	return nil
 }
