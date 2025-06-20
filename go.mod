@@ -11,7 +11,7 @@ require (
 	github.com/elliotxx/kubeaudit v0.0.0-20240124033725-e70be1692249
 	github.com/elliotxx/safe v1.0.0
 	github.com/evanphx/json-patch v4.12.0+incompatible
-	github.com/go-chi/chi/v5 v5.0.10
+	github.com/go-chi/chi/v5 v5.2.2
 	github.com/go-chi/render v1.0.3
 	github.com/go-logr/logr v1.2.3
 	github.com/google/gofuzz v1.2.0
