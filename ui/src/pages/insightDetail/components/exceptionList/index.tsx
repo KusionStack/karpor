@@ -8,6 +8,8 @@ import {
   PoweroffOutlined,
   CloseOutlined,
   RedoOutlined,
+  FullscreenOutlined,
+  FullscreenExitOutlined,
 } from '@ant-design/icons'
 import Loading from '@/components/loading'
 import { SEVERITY_MAP } from '@/utils/constants'
@@ -42,6 +44,7 @@ const ExceptionList = ({
   const [currentKey, setCurrentKey] = useState('All')
   const { t, i18n } = useTranslation()
   const [isShowList, setIsShowList] = useState(true)
+  const [isInterpretExpanded, setInterpretExpanded] = useState(false)
 
   // AI interpret states
   const [interpret, setInterpret] = useState('')
@@ -91,6 +94,7 @@ const ExceptionList = ({
         // Reset interpret state
         setInterpret('')
         setInterpretStatus('loading')
+        setInterpretExpanded(true)
         setStreaming(true)
 
         // Cancel any existing SSE connection
@@ -237,6 +241,10 @@ const ExceptionList = ({
 
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = interpretEndRef.current?.getBoundingClientRect()?.top
+  const interpretPanelHeight =
+    interpretBodyRef.current?.offsetHeight ||
+    exceptionRef.current?.offsetHeight ||
+    0
 
   const renderInterpretWindow = () => {
     if (interpretStatus === 'idle') {
@@ -245,8 +253,14 @@ const ExceptionList = ({
 
     return (
       <div
-        className={styles.interpret_panel}
-        style={{ height: exceptionRef?.current?.offsetHeight }}
+        className={classNames(styles.interpret_panel, {
+          [styles.interpret_panel_expanded]: isInterpretExpanded,
+        })}
+        style={{
+          height: isInterpretExpanded
+            ? undefined
+            : exceptionRef?.current?.offsetHeight,
+        }}
       >
         <div className={styles.interpret_header}>
           <Space>
@@ -256,6 +270,26 @@ const ExceptionList = ({
             {t('ExceptionList.InterpretResult')}
           </Space>
           <Space>
+            <Tooltip
+              title={
+                isInterpretExpanded
+                  ? t('ExceptionList.Collapse')
+                  : t('ExceptionList.Expand')
+              }
+              placement="bottom"
+            >
+              <Button
+                type="text"
+                icon={
+                  isInterpretExpanded ? (
+                    <FullscreenExitOutlined />
+                  ) : (
+                    <FullscreenOutlined />
+                  )
+                }
+                onClick={() => setInterpretExpanded(prev => !prev)}
+              />
+            </Tooltip>
             {isStreaming && (
               <Tooltip
                 title={t('ExceptionList.StopInterpret')}
@@ -284,6 +318,7 @@ const ExceptionList = ({
                 }
                 setInterpretStatus('idle')
                 setInterpret('')
+                setInterpretExpanded(false)
                 setStreaming(false)
               }}
             />
@@ -312,7 +347,7 @@ const ExceptionList = ({
           </div>
           {interpretStatus === 'streaming' && interpret && (
             <div
-              className={`${styles.streaming_indicator} ${dotToTopHeight - contentToTopHeight + 57 - exceptionRef.current?.offsetHeight >= 0 ? styles.streaming_indicatorFixed : ''}`}
+              className={`${styles.streaming_indicator} ${dotToTopHeight - contentToTopHeight + 57 - interpretPanelHeight >= 0 ? styles.streaming_indicatorFixed : ''}`}
             >
               <span className={styles.dot}></span>
               <span className={styles.dot}></span>

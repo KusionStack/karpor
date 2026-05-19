@@ -366,6 +366,7 @@
 
   .interpret_panel {
     width: 400px;
+    flex: 0 0 400px;
     border-radius: 12px;
     box-shadow:
       0 8px 24px rgba(149, 128, 247, 0.08),
@@ -849,6 +850,31 @@
         left: 0;
         right: 0;
       }
+    }
+  }
+
+  .interpret_panel_expanded {
+    width: min(720px, 48vw);
+    height: min(720px, calc(100vh - 160px));
+    max-height: calc(100vh - 160px);
+    min-width: 520px;
+    flex-basis: min(720px, 48vw);
+  }
+}
+
+@media (width <= 1200px) {
+  .exceptionContainer {
+    flex-direction: column;
+
+    .interpret_panel,
+    .interpret_panel_expanded {
+      width: 100%;
+      min-width: 0;
+      flex-basis: auto;
+    }
+
+    .interpret_panel_expanded {
+      height: min(640px, calc(100vh - 160px));
     }
   }
 }
