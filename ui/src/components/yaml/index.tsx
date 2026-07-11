@@ -28,12 +28,7 @@ import styles from './styles.module.less'
 hljs.registerLanguage('yaml', require('highlight.js/lib/languages/yaml'))
 
 type InterpretStatus =
-  | 'idle'
-  | 'init'
-  | 'streaming'
-  | 'complete'
-  | 'error'
-  | 'loading'
+  'idle' | 'init' | 'streaming' | 'complete' | 'error' | 'loading'
 
 type IProps = {
   data: any
