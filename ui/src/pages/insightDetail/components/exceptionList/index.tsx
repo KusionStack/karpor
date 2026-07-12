@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Button, Empty, Tag, Space, Tooltip, Alert, Spin } from 'antd'
+import { Button, Empty, Tag, Space, Tooltip, Alert, Spin, Modal } from 'antd'
 import { useTranslation } from 'react-i18next'
 import {
   ArrowRightOutlined,
@@ -8,6 +8,7 @@ import {
   PoweroffOutlined,
   CloseOutlined,
   RedoOutlined,
+  ExpandOutlined,
 } from '@ant-design/icons'
 import Loading from '@/components/loading'
 import { SEVERITY_MAP } from '@/utils/constants'
@@ -57,6 +58,7 @@ const ExceptionList = ({
   const exceptionRef = useRef<HTMLDivElement>(null)
   const contentRef = useRef<HTMLDivElement>(null)
   const interpretBodyRef = useRef<HTMLDivElement>(null)
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     setIsShowList(
@@ -238,7 +240,7 @@ const ExceptionList = ({
   const contentToTopHeight = contentRef.current?.getBoundingClientRect()?.top
   const dotToTopHeight = interpretEndRef.current?.getBoundingClientRect()?.top
 
-  const renderInterpretWindow = () => {
+  const renderInterpretWindow = isDailog => {
     if (interpretStatus === 'idle') {
       return null
     }
@@ -246,7 +248,10 @@ const ExceptionList = ({
     return (
       <div
         className={styles.interpret_panel}
-        style={{ height: exceptionRef?.current?.offsetHeight }}
+        style={{
+          height: isDailog ? 700 : exceptionRef?.current?.offsetHeight,
+          ...(isDailog ? { width: '100%' } : {}),
+        }}
       >
         <div className={styles.interpret_header}>
           <Space>
@@ -275,16 +280,29 @@ const ExceptionList = ({
                 />
               </Tooltip>
             )}
+            {isDailog ? null : (
+              <Button
+                type="text"
+                icon={<ExpandOutlined />}
+                onClick={() => {
+                  setOpen(!open)
+                }}
+              />
+            )}
             <Button
               type="text"
               icon={<CloseOutlined />}
               onClick={() => {
-                if (abortControllerRef.current) {
-                  abortControllerRef.current.abort()
+                if (isDailog) {
+                  setOpen(false)
+                } else {
+                  if (abortControllerRef.current) {
+                    abortControllerRef.current.abort()
+                  }
+                  setInterpretStatus('idle')
+                  setInterpret('')
+                  setStreaming(false)
                 }
-                setInterpretStatus('idle')
-                setInterpret('')
-                setStreaming(false)
               }}
             />
           </Space>
@@ -484,7 +502,25 @@ const ExceptionList = ({
           </div>
         )}
       </div>
-      {renderInterpretWindow()}
+      {renderInterpretWindow(false)}
+      <Modal
+        styles={{
+          content: {
+            padding: 0,
+            borderRadius: 16,
+            background:
+              'radial-gradient(circle at center,rgba(149, 128, 247, 0.03) 0%,transparent 70%)',
+          },
+        }}
+        centered
+        closable={false}
+        width={'80%'}
+        height={700}
+        open={open}
+        footer={null}
+      >
+        <div style={{ overflow: 'auto' }}>{renderInterpretWindow(true)}</div>
+      </Modal>
     </div>
   )
 }
