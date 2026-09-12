@@ -15,11 +15,20 @@ export const usePodStatus = (
     url: `${axios.defaults.baseURL}/rest-api/v1/insight/summary`,
     method: 'GET',
     manual: true,
+    // A pod row can still be listed from the search index for a moment after
+    // it's actually gone from the live cluster, so a not-found response here
+    // is an expected, non-actionable state rather than a real error.
+    silentError: true,
   })
 
   useEffect(() => {
     if (summaryResponse?.success) {
       statusRef.current = summaryResponse?.data?.resource?.status || 'unknown'
+      setLoading(false)
+    } else if (summaryResponse) {
+      // Request completed but failed (e.g. pod not found live) -- resolve to
+      // Unknown instead of spinning forever.
+      statusRef.current = 'Unknown'
       setLoading(false)
     } else {
       statusRef.current = 'Loading'
