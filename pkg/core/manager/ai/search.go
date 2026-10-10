@@ -27,10 +27,11 @@ func (a *AIManager) ConvertTextToSQL(query string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if IsInvalidQuery(res) {
+	sql := ExtractSelectSQL(res)
+	if sql == "" {
 		return "", ErrInvalidQuery
 	}
-	return ExtractSelectSQL(res), nil
+	return sql, nil
 }
 
 // FixSQL fix the error SQL
