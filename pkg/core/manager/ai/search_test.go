@@ -16,6 +16,7 @@ package ai
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/KusionStack/karpor/pkg/infra/ai"
@@ -35,7 +36,9 @@ func (f *fakeAIProvider) Generate(context.Context, string) (string, error) {
 }
 
 func (f *fakeAIProvider) GenerateStream(context.Context, string) (<-chan string, error) {
-	return nil, nil
+	// Streaming is unused by these tests. A nil channel with a nil error
+	// trips nilnil; return a sentinel so the stub still satisfies AIProvider.
+	return nil, errors.New("not implemented")
 }
 
 // TestConvertTextToSQL tests the correctness of the ConvertTextToSQL function.
