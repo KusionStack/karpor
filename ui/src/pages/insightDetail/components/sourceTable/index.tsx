@@ -34,6 +34,7 @@ export const PodStatusCell = ({ cluster, namespace, name }) => {
       Running: 'success',
       Terminated: 'default',
       Unknown: 'error',
+      Unavailable: 'default',
     }[status.current] || 'warning'
 
   return <Tag color={color}>{status.current}</Tag>

@@ -27,8 +27,12 @@ export const usePodStatus = (
       setLoading(false)
     } else if (summaryResponse) {
       // Request completed but failed (e.g. pod not found live) -- resolve to
-      // Unknown instead of spinning forever.
-      statusRef.current = 'Unknown'
+      // Unavailable instead of spinning forever.
+      console.warn(
+        `Failed to fetch live status for pod ${namespace}/${name}:`,
+        summaryResponse?.message,
+      )
+      statusRef.current = 'Unavailable'
       setLoading(false)
     } else {
       statusRef.current = 'Loading'
