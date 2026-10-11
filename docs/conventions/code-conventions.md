@@ -50,7 +50,7 @@ In this section, you will find the code conventions for all kinds of code Karpor
 
 ## Bash or Script Conventions
 
-  - https://google.github.io/styleguide/shell.xml
+  - https://google.github.io/styleguide/shellguide.html
 
   - Ensure that build, release, test, and cluster-management scripts run on
     macOS

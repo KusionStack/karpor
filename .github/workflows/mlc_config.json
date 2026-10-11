@@ -2,6 +2,15 @@
   "ignorePatterns": [
     {
       "pattern": "^https://app.fossa.com/api/projects/git%2Bgithub.com%2FKusionStack%2Fkarpor.svg"
+    },
+    {
+      "pattern": "^https://coveralls.io/github/KusionStack/karpor"
+    },
+    {
+      "pattern": "^https://cloud-native.slack.com/archives/C07U0395UG0"
+    },
+    {
+      "pattern": "^https://cloud-native.slack.com/archives/C07T4LBDB7G"
     }
   ],
   "timeout": "20s",
