@@ -41,6 +41,12 @@ export const useAxios = ({
   method = 'GET',
   callbackFn = null,
   successParams = {},
+  // When true, a failed `/rest-api` response still updates `response` (so
+  // callers can resolve out of a loading state) but skips the global error
+  // notification. Useful for per-item background lookups (e.g. polling many
+  // rows' live status) where a single item being not-found is an expected,
+  // non-actionable state and shouldn't surface as a user-facing error toast.
+  silentError = false,
 }) => {
   const [options, setOptions] = useState({
     url,
@@ -70,17 +76,19 @@ export const useAxios = ({
       return
     }
     if (res?.config?.url?.includes('/rest-api') && !res?.data?.success) {
-      notification.error({
-        message: `${res?.status}`,
-        description: `${res?.data?.message}`,
-      })
-    } else {
-      setResponse({
-        ...res?.data,
-        ...(callbackFn ? { callbackFn } : {}),
-        ...(successParams ? { successParams } : {}),
-      })
+      if (!silentError) {
+        notification.error({
+          message: `${res?.status}`,
+          description: `${res?.data?.message}`,
+        })
+        return
+      }
     }
+    setResponse({
+      ...res?.data,
+      ...(callbackFn ? { callbackFn } : {}),
+      ...(successParams ? { successParams } : {}),
+    })
   }
 
   useEffect(() => {
