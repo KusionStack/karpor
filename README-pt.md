@@ -17,8 +17,10 @@
   <a href="https://kusionstack.io/karpor" target="_blank"><b>📚 Documentação</b></a><br>
   <a href="https://github.com/KusionStack/karpor/blob/main/README.md" target="_blank">[English]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
-  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
   [Português]
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-es.md" target="_blank">[Español]</a>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-fr.md" target="_blank">[Français]</a>
 </p>
 
 [![GitHub Release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
@@ -39,7 +41,7 @@
 
 ## O que é o Karpor?
 
-O Karpor é um **Explorador de Kubernetes** Moderno focado em **Pesquisa**, **Insights** e **Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
+O Karpor é um **Explorador de Kubernetes** Moderno focado em **Pesquisa**, **Insights** e **Inteligência**. Ele tem palavras-chave como `auto-hospedado`, `não invasivo`, `somente leitura`, `em conforme com a segurança`, `suporte multi-nuvem/multi-cluster`, `visualização lógica personalizada`, e pode servir como um **Plano de Dados Kubernetes** para reduzir o custo de descoberta e compreensão dos recursos do Kubernetes.
 
 https://github.com/user-attachments/assets/44ecb3b6-e76b-4003-9546-25c6b5f8b949
 

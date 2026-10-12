@@ -18,6 +18,8 @@
   <a href="https://github.com/KusionStack/karpor/blob/main/README-zh.md" target="_blank">[中文]</a> 
   <a href="https://github.com/KusionStack/karpor/blob/main/README-pt.md" target="_blank">[Português]</a>
   <a href="https://github.com/KusionStack/karpor/blob/main/README-ja.md" target="_blank">[日本語]</a>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-es.md" target="_blank">[Español]</a>
+  <a href="https://github.com/KusionStack/karpor/blob/main/README-fr.md" target="_blank">[Français]</a>
 </p>
 
 [![GitHub Release](https://img.shields.io/github/release/KusionStack/karpor.svg)](https://github.com/KusionStack/karpor/releases)
@@ -38,7 +40,7 @@
 
 ## What is Karpor?
 
-Karpor is Intelligence for Kubernetes. It brings advanced **Search**, **Insight** and **AI** to Kubernetes. It is essentially a **Kubernetes Visualization Tool**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds.
+Karpor is Intelligence for Kubernetes. It brings advanced **Search**, **Insight** and **AI** to Kubernetes. It is essentially a **Kubernetes Visualization Tool**. With Karpor, you can gain crucial visibility into your Kubernetes clusters across any clouds.
 
 We hope to become a **small and beautiful, vendor-neutral, developer-friendly, community-driven** open-source project!
 
@@ -127,7 +129,7 @@ Detailed documentation is available at [Karpor Website](https://kusionstack.io/k
 Karpor is still in the initial stage, and there are many capabilities that need to be made up, so we welcome everyone to participate in construction with us.
 
 - If you don't know how to **start contributing**, you can read the [Contribution Guide](https://kusionstack.io/karpor/developer-guide/contribution-guide), you will know all the details.
-- If you don’t know **what issues start**, we have prepared a [Community tasks | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463), you can choose the issue you like.
+- If you don't know **what issues start**, we have prepared a [Community tasks | 新手任务清单 🎖︎](https://github.com/KusionStack/karpor/issues/463), you can choose the issue you like.
 - If you have **any questions**, please [Submit the Issue](https://github.com/KusionStack/karpor/issues) or [Post on the discussions](https://github.com/KusionStack/karpor/discussions/new/choose), we will answer as soon as possible.
 
 ## 🎖︎ Contributors
