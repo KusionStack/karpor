@@ -10,6 +10,8 @@ import enUS from 'antd/locale/en_US'
 import deDE from 'antd/locale/de_DE'
 import ptBR from 'antd/locale/pt_BR'
 import koKR from 'antd/locale/ko_KR'
+import arAR from 'antd/locale/ar_AR'
+
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
@@ -36,6 +38,7 @@ function App() {
     de: deDE,
     pt: ptBR,
     ko: koKR,
+    ar: arAR,
   }
 
   return (

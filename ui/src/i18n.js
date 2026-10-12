@@ -6,6 +6,7 @@ import zh from './locales/zh.json'
 import de from './locales/de.json'
 import pt from './locales/pt.json'
 import ko from './locales/ko.json'
+import ar from './locales/ar.json'
 
 const resources = {
   en: {
@@ -23,6 +24,10 @@ const resources = {
   ko: {
     translation: ko,
   },
+  ar: {
+    translation: ar,
+  },
+
 }
 
 const currentLocale = localStorage.getItem('lang') || 'en'
