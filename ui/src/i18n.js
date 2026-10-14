@@ -6,6 +6,7 @@ import zh from './locales/zh.json'
 import de from './locales/de.json'
 import pt from './locales/pt.json'
 import ko from './locales/ko.json'
+import hi from './locales/hi.json'
 
 const resources = {
   en: {
@@ -22,6 +23,9 @@ const resources = {
   },
   ko: {
     translation: ko,
+  },
+  hi: {
+    translation: hi,
   },
 }
 
