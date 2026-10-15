@@ -131,6 +131,10 @@ export const Languages = [
     label: '한국어',
     value: 'ko',
   },
+  {
+    label: 'हिन्दी',
+    value: 'hi',
+  },
 ]
 
 export const LanguagesMap = {
@@ -139,4 +143,5 @@ export const LanguagesMap = {
   de: 'Deutsch',
   pt: 'Português',
   ko: '한국어',
+  hi: 'हिन्दी',
 }
