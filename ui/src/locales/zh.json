@@ -157,7 +157,8 @@
     "InterpretConnectionError": "解读连接出错",
     "FailedToStartInterpret": "启动解读失败",
     "FailedToInterpret": "解读失败",
-    "TabName": "YAML"
+    "TabName": "YAML",
+    "Refresh": "刷新"
   },
   "Yesterday": "昨天",
   "Collapse": "折叠",
