@@ -15,24 +15,34 @@
 package syncer
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"reflect"
 	"strings"
+	templateUtil "text/template"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
-	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
 	"github.com/pkg/errors"
+	"k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/labels"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
+	utilErr "k8s.io/apimachinery/pkg/util/errors"
+	"k8s.io/client-go/dynamic"
 	"k8s.io/client-go/rest"
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	"k8s.io/client-go/util/workqueue"
 	"k8s.io/klog/v2"
+
+	"github.com/KusionStack/karpor/config"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
+	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
+	searchv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/search/v1beta1"
+	"github.com/KusionStack/karpor/pkg/syncer/template"
+	"github.com/KusionStack/karpor/pkg/syncer/utils"
 
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,18 +58,35 @@ const (
 	anyResource = "*"
 )
 
+type (
+	buildClusterConfigFunc func(*clusterv1beta1.Cluster) (*rest.Config, error)
+)
+
 // SyncReconciler is the main structure that holds the state and dependencies for the multi-cluster syncer reconciler.
 type SyncReconciler struct {
 	storage storage.ResourceStorage
 
+	highAvailability bool
+
 	client     client.Client
 	controller controller.Controller
 	mgr        MultiClusterSyncManager
+
+	storageAddresses []string
+
+	externalEndpoint string
+	agentImageTag    string
 }
 
 // NewSyncReconciler creates a new instance of the SyncReconciler structure with the given storage.
-func NewSyncReconciler(storage storage.ResourceStorage) *SyncReconciler {
-	return &SyncReconciler{storage: storage}
+func NewSyncReconciler(storage storage.ResourceStorage, highAvailability bool, storageAddresses []string, externalEndpoint, agentImageTag string) *SyncReconciler {
+	return &SyncReconciler{
+		storage:          storage,
+		highAvailability: highAvailability,
+		storageAddresses: storageAddresses,
+		externalEndpoint: externalEndpoint,
+		agentImageTag:    agentImageTag,
+	}
 }
 
 // SetupWithManager sets up the SyncReconciler with the given manager and registers it as a controller.
@@ -123,7 +150,7 @@ func (r *SyncReconciler) DeleteEvent(de event.DeleteEvent, queue workqueue.RateL
 }
 
 // Reconcile is the main entry point for the syncer reconciler, which is called whenever there is a change in the watched resources.
-func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (reconcile.Result, error) {
+func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (res reconcile.Result, retErr error) {
 	logger := ctrl.LoggerFrom(ctx)
 
 	var cluster clusterv1beta1.Cluster
@@ -135,9 +162,22 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 		return reconcile.Result{}, err
 	}
 
+	defer func() {
+		// patch of delete finalizer for high availability cluster.
+		err := r.client.Update(ctx, &cluster)
+		if err != nil && !apierrors.IsNotFound(err) {
+			retErr = err
+		}
+	}()
+
 	if !cluster.DeletionTimestamp.IsZero() {
 		logger.Info("cluster is being deleted", "cluster", cluster.Name)
-		return reconcile.Result{}, r.stopCluster(ctx, cluster.Name)
+
+		err := r.reconcileDelete(ctx, &cluster)
+		if err != nil {
+			return reconcile.Result{}, err
+		}
+		return reconcile.Result{}, nil
 	}
 
 	// TODO: it's danger
@@ -146,7 +186,45 @@ func (r *SyncReconciler) Reconcile(ctx context.Context, req reconcile.Request) (
 	// 	return reconcile.Result{}, r.stopCluster(ctx, cluster.Name)
 	// }
 
-	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy())
+	if r.highAvailability {
+		// set finalizer for cluster.
+		cluster.SetFinalizers([]string{clusterv1beta1.ClusterFinalizer})
+		if cluster.Spec.Mode == clusterv1beta1.PushClusterMode {
+			return reconcile.Result{}, r.handleClusterAddOrUpdateForPush(ctx, cluster.DeepCopy())
+		}
+		// TODO implement pull mode for high-availability
+		// In the pull mode, controller only generate the agent yaml and not dispatch to managed cluster
+		return reconcile.Result{}, nil
+	}
+
+	return reconcile.Result{}, r.handleClusterAddOrUpdate(ctx, cluster.DeepCopy(), buildClusterConfigInSyncer)
+}
+
+// reconcileDelete delete relevant resources for cluster in ha mode.
+func (r *SyncReconciler) reconcileDelete(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+	err := r.stopCluster(ctx, cluster.Name)
+	if err != nil {
+		return err
+	}
+
+	if r.highAvailability && cluster.Spec.Mode == clusterv1beta1.PushClusterMode {
+		clusterConfig, err := buildClusterConfigInSyncer(cluster)
+		if err != nil {
+			return errors.Wrapf(err, "failed to build config for cluster %s", cluster.Name)
+		}
+		dynamicClient, err := dynamic.NewForConfig(clusterConfig)
+		if err != nil {
+			return errors.Wrapf(err, "failed to build dynamic client for cluster %s", cluster.Name)
+		}
+
+		err = dynamicClient.Resource(clusterv1beta1.SchemeGroupVersion.WithResource("clusters")).Namespace("").Delete(ctx, cluster.Name, metav1.DeleteOptions{})
+		if err != nil {
+			return errors.Wrapf(err, "failed to delete cluster cr %s in user cluster", cluster.Name)
+		}
+	}
+
+	cluster.SetFinalizers(nil)
+	return nil
 }
 
 // stopCluster stops the reconciliation process for the given cluster.
@@ -157,6 +235,21 @@ func (r *SyncReconciler) stopCluster(ctx context.Context, clusterName string) er
 		return err
 	}
 	r.mgr.Stop(ctx, clusterName)
+
+	if r.highAvailability {
+		// delete secret
+		secretName := fmt.Sprintf("%s-agent", clusterName)
+		err := r.client.Delete(ctx, &v1.Secret{
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      secretName,
+				Namespace: "karpor",
+			},
+		})
+		if err != nil && !apierrors.IsNotFound(err) {
+			return err
+		}
+	}
+
 	logger.Info("syncing cluster has been stopped", "cluster", clusterName)
 	return nil
 }
@@ -170,7 +263,8 @@ func (r *SyncReconciler) startCluster(ctx context.Context, clusterName string) e
 }
 
 // handleClusterAddOrUpdate is responsible for handling the addition or update of a cluster resource.
-func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+// This function will be used for agent in ha mode, and reconciler with no-ha mode.
+func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *clusterv1beta1.Cluster, buildClusterConfigFunc buildClusterConfigFunc) error {
 	logger := ctrl.LoggerFrom(ctx)
 
 	resources, pendingWildcards, err := r.getResources(ctx, cluster)
@@ -186,7 +280,7 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 		return r.stopCluster(ctx, cluster.Name)
 	}
 
-	clusterConfig, err := buildClusterConfig(cluster)
+	clusterConfig, err := buildClusterConfigFunc(cluster)
 	if err != nil {
 		return errors.Wrapf(err, "failed to build config for cluster %s", cluster.Name)
 	}
@@ -233,6 +327,40 @@ func (r *SyncReconciler) handleClusterAddOrUpdate(ctx context.Context, cluster *
 		return errors.Wrapf(err, "failed to update sync resources for cluster %s", cluster.Name)
 	}
 	return nil
+}
+
+// handleClusterAddOrUpdateForPush dispatches the relevant crds resources to managed cluster in high-availability scene.
+func (r *SyncReconciler) handleClusterAddOrUpdateForPush(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+	logger := ctrl.LoggerFrom(ctx)
+	logger.V(5).Info("handle cluster has been added/updated, push mode", "cluster", cluster.Name)
+
+	// build user client
+	clusterConfig, err := buildClusterConfigInSyncer(cluster)
+	if err != nil {
+		return errors.Wrapf(err, "failed to build config for cluster %s", cluster.Name)
+	}
+	dynamicClient, err := dynamic.NewForConfig(clusterConfig)
+	if err != nil {
+		return errors.Wrapf(err, "failed to build dynamic client for cluster %s", cluster.Name)
+	}
+
+	// must apply crds before other resources.
+	err = utils.ApplyCrds(ctx, dynamicClient)
+	if err != nil {
+		return errors.Wrapf(err, "failed to apply crds for cluster %s", cluster.Name)
+	}
+
+	err = r.dispatchResources(ctx, dynamicClient, cluster)
+	if err != nil {
+		return errors.Wrapf(err, "failed to dispatch resources for cluster %s", cluster.Name)
+	}
+
+	err = r.generateAgentYaml(ctx, cluster)
+	if err != nil {
+		return errors.Wrapf(err, "failed to generate agent yaml for push mode cluster %s", cluster.Name)
+	}
+
+	return err
 }
 
 // getResources retrieves the list of resource sync rules for the given cluster.
@@ -316,6 +444,132 @@ func (r *SyncReconciler) getNormalizedResources(ctx context.Context, registry *s
 	return ret, pendingWildcards, nil
 }
 
+// dispatchResources dispatch cluster, syncregistry, syncresource, transformrule and trimrule resource to user cluster.
+func (r *SyncReconciler) dispatchResources(ctx context.Context, dynamicClient dynamic.Interface, cluster *clusterv1beta1.Cluster) error {
+	// collect the resources needed to be dispatched
+	unstructuredObjectMap := map[schema.GroupVersionResource][]unstructured.Unstructured{}
+	err := r.getUnstructuredCluster(cluster, unstructuredObjectMap)
+	if err != nil {
+		return errors.Wrapf(err, "error get unstructured cluster cr for cluster %s", cluster.Name)
+	}
+
+	err = r.getUnstructuredRegistries(ctx, cluster, unstructuredObjectMap)
+	if err != nil {
+		return errors.Wrapf(err, "error get unstructured objects of the syncregistries for cluster %s", cluster.Name)
+	}
+
+	// dispatch resources
+	var errs []error
+	for gvr := range unstructuredObjectMap {
+		for idx := range unstructuredObjectMap[gvr] {
+			unstructuredObj := unstructuredObjectMap[gvr][idx]
+			err := utils.CreateOrUpdateUnstructured(ctx, dynamicClient, gvr, "", &unstructuredObj)
+			if err != nil {
+				errs = append(errs, err)
+			}
+		}
+	}
+
+	return utilErr.NewAggregate(errs)
+}
+
+// generateAgentYaml generate the agent yaml to be deployed in user cluster, and save yaml into secret.
+func (r *SyncReconciler) generateAgentYaml(ctx context.Context, cluster *clusterv1beta1.Cluster) error {
+	agentYml, err := r.renderYamlFile(cluster)
+	if err != nil {
+		return errors.Wrap(err, "failed to render agent yaml")
+	}
+
+	err = applyAgentYmlSecret(ctx, r.client, cluster, []byte(agentYml))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// getUnstructuredCluster retrieves the cluster cr for the given cluster.
+func (r *SyncReconciler) getUnstructuredCluster(cluster *clusterv1beta1.Cluster, unstructuredObjectMap map[schema.GroupVersionResource][]unstructured.Unstructured) error {
+	// only dispatch cluster cr once
+	unstructuredObj, err := utils.ConvertToUnstructured(cluster)
+	if err != nil {
+		return errors.Wrapf(err, "failed to convert to unstructured object")
+	}
+	unstructuredObjectMap[clusterv1beta1.SchemeGroupVersion.WithResource("clusters")] = []unstructured.Unstructured{*unstructuredObj}
+
+	return nil
+}
+
+// getRegistries retrieves the list of sync registries for the given cluster.
+func (r *SyncReconciler) getUnstructuredRegistries(ctx context.Context, cluster *clusterv1beta1.Cluster, unstructuredObjectMap map[schema.GroupVersionResource][]unstructured.Unstructured) error {
+	registries, err := r.getRegistries(ctx, cluster)
+	if err != nil {
+		return errors.Wrapf(err, "failed to get registries")
+	}
+
+	// init map value
+	unstructuredRegistries := make([]unstructured.Unstructured, 0, len(registries))
+	var unstructuredTransformRules []unstructured.Unstructured
+	var unstructuredTrimRules []unstructured.Unstructured
+
+	// avoid to collect duplicate cr
+	transformRuleMap := make(map[string]struct{})
+	trimRuleMap := make(map[string]struct{})
+
+	// collect cr list
+	for idx := range registries {
+		registry := registries[idx]
+		// set special cluster name when dispatching
+		registry.Spec.Clusters = []string{cluster.Name}
+
+		unstructuredObj, err := utils.ConvertToUnstructured(&registry)
+		if err != nil {
+			return errors.Wrapf(err, "failed to convert to unstructured object for registry %s", registry.Name)
+		}
+		// do not set status when update
+		unstructuredObj.Object["status"] = nil
+		unstructuredRegistries = append(unstructuredRegistries, *unstructuredObj)
+
+		// obtain relevant cr
+		for _, sr := range registry.Spec.SyncResources {
+			if _, ok := transformRuleMap[sr.TransformRefName]; !ok && sr.TransformRefName != "" {
+				rule, err := r.extractTransformRule(ctx, &sr)
+				if err != nil {
+					return err
+				}
+				unstructuredObj, err = utils.ConvertToUnstructured(rule)
+				if err != nil {
+					return errors.Wrapf(err, "failed to convert to unstructured object for transformrule %s", rule.Name)
+				}
+
+				unstructuredTransformRules = append(unstructuredTransformRules, *unstructuredObj)
+				transformRuleMap[sr.TransformRefName] = struct{}{}
+			}
+
+			if _, ok := trimRuleMap[sr.TrimRefName]; !ok && sr.TrimRefName != "" {
+				rule, err := r.extractTrimRule(ctx, &sr)
+				if err != nil {
+					return err
+				}
+				unstructuredObj, err = utils.ConvertToUnstructured(rule)
+				if err != nil {
+					return errors.Wrapf(err, "failed to convert to unstructured object for trimrule %s", rule.Name)
+				}
+
+				unstructuredTrimRules = append(unstructuredTrimRules, *unstructuredObj)
+				transformRuleMap[sr.TrimRefName] = struct{}{}
+			}
+		}
+	}
+
+	// set map
+	unstructuredObjectMap[searchv1beta1.SchemeGroupVersion.WithResource("syncregistries")] = unstructuredRegistries
+	unstructuredObjectMap[searchv1beta1.SchemeGroupVersion.WithResource("transformrules")] = unstructuredTransformRules
+	unstructuredObjectMap[searchv1beta1.SchemeGroupVersion.WithResource("trimrules")] = unstructuredTrimRules
+
+	return nil
+}
+
 // getRegistries retrieves the list of sync registries for the given cluster.
 func (r *SyncReconciler) getRegistries(ctx context.Context, cluster *clusterv1beta1.Cluster) ([]searchv1beta1.SyncRegistry, error) {
 	var syncRegistriesList searchv1beta1.SyncRegistryList
@@ -379,33 +633,17 @@ func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv
 	normalized := rsr.DeepCopy()
 
 	if rsr.TransformRefName != "" {
-		if rsr.Transform != nil {
-			return nil, fmt.Errorf("specify both Transform and TransformRefName in ResourceSyncRule is not allowed")
-		}
-
-		var rule searchv1beta1.TransformRule
-		err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TransformRefName}, &rule)
+		rule, err := r.extractTransformRule(ctx, rsr)
 		if err != nil {
-			if apierrors.IsNotFound(err) {
-				return nil, fmt.Errorf("TransformRule referenced by name %q doesn't exist", rsr.TransformRefName)
-			}
-			return nil, errors.Wrapf(err, "failed to list transformRule %s from lister", rsr.TransformRefName)
+			return nil, err
 		}
 		normalized.Transform = &rule.Spec
 	}
 
 	if rsr.TrimRefName != "" {
-		if rsr.Trim != nil {
-			return nil, fmt.Errorf("specify both Trim and TrimRefName in ResourceSyncRule is not allowed")
-		}
-
-		var rule searchv1beta1.TrimRule
-		err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TrimRefName}, &rule)
+		rule, err := r.extractTrimRule(ctx, rsr)
 		if err != nil {
-			if apierrors.IsNotFound(err) {
-				return nil, fmt.Errorf("TrimRule referenced by name %q doesn't exist", rsr.TrimRefName)
-			}
-			return nil, errors.Wrapf(err, "failed to list trimRule %s from lister", rsr.TrimRefName)
+			return nil, err
 		}
 		normalized.Trim = &rule.Spec
 	}
@@ -413,8 +651,66 @@ func (r *SyncReconciler) getNormalizedResource(ctx context.Context, rsr *searchv
 	return normalized, nil
 }
 
-// buildClusterConfig creates a rest.Config object for the given cluster.
-func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
+// extractTransformRule extras transform rules from syncrule
+func (r *SyncReconciler) extractTransformRule(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.TransformRule, error) {
+	var rule searchv1beta1.TransformRule
+	if rsr.Transform != nil {
+		return nil, fmt.Errorf("specify both Transform and TransformRefName in ResourceSyncRule is not allowed")
+	}
+
+	err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TransformRefName}, &rule)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, fmt.Errorf("TransformRule referenced by name %q doesn't exist", rsr.TransformRefName)
+		}
+		return nil, errors.Wrapf(err, "failed to list transformRule %s from lister", rsr.TransformRefName)
+	}
+	return &rule, nil
+}
+
+// extractTransformRule extras trim rules from syncrule
+func (r *SyncReconciler) extractTrimRule(ctx context.Context, rsr *searchv1beta1.ResourceSyncRule) (*searchv1beta1.TrimRule, error) {
+	var rule searchv1beta1.TrimRule
+	if rsr.Trim != nil {
+		return nil, fmt.Errorf("specify both Trim and TrimRefName in ResourceSyncRule is not allowed")
+	}
+
+	err := r.client.Get(ctx, types.NamespacedName{Name: rsr.TrimRefName}, &rule)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil, fmt.Errorf("TrimRule referenced by name %q doesn't exist", rsr.TrimRefName)
+		}
+		return nil, errors.Wrapf(err, "failed to list trimRule %s from lister", rsr.TrimRefName)
+	}
+	return &rule, nil
+}
+
+// renderYamlFile render agent yaml use known parameters.
+func (r *SyncReconciler) renderYamlFile(cluster *clusterv1beta1.Cluster) (string, error) {
+	c := template.Config{
+		ClusterName:      cluster.Name,
+		Level:            cluster.Spec.Level,
+		StorageAddresses: r.storageAddresses,
+		ClusterMode:      cluster.Spec.Mode,
+		AgentImageTag:    r.agentImageTag,
+	}
+
+	agentYml, err := templateUtil.New("").Parse(string(config.AgentTpl))
+	if err != nil {
+		return "", errors.Wrap(err, "failed to parse agent yaml")
+	}
+
+	var renderedTemplate bytes.Buffer
+	err = agentYml.Execute(&renderedTemplate, c)
+	if err != nil {
+		return "", errors.Wrap(err, "failed to render agent yaml")
+	}
+
+	return renderedTemplate.String(), nil
+}
+
+// buildClusterConfigInSyncer creates a rest.Config object for the given cluster in syncer.
+func buildClusterConfigInSyncer(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 	access := cluster.Spec.Access
 	if len(access.Endpoint) == 0 {
 		return nil, fmt.Errorf("cluster %s's endpoint is empty", cluster.Name)
@@ -464,6 +760,41 @@ func buildClusterConfig(cluster *clusterv1beta1.Cluster) (*rest.Config, error) {
 		}
 	}
 	return &config, nil
+}
+
+// applyAgentYmlSecret apply agent yml
+func applyAgentYmlSecret(ctx context.Context, cli client.Client, cluster *clusterv1beta1.Cluster, content []byte) error {
+	secretName := fmt.Sprintf("%s-agent", cluster.Name)
+	newAgentSecret := &v1.Secret{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      secretName,
+			Namespace: "karpor",
+		},
+		Data: map[string][]byte{
+			"config": content,
+		},
+	}
+
+	oldAgentSecret := &v1.Secret{}
+	err := cli.Get(ctx, client.ObjectKey{
+		Name:      secretName,
+		Namespace: "karpor",
+	}, oldAgentSecret)
+	if err != nil {
+		if !apierrors.IsNotFound(err) {
+			return errors.Wrap(err, "failed to create agent secret")
+		}
+		err = cli.Create(ctx, newAgentSecret)
+		if err != nil {
+			return errors.Wrap(err, "failed to update agent secret")
+		}
+	} else if !reflect.DeepEqual(oldAgentSecret.Data, newAgentSecret.Data) {
+		err = cli.Update(ctx, newAgentSecret)
+		if err != nil {
+			return errors.Wrap(err, "failed to update agent secret")
+		}
+	}
+	return nil
 }
 
 // processWildcardResources processes wildcard resources using the singleClusterSyncManager's discoveryClient

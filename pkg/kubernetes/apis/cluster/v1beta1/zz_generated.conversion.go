@@ -297,6 +297,8 @@ func autoConvert_v1beta1_ClusterSpec_To_cluster_ClusterSpec(in *ClusterSpec, out
 	out.Description = in.Description
 	out.DisplayName = in.DisplayName
 	out.Finalized = (*bool)(unsafe.Pointer(in.Finalized))
+	out.Mode = in.Mode
+	out.Level = in.Level
 	return nil
 }
 
@@ -313,6 +315,8 @@ func autoConvert_cluster_ClusterSpec_To_v1beta1_ClusterSpec(in *cluster.ClusterS
 	out.Description = in.Description
 	out.DisplayName = in.DisplayName
 	out.Finalized = (*bool)(unsafe.Pointer(in.Finalized))
+	out.Mode = in.Mode
+	out.Level = in.Level
 	return nil
 }
 

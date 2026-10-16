@@ -104,3 +104,7 @@ type User struct {
 	Username              string `yaml:"username,omitempty"`
 	Password              string `yaml:"password,omitempty"`
 }
+
+type AgentYml struct {
+	AgentYml string `json:"agentYml"`
+}

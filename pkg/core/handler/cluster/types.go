@@ -33,9 +33,11 @@ var sortCriteriaMap = map[string]cluster.SortCriteria{
 //
 //nolint:tagliatelle
 type ClusterPayload struct {
-	ClusterDisplayName string `json:"displayName"` // ClusterDisplayName is the display name of cluster to be created
-	ClusterDescription string `json:"description"` // ClusterDescription is the description of cluster to be created
-	ClusterKubeConfig  string `json:"kubeConfig"`  // ClusterKubeConfig is the kubeconfig of cluster to be created
+	ClusterDisplayName string `json:"displayName"`  // ClusterDisplayName is the display name of cluster to be created
+	ClusterDescription string `json:"description"`  // ClusterDescription is the description of cluster to be created
+	ClusterKubeConfig  string `json:"kubeConfig"`   // ClusterKubeConfig is the kubeconfig of cluster to be created
+	ClusterMode        string `json:"clusterMode"`  // ClusterMode is the mode of cluster to be created
+	ClusterLevel       int    `json:"clusterLevel"` // clusterLevel is the scale level of cluster to be created
 }
 
 type UploadData struct {

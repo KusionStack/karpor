@@ -46,6 +46,7 @@ Karpor is a brand new Kubernetes visualization tool that focuses on search, insi
 |---------|---------|--------|---------|
 | DELETE | /rest-api/v1/cluster/{clusterName} | [delete rest API v1 cluster cluster name](#delete-rest-api-v1-cluster-cluster-name) | Delete removes a cluster resource by name. |
 | GET | /rest-api/v1/cluster/{clusterName} | [get rest API v1 cluster cluster name](#get-rest-api-v1-cluster-cluster-name) | Get returns a cluster resource by name. |
+| GET | /rest-api/v1/cluster/{clusterName}/agentYml | [get rest API v1 cluster cluster name agent yml](#get-rest-api-v1-cluster-cluster-name-agent-yml) | Get agent yaml |
 | GET | /rest-api/v1/clusters | [get rest API v1 clusters](#get-rest-api-v1-clusters) | List lists all cluster resources. |
 | POST | /rest-api/v1/cluster/{clusterName} | [post rest API v1 cluster cluster name](#post-rest-api-v1-cluster-cluster-name) | Create creates a cluster resource. |
 | POST | /rest-api/v1/cluster/config/file | [post rest API v1 cluster config file](#post-rest-api-v1-cluster-config-file) | Upload kubeConfig file for cluster |
@@ -652,6 +653,94 @@ Status: Too Many Requests
 Status: Internal Server Error
 
 ###### <span id="get-rest-api-v1-cluster-cluster-name-500-schema"></span> Schema
+   
+  
+
+
+
+### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml"></span> Get agent yaml (*GetRestAPIV1ClusterClusterNameAgentYml*)
+
+```
+GET /rest-api/v1/cluster/{clusterName}/agentYml
+```
+
+Obtain the agent yaml in secret for cluster.
+
+#### Consumes
+  * application/json
+  * text/plain
+
+#### Produces
+  * application/json
+
+#### Parameters
+
+| Name | Source | Type | Go type | Separator | Required | Default | Description |
+|------|--------|------|---------|-----------| :------: |---------|-------------|
+| clusterName | `path` | string | `string` |  | ✓ |  | The name of the cluster |
+
+#### All responses
+| Code | Status | Description | Has headers | Schema |
+|------|--------|-------------|:-----------:|--------|
+| [200](#get-rest-api-v1-cluster-cluster-name-agent-yml-200) | OK | Verification passed server version |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-200-schema) |
+| [400](#get-rest-api-v1-cluster-cluster-name-agent-yml-400) | Bad Request | Bad Request |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-400-schema) |
+| [401](#get-rest-api-v1-cluster-cluster-name-agent-yml-401) | Unauthorized | Unauthorized |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-401-schema) |
+| [404](#get-rest-api-v1-cluster-cluster-name-agent-yml-404) | Not Found | Not Found |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-404-schema) |
+| [429](#get-rest-api-v1-cluster-cluster-name-agent-yml-429) | Too Many Requests | Too Many Requests |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-429-schema) |
+| [500](#get-rest-api-v1-cluster-cluster-name-agent-yml-500) | Internal Server Error | Internal Server Error |  | [schema](#get-rest-api-v1-cluster-cluster-name-agent-yml-500-schema) |
+
+#### Responses
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-200"></span> 200 - Verification passed server version
+Status: OK
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-200-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-400"></span> 400 - Bad Request
+Status: Bad Request
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-400-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-401"></span> 401 - Unauthorized
+Status: Unauthorized
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-401-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-404"></span> 404 - Not Found
+Status: Not Found
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-404-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-429"></span> 429 - Too Many Requests
+Status: Too Many Requests
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-429-schema"></span> Schema
+   
+  
+
+
+
+##### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-500"></span> 500 - Internal Server Error
+Status: Internal Server Error
+
+###### <span id="get-rest-api-v1-cluster-cluster-name-agent-yml-500-schema"></span> Schema
    
   
 
@@ -2228,6 +2317,8 @@ Uploads a KubeConfig file for cluster, with a maximum size of 2MB.
 
 | Name | Source | Type | Go type | Separator | Required | Default | Description |
 |------|--------|------|---------|-----------| :------: |---------|-------------|
+| clusterLevel | `formData` | integer | `int64` |  | ✓ |  | cluster scale level |
+| clusterMode | `formData` | string | `string` |  | ✓ |  | cluster mode |
 | description | `formData` | string | `string` |  | ✓ |  | cluster description |
 | displayName | `formData` | string | `string` |  | ✓ |  | cluster display name |
 | file | `formData` | file | `io.ReadCloser` |  | ✓ |  | Upload file with field name 'file' |
@@ -2801,6 +2892,8 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
+| clusterLevel | integer| `int64` |  | | clusterLevel is the scale level of cluster to be created |  |
+| clusterMode | string| `string` |  | | ClusterMode is the mode of cluster to be created |  |
 | description | string| `string` |  | | ClusterDescription is the description of cluster to be created |  |
 | displayName | string| `string` |  | | ClusterDisplayName is the display name of cluster to be created |  |
 | kubeConfig | string| `string` |  | | ClusterKubeConfig is the kubeconfig of cluster to be created |  |
@@ -2924,10 +3017,16 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.</br>This count can be used to understand the overall number of problems</br>that need to be addressed. |  |
+| issuesTotal | integer| `int64` |  | | IssuesTotal is the total count of all issues found during the audit.
+This count can be used to understand the overall number of problems
+that need to be addressed. |  |
 | resourceTotal | integer| `int64` |  | | ResourceTotal is the count of unique resources audited during the scan. |  |
-| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on</br>the number and severity of issues. It provides a quantitative measure</br>of the security posture of the resources in the manifest. |  |
-| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective</br>number of occurrences. It allows for a quick overview of the distribution</br>of issues across different severity categories. |  |
+| score | number| `float64` |  | | Score represents the calculated score of the audited manifest based on
+the number and severity of issues. It provides a quantitative measure
+of the security posture of the resources in the manifest. |  |
+| severityStatistic | map of integer| `map[string]int64` |  | | SeverityStatistic is a mapping of severity levels to their respective
+number of occurrences. It allows for a quick overview of the distribution
+of issues across different severity categories. |  |
 
 
 
@@ -3010,5 +3109,8 @@ Status: Internal Server Error
 
 | Name | Type | Go type | Required | Default | Description | Example |
 |------|------|---------|:--------:| ------- |-------------|---------|
-| object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or</br>map[string]interface{}</br>children. |  |
+| object | [interface{}](#interface)| `interface{}` |  | | Object is a JSON compatible map with string, float, int, bool, []interface{}, or
+map[string]interface{}
+children. |  |
+
 

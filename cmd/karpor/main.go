@@ -19,9 +19,10 @@ package main
 import (
 	"os"
 
-	"github.com/KusionStack/karpor/cmd/karpor/app"
 	genericapiserver "k8s.io/apiserver/pkg/server"
 	"k8s.io/component-base/cli"
+
+	"github.com/KusionStack/karpor/cmd/karpor/app"
 )
 
 // @title           Karpor
@@ -33,7 +34,10 @@ func main() {
 
 	cmd := app.NewServerCommand(ctx)
 	syncCmd := app.NewSyncerCommand(ctx)
+	agentCmd := app.NewAgentCommand(ctx)
+
 	cmd.AddCommand(syncCmd)
+	cmd.AddCommand(agentCmd)
 
 	code := cli.Run(cmd)
 	os.Exit(code)

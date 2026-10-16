@@ -1,0 +1,58 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
+  name: trimrules.search.karpor.io
+spec:
+  group: search.karpor.io
+  names:
+    kind: TrimRule
+    listKind: TrimRuleList
+    plural: trimrules
+    singular: trimrule
+  scope: Cluster
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: |-
+          TrimRule defines the strategy of trimming k8s objects, which can save
+          informer memory by discarding redundant fields.
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              retain:
+                description: Retain specifies which fields should be retained after
+                  trimming.
+                properties:
+                  jsonPaths:
+                    description: |-
+                      JSONPaths specifies the path of the field to be retained.
+                      For usage, please refer to https://kubernetes.io/docs/reference/kubectl/jsonpath/
+                    items:
+                      type: string
+                    type: array
+                type: object
+            type: object
+        type: object
+    served: true
+    storage: true

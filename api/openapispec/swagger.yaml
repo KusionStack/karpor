@@ -86,6 +86,12 @@ definitions:
     type: object
   cluster.ClusterPayload:
     properties:
+      clusterLevel:
+        description: clusterLevel is the scale level of cluster to be created
+        type: integer
+      clusterMode:
+        description: ClusterMode is the mode of cluster to be created
+        type: string
       description:
         description: ClusterDescription is the description of cluster to be created
         type: string
@@ -774,6 +780,48 @@ paths:
       summary: Update updates the cluster metadata by name.
       tags:
       - cluster
+  /rest-api/v1/cluster/{clusterName}/agentYml:
+    get:
+      consumes:
+      - text/plain
+      - application/json
+      description: Obtain the agent yaml in secret for cluster.
+      parameters:
+      - description: The name of the cluster
+        in: path
+        name: clusterName
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Verification passed server version
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Not Found
+          schema:
+            type: string
+        "429":
+          description: Too Many Requests
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Get agent yaml
+      tags:
+      - cluster
   /rest-api/v1/cluster/config/file:
     post:
       consumes:
@@ -800,6 +848,16 @@ paths:
         name: description
         required: true
         type: string
+      - description: cluster mode
+        in: formData
+        name: clusterMode
+        required: true
+        type: string
+      - description: cluster scale level
+        in: formData
+        name: clusterLevel
+        required: true
+        type: integer
       produces:
       - text/plain
       responses:

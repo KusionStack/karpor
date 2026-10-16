@@ -17,21 +17,27 @@ package app
 import (
 	"context"
 
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
-	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
-	"github.com/KusionStack/karpor/pkg/syncer"
 	esclient "github.com/elastic/go-elasticsearch/v8"
 	"github.com/spf13/cobra"
 	"github.com/spf13/pflag"
 	"k8s.io/klog/v2"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
+
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/kubernetes/scheme"
+	"github.com/KusionStack/karpor/pkg/syncer"
 )
 
 type syncerOptions struct {
+	HighAvailability bool
+
 	MetricsAddr            string
 	ProbeAddr              string
 	ElasticSearchAddresses []string
+
+	ExternalEndpoint string
+	AgentImageTag    string
 }
 
 func NewSyncerOptions() *syncerOptions {
@@ -39,9 +45,13 @@ func NewSyncerOptions() *syncerOptions {
 }
 
 func (o *syncerOptions) AddFlags(fs *pflag.FlagSet) {
+	fs.BoolVar(&o.HighAvailability, "high-availability", false, "Whether to use high-availability feature.")
+
 	fs.StringVar(&o.MetricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	fs.StringVar(&o.ProbeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address.")
+	fs.StringVar(&o.ExternalEndpoint, "external-addresses", "", "The external address that expose to user cluster in pull mode.")
+	fs.StringVar(&o.AgentImageTag, "agent-image-tag", "v0.0.0", "The agent image tag.")
 }
 
 func NewSyncerCommand(ctx context.Context) *cobra.Command {
@@ -82,7 +92,7 @@ func run(ctx context.Context, options *syncerOptions) error {
 	}
 
 	//nolint:contextcheck
-	if err = syncer.NewSyncReconciler(es).SetupWithManager(mgr); err != nil {
+	if err = syncer.NewSyncReconciler(es, options.HighAvailability, options.ElasticSearchAddresses, options.ExternalEndpoint, options.AgentImageTag).SetupWithManager(mgr); err != nil {
 		log.Error(err, "unable to create resource syncer")
 		return err
 	}
