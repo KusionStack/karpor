@@ -25,3 +25,9 @@
 /src/.DS_Store
 .node
 package-lock.json
+
+# playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
