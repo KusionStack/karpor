@@ -17,6 +17,7 @@ require (
 	github.com/google/gofuzz v1.2.0
 	github.com/google/uuid v1.4.0
 	github.com/hupe1980/go-huggingface v0.0.15
+	github.com/meilisearch/meilisearch-go v0.30.0
 	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/oliveagle/jsonpath v0.0.0-20180606110733-2e52cf6e6852
 	github.com/pkg/errors v0.9.1
@@ -71,6 +72,7 @@ require (
 	github.com/Masterminds/semver/v3 v3.1.1 // indirect
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/ajg/form v1.5.1 // indirect
+	github.com/andybalholm/brotli v1.1.1 // indirect
 	github.com/antlr/antlr4/runtime/Go/antlr v1.4.10 // indirect
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/blang/semver/v4 v4.0.0 // indirect
@@ -95,6 +97,7 @@ require (
 	github.com/go-openapi/spec v0.20.11 // indirect
 	github.com/go-openapi/swag v0.22.4 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
+	github.com/golang-jwt/jwt/v4 v4.5.1 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/cel-go v0.12.6 // indirect
