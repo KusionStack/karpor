@@ -29,6 +29,7 @@ import (
 	yaml "gopkg.in/yaml.v3"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -101,8 +102,41 @@ func (c *ClusterManager) CreateCluster(
 		return nil, err
 	}
 	unstructuredCluster := &unstructured.Unstructured{Object: unstructuredMap}
-	return client.DynamicClient.Resource(clusterGVR).
+	clusterCreated, err := client.DynamicClient.Resource(clusterGVR).
 		Create(ctx, unstructuredCluster, metav1.CreateOptions{})
+
+	// Question: when use clusterapi.ClusterStatus, when use clusterv1beta1.ClusterStatus?
+	cluster := &clusterv1beta1.Cluster{}
+	err = runtime.DefaultUnstructuredConverter.FromUnstructured(clusterCreated.Object, cluster)
+	if err != nil {
+		return nil, err
+	}
+
+	cluster = cluster.DeepCopy()
+
+	validatedCondition := metav1.Condition{
+		Type:   clusterv1beta1.ValidatedCondition,
+		Status: metav1.ConditionTrue,
+		Reason: clusterv1beta1.ValidatedReason,
+	}
+	healthyCondition := metav1.Condition{
+		Type:   clusterv1beta1.ClusterHealthyCondition,
+		Status: metav1.ConditionTrue,
+		Reason: clusterv1beta1.ClusterHealthyReason,
+	}
+
+	meta.SetStatusCondition(&cluster.Status.Conditions, validatedCondition)
+	meta.SetStatusCondition(&cluster.Status.Conditions, healthyCondition)
+	cluster.Status.APIServer = restConfig.Host
+	cluster.Status.Healthy = true
+	// TODO: Set cluster.Status.Version later in reconcile
+
+	unstructuredMap, err = runtime.DefaultUnstructuredConverter.ToUnstructured(cluster)
+	if err != nil {
+		return nil, err
+	}
+	unstructuredCluster = &unstructured.Unstructured{Object: unstructuredMap}
+	return client.DynamicClient.Resource(clusterGVR).Update(ctx, unstructuredCluster, metav1.UpdateOptions{})
 }
 
 // UpdateMetadata updates cluster by name with a full payload
