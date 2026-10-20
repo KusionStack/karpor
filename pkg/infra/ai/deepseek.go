@@ -113,8 +113,11 @@ func (c *DeepseekClient) GenerateStream(ctx context.Context, prompt string) (<-c
 				if errors.Is(err, io.EOF) {
 					return
 				}
-				// Send error as a special message
-				resultChan <- "ERROR: " + err.Error()
+				// Send error as a special message, unless the consumer has gone away
+				select {
+				case resultChan <- "ERROR: " + err.Error():
+				case <-ctx.Done():
+				}
 				return
 			}
 
@@ -122,7 +125,11 @@ func (c *DeepseekClient) GenerateStream(ctx context.Context, prompt string) (<-c
 			if len(response.Choices) > 0 {
 				chunk := response.Choices[0].Delta.Content
 				if chunk != "" {
-					resultChan <- chunk
+					select {
+					case resultChan <- chunk:
+					case <-ctx.Done():
+						return
+					}
 				}
 			}
 		}
