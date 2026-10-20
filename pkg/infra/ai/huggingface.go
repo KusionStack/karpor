@@ -16,7 +16,9 @@ package ai
 
 import (
 	"context"
+	"errors"
 	"net/http"
+	"strings"
 
 	"github.com/hupe1980/go-huggingface"
 )
@@ -58,7 +60,12 @@ func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string
 		return "", err
 	}
 
-	return resp[0].GeneratedText[len(prompt):], nil
+	if len(resp) == 0 {
+		return "", errors.New("huggingface returned no generated text")
+	}
+
+	// Text-generation models usually echo the prompt at the start of generated_text; drop it only when it is there.
+	return strings.TrimPrefix(resp[0].GeneratedText, prompt), nil
 }
 
 func (c *HuggingfaceClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
