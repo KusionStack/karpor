@@ -35,7 +35,7 @@ type AIOptions struct {
 
 const (
 	defaultBackend     = "openai"
-	defaultModel       = "gpt-3.5-turbo"
+	defaultModel       = "gpt-5.6-terra"
 	defaultTemperature = 1
 	defaultTopP        = 1
 )

@@ -18,7 +18,7 @@ karpor [flags]
       --ai-auth-token string                                    The ai auth token (same as api key)
       --ai-backend string                                       The ai backend (default "openai")
       --ai-base-url string                                      The ai base url
-      --ai-model string                                         The ai model (default "gpt-3.5-turbo")
+      --ai-model string                                         The ai model (default "gpt-5.6-terra")
       --ai-temperature float32                                  The ai temperature (default 1)
       --ai-top-p float32                                        The ai top-p (default 1)
       --anonymous-auth                                          Enables anonymous requests to the secure port of the API server. Requests that are not rejected by another authentication method are treated as anonymous requests. Anonymous requests have a username of system:anonymous, and a group name of system:unauthenticated. (default true)
