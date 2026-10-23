@@ -76,17 +76,14 @@ func NewFilteredSyncResourcesInformer(client versioned.Interface, resyncPeriod t
 	)
 }
 
-// defaultInformer provides a default SharedIndexInformer implementation for SyncResources resources.
 func (f *syncResourcesInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
 	return NewFilteredSyncResourcesInformer(client, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-// Informer returns the SharedIndexInformer for SyncResources resources.
 func (f *syncResourcesInformer) Informer() cache.SharedIndexInformer {
 	return f.factory.InformerFor(&searchv1beta1.SyncResources{}, f.defaultInformer)
 }
 
-// Lister returns the SyncResourcesLister for SyncResources resources.
 func (f *syncResourcesInformer) Lister() v1beta1.SyncResourcesLister {
 	return v1beta1.NewSyncResourcesLister(f.Informer().GetIndexer())
 }
