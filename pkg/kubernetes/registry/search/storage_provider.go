@@ -19,6 +19,8 @@ package search
 import (
 	"fmt"
 
+	"github.com/KusionStack/karpor/pkg/infra/search/storage/meilisearch"
+
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
@@ -35,15 +37,16 @@ import (
 
 const (
 	elasticSearchType = "elasticsearch"
+	meiliSearchType   = "meilisearch"
 )
 
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
 
 type RESTStorageProvider struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchName      string
-	ElasticSearchPassword  string
+	SearchStorageType string
+	SearchAddresses   []string
+	SearchName        string
+	SearchPassword    string
 }
 
 // GroupName returns the group name for the REST storage provider.
@@ -105,10 +108,12 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 	switch p.SearchStorageType {
 	case elasticSearchType:
 		return elasticsearch.NewSearchStorageGetter(
-			p.ElasticSearchAddresses,
-			p.ElasticSearchName,
-			p.ElasticSearchPassword,
+			p.SearchAddresses,
+			p.SearchName,
+			p.SearchPassword,
 		), nil
+	case meiliSearchType:
+		return meilisearch.NewSearchStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	default:
 		return nil, fmt.Errorf("invalid search storage type %s", p.SearchStorageType)
 	}
@@ -118,11 +123,9 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGetter, error) {
 	switch p.SearchStorageType {
 	case elasticSearchType:
-		return elasticsearch.NewResourceStorageGetter(
-			p.ElasticSearchAddresses,
-			p.ElasticSearchName,
-			p.ElasticSearchPassword,
-		), nil
+		return elasticsearch.NewResourceStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
+	case meiliSearchType:
+		return meilisearch.NewResourceStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	default:
 		return nil, fmt.Errorf("invalid resource storage type %s", p.SearchStorageType)
 	}
@@ -133,10 +136,12 @@ func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceG
 	switch p.SearchStorageType {
 	case elasticSearchType:
 		return elasticsearch.NewResourceGroupRuleStorageGetter(
-			p.ElasticSearchAddresses,
-			p.ElasticSearchName,
-			p.ElasticSearchPassword,
+			p.SearchAddresses,
+			p.SearchName,
+			p.SearchPassword,
 		), nil
+	case meiliSearchType:
+		return meilisearch.NewResourceGroupRuleStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	default:
 		return nil, fmt.Errorf("invalid resource group rule storage type %s", p.SearchStorageType)
 	}
@@ -147,10 +152,12 @@ func (p RESTStorageProvider) GeneralStorageGetter() (storage.GeneralStorageGette
 	switch p.SearchStorageType {
 	case elasticSearchType:
 		return elasticsearch.NewGeneralStorageGetter(
-			p.ElasticSearchAddresses,
-			p.ElasticSearchName,
-			p.ElasticSearchPassword,
+			p.SearchAddresses,
+			p.SearchName,
+			p.SearchPassword,
 		), nil
+	case meiliSearchType:
+		return meilisearch.NewGeneralStorageGetter(p.SearchAddresses, p.SearchName, p.SearchPassword), nil
 	default:
 		return nil, fmt.Errorf("invalid general storage type %s", p.SearchStorageType)
 	}

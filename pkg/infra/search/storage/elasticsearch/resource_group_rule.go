@@ -36,11 +36,6 @@ const (
 	resourceGroupRuleKeyDeletedAt   = "deletedAt"
 )
 
-var (
-	ErrResourceGroupRuleNotFound = fmt.Errorf("resource group rule not found")
-	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
-)
-
 // DeleteResourceGroupRule deletes a resource group rule based on the given name.
 func (s *Storage) DeleteResourceGroupRule(ctx context.Context, name string) error {
 	// Refresh the index before searching to ensure real-time data.
@@ -75,7 +70,7 @@ func (s *Storage) GetResourceGroupRule(ctx context.Context, name string) (*entit
 	}
 
 	if resp.Hits.Total.Value == 0 {
-		return nil, ErrResourceGroupRuleNotFound
+		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 
 	res, err := storage.Map2ResourceGroupRule(resp.Hits.Hits[0].Source)
@@ -112,7 +107,7 @@ func (s *Storage) ListResourceGroupRules(ctx context.Context) ([]*entity.Resourc
 
 	// Check if the search found any resource group rules.
 	if resp.Hits.Total.Value == 0 {
-		return nil, ErrResourceGroupRuleNotFound
+		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 
 	// Initialize a slice to hold the resource group rules.
@@ -152,7 +147,7 @@ func (s *Storage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*s
 
 	// Check if the search found any resource groups.
 	if resp.Total == 0 {
-		return nil, ErrResourceGroupNotFound
+		return nil, storage.ErrResourceGroupNotFound
 	}
 
 	// Initialize a slice to hold the resource group rules.
