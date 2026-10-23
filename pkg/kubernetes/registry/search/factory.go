@@ -26,6 +26,7 @@ func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 		ElasticSearchAddresses: c.ElasticSearchAddresses,
 		ElasticSearchName:      c.ElasticSearchUsername,
 		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SQLiteDSN:              c.SQLiteDSN,
 	}
 
 	searchStorageGetter, err := storage.SearchStorageGetter()
@@ -43,6 +44,7 @@ func NewResourceStorage(c registry.ExtraConfig) (storage.ResourceStorage, error)
 		ElasticSearchAddresses: c.ElasticSearchAddresses,
 		ElasticSearchName:      c.ElasticSearchUsername,
 		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SQLiteDSN:              c.SQLiteDSN,
 	}
 
 	resourceStorageGetter, err := storage.ResourceStorageGetter()
@@ -60,6 +62,7 @@ func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupR
 		ElasticSearchAddresses: c.ElasticSearchAddresses,
 		ElasticSearchName:      c.ElasticSearchUsername,
 		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SQLiteDSN:              c.SQLiteDSN,
 	}
 
 	resourceGroupRuleStorageGetter, err := storage.ResourceGroupRuleStorageGetter()
@@ -77,6 +80,7 @@ func NewGeneralStorage(c registry.ExtraConfig) (storage.Storage, error) {
 		ElasticSearchAddresses: c.ElasticSearchAddresses,
 		ElasticSearchName:      c.ElasticSearchUsername,
 		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SQLiteDSN:              c.SQLiteDSN,
 	}
 
 	generalStorageGetter, err := storage.GeneralStorageGetter()

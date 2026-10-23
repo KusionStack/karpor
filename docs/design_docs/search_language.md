@@ -129,6 +129,32 @@ Full text query:
 SELECT * from resources WHERE content CONTAINS 'test1'
 ```
 
+## SQLite Local Storage Backend
+
+Karpor can use local SQLite storage for the server search backend by setting
+`--search-storage-type=sqlite`. The optional `--sqlite-dsn` flag selects the
+SQLite data source name; when it is empty, Karpor uses
+`file:karpor-search.db?mode=rwc`.
+
+The SQLite backend implements the shared search storage interfaces for resource
+storage, resource group rules, resource group aggregation, search, and health
+checks. It stores Kubernetes resource identity fields as indexed columns,
+persists labels and annotations as JSON, and keeps the encoded resource body in
+the `content` column.
+
+For this first storage pass, SQLite supports SQL and natural-language searches
+that resolve to SQL over `SELECT ... FROM resources`. It intentionally parses
+and compiles only an allowlisted subset instead of executing arbitrary SQL:
+`WHERE` can use `AND`, `OR`, parentheses, `=`, `!=`, comparison operators,
+`LIKE`, `NOT LIKE`, `IN`, `NOT IN`, `BETWEEN`, `NOT BETWEEN`, and
+`contains(field, 'value')`; fields include `cluster`, `apiVersion`, `kind`,
+`namespace`, `name`, `content`, `syncAt`, `deleted`, `labels.<key>`, and
+`annotations.<key>`. Queries that do not mention `deleted` automatically search
+active resources only.
+
+DSL search remains Elasticsearch-only in this pass, and ZincSearch support is
+left for future work.
+
 ## Solution Comparison
 
 | Solution | Advantages                                     | Disadvantages                                         |

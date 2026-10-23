@@ -37,8 +37,8 @@ const (
 )
 
 var (
-	ErrResourceGroupRuleNotFound = fmt.Errorf("resource group rule not found")
-	ErrResourceGroupNotFound     = fmt.Errorf("resource group not found")
+	ErrResourceGroupRuleNotFound = storage.ErrResourceGroupRuleNotFound
+	ErrResourceGroupNotFound     = storage.ErrResourceGroupNotFound
 )
 
 // DeleteResourceGroupRule deletes a resource group rule based on the given name.

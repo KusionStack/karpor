@@ -38,6 +38,7 @@ type ExtraConfig struct {
 	ElasticSearchAddresses []string
 	ElasticSearchUsername  string
 	ElasticSearchPassword  string
+	SQLiteDSN              string
 	ReadOnlyMode           bool
 	GithubBadge            bool
 	EnableRBAC             bool

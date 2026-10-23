@@ -65,6 +65,7 @@ func (s *KarporServer) InstallKubernetesServer(c *CompletedConfig) *KarporServer
 			ElasticSearchAddresses: c.ExtraConfig.ElasticSearchAddresses,
 			ElasticSearchName:      c.ExtraConfig.ElasticSearchUsername,
 			ElasticSearchPassword:  c.ExtraConfig.ElasticSearchPassword,
+			SQLiteDSN:              c.ExtraConfig.SQLiteDSN,
 		},
 		rbacrest.RESTStorageProvider{Authorizer: c.GenericConfig.Authorization.Authorizer},
 	}
