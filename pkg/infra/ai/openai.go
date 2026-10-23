@@ -51,8 +51,14 @@ func (c *OpenAIClient) Configure(cfg AIConfig) error {
 	return nil
 }
 
-func (c *OpenAIClient) Generate(ctx context.Context, prompt string) (string, error) {
-	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+// defaultTopP is the value the API uses when top_p is not sent.
+const defaultTopP = 1
+
+// newRequest builds the chat completion request. top_p is left out when it has the
+// API default, because reasoning models such as gpt-5.6-terra only accept default
+// sampling values and a request without it behaves the same on every model.
+func (c *OpenAIClient) newRequest(prompt string) openai.ChatCompletionRequest {
+	req := openai.ChatCompletionRequest{
 		Model: c.model,
 		Messages: []openai.ChatCompletionMessage{
 			{
@@ -61,8 +67,15 @@ func (c *OpenAIClient) Generate(ctx context.Context, prompt string) (string, err
 			},
 		},
 		Temperature: c.temperature,
-		TopP:        c.topP,
-	})
+	}
+	if c.topP != defaultTopP {
+		req.TopP = c.topP
+	}
+	return req
+}
+
+func (c *OpenAIClient) Generate(ctx context.Context, prompt string) (string, error) {
+	resp, err := c.client.CreateChatCompletion(ctx, c.newRequest(prompt))
 	if err != nil {
 		return "", err
 	}
@@ -75,18 +88,9 @@ func (c *OpenAIClient) Generate(ctx context.Context, prompt string) (string, err
 
 func (c *OpenAIClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
 	// Create chat completion stream with streaming enabled
-	stream, err := c.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-		Model: c.model,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: prompt,
-			},
-		},
-		Temperature: c.temperature,
-		TopP:        c.topP,
-		Stream:      true,
-	})
+	req := c.newRequest(prompt)
+	req.Stream = true
+	stream, err := c.client.CreateChatCompletionStream(ctx, req)
 	if err != nil {
 		return nil, err
 	}
