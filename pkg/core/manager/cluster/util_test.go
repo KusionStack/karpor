@@ -167,6 +167,25 @@ func TestSanitizeUnstructuredCluster(t *testing.T) {
 			},
 			expectation: require.NoError,
 		},
+		{
+			name: "ClusterWithExecConfigWithoutEnv",
+			cluster: &unstructured.Unstructured{
+				Object: map[string]interface{}{
+					"spec": map[string]interface{}{
+						"access": map[string]interface{}{
+							"credential": map[string]interface{}{
+								"execConfig": map[string]interface{}{
+									"command": "aws",
+									"env":     nil,
+								},
+							},
+						},
+					},
+					"metadata": map[string]interface{}{},
+				},
+			},
+			expectation: require.NoError,
+		},
 	}
 
 	for _, tc := range testCases {
