@@ -17,7 +17,10 @@ package cluster
 import (
 	"context"
 	"encoding/base64"
+	"encoding/pem"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 
 	"github.com/KusionStack/karpor/pkg/infra/multicluster"
@@ -107,6 +110,27 @@ func TestValidateKubeConfigFor(t *testing.T) {
 				}},
 			},
 			expectedErr: ErrMissingCertificateAuthority,
+		},
+		{
+			name: "Missing Exec Command",
+			inputConfig: &KubeConfig{
+				APIVersion: "v1",
+				Kind:       "Config",
+				Clusters: []ClusterEntry{{
+					Name:    "cluster1",
+					Cluster: Cluster{Server: "https://1.2.3.4", Insecure: true},
+				}},
+				Users: []UserEntry{{
+					Name: "user1",
+					User: User{
+						Exec: &ExecConfig{
+							APIVersion: "client.authentication.k8s.io/v1beta1",
+							Args:       []string{"eks", "get-token"},
+						},
+					},
+				}},
+			},
+			expectedErr: ErrMissingExecCommand,
 		},
 	}
 
@@ -570,6 +594,41 @@ users:
 			expectedErr: false,
 		},
 		{
+			name:            "Sanitize exec based kubeconfig",
+			plainKubeConfig: newMockExecKubeConfig(),
+			expectedSanitizedKubeConfig: `apiVersion: v1
+kind: Config
+clusters:
+    - name: eks-cluster
+      cluster:
+        server: https://127.0.0.1:6443
+        certificate-authority-data: 080a************************929b
+contexts:
+    - name: eks-context
+      context:
+        cluster: eks-cluster
+        user: eks-user
+current-context: eks-context
+users:
+    - name: eks-user
+      user:
+        exec:
+            apiVersion: client.authentication.k8s.io/v1beta1
+            command: aws
+            args:
+                - eks
+                - get-token
+                - --cluster-name
+                - eks-cluster
+            env:
+                - name: AWS_ACCESS_KEY_ID
+                  value: 85b7************************c002
+                - name: AWS_SECRET_ACCESS_KEY
+                  value: 4f93************************4ffb
+`,
+			expectedErr: false,
+		},
+		{
 			name:                 "Attempt to sanitize invalid kubeconfig",
 			plainKubeConfig:      "invalid",
 			expectedErr:          true,
@@ -648,6 +707,59 @@ func TestValidateKubeConfigWithYAML(t *testing.T) {
 	}
 }
 
+// TestValidateKubeConfigWithExec tests that ValidateKubeConfigFor
+// authenticates through the exec credential plugin of the KubeConfig user.
+func TestValidateKubeConfigWithExec(t *testing.T) {
+	const token = "exec-plugin-token"
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer "+token {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"major":"1","minor":"26","gitVersion":"v1.26.1"}`))
+	}))
+	defer server.Close()
+
+	caData := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw})
+	newConfig := func(envToken string) *KubeConfig {
+		return &KubeConfig{
+			APIVersion: "v1",
+			Kind:       "Config",
+			Clusters: []ClusterEntry{{
+				Name: "eks-cluster",
+				Cluster: Cluster{
+					Server:                   server.URL,
+					CertificateAuthorityData: base64.StdEncoding.EncodeToString(caData),
+				},
+			}},
+			Users: []UserEntry{{
+				Name: "eks-user",
+				User: User{
+					Exec: &ExecConfig{
+						APIVersion: "client.authentication.k8s.io/v1beta1",
+						Command:    "sh",
+						Args: []string{
+							"-c",
+							`printf '{"apiVersion":"client.authentication.k8s.io/v1beta1","kind":"ExecCredential","status":{"token":"%s"}}' "$EXEC_TOKEN"`,
+						},
+						Env: []ExecEnvVar{{Name: "EXEC_TOKEN", Value: envToken}},
+					},
+				},
+			}},
+		}
+	}
+
+	manager := NewClusterManager()
+
+	version, err := manager.ValidateKubeConfigFor(context.TODO(), newConfig(token))
+	require.NoError(t, err)
+	require.Equal(t, "v1.26.1", version)
+
+	_, err = manager.ValidateKubeConfigFor(context.TODO(), newConfig("wrong-token"))
+	require.ErrorIs(t, err, ErrGetServerVersion)
+}
+
 // newUnstructured creates an unstructured object with the provided details.
 func newUnstructured(apiVersion, kind, name string) *unstructured.Unstructured {
 	return &unstructured.Unstructured{
@@ -705,6 +817,41 @@ users:
   user:
     token: %s
 `, base64.StdEncoding.EncodeToString([]byte("sensitive-token-data")))
+}
+
+// newMockExecKubeConfig generates a mock kubeconfig which authenticates
+// through an exec credential plugin, such as the one exported by AWS EKS.
+func newMockExecKubeConfig() string {
+	return fmt.Sprintf(`apiVersion: v1
+kind: Config
+clusters:
+- name: eks-cluster
+  cluster:
+    server: https://127.0.0.1:6443
+    certificate-authority-data: %s
+users:
+- name: eks-user
+  user:
+    exec:
+      apiVersion: client.authentication.k8s.io/v1beta1
+      command: aws
+      args:
+      - eks
+      - get-token
+      - --cluster-name
+      - eks-cluster
+      env:
+      - name: AWS_ACCESS_KEY_ID
+        value: fake-access-key-id
+      - name: AWS_SECRET_ACCESS_KEY
+        value: fake-secret-access-key
+contexts:
+- name: eks-context
+  context:
+    cluster: eks-cluster
+    user: eks-user
+current-context: eks-context
+`, base64.StdEncoding.EncodeToString([]byte("sensitive-certificate-data")))
 }
 
 // newMockCluster is a helper function that creates a mock cluster unstructured

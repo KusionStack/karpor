@@ -360,6 +360,15 @@ func (c *ClusterManager) SanitizeKubeConfigFor(config *KubeConfig) {
 		if user.Password != "" {
 			user.Password = maskContent(user.Password)
 		}
+		if user.Exec != nil {
+			// Environment variables of the exec plugin usually carry
+			// credentials, such as AWS_SECRET_ACCESS_KEY for AWS EKS.
+			for j := range user.Exec.Env {
+				if user.Exec.Env[j].Value != "" {
+					user.Exec.Env[j].Value = maskContent(user.Exec.Env[j].Value)
+				}
+			}
+		}
 	}
 
 	// Iterate over each cluster and sanitize certificate authority data.
@@ -416,6 +425,13 @@ func (c *ClusterManager) ValidateKubeConfigFor(
 	}
 	if len(config.Users) == 0 {
 		return "", ErrMissingUserEntry
+	}
+
+	// Validate the exec credential plugin of users if present.
+	for _, userEntry := range config.Users {
+		if userEntry.User.Exec != nil && userEntry.User.Exec.Command == "" {
+			return "", ErrMissingExecCommand
+		}
 	}
 
 	// Validate cluster information including server address and certificate.

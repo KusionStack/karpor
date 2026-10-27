@@ -27,6 +27,7 @@ var (
 	ErrMissingCertificateAuthority         = errors.New("certificate-authority-data is required")
 	ErrInvalidCertificateAuthority         = errors.New("certificate-authority-data is invalid")
 	ErrClusterServerConnectivity           = errors.New("cannot connect to the cluster server")
+	ErrMissingExecCommand                  = errors.New("exec command is required")
 	ErrBuildClientConfig                   = errors.New(
 		"failed to create client config from provided KubeConfig",
 	)
@@ -98,9 +99,28 @@ type UserEntry struct {
 //
 //nolint:tagliatelle
 type User struct {
-	ClientCertificateData string `yaml:"client-certificate-data,omitempty"`
-	ClientKeyData         string `yaml:"client-key-data,omitempty"`
-	Token                 string `yaml:"token,omitempty"`
-	Username              string `yaml:"username,omitempty"`
-	Password              string `yaml:"password,omitempty"`
+	ClientCertificateData string      `yaml:"client-certificate-data,omitempty"`
+	ClientKeyData         string      `yaml:"client-key-data,omitempty"`
+	Token                 string      `yaml:"token,omitempty"`
+	Username              string      `yaml:"username,omitempty"`
+	Password              string      `yaml:"password,omitempty"`
+	Exec                  *ExecConfig `yaml:"exec,omitempty"`
+}
+
+// ExecConfig contains the exec-based credential plugin information, such as the
+// one used by AWS EKS
+type ExecConfig struct {
+	APIVersion         string       `yaml:"apiVersion,omitempty"`
+	Command            string       `yaml:"command"`
+	Args               []string     `yaml:"args,omitempty"`
+	Env                []ExecEnvVar `yaml:"env,omitempty"`
+	InstallHint        string       `yaml:"installHint,omitempty"`
+	ProvideClusterInfo bool         `yaml:"provideClusterInfo,omitempty"`
+	InteractiveMode    string       `yaml:"interactiveMode,omitempty"`
+}
+
+// ExecEnvVar represents an environment variable passed to the exec plugin
+type ExecEnvVar struct {
+	Name  string `yaml:"name"`
+	Value string `yaml:"value"`
 }

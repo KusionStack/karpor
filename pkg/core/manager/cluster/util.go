@@ -29,6 +29,8 @@ import (
 	"github.com/pkg/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/rest"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
+	clientcmdv1 "k8s.io/client-go/tools/clientcmd/api/v1"
 )
 
 // maskContent to apply MD5 hash and mask the content.
@@ -101,6 +103,10 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 			// prefer token or username/password
 			return clientConfig, nil
 		}
+		if user.Exec != nil {
+			clientConfig.ExecProvider = buildExecProvider(user.Exec)
+			return clientConfig, nil
+		}
 		if plain, err := base64.StdEncoding.DecodeString(user.ClientCertificateData); err != nil {
 			return nil, fmt.Errorf(
 				"invalid client-certificate-data for user %s: %v",
@@ -122,6 +128,34 @@ func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
 	}
 
 	return clientConfig, nil
+}
+
+// buildExecProvider converts the exec section of a KubeConfig user into the
+// exec credential plugin configuration used by client-go.
+func buildExecProvider(exec *ExecConfig) *clientcmdapi.ExecConfig {
+	env := make([]clientcmdapi.ExecEnvVar, 0, len(exec.Env))
+	for _, e := range exec.Env {
+		env = append(env, clientcmdapi.ExecEnvVar{Name: e.Name, Value: e.Value})
+	}
+
+	// Default the interactive mode in the same way as clientcmd does when
+	// loading a kubeconfig, so that the validated config matches the one used
+	// after the cluster is created.
+	defaulted := &clientcmdv1.ExecConfig{
+		APIVersion:      exec.APIVersion,
+		InteractiveMode: clientcmdv1.ExecInteractiveMode(exec.InteractiveMode),
+	}
+	clientcmdv1.SetDefaults_ExecConfig(defaulted)
+
+	return &clientcmdapi.ExecConfig{
+		Command:            exec.Command,
+		Args:               exec.Args,
+		Env:                env,
+		APIVersion:         exec.APIVersion,
+		InstallHint:        exec.InstallHint,
+		ProvideClusterInfo: exec.ProvideClusterInfo,
+		InteractiveMode:    clientcmdapi.ExecInteractiveMode(defaulted.InteractiveMode),
+	}
 }
 
 // SanitizeUnstructuredCluster masks sensitive information within a Unstructured
