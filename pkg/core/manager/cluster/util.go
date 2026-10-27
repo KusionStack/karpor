@@ -55,7 +55,7 @@ func checkEndpointConnectivity(endpoint string) error {
 
 	host := u.Host
 	if u.Port() == "" {
-		host = fmt.Sprintf("%s:443", u.Hostname()) // Kubernetes API default port is 443
+		host = net.JoinHostPort(u.Hostname(), "443") // Kubernetes API default port is 443
 	}
 
 	// Set timeout duration

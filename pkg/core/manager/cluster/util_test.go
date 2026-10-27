@@ -61,27 +61,53 @@ func (m *mockConn) Close() error {
 // TestCheckEndpointConnectivity tests the functionality of the
 // checkEndpointConnectivity function.
 func TestCheckEndpointConnectivity(t *testing.T) {
-	// Setup mock to return a mock connection and nil error for the DialTimeout
-	// call.
-	mockey.Mock(net.DialTimeout).Return(&mockConn{}, nil).Build()
+	// Setup mock to record the dialed address and return a mock connection and
+	// nil error for the DialTimeout call.
+	var dialedAddress string
+	mockey.Mock(net.DialTimeout).To(func(network, address string, timeout time.Duration) (net.Conn, error) {
+		dialedAddress = address
+		return &mockConn{}, nil
+	}).Build()
 	defer mockey.UnPatchAll()
 
 	testCases := []struct {
-		name        string
-		endpoint    string
-		expectation require.ErrorAssertionFunc
+		name            string
+		endpoint        string
+		expectedAddress string
+		expectation     require.ErrorAssertionFunc
 	}{
 		{
-			name:        "ValidEndpoint",
-			endpoint:    "https://example.com",
-			expectation: require.NoError,
+			name:            "ValidEndpoint",
+			endpoint:        "https://example.com",
+			expectedAddress: "example.com:443",
+			expectation:     require.NoError,
+		},
+		{
+			name:            "EndpointWithPort",
+			endpoint:        "https://example.com:6443",
+			expectedAddress: "example.com:6443",
+			expectation:     require.NoError,
+		},
+		{
+			name:            "IPv6Endpoint",
+			endpoint:        "https://[fd00::1]/k8s/clusters/c-xxxxx",
+			expectedAddress: "[fd00::1]:443",
+			expectation:     require.NoError,
+		},
+		{
+			name:            "IPv6EndpointWithPort",
+			endpoint:        "https://[fd00::1]:6443",
+			expectedAddress: "[fd00::1]:6443",
+			expectation:     require.NoError,
 		},
 	}
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
+			dialedAddress = ""
 			actual := checkEndpointConnectivity(tc.endpoint)
 			tc.expectation(t, actual)
+			require.Equal(t, tc.expectedAddress, dialedAddress)
 		})
 	}
 }
