@@ -36,6 +36,9 @@ const (
 	SQLFixType   = "SqlFix"
 )
 
+// defaultTopP is the value the API uses when top_p is not sent.
+const defaultTopP = 1
+
 var clients = map[string]AIProvider{
 	AzureProvider:       &AzureAIClient{},
 	HuggingFaceProvider: &HuggingfaceClient{},
