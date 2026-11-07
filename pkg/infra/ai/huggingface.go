@@ -27,6 +27,7 @@ type HuggingfaceClient struct {
 	client      *huggingface.InferenceClient
 	model       string
 	temperature float32
+	topP        float32
 }
 
 func (c *HuggingfaceClient) Configure(cfg AIConfig) error {
@@ -42,15 +43,22 @@ func (c *HuggingfaceClient) Configure(cfg AIConfig) error {
 
 	c.model = cfg.Model
 	c.temperature = cfg.Temperature
+	c.topP = cfg.TopP
 	return nil
 }
 
 func (c *HuggingfaceClient) Generate(ctx context.Context, prompt string) (string, error) {
+	params := huggingface.TextGenerationParameters{
+		Temperature: huggingface.PTR(float64(c.temperature)),
+	}
+	// top_p is only sent when strictly between 0 and 1: the Inference API rejects
+	// values outside that range and 1 is the same as no nucleus sampling at all.
+	if c.topP > 0 && c.topP < defaultTopP {
+		params.TopP = huggingface.PTR(float64(c.topP))
+	}
 	resp, err := c.client.TextGeneration(ctx, &huggingface.TextGenerationRequest{
-		Inputs: prompt,
-		Parameters: huggingface.TextGenerationParameters{
-			Temperature: huggingface.PTR(float64(c.temperature)),
-		},
+		Inputs:     prompt,
+		Parameters: params,
 		Options: huggingface.Options{
 			WaitForModel: huggingface.PTR(true),
 		},
