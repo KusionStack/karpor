@@ -26,6 +26,7 @@ type AzureAIClient struct {
 	client      *openai.Client
 	model       string
 	temperature float32
+	topP        float32
 }
 
 func (c *AzureAIClient) Configure(cfg AIConfig) error {
@@ -47,11 +48,15 @@ func (c *AzureAIClient) Configure(cfg AIConfig) error {
 	c.client = client
 	c.model = cfg.Model
 	c.temperature = cfg.Temperature
+	c.topP = cfg.TopP
 	return nil
 }
 
-func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
-	resp, err := c.client.CreateChatCompletion(ctx, openai.ChatCompletionRequest{
+// newRequest builds the chat completion request. As in the OpenAI client, top_p is
+// left out when it has the API default, so reasoning deployments that only accept
+// default sampling values keep working.
+func (c *AzureAIClient) newRequest(prompt string) openai.ChatCompletionRequest {
+	req := openai.ChatCompletionRequest{
 		Model: c.model,
 		Messages: []openai.ChatCompletionMessage{
 			{
@@ -60,7 +65,15 @@ func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, er
 			},
 		},
 		Temperature: c.temperature,
-	})
+	}
+	if c.topP != defaultTopP {
+		req.TopP = c.topP
+	}
+	return req
+}
+
+func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, error) {
+	resp, err := c.client.CreateChatCompletion(ctx, c.newRequest(prompt))
 	if err != nil {
 		return "", err
 	}
@@ -73,17 +86,9 @@ func (c *AzureAIClient) Generate(ctx context.Context, prompt string) (string, er
 
 func (c *AzureAIClient) GenerateStream(ctx context.Context, prompt string) (<-chan string, error) {
 	// Create chat completion stream with streaming enabled
-	stream, err := c.client.CreateChatCompletionStream(ctx, openai.ChatCompletionRequest{
-		Model: c.model,
-		Messages: []openai.ChatCompletionMessage{
-			{
-				Role:    openai.ChatMessageRoleUser,
-				Content: prompt,
-			},
-		},
-		Temperature: c.temperature,
-		Stream:      true,
-	})
+	req := c.newRequest(prompt)
+	req.Stream = true
+	stream, err := c.client.CreateChatCompletionStream(ctx, req)
 	if err != nil {
 		return nil, err
 	}

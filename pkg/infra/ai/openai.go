@@ -51,9 +51,6 @@ func (c *OpenAIClient) Configure(cfg AIConfig) error {
 	return nil
 }
 
-// defaultTopP is the value the API uses when top_p is not sent.
-const defaultTopP = 1
-
 // newRequest builds the chat completion request. top_p is left out when it has the
 // API default, because reasoning models such as gpt-5.6-terra only accept default
 // sampling values and a request without it behaves the same on every model.
