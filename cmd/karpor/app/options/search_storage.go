@@ -32,6 +32,7 @@ type SearchStorageOptions struct {
 	ElasticSearchAddresses []string
 	ElasticSearchUsername  string
 	ElasticSearchPassword  string
+	SQLiteDSN              string
 }
 
 func NewSearchStorageOptions() *SearchStorageOptions {
@@ -47,6 +48,7 @@ func (o *SearchStorageOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.ElasticSearchAddresses = o.ElasticSearchAddresses
 	config.ElasticSearchUsername = o.ElasticSearchUsername
 	config.ElasticSearchPassword = o.ElasticSearchPassword
+	config.SQLiteDSN = o.SQLiteDSN
 	return nil
 }
 
@@ -56,10 +58,11 @@ func (o *SearchStorageOptions) AddFlags(fs *pflag.FlagSet) {
 		return
 	}
 
-	fs.StringVar(&o.SearchStorageType, "search-storage-type", "", "The search storage type")
+	fs.StringVar(&o.SearchStorageType, "search-storage-type", "", "The search storage type: elasticsearch or sqlite")
 	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address")
 	fs.StringVar(&o.ElasticSearchUsername, "elastic-search-username", "", "The elastic search username")
 	fs.StringVar(&o.ElasticSearchPassword, "elastic-search-password", "", "The elastic search password")
+	fs.StringVar(&o.SQLiteDSN, "sqlite-dsn", "", "The SQLite data source name. Defaults to file:karpor-search.db?mode=rwc when SQLite storage is selected")
 }
 
 // MarshalJSON is custom marshalling function for masking sensitive field values

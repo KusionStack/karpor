@@ -45,7 +45,7 @@ const (
 	resourceKeyDeleted           = "deleted" // indicates whether the resource is deleted in cluster
 )
 
-var ErrNotFound = fmt.Errorf("object not found")
+var ErrNotFound = storage.ErrResourceNotFound
 
 // SaveResource stores an object in the Elasticsearch storage for the specified cluster.
 func (s *Storage) SaveResource(ctx context.Context, cluster string, obj runtime.Object) error {

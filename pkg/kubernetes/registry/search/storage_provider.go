@@ -21,6 +21,7 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	sqlitestorage "github.com/KusionStack/karpor/pkg/infra/search/storage/sqlite"
 	"github.com/KusionStack/karpor/pkg/kubernetes/apis/search"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry"
 	"github.com/KusionStack/karpor/pkg/kubernetes/registry/search/syncclusterresources"
@@ -35,6 +36,7 @@ import (
 
 const (
 	elasticSearchType = "elasticsearch"
+	sqliteType        = "sqlite"
 )
 
 var _ registry.RESTStorageProvider = &RESTStorageProvider{}
@@ -44,6 +46,7 @@ type RESTStorageProvider struct {
 	ElasticSearchAddresses []string
 	ElasticSearchName      string
 	ElasticSearchPassword  string
+	SQLiteDSN              string
 }
 
 // GroupName returns the group name for the REST storage provider.
@@ -109,6 +112,8 @@ func (p RESTStorageProvider) SearchStorageGetter() (storage.SearchStorageGetter,
 			p.ElasticSearchName,
 			p.ElasticSearchPassword,
 		), nil
+	case sqliteType:
+		return sqlitestorage.NewSearchStorageGetter(p.SQLiteDSN), nil
 	default:
 		return nil, fmt.Errorf("invalid search storage type %s", p.SearchStorageType)
 	}
@@ -123,6 +128,8 @@ func (p RESTStorageProvider) ResourceStorageGetter() (storage.ResourceStorageGet
 			p.ElasticSearchName,
 			p.ElasticSearchPassword,
 		), nil
+	case sqliteType:
+		return sqlitestorage.NewResourceStorageGetter(p.SQLiteDSN), nil
 	default:
 		return nil, fmt.Errorf("invalid resource storage type %s", p.SearchStorageType)
 	}
@@ -137,6 +144,8 @@ func (p RESTStorageProvider) ResourceGroupRuleStorageGetter() (storage.ResourceG
 			p.ElasticSearchName,
 			p.ElasticSearchPassword,
 		), nil
+	case sqliteType:
+		return sqlitestorage.NewResourceGroupRuleStorageGetter(p.SQLiteDSN), nil
 	default:
 		return nil, fmt.Errorf("invalid resource group rule storage type %s", p.SearchStorageType)
 	}
@@ -151,6 +160,8 @@ func (p RESTStorageProvider) GeneralStorageGetter() (storage.GeneralStorageGette
 			p.ElasticSearchName,
 			p.ElasticSearchPassword,
 		), nil
+	case sqliteType:
+		return sqlitestorage.NewGeneralStorageGetter(p.SQLiteDSN), nil
 	default:
 		return nil, fmt.Errorf("invalid general storage type %s", p.SearchStorageType)
 	}

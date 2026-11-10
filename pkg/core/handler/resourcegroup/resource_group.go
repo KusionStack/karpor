@@ -19,7 +19,7 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/core/handler"
 	"github.com/KusionStack/karpor/pkg/core/manager/resourcegroup"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
+	"github.com/KusionStack/karpor/pkg/infra/search/storage"
 	"github.com/KusionStack/karpor/pkg/util/ctxutil"
 	"github.com/go-chi/chi/v5"
 	"github.com/pkg/errors"
@@ -58,7 +58,7 @@ func List(resourceGroupMgr *resourcegroup.ResourceGroupManager) http.HandlerFunc
 		// Use the ResourceGroupManager to list resource groups by specified rule.
 		rgs, err := resourceGroupMgr.ListResourceGroupsBy(ctx, name)
 		if err != nil {
-			if errors.Is(err, elasticsearch.ErrResourceGroupNotFound) {
+			if errors.Is(err, storage.ErrResourceGroupNotFound) {
 				handler.NotFoundRender(ctx, w, r, err)
 			} else {
 				handler.FailureRender(ctx, w, r, err)
