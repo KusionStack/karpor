@@ -69,10 +69,10 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 			return
 		}
 
-		if searchPageSize <= 1 {
+		if searchPageSize < 1 {
 			searchPageSize = 10
 		}
-		if searchPage <= 1 {
+		if searchPage < 1 {
 			searchPage = 1
 		}
 		if searchKeyword != "" && searchQuery != "" {
