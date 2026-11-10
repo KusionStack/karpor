@@ -27,10 +27,12 @@ import (
 	clusterv1beta1 "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster/v1beta1"
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
+	yaml "gopkg.in/yaml.v3"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/client-go/dynamic"
+	"k8s.io/client-go/tools/clientcmd"
 	k8syaml "sigs.k8s.io/yaml"
 )
 
@@ -83,6 +85,8 @@ func TestGetCluster(t *testing.T) {
 
 				realSensitiveValue = getByteSliceFieldValue(cluster, "spec", "access", "credential", "x509", "privateKey")
 				require.Contains(t, realSensitiveValue, "***", "Expected the spec.access.credential.x509.privateKey to be sanitized.")
+
+				requireExecEnvSanitized(t, cluster)
 			}
 		})
 	}
@@ -108,6 +112,8 @@ func TestValidateKubeConfigFor(t *testing.T) {
 						ClientKeyData:         "",
 					},
 				}},
+				Contexts:       []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}}},
+				CurrentContext: "context1",
 			},
 			expectedErr: ErrMissingCertificateAuthority,
 		},
@@ -129,8 +135,57 @@ func TestValidateKubeConfigFor(t *testing.T) {
 						},
 					},
 				}},
+				Contexts:       []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}}},
+				CurrentContext: "context1",
 			},
 			expectedErr: ErrMissingExecCommand,
+		},
+		{
+			name: "Missing Current Context",
+			inputConfig: &KubeConfig{
+				APIVersion: "v1",
+				Kind:       "Config",
+				Clusters:   []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://1.2.3.4", Insecure: true}}},
+				Users:      []UserEntry{{Name: "user1", User: User{Token: "token"}}},
+				Contexts:   []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}}},
+			},
+			expectedErr: ErrMissingCurrentContext,
+		},
+		{
+			name: "Current Context Not Found",
+			inputConfig: &KubeConfig{
+				APIVersion:     "v1",
+				Kind:           "Config",
+				Clusters:       []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://1.2.3.4", Insecure: true}}},
+				Users:          []UserEntry{{Name: "user1", User: User{Token: "token"}}},
+				Contexts:       []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}}},
+				CurrentContext: "context2",
+			},
+			expectedErr: ErrContextNotFound,
+		},
+		{
+			name: "Cluster Of Current Context Not Found",
+			inputConfig: &KubeConfig{
+				APIVersion:     "v1",
+				Kind:           "Config",
+				Clusters:       []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://1.2.3.4", Insecure: true}}},
+				Users:          []UserEntry{{Name: "user1", User: User{Token: "token"}}},
+				Contexts:       []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster2", User: "user1"}}},
+				CurrentContext: "context1",
+			},
+			expectedErr: ErrContextClusterNotFound,
+		},
+		{
+			name: "User Of Current Context Not Found",
+			inputConfig: &KubeConfig{
+				APIVersion:     "v1",
+				Kind:           "Config",
+				Clusters:       []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://1.2.3.4", Insecure: true}}},
+				Users:          []UserEntry{{Name: "user1", User: User{Token: "token"}}},
+				Contexts:       []ContextEntry{{Name: "context1", Context: Context{Cluster: "cluster1", User: "user2"}}},
+				CurrentContext: "context1",
+			},
+			expectedErr: ErrContextUserNotFound,
 		},
 	}
 
@@ -426,6 +481,11 @@ func TestListCluster(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.NotNil(t, result)
+				for i := range result.Items {
+					realSensitiveValue, _, _ := unstructured.NestedString(result.Items[i].Object, "spec", "access", "credential", "serviceAccountToken")
+					require.Contains(t, realSensitiveValue, "***", "Expected the serviceAccountToken to be sanitized.")
+					requireExecEnvSanitized(t, &result.Items[i])
+				}
 			}
 		})
 	}
@@ -502,6 +562,11 @@ spec:
   access:
     credential:
       caBundle: sensitive-ca-bundle
+      execConfig:
+        command: aws
+        env:
+        - name: AWS_SECRET_ACCESS_KEY
+          value: e16c************************fddb
       serviceAccountToken: 0873************************bff6
       x509:
         certificate: ZmNjNCoqKioqKioqKioqKioqKioqKioqKioqKmNmMGM=
@@ -747,6 +812,8 @@ func TestValidateKubeConfigWithExec(t *testing.T) {
 					},
 				},
 			}},
+			Contexts:       []ContextEntry{{Name: "eks-context", Context: Context{Cluster: "eks-cluster", User: "eks-user"}}},
+			CurrentContext: "eks-context",
 		}
 	}
 
@@ -758,6 +825,78 @@ func TestValidateKubeConfigWithExec(t *testing.T) {
 
 	_, err = manager.ValidateKubeConfigFor(context.TODO(), newConfig("wrong-token"))
 	require.ErrorIs(t, err, ErrGetServerVersion)
+}
+
+// TestValidateKubeConfigWithMultipleContexts tests that the validation uses
+// the cluster and user of the current context, which are the ones used when
+// the cluster is created, instead of the first entries of the KubeConfig.
+func TestValidateKubeConfigWithMultipleContexts(t *testing.T) {
+	const token = "current-context-token"
+	server := httptest.NewTLSServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Authorization") != "Bearer "+token {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write([]byte(`{"major":"1","minor":"26","gitVersion":"v1.26.1"}`))
+	}))
+	defer server.Close()
+
+	caData := base64.StdEncoding.EncodeToString(
+		pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: server.Certificate().Raw}),
+	)
+	newKubeConfig := func(currentContext string) string {
+		return fmt.Sprintf(`apiVersion: v1
+kind: Config
+clusters:
+- name: other-cluster
+  cluster:
+    server: https://127.0.0.1:1
+    insecure-skip-tls-verify: true
+- name: current-cluster
+  cluster:
+    server: %s
+    certificate-authority-data: %s
+users:
+- name: other-user
+  user:
+    token: other-token
+- name: current-user
+  user:
+    token: %s
+contexts:
+- name: other-context
+  context:
+    cluster: other-cluster
+    user: other-user
+- name: current-context
+  context:
+    cluster: current-cluster
+    user: current-user
+current-context: %s
+`, server.URL, caData, token, currentContext)
+	}
+
+	manager := NewClusterManager()
+
+	version, err := manager.ValidateKubeConfigWithYAML(context.TODO(), newKubeConfig("current-context"))
+	require.NoError(t, err)
+	require.Equal(t, "v1.26.1", version)
+
+	_, err = manager.ValidateKubeConfigWithYAML(context.TODO(), newKubeConfig("other-context"))
+	require.ErrorIs(t, err, ErrClusterServerConnectivity)
+
+	// The validated client config must match the one used to create the
+	// cluster.
+	var config KubeConfig
+	require.NoError(t, yaml.Unmarshal([]byte(newKubeConfig("current-context")), &config))
+	validated, err := buildClientConfigFromKubeConfig(&config)
+	require.NoError(t, err)
+	created, err := clientcmd.RESTConfigFromKubeConfig([]byte(newKubeConfig("current-context")))
+	require.NoError(t, err)
+	require.Equal(t, created.Host, validated.Host)
+	require.Equal(t, created.BearerToken, validated.BearerToken)
+	require.Equal(t, created.CAData, validated.CAData)
 }
 
 // newUnstructured creates an unstructured object with the provided details.
@@ -876,6 +1015,15 @@ func newMockCluster(name string) *unstructured.Unstructured {
 					"privateKey":  "sensitive-private-key",
 				},
 				"caBundle": "sensitive-ca-bundle",
+				"execConfig": map[string]interface{}{
+					"command": "aws",
+					"env": []interface{}{
+						map[string]interface{}{
+							"name":  "AWS_SECRET_ACCESS_KEY",
+							"value": "sensitive-secret-access-key",
+						},
+					},
+				},
 			},
 		},
 	}
@@ -897,6 +1045,20 @@ func getByteSliceFieldValue(obj *unstructured.Unstructured, fields ...string) st
 		}
 	}
 	return ""
+}
+
+// requireExecEnvSanitized asserts that the values of the exec plugin
+// environment variables in the cluster object are sanitized.
+func requireExecEnvSanitized(t *testing.T, obj *unstructured.Unstructured) {
+	t.Helper()
+	env, found, err := unstructured.NestedSlice(obj.Object, "spec", "access", "credential", "execConfig", "env")
+	require.NoError(t, err)
+	require.True(t, found, "Expected the spec.access.credential.execConfig.env to exist.")
+	require.NotEmpty(t, env)
+	for _, envVar := range env {
+		value, _, _ := unstructured.NestedString(envVar.(map[string]interface{}), "value")
+		require.Contains(t, value, "***", "Expected the spec.access.credential.execConfig.env values to be sanitized.")
+	}
 }
 
 // mockNamespaceableResource is a mock implementation of

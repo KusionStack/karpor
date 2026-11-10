@@ -150,6 +150,10 @@ func TestBuildClientConfigFromKubeConfig(t *testing.T) {
 						},
 					},
 				},
+				Contexts: []ContextEntry{
+					{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}},
+				},
+				CurrentContext: "context1",
 			},
 			expectation: require.NoError,
 		},
@@ -203,6 +207,10 @@ func TestBuildClientConfigFromKubeConfigWithExec(t *testing.T) {
 			actual, err := buildClientConfigFromKubeConfig(&KubeConfig{
 				Clusters: []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://example.com"}}},
 				Users:    []UserEntry{{Name: "user1", User: User{Exec: tc.exec}}},
+				Contexts: []ContextEntry{
+					{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}},
+				},
+				CurrentContext: "context1",
 			})
 			require.NoError(t, err)
 			require.Equal(t, &clientcmdapi.ExecConfig{

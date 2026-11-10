@@ -28,6 +28,10 @@ var (
 	ErrInvalidCertificateAuthority         = errors.New("certificate-authority-data is invalid")
 	ErrClusterServerConnectivity           = errors.New("cannot connect to the cluster server")
 	ErrMissingExecCommand                  = errors.New("exec command is required")
+	ErrMissingCurrentContext               = errors.New("current-context is required")
+	ErrContextNotFound                     = errors.New("current-context is not found in contexts")
+	ErrContextClusterNotFound              = errors.New("cluster of the current context is not found")
+	ErrContextUserNotFound                 = errors.New("user of the current context is not found")
 	ErrBuildClientConfig                   = errors.New(
 		"failed to create client config from provided KubeConfig",
 	)

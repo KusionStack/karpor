@@ -71,60 +71,105 @@ func checkEndpointConnectivity(endpoint string) error {
 	return nil
 }
 
-// buildClientConfigFromKubeConfig generates a clientConfig from the provided
-// KubeConfig.
+// resolveCurrentContext returns the cluster and user entries referenced by the
+// current context of the provided KubeConfig, in the same way as clientcmd
+// resolves them when the cluster is created.
+func resolveCurrentContext(config *KubeConfig) (*ClusterEntry, *UserEntry, error) {
+	if config.CurrentContext == "" {
+		return nil, nil, ErrMissingCurrentContext
+	}
+
+	var current *Context
+	for i := range config.Contexts {
+		if config.Contexts[i].Name == config.CurrentContext {
+			current = &config.Contexts[i].Context
+			break
+		}
+	}
+	if current == nil {
+		return nil, nil, fmt.Errorf("%w: %s", ErrContextNotFound, config.CurrentContext)
+	}
+
+	var clusterEntry *ClusterEntry
+	for i := range config.Clusters {
+		if config.Clusters[i].Name == current.Cluster {
+			clusterEntry = &config.Clusters[i]
+			break
+		}
+	}
+	if clusterEntry == nil {
+		return nil, nil, fmt.Errorf("%w: %s", ErrContextClusterNotFound, current.Cluster)
+	}
+
+	var userEntry *UserEntry
+	for i := range config.Users {
+		if config.Users[i].Name == current.User {
+			userEntry = &config.Users[i]
+			break
+		}
+	}
+	if userEntry == nil {
+		return nil, nil, fmt.Errorf("%w: %s", ErrContextUserNotFound, current.User)
+	}
+
+	return clusterEntry, userEntry, nil
+}
+
+// buildClientConfigFromKubeConfig generates a clientConfig from the cluster and
+// user of the current context in the provided KubeConfig.
 func buildClientConfigFromKubeConfig(config *KubeConfig) (*rest.Config, error) {
+	clusterEntry, userEntry, err := resolveCurrentContext(config)
+	if err != nil {
+		return nil, err
+	}
+
 	// Create an initial rest.Config object.
 	clientConfig := &rest.Config{}
 	// Set the API server and authentication details.
-	if len(config.Clusters) > 0 {
-		cluster := config.Clusters[0].Cluster
-		clientConfig.Host = cluster.Server
-		clientConfig.Insecure = cluster.Insecure // allow insecure connection
-		if len(cluster.CertificateAuthorityData) > 0 {
-			if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
-				return nil, errors.Wrapf(
-					err,
-					"invalid certificate-authority-data for cluster %s",
-					config.Clusters[0].Name,
-				)
-			} else {
-				clientConfig.CAData = plain
-			}
+	cluster := clusterEntry.Cluster
+	clientConfig.Host = cluster.Server
+	clientConfig.Insecure = cluster.Insecure // allow insecure connection
+	if len(cluster.CertificateAuthorityData) > 0 {
+		if plain, err := base64.StdEncoding.DecodeString(cluster.CertificateAuthorityData); err != nil {
+			return nil, errors.Wrapf(
+				err,
+				"invalid certificate-authority-data for cluster %s",
+				clusterEntry.Name,
+			)
+		} else {
+			clientConfig.CAData = plain
 		}
 	}
 
-	if len(config.Users) > 0 {
-		user := config.Users[0].User
-		clientConfig.Username = user.Username
-		clientConfig.Password = user.Password
-		clientConfig.BearerToken = user.Token
-		if len(user.Token) > 0 || (len(user.Password) > 0 && len(user.Username) > 0) {
-			// prefer token or username/password
-			return clientConfig, nil
-		}
-		if user.Exec != nil {
-			clientConfig.ExecProvider = buildExecProvider(user.Exec)
-			return clientConfig, nil
-		}
-		if plain, err := base64.StdEncoding.DecodeString(user.ClientCertificateData); err != nil {
-			return nil, fmt.Errorf(
-				"invalid client-certificate-data for user %s: %v",
-				config.Users[0].Name,
-				err,
-			)
-		} else {
-			clientConfig.CertData = plain
-		}
-		if plain, err := base64.StdEncoding.DecodeString(user.ClientKeyData); err != nil {
-			return nil, fmt.Errorf(
-				"invalid client-key-data for user %s: %v",
-				config.Users[0].Name,
-				err,
-			)
-		} else {
-			clientConfig.KeyData = plain
-		}
+	user := userEntry.User
+	clientConfig.Username = user.Username
+	clientConfig.Password = user.Password
+	clientConfig.BearerToken = user.Token
+	if len(user.Token) > 0 || (len(user.Password) > 0 && len(user.Username) > 0) {
+		// prefer token or username/password
+		return clientConfig, nil
+	}
+	if user.Exec != nil {
+		clientConfig.ExecProvider = buildExecProvider(user.Exec)
+		return clientConfig, nil
+	}
+	if plain, err := base64.StdEncoding.DecodeString(user.ClientCertificateData); err != nil {
+		return nil, fmt.Errorf(
+			"invalid client-certificate-data for user %s: %v",
+			userEntry.Name,
+			err,
+		)
+	} else {
+		clientConfig.CertData = plain
+	}
+	if plain, err := base64.StdEncoding.DecodeString(user.ClientKeyData); err != nil {
+		return nil, fmt.Errorf(
+			"invalid client-key-data for user %s: %v",
+			userEntry.Name,
+			err,
+		)
+	} else {
+		clientConfig.KeyData = plain
 	}
 
 	return clientConfig, nil
@@ -182,6 +227,18 @@ func SanitizeUnstructuredCluster(
 		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["credential"].(map[string]interface{})["x509"].(map[string]interface{})["privateKey"] = []byte(
 			maskContent(x509.(map[string]interface{})["privateKey"].(string)),
 		)
+	}
+	// Environment variables of the exec plugin usually carry credentials, such
+	// as AWS_SECRET_ACCESS_KEY for AWS EKS.
+	if env, ok, _ := unstructured.NestedFieldNoCopy(sanitized.Object, "spec", "access", "credential", "execConfig", "env"); ok {
+		envVars, _ := env.([]interface{})
+		for _, envVar := range envVars {
+			if envVar, ok := envVar.(map[string]interface{}); ok {
+				if value, ok := envVar["value"].(string); ok && value != "" {
+					envVar["value"] = maskContent(value)
+				}
+			}
+		}
 	}
 	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
 		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = []byte(
