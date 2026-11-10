@@ -24,6 +24,7 @@ import (
 	"github.com/bytedance/mockey"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 )
 
 // TestMaskContent tests the correctness of the maskContent function.
@@ -149,6 +150,10 @@ func TestBuildClientConfigFromKubeConfig(t *testing.T) {
 						},
 					},
 				},
+				Contexts: []ContextEntry{
+					{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}},
+				},
+				CurrentContext: "context1",
 			},
 			expectation: require.NoError,
 		},
@@ -159,6 +164,66 @@ func TestBuildClientConfigFromKubeConfig(t *testing.T) {
 			actual, err := buildClientConfigFromKubeConfig(tc.config)
 			tc.expectation(t, err)
 			require.NotNil(t, actual)
+		})
+	}
+}
+
+// TestBuildClientConfigFromKubeConfigWithExec tests that
+// buildClientConfigFromKubeConfig converts the exec section of a KubeConfig
+// user into the exec provider of the client config.
+func TestBuildClientConfigFromKubeConfigWithExec(t *testing.T) {
+	testCases := []struct {
+		name                    string
+		exec                    *ExecConfig
+		expectedInteractiveMode clientcmdapi.ExecInteractiveMode
+	}{
+		{
+			name: "Default interactive mode for v1beta1",
+			exec: &ExecConfig{
+				APIVersion: "client.authentication.k8s.io/v1beta1",
+				Command:    "aws",
+				Args:       []string{"eks", "get-token", "--cluster-name", "cluster1"},
+				Env:        []ExecEnvVar{{Name: "AWS_ACCESS_KEY_ID", Value: "access-key-id"}},
+			},
+			expectedInteractiveMode: clientcmdapi.IfAvailableExecInteractiveMode,
+		},
+		{
+			name: "Keep explicit interactive mode",
+			exec: &ExecConfig{
+				APIVersion:         "client.authentication.k8s.io/v1",
+				Command:            "aws",
+				Args:               []string{"eks", "get-token", "--cluster-name", "cluster1"},
+				Env:                []ExecEnvVar{{Name: "AWS_ACCESS_KEY_ID", Value: "access-key-id"}},
+				InstallHint:        "install aws-cli",
+				ProvideClusterInfo: true,
+				InteractiveMode:    "Never",
+			},
+			expectedInteractiveMode: clientcmdapi.NeverExecInteractiveMode,
+		},
+	}
+
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			actual, err := buildClientConfigFromKubeConfig(&KubeConfig{
+				Clusters: []ClusterEntry{{Name: "cluster1", Cluster: Cluster{Server: "https://example.com"}}},
+				Users:    []UserEntry{{Name: "user1", User: User{Exec: tc.exec}}},
+				Contexts: []ContextEntry{
+					{Name: "context1", Context: Context{Cluster: "cluster1", User: "user1"}},
+				},
+				CurrentContext: "context1",
+			})
+			require.NoError(t, err)
+			require.Equal(t, &clientcmdapi.ExecConfig{
+				Command:            tc.exec.Command,
+				Args:               tc.exec.Args,
+				Env:                []clientcmdapi.ExecEnvVar{{Name: "AWS_ACCESS_KEY_ID", Value: "access-key-id"}},
+				APIVersion:         tc.exec.APIVersion,
+				InstallHint:        tc.exec.InstallHint,
+				ProvideClusterInfo: tc.exec.ProvideClusterInfo,
+				InteractiveMode:    tc.expectedInteractiveMode,
+			}, actual.ExecProvider)
+			require.Empty(t, actual.CertData)
+			require.Empty(t, actual.KeyData)
 		})
 	}
 }
