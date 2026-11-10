@@ -17,7 +17,6 @@ package cluster
 import (
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
 
@@ -168,11 +167,9 @@ func NewConfigFromCluster(c *cluster.Cluster) (*restclient.Config, error) {
 		if err != nil {
 			return nil, err
 		}
-		host, _, err := net.SplitHostPort(u.Host)
-		if err != nil {
-			return nil, err
-		}
-		cfg.ServerName = host // apiserver may listen on SNI cert
+		// The endpoint may omit the port, e.g. a Rancher or vCluster proxy
+		// URL like https://example.com/k8s/clusters/c-xxxxx
+		cfg.ServerName = u.Hostname() // apiserver may listen on SNI cert
 	}
 	return cfg, nil
 }
