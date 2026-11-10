@@ -37,13 +37,14 @@ type Purger interface {
 var _ Purger = (*ESPurger)(nil)
 
 // NewESPurger creates an ESPurger which implements the Purger interface.
-func NewESPurger(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource,
+func NewESPurger(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource, kind string,
 	store cache.Store, onPurge func(obj client.Object),
 ) *ESPurger {
 	return &ESPurger{
 		cluster:  cluster,
 		esClient: esClient,
 		gvr:      gvr,
+		kind:     kind,
 		onPurge:  onPurge,
 		store:    store,
 		logger:   ctrl.Log.WithName(fmt.Sprintf("%s-es-purger", gvr.Resource)),
@@ -54,6 +55,7 @@ type ESPurger struct {
 	cluster  string
 	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
+	kind     string
 	onPurge  func(obj client.Object)
 	store    cache.Store
 	logger   logr.Logger
@@ -61,8 +63,7 @@ type ESPurger struct {
 
 // Purge calls onPurge for objects that do not exist in the cache but have not been deleted in ES.
 func (e *ESPurger) Purge(ctx context.Context, syncBefore time.Time) error {
-	resource := e.gvr.Resource
-	kind := resource[0 : len(resource)-1]
+	kind := ResourceKind(e.gvr.Resource, e.kind)
 
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(

@@ -65,7 +65,7 @@ func TestESListerGetter_ListKeys(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call ListKeys method
-			esLister := NewESListerGetter("defalut", &elasticsearch.Storage{}, tc.gvr)
+			esLister := NewESListerGetter("defalut", &elasticsearch.Storage{}, tc.gvr, "")
 			keys := esLister.ListKeys()
 
 			// Check the length of returned keys
@@ -123,7 +123,7 @@ func TestESListerGetter_GetByKey(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call ListKeys method
-			esLister := NewESListerGetter("defalut", &elasticsearch.Storage{}, tc.gvr)
+			esLister := NewESListerGetter("defalut", &elasticsearch.Storage{}, tc.gvr, "")
 			value, exists, err := esLister.GetByKey("existing-namespace/default")
 
 			// Check error expectation

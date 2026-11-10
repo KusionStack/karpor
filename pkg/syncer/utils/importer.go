@@ -36,21 +36,22 @@ type ESImporter struct {
 	cluster  string
 	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
+	kind     string
 }
 
 // NewESImporter creates a new instance of the ESImporter struct with the provided Elasticsearch client, cluster name, and GroupVersionResource.
-func NewESImporter(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource) *ESImporter {
+func NewESImporter(esClient *elasticsearch.Storage, cluster string, gvr schema.GroupVersionResource, kind string) *ESImporter {
 	return &ESImporter{
 		cluster:  cluster,
 		esClient: esClient,
 		gvr:      gvr,
+		kind:     kind,
 	}
 }
 
 // ImportTo implements the Importer interface by importing data to the specified cache.Store within the given context. The method should be implemented to perform the actual data import.
 func (e *ESImporter) ImportTo(ctx context.Context, store cache.Store) error {
-	resource := e.gvr.Resource
-	kind := resource[0 : len(resource)-1]
+	kind := ResourceKind(e.gvr.Resource, e.kind)
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
 		esquery.Term("cluster", e.cluster),

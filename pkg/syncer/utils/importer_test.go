@@ -66,7 +66,7 @@ func TestImportTo(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			// Call ListKeys method
-			esImporter := NewESImporter(&elasticsearch.Storage{}, "defalut", tc.gvr)
+			esImporter := NewESImporter(&elasticsearch.Storage{}, "defalut", tc.gvr, "")
 			err := esImporter.ImportTo(context.TODO(), cache.NewResourceCache())
 
 			// Check error expectation

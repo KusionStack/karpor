@@ -35,6 +35,7 @@ func Test_genUnObj(t *testing.T) {
 	tests := []struct {
 		name string                     // Name of the test case
 		sr   v1beta1.ResourceSyncRule   // Input parameter to genUnObj
+		kind string                     // Kind reported by discovery, empty when unknown
 		key  string                     // Input parameter to genUnObj
 		want *unstructured.Unstructured // Expected result
 	}{
@@ -69,12 +70,46 @@ func Test_genUnObj(t *testing.T) {
 				return obj
 			}(),
 		},
+		{
+			name: "Kind from discovery is used instead of trimming the plural",
+			sr: v1beta1.ResourceSyncRule{
+				APIVersion: "networking.k8s.io/v1",
+				Resource:   "ingresses",
+			},
+			kind: "Ingress",
+			key:  "mynamespace/myingress",
+			want: func() *unstructured.Unstructured {
+				obj := &unstructured.Unstructured{}
+				obj.SetAPIVersion("networking.k8s.io/v1")
+				obj.SetKind("Ingress")
+				obj.SetNamespace("mynamespace")
+				obj.SetName("myingress")
+				return obj
+			}(),
+		},
+		{
+			name: "Kind equal to the plural resource name",
+			sr: v1beta1.ResourceSyncRule{
+				APIVersion: "v1",
+				Resource:   "endpoints",
+			},
+			kind: "Endpoints",
+			key:  "mynamespace/myendpoints",
+			want: func() *unstructured.Unstructured {
+				obj := &unstructured.Unstructured{}
+				obj.SetAPIVersion("v1")
+				obj.SetKind("Endpoints")
+				obj.SetNamespace("mynamespace")
+				obj.SetName("myendpoints")
+				return obj
+			}(),
+		},
 	}
 	// Iterate over the test cases
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// Call the function under test
-			un := genUnObj(tt.sr, tt.key)
+			un := genUnObj(tt.sr, tt.kind, tt.key)
 			require.Equal(t, tt.want, un, "The generated unstructured object does not match the expected value.")
 		})
 	}
