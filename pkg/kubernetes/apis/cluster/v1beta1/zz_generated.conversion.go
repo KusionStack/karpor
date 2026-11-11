@@ -26,6 +26,7 @@ import (
 	unsafe "unsafe"
 
 	cluster "github.com/KusionStack/karpor/pkg/kubernetes/apis/cluster"
+	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	conversion "k8s.io/apimachinery/pkg/conversion"
 	runtime "k8s.io/apimachinery/pkg/runtime"
 )
@@ -323,6 +324,9 @@ func Convert_cluster_ClusterSpec_To_v1beta1_ClusterSpec(in *cluster.ClusterSpec,
 
 func autoConvert_v1beta1_ClusterStatus_To_cluster_ClusterStatus(in *ClusterStatus, out *cluster.ClusterStatus, s conversion.Scope) error {
 	out.Healthy = in.Healthy
+	out.APIServer = in.APIServer
+	out.Version = in.Version
+	out.Conditions = *(*[]v1.Condition)(unsafe.Pointer(&in.Conditions))
 	return nil
 }
 
@@ -333,6 +337,9 @@ func Convert_v1beta1_ClusterStatus_To_cluster_ClusterStatus(in *ClusterStatus, o
 
 func autoConvert_cluster_ClusterStatus_To_v1beta1_ClusterStatus(in *cluster.ClusterStatus, out *ClusterStatus, s conversion.Scope) error {
 	out.Healthy = in.Healthy
+	out.APIServer = in.APIServer
+	out.Version = in.Version
+	out.Conditions = *(*[]v1.Condition)(unsafe.Pointer(&in.Conditions))
 	return nil
 }
 
