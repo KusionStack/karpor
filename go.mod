@@ -1,6 +1,6 @@
 module github.com/KusionStack/karpor
 
-go 1.22
+go 1.23.0
 
 require (
 	github.com/Masterminds/sprig/v3 v3.2.2
@@ -155,7 +155,7 @@ require (
 	golang.org/x/crypto v0.16.0 // indirect
 	golang.org/x/mod v0.14.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b // indirect
+	golang.org/x/oauth2 v0.27.0 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 	golang.org/x/term v0.15.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
