@@ -28,10 +28,10 @@ type ElasticSearchConfig struct {
 }
 
 type SearchStorageOptions struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchUsername  string
-	ElasticSearchPassword  string
+	SearchStorageType string
+	SearchAddresses   []string
+	SearchUsername    string
+	SearchPassword    string
 }
 
 func NewSearchStorageOptions() *SearchStorageOptions {
@@ -44,9 +44,9 @@ func (o *SearchStorageOptions) Validate() []error {
 
 func (o *SearchStorageOptions) ApplyTo(config *registry.ExtraConfig) error {
 	config.SearchStorageType = o.SearchStorageType
-	config.ElasticSearchAddresses = o.ElasticSearchAddresses
-	config.ElasticSearchUsername = o.ElasticSearchUsername
-	config.ElasticSearchPassword = o.ElasticSearchPassword
+	config.SearchAddresses = o.SearchAddresses
+	config.SearchUsername = o.SearchUsername
+	config.SearchPassword = o.SearchPassword
 	return nil
 }
 
@@ -57,17 +57,17 @@ func (o *SearchStorageOptions) AddFlags(fs *pflag.FlagSet) {
 	}
 
 	fs.StringVar(&o.SearchStorageType, "search-storage-type", "", "The search storage type")
-	fs.StringSliceVar(&o.ElasticSearchAddresses, "elastic-search-addresses", nil, "The elastic search address")
-	fs.StringVar(&o.ElasticSearchUsername, "elastic-search-username", "", "The elastic search username")
-	fs.StringVar(&o.ElasticSearchPassword, "elastic-search-password", "", "The elastic search password")
+	fs.StringSliceVar(&o.SearchAddresses, "search-addresses", nil, "The search address")
+	fs.StringVar(&o.SearchUsername, "search-username", "", "The search username")
+	fs.StringVar(&o.SearchPassword, "search-password", "", "The search password")
 }
 
 // MarshalJSON is custom marshalling function for masking sensitive field values
 func (o SearchStorageOptions) MarshalJSON() ([]byte, error) {
 	type tempOptions SearchStorageOptions
 	o2 := tempOptions(o)
-	if o2.ElasticSearchPassword != "" {
-		o2.ElasticSearchPassword = MaskString
+	if o2.SearchPassword != "" {
+		o2.SearchPassword = MaskString
 	}
 	return json.Marshal(&o2)
 }

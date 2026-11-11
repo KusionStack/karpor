@@ -22,10 +22,10 @@ import (
 // NewSearchStorage creates a new instance of a search storage component using the provided extra configuration.
 func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 	storage := RESTStorageProvider{
-		SearchStorageType:      c.SearchStorageType,
-		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchUsername,
-		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SearchStorageType: c.SearchStorageType,
+		SearchAddresses:   c.SearchAddresses,
+		SearchName:        c.SearchUsername,
+		SearchPassword:    c.SearchPassword,
 	}
 
 	searchStorageGetter, err := storage.SearchStorageGetter()
@@ -39,10 +39,10 @@ func NewSearchStorage(c registry.ExtraConfig) (storage.SearchStorage, error) {
 // NewResourceStorage creates a new instance of a resource storage component using the provided extra configuration.
 func NewResourceStorage(c registry.ExtraConfig) (storage.ResourceStorage, error) {
 	storage := RESTStorageProvider{
-		SearchStorageType:      c.SearchStorageType,
-		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchUsername,
-		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SearchStorageType: c.SearchStorageType,
+		SearchAddresses:   c.SearchAddresses,
+		SearchName:        c.SearchUsername,
+		SearchPassword:    c.SearchPassword,
 	}
 
 	resourceStorageGetter, err := storage.ResourceStorageGetter()
@@ -56,10 +56,10 @@ func NewResourceStorage(c registry.ExtraConfig) (storage.ResourceStorage, error)
 // NewResourceGroupRuleStorage creates a new instance of a resource group rule storage component using the provided extra configuration.
 func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupRuleStorage, error) {
 	storage := RESTStorageProvider{
-		SearchStorageType:      c.SearchStorageType,
-		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchUsername,
-		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SearchStorageType: c.SearchStorageType,
+		SearchAddresses:   c.SearchAddresses,
+		SearchName:        c.SearchUsername,
+		SearchPassword:    c.SearchPassword,
 	}
 
 	resourceGroupRuleStorageGetter, err := storage.ResourceGroupRuleStorageGetter()
@@ -73,10 +73,10 @@ func NewResourceGroupRuleStorage(c registry.ExtraConfig) (storage.ResourceGroupR
 // NewGeneralStorage creates a new instance of a general storage component using the provided extra configuration.
 func NewGeneralStorage(c registry.ExtraConfig) (storage.Storage, error) {
 	storage := RESTStorageProvider{
-		SearchStorageType:      c.SearchStorageType,
-		ElasticSearchAddresses: c.ElasticSearchAddresses,
-		ElasticSearchName:      c.ElasticSearchUsername,
-		ElasticSearchPassword:  c.ElasticSearchPassword,
+		SearchStorageType: c.SearchStorageType,
+		SearchAddresses:   c.SearchAddresses,
+		SearchName:        c.SearchUsername,
+		SearchPassword:    c.SearchPassword,
 	}
 
 	generalStorageGetter, err := storage.GeneralStorageGetter()

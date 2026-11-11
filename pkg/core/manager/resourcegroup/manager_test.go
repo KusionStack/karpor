@@ -21,7 +21,6 @@ import (
 
 	"github.com/KusionStack/karpor/pkg/core/entity"
 	"github.com/KusionStack/karpor/pkg/infra/search/storage"
-	"github.com/KusionStack/karpor/pkg/infra/search/storage/elasticsearch"
 	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -41,7 +40,7 @@ func (m *mockResourceGroupRuleStorage) GetResourceGroupRule(ctx context.Context,
 	if rule, exists := m.rules[name]; exists {
 		return rule, nil
 	}
-	return nil, elasticsearch.ErrResourceGroupRuleNotFound
+	return nil, storage.ErrResourceGroupRuleNotFound
 }
 
 func (m *mockResourceGroupRuleStorage) ListResourceGroupRules(ctx context.Context) ([]*entity.ResourceGroupRule, error) {
@@ -59,7 +58,7 @@ func (m *mockResourceGroupRuleStorage) SaveResourceGroupRule(ctx context.Context
 
 func (m *mockResourceGroupRuleStorage) DeleteResourceGroupRule(ctx context.Context, name string) error {
 	if _, exists := m.rules[name]; !exists {
-		return elasticsearch.ErrResourceGroupRuleNotFound
+		return storage.ErrResourceGroupRuleNotFound
 	}
 	delete(m.rules, name)
 	return nil
@@ -71,7 +70,7 @@ func (m *mockResourceGroupRuleStorage) CountResourceGroupRules(ctx context.Conte
 
 func (m *mockResourceGroupRuleStorage) ListResourceGroupsBy(ctx context.Context, ruleName string) (*storage.ResourceGroupResult, error) {
 	if _, exists := m.rules[ruleName]; !exists {
-		return nil, elasticsearch.ErrResourceGroupRuleNotFound
+		return nil, storage.ErrResourceGroupRuleNotFound
 	}
 	return &storage.ResourceGroupResult{
 		Groups: []*entity.ResourceGroup{
@@ -393,7 +392,7 @@ func TestResourceGroupManager_DeleteResourceGroupRule(t *testing.T) {
 				// Verify the rule was deleted
 				_, err := manager.GetResourceGroupRule(context.Background(), tt.ruleName)
 				require.Error(t, err)
-				require.ErrorIs(t, err, elasticsearch.ErrResourceGroupRuleNotFound)
+				require.ErrorIs(t, err, storage.ErrResourceGroupRuleNotFound)
 			}
 		})
 	}

@@ -34,13 +34,13 @@ type RESTStorageProvider interface {
 
 // ExtraConfig holds custom apiserver config
 type ExtraConfig struct {
-	SearchStorageType      string
-	ElasticSearchAddresses []string
-	ElasticSearchUsername  string
-	ElasticSearchPassword  string
-	ReadOnlyMode           bool
-	GithubBadge            bool
-	EnableRBAC             bool
+	SearchStorageType string
+	SearchAddresses   []string
+	SearchUsername    string
+	SearchPassword    string
+	ReadOnlyMode      bool
+	GithubBadge       bool
+	EnableRBAC        bool
 
 	// ServiceAccount configs
 	ServiceAccountIssuer        serviceaccount.TokenGenerator
