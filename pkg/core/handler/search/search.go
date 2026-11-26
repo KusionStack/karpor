@@ -69,12 +69,7 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 			return
 		}
 
-		if searchPageSize <= 1 {
-			searchPageSize = 10
-		}
-		if searchPage <= 1 {
-			searchPage = 1
-		}
+		searchPageSize, searchPage = normalizePagination(searchPageSize, searchPage)
 		if searchKeyword != "" && searchQuery != "" {
 			// TODO: Refactor to support keyword search in different search patterns (NL, DSL, etc.)
 			if searchPattern == storage.SQLPatternType {
@@ -150,4 +145,16 @@ func SearchForResource(searchMgr *search.SearchManager, aiMgr *ai.AIManager, sea
 		rt.PageSize = searchPageSize
 		handler.SuccessRender(ctx, w, r, rt)
 	}
+}
+
+// normalizePagination applies the defaults for a missing or invalid page size
+// (10) and page (1).
+func normalizePagination(pageSize, page int) (int, int) {
+	if pageSize < 1 {
+		pageSize = 10
+	}
+	if page < 1 {
+		page = 1
+	}
+	return pageSize, page
 }
