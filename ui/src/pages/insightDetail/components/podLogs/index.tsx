@@ -572,7 +572,7 @@ const PodLogs: React.FC<PodLogsProps> = ({
           <Input
             value={settings.since}
             onChange={e => handleSettingsChange({ since: e.target.value })}
-            placeholder="e.g. 1h, 2d"
+            placeholder="e.g. 5m, 1h, 48h"
             style={{ width: '100%' }}
           />
         </div>

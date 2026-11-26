@@ -19,7 +19,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math"
 	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -73,14 +75,17 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		namespace := chi.URLParam(r, "namespace")
 		name := chi.URLParam(r, "name")
 		container := r.URL.Query().Get("container")
-		since := r.URL.Query().Get("since")
-		sinceTime := r.URL.Query().Get("sinceTime")
-		timestamps := r.URL.Query().Get("timestamps") == "true"
-		tailLines := r.URL.Query().Get("tailLines")
 		download := r.URL.Query().Get("download") == "true"
 
 		if cluster == "" || namespace == "" || name == "" {
 			writeLogSSEError(w, "cluster, namespace and name are required")
+			return
+		}
+
+		// Configure log streaming options
+		opts, err := buildPodLogOptions(r.URL.Query(), download)
+		if err != nil {
+			writeLogSSEError(w, err.Error())
 			return
 		}
 
@@ -94,35 +99,6 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		clusterClient := client.ClientSet
 
 		logger.Info("Getting pod logs...", "cluster", cluster, "namespace", namespace, "pod", name, "container", container)
-
-		// Configure log streaming options
-		opts := &corev1.PodLogOptions{
-			Container:  container,
-			Follow:     !download, // Don't follow if downloading
-			Timestamps: timestamps,
-		}
-
-		// Parse and set since time
-		if since != "" {
-			duration, err := time.ParseDuration(since)
-			if err == nil {
-				opts.SinceSeconds = pointer.Int64(int64(duration.Seconds()))
-			}
-		} else if sinceTime != "" {
-			t, err := time.Parse(time.RFC3339, sinceTime)
-			if err == nil {
-				opts.SinceTime = &metav1.Time{Time: t}
-			}
-		}
-
-		// Parse and set tail lines
-		if tailLines != "" {
-			if lines, err := strconv.ParseInt(tailLines, 10, 64); err == nil {
-				opts.TailLines = pointer.Int64(lines)
-			}
-		} else if !download {
-			opts.TailLines = pointer.Int64(1000) // Default to last 1000 lines for streaming
-		}
 
 		// Get log stream from the pod
 		req := clusterClient.CoreV1().Pods(namespace).GetLogs(name, opts)
@@ -155,7 +131,7 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 		for scanner.Scan() {
 			line := scanner.Text()
 			parts := strings.SplitN(line, " ", 2)
-			if len(parts) == 2 && timestamps {
+			if len(parts) == 2 && opts.Timestamps {
 				logEntry := LogEntry{
 					Timestamp: parts[0],
 					Content:   parts[1],
@@ -184,6 +160,48 @@ func GetPodLogs(clusterMgr *cluster.ClusterManager, c *server.CompletedConfig) h
 			logger.Error(err, "Error reading log stream")
 		}
 	}
+}
+
+// buildPodLogOptions builds the pod log options from the query parameters of
+// a log request. It returns an error if since, sinceTime or tailLines is set
+// to a value that cannot be parsed, so that the filter is not silently
+// ignored.
+func buildPodLogOptions(query url.Values, download bool) (*corev1.PodLogOptions, error) {
+	opts := &corev1.PodLogOptions{
+		Container:  query.Get("container"),
+		Follow:     !download, // Don't follow if downloading
+		Timestamps: query.Get("timestamps") == "true",
+	}
+
+	// Parse and set since time
+	if since := query.Get("since"); since != "" {
+		duration, err := time.ParseDuration(since)
+		if err != nil || duration <= 0 {
+			return nil, fmt.Errorf("invalid since %q: must be a positive duration such as 30s, 5m or 2h", since)
+		}
+		// Round up so that sub-second durations are not sent as 0, which the
+		// Kubernetes API rejects.
+		opts.SinceSeconds = pointer.Int64(int64(math.Ceil(duration.Seconds())))
+	} else if sinceTime := query.Get("sinceTime"); sinceTime != "" {
+		t, err := time.Parse(time.RFC3339, sinceTime)
+		if err != nil {
+			return nil, fmt.Errorf("invalid sinceTime %q: must be an RFC3339 timestamp such as 2006-01-02T15:04:05Z", sinceTime)
+		}
+		opts.SinceTime = &metav1.Time{Time: t}
+	}
+
+	// Parse and set tail lines
+	if tailLines := query.Get("tailLines"); tailLines != "" {
+		lines, err := strconv.ParseInt(tailLines, 10, 64)
+		if err != nil || lines < 0 {
+			return nil, fmt.Errorf("invalid tailLines %q: must be a non-negative integer", tailLines)
+		}
+		opts.TailLines = pointer.Int64(lines)
+	} else if !download {
+		opts.TailLines = pointer.Int64(1000) // Default to last 1000 lines for streaming
+	}
+
+	return opts, nil
 }
 
 // writeLogSSEError writes an error message to the SSE stream
