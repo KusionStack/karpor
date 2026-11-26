@@ -75,3 +75,21 @@ func TestHuggingfaceClient_Generate(t *testing.T) {
 		})
 	}
 }
+
+func TestHuggingfaceClient_newRequestTopP(t *testing.T) {
+	tests := []struct {
+		name string
+		topP float32
+		want *float64
+	}{
+		{name: "default 1 is omitted", topP: 1},
+		{name: "unset 0 is omitted", topP: 0},
+		{name: "value below 1 is sent", topP: 0.5, want: huggingface.PTR(0.5)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			c := &HuggingfaceClient{model: "test-model", topP: tt.topP}
+			assert.Equal(t, tt.want, c.newRequest("hi").Parameters.TopP)
+		})
+	}
+}
