@@ -39,6 +39,72 @@
       left: 0;
       background: #f7faff;
     }
+
+    .node_tooltip {
+      position: absolute;
+      z-index: 5;
+      max-width: 480px;
+      min-width: 200px;
+      padding: 10px 12px;
+      pointer-events: none;
+      background: #fff;
+      border: 1px solid #f0f0f0;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+      transform: translate(-50%, -100%);
+
+      .node_tooltip_header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .node_tooltip_icon {
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+      }
+
+      .node_tooltip_name {
+        font-size: 14px;
+        font-weight: 500;
+        color: #1677ff;
+        word-break: break-all;
+      }
+
+      .node_tooltip_gvk {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.45);
+        word-break: break-all;
+      }
+
+      .node_tooltip_item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 6px;
+        font-size: 12px;
+        line-height: 20px;
+      }
+
+      .node_tooltip_label {
+        flex-shrink: 0;
+        color: rgba(0, 0, 0, 0.45);
+      }
+
+      .node_tooltip_value {
+        color: #333;
+        text-align: right;
+        word-break: break-all;
+
+        :global {
+          .ant-tag {
+            margin-inline-end: 0;
+          }
+        }
+      }
+    }
   }
 
   // Loading state styles

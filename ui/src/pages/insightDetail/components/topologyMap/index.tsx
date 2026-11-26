@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next'
 import Loading from '@/components/loading'
 import transferImg from '@/assets/transfer.png'
 import { ICON_MAP } from '@/utils/images'
+import { PodStatusCell } from '../sourceTable'
 
 import styles from './style.module.less'
 interface NodeConfig extends ModelConfig {
@@ -42,7 +43,11 @@ interface NodeModel {
   data?: {
     count?: number
     resourceGroup?: {
-      name: string
+      cluster?: string
+      apiVersion?: string
+      kind?: string
+      namespace?: string
+      name?: string
     }
   }
 }
@@ -105,37 +110,80 @@ interface OverviewTooltipProps {
     e?: IG6GraphEvent
   }
   open: boolean
+  selectedCluster?: string
 }
 
 const OverviewTooltip: React.FC<OverviewTooltipProps> = ({
   type,
   hiddenButtonInfo,
+  selectedCluster,
 }) => {
+  const { t } = useTranslation()
   const model = hiddenButtonInfo?.e?.item?.get('model') as NodeModel
-  const boxStyle: any = {
-    background: '#fff',
-    border: '1px solid #f5f5f5',
-    position: 'absolute',
-    top: hiddenButtonInfo?.y || -500,
-    left: hiddenButtonInfo?.x + 14 || -500,
-    transform: 'translate(-50%, -100%)',
-    zIndex: 5,
-    padding: '6px 12px',
-    borderRadius: 8,
-    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-  }
-
-  const itemStyle = {
-    color: '#333',
-    fontSize: 14,
-    whiteSpace: 'nowrap',
-  }
+  const resourceGroup = model?.data?.resourceGroup
+  const kind = resourceGroup?.kind || ''
+  const isResourceNode = type === 'resource'
+  // Nodes of the "All Clusters" view aggregate the same kind across every
+  // cluster, so the cluster of a single resource group would be misleading.
+  const cluster =
+    selectedCluster === 'ALL' ? t('AllClusters') : resourceGroup?.cluster
+  const fields = [
+    { label: 'Cluster', value: cluster },
+    { label: 'Namespace', value: resourceGroup?.namespace },
+    ...(isResourceNode ? [] : [{ label: 'Count', value: model?.data?.count }]),
+  ].filter(
+    item =>
+      item.value !== undefined && item.value !== null && item.value !== '',
+  )
 
   return (
-    <div style={boxStyle}>
-      <div style={itemStyle}>
-        {type === 'cluster' ? model?.label : model?.id}
+    <div
+      role="tooltip"
+      className={styles.node_tooltip}
+      style={{
+        top: hiddenButtonInfo?.y || -500,
+        left: hiddenButtonInfo?.x + 14 || -500,
+      }}
+    >
+      <div className={styles.node_tooltip_header}>
+        <img
+          alt=""
+          className={styles.node_tooltip_icon}
+          src={ICON_MAP[kind as keyof typeof ICON_MAP] || ICON_MAP.Kubernetes}
+        />
+        <div>
+          <div className={styles.node_tooltip_name}>
+            {isResourceNode
+              ? resourceGroup?.name || model?.id
+              : kind || model?.label}
+          </div>
+          <div className={styles.node_tooltip_gvk}>
+            {isResourceNode
+              ? [kind, resourceGroup?.apiVersion].filter(Boolean).join(' · ')
+              : resourceGroup?.apiVersion}
+          </div>
+        </div>
       </div>
+      {fields.map(item => (
+        <div key={item.label} className={styles.node_tooltip_item}>
+          <span className={styles.node_tooltip_label}>{item.label}</span>
+          <span className={styles.node_tooltip_value}>{item.value}</span>
+        </div>
+      ))}
+      {isResourceNode && kind === 'Pod' && (
+        <div className={styles.node_tooltip_item}>
+          <span className={styles.node_tooltip_label}>Status</span>
+          <span className={styles.node_tooltip_value}>
+            <PodStatusCell
+              // Remount per node so the live status is fetched for each pod
+              key={model?.id}
+              cluster={resourceGroup?.cluster}
+              namespace={resourceGroup?.namespace}
+              name={resourceGroup?.name}
+            />
+          </span>
+        </div>
+      )}
     </div>
   )
 }
@@ -619,6 +667,7 @@ const TopologyMap = forwardRef((props: IProps, drawRef) => {
             itemWidth={itemWidth}
             hiddenButtonInfo={hiddenButtontooltip}
             open={tooltipopen}
+            selectedCluster={selectedCluster}
           />
         ) : null}
       </div>
