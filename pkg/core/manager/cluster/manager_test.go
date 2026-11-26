@@ -80,6 +80,12 @@ func TestGetCluster(t *testing.T) {
 
 				realSensitiveValue = getByteSliceFieldValue(cluster, "spec", "access", "credential", "x509", "privateKey")
 				require.Contains(t, realSensitiveValue, "***", "Expected the spec.access.credential.x509.privateKey to be sanitized.")
+
+				env, _, _ := unstructured.NestedSlice(cluster.Object, "spec", "access", "credential", "execConfig", "env")
+				require.Len(t, env, 1, "Expected the spec.access.credential.execConfig.env to be kept.")
+				envVar := env[0].(map[string]interface{})
+				require.Equal(t, "AWS_SECRET_ACCESS_KEY", envVar["name"], "Expected the spec.access.credential.execConfig.env name to be kept.")
+				require.Contains(t, envVar["value"], "***", "Expected the spec.access.credential.execConfig.env value to be sanitized.")
 			}
 		})
 	}
@@ -478,6 +484,11 @@ spec:
   access:
     credential:
       caBundle: sensitive-ca-bundle
+      execConfig:
+        command: aws
+        env:
+        - name: AWS_SECRET_ACCESS_KEY
+          value: e16c************************fddb
       serviceAccountToken: 0873************************bff6
       x509:
         certificate: ZmNjNCoqKioqKioqKioqKioqKioqKioqKioqKmNmMGM=
@@ -727,6 +738,15 @@ func newMockCluster(name string) *unstructured.Unstructured {
 				"x509": map[string]interface{}{
 					"certificate": "sensitive-certificate",
 					"privateKey":  "sensitive-private-key",
+				},
+				"execConfig": map[string]interface{}{
+					"command": "aws",
+					"env": []interface{}{
+						map[string]interface{}{
+							"name":  "AWS_SECRET_ACCESS_KEY",
+							"value": "sensitive-secret-access-key",
+						},
+					},
 				},
 				"caBundle": "sensitive-ca-bundle",
 			},

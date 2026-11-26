@@ -149,6 +149,18 @@ func SanitizeUnstructuredCluster(
 			maskContent(x509.(map[string]interface{})["privateKey"].(string)),
 		)
 	}
+	if env, found, _ := unstructured.NestedFieldNoCopy(sanitized.Object, "spec", "access", "credential", "execConfig", "env"); found {
+		// Environment variables of the exec plugin usually carry credentials,
+		// such as AWS_SECRET_ACCESS_KEY for AWS EKS.
+		envVars, _ := env.([]interface{})
+		for _, envVar := range envVars {
+			if envVarMap, ok := envVar.(map[string]interface{}); ok {
+				if value, ok := envVarMap["value"].(string); ok && value != "" {
+					envVarMap["value"] = maskContent(value)
+				}
+			}
+		}
+	}
 	if caBundle, ok := sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"]; ok {
 		sanitized.Object["spec"].(map[string]interface{})["access"].(map[string]interface{})["caBundle"] = []byte(
 			maskContent(caBundle.(string)),
