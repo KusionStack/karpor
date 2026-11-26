@@ -11,6 +11,7 @@ import deDE from 'antd/locale/de_DE'
 import ptBR from 'antd/locale/pt_BR'
 import koKR from 'antd/locale/ko_KR'
 import hiIN from 'antd/locale/hi_IN'
+import jaJP from 'antd/locale/ja_JP'
 import { BrowserRouter } from 'react-router-dom'
 import WrappedRoutes from '@/router'
 import store from '@/store'
@@ -38,6 +39,7 @@ function App() {
     pt: ptBR,
     ko: koKR,
     hi: hiIN,
+    ja: jaJP,
   }
 
   return (
