@@ -16,6 +16,7 @@ package ai
 
 import (
 	"context"
+	"encoding/json"
 	"io"
 	"net/http"
 	"strings"
@@ -72,6 +73,48 @@ func TestHuggingfaceClient_Generate(t *testing.T) {
 			}
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, got)
+		})
+	}
+}
+
+func TestHuggingfaceClient_Generate_TopP(t *testing.T) {
+	tests := []struct {
+		name string
+		topP float32
+		want *float64
+	}{
+		{name: "default 1 is omitted", topP: 1},
+		{name: "unset 0 is omitted", topP: 0},
+		{name: "value below 1 is sent", topP: 0.5, want: huggingface.PTR(0.5)},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			var body map[string]any
+			c := &HuggingfaceClient{}
+			require.NoError(t, c.Configure(AIConfig{AuthToken: "test-token", Model: "test-model", TopP: tt.topP}))
+			c.client = huggingface.NewInferenceClient("test-token", func(o *huggingface.InferenceClientOptions) {
+				o.HTTPClient = &http.Client{Transport: roundTripFunc(func(r *http.Request) (*http.Response, error) {
+					raw, err := io.ReadAll(r.Body)
+					require.NoError(t, err)
+					require.NoError(t, json.Unmarshal(raw, &body))
+					return &http.Response{
+						StatusCode: http.StatusOK,
+						Header:     http.Header{"Content-Type": []string{"application/json"}},
+						Body:       io.NopCloser(strings.NewReader(`[{"generated_text":"hi"}]`)),
+					}, nil
+				})}
+			})
+
+			_, err := c.Generate(context.Background(), "hi")
+			require.NoError(t, err)
+
+			params, ok := body["parameters"].(map[string]any)
+			require.True(t, ok, "request has no parameters: %v", body)
+			if tt.want == nil {
+				assert.NotContains(t, params, "top_p")
+				return
+			}
+			assert.EqualValues(t, *tt.want, params["top_p"])
 		})
 	}
 }
