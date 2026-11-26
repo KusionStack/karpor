@@ -65,6 +65,10 @@ type ResourceSyncer struct {
 
 	logger logr.Logger
 
+	// kind is the Kind of the synced resource as reported by API discovery.
+	// It is empty when discovery could not resolve it.
+	kind string
+
 	transformFunc clientgocache.TransformFunc
 	startTime     time.Time
 }
@@ -191,7 +195,7 @@ func (s *ResourceSyncer) purgeStorage(ctx context.Context) {
 	}
 
 	// TODO: Use interface instead of struct
-	esPurger := utils.NewESPurger(s.storage.(*elasticsearch.Storage), s.source.Cluster(), gvr, s.source, s.OnDelete)
+	esPurger := utils.NewESPurger(s.storage.(*elasticsearch.Storage), s.source.Cluster(), gvr, s.kind, s.source, s.OnDelete)
 	if err := esPurger.Purge(ctx, s.startTime); err != nil {
 		s.logger.Error(err, "error in purging ES")
 		return
@@ -262,7 +266,7 @@ func (s *ResourceSyncer) sync(ctx context.Context, key string) error {
 		err = s.saveResource(ctx, obj)
 	} else {
 		op = "delete"
-		obj := genUnObj(s.SyncRule(), key)
+		obj := genUnObj(s.SyncRule(), s.kind, key)
 		err = s.deleteResource(ctx, obj)
 		if errors.Is(err, elasticsearch.ErrNotFound) {
 			s.logger.Error(err, "failed to sync", "key", key, "op", op)
@@ -323,11 +327,11 @@ func (s *ResourceSyncer) parseTransformer() (clientgocache.TransformFunc, error)
 	}, nil
 }
 
-// genUnObj creates a new unstructured.Unstructured object based on the ResourceSyncRule and key.
-func genUnObj(sr v1beta1.ResourceSyncRule, key string) *unstructured.Unstructured {
+// genUnObj creates a new unstructured.Unstructured object based on the ResourceSyncRule, its kind (if known) and key.
+func genUnObj(sr v1beta1.ResourceSyncRule, kind, key string) *unstructured.Unstructured {
 	obj := &unstructured.Unstructured{}
 	obj.SetAPIVersion(sr.APIVersion)
-	obj.SetKind(sr.Resource[0 : len(sr.Resource)-1])
+	obj.SetKind(utils.ResourceKind(sr.Resource, kind))
 	keys := strings.Split(key, "/")
 	if len(keys) == 1 {
 		obj.SetName(keys[0])

@@ -32,21 +32,22 @@ type ESListerGetter struct {
 	cluster  string
 	esClient *elasticsearch.Storage
 	gvr      schema.GroupVersionResource
+	kind     string
 }
 
 // NewESListerGetter creates a new instance of the ESListerGetter with the provided cluster name, Elasticsearch client, and GroupVersionResource.
-func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr schema.GroupVersionResource) *ESListerGetter {
+func NewESListerGetter(cluster string, esClient *elasticsearch.Storage, gvr schema.GroupVersionResource, kind string) *ESListerGetter {
 	return &ESListerGetter{
 		cluster:  cluster,
 		esClient: esClient,
 		gvr:      gvr,
+		kind:     kind,
 	}
 }
 
 // ListKeys returns a list of keys for the resources managed by the ESListerGetter.
 func (e *ESListerGetter) ListKeys() []string {
-	resource := e.gvr.Resource
-	kind := resource[0 : len(resource)-1]
+	kind := ResourceKind(e.gvr.Resource, e.kind)
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
 		esquery.Term("cluster", e.cluster),
@@ -88,8 +89,7 @@ func (e *ESListerGetter) GetByKey(key string) (value interface{}, exists bool, e
 		return nil, false, fmt.Errorf("invalid key:%s", key)
 	}
 
-	resource := e.gvr.Resource
-	kind := resource[0 : len(resource)-1]
+	kind := ResourceKind(e.gvr.Resource, e.kind)
 	query := make(map[string]interface{})
 	query["query"] = esquery.Bool().Must(
 		esquery.Term("cluster", e.cluster),

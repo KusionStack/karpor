@@ -274,6 +274,25 @@ func (s *singleClusterSyncManager) GVKToGVR(gvk schema.GroupVersionKind) (schema
 	return resource.Resource, nil
 }
 
+// resourceKind returns the Kind that API discovery reports for the resource of the rule,
+// or an empty string when it cannot be resolved.
+func (s *singleClusterSyncManager) resourceKind(rsr *searchv1beta1.ResourceSyncRule) string {
+	if s.discoveryClient == nil {
+		return ""
+	}
+	resources, err := s.GetAPIResources(rsr.APIVersion)
+	if err != nil {
+		s.logger.Error(err, "failed to resolve the kind of the resource", "apiVersion", rsr.APIVersion, "resource", rsr.Resource)
+		return ""
+	}
+	for _, r := range resources.APIResources {
+		if r.Name == rsr.Resource {
+			return r.Kind
+		}
+	}
+	return ""
+}
+
 func (s *singleClusterSyncManager) GetAPIResources(apiVersion string) (*metav1.APIResourceList, error) {
 	resources, err := s.discoveryClient.ServerResourcesForGroupVersion(apiVersion)
 	if err != nil {
@@ -330,6 +349,7 @@ func (s *singleClusterSyncManager) registerTmplFuncs() {
 func (s *singleClusterSyncManager) startResource(_ context.Context, gvr schema.GroupVersionResource, rsr *searchv1beta1.ResourceSyncRule) {
 	s.logger.Info("create resource syncer", "rsr", rsr)
 	syncer := NewResourceSyncer(s.clusterName, s.dynamicClient, *rsr, s.storage)
+	syncer.kind = s.resourceKind(rsr)
 	s.syncers.Store(gvr, syncer)
 	s.controller.Watch(syncer.Source(), handler.Funcs{
 		CreateFunc: func(ce event.CreateEvent, rli workqueue.RateLimitingInterface) {
