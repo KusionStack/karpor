@@ -103,12 +103,13 @@ func GetProxyHTTPClient(cfg AIConfig) *http.Transport {
 
 	return &http.Transport{
 		Proxy: func(req *http.Request) (*url.URL, error) {
-			host := req.URL.Host
+			host := req.URL.Hostname()
+			hostPort := req.URL.Host
 			// Check if host matches NoProxy list
 			for _, np := range noProxyList {
 				if np = strings.TrimSpace(np); np != "" {
 					// exact match
-					if host == np {
+					if host == np || hostPort == np {
 						klog.Infof("Skip proxy for %s: exact match in no_proxy list", host)
 						return nil, nil
 					}
